@@ -32,10 +32,10 @@ class ExamAssignmentFactory extends Factory
             'submitted_at' => null,
             'score' => null,
             'auto_score' => null,
-            'status' => 'assigned', // Statut par défaut
+            'status' => 'assigned',
             'teacher_notes' => null,
-            'security_violations' => null, // Par défaut aucune violation
-            'forced_submission' => false,  // Par défaut pas de soumission forcée
+            'security_violation' => null,
+            'forced_submission' => false,
         ];
     }
 

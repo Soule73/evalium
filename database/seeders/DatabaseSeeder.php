@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         // Exécuter les seeders dans l'ordre
         $this->call([
             RoleAndPermissionSeeder::class,
+            LevelSeeder::class,
             TestUsersSeeder::class,
             ExamSeeder::class,
         ]);

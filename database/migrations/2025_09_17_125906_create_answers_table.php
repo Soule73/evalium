@@ -19,7 +19,9 @@ return new class extends Migration
             $table->foreignId('question_id')->constrained()->onDelete('cascade');
             $table->foreignId('choice_id')->nullable()->constrained('choices')->onDelete('cascade');
             $table->text('answer_text')->nullable();
-            $table->float('score')->nullable()->default(null)->comment('Score obtenu pour cette réponse, si applicable');
+            $table->float('score')->nullable()->default(null)->comment('Note obtenu pour cette réponse, si applicable');
+            $table->text('feedback')->nullable();
+
 
             $table->timestamps();
         });
