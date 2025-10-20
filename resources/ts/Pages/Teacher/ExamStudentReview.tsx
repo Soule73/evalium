@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Section from '@/Components/Section';
 import AlertEntry from '@/Components/AlertEntry';
 import Badge from '@/Components/Badge';
+import Modal from '@/Components/Modal';
+import Textarea from '@/Components/Textarea';
 import { Exam, ExamAssignment, Answer, User, Question } from '@/types';
-import useExamResults from '@/hooks/exam/useExamResults';
-import useExamScoring from '@/hooks/exam/useExamScoring';
-import useScoreManagement from '@/hooks/exam/useScoreManagement';
 import ExamInfoSection from '@/Components/exam/ExamInfoSection';
 import QuestionRenderer from '@/Components/exam/QuestionRenderer';
 import { requiresManualGrading, getCorrectionStatus } from '@/utils/examUtils';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { Button } from '@/Components';
+import TextEntry from '@/Components/TextEntry';
+import useExamStudentReview from '@/hooks/exam/useExamStudentReview';
 
 interface Props {
     exam: Exam;
@@ -22,46 +23,24 @@ interface Props {
 }
 
 const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAnswers }) => {
-    const { assignmentStatus } = useExamResults({ exam, assignment, userAnswers });
-    const { totalPoints, calculateQuestionScore, getQuestionResult } = useExamScoring({ exam, assignment, userAnswers });
-
     const {
+        assignmentStatus,
+        totalPoints,
+        getQuestionResult,
         scores,
         calculatedTotalScore,
         percentage,
         handleScoreChange,
-        getScoresForSave
-    } = useScoreManagement({
-        questions: exam.questions || [],
-        userAnswers,
-        calculateQuestionScore,
-        totalPoints
-    });
-
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const handleSubmit = async () => {
-        setIsSubmitting(true);
-
-        try {
-            router.post(route('teacher.exams.review.save', { exam: exam.id, student: student.id }), {
-                scores: getScoresForSave()
-            }, {
-                onSuccess: () => {
-                    setIsSubmitting(false);
-                },
-                onError: (_) => {
-                    setIsSubmitting(false);
-                },
-                onFinish: () => {
-                    setIsSubmitting(false);
-                }
-            });
-        } catch (error) {
-            console.error('Erreur lors de la sauvegarde:', error);
-            setIsSubmitting(false);
-        }
-    };
+        isSubmitting,
+        showConfirmModal,
+        teacherNotes,
+        setTeacherNotes,
+        feedbacks,
+        handleFeedbackChange,
+        handleSubmit,
+        handleConfirmSubmit,
+        handleCancelSubmit
+    } = useExamStudentReview({ exam, assignment, userAnswers, student });
 
     const renderScoreInput = (question: Question) => {
         const questionScore = scores[question.id] || 0;
@@ -69,7 +48,7 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
         const isAutoGraded = !requiresManualGrading(question);
 
         return (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
                         <label className="text-sm font-medium text-gray-700">
@@ -77,7 +56,7 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
                         </label>
                         {isAutoGraded && (
                             <p className="text-xs text-blue-600 mt-1">
-                                Score calculé automatiquement - modifiable si nécessaire
+                                Note calculé automatiquement - modifiable si nécessaire
                             </p>
                         )}
                         {!isAutoGraded && (
@@ -98,6 +77,19 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
                         />
                         <span className="text-sm text-gray-500">/ {maxScore}</span>
                     </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Commentaire pour cette question:
+                    </label>
+                    <Textarea
+                        value={feedbacks[question.id] || ''}
+                        onChange={(e) => handleFeedbackChange(question.id, e.target.value)}
+                        placeholder="Ajoutez vos commentaires pour cette réponse..."
+                        className="w-full"
+                        rows={3}
+                    />
                 </div>
             </div>
         );
@@ -144,11 +136,11 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
                     isReviewMode={true}
                 />
 
-                <AlertEntry title="Mode correction" type="info">
+                <AlertEntry title="Note" type="info">
                     <p className="text-sm">
-                        Vous pouvez modifier les notes de chaque question. Les questions à choix multiples, uniques et booléennes sont
-                        <strong> automatiquement corrigées</strong> selon la logique de correction, mais vous pouvez ajuster les notes
-                        si nécessaire. Les questions de type texte nécessitent une <strong>correction manuelle</strong>.
+                        Les QCM sont
+                        <strong> automatiquement corrigées</strong> mais vous pouvez ajuster les notes
+                        si nécessaire.
                     </p>
                 </AlertEntry>
             </Section>
@@ -166,27 +158,77 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
                 <div className="mt-8 p-6 bg-blue-50 rounded-lg">
                     <h3 className="text-lg font-medium text-blue-900 mb-4">Résumé de la correction</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <span className="text-sm text-blue-600">Score total:</span>
-                            <div className="text-xl font-bold text-blue-900">
-                                {calculatedTotalScore} / {totalPoints}
-                            </div>
-                        </div>
-                        <div>
-                            <span className="text-sm text-blue-600">Pourcentage:</span>
-                            <div className="text-xl font-bold text-blue-900">
-                                {percentage}%
-                            </div>
-                        </div>
-                        <div>
-                            <span className="text-sm text-blue-600">Statut:</span>
-                            <div className="text-xl font-bold text-blue-900">
-                                {getCorrectionStatus(calculatedTotalScore)}
-                            </div>
-                        </div>
+                        <TextEntry
+                            labelClass=' !text-blue-900'
+                            valueClass='!text-blue-600'
+                            label="Note total"
+                            value={`${calculatedTotalScore} / ${totalPoints}`} />
+                        <TextEntry
+                            labelClass=' !text-blue-900'
+                            valueClass='!text-blue-600'
+                            label="Pourcentage"
+                            value={`${percentage}%`} />
+                        <TextEntry
+                            labelClass=' !text-blue-900'
+                            valueClass='!text-blue-600'
+                            label="Statut"
+                            value={getCorrectionStatus(calculatedTotalScore)} />
                     </div>
                 </div>
             </Section>
+
+            <Modal
+                isOpen={showConfirmModal}
+                onClose={handleCancelSubmit}
+                size="lg"
+                isCloseableInside={false}
+            >
+                <div className="space-y-6">
+                    <div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                            Confirmer la sauvegarde des notes
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                            Vous êtes sur le point de sauvegarder les notes pour l'examen de <strong>{student.name}</strong>.
+                        </p>
+                    </div>
+
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className="text-sm text-gray-700">
+                            <strong>Note total :</strong> {calculatedTotalScore} / {totalPoints} ({percentage}%)
+                        </div>
+                    </div>
+
+                    <Textarea
+                        label="Notes du professeur (optionnel)"
+                        placeholder="Ajoutez vos commentaires ou observations sur cette copie..."
+                        value={teacherNotes}
+                        onChange={(e) => setTeacherNotes(e.target.value)}
+                        rows={4}
+                        helperText="Ces notes seront visibles par l'étudiant avec ses résultats."
+                    />
+
+                    <div className="flex justify-end space-x-3">
+                        <Button
+                            color="secondary"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCancelSubmit}
+                            disabled={isSubmitting}
+                        >
+                            Annuler
+                        </Button>
+                        <Button
+                            color="primary"
+                            size="sm"
+                            onClick={handleConfirmSubmit}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? 'Sauvegarde...' : 'Confirmer et sauvegarder'}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 };

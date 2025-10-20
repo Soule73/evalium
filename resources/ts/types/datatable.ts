@@ -96,6 +96,10 @@ export interface DataTableConfig<T> {
     };
     searchPlaceholder?: string;
     perPageOptions?: number[];
+    enableSelection?: boolean;
+    maxSelectable?: number;
+    isSelectable?: (item: T) => boolean;
+    selectionActions?: (selectedIds: (number | string)[]) => ReactNode;
 }
 
 export interface DataTableState {
@@ -109,6 +113,7 @@ export interface DataTableProps<T> {
     data: PaginationType<T>;
     config: DataTableConfig<T>;
     onStateChange?: (state: DataTableState) => void;
+    onSelectionChange?: (selectedIds: (number | string)[]) => void;
     isLoading?: boolean;
     className?: string;
 }

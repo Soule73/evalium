@@ -4,16 +4,23 @@ import { useDataTable } from './useDataTable';
 import { DataTableFilters } from './DataTableFilters';
 import { DataTablePagination } from './DataTablePagination';
 import { EmptyState } from './EmptyState';
+import { BulkActions } from './BulkActions';
+import { Checkbox } from '@/Components/form/Input';
 
-export function DataTable<T>({
+export function DataTable<T extends { id: number | string }>({
     data,
     config,
     onStateChange,
+    onSelectionChange,
     isLoading = false,
     className = ''
 }: DataTableProps<T>) {
     const [initialized, setInitialized] = React.useState(false);
-    const { state, actions, isNavigating } = useDataTable(data);
+    const { state, actions, isNavigating, selection } = useDataTable(data, {
+        enableSelection: config.enableSelection,
+        maxSelectable: config.maxSelectable,
+        isSelectable: config.isSelectable
+    });
 
     useEffect(() => {
         if (!initialized) {
@@ -52,6 +59,10 @@ export function DataTable<T>({
         onStateChange?.(state);
     }, [state, onStateChange]);
 
+    useEffect(() => {
+        onSelectionChange?.(actions.getSelectedItems());
+    }, [selection.selectedItems, onSelectionChange, actions]);
+
     const hasActiveFilters = state.search || Object.values(state.filters).some(v => v);
     const isEmpty = data.data.length === 0;
     const showEmptyState = isEmpty && !isLoading;
@@ -60,6 +71,21 @@ export function DataTable<T>({
     const renderTableHeader = () => (
         <thead className="bg-gray-50">
             <tr>
+                {config.enableSelection && (
+                    <th className="px-6 py-3 text-left w-12">
+                        <Checkbox
+                            checked={selection.allItemsOnPageSelected}
+                            ref={(el) => {
+                                if (el) {
+                                    el.indeterminate = selection.someItemsOnPageSelected;
+                                }
+                            }}
+                            onChange={actions.toggleAllOnPage}
+                            className="cursor-pointer"
+                            aria-label="Sélectionner tout"
+                        />
+                    </th>
+                )}
                 {config.columns.map((column) => (
                     <th
                         key={column.key}
@@ -74,24 +100,39 @@ export function DataTable<T>({
 
     const renderTableBody = () => (
         <tbody className="bg-white divide-y divide-gray-200">
-            {data.data.map((item, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                    {config.columns.map((column) => (
-                        <td
-                            key={column.key}
-                            className={`px-6 py-4 whitespace-nowrap ${column.className || ''}`}
-                        >
-                            {column.render ? (
-                                column.render(item, index)
-                            ) : (
-                                <span className="text-sm text-gray-900">
-                                    {String((item as any)[column.key] || '')}
-                                </span>
-                            )}
-                        </td>
-                    ))}
-                </tr>
-            ))}
+            {data.data.map((item, index) => {
+                const isItemSelectable = !config.isSelectable || config.isSelectable(item);
+
+                return (
+                    <tr key={index} className="hover:bg-gray-50">
+                        {config.enableSelection && (
+                            <td className="px-6 py-4 whitespace-nowrap w-12">
+                                <Checkbox
+                                    checked={actions.isItemSelected(item.id)}
+                                    onChange={() => actions.toggleItem(item.id)}
+                                    disabled={!isItemSelectable}
+                                    className={isItemSelectable ? "cursor-pointer" : "cursor-not-allowed opacity-50"}
+                                    aria-label={`Sélectionner l'élément ${item.id}`}
+                                />
+                            </td>
+                        )}
+                        {config.columns.map((column) => (
+                            <td
+                                key={column.key}
+                                className={`px-6 py-4 whitespace-nowrap ${column.className || ''}`}
+                            >
+                                {column.render ? (
+                                    column.render(item, index)
+                                ) : (
+                                    <span className="text-sm text-gray-900">
+                                        {String((item as any)[column.key] || '')}
+                                    </span>
+                                )}
+                            </td>
+                        ))}
+                    </tr>
+                );
+            })}
         </tbody>
     );
 
@@ -147,13 +188,22 @@ export function DataTable<T>({
                 />
             )}
 
+            {config.enableSelection && selection.selectedCount > 0 && (
+                <BulkActions
+                    selectedCount={selection.selectedCount}
+                    onDeselectAll={actions.deselectAll}
+                >
+                    {config.selectionActions?.(actions.getSelectedItems())}
+                </BulkActions>
+            )}
+
             <div className="relative">
                 {renderLoadingOverlay()}
 
                 {showEmptyState ? (
                     renderEmptyState()
                 ) : (
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto custom-scrollbar">
                         <table className="min-w-full divide-y divide-gray-200">
                             {renderTableHeader()}
                             {renderTableBody()}

@@ -1,8 +1,9 @@
 import React from 'react';
-import { formatDate, formatDuration } from '@/utils/formatters';
+import { formatDate, formatDuration, getAssignmentBadgeLabel, securityViolationLabel } from '@/utils/formatters';
 import TextEntry from '@/Components/TextEntry';
 import { Exam, ExamAssignment, User } from '@/types';
 import { formatExamScore } from '@/utils/examUtils';
+import AlertEntry from '../AlertEntry';
 
 interface ExamInfoSectionProps {
     exam: Exam;
@@ -82,11 +83,11 @@ const ExamInfoSection: React.FC<ExamInfoSectionProps> = ({
                 <TextEntry label="Durée" value={formatDuration(exam?.duration)} />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3 border-t border-gray-300 pt-4 pb-4 mt-4">
                 <TextEntry
                     label={
                         isReviewMode
-                            ? "Score calculé"
+                            ? "Note attribuée"
                             : isPendingReview
                                 ? "Note (en attente)"
                                 : isStudentView
@@ -110,9 +111,21 @@ const ExamInfoSection: React.FC<ExamInfoSectionProps> = ({
                             ? `${exam.questions?.length || 0} questions`
                             : isStudentView
                                 ? (isPendingReview ? "En attente de correction" : "Terminé")
-                                : assignment.status
+                                : getAssignmentBadgeLabel(assignment.status)
                     }
                 />
+
+                {assignment.forced_submission && (
+                    <AlertEntry title="Soumission Automatique" type="error" className="md:col-span-3">
+                        <p className="text-sm">
+                            Cet examen a été soumis automatiquement
+                        </p>
+                        <p className="text-sm">
+                            Violation détectée : {securityViolationLabel(assignment.security_violation)}
+                        </p>
+                    </AlertEntry>
+                )}
+
             </div>
         </>
     );

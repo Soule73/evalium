@@ -11,6 +11,7 @@ import AlertEntry from '@/Components/AlertEntry';
 import Section from '@/Components/Section';
 import { formatTime } from '@/utils';
 import ConfirmationModal from '@/Components/ConfirmationModal';
+// import MathEditorTest from '@/Components/form/MathEditorTest';
 
 interface TakeExamProps {
     exam: Exam;
@@ -31,7 +32,6 @@ export default function TakeExam({ exam, assignment, questions = [], userAnswers
         processing,
         handleAnswerChange,
         handleSubmit,
-        autoSave,
         examTerminated,
         terminationReason,
         showFullscreenModal,
@@ -48,11 +48,14 @@ export default function TakeExam({ exam, assignment, questions = [], userAnswers
         );
     }
 
-    if (assignment.submitted_at) {
+    if (assignment.submitted_at || assignment.status === 'pending_review') {
         return (
             <CanNotTakeExam
                 title="Examen Terminé"
-                message="Vous avez déjà terminé cet examen."
+                message={assignment.status === 'pending_review' ?
+                    "Votre examen a été soumis et est en cours de révision." :
+                    "Vous avez déjà terminé cet examen."
+                }
                 icon={<ExclamationCircleIcon className="h-12 w-12 text-yellow-500 mx-auto mb-4" />}
             />
         );
@@ -76,7 +79,7 @@ export default function TakeExam({ exam, assignment, questions = [], userAnswers
         <div className="bg-gray-50 min-h-screen">
             <Head title={`Examen - ${exam.title}`} />
 
-            <div className="bg-white py-4 border-b border-gray-200 fixed w-full z-10 top-0">
+            <div className="bg-white py-4 border-b border-gray-200 fixed w-full z-[1] top-0">
                 <div className="container mx-auto flex justify-between items-center">
                     <TextEntry
                         className=' text-start'
@@ -124,7 +127,7 @@ export default function TakeExam({ exam, assignment, questions = [], userAnswers
                             </p>
                         </AlertEntry>
                     </Section>
-
+                    {/* <MathEditorTest /> */}
                     {examCanStart && questions.length > 0 && (
                         questions.map((currentQ) => (
                             <TakeQuestion
@@ -147,17 +150,6 @@ export default function TakeExam({ exam, assignment, questions = [], userAnswers
                         </Section>
                     )}
                 </div>
-            </div>
-
-            {/* Informations de sécurité et sauvegarde */}
-            <div className="fixed bottom-4 right-4 text-sm text-gray-600 bg-white px-3 py-2 rounded shadow">
-                {autoSave.isSaving && <span>Sauvegarde automatique en cours...</span>}
-                {autoSave.lastSaved && (
-                    <span>Dernière sauvegarde: {autoSave.lastSaved.toLocaleTimeString()}</span>
-                )}
-                {!autoSave.lastSaved && !autoSave.isSaving && (
-                    <span>Auto-sauvegarde activée</span>
-                )}
             </div>
 
             <ConfirmationModal
@@ -184,49 +176,6 @@ export default function TakeExam({ exam, assignment, questions = [], userAnswers
         </div>
     );
 }
-
-// interface ConfirmModalProps {
-//     isOpen: boolean;
-//     onClose: () => void;
-//     onConfirm: () => void;
-//     isSubmitting: boolean;
-// }
-
-// function ConfirmModal({ isOpen, onClose, onConfirm, isSubmitting }: ConfirmModalProps) {
-//     return (
-//         <Modal isOpen={isOpen} onClose={onClose}
-//         >
-//             <div className=' min-h-72 flex flex-col items-center justify-between p-6'>
-//                 <QuestionMarkCircleIcon className="h-12 w-12 text-blue-500 mx-auto mb-4" />
-//                 <h3 className="text-lg font-bold mb-4">Confirmer la soumission</h3>
-//                 <p className="text-gray-600 mb-6 text-center ">
-//                     Êtes-vous sûr de vouloir terminer cet examen ? Cette action est irréversible.
-//                 </p>
-//                 <p className="text-sm text-gray-500 text-center mb-6">
-//                     Assurez-vous d'avoir répondu à toutes les questions avant de confirmer.
-//                 </p>
-//                 <div className="flex justify-end w-full space-x-4">
-//                     <Button
-//                         size="md"
-//                         color="secondary"
-//                         variant="outline"
-//                         onClick={onClose}
-//                     >
-//                         Continue l'examen
-//                     </Button>
-//                     <Button
-//                         size="md"
-//                         color="primary"
-//                         onClick={onConfirm}
-//                         disabled={isSubmitting}
-//                     >
-//                         Confirmer
-//                     </Button>
-//                 </div>
-//             </div>
-//         </Modal>
-//     );
-// }
 
 interface FullscreenModalProps {
     isOpen: boolean;

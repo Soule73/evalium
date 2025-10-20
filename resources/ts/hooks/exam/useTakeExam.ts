@@ -82,7 +82,6 @@ const useTakeExam = (
         examTerminated,
         terminationReason,
         handleViolation,
-        handleBlocked
     } = useExamSecurityViolation({
         examId: exam.id
     });
@@ -90,9 +89,6 @@ const useTakeExam = (
     const security = useExamSecurity({
         onViolation: (type: string) => {
             handleViolation(type, answers);
-        },
-        onBlocked: () => {
-            handleBlocked(answers);
         }
     });
 

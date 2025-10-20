@@ -1,21 +1,38 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { DataTableState, PaginationType } from '@/types/datatable';
+import {
+    buildDataTableUrl,
+    areAllSelectableItemsSelected,
+    areSomeSelectableItemsSelected,
+    toggleAllPageSelection,
+    toggleItemSelection,
+    selectAllItems
+} from '@/utils/dataTableUtils';
 
 interface UseDataTableOptions {
     initialState?: Partial<DataTableState>;
     preserveState?: boolean;
     debounceMs?: number;
+    enableSelection?: boolean;
+    maxSelectable?: number;
+    isSelectable?: (item: any) => boolean;
 }
 
-export function useDataTable<T>(
+/**
+ * Custom hook for managing data table state, navigation, filtering, and selection
+ */
+export function useDataTable<T extends { id: number | string }>(
     data: PaginationType<T>,
     options: UseDataTableOptions = {}
 ) {
     const {
         initialState = {},
         preserveState = true,
-        debounceMs = 300
+        debounceMs = 300,
+        enableSelection = false,
+        maxSelectable,
+        isSelectable
     } = options;
 
     const [state, setState] = useState<DataTableState>({
@@ -27,6 +44,13 @@ export function useDataTable<T>(
     });
 
     const [isNavigating, setIsNavigating] = useState(false);
+    const [selectedItems, setSelectedItems] = useState<Set<number | string>>(new Set());
+
+    useEffect(() => {
+        if (enableSelection) {
+            setSelectedItems(new Set());
+        }
+    }, [data.current_page, enableSelection]);
 
     useEffect(() => {
         setState(prev => ({
@@ -36,30 +60,21 @@ export function useDataTable<T>(
         }));
     }, [data.current_page, data.per_page]);
 
+    /**
+     * Builds a URL with the current or new state parameters
+     */
     const buildUrl = useCallback((
         newState: Partial<DataTableState> = {},
         basePath?: string
     ) => {
         const finalState = { ...state, ...newState };
-        const params = new URLSearchParams();
-
-        params.set('page', String(finalState.page));
-        params.set('per_page', String(finalState.perPage));
-
-        if (finalState.search.trim()) {
-            params.set('search', finalState.search.trim());
-        }
-
-        Object.entries(finalState.filters).forEach(([key, value]) => {
-            if (value && value.trim()) {
-                params.set(key, value.trim());
-            }
-        });
-
         const path = basePath || data.path;
-        return `${path}?${params.toString()}`;
+        return buildDataTableUrl(finalState, path);
     }, [state, data.path]);
 
+    /**
+     * Navigates to a new state by updating the URL and triggering Inertia navigation
+     */
     const navigate = useCallback((
         newState: Partial<DataTableState> = {},
         options: { replace?: boolean; preserveState?: boolean } = {}
@@ -76,6 +91,25 @@ export function useDataTable<T>(
 
     const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
 
+    /**
+     * Returns true if all selectable items on the current page are selected
+     */
+    const allItemsOnPageSelected = useMemo(() => {
+        if (!enableSelection || data.data.length === 0) return false;
+        return areAllSelectableItemsSelected(data.data, selectedItems, isSelectable);
+    }, [selectedItems, data.data, enableSelection, isSelectable]);
+
+    /**
+     * Returns true if some but not all selectable items on the current page are selected
+     */
+    const someItemsOnPageSelected = useMemo(() => {
+        if (!enableSelection || data.data.length === 0) return false;
+        return areSomeSelectableItemsSelected(data.data, selectedItems, isSelectable);
+    }, [selectedItems, data.data, enableSelection, isSelectable]);
+
+    /**
+     * Debounces navigation to avoid excessive API calls during rapid state changes
+     */
     const debouncedNavigate = useCallback((
         newState: Partial<DataTableState>,
         immediate = false
@@ -141,8 +175,34 @@ export function useDataTable<T>(
             } else {
                 debouncedNavigate(newState);
             }
-        }
-    }), [state, navigate, debouncedNavigate]);
+        },
+
+        toggleItem: (id: number | string) => {
+            setSelectedItems(prev =>
+                toggleItemSelection(id, data.data, prev, maxSelectable, isSelectable)
+            );
+        },
+
+        toggleAllOnPage: () => {
+            setSelectedItems(prev =>
+                toggleAllPageSelection(data.data, prev, maxSelectable, isSelectable)
+            );
+        },
+
+        selectAll: () => {
+            setSelectedItems(selectAllItems(data.data, maxSelectable, isSelectable));
+        },
+
+        deselectAll: () => {
+            setSelectedItems(new Set());
+        },
+
+        isItemSelected: (id: number | string) => selectedItems.has(id),
+
+        getSelectedItems: () => Array.from(selectedItems),
+
+        getSelectedCount: () => selectedItems.size
+    }), [state, navigate, debouncedNavigate, selectedItems, data.data, maxSelectable, isSelectable]);
 
     useEffect(() => {
         return () => {
@@ -156,6 +216,12 @@ export function useDataTable<T>(
         state,
         actions,
         isNavigating,
-        buildUrl
+        buildUrl,
+        selection: {
+            selectedItems,
+            allItemsOnPageSelected,
+            someItemsOnPageSelected,
+            selectedCount: selectedItems.size
+        }
     };
 }

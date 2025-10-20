@@ -100,7 +100,7 @@ export default function TeacherDashboard({ user, stats, recent_exams }: Props) {
                     />
 
                     <StatCard
-                        title="Score moyen"
+                        title="Note moyen"
                         value={stats.average_score}
                         color='yellow'
                         icon={

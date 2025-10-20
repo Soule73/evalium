@@ -77,6 +77,14 @@ export const DesktopNavigation = ({ isAdmin, isTeacher, isStudent, currentHref }
                     >
                         Utilisateurs
                     </NavLink>
+                    <NavLink
+                        href={route('admin.groups.index')}
+                        icon="groups"
+                        isActive={isActiveLink(route('admin.groups.index'), currentHref)}
+                        variant="desktop"
+                    >
+                        Groupes
+                    </NavLink>
                 </>
             )}
         </div>

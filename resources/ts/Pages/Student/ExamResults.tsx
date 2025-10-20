@@ -21,8 +21,9 @@ interface Props {
 }
 
 const ExamResults: React.FC<Props> = ({ exam, assignment, userAnswers, creator }) => {
-    const { isPendingReview, assignmentStatus, examIsActive } = useExamResults({ exam, assignment, userAnswers });
+    const { isPendingReview, assignmentStatus, showCorrectAnswers, examIsActive } = useExamResults({ exam, assignment, userAnswers });
     const { totalPoints, finalPercentage, getQuestionResult } = useExamScoring({ exam, assignment, userAnswers });
+
 
     return (
         <AuthenticatedLayout title={`Résultats - ${exam.title}`}>
@@ -79,7 +80,19 @@ const ExamResults: React.FC<Props> = ({ exam, assignment, userAnswers, creator }
                     questions={exam.questions || []}
                     getQuestionResult={getQuestionResult}
                     isTeacherView={false}
+                    showCorrectAnswers={showCorrectAnswers}
+                    assignment={assignment}
                 />
+
+                {/* Notes du professeur */}
+                {assignment.teacher_notes && (
+                    <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <h3 className="text-lg font-medium text-green-800 mb-2">
+                            Commentaires du professeur
+                        </h3>
+                        <p className="text-green-700 whitespace-pre-wrap">{assignment.teacher_notes}</p>
+                    </div>
+                )}
             </Section>
         </AuthenticatedLayout>
     );

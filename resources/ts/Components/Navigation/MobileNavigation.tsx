@@ -74,6 +74,13 @@ export const MobileNavigation = ({ isAdmin, isTeacher, isStudent, currentHref, i
                         >
                             Utilisateurs
                         </NavLink>
+                        <NavLink
+                            href={route('admin.groups.index')}
+                            isActive={isActiveLink(route('admin.groups.index'), currentHref)}
+                            variant="mobile"
+                        >
+                            Groupes
+                        </NavLink>
                     </>
                 )}
             </div>

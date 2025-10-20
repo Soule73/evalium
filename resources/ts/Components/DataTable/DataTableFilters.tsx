@@ -1,7 +1,8 @@
 import React from 'react';
 import { Input } from '@/Components';
-import { ChevronDownIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import { FunnelIcon } from '@heroicons/react/24/outline';
 import { FilterConfig } from '@/types/datatable';
+import Select from '../Select';
 
 interface DataTableFiltersProps {
     filters: FilterConfig[];
@@ -53,21 +54,14 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = ({
                 {filters.map((filter) => (
                     <div key={filter.key} className="relative">
                         {filter.type === 'select' && filter.options ? (
-                            <div className="relative">
-                                <select
-                                    value={values[filter.key] || filter.defaultValue || ''}
-                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onFilterChange(filter.key, e.target.value)}
-                                    className="appearance-none bg-white border border-gray-300 rounded-md py-2 pl-3 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                >
-                                    <option value="">{filter.label}</option>
-                                    {filter.options.map((option) => (
-                                        <option key={option.value} value={option.value}>
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </select>
-                                <ChevronDownIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                            </div>
+                            <Select
+                                options={filter.options}
+                                value={values[filter.key] || filter.defaultValue || ''}
+                                onChange={(value) => onFilterChange(filter.key, String(value))}
+                                placeholder={filter.label}
+                                className="min-w-[150px] text-sm"
+                                searchable={filter.options.length > 5}
+                            />
                         ) : (
                             <Input
                                 type="text"

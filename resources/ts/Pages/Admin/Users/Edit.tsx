@@ -1,6 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { Button } from '@/Components/Button';
 import Input from '@/Components/form/Input';
+import Select from '@/Components/Select';
 import { User } from '@/types';
 import Modal from '@/Components/Modal';
 
@@ -95,25 +96,18 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         required
                     />
                     {roles && <div>
-                        <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                            Rôle
-                        </label>
-                        <select
-                            id="role"
+                        <Select
+                            label="Rôle"
+                            options={roles.map(role => ({
+                                value: role,
+                                label: getRoleLabel(role)
+                            }))}
                             value={data.role}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setData('role', e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            required
-                        >
-                            {roles.map((role) => (
-                                <option key={role} value={role}>
-                                    {getRoleLabel(role)}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.role && (
-                            <p className="mt-2 text-sm text-red-600">{errors.role}</p>
-                        )}
+                            onChange={(value) => setData('role', String(value))}
+                            error={errors.role}
+                            searchable={false}
+                            placeholder="Sélectionner un rôle"
+                        />
                     </div>}
 
                     <div className="relative">

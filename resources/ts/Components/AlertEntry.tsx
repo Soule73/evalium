@@ -4,10 +4,11 @@ import React from "react";
 interface AlertEntry {
     title: string;
     children: React.ReactNode;
+    className?: string;
     type: 'success' | 'error' | 'warning' | 'info';
 }
 
-const AlertEntry: React.FC<AlertEntry> = ({ title, children, type }) => {
+const AlertEntry: React.FC<AlertEntry> = ({ title, children, type, className }) => {
     const typeStyles = {
         success: "text-green-600 bg-green-100 border-green-200",
         error: "text-red-600 bg-red-100 border-red-200",
@@ -23,7 +24,7 @@ const AlertEntry: React.FC<AlertEntry> = ({ title, children, type }) => {
     }[type];
 
     return (
-        <div className={`border-l-4 my-2 p-4 ${typeStyles}`}>
+        <div className={`border-l-4 my-2 p-4 ${typeStyles} ${className || ''}`}>
             <div className="flex items-center mb-2 space-x-2">
                 {icon}
                 <h4 className="font-medium mb-1">{title}</h4>

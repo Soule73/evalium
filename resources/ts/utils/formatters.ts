@@ -197,6 +197,18 @@ export const getAssignmentBadgeLabel = (status: string) => {
         default: return 'Non commencé';
     }
 };
+
+export const securityViolationLabel = (violation: string | undefined): string => {
+    switch (violation) {
+        case 'tab_switch':
+            return "Changement d'onglet détecté";
+        case 'fullscreen_exit':
+            return "Sortie du mode plein écran détectée";
+        default:
+            return "Violation de sécurité détectée";
+    }
+}
+
 export const assignmentStatusColors: Record<string, string> = {
     assigned: 'bg-yellow-100 text-yellow-800',
     started: 'bg-blue-100 text-blue-800',
@@ -346,6 +358,10 @@ export const formatExamAssignmentStatus = (status: string): { label: string; col
     return statusMap[status as keyof typeof statusMap] || { label: status, color: 'gray' };
 };
 
+export const canShowExamResults = (assignmentStatus: string): boolean => {
+    return assignmentStatus === 'graded';
+}
+
 /**
  * Returns an array of possible assignment status strings.
  *
@@ -362,15 +378,15 @@ export const getAssignmentStatus = () => {
  *
  * @returns {Array<{ value: string; label: string }>} An array of status objects for assignments.
  *
- * Example status values include:
- * - 'all': Tous les statuts (All statuses)
- * - 'assigned': Assigné (Assigned)
- * - 'started': Commencé (Started)
- * - 'submitted': Soumis (Submitted)
- * - 'pending_review': En attente de révision (Pending review)
- * - 'graded': Noté (Graded)
+ * Status values include:
+ * - 'all': All statuses
+ * - 'assigned': Assigned
+ * - 'started':  Started
+ * - 'submitted':  Submitted
+ * - 'pending_review': Pending review
+ * - 'graded': Graded
  */
-export const getAssignmentStatusWithLabel = () => {
+export const getAssignmentStatusWithLabel = (): Array<{ value: string; label: string; }> => {
     return [
         { value: 'all', label: 'Tous les statuts' },
         { value: 'assigned', label: 'Assigné' },

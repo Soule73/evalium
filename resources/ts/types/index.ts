@@ -12,6 +12,7 @@ export interface User {
     created_at: string;
     updated_at: string;
     roles?: Role[];
+    current_group?: Group;
 }
 
 export interface Role {
@@ -20,6 +21,35 @@ export interface Role {
     guard_name: string;
     created_at: string;
     updated_at: string;
+}
+
+export interface Level {
+    id: number;
+    name: string;
+    code: string;
+    description?: string;
+    order: number;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+    groups_count?: number;
+}
+
+export interface Group {
+    id: number;
+    display_name: string;
+    description?: string;
+    level_id: number | null;
+    level?: Level;
+    start_date: string;
+    end_date: string;
+    max_students: number;
+    is_active: boolean;
+    academic_year?: string;
+    created_at: string;
+    updated_at: string;
+    active_students?: User[];
+    active_students_count?: number;
 }
 
 export interface Exam {
@@ -70,6 +100,7 @@ export interface Answer {
     choice_id?: number;
     answer_text?: string;
     score?: number;
+    feedback?: string;
     created_at: string;
     updated_at: string;
 
@@ -112,7 +143,7 @@ export interface ExamAssignment {
     auto_score?: number;
     status: AssignmentStatus;
     teacher_notes?: string;
-    security_violations?: any;
+    security_violation?: string;
     forced_submission: boolean;
     created_at: string;
     updated_at: string;

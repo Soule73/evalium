@@ -226,7 +226,7 @@ export default function ExamAssignments({ exam, assignments, stats }: Props) {
                         icon={ClockIcon}
                     />
                     <StatCard
-                        title="Score moyen"
+                        title="Note moyen"
                         value={stats.average_score !== null ? `${Math.round(stats.average_score)}%` : 'N/A'}
                         color="purple"
                         icon={ChartBarIcon}

@@ -7,23 +7,68 @@ interface SectionProps {
     actions?: React.ReactNode;
     children: React.ReactNode;
     collapsible?: boolean;
+    defaultOpen?: boolean;
     className?: string;
     centerHeaderItems?: boolean;
 }
 
-const Section = ({ title, subtitle, actions, children, collapsible = false, className, centerHeaderItems = true }: SectionProps) => {
-    const [isOpen, setIsOpen] = React.useState(true);
-
+/**
+ * Section component with optional collapsible functionality
+ * Provides a consistent layout for content sections with title, subtitle, and actions
+ */
+const Section = ({
+    title,
+    subtitle,
+    actions,
+    children,
+    collapsible = false,
+    defaultOpen = true,
+    className = '',
+    centerHeaderItems = true
+}: SectionProps) => {
+    const [isOpen, setIsOpen] = React.useState(defaultOpen);
     const isStringTitle = typeof title === 'string';
+    const shouldShowContent = !collapsible || isOpen;
+
+    const toggleSection = () => {
+        if (collapsible) {
+            setIsOpen(prev => !prev);
+        }
+    };
+
+    const headerClasses = [
+        'text-gray-800 transition-all duration-200',
+        shouldShowContent ? 'mb-4 border-b pb-2 border-gray-300' : 'mb-0'
+    ].join(' ');
+
+    const containerClasses = [
+        centerHeaderItems ? 'md:items-center' : '',
+        actions ? 'flex space-y-4 flex-col md:flex-row md:justify-between mb-2' : 'mb-2'
+    ].join(' ');
+
+    const titleWrapperClasses = [
+        'flex items-center space-x-2',
+        collapsible ? 'cursor-pointer select-none hover:text-blue-600 transition-colors duration-150' : ''
+    ].join(' ');
+
+    const sectionClasses = [
+        'bg-white rounded-lg border border-gray-200 mb-6 transition-all duration-200',
+        shouldShowContent ? 'p-2 md:p-6' : 'p-2 md:px-6 md:py-4',
+        className
+    ].join(' ');
+
+    const chevronClasses = [
+        'h-5 w-5 transition-transform duration-200',
+        isOpen ? 'rotate-0' : 'rotate-180'
+    ].join(' ');
 
     return (
-        <section className={`bg-white rounded-lg p-2 md:p-6 ${isOpen ? "" : "!pt-1 !pb-0"} mb-6 border border-gray-200 ${className}`}>
-            <div className={` text-gray-800 ${isOpen ? "mb-4 border-b pb-2" : ""} border-gray-300 `}>
-                <div className={` ${centerHeaderItems ? 'md:items-center' : ''} ${actions ? "flex space-y-4 flex-col md:flex-row md:justify-between mb-2" : "mb-2"}`}>
-                    <div onClick={() => setIsOpen(collapsible ? !isOpen : isOpen)} className={`flex ${collapsible ? 'cursor-pointer' : ''} items-center space-x-2`}>
+        <section className={sectionClasses}>
+            <div className={headerClasses}>
+                <div className={containerClasses}>
+                    <div onClick={toggleSection} className={titleWrapperClasses}>
                         {collapsible && (
-                            <ChevronUpIcon className={`h-5 w-5 ${isOpen ? '' : 'rotate-180'}`} />
-
+                            <ChevronUpIcon className={chevronClasses} aria-hidden="true" />
                         )}
                         {isStringTitle ? (
                             <h2 className="text-xl font-semibold text-gray-800">
@@ -33,17 +78,23 @@ const Section = ({ title, subtitle, actions, children, collapsible = false, clas
                             title
                         )}
                     </div>
-                    {actions && <>{actions}</>}
+
+                    {actions && (
+                        <div className="flex-shrink-0">
+                            {actions}
+                        </div>
+                    )}
                 </div>
-                {subtitle && (
-                    <div className="text-gray-800">
+
+                {shouldShowContent && subtitle && (
+                    <div className="text-sm text-gray-600 mt-2">
                         {subtitle}
                     </div>
                 )}
             </div>
 
-            {(!collapsible || isOpen) && (
-                <div className="space-y-6">
+            {shouldShowContent && (
+                <div className="space-y-6 animate-in fade-in duration-200">
                     {children}
                 </div>
             )}

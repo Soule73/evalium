@@ -50,6 +50,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                             label="Adresse email"
                             id="email"
                             type="email"
+                            name='email'
                             className="mt-1 block w-full"
                             value={data.email}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('email', e.target.value)}
@@ -63,6 +64,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                         <Input
                             label="Mot de passe"
                             id="password"
+                            name='password'
                             type="password"
                             className="mt-1 block w-full"
                             value={data.password}

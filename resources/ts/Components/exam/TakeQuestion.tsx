@@ -53,7 +53,7 @@ const TakeQuestionMultiple: React.FC<BaseChoiceProps> = ({ questionId, choices, 
     };
 
     return (
-        <div className="space-y-3 flex flex-col">
+        <div className="space-y-3 flex flex-col w-full">
             {choices.map((choice, idx) => (
                 <Checkbox
                     key={choice.id}
@@ -65,7 +65,7 @@ const TakeQuestionMultiple: React.FC<BaseChoiceProps> = ({ questionId, choices, 
                     checked={current.includes(choice.id)}
                     onChange={(e) => toggleChoice(choice.id, e.target.checked)}
                     value={choice.id}
-                    labelClassName="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                    labelClassName="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors w-full"
                 />
             ))}
         </div>
@@ -76,7 +76,7 @@ const TakeQuestionOneChoice: React.FC<BaseChoiceProps> = ({ questionId, choices,
     const onChange = (value: number) => onAnswerChange(questionId, value);
 
     return (
-        <div className="space-y-3 flex flex-col">
+        <div className="space-y-3 flex flex-col w-full">
             {choices.map((choice, idx) => (
                 <Checkbox
                     key={choice.id}
@@ -89,7 +89,7 @@ const TakeQuestionOneChoice: React.FC<BaseChoiceProps> = ({ questionId, choices,
                     checked={answers[questionId] === choice.id}
                     onChange={() => onChange(choice.id)}
                     value={choice.id}
-                    labelClassName="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                    labelClassName="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors w-full"
                 />
             ))}
         </div>
@@ -100,7 +100,7 @@ const TakeQuestionBoolean: React.FC<BaseChoiceProps> = ({ questionId, choices, a
     const onChange = (value: number) => onAnswerChange(questionId, value);
 
     return (
-        <div className="space-y-3 flex flex-col">
+        <div className="space-y-3 flex flex-col w-full">
             {choices.map((choice) => {
                 const normalized = choice.content?.toString().toLowerCase() ?? '';
                 const isTrue = ['true', 'vrai'].includes(normalized);
@@ -115,7 +115,7 @@ const TakeQuestionBoolean: React.FC<BaseChoiceProps> = ({ questionId, choices, a
                         checked={answers[questionId] === choice.id}
                         onChange={() => onChange(choice.id)}
                         value={choice.id}
-                        labelClassName="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                        labelClassName="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors w-full"
                         label={<>
                             <span className={`inline-flex items-center justify-center h-6 w-6 rounded-full ${badgeClass} text-xs font-medium mr-2`}>
                                 {isTrue ? 'V' : 'F'}
@@ -136,6 +136,10 @@ const TakeQuestionText: React.FC<{
 }> = ({ questionId, answers, onAnswerChange }) => (
     <div>
         <MarkdownEditor
+            enableGuide={false}
+            enableMathDisplay={true}
+            enableMathInline={true}
+            editorClassName="min-h-[150px] sm:min-h-[200px]"
             value={typeof answers[questionId] === 'string' ? (answers[questionId] as string) : ''}
             onChange={(value) => onAnswerChange(questionId, value)}
             placeholder="Tapez votre réponse ici... (Markdown supporté)"

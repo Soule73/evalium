@@ -1,5 +1,5 @@
 import { Exam, ExamAssignment, Question } from "@/types";
-import { formatExamAssignmentStatus } from "@/utils";
+import { canShowExamResults, formatExamAssignmentStatus } from "@/utils";
 import { useMemo } from "react";
 
 interface UseExamResultParams {
@@ -51,6 +51,11 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
         [assignment.status]
     );
 
+    const showCorrectAnswers = useMemo(
+        () => canShowExamResults(assignment.status),
+        [assignment.status]
+    );
+
     const examIsActive = useMemo(
         () => exam.is_active,
         [exam.is_active]
@@ -65,6 +70,7 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
                     isCorrect: null,
                     userChoices: [],
                     hasMultipleAnswers: false,
+                    feedback: null,
                 };
             }
 
@@ -83,6 +89,7 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
                         isCorrect: hasAllCorrectChoices,
                         userChoices: selectedChoices,
                         hasMultipleAnswers: true,
+                        feedback: userAnswer.feedback,
                     };
                 }
 
@@ -90,6 +97,7 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
                     isCorrect: null,
                     userChoices: [],
                     hasMultipleAnswers: true,
+                    feedback: userAnswer.feedback,
                 };
             }
 
@@ -100,6 +108,7 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
                     userText: userAnswer.answer_text,
                     hasMultipleAnswers: false,
                     score: userAnswer.score,
+                    feedback: userAnswer.feedback,
                 };
             }
 
@@ -108,6 +117,7 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
                     isCorrect: userAnswer.choice.is_correct,
                     userChoices: [userAnswer.choice],
                     hasMultipleAnswers: false,
+                    feedback: userAnswer.feedback,
                 };
             }
 
@@ -117,6 +127,7 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
                 isCorrect: null,
                 userChoices: userChoice ? [userChoice] : [],
                 hasMultipleAnswers: false,
+                feedback: userAnswer.feedback,
             };
         };
     }, [userAnswers]);
@@ -127,6 +138,7 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
         isPendingReview,
         getQuestionResult,
         assignmentStatus,
+        showCorrectAnswers,
         examIsActive,
     };
 };

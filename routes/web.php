@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Teacher\ExamController as TeacherExamController;
 use App\Http\Controllers\Student\ExamController as StudentExamController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\GroupController;
 use Inertia\Inertia;
 
 // Routes publiques
@@ -69,6 +70,8 @@ Route::middleware('auth')->group(function () {
                 Route::get('/{exam}/assign', 'showAssignForm')->name('assign');
                 Route::get('/{exam}/assign/show', 'showAssignForm')->name('assign.show');
                 Route::post('/{exam}/assign', 'assignToStudents')->name('assign.store');
+                Route::post('/{exam}/assign-groups', 'assignToGroups')->name('assign.groups');
+                Route::delete('/{exam}/groups/{group}', 'removeFromGroup')->name('groups.remove');
                 Route::get('/{exam}/assignments', 'showAssignments')->name('assignments');
                 Route::delete('/{exam}/assignments/{user}', 'removeAssignment')->name('assignment.remove');
 
@@ -96,6 +99,25 @@ Route::middleware('auth')->group(function () {
                     Route::post('/', 'store')->name('store');
                     Route::put('/{user}', 'update')->name('update');
                     Route::delete('/{user}', 'destroy')->name('destroy');
+                    Route::put('/{user}/change-group', 'changeStudentGroup')->name('change-group');
+                });
+
+            Route::prefix('/groups')->name('groups.')
+                ->controller(GroupController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::post('/bulk-activate', 'bulkActivate')->name('bulk-activate');
+                    Route::post('/bulk-deactivate', 'bulkDeactivate')->name('bulk-deactivate');
+                    Route::get('/{group}', 'show')->name('show');
+                    Route::get('/{group}/edit', 'edit')->name('edit');
+                    Route::put('/{group}', 'update')->name('update');
+                    Route::delete('/{group}', 'destroy')->name('destroy');
+                    Route::get('/{group}/assign-students', 'assignStudents')->name('assign-students');
+                    Route::post('/{group}/assign-students', 'storeStudents')->name('store-students');
+                    Route::post('/{group}/bulk-remove-students', 'bulkRemoveStudents')->name('bulk-remove-students');
+                    Route::delete('/{group}/students/{student}', 'removeStudent')->name('remove-student');
                 });
         });
 });
