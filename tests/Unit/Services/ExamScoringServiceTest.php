@@ -3,17 +3,20 @@
 namespace Tests\Unit\Services;
 
 use Tests\TestCase;
-use App\Models\User;
 use App\Models\Exam;
-use App\Models\Question;
+use App\Models\User;
 use App\Models\Answer;
+use App\Models\Question;
 use App\Models\ExamAssignment;
+use Spatie\Permission\Models\Role;
+use Tests\Traits\CreatesTestRoles;
+use PHPUnit\Framework\Attributes\Test;
 use App\Services\Teacher\ExamScoringService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExamScoringServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, CreatesTestRoles;
 
     private ExamScoringService $service;
     private User $student;
@@ -24,12 +27,14 @@ class ExamScoringServiceTest extends TestCase
     {
         parent::setUp();
 
+        // Créer les rôles
+        $this->createTestRoles();
+
         $this->service = new ExamScoringService();
 
         // Créer un étudiant
-        $this->student = User::factory()->create([
+        $this->student = $this->createUserWithRole('student', [
             'email' => 'student@test.com',
-            'role' => 'student'
         ]);
 
         // Créer un examen
@@ -43,7 +48,7 @@ class ExamScoringServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_save_teacher_corrections()
     {
         $question = Question::factory()->create([
@@ -71,7 +76,7 @@ class ExamScoringServiceTest extends TestCase
         $this->assertEquals(1, $result['updated_count']);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_score_range()
     {
         $question = Question::factory()->create([
@@ -100,7 +105,7 @@ class ExamScoringServiceTest extends TestCase
         $this->assertArrayHasKey('success', $result);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_calculate_auto_score()
     {
         $question = Question::factory()->create([
@@ -121,7 +126,7 @@ class ExamScoringServiceTest extends TestCase
         $this->assertGreaterThanOrEqual(0, $autoScore);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_recalculate_exam_scores()
     {
         // Créer des assignations avec des réponses
@@ -139,7 +144,7 @@ class ExamScoringServiceTest extends TestCase
         $this->assertIsInt($result['updated_count']);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_save_manual_correction_with_three_params()
     {
         // Mettre à jour l'assignation pour avoir submitted_at
@@ -159,7 +164,7 @@ class ExamScoringServiceTest extends TestCase
         $this->assertArrayHasKey('success', $result);
     }
 
-    /** @test */
+    #[Test]
     public function it_updates_assignment_status_when_scoring()
     {
         $this->assignment->update(['status' => 'submitted']);

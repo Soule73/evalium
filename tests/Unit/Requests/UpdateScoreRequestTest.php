@@ -3,14 +3,15 @@
 namespace Tests\Unit\Requests;
 
 use Tests\TestCase;
-use App\Http\Requests\Teacher\UpdateScoreRequest;
-use App\Models\User;
 use App\Models\Exam;
+use App\Models\User;
 use App\Models\Question;
 use App\Models\ExamAssignment;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
+use PHPUnit\Framework\Attributes\Test;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Teacher\UpdateScoreRequest;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UpdateScoreRequestTest extends TestCase
 {
@@ -33,14 +34,12 @@ class UpdateScoreRequestTest extends TestCase
         // Créer un enseignant
         $this->teacher = User::factory()->create([
             'email' => 'teacher@test.com',
-            'role' => 'teacher'
         ]);
         $this->teacher->assignRole('teacher');
 
         // Créer un étudiant
         $this->student = User::factory()->create([
             'email' => 'student@test.com',
-            'role' => 'student'
         ]);
         $this->student->assignRole('student');
 
@@ -65,7 +64,7 @@ class UpdateScoreRequestTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_required_fields()
     {
         $request = new UpdateScoreRequest();
@@ -80,7 +79,7 @@ class UpdateScoreRequestTest extends TestCase
         $this->assertTrue($validator->errors()->has('score'));
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_score_is_numeric()
     {
         $request = new UpdateScoreRequest();
@@ -97,7 +96,7 @@ class UpdateScoreRequestTest extends TestCase
         $this->assertTrue($validator->errors()->has('score'));
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_score_minimum()
     {
         $request = new UpdateScoreRequest();
@@ -114,7 +113,7 @@ class UpdateScoreRequestTest extends TestCase
         $this->assertTrue($validator->errors()->has('score'));
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_question_exists()
     {
         $request = new UpdateScoreRequest();
@@ -131,7 +130,7 @@ class UpdateScoreRequestTest extends TestCase
         $this->assertTrue($validator->errors()->has('question_id'));
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_teacher_notes_string()
     {
         $request = new UpdateScoreRequest();
@@ -149,7 +148,7 @@ class UpdateScoreRequestTest extends TestCase
         $this->assertTrue($validator->errors()->has('feedback'));
     }
 
-    /** @test */
+    #[Test]
     public function it_passes_validation_with_valid_data()
     {
         // Créer une réponse pour que l'étudiant ait bien répondu à la question
@@ -176,7 +175,7 @@ class UpdateScoreRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    /** @test */
+    #[Test]
     public function it_passes_validation_without_optional_teacher_notes()
     {
         // Créer une réponse pour que l'étudiant ait bien répondu à la question
@@ -202,7 +201,7 @@ class UpdateScoreRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    /** @test */
+    #[Test]
     public function it_has_correct_error_messages()
     {
         $request = new UpdateScoreRequest();
@@ -219,7 +218,7 @@ class UpdateScoreRequestTest extends TestCase
         $this->assertArrayHasKey('score.min', $messages);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_score_against_question_points()
     {
         // Créer une question avec 5 points maximum

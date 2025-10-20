@@ -3,19 +3,21 @@
 namespace Tests\Unit\Services;
 
 use Tests\TestCase;
+use App\Models\Exam;
 use App\Models\User;
 use App\Models\Answer;
-use App\Models\Question;
 use App\Models\Choice;
-use App\Models\Exam;
+use App\Models\Question;
 use App\Models\ExamAssignment;
+use Illuminate\Support\Collection;
+use Tests\Traits\CreatesTestRoles;
+use PHPUnit\Framework\Attributes\Test;
 use App\Services\Shared\UserAnswerService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Collection;
 
 class UserAnswerServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, CreatesTestRoles;
 
     private UserAnswerService $service;
     private User $student;
@@ -26,12 +28,12 @@ class UserAnswerServiceTest extends TestCase
     {
         parent::setUp();
 
+        $this->createTestRoles();
         $this->service = new UserAnswerService();
 
         // Créer un étudiant
-        $this->student = User::factory()->create([
+        $this->student = $this->createUserWithRole('student', [
             'email' => 'student@test.com',
-            'role' => 'student'
         ]);
 
         // Créer un examen
@@ -48,7 +50,7 @@ class UserAnswerServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_student_results_data()
     {
         // Créer une question et une réponse
@@ -78,7 +80,7 @@ class UserAnswerServiceTest extends TestCase
         $this->assertIsArray($result['formattedAnswers']);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_student_review_data()
     {
         $result = $this->service->getStudentReviewData($this->assignment);
@@ -92,7 +94,7 @@ class UserAnswerServiceTest extends TestCase
         $this->assertArrayHasKey('totalPoints', $result);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_format_user_answers_for_frontend()
     {
         // Créer différents types de questions
@@ -157,7 +159,7 @@ class UserAnswerServiceTest extends TestCase
         $this->assertEquals(3.0, $result[1]['score']);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_answers_without_choices()
     {
         $question = Question::factory()->create([
@@ -168,8 +170,8 @@ class UserAnswerServiceTest extends TestCase
         // Utiliser l'assignment existant créé dans setUp() avec un nouvel étudiant
         $newStudent = User::factory()->create([
             'email' => 'student2@test.com',
-            'role' => 'student'
         ]);
+        $newStudent->assignRole('student');
 
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $this->exam->id,
@@ -191,14 +193,14 @@ class UserAnswerServiceTest extends TestCase
         $this->assertEquals('Simple text answer', $result[0]['answer_text']);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_empty_answers_collection()
     {
         // Utiliser l'assignment existant créé dans setUp() avec un autre étudiant
         $newStudent = User::factory()->create([
             'email' => 'student3@test.com',
-            'role' => 'student'
         ]);
+        $newStudent->assignRole('student');
 
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $this->exam->id,

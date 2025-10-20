@@ -3,11 +3,12 @@
 namespace Tests\Unit\Models;
 
 use Tests\TestCase;
-use App\Models\User;
 use App\Models\Exam;
-use App\Models\Question;
-use App\Models\Choice;
+use App\Models\User;
 use App\Models\Answer;
+use App\Models\Choice;
+use App\Models\Question;
+use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class QuestionModelTest extends TestCase
@@ -24,7 +25,7 @@ class QuestionModelTest extends TestCase
         $this->exam = Exam::factory()->create();
     }
 
-    /** @test */
+    #[Test]
     public function question_belongs_to_exam()
     {
         $question = Question::factory()->create([
@@ -35,7 +36,7 @@ class QuestionModelTest extends TestCase
         $this->assertEquals($this->exam->id, $question->exam->id);
     }
 
-    /** @test */
+    #[Test]
     public function question_has_many_choices()
     {
         $question = Question::factory()->create([
@@ -51,7 +52,7 @@ class QuestionModelTest extends TestCase
         $this->assertInstanceOf(Choice::class, $question->choices->first());
     }
 
-    /** @test */
+    #[Test]
     public function question_has_many_answers()
     {
         $question = Question::factory()->create([
@@ -66,7 +67,7 @@ class QuestionModelTest extends TestCase
         $this->assertInstanceOf(Answer::class, $question->answers->first());
     }
 
-    /** @test */
+    #[Test]
     public function question_has_correct_fillable_attributes()
     {
         $fillable = (new Question())->getFillable();
@@ -82,7 +83,7 @@ class QuestionModelTest extends TestCase
         $this->assertEquals($expectedFillable, $fillable);
     }
 
-    /** @test */
+    #[Test]
     public function question_validates_type_enum()
     {
         $validTypes = ['text', 'multiple', 'one_choice', 'boolean'];
@@ -97,7 +98,7 @@ class QuestionModelTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function text_question_does_not_require_choices()
     {
         $question = Question::factory()->create([
@@ -109,7 +110,7 @@ class QuestionModelTest extends TestCase
         $this->assertEquals('text', $question->type);
     }
 
-    /** @test */
+    #[Test]
     public function multiple_choice_question_can_have_many_choices()
     {
         $question = Question::factory()->create([
@@ -124,7 +125,7 @@ class QuestionModelTest extends TestCase
         $this->assertCount(5, $question->choices);
     }
 
-    /** @test */
+    #[Test]
     public function boolean_question_should_have_two_choices()
     {
         $question = Question::factory()->create([
@@ -147,7 +148,7 @@ class QuestionModelTest extends TestCase
         $this->assertCount(2, $question->choices);
     }
 
-    /** @test */
+    #[Test]
     public function question_has_default_points_value()
     {
         $question = new Question([
@@ -161,7 +162,7 @@ class QuestionModelTest extends TestCase
         $this->assertEquals(1, $question->points);
     }
 
-    /** @test */
+    #[Test]
     public function question_has_default_order_index()
     {
         $question = new Question([
@@ -175,7 +176,7 @@ class QuestionModelTest extends TestCase
         $this->assertEquals(1, $question->order_index);
     }
 
-    /** @test */
+    #[Test]
     public function question_can_determine_if_has_correct_answer()
     {
         $question = Question::factory()->create([
@@ -199,7 +200,7 @@ class QuestionModelTest extends TestCase
         $this->assertEquals($correctChoice->id, $correctChoices->first()->id);
     }
 
-    /** @test */
+    #[Test]
     public function question_content_is_required()
     {
         $question = Question::factory()->create([

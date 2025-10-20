@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Models;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Exam;
@@ -28,12 +29,11 @@ class ExamModelTest extends TestCase
         // Créer un enseignant
         $this->teacher = User::factory()->create([
             'email' => 'teacher@test.com',
-            'role' => 'teacher'
         ]);
         $this->teacher->assignRole('teacher');
     }
 
-    /** @test */
+    #[Test]
     public function exam_belongs_to_teacher()
     {
         $exam = Exam::factory()->create([
@@ -44,7 +44,7 @@ class ExamModelTest extends TestCase
         $this->assertEquals($this->teacher->id, $exam->teacher->id);
     }
 
-    /** @test */
+    #[Test]
     public function exam_has_many_questions()
     {
         $exam = Exam::factory()->create([
@@ -59,7 +59,7 @@ class ExamModelTest extends TestCase
         $this->assertInstanceOf(Question::class, $exam->questions->first());
     }
 
-    /** @test */
+    #[Test]
     public function exam_has_many_assignments()
     {
         $exam = Exam::factory()->create([
@@ -74,7 +74,7 @@ class ExamModelTest extends TestCase
         $this->assertInstanceOf(ExamAssignment::class, $exam->assignments->first());
     }
 
-    /** @test */
+    #[Test]
     public function exam_calculates_total_points()
     {
         $exam = Exam::factory()->create([
@@ -91,10 +91,12 @@ class ExamModelTest extends TestCase
             'points' => 10
         ]);
 
+        // Refresh the exam to load the questions relationship
+        $exam->refresh();
         $this->assertEquals(15, $exam->total_points);
     }
 
-    /** @test */
+    #[Test]
     public function exam_counts_unique_participants()
     {
         $exam = Exam::factory()->create([
@@ -118,7 +120,7 @@ class ExamModelTest extends TestCase
         $this->assertEquals(2, $exam->unique_participants_count);
     }
 
-    /** @test */
+    #[Test]
     public function exam_has_correct_fillable_attributes()
     {
         $fillable = (new Exam())->getFillable();
@@ -136,7 +138,7 @@ class ExamModelTest extends TestCase
         $this->assertEquals($expectedFillable, $fillable);
     }
 
-    /** @test */
+    #[Test]
     public function exam_casts_attributes_correctly()
     {
         $exam = Exam::factory()->create([
@@ -152,7 +154,7 @@ class ExamModelTest extends TestCase
         $this->assertTrue($exam->is_active);
     }
 
-    /** @test */
+    #[Test]
     public function exam_can_determine_if_active()
     {
         $activeExam = Exam::factory()->create([
@@ -169,7 +171,7 @@ class ExamModelTest extends TestCase
         $this->assertFalse($inactiveExam->is_active);
     }
 
-    /** @test */
+    #[Test]
     public function exam_has_answers_through_questions()
     {
         $exam = Exam::factory()->create([
@@ -195,7 +197,7 @@ class ExamModelTest extends TestCase
         $this->assertEquals($answer->id, $exam->answers->first()->id);
     }
 
-    /** @test */
+    #[Test]
     public function exam_questions_are_ordered_by_order_index()
     {
         $exam = Exam::factory()->create([

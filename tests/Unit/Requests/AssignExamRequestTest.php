@@ -3,16 +3,17 @@
 namespace Tests\Unit\Requests;
 
 use Tests\TestCase;
-use App\Http\Requests\Teacher\AssignExamRequest;
-use App\Models\User;
 use App\Models\Exam;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\User;
+use Tests\Traits\CreatesTestRoles;
+use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Support\Facades\Validator;
-use Spatie\Permission\Models\Role;
+use App\Http\Requests\Teacher\AssignExamRequest;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class AssignExamRequestTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, CreatesTestRoles;
 
     private User $teacher;
     private Exam $exam;
@@ -21,16 +22,12 @@ class AssignExamRequestTest extends TestCase
     {
         parent::setUp();
 
-        // Créer les rôles
-        Role::create(['name' => 'teacher']);
-        Role::create(['name' => 'student']);
+        $this->createTestRoles();
 
         // Créer un enseignant
-        $this->teacher = User::factory()->create([
+        $this->teacher = $this->createUserWithRole('teacher', [
             'email' => 'teacher@test.com',
-            'role' => 'teacher'
         ]);
-        $this->teacher->assignRole('teacher');
 
         // Créer un examen
         $this->exam = Exam::factory()->create([
@@ -39,7 +36,7 @@ class AssignExamRequestTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_required_fields()
     {
         $request = new AssignExamRequest();
@@ -51,7 +48,7 @@ class AssignExamRequestTest extends TestCase
         $this->assertTrue($validator->errors()->has('student_ids'));
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_student_ids_array()
     {
         $request = new AssignExamRequest();
@@ -66,7 +63,7 @@ class AssignExamRequestTest extends TestCase
         $this->assertTrue($validator->errors()->has('student_ids'));
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_student_ids_exist()
     {
         $request = new AssignExamRequest();
@@ -81,14 +78,11 @@ class AssignExamRequestTest extends TestCase
         $this->assertTrue($validator->errors()->has('student_ids.0'));
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_users_have_student_role()
     {
         // Créer un utilisateur sans rôle étudiant
-        $nonStudent = User::factory()->create([
-            'role' => 'teacher'
-        ]);
-        $nonStudent->assignRole('teacher');
+        $nonStudent = $this->createUserWithRole('teacher');
 
         $request = new AssignExamRequest();
         $rules = $request->rules();
@@ -104,14 +98,12 @@ class AssignExamRequestTest extends TestCase
         $this->assertTrue($validator->errors()->has('student_ids'));
     }
 
-    /** @test */
+    #[Test]
     public function it_passes_validation_with_valid_data()
     {
         // Créer des étudiants
-        $student1 = User::factory()->create(['role' => 'student']);
-        $student2 = User::factory()->create(['role' => 'student']);
-        $student1->assignRole('student');
-        $student2->assignRole('student');
+        $student1 = $this->createUserWithRole('student');
+        $student2 = $this->createUserWithRole('student');
 
         $request = new AssignExamRequest();
         $rules = $request->rules();
@@ -123,7 +115,7 @@ class AssignExamRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    /** @test */
+    #[Test]
     public function it_authorizes_teacher_for_their_exam()
     {
         $request = new AssignExamRequest();
@@ -131,25 +123,26 @@ class AssignExamRequestTest extends TestCase
         // Simuler l'utilisateur authentifié
         $this->actingAs($this->teacher);
 
-        // La méthode authorize() retourne toujours true car l'autorisation
-        // est gérée dans le contrôleur selon le commentaire de la classe
+        // NOTE: L'autorisation basée sur l'exam spécifique est testée dans les tests de contrôleur
+        // car elle dépend des paramètres de route. Ici nous testons juste l'autorisation de base.
+        // La méthode authorize() retourne true si pas d'exam dans la route
         $this->assertTrue($request->authorize());
     }
 
-    /** @test */
+    #[Test]
     public function it_denies_authorization_for_other_teacher_exam()
     {
         // Créer un autre enseignant
-        $otherTeacher = User::factory()->create(['role' => 'teacher']);
-        $otherTeacher->assignRole('teacher');
+        $otherTeacher = $this->createUserWithRole('teacher');
 
         $request = new AssignExamRequest();
 
         // Simuler l'utilisateur authentifié comme le premier enseignant
         $this->actingAs($this->teacher);
 
-        // La méthode authorize() retourne toujours true car l'autorisation
-        // est gérée dans le contrôleur selon le commentaire de la classe
+        // NOTE: L'autorisation basée sur l'exam spécifique est testée dans les tests de contrôleur
+        // car elle dépend des paramètres de route. Ici nous testons juste l'autorisation de base.
+        // La méthode authorize() retourne true si pas d'exam dans la route
         $this->assertTrue($request->authorize());
     }
 }

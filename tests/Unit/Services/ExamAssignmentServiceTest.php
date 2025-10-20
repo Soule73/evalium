@@ -6,10 +6,11 @@ use Tests\TestCase;
 use App\Models\Exam;
 use App\Models\User;
 use App\Models\ExamAssignment;
-use App\Services\Teacher\ExamAssignmentService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Spatie\Permission\Models\Role;
+use PHPUnit\Framework\Attributes\Test;
+use App\Services\Teacher\ExamAssignmentService;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExamAssignmentServiceTest extends TestCase
 {
@@ -33,14 +34,12 @@ class ExamAssignmentServiceTest extends TestCase
         // Créer un enseignant
         $this->teacher = User::factory()->create([
             'email' => 'teacher@test.com',
-            'role' => 'teacher'
         ]);
         $this->teacher->assignRole('teacher');
 
         // Créer un étudiant
         $this->student = User::factory()->create([
             'email' => 'student@test.com',
-            'role' => 'student'
         ]);
         $this->student->assignRole('student');
 
@@ -52,7 +51,7 @@ class ExamAssignmentServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_assignment_form_data()
     {
         $data = $this->service->getAssignmentFormData($this->exam);
@@ -63,7 +62,7 @@ class ExamAssignmentServiceTest extends TestCase
         $this->assertEquals($this->exam->id, $data['exam']->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_assign_exam_to_students()
     {
         $studentIds = [$this->student->id];
@@ -81,7 +80,7 @@ class ExamAssignmentServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_duplicate_assignments()
     {
         // Créer une assignation existante
@@ -99,7 +98,7 @@ class ExamAssignmentServiceTest extends TestCase
         $this->assertEquals(1, $result['already_assigned_count']);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_paginated_assignments()
     {
         // Créer des assignations
@@ -114,7 +113,7 @@ class ExamAssignmentServiceTest extends TestCase
         $this->assertGreaterThan(0, $result->total());
     }
 
-    /** @test */
+    #[Test]
     public function it_can_filter_assignments_by_status()
     {
         // Créer des assignations avec différents statuts
@@ -135,7 +134,7 @@ class ExamAssignmentServiceTest extends TestCase
         $this->assertEquals('assigned', $assignments[0]->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_calculate_assignment_statistics()
     {
         // Créer des assignations avec différents statuts
@@ -157,7 +156,7 @@ class ExamAssignmentServiceTest extends TestCase
         $this->assertArrayHasKey('completion_rate', $stats);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_empty_statistics()
     {
         $stats = $this->service->getExamAssignmentStats($this->exam);

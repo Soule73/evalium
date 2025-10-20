@@ -2,17 +2,19 @@
 
 namespace Tests\Unit\Models;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Exam;
-use App\Models\ExamAssignment;
-use App\Models\Answer;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Carbon\Carbon;
+use Tests\TestCase;
+use App\Models\Exam;
+use App\Models\User;
+use App\Models\Answer;
+use App\Models\ExamAssignment;
+use Tests\Traits\CreatesTestRoles;
+use PHPUnit\Framework\Attributes\Test;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExamAssignmentModelTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, CreatesTestRoles;
 
     private User $student;
     private Exam $exam;
@@ -21,17 +23,15 @@ class ExamAssignmentModelTest extends TestCase
     {
         parent::setUp();
 
-        // Créer un étudiant
-        $this->student = User::factory()->create([
+        $this->createTestRoles();
+        $this->student = $this->createUserWithRole('student', [
             'email' => 'student@test.com',
-            'role' => 'student'
         ]);
 
-        // Créer un examen
         $this->exam = Exam::factory()->create();
     }
 
-    /** @test */
+    #[Test]
     public function assignment_belongs_to_exam()
     {
         $assignment = ExamAssignment::factory()->create([
@@ -43,7 +43,7 @@ class ExamAssignmentModelTest extends TestCase
         $this->assertEquals($this->exam->id, $assignment->exam->id);
     }
 
-    /** @test */
+    #[Test]
     public function assignment_belongs_to_student()
     {
         $assignment = ExamAssignment::factory()->create([
@@ -55,7 +55,7 @@ class ExamAssignmentModelTest extends TestCase
         $this->assertEquals($this->student->id, $assignment->student->id);
     }
 
-    /** @test */
+    #[Test]
     public function assignment_has_many_answers()
     {
         $assignment = ExamAssignment::factory()->create([
@@ -71,7 +71,7 @@ class ExamAssignmentModelTest extends TestCase
         $this->assertEquals($answers->first()->id, $assignment->answers->first()->id);
     }
 
-    /** @test */
+    #[Test]
     public function assignment_has_correct_fillable_attributes()
     {
         $fillable = (new ExamAssignment())->getFillable();
@@ -86,14 +86,14 @@ class ExamAssignmentModelTest extends TestCase
             'auto_score',
             'status',
             'teacher_notes',
-            'security_violations',
+            'security_violation',
             'forced_submission',
         ];
 
         $this->assertEquals($expectedFillable, $fillable);
     }
 
-    /** @test */
+    #[Test]
     public function assignment_casts_timestamps_correctly()
     {
         $assignment = ExamAssignment::factory()->create([
@@ -109,13 +109,12 @@ class ExamAssignmentModelTest extends TestCase
         $this->assertInstanceOf(Carbon::class, $assignment->submitted_at);
     }
 
-    /** @test */
+    #[Test]
     public function assignment_has_valid_status_values()
     {
         $validStatuses = ['assigned', 'started', 'submitted', 'pending_review', 'graded'];
 
         foreach ($validStatuses as $index => $status) {
-            // Créer un nouvel exam et student pour chaque statut pour éviter la contrainte d'unicité
             $exam = Exam::factory()->create();
             $student = User::factory()->create();
 
@@ -129,7 +128,7 @@ class ExamAssignmentModelTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function assignment_has_default_status()
     {
         $assignment = ExamAssignment::factory()->create([
@@ -140,7 +139,7 @@ class ExamAssignmentModelTest extends TestCase
         $this->assertEquals('assigned', $assignment->status);
     }
 
-    /** @test */
+    #[Test]
     public function assignment_can_calculate_duration()
     {
         $startTime = Carbon::parse('2025-01-01 10:00:00');
@@ -155,11 +154,11 @@ class ExamAssignmentModelTest extends TestCase
 
         if ($assignment->started_at && $assignment->submitted_at) {
             $duration = $assignment->started_at->diffInMinutes($assignment->submitted_at);
-            $this->assertEquals(90, $duration); // 1h30 = 90 minutes
+            $this->assertEquals(90, $duration);
         }
     }
 
-    /** @test */
+    #[Test]
     public function assignment_can_be_marked_as_started()
     {
         $assignment = ExamAssignment::factory()->create([
@@ -177,7 +176,7 @@ class ExamAssignmentModelTest extends TestCase
         $this->assertNotNull($assignment->started_at);
     }
 
-    /** @test */
+    #[Test]
     public function assignment_can_be_submitted()
     {
         $assignment = ExamAssignment::factory()->create([
@@ -195,30 +194,28 @@ class ExamAssignmentModelTest extends TestCase
         $this->assertNotNull($assignment->submitted_at);
     }
 
-    /** @test */
+    #[Test]
     public function assignment_can_have_both_manual_and_auto_scores()
     {
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $this->exam->id,
             'student_id' => $this->student->id,
-            'score' => 85.5,      // Score final (manuel)
-            'auto_score' => 78.0   // Score automatique
+            'score' => 85.5,
+            'auto_score' => 78.0
         ]);
 
         $this->assertEquals(85.5, $assignment->score);
         $this->assertEquals(78.0, $assignment->auto_score);
     }
 
-    /** @test */
+    #[Test]
     public function assignment_prevents_duplicate_exam_student_pairs()
     {
-        // Créer la première assignation
         ExamAssignment::factory()->create([
             'exam_id' => $this->exam->id,
             'student_id' => $this->student->id
         ]);
 
-        // Tenter de créer une deuxième assignation pour le même couple exam/student
         $this->expectException(\Illuminate\Database\QueryException::class);
 
         ExamAssignment::factory()->create([
@@ -227,7 +224,7 @@ class ExamAssignmentModelTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function assignment_can_have_teacher_notes()
     {
         $assignment = ExamAssignment::factory()->create([
@@ -239,25 +236,20 @@ class ExamAssignmentModelTest extends TestCase
         $this->assertEquals('Excellent work, but could improve on question 3', $assignment->teacher_notes);
     }
 
-    /** @test */
+    #[Test]
     public function assignment_can_track_security_violations()
     {
-        $violations = [
-            ['type' => 'tab_switch', 'timestamp' => '2025-01-01 10:30:00'],
-            ['type' => 'full_screen_exit', 'timestamp' => '2025-01-01 10:45:00']
-        ];
 
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $this->exam->id,
             'student_id' => $this->student->id,
-            'security_violations' => $violations
+            'security_violation' => 'full_screen_exit'
         ]);
 
-        $this->assertEquals($violations, $assignment->security_violations);
-        $this->assertIsArray($assignment->security_violations);
+        $this->assertEquals('full_screen_exit', $assignment->security_violation);
     }
 
-    /** @test */
+    #[Test]
     public function assignment_can_be_forced_submission()
     {
         $assignment = ExamAssignment::factory()->create([
@@ -269,7 +261,7 @@ class ExamAssignmentModelTest extends TestCase
         $this->assertTrue($assignment->forced_submission);
     }
 
-    /** @test */
+    #[Test]
     public function assignment_has_default_security_values()
     {
         $assignment = ExamAssignment::factory()->create([
@@ -277,7 +269,7 @@ class ExamAssignmentModelTest extends TestCase
             'student_id' => $this->student->id
         ]);
 
-        $this->assertNull($assignment->security_violations);
+        $this->assertNull($assignment->security_violation);
         $this->assertFalse($assignment->forced_submission);
     }
 }
