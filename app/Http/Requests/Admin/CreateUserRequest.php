@@ -26,6 +26,7 @@ class CreateUserRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', 'string', 'in:admin,teacher,student'],
+            'group_id' => ['nullable', 'integer', 'exists:groups,id', 'required_if:role,student'],
         ];
     }
 
@@ -52,6 +53,9 @@ class CreateUserRequest extends FormRequest
             'role.required' => 'Le rôle est obligatoire.',
             'role.string' => 'Le rôle doit être une chaîne de caractères.',
             'role.in' => "Le rôle doit être l'un des suivants : admin, teacher, student.",
+            'group_id.required_if' => 'Le groupe est obligatoire pour les étudiants.',
+            'group_id.integer' => 'Le groupe doit être un identifiant valide.',
+            'group_id.exists' => 'Le groupe sélectionné n\'existe pas.',
         ];
     }
 }

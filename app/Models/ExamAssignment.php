@@ -53,7 +53,7 @@ class ExamAssignment extends Model
         'auto_score',
         'status',
         'teacher_notes',
-        'security_violations',
+        'security_violation',
         'forced_submission',
     ];
 
@@ -80,7 +80,6 @@ class ExamAssignment extends Model
             'submitted_at' => 'datetime',
             'score' => 'decimal:2',
             'auto_score' => 'decimal:2',
-            'security_violations' => 'array',
             'forced_submission' => 'boolean',
         ];
     }

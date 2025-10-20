@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -35,8 +36,8 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, 
-        Notifiable, 
+    use HasFactory,
+        Notifiable,
         HasRoles;
 
     /**
@@ -91,5 +92,45 @@ class User extends Authenticatable
     public function examAssignments(): HasMany
     {
         return $this->hasMany(ExamAssignment::class, 'student_id');
+    }
+
+    /**
+     * Get the groups associated with the user (student).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Group>
+     */
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class, 'group_student', 'student_id', 'group_id')
+            ->withPivot(['enrolled_at', 'left_at', 'is_active'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the current active group for the student.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Group>
+     */
+    public function activeGroup(): BelongsToMany
+    {
+        return $this->groups()->wherePivot('is_active', true);
+    }
+
+    /**
+     * Get all active groups for the student (alias for better readability)
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Group>
+     */
+    public function activeGroups(): BelongsToMany
+    {
+        return $this->activeGroup();
+    }
+
+    /**
+     * Get the current active group (single instance)
+     */
+    public function getCurrentGroup(): ?Group
+    {
+        return $this->activeGroup()->first();
     }
 }

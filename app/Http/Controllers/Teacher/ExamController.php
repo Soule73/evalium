@@ -16,12 +16,14 @@ use App\Services\Shared\UserAnswerService;
 use App\Services\Teacher\ExamScoringService;
 use App\Http\Requests\Teacher\StoreExamRequest;
 use App\Services\Teacher\ExamAssignmentService;
+use App\Services\Teacher\ExamGroupService;
 use App\Http\Requests\Teacher\AssignExamRequest;
 use App\Http\Requests\Teacher\UpdateExamRequest;
 use App\Http\Requests\Teacher\UpdateScoreRequest;
 use App\Http\Requests\Teacher\GetExamResultsRequest;
 use App\Http\Requests\Teacher\SaveStudentReviewRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Log;
 
 class ExamController extends Controller
 {
@@ -31,7 +33,8 @@ class ExamController extends Controller
         private ExamService $examService,
         private ExamAssignmentService $examAssignmentService,
         private UserAnswerService $userAnswerService,
-        private ExamScoringService $examScoringService
+        private ExamScoringService $examScoringService,
+        private ExamGroupService $examGroupService
     ) {}
 
     /**
@@ -125,8 +128,12 @@ class ExamController extends Controller
             'questions'
         ]);
 
+        // Récupérer les groupes assignés à cet examen
+        $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
+
         return Inertia::render('Teacher/ExamShow', [
-            'exam' => $exam
+            'exam' => $exam,
+            'assignedGroups' => $assignedGroups
         ]);
     }
 
@@ -276,9 +283,19 @@ class ExamController extends Controller
     {
         $this->authorize('update', $exam);
 
-        $assignmentData = $this->examAssignmentService->getAssignmentFormData($exam);
+        $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
 
-        return Inertia::render('Teacher/ExamAssign', $assignmentData);
+
+        $availableGroups = $this->examGroupService->getAvailableGroupsForExam($exam);
+
+        $legacyAssignments = $this->examAssignmentService->getAssignmentFormData($exam);
+
+        return Inertia::render('Teacher/ExamAssign', [
+            'exam' => $exam,
+            'assignedGroups' => $assignedGroups,
+            'availableGroups' => $availableGroups,
+            'students' => $legacyAssignments['students'],
+        ]);
     }
 
     /**
@@ -305,6 +322,57 @@ class ExamController extends Controller
         }
 
         return $this->redirectWithSuccess('teacher.exams.show', $message, ['exam' => $exam->id]);
+    }
+
+    /**
+     * Assigns the specified exam to one or multiple groups.
+     *
+     * @param Request $request The request containing the group IDs.
+     * @param Exam $exam The exam instance to be assigned.
+     * @return RedirectResponse Redirects back with a status message upon completion.
+     */
+    public function assignToGroups(Request $request, Exam $exam): RedirectResponse
+    {
+        $this->authorize('update', $exam);
+
+        $validated = $request->validate([
+            'group_ids' => 'required|array|min:1',
+            'group_ids.*' => 'required|exists:groups,id',
+        ]);
+
+        $result = $this->examGroupService->assignExamToGroups(
+            $exam,
+            $validated['group_ids']
+        );
+
+        $message = "Assignation terminée : {$result['assigned_count']} groupe(s) assigné(s)";
+        if ($result['already_assigned_count'] > 0) {
+            $message .= " ({$result['already_assigned_count']} déjà assigné(s))";
+        }
+
+        return $this->redirectWithSuccess('teacher.exams.show', $message, ['exam' => $exam->id]);
+    }
+
+    /**
+     * Remove the exam assignment from a group.
+     *
+     * @param Exam $exam The exam instance.
+     * @param int $groupId The group ID.
+     * @return RedirectResponse Redirects back with a status message.
+     */
+    public function removeFromGroup(Exam $exam, int $groupId): RedirectResponse
+    {
+        $this->authorize('update', $exam);
+
+        $group = \App\Models\Group::findOrFail($groupId);
+
+        $removed = $this->examGroupService->removeExamFromGroup($exam, $group);
+
+        if ($removed) {
+            return $this->flashSuccess("L'examen a été retiré du groupe avec succès.");
+        }
+
+        return $this->flashError("Impossible de retirer l'examen de ce groupe.");
     }
 
     /**
@@ -400,11 +468,13 @@ class ExamController extends Controller
             $result = $this->examScoringService->saveManualCorrection($exam, $student, $request->validated());
 
             return $this->redirectWithSuccess(
-                'teacher.exams.assignments',
-                "Correction sauvegardée avec succès ! {$result['updated_answers']} réponses mises à jour. Score total: {$result['total_score']} points.",
-                ['exam' => $exam->id]
+                'teacher.exams.review',
+                "Correction sauvegardée avec succès ! {$result['updated_answers']} réponses mises à jour. Note total: {$result['total_score']} points.",
+                ['exam' => $exam->id, 'student' => $student->id]
             );
         } catch (\Exception $e) {
+
+            Log::error("Erreur lors de la sauvegarde de la correction : " . $e->getMessage());
 
             return $this->redirectWithError(
                 'teacher.exams.review',
@@ -440,12 +510,12 @@ class ExamController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Score mis à jour avec succès'
+                'message' => 'Note mis à jour avec succès'
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de la mise à jour du score'
+                'message' => 'Erreur lors de la mise à jour de la note'
             ], 422);
         }
     }

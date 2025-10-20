@@ -5,6 +5,7 @@ namespace App\Services\Teacher;
 use App\Models\Exam;
 use App\Models\User;
 use App\Models\ExamAssignment;
+use App\Models\Group;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ExamAssignmentService
@@ -76,8 +77,21 @@ class ExamAssignmentService
         return [
             'success' => true,
             'assigned_count' => $assignedCount,
-            'already_assigned_count' => $alreadyAssignedCount
+            'already_assigned_count' => $alreadyAssignedCount,
+            'total_students' => count($studentIds)
         ];
+    }
+
+    /**
+     * Assigner un examen à tous les étudiants d'un groupe
+     */
+    public function assignExamToGroup(Exam $exam, int $groupId): array
+    {
+        $group = Group::with('activeStudents')->findOrFail($groupId);
+
+        $studentIds = $group->activeStudents->pluck('id')->toArray();
+
+        return $this->assignExamToStudents($exam, $studentIds);
     }
 
     /**
@@ -149,8 +163,15 @@ class ExamAssignmentService
         $exam->load(['questions', 'assignments.student']);
 
         $students = User::role('student')
+            ->with(['activeGroup'])
             ->select('id', 'name', 'email')
             ->orderBy('name')
+            ->get();
+
+        // Récupérer les groupes actifs avec leurs étudiants
+        $groups = Group::active()
+            ->with(['activeStudents', 'level'])
+            ->orderBy('academic_year', 'desc')
             ->get();
 
         $assignedStudentIds = $exam->assignments()
@@ -160,6 +181,7 @@ class ExamAssignmentService
         return [
             'exam' => $exam,
             'students' => $students,
+            'groups' => $groups,
             'alreadyAssigned' => $assignedStudentIds,
             'assignedStudentIds' => $assignedStudentIds
         ];

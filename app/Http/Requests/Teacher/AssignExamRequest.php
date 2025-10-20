@@ -28,7 +28,12 @@ class AssignExamRequest extends FormRequest
             return false;
         }
 
-        $exam = request()->route()->parameter('exam');
+        $route = request()->route();
+        if (!$route) {
+            return true;
+        }
+
+        $exam = $route->parameter('exam');
         if ($exam) {
             return $exam->teacher_id === $user->id;
         }

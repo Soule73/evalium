@@ -3,6 +3,8 @@
 namespace App\Services\Admin;
 
 use App\Models\User;
+use App\Models\Group;
+use App\Services\Admin\GroupService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
@@ -10,6 +12,9 @@ use Spatie\Permission\Models\Role;
 
 class UserManagementService
 {
+    public function __construct(
+        private readonly GroupService $groupService
+    ) {}
     public function getUserWithPagination(array $filters, int $perPage, User $currentUser)
     {
         $query = User::with('roles')->whereNot('id', $currentUser->id);
@@ -41,6 +46,11 @@ class UserManagementService
             ]);
 
             $user->assignRole($data['role']);
+
+            if ($data['role'] === 'student' && isset($data['group_id'])) {
+                $group = Group::findOrFail($data['group_id']);
+                $this->groupService->assignStudentToGroup($group, $user->id);
+            }
         });
     }
 
@@ -82,6 +92,7 @@ class UserManagementService
             $user->exams()->delete();
             $user->answers()->delete();
             $user->roles()->detach();
+            $user->groups()->detach();
 
             $user->delete();
         });
@@ -91,5 +102,15 @@ class UserManagementService
     {
         $user->is_active = !$user->is_active;
         $user->save();
+    }
+
+    public function changeStudentGroup(User $student, int $newGroupId)
+    {
+        if (!$student->hasRole('student')) {
+            throw new \InvalidArgumentException("L'utilisateur doit être un étudiant.");
+        }
+
+        $newGroup = Group::findOrFail($newGroupId);
+        $this->groupService->assignStudentToGroup($newGroup, $student->id);
     }
 }

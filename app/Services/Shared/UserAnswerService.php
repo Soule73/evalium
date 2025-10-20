@@ -27,6 +27,7 @@ class UserAnswerService
                         'answer_text' => $answer->answer_text,
                         'choice' => $answer->choice,
                         'score' => $answer->score,
+                        'feedback' => $answer->feedback,
                         'question_id' => $answer->question_id,
                     ];
                 }
@@ -43,9 +44,10 @@ class UserAnswerService
                     })->toArray(),
                     'answer_text' => null,
                     'score' => $firstAnswer->score,
+                    'feedback' => $firstAnswer->feedback,
                     'question_id' => $firstAnswer->question_id,
                 ];
-            })->toArray();
+            })->values()->toArray();
     }
 
     /**

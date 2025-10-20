@@ -54,6 +54,11 @@ class SaveStudentReviewRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:1000'
+            ],
+            'teacher_notes' => [
+                'nullable',
+                'string',
+                'max:2000'
             ]
         ];
     }
@@ -76,7 +81,9 @@ class SaveStudentReviewRequest extends FormRequest
             'scores.*.score.numeric' => 'La note doit être un nombre.',
             'scores.*.score.min' => 'La note ne peut pas être négatif.',
             'scores.*.feedback.string' => 'Le commentaire doit être du texte.',
-            'scores.*.feedback.max' => 'Le commentaire ne peut pas dépasser 1000 caractères.'
+            'scores.*.feedback.max' => 'Le commentaire ne peut pas dépasser 1000 caractères.',
+            'teacher_notes.string' => 'Les notes du professeur doivent être du texte.',
+            'teacher_notes.max' => 'Les notes du professeur ne peuvent pas dépasser 2000 caractères.'
         ];
     }
 

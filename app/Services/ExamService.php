@@ -620,6 +620,7 @@ class ExamService
 
     /**
      * Retrieves the exams assigned to a specific student.
+     * Now includes exams assigned via groups.
      *
      * @param User $student The student user for whom to retrieve assigned exams.
      * @param int $perPage The number of exams to display per page. Defaults to 10.
@@ -630,11 +631,95 @@ class ExamService
      */
     public function getAssignedExamsForStudent(User $student, ?int $perPage = 10, ?string $status = null, ?string $search = null)
     {
-        $query = $student->examAssignments()->with('exam.questions')->orderBy('assigned_at', 'desc')
-            ->when($search, fn($query) => $query->whereHas('exam', fn($q) => $q->where('title', 'like', "%{$search}%")->orWhere('description', 'like', "%{$search}%")))
-            ->when($status, fn($query) => $query->where('status', $status));
+        // Récupérer les IDs des examens disponibles via les groupes actifs de l'étudiant
+        $examIdsFromGroups = $student->activeGroups()
+            ->with('exams')
+            ->get()
+            ->pluck('exams')
+            ->flatten()
+            ->pluck('id')
+            ->unique()
+            ->toArray();
 
-        return $perPage ? $query->paginate($perPage) : $query->get();
+        // Créer une query qui combine les assignments existants
+        $assignmentsQuery = $student->examAssignments()
+            ->with('exam.questions')
+            ->orderBy('assigned_at', 'desc');
+
+        // Appliquer les filtres de recherche et status aux assignments existants
+        if ($search) {
+            $assignmentsQuery->whereHas(
+                'exam',
+                fn($q) =>
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+            );
+        }
+
+        if ($status) {
+            $assignmentsQuery->where('status', $status);
+        }
+
+        $existingAssignments = $assignmentsQuery->get();
+        $existingExamIds = $existingAssignments->pluck('exam_id')->toArray();
+
+        // Si pas de pagination, retourner seulement les assignments existants pour maintenir la compatibilité
+        if (!$perPage) {
+            return $existingAssignments;
+        }
+
+        // Pour la pagination, créer des "pseudo-assignments" pour les examens disponibles via les groupes
+        $availableExamIds = array_diff($examIdsFromGroups, $existingExamIds);
+
+        if (!empty($availableExamIds)) {
+            $availableExams = Exam::whereIn('id', $availableExamIds)
+                ->where('is_active', true)
+                ->with('questions')
+                ->when(
+                    $search,
+                    fn($q) =>
+                    $q->where('title', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                )
+                ->get();
+
+            // Créer des objets ExamAssignment "virtuels" pour les examens disponibles
+            $virtualAssignments = $availableExams->map(function ($exam) use ($student) {
+                $assignment = new ExamAssignment();
+                $assignment->exam_id = $exam->id;
+                $assignment->student_id = $student->id;
+                $assignment->status = 'assigned';
+                $assignment->assigned_at = now();
+                $assignment->setRelation('exam', $exam); // Utiliser setRelation au lieu de l'assignation directe
+                $assignment->exists = false; // Marquer comme non-persisté
+                return $assignment;
+            });
+
+            // Fusionner avec les assignments existants
+            $allAssignments = $existingAssignments->concat($virtualAssignments);
+        } else {
+            $allAssignments = $existingAssignments;
+        }
+
+        // Filtrer par status si nécessaire après fusion
+        if ($status) {
+            $allAssignments = $allAssignments->where('status', $status);
+        }
+
+        // Paginer manuellement
+        $page = request()->input('page', 1);
+        $offset = ($page - 1) * $perPage;
+
+        $items = $allAssignments->slice($offset, $perPage)->values();
+        $total = $allAssignments->count();
+
+        return new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
     }
 
     /**

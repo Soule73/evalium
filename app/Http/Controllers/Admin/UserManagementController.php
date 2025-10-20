@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
+use App\Models\Group;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
@@ -38,10 +39,12 @@ class UserManagementController extends Controller
         $users = $this->userService->getUserWithPagination($filters, 10, Auth::user());
 
         $roles = Role::pluck('name');
+        $groups = Group::active()->with('level')->orderBy('academic_year', 'desc')->get();
 
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
             'roles' => $roles,
+            'groups' => $groups,
         ]);
     }
 
@@ -122,14 +125,19 @@ class UserManagementController extends Controller
 
         $perPage = $request->input('per_page', 10);
 
-        $user->load('roles');
+        $user->load(['roles', 'groups' => function ($query) {
+            $query->withPivot(['enrolled_at', 'left_at', 'is_active'])
+                ->orderBy('group_student.enrolled_at', 'desc');
+        }]);
 
         $assignments = $this->examService->getAssignedExamsForStudent($user, $perPage, $status, $search);
 
+        $availableGroups = Group::active()->with('level')->orderBy('academic_year', 'desc')->get();
 
         return Inertia::render('Admin/Users/ShowStudent', [
             'user' => $user,
             'examsAssignments' => $assignments,
+            'availableGroups' => $availableGroups,
         ]);
     }
 
@@ -205,5 +213,26 @@ class UserManagementController extends Controller
 
 
         return $this->redirectWithSuccess('admin.users.index', 'Statut de l\'utilisateur modifié.');
+    }
+
+    /**
+     * Change le groupe d'un étudiant
+     */
+    public function changeStudentGroup(Request $request, User $user)
+    {
+        $request->validate([
+            'group_id' => 'required|integer|exists:groups,id'
+        ]);
+
+        if (!$user->hasRole('student')) {
+            return $this->flashError("L'utilisateur n'est pas un étudiant.");
+        }
+
+        try {
+            $this->userService->changeStudentGroup($user, $request->group_id);
+            return $this->redirectWithSuccess('admin.users.index', 'Groupe de l\'étudiant modifié avec succès.');
+        } catch (\Exception $e) {
+            return $this->flashError("Erreur lors du changement de groupe : " . $e->getMessage());
+        }
     }
 }

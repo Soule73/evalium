@@ -207,7 +207,8 @@ class ExamScoringService
         $totalScore = $assignment->answers()->sum('score');
         $assignment->update([
             'score' => $totalScore,
-            'status' => 'graded'
+            'status' => 'graded',
+            'teacher_notes' => $validatedData['teacher_notes'] ?? null
         ]);
 
         return [

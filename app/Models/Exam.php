@@ -114,6 +114,18 @@ class Exam extends Model
     }
 
     /**
+     * Get the groups to which this exam is assigned.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Group>
+     */
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class, 'exam_group')
+            ->withPivot(['assigned_at', 'assigned_by'])
+            ->withTimestamps();
+    }
+
+    /**
      * Get the count of unique participants for the exam.
      * 
      * This is an accessor for the `unique_participants_count` attribute.
@@ -132,7 +144,7 @@ class Exam extends Model
      *
      * @return int The sum of all points assigned to the exam.
      */
-    public function totalPointsAttribute(): int
+    public function getTotalPointsAttribute(): int
     {
         return $this->questions
             ->whereNotNull('points')

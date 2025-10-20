@@ -7,19 +7,17 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Services\ExamService;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
-use App\Services\Student\AnswerService;
 use Inertia\Response as InertiaResponse;
-use App\Services\Student\ExamScoringService;
-use App\Services\Student\ExamSessionService;
 use App\Services\Shared\UserAnswerService;
+use App\Services\Student\ExamSessionService;
 use App\Http\Requests\Student\SubmitExamRequest;
 use App\Http\Requests\Student\SaveAnswersRequest;
-use App\Services\Student\SecurityViolationService;
 use App\Http\Requests\Student\SecurityViolationRequest;
 
 class ExamController extends Controller
@@ -29,9 +27,6 @@ class ExamController extends Controller
     public function __construct(
         private readonly ExamService $examService,
         private readonly ExamSessionService $examSessionService,
-        private readonly AnswerService $answerService,
-        private readonly SecurityViolationService $securityService,
-        private readonly ExamScoringService $scoringService,
         private readonly UserAnswerService $userAnswerService
     ) {}
 
@@ -96,6 +91,11 @@ class ExamController extends Controller
                 'creator' => $creator,
             ]);
         } else {
+            // Vérifier que l'examen est noté avant d'afficher les résultats
+            if ($assignment->status !== 'graded') {
+                abort(403, 'Les résultats ne sont pas encore disponibles.');
+            }
+
             $exam->load(['questions.choices']);
 
             $userAnswers = $this->userAnswerService->formatUserAnswersForFrontend($assignment);
@@ -128,15 +128,15 @@ class ExamController extends Controller
         $assignment = $this->examSessionService->findOrCreateAssignment($exam, $student);
 
         if (!$this->examService->examIsActive($exam)) {
-            return $this->redirectWithError('student.exams.index', "Cet examen n'est pas disponible.");
+            return $this->redirectWithError('student.exams.show', "Cet examen n'est pas disponible.", ['exam' => $exam->id]);
         }
 
         if (!$this->examSessionService->validateExamTiming($exam)) {
-            return $this->redirectWithError('student.exams.index', "Cet examen n'est pas accessible actuellement.");
+            return $this->redirectWithError('student.exams.show', "Cet examen n'est pas accessible actuellement.", ['exam' => $exam->id]);
         }
 
         if (!$this->examService->canTakeExam($exam, $assignment)) {
-            return $this->redirectWithInfo('student.exams.index', "Vous avez déjà complété cet examen.");
+            return $this->redirectWithInfo('student.exams.show', "Vous avez déjà complété cet examen.", ['exam' => $exam->id]);
         }
 
         $this->examSessionService->startExam($assignment);
@@ -171,7 +171,7 @@ class ExamController extends Controller
         $assignment = $this->examService->getStartedExamForStudent($exam, $student->id);
 
         try {
-            $this->answerService->saveMultipleAnswers($assignment, $exam, $request->validated()['answers']);
+            $this->examSessionService->saveMultipleAnswers($assignment, $exam, $request->validated()['answers']);
 
             return response()->json([
                 'success' => true,
@@ -194,9 +194,9 @@ class ExamController extends Controller
      *
      * @param SecurityViolationRequest $request The request containing security violation details.
      * @param Exam $exam The exam instance related to the violation.
-     * @return InertiaResponse The response to be sent back to the client.
+     * @return JsonResponse The JSON response to be sent back to the client.
      */
-    public function handleSecurityViolation(SecurityViolationRequest $request, Exam $exam): InertiaResponse
+    public function handleSecurityViolation(SecurityViolationRequest $request, Exam $exam): JsonResponse
     {
         /** @var \App\Models\User $student */
         $student = Auth::user();
@@ -209,23 +209,29 @@ class ExamController extends Controller
         $validated = $request->validated();
 
         if (isset($validated['answers'])) {
-            $this->answerService->saveMultipleAnswers($assignment, $exam, $validated['answers']);
+            $this->examSessionService->saveMultipleAnswers($assignment, $exam, $validated['answers']);
         }
 
-        $autoScore = $this->scoringService->calculateAutoScore($assignment);
-        $assignment->update(['auto_score' => $autoScore]);
+        $autoScore = $this->examSessionService->calculateAutoScore($assignment);
+        $assignment->update(['auto_score' => $autoScore, 'submitted_at' => Carbon::now(), 'status' => 'pending_review']);
 
-        $this->securityService->handleViolation(
+        $this->examSessionService->handleViolation(
             $assignment,
             $validated['violation_type'],
             $validated['violation_details'] ?? '',
             $validated['answers'] ?? []
         );
 
-        return Inertia::render('Student/SecurityViolationPage', [
-            'exam' => $exam,
-            'reason' => $validated['violation_type'],
-            'violationDetails' => $validated['violation_details'] ?? '',
+        // Recharger l'assignment pour avoir les données à jour
+        $assignment->refresh();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Violation de sécurité traitée',
+            'exam_terminated' => true,
+            'violation_type' => $validated['violation_type'],
+            'violation_details' => $validated['violation_details'] ?? '',
+            'assignment' => $assignment
         ]);
     }
 
@@ -277,13 +283,18 @@ class ExamController extends Controller
 
         $assignment = $this->examService->getAssignedExamForStudent($exam, $student->id);
 
+        // Vérifier que l'examen a été commencé
+        if ($assignment->status !== 'started') {
+            return back()->withErrors(['exam' => 'Vous devez commencer l\'examen avant de le soumettre.']);
+        }
+
         $validated = $request->validated();
 
         if (isset($validated['answers'])) {
-            $this->answerService->saveMultipleAnswers($assignment, $exam, $validated['answers']);
+            $this->examSessionService->saveMultipleAnswers($assignment, $exam, $validated['answers']);
         }
 
-        $autoScore = $this->scoringService->calculateAutoScore($assignment);
+        $autoScore = $this->examSessionService->calculateAutoScore($assignment);
         $hasTextQuestions = $exam->questions()->where('type', 'text')->exists();
         $isSecurityViolation = $validated['security_violation'] ?? false;
 
