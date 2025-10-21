@@ -22,3 +22,10 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+/playwright
+/playwright-report
+/test-results
+
+/docs
+package.json.ci-scripts

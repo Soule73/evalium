@@ -1,0 +1,197 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  MYSQL_ROOT_PASSWORD: password
+  MYSQL_DATABASE: examena_test
+  DB_HOST: mysql
+  DB_USERNAME: root
+  DB_PASSWORD: password
+
+# Cache pour accélérer les builds
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - vendor/
+    - node_modules/
+    - .npm/
+
+# Template pour PHP
+.php-base:
+  image: php:8.4-cli
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git curl libmcrypt-dev libjpeg-dev libpng-dev libfreetype6-dev libbz2-dev libzip-dev unzip
+    - docker-php-ext-install pdo pdo_mysql zip bcmath gd
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    - composer install --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+# Template pour Node.js
+.node-base:
+  image: node:20-alpine
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+
+# Build stage
+build:composer:
+  extends: .php-base
+  stage: build
+  script:
+    - composer validate
+    - composer install --prefer-dist --no-interaction --no-progress
+  artifacts:
+    paths:
+      - vendor/
+    expire_in: 1 hour
+
+build:npm:
+  extends: .node-base
+  stage: build
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - node_modules/
+      - public/build/
+    expire_in: 1 hour
+
+# Tests Laravel (PHPUnit)
+test:laravel:
+  extends: .php-base
+  stage: test
+  services:
+    - mysql:8.0
+  dependencies:
+    - build:composer
+  script:
+    - cp .env.example .env
+    - php artisan key:generate
+    - php artisan migrate --force
+    - php artisan test --coverage --min=70
+  coverage: '/^\s*Lines:\s*\d+\.\d+\%/'
+  artifacts:
+    reports:
+      junit: storage/logs/junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura.xml
+    paths:
+      - coverage/
+    expire_in: 1 week
+    when: always
+
+# Tests Jest (Frontend unit)
+test:jest:
+  extends: .node-base
+  stage: test
+  dependencies:
+    - build:npm
+  script:
+    - npm run test:unit -- --coverage --ci
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      junit: coverage/junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+    paths:
+      - coverage/
+    expire_in: 1 week
+    when: always
+
+# Tests Playwright (E2E)
+test:playwright:
+  image: mcr.microsoft.com/playwright:v1.40.0-focal
+  stage: test
+  services:
+    - mysql:8.0
+  dependencies:
+    - build:composer
+    - build:npm
+  before_script:
+    # Install PHP
+    - apt-get update -qq
+    - apt-get install -y -qq software-properties-common
+    - add-apt-repository ppa:ondrej/php -y
+    - apt-get update -qq
+    - apt-get install -y -qq php8.4-cli php8.4-mysql php8.4-mbstring php8.4-xml php8.4-curl php8.4-zip php8.4-gd php8.4-bcmath
+    # Install Composer
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    # Install dependencies
+    - composer install --prefer-dist --no-interaction --no-progress
+    - npm ci
+  script:
+    - cp .env.example .env
+    - php artisan key:generate
+    - php artisan migrate --force
+    - php artisan db:seed --force
+    # Start Laravel server in background
+    - php artisan serve --host=127.0.0.1 --port=8000 &
+    - sleep 5
+    # Run Playwright tests
+    - npx playwright test --project=chromium
+  artifacts:
+    paths:
+      - playwright-report/
+      - test-results/
+    expire_in: 1 week
+    when: always
+  allow_failure: false
+
+# Test de code quality (optionnel)
+test:code-quality:
+  extends: .php-base
+  stage: test
+  dependencies:
+    - build:composer
+  script:
+    - ./vendor/bin/phpstan analyse --memory-limit=2G || true
+    - ./vendor/bin/pint --test || true
+  allow_failure: true
+
+# Test de sécurité (optionnel)
+test:security:
+  extends: .php-base
+  stage: test
+  dependencies:
+    - build:composer
+  script:
+    - composer audit || true
+  allow_failure: true
+
+# Job de résumé
+test:summary:
+  stage: .post
+  image: alpine:latest
+  script:
+    - echo "=========================================="
+    - echo "📊 Test Summary"
+    - echo "=========================================="
+    - echo "Laravel Tests - Check artifacts"
+    - echo "Jest Tests - Check artifacts"
+    - echo "Playwright Tests - Check artifacts"
+    - echo "=========================================="
+  when: always
+
+# Pages pour les rapports (optionnel)
+pages:
+  stage: deploy
+  dependencies:
+    - test:laravel
+    - test:jest
+    - test:playwright
+  script:
+    - mkdir -p public/coverage
+    - mkdir -p public/playwright
+    - cp -r coverage/* public/coverage/ || true
+    - cp -r playwright-report/* public/playwright/ || true
+    - echo '<html><body><h1>Test Reports</h1><ul><li><a href="coverage/">Coverage</a></li><li><a href="playwright/">Playwright</a></li></ul></body></html>' > public/index.html
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+  only:
+    - main

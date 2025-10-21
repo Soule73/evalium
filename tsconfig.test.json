@@ -1,0 +1,20 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "types": [
+            "jest",
+            "@testing-library/jest-dom",
+            "@playwright/test"
+        ],
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "resources/ts/**/*",
+        "tests/frontend/**/*",
+        "tests/e2e/**/*",
+        "jest.setup.js",
+        "jest.config.js",
+        "playwright.config.ts"
+    ]
+}
