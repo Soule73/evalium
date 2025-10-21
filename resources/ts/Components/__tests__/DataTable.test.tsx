@@ -150,7 +150,7 @@ describe('DataTable Component', () => {
             ),
         };
 
-        const { rerender } = render(<DataTable data={mockData} config={configWithActions} />);
+        render(<DataTable data={mockData} config={configWithActions} />);
 
         // Selection actions might not be visible until items are selected
         // Let's just verify the component renders without errors

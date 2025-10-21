@@ -6,7 +6,7 @@ import Modal from '../Modal';
 describe('Modal Component', () => {
     it('renders when isOpen is true', () => {
         render(
-            <Modal isOpen={true} onClose={() => {}}>
+            <Modal isOpen={true} onClose={() => { }}>
                 <div>Modal Content</div>
             </Modal>
         );
@@ -16,7 +16,7 @@ describe('Modal Component', () => {
 
     it('does not render when isOpen is false', () => {
         render(
-            <Modal isOpen={false} onClose={() => {}}>
+            <Modal isOpen={false} onClose={() => { }}>
                 <div>Modal Content</div>
             </Modal>
         );
@@ -75,7 +75,7 @@ describe('Modal Component', () => {
 
     it('renders with different sizes', () => {
         const { rerender, container } = render(
-            <Modal isOpen={true} onClose={() => {}} size="sm">
+            <Modal isOpen={true} onClose={() => { }} size="sm">
                 <div>Small Modal</div>
             </Modal>
         );
@@ -84,7 +84,7 @@ describe('Modal Component', () => {
         expect(dialog).toBeInTheDocument();
 
         rerender(
-            <Modal isOpen={true} onClose={() => {}} size="lg">
+            <Modal isOpen={true} onClose={() => { }} size="lg">
                 <div>Large Modal</div>
             </Modal>
         );
@@ -95,7 +95,7 @@ describe('Modal Component', () => {
 
     it('hides close button when isCloseableInside is false', () => {
         render(
-            <Modal isOpen={true} onClose={() => {}} isCloseableInside={false}>
+            <Modal isOpen={true} onClose={() => { }} isCloseableInside={false}>
                 <div>Modal Content</div>
             </Modal>
         );
@@ -105,7 +105,7 @@ describe('Modal Component', () => {
 
     it('renders with custom className', () => {
         const { container } = render(
-            <Modal isOpen={true} onClose={() => {}} className="custom-modal">
+            <Modal isOpen={true} onClose={() => { }} className="custom-modal">
                 <div>Modal Content</div>
             </Modal>
         );

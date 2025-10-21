@@ -26,6 +26,7 @@ Thumbs.db
 /playwright
 /playwright-report
 /test-results
+/coverage
 
 /docs
 package.json.ci-scripts

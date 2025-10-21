@@ -1,5 +1,6 @@
-/** @type {import('jest').Config} */
-module.exports = {
+import type { Config } from 'jest';
+
+const config: Config = {
     // Environnement de test
     testEnvironment: 'jsdom',
 
@@ -17,7 +18,7 @@ module.exports = {
     },
 
     // Fichiers de setup
-    setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
+    setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 
     // Pattern des fichiers de test
     testMatch: [
@@ -68,3 +69,5 @@ module.exports = {
     // Configuration pour les tests asynchrones
     testTimeout: 10000,
 };
+
+export default config;

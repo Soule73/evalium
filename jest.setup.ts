@@ -1,7 +1,12 @@
-require('@testing-library/jest-dom');
+import '@testing-library/jest-dom';
+
+// Extend global types
+declare global {
+    var route: jest.Mock;
+}
 
 // Mock pour Inertia.js
-global.route = jest.fn().mockImplementation((name, params) => {
+(global as any).route = jest.fn().mockImplementation((name?: string, params?: Record<string, any>) => {
     if (params) {
         return `/${name}/${Object.values(params).join('/')}`;
     }
@@ -11,7 +16,7 @@ global.route = jest.fn().mockImplementation((name, params) => {
 // Mock pour les assets Vite
 Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: jest.fn().mockImplementation(query => ({
+    value: jest.fn().mockImplementation((query: string) => ({
         matches: false,
         media: query,
         onchange: null,
@@ -28,7 +33,7 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
     observe: jest.fn(),
     unobserve: jest.fn(),
     disconnect: jest.fn(),
-}));
+})) as any;
 
 // Mock pour scrollIntoView
 Element.prototype.scrollIntoView = jest.fn();
