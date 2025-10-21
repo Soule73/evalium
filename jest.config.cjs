@@ -17,7 +17,7 @@ module.exports = {
     },
 
     // Fichiers de setup
-    setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+    setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
 
     // Pattern des fichiers de test
     testMatch: [
@@ -32,6 +32,11 @@ module.exports = {
         '<rootDir>/vendor/',
         '<rootDir>/storage/',
         '<rootDir>/bootstrap/cache/',
+    ],
+
+    // Transformer les modules ESM de node_modules
+    transformIgnorePatterns: [
+        'node_modules/(?!(lodash-es|@inertiajs)/)',
     ],
 
     // Configuration de la couverture de code
