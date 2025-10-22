@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->integer('duration'); // en minutes
+            $table->integer('duration')->comment('Duration in minutes');
             $table->datetime('start_time')->nullable();
             $table->datetime('end_time')->nullable();
             $table->boolean('is_active')->default(false);

@@ -18,7 +18,6 @@ class ExamScoringService
             $totalScore = 0;
             $updatedAnswers = 0;
 
-            // Mettre à jour les scores des réponses
             foreach ($scores as $questionId => $scoreData) {
                 $newScore = is_array($scoreData) ? $scoreData['score'] : $scoreData;
 
@@ -41,14 +40,12 @@ class ExamScoringService
                 }
             }
 
-            // Calculer le score total et déterminer le statut final
             $hasTextQuestions = $assignment->exam->questions()
                 ->where('type', 'text')
                 ->exists();
 
             $finalStatus = $hasTextQuestions ? 'graded' : 'graded';
 
-            // Mettre à jour l'assignation avec le score final
             $assignment->update([
                 'score' => $totalScore,
                 'status' => $finalStatus,
@@ -75,7 +72,6 @@ class ExamScoringService
         $questions = $exam->questions()->with('choices')->get();
 
         foreach ($questions as $question) {
-            // Ignorer les questions de type texte
             if ($question->type === 'text') {
                 continue;
             }

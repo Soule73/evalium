@@ -142,7 +142,6 @@ class ExamService
                 }
             }
 
-            // Traiter les suppressions explicites de choix
             if (isset($data['deletedChoiceIds']) && is_array($data['deletedChoiceIds']) && !empty($data['deletedChoiceIds'])) {
                 $validChoiceIds = \App\Models\Choice::whereHas('question', function ($query) use ($exam) {
                     $query->where('exam_id', $exam->id);
@@ -327,7 +326,6 @@ class ExamService
     private function updateChoiceOptions(Question $question, array $questionData): void
     {
         if (!isset($questionData['choices']) || !is_array($questionData['choices'])) {
-            // Si aucun choix n'est fourni, préserver les choix existants
             return;
         }
 
@@ -507,7 +505,6 @@ class ExamService
      */
     private function createBooleanOptions(Question $question, array $questionData): void
     {
-        // Pour les questions boolean, on cherche la réponse correcte dans les choices
         $correctAnswer = 'true';
 
         if (isset($questionData['choices']) && is_array($questionData['choices'])) {
@@ -631,7 +628,6 @@ class ExamService
      */
     public function getAssignedExamsForStudent(User $student, ?int $perPage = 10, ?string $status = null, ?string $search = null)
     {
-        // Récupérer les IDs des examens disponibles via les groupes actifs de l'étudiant
         $examIdsFromGroups = $student->activeGroups()
             ->with('exams')
             ->get()
@@ -641,12 +637,10 @@ class ExamService
             ->unique()
             ->toArray();
 
-        // Créer une query qui combine les assignments existants
         $assignmentsQuery = $student->examAssignments()
             ->with('exam.questions')
             ->orderBy('assigned_at', 'desc');
 
-        // Appliquer les filtres de recherche et status aux assignments existants
         if ($search) {
             $assignmentsQuery->whereHas(
                 'exam',
@@ -663,12 +657,14 @@ class ExamService
         $existingAssignments = $assignmentsQuery->get();
         $existingExamIds = $existingAssignments->pluck('exam_id')->toArray();
 
-        // Si pas de pagination, retourner seulement les assignments existants pour maintenir la compatibilité
+        // Si pas de pagination, retourner seulement les assignments 
+        // existants pour maintenir la compatibilité
         if (!$perPage) {
             return $existingAssignments;
         }
 
-        // Pour la pagination, créer des "pseudo-assignments" pour les examens disponibles via les groupes
+        // Pour la pagination, créer des "pseudo-assignments" 
+        // pour les examens disponibles via les groupes
         $availableExamIds = array_diff($examIdsFromGroups, $existingExamIds);
 
         if (!empty($availableExamIds)) {
@@ -690,23 +686,24 @@ class ExamService
                 $assignment->student_id = $student->id;
                 $assignment->status = 'assigned';
                 $assignment->assigned_at = now();
-                $assignment->setRelation('exam', $exam); // Utiliser setRelation au lieu de l'assignation directe
-                $assignment->exists = false; // Marquer comme non-persisté
+
+                // Utiliser setRelation au lieu de l'assignation directe
+                $assignment->setRelation('exam', $exam);
+
+                // Marquer comme non-persisté
+                $assignment->exists = false;
                 return $assignment;
             });
 
-            // Fusionner avec les assignments existants
             $allAssignments = $existingAssignments->concat($virtualAssignments);
         } else {
             $allAssignments = $existingAssignments;
         }
 
-        // Filtrer par status si nécessaire après fusion
         if ($status) {
             $allAssignments = $allAssignments->where('status', $status);
         }
 
-        // Paginer manuellement
         $page = request()->input('page', 1);
         $offset = ($page - 1) * $perPage;
 
@@ -725,7 +722,8 @@ class ExamService
     /**
      * Retrieves statistical data for the student dashboard based on the provided exam assignments.
      *
-     * @param \Illuminate\Database\Eloquent\Collection $examAssignments Collection of exam assignments for the student.
+     * @param \Illuminate\Database\Eloquent\Collection $examAssignments 
+     * Collection of exam assignments for the student.
      * @return array An associative array containing dashboard statistics.
      */
     public function getStudentDashboardStats(Collection $examAssignments): array

@@ -115,7 +115,6 @@ class TeacherDashboardService
         $assignments = ExamAssignment::whereIn('exam_id', $examIds)
             ->whereIn('status', ['submitted', 'graded'])
             ->whereNotNull('score')
-            // ->with('exam:id,total_points')
             ->get();
 
         if ($assignments->isEmpty()) {

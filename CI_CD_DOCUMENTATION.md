@@ -1,10 +1,10 @@
 # CI/CD Configuration Documentation
 
-## 📋 Overview
+## Overview
 
 This project includes CI/CD pipelines for both **GitHub Actions** and **GitLab CI** to automatically run all test suites.
 
-## 🧪 Test Suites
+## Test Suites
 
 ### 1. **Laravel Tests (PHPUnit)**
 - Backend unit and feature tests
@@ -23,7 +23,7 @@ This project includes CI/CD pipelines for both **GitHub Actions** and **GitLab C
 
 ---
 
-## 🐙 GitHub Actions
+## GitHub Actions
 
 ### File: `.github/workflows/tests.yml`
 
@@ -80,7 +80,7 @@ npm run test:e2e           # Playwright
 
 ---
 
-## 🦊 GitLab CI
+## GitLab CI
 
 ### File: `.gitlab-ci.yml`
 
@@ -158,7 +158,7 @@ https://yourusername.gitlab.io/examena/
 
 ---
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -198,7 +198,7 @@ cache:
 
 ---
 
-## 📊 Coverage Reports
+## Coverage Reports
 
 ### Minimum Coverage
 - **PHPUnit**: 70%
@@ -218,7 +218,7 @@ cache:
 
 ---
 
-## 🚀 Optimization Tips
+## Optimization Tips
 
 ### Speed Up CI
 
@@ -266,7 +266,7 @@ projects: isCI
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -320,7 +320,7 @@ CI_DEBUG_TRACE: "true"
 
 ---
 
-## 📈 Badges
+## Badges
 
 ### GitHub
 
@@ -337,7 +337,7 @@ CI_DEBUG_TRACE: "true"
 
 ---
 
-## 📝 Maintenance
+## Maintenance
 
 ### Update Dependencies
 
@@ -356,7 +356,7 @@ CI_DEBUG_TRACE: "true"
 
 ---
 
-## 🔗 Resources
+## Resources
 
 - [GitHub Actions Docs](https://docs.github.com/actions)
 - [GitLab CI Docs](https://docs.gitlab.com/ee/ci/)
@@ -366,7 +366,7 @@ CI_DEBUG_TRACE: "true"
 
 ---
 
-## ✅ Checklist
+## Checklist
 
 Before pushing:
 

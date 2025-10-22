@@ -29,19 +29,17 @@ class ExamGroupService
         DB::beginTransaction();
         try {
             foreach ($groupIds as $groupId) {
-                // Vérifier si le groupe existe
+
                 $group = Group::find($groupId);
                 if (!$group) {
                     continue;
                 }
 
-                // Vérifier si l'examen est déjà assigné à ce groupe
                 if ($exam->groups()->where('group_id', $groupId)->exists()) {
                     $alreadyAssignedCount++;
                     continue;
                 }
 
-                // Assigner l'examen au groupe
                 $exam->groups()->attach($groupId, [
                     'assigned_by' => $teacherId,
                     'assigned_at' => now(),

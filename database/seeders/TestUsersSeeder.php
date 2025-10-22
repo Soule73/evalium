@@ -12,7 +12,6 @@ class TestUsersSeeder extends Seeder
      */
     public function run(): void
     {
-        // Créer quelques utilisateurs de test
         $admin = \App\Models\User::create([
             'name' => 'Administrateur Test',
             'email' => 'admin@test.com',

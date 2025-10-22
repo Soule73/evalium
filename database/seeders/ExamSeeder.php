@@ -12,15 +12,13 @@ class ExamSeeder extends Seeder
      */
     public function run(): void
     {
-        // Récupérer les enseignants
         $teachers = \App\Models\User::role('teacher')->get();
-        
+
         if ($teachers->isEmpty()) {
             echo "Aucun enseignant trouvé. Veuillez d'abord créer des enseignants.\n";
             return;
         }
 
-        // Créer des examens pour chaque enseignant
         foreach ($teachers as $teacher) {
             $this->createMathExam($teacher);
             $this->createComputerScienceExam($teacher);
@@ -41,19 +39,18 @@ class ExamSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // Question 1: Choix unique (one_choice)
         $question1 = \App\Models\Question::create([
             'exam_id' => $mathExam->id,
             'content' => '## Équation du Second Degré
 
-Résolvez l\'équation quadratique suivante :
+                        Résolvez l\'équation quadratique suivante :
 
-$$x^2 - 5x + 6 = 0$$
+                        $$x^2 - 5x + 6 = 0$$
 
-### Méthode suggérée :
-Utiliser la factorisation ou la formule quadratique.
+                        ### Méthode suggérée :
+                        Utiliser la factorisation ou la formule quadratique.
 
-Quelle est la solution correcte ?',
+                        Quelle est la solution correcte ?',
             'type' => 'one_choice',
             'points' => 5,
         ]);
@@ -78,9 +75,9 @@ Quelle est la solution correcte ?',
             'exam_id' => $mathExam->id,
             'content' => '## Propriétés des Nombres
 
-Quelles sont les propriétés vraies pour le nombre **12** ?
+                            Quelles sont les propriétés vraies pour le nombre **12** ?
 
-### Sélectionnez toutes les bonnes réponses :',
+                            ### Sélectionnez toutes les bonnes réponses :',
             'type' => 'multiple',
             'points' => 6,
         ]);
@@ -106,10 +103,10 @@ Quelles sont les propriétés vraies pour le nombre **12** ?
             'exam_id' => $mathExam->id,
             'content' => '## Géométrie
 
-### Affirmation :
-Dans un triangle rectangle, le carré de l\'hypoténuse est égal à la somme des carrés des deux autres côtés.
+                            ### Affirmation :
+                            Dans un triangle rectangle, le carré de l\'hypoténuse est égal à la somme des carrés des deux autres côtés.
 
-**Cette affirmation décrit-elle le théorème de Pythagore ?**',
+                            **Cette affirmation décrit-elle le théorème de Pythagore ?**',
             'type' => 'boolean',
             'points' => 3,
         ]);
@@ -132,19 +129,19 @@ Dans un triangle rectangle, le carré de l\'hypoténuse est égal à la somme de
             'exam_id' => $mathExam->id,
             'content' => '## Démonstration
 
-### Exercice :
-Démontrez que la somme des angles intérieurs d\'un triangle est égale à 180°.
+                        ### Exercice :
+                        Démontrez que la somme des angles intérieurs d\'un triangle est égale à 180°.
 
-### Instructions :
-- Utilisez une méthode géométrique claire
-- Dessinez un schéma si nécessaire
-- Expliquez chaque étape de votre raisonnement
-- Votre réponse doit être complète et rigoureuse
+                        ### Instructions :
+                        - Utilisez une méthode géométrique claire
+                        - Dessinez un schéma si nécessaire
+                        - Expliquez chaque étape de votre raisonnement
+                        - Votre réponse doit être complète et rigoureuse
 
-### Critères d\'évaluation :
-- Clarté du raisonnement (5 points)
-- Justesse mathématique (5 points)
-- Présentation (2 points)',
+                        ### Critères d\'évaluation :
+                        - Clarté du raisonnement (5 points)
+                        - Justesse mathématique (5 points)
+                        - Présentation (2 points)',
             'type' => 'text',
             'points' => 12,
         ]);
@@ -168,17 +165,17 @@ Démontrez que la somme des angles intérieurs d\'un triangle est égale à 180�
             'exam_id' => $csExam->id,
             'content' => '## Langages de Programmation
 
-### Question :
-Quel langage de programmation est principalement utilisé pour le développement web côté serveur et a été créé par Rasmus Lerdorf ?
+                        ### Question :
+                        Quel langage de programmation est principalement utilisé pour le développement web côté serveur et a été créé par Rasmus Lerdorf ?
 
-```php
-<?php
-echo "Hello World!";
-?>
-```
+                        ```php
+                        <?php
+                        echo "Hello World!";
+                        ?>
+                        ```
 
-### Indice :
-Ce langage est très populaire pour les sites web dynamiques.',
+                        ### Indice :
+                        Ce langage est très populaire pour les sites web dynamiques.',
             'type' => 'one_choice',
             'points' => 3,
         ]);

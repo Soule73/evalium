@@ -13,10 +13,8 @@ class StudentSeeder extends Seeder
      */
     public function run(): void
     {
-        // S'assurer que le rôle étudiant existe
         $studentRole = Role::firstOrCreate(['name' => 'student']);
 
-        // Créer 15 étudiants de test
         $students = [
             ['name' => 'Alice Martin', 'email' => 'alice.martin@student.examena.com'],
             ['name' => 'Bob Dupont', 'email' => 'bob.dupont@student.examena.com'],

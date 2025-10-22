@@ -29,7 +29,7 @@ class GroupFactory extends Factory
             'start_date' => $startDate,
             'end_date' => $endDate,
             'max_students' => $this->faker->numberBetween(15, 35),
-            'is_active' => $this->faker->boolean(80), // 80% chance d'être actif
+            'is_active' => $this->faker->boolean(80),
             'academic_year' => $this->faker->randomElement(['2024-2025', '2025-2026']),
         ];
     }

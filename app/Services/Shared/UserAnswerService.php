@@ -32,7 +32,6 @@ class UserAnswerService
                     ];
                 }
 
-                // Pour les questions à choix multiples
                 $firstAnswer = $questionAnswers->first();
                 return [
                     'type' => 'multiple',
@@ -93,7 +92,6 @@ class UserAnswerService
         $exam = $assignment->exam;
         $student = $assignment->student;
 
-        // Utiliser la méthode de formatage des réponses
         $userAnswers = $this->formatUserAnswersForFrontend($assignment);
 
         return [

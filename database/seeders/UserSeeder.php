@@ -13,7 +13,6 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Créer des utilisateurs administrateurs
         $admin = \App\Models\User::create([
             'name' => 'Admin Système',
             'email' => 'admin@examena.com',
@@ -22,7 +21,6 @@ class UserSeeder extends Seeder
         ]);
         $admin->assignRole('admin');
 
-        // Créer des enseignants
         $teachers = [
             [
                 'name' => 'Dr. Marie Dupont',
@@ -48,7 +46,6 @@ class UserSeeder extends Seeder
             $teacher->assignRole('teacher');
         }
 
-        // Créer des étudiants
         $students = [
             [
                 'name' => 'Alice Johnson',

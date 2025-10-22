@@ -22,7 +22,6 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // Index pour les requêtes fréquentes
             $table->index(['exam_id', 'order_index']);
         });
     }

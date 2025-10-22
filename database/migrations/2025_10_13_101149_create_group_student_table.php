@@ -23,7 +23,6 @@ return new class extends Migration
             // Un étudiant ne peut être que dans un seul groupe actif à la fois
             $table->unique(['student_id', 'is_active'], 'unique_active_student_group');
 
-            // Index pour les requêtes fréquentes
             $table->index(['group_id', 'is_active']);
             $table->index(['student_id', 'is_active']);
         });

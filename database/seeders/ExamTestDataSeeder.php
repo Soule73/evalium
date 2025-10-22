@@ -13,11 +13,9 @@ class ExamTestDataSeeder extends Seeder
 {
     public function run()
     {
-        // Créer les rôles si ils n'existent pas
         $studentRole = Role::firstOrCreate(['name' => 'student']);
         $teacherRole = Role::firstOrCreate(['name' => 'teacher']);
 
-        // Créer un utilisateur étudiant pour les tests
         $student = User::firstOrCreate([
             'email' => 'etudiant@test.com'
         ], [
@@ -26,7 +24,6 @@ class ExamTestDataSeeder extends Seeder
         ]);
         $student->assignRole($studentRole);
 
-        // Créer un utilisateur enseignant
         $teacher = User::firstOrCreate([
             'email' => 'professeur@test.com'
         ], [
@@ -35,12 +32,11 @@ class ExamTestDataSeeder extends Seeder
         ]);
         $teacher->assignRole($teacherRole);
 
-        // Créer un examen de test
         $exam = Exam::firstOrCreate([
             'title' => 'Examen de Test TypeScript/React'
         ], [
             'description' => 'Un examen de démonstration pour tester l\'interface sécurisée avec React et TypeScript.',
-            'duration' => 30, // 30 minutes
+            'duration' => 30,
             'max_attempts' => 3,
             'is_active' => true,
             'start_date' => now()->subHour(),
@@ -48,7 +44,6 @@ class ExamTestDataSeeder extends Seeder
             'creator_id' => $teacher->id,
         ]);
 
-        // Créer des questions de test
         $questions = [
             [
                 'question_text' => 'Quel est le principal avantage de TypeScript par rapport à JavaScript ?',

@@ -14,7 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Exécuter les seeders dans l'ordre
         $this->call([
             RoleAndPermissionSeeder::class,
             LevelSeeder::class,

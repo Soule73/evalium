@@ -168,7 +168,6 @@ class ExamAssignmentService
             ->orderBy('name')
             ->get();
 
-        // Récupérer les groupes actifs avec leurs étudiants
         $groups = Group::active()
             ->with(['activeStudents', 'level'])
             ->orderBy('academic_year', 'desc')

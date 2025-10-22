@@ -128,7 +128,6 @@ class ExamController extends Controller
             'questions'
         ]);
 
-        // Récupérer les groupes assignés à cet examen
         $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
 
         return Inertia::render('Teacher/ExamShow', [
