@@ -28,5 +28,8 @@ Thumbs.db
 /test-results
 /coverage
 
+CAHIER_DES_CHARGES_FONCTIONNEL.md
+CAHIER_DES_CHARGES_TECHNIQUE.md
+
 /docs
 package.json.ci-scripts

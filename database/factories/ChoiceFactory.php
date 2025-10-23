@@ -24,6 +24,7 @@ class ChoiceFactory extends Factory
             'question_id' => Question::factory(),
             'content' => $this->faker->sentence(3),
             'is_correct' => false,
+            'order_index' => $this->faker->numberBetween(1, 5),
         ];
     }
 
@@ -32,8 +33,18 @@ class ChoiceFactory extends Factory
      */
     public function correct(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'is_correct' => true,
+        ]);
+    }
+
+    /**
+     * Indicate that the choice is incorrect.
+     */
+    public function incorrect(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'is_correct' => false,
         ]);
     }
 }

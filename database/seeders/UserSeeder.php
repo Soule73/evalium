@@ -18,6 +18,8 @@ class UserSeeder extends Seeder
             'email' => 'admin@examena.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
+            'avatar' => null,
+            'active' => true,
         ]);
         $admin->assignRole('admin');
 
@@ -42,6 +44,8 @@ class UserSeeder extends Seeder
         foreach ($teachers as $teacherData) {
             $teacher = \App\Models\User::create(array_merge($teacherData, [
                 'email_verified_at' => now(),
+                'avatar' => null,
+                'active' => true,
             ]));
             $teacher->assignRole('teacher');
         }
@@ -92,6 +96,8 @@ class UserSeeder extends Seeder
         foreach ($students as $studentData) {
             $student = \App\Models\User::create(array_merge($studentData, [
                 'email_verified_at' => now(),
+                'avatar' => null,
+                'active' => true,
             ]));
             $student->assignRole('student');
         }

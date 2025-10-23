@@ -104,4 +104,52 @@ class ExamAssignmentFactory extends Factory
             'teacher_notes' => $this->faker->optional(0.7)->sentence(),
         ]);
     }
+
+    /**
+     * Set the assignment as pending
+     */
+    public function pending(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'status' => 'pending',
+            'started_at' => null,
+            'submitted_at' => null,
+            'score' => null,
+            'auto_score' => null,
+            'teacher_notes' => null,
+        ]);
+    }
+
+    /**
+     * Set the assignment as in progress
+     */
+    public function inProgress(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'status' => 'in_progress',
+            'started_at' => $this->faker->dateTimeBetween('-2 hours', 'now'),
+            'submitted_at' => null,
+            'score' => null,
+            'auto_score' => null,
+            'teacher_notes' => null,
+        ]);
+    }
+
+    /**
+     * Set the assignment as completed
+     */
+    public function completed(): static
+    {
+        $startedAt = $this->faker->dateTimeBetween('-4 hours', '-1 hour');
+        $submittedAt = $this->faker->dateTimeBetween($startedAt, 'now');
+
+        return $this->state(fn(array $attributes) => [
+            'status' => 'completed',
+            'started_at' => $startedAt,
+            'submitted_at' => $submittedAt,
+            'auto_score' => $this->faker->randomFloat(2, 0, 20),
+            'score' => $this->faker->randomFloat(2, 0, 20),
+            'teacher_notes' => $this->faker->optional(0.5)->sentence(),
+        ]);
+    }
 }

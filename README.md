@@ -292,16 +292,25 @@ Voir le [CHANGELOG.md](CHANGELOG.md) pour l'historique complet des versions.
 
 ---
 
-## Auteur
+## Auteurs
 
 **Soule73**
 - GitHub: [@Soule73](https://github.com/Soule73)
+
+**badressa**
+- GitHub: [@badressa](https://github.com/badressa)
 
 ---
 
 ## Licence
 
 Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+---
+
+## Ressources
+
+- [CAHIER DES CHARGES FONCTIONNEL](https://1drv.ms/w/c/2B46B4AF3F51B332/Ad8mY1XC7JtImCw6pDIJwm8?e=fd5U3V)
 
 ---
 
@@ -318,7 +327,7 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 
 ## Support
 
-- Email: support@examena.com
+- Email: [sourtoumo@gmail.com](mailto:sourtoumo@gmail.com)
 - Discussions: [GitHub Discussions](https://github.com/Soule73/examena/discussions)
 - Issues: [GitHub Issues](https://github.com/Soule73/examena/issues)
 - Wiki: [Documentation](https://github.com/Soule73/examena/wiki)

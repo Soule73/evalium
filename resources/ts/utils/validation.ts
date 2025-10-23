@@ -144,7 +144,7 @@ export const commonValidationSchemas = {
         type: {
             required: true,
             custom: (value: string) => {
-                const validTypes = ['multiple_choice', 'text', 'markdown'];
+                const validTypes = ['multiple', 'text'];
                 return validTypes.includes(value) ? null : 'Type de question invalide';
             },
         },
