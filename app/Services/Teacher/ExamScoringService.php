@@ -6,9 +6,14 @@ use App\Models\Exam;
 use App\Models\User;
 use App\Models\ExamAssignment;
 use Illuminate\Support\Facades\DB;
+use App\Services\Core\Scoring\ScoringService;
 
 class ExamScoringService
 {
+    public function __construct(
+        private readonly ScoringService $scoringService
+    ) {}
+
     /**
      * Sauvegarder les corrections manuelles d'un enseignant
      */
@@ -20,6 +25,7 @@ class ExamScoringService
 
             foreach ($scores as $questionId => $scoreData) {
                 $newScore = is_array($scoreData) ? $scoreData['score'] : $scoreData;
+                $feedback = is_array($scoreData) ? ($scoreData['feedback'] ?? $scoreData['teacher_notes'] ?? null) : null;
 
                 // Pour les questions à choix multiples, on ne met à jour que la première réponse
                 // car toutes les réponses de la même question ont le même score
@@ -29,9 +35,15 @@ class ExamScoringService
 
                 if ($answer) {
                     // Si c'est une question à choix multiples, mettre à jour toutes les réponses
+                    $updateData = ['score' => $newScore];
+
+                    if ($feedback !== null) {
+                        $updateData['feedback'] = $feedback;
+                    }
+
                     $updatedCount = $assignment->answers()
                         ->where('question_id', $questionId)
-                        ->update(['score' => $newScore]);
+                        ->update($updateData);
 
                     if ($updatedCount > 0) {
                         $totalScore += $newScore;
@@ -49,7 +61,6 @@ class ExamScoringService
             $assignment->update([
                 'score' => $totalScore,
                 'status' => $finalStatus,
-                'teacher_notes' => 'Correction effectuée le ' . now()->format('d/m/Y à H:i')
             ]);
 
             return [
@@ -62,29 +73,19 @@ class ExamScoringService
     }
 
     /**
-     * Calculer le score automatique pour les questions QCM
+     * Calculer le score automatique
+     * 
+     * @deprecated Utiliser directement ScoringService::calculateAutoCorrectableScore()
      */
     public function calculateAutoScore(ExamAssignment $assignment): float
     {
-        $totalScore = 0;
-
-        $exam = $assignment->exam;
-        $questions = $exam->questions()->with('choices')->get();
-
-        foreach ($questions as $question) {
-            if ($question->type === 'text') {
-                continue;
-            }
-
-            $score = $this->calculateQuestionScore($assignment, $question);
-            $totalScore += $score;
-        }
-
-        return $totalScore;
+        return $this->scoringService->calculateAutoCorrectableScore($assignment);
     }
 
     /**
      * Calculer le score pour une question spécifique
+     * 
+     * @deprecated Utiliser ScoringService::calculateQuestionScore()
      */
     private function calculateQuestionScore(ExamAssignment $assignment, $question): float
     {
@@ -93,36 +94,7 @@ class ExamScoringService
             ->with('choice')
             ->get();
 
-        if ($answers->isEmpty()) {
-            return 0;
-        }
-
-        switch ($question->type) {
-            case 'one_choice':
-            case 'boolean':
-                $answer = $answers->first();
-                return $answer->choice && $answer->choice->is_correct ? $question->points : 0;
-
-            case 'multiple':
-                $selectedChoices = $answers->pluck('choice')->filter();
-                $correctChoices = $question->choices()->where('is_correct', true)->get();
-
-                // Vérifier que toutes les bonnes réponses sont sélectionnées ET aucune mauvaise
-                $selectedCorrect = $selectedChoices->where('is_correct', true);
-                $selectedIncorrect = $selectedChoices->where('is_correct', false);
-
-                if ($selectedCorrect->count() === $correctChoices->count() && $selectedIncorrect->isEmpty()) {
-                    return $question->points;
-                }
-                return 0;
-
-            case 'text':
-                // Les questions texte doivent être corrigées manuellement
-                return $answers->first()->score ?? 0;
-
-            default:
-                return 0;
-        }
+        return $this->scoringService->calculateQuestionScore($question, $answers);
     }
 
     /**
@@ -137,7 +109,7 @@ class ExamScoringService
         $updated = 0;
 
         foreach ($assignments as $assignment) {
-            $autoScore = $this->calculateAutoScore($assignment);
+            $autoScore = $this->scoringService->calculateAutoCorrectableScore($assignment);
 
             // Mettre à jour seulement si le score a changé
             if ($assignment->auto_score !== $autoScore) {
@@ -193,7 +165,7 @@ class ExamScoringService
             if ($answer) {
                 $answer->update([
                     'score' => $validatedData['score'],
-                    'feedback' => $validatedData['feedback'] ?? null
+                    'feedback' => $validatedData['feedback'] ?? $validatedData['teacher_notes'] ?? null
                 ]);
                 $updatedAnswers++;
             }

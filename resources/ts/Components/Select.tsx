@@ -217,7 +217,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                             {/* Options List */}
                             <ul
                                 ref={listRef}
-                                className="max-h-60 overflow-auto py-1"
+                                className="max-h-60 overflow-auto custom-scrollbar py-1"
                                 role="listbox"
                             >
                                 {filteredOptions.length === 0 ? (
@@ -246,7 +246,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                                         >
                                             <span className="block truncate">{option.label}</span>
                                             {option.value === value && (
-                                                <CheckIcon className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                                                <CheckIcon className="h-4 w-4 text-blue-600 shrink-0" />
                                             )}
                                         </li>
                                     ))

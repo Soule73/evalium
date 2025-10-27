@@ -12,6 +12,9 @@ use App\Services\Admin\UserManagementService;
 use App\Services\Teacher\ExamAssignmentService;
 use App\Services\Teacher\TeacherDashboardService;
 use App\Services\Teacher\ExamScoringService as TeacherExamScoringService;
+use App\Services\Core\Scoring\ScoringService;
+use App\Services\Core\Answer\AnswerFormatter;
+use App\Services\Core\Answer\AnswerFormatterInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +23,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Core services (singleton pour réutilisation)
+        $this->app->singleton(ScoringService::class, ScoringService::class);
+        $this->app->singleton(AnswerFormatterInterface::class, AnswerFormatter::class);
+        $this->app->singleton(AnswerFormatter::class, AnswerFormatter::class);
+
         $this->app->bind(ExamService::class, ExamService::class);
 
         $this->app->bind(ExamSessionService::class, ExamSessionService::class);

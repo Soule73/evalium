@@ -65,6 +65,11 @@ class UpdateScoreRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:1000'
+            ],
+            'teacher_notes' => [
+                'nullable',
+                'string',
+                'max:1000'
             ]
         ];
     }

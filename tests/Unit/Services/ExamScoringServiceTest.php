@@ -30,7 +30,7 @@ class ExamScoringServiceTest extends TestCase
         // Créer les rôles
         $this->createTestRoles();
 
-        $this->service = new ExamScoringService();
+        $this->service = app(ExamScoringService::class);
 
         // Créer un étudiant
         $this->student = $this->createUserWithRole('student', [
@@ -120,7 +120,9 @@ class ExamScoringServiceTest extends TestCase
             'answer_text' => 'Student answer'
         ]);
 
-        $autoScore = $this->service->calculateAutoScore($this->assignment);
+        // Utiliser le ScoringService directement
+        $scoringService = app(\App\Services\Core\Scoring\ScoringService::class);
+        $autoScore = $scoringService->calculateAutoCorrectableScore($this->assignment);
 
         $this->assertIsFloat($autoScore);
         $this->assertGreaterThanOrEqual(0, $autoScore);

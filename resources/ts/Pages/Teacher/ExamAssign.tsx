@@ -117,7 +117,7 @@ export default function ExamAssign({ exam, students, assignedGroups, availableGr
                 label: 'Groupe',
                 render: (group) => (
                     <div className="flex items-center space-x-3">
-                        <UserGroupIcon className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                        <UserGroupIcon className="h-5 w-5 text-gray-400 shrink-0" />
                         <div>
                             <div className="font-medium text-gray-900">{group.display_name}</div>
                             <div className="text-sm text-gray-500">

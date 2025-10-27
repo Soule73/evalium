@@ -16,6 +16,10 @@ use Illuminate\Http\RedirectResponse;
 use Inertia\Response as InertiaResponse;
 use App\Services\Shared\UserAnswerService;
 use App\Services\Student\ExamSessionService;
+use App\Services\Student\ExamTimingService;
+use App\Services\Student\ExamSecurityService;
+use App\Services\Core\Scoring\ScoringService;
+use App\Services\Core\Answer\AnswerFormatter;
 use App\Http\Requests\Student\SubmitExamRequest;
 use App\Http\Requests\Student\SaveAnswersRequest;
 use App\Http\Requests\Student\SecurityViolationRequest;
@@ -27,7 +31,11 @@ class ExamController extends Controller
     public function __construct(
         private readonly ExamService $examService,
         private readonly ExamSessionService $examSessionService,
-        private readonly UserAnswerService $userAnswerService
+        private readonly UserAnswerService $userAnswerService,
+        private readonly ExamTimingService $timingService,
+        private readonly ExamSecurityService $securityService,
+        private readonly ScoringService $scoringService,
+        private readonly AnswerFormatter $answerFormatter
     ) {}
 
     /**
@@ -98,7 +106,7 @@ class ExamController extends Controller
 
             $exam->load(['questions.choices']);
 
-            $userAnswers = $this->userAnswerService->formatUserAnswersForFrontend($assignment);
+            $userAnswers = $this->answerFormatter->formatForFrontend($assignment);
 
             return Inertia::render('Student/ExamResults', [
                 'exam' => $exam,
@@ -131,7 +139,7 @@ class ExamController extends Controller
             return $this->redirectWithError('student.exams.show', "Cet examen n'est pas disponible.", ['exam' => $exam->id]);
         }
 
-        if (!$this->examSessionService->validateExamTiming($exam)) {
+        if (!$this->timingService->validateExamTiming($exam)) {
             return $this->redirectWithError('student.exams.show', "Cet examen n'est pas accessible actuellement.", ['exam' => $exam->id]);
         }
 
@@ -143,7 +151,7 @@ class ExamController extends Controller
 
         $exam->load(['questions.choices']);
 
-        $userAnswers = $this->userAnswerService->formatUserAnswersForFrontend($assignment);
+        $userAnswers = $this->answerFormatter->formatForFrontend($assignment);
 
         return Inertia::render('Student/TakeExam', [
             'exam' => $exam,
@@ -212,14 +220,14 @@ class ExamController extends Controller
             $this->examSessionService->saveMultipleAnswers($assignment, $exam, $validated['answers']);
         }
 
-        $autoScore = $this->examSessionService->calculateAutoScore($assignment);
-        $assignment->update(['auto_score' => $autoScore, 'submitted_at' => Carbon::now(), 'status' => 'pending_review']);
+        $autoScore = $this->scoringService->calculateAutoCorrectableScore($assignment);
+        $assignment->update(['auto_score' => $autoScore, 'submitted_at' => Carbon::now(), 'status' => 'submitted']);
 
-        $this->examSessionService->handleViolation(
+        // Utiliser le service de sécurité pour gérer la violation
+        $this->securityService->handleViolation(
             $assignment,
             $validated['violation_type'],
-            $validated['violation_details'] ?? '',
-            $validated['answers'] ?? []
+            $validated['violation_details'] ?? ''
         );
 
         // Recharger l'assignment pour avoir les données à jour
@@ -294,7 +302,7 @@ class ExamController extends Controller
             $this->examSessionService->saveMultipleAnswers($assignment, $exam, $validated['answers']);
         }
 
-        $autoScore = $this->examSessionService->calculateAutoScore($assignment);
+        $autoScore = $this->scoringService->calculateAutoCorrectableScore($assignment);
         $hasTextQuestions = $exam->questions()->where('type', 'text')->exists();
         $isSecurityViolation = $validated['security_violation'] ?? false;
 

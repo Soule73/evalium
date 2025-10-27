@@ -38,7 +38,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = ({
                         placeholder={searchPlaceholder}
                         value={searchValue}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
-                        className="!py-2 !px-3 text-sm"
+                        className="py-2! px-3! text-sm"
                     />
                 </div>
 
@@ -68,7 +68,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = ({
                                 placeholder={filter.placeholder || filter.label}
                                 value={values[filter.key] || ''}
                                 onChange={(e) => onFilterChange(filter.key, e.target.value)}
-                                className="!py-2 !px-3 text-sm max-w-32"
+                                className="py-2! px-3! text-sm max-w-32"
                             />
                         )}
                     </div>

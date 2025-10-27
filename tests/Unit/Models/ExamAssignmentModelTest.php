@@ -112,7 +112,7 @@ class ExamAssignmentModelTest extends TestCase
     #[Test]
     public function assignment_has_valid_status_values()
     {
-        $validStatuses = ['assigned', 'started', 'submitted', 'pending_review', 'graded'];
+        $validStatuses = ['assigned', 'started', 'submitted', 'graded'];
 
         foreach ($validStatuses as $index => $status) {
             $exam = Exam::factory()->create();

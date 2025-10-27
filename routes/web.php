@@ -4,6 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Teacher\ExamController as TeacherExamController;
+use App\Http\Controllers\Teacher\ExamAssignmentController;
+use App\Http\Controllers\Teacher\ExamGroupAssignmentController;
+use App\Http\Controllers\Teacher\ExamCorrectionController;
+use App\Http\Controllers\Teacher\ExamResultsController;
 use App\Http\Controllers\Student\ExamController as StudentExamController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\GroupController;
@@ -52,6 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:teacher')->group(function () {
         Route::get('/dashboard/teacher', [DashboardController::class, 'teacher'])->name('teacher.dashboard');
 
+        // Routes CRUD pour les examens
         Route::controller(TeacherExamController::class)
             ->prefix('teacher/exams')
             ->name('teacher.exams.')
@@ -65,21 +70,47 @@ Route::middleware('auth')->group(function () {
                 Route::delete('/{exam}', 'destroy')->name('destroy');
                 Route::post('/{exam}/duplicate', 'duplicate')->name('duplicate');
                 Route::patch('/{exam}/toggle-active', 'toggleActive')->name('toggle-active');
-                Route::get('/{exam}/stats', 'stats')->name('stats');
+            });
 
+        // Routes pour les assignations d'étudiants
+        Route::controller(ExamAssignmentController::class)
+            ->prefix('teacher/exams')
+            ->name('teacher.exams.')
+            ->group(function () {
                 Route::get('/{exam}/assign', 'showAssignForm')->name('assign');
                 Route::get('/{exam}/assign/show', 'showAssignForm')->name('assign.show');
                 Route::post('/{exam}/assign', 'assignToStudents')->name('assign.store');
-                Route::post('/{exam}/assign-groups', 'assignToGroups')->name('assign.groups');
-                Route::delete('/{exam}/groups/{group}', 'removeFromGroup')->name('groups.remove');
                 Route::get('/{exam}/assignments', 'showAssignments')->name('assignments');
                 Route::delete('/{exam}/assignments/{user}', 'removeAssignment')->name('assignment.remove');
+            });
 
-                Route::get('/{exam}/results/{student}', 'showStudentResults')->name('results');
-                Route::get('/{exam}/results/{student}/show', 'showStudentResults')->name('results.show');
+        // Routes pour les assignations de groupes
+        Route::controller(ExamGroupAssignmentController::class)
+            ->prefix('teacher/exams')
+            ->name('teacher.exams.')
+            ->group(function () {
+                Route::post('/{exam}/assign-groups', 'assignToGroups')->name('assign.groups');
+                Route::delete('/{exam}/groups/{group}', 'removeFromGroup')->name('groups.remove');
+            });
+
+        // Routes pour les corrections
+        Route::controller(ExamCorrectionController::class)
+            ->prefix('teacher/exams')
+            ->name('teacher.exams.')
+            ->group(function () {
                 Route::get('/{exam}/review/{student}', 'showStudentReview')->name('review');
                 Route::post('/{exam}/review/{student}', 'saveStudentReview')->name('review.save');
                 Route::post('/{exam}/score/update', 'updateScore')->name('score.update');
+            });
+
+        // Routes pour les résultats et statistiques
+        Route::controller(ExamResultsController::class)
+            ->prefix('teacher/exams')
+            ->name('teacher.exams.')
+            ->group(function () {
+                Route::get('/{exam}/results/{student}', 'showStudentResults')->name('results');
+                Route::get('/{exam}/results/{student}/show', 'showStudentResults')->name('results.show');
+                Route::get('/{exam}/stats', 'stats')->name('stats');
             });
     });
 

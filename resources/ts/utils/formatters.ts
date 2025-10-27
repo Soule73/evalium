@@ -1,3 +1,4 @@
+
 /**
  * Formats a given number of seconds into a time string.
  *
@@ -20,6 +21,13 @@ export const formatTime = (seconds: number): string => {
     }
 
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
+
+// Fonction pour convertir la date ISO en format YYYY-MM-DD
+export const formatDateForInput = (isoDate: string) => {
+    if (!isoDate) return '';
+    return isoDate.split('T')[0];
 };
 
 

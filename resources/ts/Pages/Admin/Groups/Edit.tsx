@@ -4,9 +4,11 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/Components/Button';
 import Section from '@/Components/Section';
 import Input from '@/Components/form/Input';
+import Checkbox from '@/Components/form/Checkbox';
 import LevelSelect from '@/Components/form/LevelSelect';
 import { route } from 'ziggy-js';
 import { Group } from '@/types';
+import { formatDateForInput } from '@/utils';
 
 interface Props {
     group: Group;
@@ -24,10 +26,11 @@ interface GroupFormData {
 }
 
 export default function EditGroup({ group, levels }: Props) {
+
     const { data, setData, put, processing, errors } = useForm<GroupFormData>({
         level_id: group.level_id ? group.level_id.toString() : '',
-        start_date: group.start_date,
-        end_date: group.end_date,
+        start_date: formatDateForInput(group.start_date),
+        end_date: formatDateForInput(group.end_date),
         max_students: group.max_students.toString(),
         academic_year: group.academic_year || '',
         is_active: group.is_active,
@@ -106,18 +109,12 @@ export default function EditGroup({ group, levels }: Props) {
                                 required
                             />
 
-                            <div className="flex items-center">
-                                <input
-                                    id="is_active"
-                                    type="checkbox"
-                                    checked={data.is_active}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('is_active', e.target.checked)}
-                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                />
-                                <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
-                                    Groupe actif
-                                </label>
-                            </div>
+                            <Checkbox
+                                id="is_active"
+                                label="Groupe actif"
+                                checked={data.is_active}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('is_active', e.target.checked)}
+                            />
                         </div>
                     </div>
 

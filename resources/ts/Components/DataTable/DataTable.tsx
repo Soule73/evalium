@@ -5,7 +5,7 @@ import { DataTableFilters } from './DataTableFilters';
 import { DataTablePagination } from './DataTablePagination';
 import { EmptyState } from './EmptyState';
 import { BulkActions } from './BulkActions';
-import { Checkbox } from '@/Components/form/Input';
+import Checkbox from '@/Components/form/Checkbox';
 
 export function DataTable<T extends { id: number | string }>({
     data,

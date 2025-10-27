@@ -79,7 +79,7 @@ export default function TakeExam({ exam, assignment, questions = [], userAnswers
         <div className="bg-gray-50 min-h-screen">
             <Head title={`Examen - ${exam.title}`} />
 
-            <div className="bg-white py-4 border-b border-gray-200 fixed w-full z-[1] top-0">
+            <div className="bg-white py-4 border-b border-gray-200 fixed w-full z-1 top-0">
                 <div className="container mx-auto flex justify-between items-center">
                     <TextEntry
                         className=' text-start'

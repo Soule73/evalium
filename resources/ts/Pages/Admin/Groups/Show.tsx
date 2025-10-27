@@ -174,7 +174,7 @@ export default function ShowGroup({ group }: Props) {
         emptyState: {
             title: 'Aucun étudiant assigné',
             subtitle: 'Assignez des étudiants à ce groupe pour commencer',
-            icon: 'UsersIcon'
+            icon: <UserGroupIcon className="w-12 h-12 mx-auto text-gray-400" />
         },
         perPageOptions: [10, 25, 50],
         enableSelection: true,

@@ -8,7 +8,8 @@ import {
     Bars3Icon
 } from '@heroicons/react/24/outline';
 import MarkdownEditor from '@/Components/form/MarkdownEditor';
-import Input, { Checkbox } from '@/Components/form/Input';
+import Input from '@/Components/form/Input';
+import Checkbox from '@/Components/form/Checkbox';
 import ChoiceEditor from '@/Components/form/ChoiceEditor';
 import {
     useSortable,
@@ -137,7 +138,7 @@ const SortableQuestionItem: React.FC<SortableQuestionItemProps> = ({
                             max="100"
                             value={question.points}
                             onChange={(e) => onUpdateQuestion(index, 'points', parseInt(e.target.value))}
-                            className="!w-16 !p-1 text-sm text-center"
+                            className="w-16! p-1! text-sm text-center"
                             error={errors[`questions.${index}.points`]}
                         />
                         <span className="text-sm text-gray-500">

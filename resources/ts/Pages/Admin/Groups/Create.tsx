@@ -6,6 +6,7 @@ import Section from '@/Components/Section';
 import Input from '@/Components/form/Input';
 import LevelSelect from '@/Components/form/LevelSelect';
 import { route } from 'ziggy-js';
+import Checkbox from '@/Components/form/Checkbox';
 
 interface Props {
     levels: Record<number, string>;
@@ -55,6 +56,12 @@ export default function CreateGroup({ levels }: Props) {
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div className="space-y-6">
+                            <Checkbox
+                                id="is_active"
+                                label="Groupe actif"
+                                checked={data.is_active}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('is_active', e.target.checked)}
+                            />
                             <LevelSelect
                                 value={data.level_id}
                                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setData('level_id', e.target.value)}
@@ -103,19 +110,6 @@ export default function CreateGroup({ levels }: Props) {
                                 max="100"
                                 required
                             />
-
-                            <div className="flex items-center">
-                                <input
-                                    id="is_active"
-                                    type="checkbox"
-                                    checked={data.is_active}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('is_active', e.target.checked)}
-                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                />
-                                <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
-                                    Groupe actif
-                                </label>
-                            </div>
                         </div>
                     </div>
 

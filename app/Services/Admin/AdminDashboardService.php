@@ -110,7 +110,6 @@ class AdminDashboardService
         return [
             'stats' => $this->getDashboardStats(),
             'activity_stats' => $this->getActivityStats(),
-            'recent_users' => $this->getRecentUsers(),
             'recent_exams' => $this->getRecentExams(),
             'role_distribution' => $this->getUserRoleDistribution(),
         ];

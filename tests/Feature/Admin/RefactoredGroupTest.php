@@ -64,6 +64,9 @@ class RefactoredGroupTest extends TestCase
         $licence1 = Level::where('code', 'licence_1')->first();
         $master1 = Level::where('code', 'master_1')->first();
 
+        // Supprimer les groupes existants pour éviter les conflits
+        Group::query()->delete();
+
         Group::factory()->count(5)->create(['level_id' => $licence1->id]);
         Group::factory()->count(3)->create(['level_id' => $master1->id]);
 

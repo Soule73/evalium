@@ -29,7 +29,7 @@ class UserAnswerServiceTest extends TestCase
         parent::setUp();
 
         $this->createTestRoles();
-        $this->service = new UserAnswerService();
+        $this->service = app(UserAnswerService::class);
 
         // Créer un étudiant
         $this->student = $this->createUserWithRole('student', [
@@ -143,7 +143,9 @@ class UserAnswerServiceTest extends TestCase
         ]);
 
         $answers = collect([$textAnswer, $multipleAnswer]);
-        $result = $this->service->formatUserAnswersForFrontend($this->assignment);
+        // Utiliser AnswerFormatter directement
+        $answerFormatter = app(\App\Services\Core\Answer\AnswerFormatter::class);
+        $result = $answerFormatter->formatForFrontend($this->assignment);
 
         $this->assertIsArray($result);
         $this->assertCount(2, $result);
@@ -186,7 +188,8 @@ class UserAnswerServiceTest extends TestCase
         ]);
 
         $answers = collect([$answer]);
-        $result = $this->service->formatUserAnswersForFrontend($assignment);
+        $answerFormatter = app(\App\Services\Core\Answer\AnswerFormatter::class);
+        $result = $answerFormatter->formatForFrontend($assignment);
 
         $this->assertCount(1, $result);
         $this->assertNull($result[0]['choice_id']);
@@ -207,7 +210,8 @@ class UserAnswerServiceTest extends TestCase
             'student_id' => $newStudent->id
         ]);
 
-        $result = $this->service->formatUserAnswersForFrontend($assignment);
+        $answerFormatter = app(\App\Services\Core\Answer\AnswerFormatter::class);
+        $result = $answerFormatter->formatForFrontend($assignment);
 
         $this->assertIsArray($result);
         $this->assertEmpty($result);

@@ -1,5 +1,6 @@
 import React from 'react';
-import Input, { Checkbox } from '@/Components/form/Input';
+import Input from '@/Components/form/Input';
+import Checkbox from '@/Components/form/Checkbox';
 import MarkdownEditor from '@/Components/form/MarkdownEditor';
 
 interface ExamGeneralConfigProps {

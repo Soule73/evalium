@@ -20,6 +20,8 @@ return new class extends Migration
             $table->datetime('end_time')->nullable();
             $table->boolean('is_active')->default(false);
             $table->foreignId('teacher_id')->constrained('users')->onDelete('cascade');
+            $table->softDeletes();
+
             $table->timestamps();
         });
     }

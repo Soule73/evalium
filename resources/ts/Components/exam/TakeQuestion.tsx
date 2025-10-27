@@ -3,7 +3,7 @@ import MarkdownRenderer from '@/Components/form/MarkdownRenderer';
 import MarkdownEditor from '@/Components/form/MarkdownEditor';
 import Section from '@/Components/Section';
 import { Choice, Question } from '@/types';
-import { Checkbox } from '../form/Input';
+import Checkbox from '@/Components/form/Checkbox';
 
 type AnswerValue = string | number | number[];
 
@@ -155,7 +155,7 @@ const TakeQuestion: React.FC<TakeQuestionProps> = ({ question, answers, onAnswer
     return (
         <Section
             key={question.id}
-            className="!justify-start !items-start relative"
+            className="justify-start! items-start! relative"
             centerHeaderItems={false}
             title={<MarkdownRenderer>{question.content}</MarkdownRenderer>}
             actions={

@@ -98,7 +98,7 @@ export default function AssignStudents({ group, availableStudents }: Props) {
         emptyState: {
             title: 'Aucun étudiant disponible',
             subtitle: 'Tous les étudiants sont déjà assignés à des groupes',
-            icon: 'UserPlusIcon'
+            icon: <UserPlusIcon className="w-12 h-12 mx-auto text-gray-400" />
         },
         emptySearchState: {
             title: 'Aucun étudiant trouvé',

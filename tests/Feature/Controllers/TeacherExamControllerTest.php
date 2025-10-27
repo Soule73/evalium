@@ -5,14 +5,21 @@ namespace Tests\Feature\Controllers;
 use Tests\TestCase;
 use App\Models\Exam;
 use App\Models\User;
-use App\Models\Choice;
 use App\Models\Question;
-use App\Models\ExamAssignment;
 use Spatie\Permission\Models\Role;
 use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+/**
+ * Tests pour Teacher/ExamController (CRUD uniquement)
+ * 
+ * Les tests pour les fonctionnalités spécialisées ont été migrés vers :
+ * - ExamAssignmentControllerTest.php (assignations étudiants)
+ * - ExamGroupAssignmentControllerTest.php (assignations groupes)
+ * - ExamCorrectionControllerTest.php (corrections et reviews)
+ * - ExamResultsControllerTest.php (résultats et statistiques)
+ */
 class TeacherExamControllerTest extends TestCase
 {
     use RefreshDatabase;
@@ -49,8 +56,10 @@ class TeacherExamControllerTest extends TestCase
         ]);
     }
 
+    // ==================== INDEX ====================
+
     #[Test]
-    public function teacher_can_access_exam_dashboard()
+    public function teacher_can_access_exam_index()
     {
         $response = $this->actingAs($this->teacher)
             ->get(route('teacher.exams.index'));
@@ -64,108 +73,116 @@ class TeacherExamControllerTest extends TestCase
     }
 
     #[Test]
-    public function teacher_can_view_exam_assignment_form()
+    public function teacher_can_view_own_exams_only()
     {
+        // Créer un autre enseignant avec son examen
+        $otherTeacher = User::factory()->create();
+        $otherTeacher->assignRole('teacher');
+
+        Exam::factory()->create([
+            'teacher_id' => $otherTeacher->id,
+            'title' => 'Other Teacher Exam'
+        ]);
+
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.assign.show', $this->exam));
+            ->get(route('teacher.exams.index'));
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
-                ->component('Teacher/ExamAssign', false)
-                ->has('exam')
-                ->has('students')
-                ->has('alreadyAssigned')
+            fn(AssertableInertia $page) => $page
+                ->component('Teacher/ExamIndex', false)
+                ->where('exams.data', function ($exams) {
+                    // Vérifier que tous les examens appartiennent au teacher connecté
+                    return collect($exams)->every(fn($exam) => $exam['teacher_id'] === $this->teacher->id);
+                })
         );
     }
 
+    // ==================== CREATE ====================
+
     #[Test]
-    public function teacher_can_assign_exam_to_students()
+    public function teacher_can_view_create_form()
     {
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign', $this->exam), [
-                'student_ids' => [$this->student->id]
-            ]);
+            ->get(route('teacher.exams.create'));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn(AssertableInertia $page) => $page
+                ->component('Teacher/ExamCreate', false)
+        );
+    }
+
+    // ==================== STORE ====================
+
+    #[Test]
+    public function teacher_can_create_exam()
+    {
+        $examData = [
+            'title' => 'New Exam',
+            'description' => 'Test Description',
+            'duration' => 60,
+            'start_date' => now()->addDay()->format('Y-m-d H:i:s'),
+            'end_date' => now()->addDays(7)->format('Y-m-d H:i:s'),
+            'is_active' => true,
+            'questions' => [
+                [
+                    'content' => 'Question 1?',
+                    'type' => 'text',
+                    'points' => 10,
+                    'order_index' => 1
+                ]
+            ]
+        ];
+
+        $response = $this->actingAs($this->teacher)
+            ->post(route('teacher.exams.store'), $examData);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        // Vérifier que l'assignation a été créée
-        $this->assertDatabaseHas('exam_assignments', [
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'status' => 'assigned'
+        $this->assertDatabaseHas('exams', [
+            'title' => 'New Exam',
+            'teacher_id' => $this->teacher->id
         ]);
     }
 
     #[Test]
-    public function teacher_cannot_assign_exam_to_invalid_students()
+    public function teacher_cannot_create_exam_with_invalid_data()
     {
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign', $this->exam), [
-                'student_ids' => [999] // ID qui n'existe pas
+            ->post(route('teacher.exams.store'), [
+                'title' => '', // Titre vide
+                'duration' => -10 // Duration négative
             ]);
 
-        $response->assertSessionHasErrors('student_ids.0');
+        $response->assertSessionHasErrors(['title', 'duration']);
     }
 
+    // ==================== SHOW ====================
+
     #[Test]
-    public function teacher_can_view_student_results()
+    public function teacher_can_view_exam_details()
     {
-        // Créer une assignation soumise
-        $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'status' => 'submitted',
-            'score' => 85.5
+        // Créer des questions pour l'examen
+        Question::factory()->count(3)->create([
+            'exam_id' => $this->exam->id
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.results.show', [$this->exam, $this->student]));
+            ->get(route('teacher.exams.show', $this->exam));
 
         $response->assertOk();
+        $response->assertInertia(
+            fn(AssertableInertia $page) => $page
+                ->component('Teacher/ExamShow', false)
+                ->has('exam')
+                ->has('exam.questions', 3)
+        );
     }
 
     #[Test]
-    public function teacher_can_update_student_score()
-    {
-        // Créer une question et une assignation
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
-
-        $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'status' => 'submitted'
-        ]);
-
-        // Créer une réponse pour la question
-        \App\Models\Answer::create([
-            'assignment_id' => $assignment->id,
-            'question_id' => $question->id,
-            'answer_text' => 'Student answer'
-        ]);
-
-        $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.score.update', $this->exam), [
-                'exam_id' => $this->exam->id,
-                'student_id' => $this->student->id,
-                'question_id' => $question->id,
-                'score' => 8.5,
-                'teacher_notes' => 'Good answer'
-            ]);
-
-        $response->assertOk();
-        $response->assertJson([
-            'success' => true
-        ]);
-    }
-
-    #[Test]
-    public function teacher_cannot_access_other_teacher_exam()
+    public function teacher_cannot_view_other_teacher_exam()
     {
         // Créer un autre enseignant et son examen
         $otherTeacher = User::factory()->create();
@@ -176,13 +193,213 @@ class TeacherExamControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.assign.show', $otherExam));
+            ->get(route('teacher.exams.show', $otherExam));
 
         $response->assertForbidden();
     }
 
+    // ==================== EDIT ====================
+
     #[Test]
-    public function student_cannot_access_teacher_routes()
+    public function teacher_can_view_edit_form()
+    {
+        $response = $this->actingAs($this->teacher)
+            ->get(route('teacher.exams.edit', $this->exam));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn(AssertableInertia $page) => $page
+                ->component('Teacher/ExamEdit', false)
+                ->has('exam')
+        );
+    }
+
+    #[Test]
+    public function teacher_cannot_edit_other_teacher_exam()
+    {
+        $otherTeacher = User::factory()->create();
+        $otherTeacher->assignRole('teacher');
+
+        $otherExam = Exam::factory()->create([
+            'teacher_id' => $otherTeacher->id
+        ]);
+
+        $response = $this->actingAs($this->teacher)
+            ->get(route('teacher.exams.edit', $otherExam));
+
+        $response->assertForbidden();
+    }
+
+    // ==================== UPDATE ====================
+
+    #[Test]
+    public function teacher_can_update_exam()
+    {
+        $updateData = [
+            'title' => 'Updated Title',
+            'description' => 'Updated Description',
+            'duration' => 90,
+            'start_date' => $this->exam->start_date,
+            'end_date' => $this->exam->end_date,
+            'is_active' => false,
+            'questions' => [
+                [
+                    'content' => 'Updated Question?',
+                    'type' => 'text',
+                    'points' => 15,
+                    'order_index' => 1
+                ]
+            ]
+        ];
+
+        $response = $this->actingAs($this->teacher)
+            ->put(route('teacher.exams.update', $this->exam), $updateData);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('exams', [
+            'id' => $this->exam->id,
+            'title' => 'Updated Title',
+            'duration' => 90
+        ]);
+    }
+
+    #[Test]
+    public function teacher_cannot_update_other_teacher_exam()
+    {
+        $otherTeacher = User::factory()->create();
+        $otherTeacher->assignRole('teacher');
+
+        $otherExam = Exam::factory()->create([
+            'teacher_id' => $otherTeacher->id
+        ]);
+
+        $response = $this->actingAs($this->teacher)
+            ->put(route('teacher.exams.update', $otherExam), [
+                'title' => 'Hacked Title'
+            ]);
+
+        $response->assertForbidden();
+    }
+
+    // ==================== DESTROY ====================
+
+    #[Test]
+    public function teacher_can_delete_exam()
+    {
+        $response = $this->actingAs($this->teacher)
+            ->delete(route('teacher.exams.destroy', $this->exam));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertSoftDeleted('exams', [
+            'id' => $this->exam->id
+        ]);
+    }
+
+    #[Test]
+    public function teacher_cannot_delete_other_teacher_exam()
+    {
+        $otherTeacher = User::factory()->create();
+        $otherTeacher->assignRole('teacher');
+
+        $otherExam = Exam::factory()->create([
+            'teacher_id' => $otherTeacher->id
+        ]);
+
+        $response = $this->actingAs($this->teacher)
+            ->delete(route('teacher.exams.destroy', $otherExam));
+
+        $response->assertForbidden();
+
+        // Vérifier que l'examen n'a PAS été supprimé (il doit toujours exister)
+        $this->assertNotSoftDeleted('exams', [
+            'id' => $otherExam->id
+        ]);
+    }
+
+    // ==================== DUPLICATE ====================
+
+    #[Test]
+    public function teacher_can_duplicate_exam()
+    {
+        // Créer des questions pour l'examen original
+        Question::factory()->count(3)->create([
+            'exam_id' => $this->exam->id
+        ]);
+
+        $response = $this->actingAs($this->teacher)
+            ->post(route('teacher.exams.duplicate', $this->exam));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        // Vérifier qu'un nouvel examen a été créé
+        $this->assertDatabaseCount('exams', 2);
+
+        // Vérifier que les questions ont été dupliquées
+        $this->assertDatabaseCount('questions', 6);
+    }
+
+    #[Test]
+    public function teacher_cannot_duplicate_other_teacher_exam()
+    {
+        $otherTeacher = User::factory()->create();
+        $otherTeacher->assignRole('teacher');
+
+        $otherExam = Exam::factory()->create([
+            'teacher_id' => $otherTeacher->id
+        ]);
+
+        $response = $this->actingAs($this->teacher)
+            ->post(route('teacher.exams.duplicate', $otherExam));
+
+        $response->assertForbidden();
+    }
+
+    // ==================== TOGGLE ACTIVE ====================
+
+    #[Test]
+    public function teacher_can_toggle_exam_active_status()
+    {
+        $this->assertTrue($this->exam->is_active);
+
+        $response = $this->actingAs($this->teacher)
+            ->patch(route('teacher.exams.toggle-active', $this->exam));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->exam->refresh();
+        $this->assertFalse($this->exam->is_active);
+    }
+
+    #[Test]
+    public function teacher_cannot_toggle_other_teacher_exam()
+    {
+        $otherTeacher = User::factory()->create();
+        $otherTeacher->assignRole('teacher');
+
+        $otherExam = Exam::factory()->create([
+            'teacher_id' => $otherTeacher->id,
+            'is_active' => true
+        ]);
+
+        $response = $this->actingAs($this->teacher)
+            ->patch(route('teacher.exams.toggle-active', $otherExam));
+
+        $response->assertForbidden();
+
+        $otherExam->refresh();
+        $this->assertTrue($otherExam->is_active);
+    }
+
+    // ==================== AUTHORIZATION ====================
+
+    #[Test]
+    public function student_cannot_access_teacher_exam_routes()
     {
         $response = $this->actingAs($this->student)
             ->get(route('teacher.exams.index'));
@@ -191,98 +408,10 @@ class TeacherExamControllerTest extends TestCase
     }
 
     #[Test]
-    public function teacher_can_view_exam_assignments_list()
+    public function guest_cannot_access_teacher_exam_routes()
     {
-        // Créer quelques assignations
-        ExamAssignment::factory()->count(3)->create([
-            'exam_id' => $this->exam->id
-        ]);
+        $response = $this->get(route('teacher.exams.index'));
 
-        $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.assignments', $this->exam));
-
-        $response->assertOk();
-        $response->assertInertia(
-            fn($page) => $page
-                ->component('Teacher/ExamAssignments', false)
-                ->has('exam')
-                ->has('assignments')
-        );
-    }
-
-    #[Test]
-    public function teacher_can_filter_assignments_by_status()
-    {
-        // Créer des assignations avec différents statuts
-        $student1 = User::factory()->create();
-        $student1->assignRole('student');
-
-        $student2 = User::factory()->create();
-        $student2->assignRole('student');
-
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $student1->id,
-            'status' => 'assigned'
-        ]);
-
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $student2->id,
-            'status' => 'submitted'
-        ]);
-
-        $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.assignments', $this->exam) . '?status=submitted');
-
-        $response->assertOk();
-        // Vérifier que seules les assignations soumises sont affichées
-        $response->assertInertia(
-            fn($page) => $page
-                ->component('Teacher/ExamAssignments', false)
-                ->has('assignments')
-        );
-    }
-
-    #[Test]
-    public function teacher_can_save_student_review()
-    {
-        // Créer une question pour l'examen
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
-
-        $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'status' => 'submitted'
-        ]);
-
-        // Créer une réponse pour la question
-        \App\Models\Answer::create([
-            'assignment_id' => $assignment->id,
-            'question_id' => $question->id,
-            'answer_text' => 'Student answer'
-        ]);
-
-        $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.review.save', [$this->exam, $this->student]), [
-                'scores' => [
-                    [
-                        'question_id' => $question->id,
-                        'score' => 8.5,
-                        'feedback' => 'Good answer'
-                    ]
-                ],
-                'teacher_notes' => 'Excellent work overall'
-            ]);
-
-        $response->assertRedirect();
-
-        // Vérifier que l'assignment existe toujours
-        $assignment->refresh();
-        $this->assertNotNull($assignment);
+        $response->assertRedirect(route('login'));
     }
 }

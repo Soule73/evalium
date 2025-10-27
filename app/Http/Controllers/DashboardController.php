@@ -125,7 +125,6 @@ class DashboardController extends Controller
             'user' => $user,
             'stats' => $dashboardData['stats'],
             'activity_stats' => $dashboardData['activity_stats'],
-            'recent_users' => $dashboardData['recent_users'],
             'recent_exams' => $dashboardData['recent_exams'],
             'role_distribution' => $dashboardData['role_distribution']
         ]);
