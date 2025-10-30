@@ -3,6 +3,7 @@ import { Button } from '@/Components/Button';
 import { formatDate, getRoleLabel } from '@/utils/formatters';
 import Section from '@/Components/Section';
 import TextEntry from '@/Components/TextEntry';
+import Toggle from '@/Components/form/Toggle';
 import { User } from '@/types';
 import { useState } from 'react';
 import EditUser from './Edit';
@@ -10,14 +11,18 @@ import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import ConfirmationModal from '@/Components/ConfirmationModal';
 import { ExclamationTriangleIcon } from '@heroicons/react/16/solid';
+import { BreadcrumbItem } from '@/Components/Breadcrumb';
 
 
 interface Props {
     user: User;
     children?: React.ReactNode;
+    canDelete?: boolean;
+    canToggleStatus?: boolean;
+    breadcrumb?: BreadcrumbItem[] | undefined;
 }
 
-export default function ShowUser({ user, children }: Props) {
+export default function ShowUser({ user, children, canDelete, canToggleStatus, breadcrumb }: Props) {
     const [isShowUpdateModal, setIsShowUpdateModal] = useState(false);
 
     const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
@@ -33,6 +38,12 @@ export default function ShowUser({ user, children }: Props) {
 
     const handleDelete = () => {
         setIsShowDeleteModal(true);
+    };
+
+    const handleToggleStatus = () => {
+        router.patch(route('admin.users.toggle-status', { user: user.id }), {}, {
+            preserveScroll: true
+        });
     };
 
     const onConfirmDeleteUser = () => {
@@ -56,7 +67,9 @@ export default function ShowUser({ user, children }: Props) {
     const userRole = (user.roles?.length ?? 0) > 0 ? user.roles![0].name : null;
 
     return (
-        <AuthenticatedLayout title={`Utilisateur : ${user.name}`}>
+        <AuthenticatedLayout title={`Utilisateur : ${user.name}`}
+            breadcrumb={breadcrumb}
+        >
             <ConfirmationModal
                 isOpen={isShowDeleteModal}
                 isCloseableInside={true}
@@ -99,12 +112,14 @@ export default function ShowUser({ user, children }: Props) {
                             color="primary">
                             Modifier
                         </Button>
-                        <Button
-                            onClick={handleDelete}
-                            size='sm'
-                            color="danger">
-                            Supprimer
-                        </Button>
+                        {canDelete && (
+                            <Button
+                                onClick={handleDelete}
+                                size='sm'
+                                color="danger">
+                                Supprimer
+                            </Button>
+                        )}
                     </div>
                 }
             >
@@ -121,14 +136,29 @@ export default function ShowUser({ user, children }: Props) {
                     />
 
                     <TextEntry
-                        label="Adresse email"
-                        value={user.email}
-                    />
-
-                    <TextEntry
                         label="Rôle"
                         value={userRole ? getRoleLabel(userRole) : '-'}
                     />
+
+                    {canToggleStatus ? (
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium text-gray-700">
+                                Statut du compte
+                            </label>
+                            <Toggle
+                                checked={user.is_active}
+                                onChange={handleToggleStatus}
+                                activeLabel="Actif"
+                                inactiveLabel="Inactif"
+                                showLabel={true}
+                            />
+                        </div>
+                    ) : (
+                        <TextEntry
+                            label="Statut du compte"
+                            value={user.is_active ? 'Actif' : 'Inactif'}
+                        />
+                    )}
 
                     <TextEntry
                         label="Membre depuis"

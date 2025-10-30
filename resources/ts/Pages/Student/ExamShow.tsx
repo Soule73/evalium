@@ -11,6 +11,7 @@ import { useState } from 'react';
 import TextEntry from '@/Components/TextEntry';
 import Modal from '@/Components/Modal';
 import StatCard from '@/Components/StatCard';
+import { ExamHeader } from '@/Components/exam';
 
 interface StudentExamShowProps extends PageProps {
     exam: Exam;
@@ -84,7 +85,7 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
             >
                 <div className="flex items-start justify-between mb-6">
                     <div className=' space-y-3 '>
-                        <TextEntry label={exam.title} value={exam.description ?? ''} />
+                        <ExamHeader exam={exam} showDescription={true} showMetadata={false} />
 
                         <TextEntry label="Professeur(e)/Créateur(trice)" value={creator?.name} />
                     </div>
@@ -107,26 +108,20 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
                     )}
                 </div>
 
-                {
-                    exam.description && (
-                        <TextEntry label="Description" value={exam.description} />
-                    )
-                }
-
                 <div className="grid gap-y-2 grid-cols-1 lg:grid-cols-3 mb-8">
                     <StatCard
                         title="Durée"
                         value={formatDuration(exam.duration)}
                         icon={ClockIcon}
                         color="blue"
-                        className=' lg:!rounded-r-none '
+                        className=' lg:rounded-r-none! '
                     />
                     <StatCard
                         title="Questions"
                         value={questionsCount || 0}
                         icon={DocumentTextIcon}
                         color="green"
-                        className=' lg:!rounded-none lg:!border-x-0 '
+                        className=' lg:rounded-none! lg:border-x-0! '
                     />
 
                     <StatCard
@@ -138,7 +133,7 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
                                     'Non commencé'}
                         icon={QuestionMarkCircleIcon}
                         color="purple"
-                        className=' lg:!rounded-l-none  '
+                        className=' lg:rounded-l-none!  '
                     />
                 </div>
 

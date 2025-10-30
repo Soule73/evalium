@@ -17,35 +17,86 @@ class RoleAndPermissionSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Créer les permissions
+        // Créer toutes les permissions pour tous les models
         $permissions = [
-            // Permissions pour les examens
-            'create-exams',
-            'edit-exams',
-            'delete-exams',
-            'view-exams',
-            'view-own-exams',
-            
-            // Permissions pour les questions
-            'create-questions',
-            'edit-questions',
-            'delete-questions',
-            'view-questions',
-            
-            // Permissions pour les réponses
-            'submit-answers',
-            'view-answers',
-            'view-own-answers',
-            'grade-answers',
-            
-            // Permissions pour les résultats
-            'view-results',
-            'view-own-results',
-            'view-all-results',
-            
-            // Permissions administratives
-            'manage-users',
-            'export-data',
+            // User permissions
+            'view users',
+            'create users',
+            'update users',
+            'delete users',
+            'restore users',
+            'force delete users',
+            'manage students',
+            'manage teachers',
+            'manage admins',
+            'toggle user status',
+
+            // Exam permissions
+            'view exams',
+            'view any exams',
+            'create exams',
+            'update exams',
+            'delete exams',
+            'restore exams',
+            'force delete exams',
+            'publish exams',
+            'assign exams',
+            'correct exams',
+            'view exam results',
+
+            // Question permissions
+            'view questions',
+            'create questions',
+            'update questions',
+            'delete questions',
+
+            // Answer permissions
+            'view answers',
+            'create answers',
+            'update answers',
+            'delete answers',
+            'grade answers',
+
+            // ExamAssignment permissions
+            'view assignments',
+            'create assignments',
+            'update assignments',
+            'delete assignments',
+            'submit assignments',
+            'grade assignments',
+
+            // Group permissions
+            'view groups',
+            'create groups',
+            'update groups',
+            'delete groups',
+            'manage group students',
+            'assign group exams',
+            'toggle group status',
+
+            // Level permissions
+            'view levels',
+            'create levels',
+            'update levels',
+            'delete levels',
+            'manage levels',
+
+            // Role & Permission management
+            'view roles',
+            'create roles',
+            'update roles',
+            'delete roles',
+            'assign permissions',
+            'view permissions',
+            'create permissions',
+            'delete permissions',
+
+            // Dashboard & Reports
+            'view admin dashboard',
+            'view teacher dashboard',
+            'view student dashboard',
+            'view reports',
+            'export reports',
         ];
 
         foreach ($permissions as $permission) {
@@ -54,36 +105,113 @@ class RoleAndPermissionSeeder extends Seeder
 
         // Créer les rôles et assigner les permissions
 
-        // Rôle Étudiant
-        $studentRole = Role::firstOrCreate(['name' => 'student']);
-        $studentRole->givePermissionTo([
-            'view-own-exams',
-            'view-questions',
-            'submit-answers',
-            'view-own-answers',
-            'view-own-results',
-        ]);
+        // Rôle Super Admin - Toutes les permissions
+        $superAdminRole = Role::firstOrCreate(['name' => 'super_admin']);
+        $superAdminRole->syncPermissions(Permission::all());
 
-        // Rôle Enseignant
-        $teacherRole = Role::firstOrCreate(['name' => 'teacher']);
-        $teacherRole->givePermissionTo([
-            'create-exams',
-            'edit-exams',
-            'delete-exams',
-            'view-exams',
-            'create-questions',
-            'edit-questions',
-            'delete-questions',
-            'view-questions',
-            'view-answers',
-            'grade-answers',
-            'view-results',
-            'view-all-results',
-            'export-data',
-        ]);
-
-        // Optionnel : Créer un super admin avec tous les permissions
+        // Rôle Admin - Gestion des utilisateurs, groupes, niveaux
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
-        $adminRole->givePermissionTo(Permission::all());
+        $adminRole->syncPermissions([
+            // Users
+            'view users',
+            'create users',
+            'update users',
+            'manage students',
+            'manage teachers',
+            'toggle user status',
+
+            // Exams (view only)
+            'view exams',
+            'view any exams',
+            'view exam results',
+
+            // Groups
+            'view groups',
+            'create groups',
+            'update groups',
+            'delete groups',
+            'manage group students',
+            'assign group exams',
+            'toggle group status',
+
+            // Levels
+            'view levels',
+            'create levels',
+            'update levels',
+            'delete levels',
+            'manage levels',
+
+            // Assignments
+            'view assignments',
+
+            // Dashboard
+            'view admin dashboard',
+            'view reports',
+        ]);
+
+        // Rôle Teacher - Gestion des examens et corrections
+        $teacherRole = Role::firstOrCreate(['name' => 'teacher']);
+        $teacherRole->syncPermissions([
+            // Exams
+            'view exams',
+            'view any exams',
+            'create exams',
+            'update exams',
+            'delete exams',
+            'publish exams',
+            'assign exams',
+            'correct exams',
+            'view exam results',
+
+            // Questions
+            'view questions',
+            'create questions',
+            'update questions',
+            'delete questions',
+
+            // Assignments
+            'view assignments',
+            'create assignments',
+            'update assignments',
+            'grade assignments',
+
+            // Answers
+            'view answers',
+            'grade answers',
+
+            // Groups (view only)
+            'view groups',
+
+            // Dashboard
+            'view teacher dashboard',
+            'view reports',
+            'export reports',
+        ]);
+
+        // Rôle Student - Passage d'examens uniquement
+        $studentRole = Role::firstOrCreate(['name' => 'student']);
+        $studentRole->syncPermissions([
+            // Exams (assigned only)
+            'view exams',
+
+            // Assignments
+            'view assignments',
+            'submit assignments',
+
+            // Answers
+            'view answers',
+            'create answers',
+            'update answers',
+
+            // Dashboard
+            'view student dashboard',
+        ]);
+
+        $this->command->info('All roles and permissions created successfully!');
+        $this->command->info('Permission counts:');
+        $this->command->info("   - Super Admin: {$superAdminRole->permissions->count()} permissions");
+        $this->command->info("   - Admin: {$adminRole->permissions->count()} permissions");
+        $this->command->info("   - Teacher: {$teacherRole->permissions->count()} permissions");
+        $this->command->info("   - Student: {$studentRole->permissions->count()} permissions");
     }
 }

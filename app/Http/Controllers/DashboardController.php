@@ -90,7 +90,11 @@ class DashboardController extends Controller
             abort(403, 'Accès non autorisé au dashboard professeur');
         }
 
-        $dashboardData = $this->teacherDashboardService->getDashboardData($user);
+        $perPage = $request->input('per_page', 10);
+        $status = $request->input('status');
+        $search = $request->input('search');
+
+        $dashboardData = $this->teacherDashboardService->getDashboardData($user, $perPage, $status, $search);
 
         return Inertia::render('Dashboard/Teacher', [
             'user' => $user,
@@ -124,9 +128,9 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard/Admin', [
             'user' => $user,
             'stats' => $dashboardData['stats'],
-            'activity_stats' => $dashboardData['activity_stats'],
-            'recent_exams' => $dashboardData['recent_exams'],
-            'role_distribution' => $dashboardData['role_distribution']
+            // 'activity_stats' => $dashboardData['activity_stats'],
+            // 'recent_exams' => $dashboardData['recent_exams'],
+            // 'role_distribution' => $dashboardData['role_distribution']
         ]);
     }
 }

@@ -13,6 +13,18 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        // Créer le Super Admin
+        $superAdmin = \App\Models\User::create([
+            'name' => 'Super Administrateur',
+            'email' => 'superadmin@examena.com',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'avatar' => null,
+            'active' => true,
+        ]);
+        $superAdmin->assignRole('super_admin');
+
+        // Créer un Admin normal
         $admin = \App\Models\User::create([
             'name' => 'Admin Système',
             'email' => 'admin@examena.com',
@@ -102,9 +114,11 @@ class UserSeeder extends Seeder
             $student->assignRole('student');
         }
 
-        echo "Utilisateurs créés avec succès !\n";
-        echo "- 1 administrateur\n";
-        echo "- " . count($teachers) . " enseignants\n";
-        echo "- " . count($students) . " étudiants\n";
+        $this->command->info('✅ Utilisateurs créés avec succès !');
+        $this->command->info("   - 1 super administrateur (superadmin@examena.com)");
+        $this->command->info("   - 1 administrateur (admin@examena.com)");
+        $this->command->info("   - " . count($teachers) . " enseignants");
+        $this->command->info("   - " . count($students) . " étudiants");
+        $this->command->info('   - Mot de passe pour tous: password');
     }
 }

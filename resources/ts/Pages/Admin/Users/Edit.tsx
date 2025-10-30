@@ -4,6 +4,7 @@ import Input from '@/Components/form/Input';
 import Select from '@/Components/Select';
 import { User } from '@/types';
 import Modal from '@/Components/Modal';
+import { getRoleLabel } from '@/utils';
 
 interface Props {
     user: User;
@@ -48,19 +49,6 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
             password_confirmation: '',
             role: userRole || 'student',
         });
-    };
-
-    const getRoleLabel = (roleName: string) => {
-        switch (roleName) {
-            case 'admin':
-                return 'Administrateur';
-            case 'teacher':
-                return 'Enseignant';
-            case 'student':
-                return 'Étudiant';
-            default:
-                return roleName;
-        }
     };
 
     return (

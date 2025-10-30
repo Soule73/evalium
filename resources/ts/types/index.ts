@@ -8,11 +8,22 @@ export interface User {
     email: string;
     avatar?: string;
     active?: boolean;
+    is_active?: boolean;
     email_verified_at?: string;
     created_at: string;
     updated_at: string;
+    deleted_at?: string | null;
     roles?: Role[];
     current_group?: Group;
+    groups?: GroupWithPivot[];
+}
+
+export interface GroupWithPivot extends Group {
+    pivot?: {
+        enrolled_at: string;
+        left_at?: string | null;
+        is_active: boolean;
+    };
 }
 
 export interface Role {
@@ -155,6 +166,49 @@ export interface ExamAssignment {
 export type PageProps<T = Record<string, unknown>> = {
     auth: {
         user: User;
+        permissions: string[];
+        roles: string[];
+    };
+    permissions: {
+        // Navigation permissions
+        canManageLevels: boolean;
+        canManageRoles: boolean;
+        canManageUsers: boolean;
+        canManageGroups: boolean;
+        canManageExams: boolean;
+
+        // Feature permissions
+        canViewReports: boolean;
+        canExportReports: boolean;
+        canCreateExams: boolean;
+        canPublishExams: boolean;
+        canAssignExams: boolean;
+        canCorrectExams: boolean;
+        canGradeAnswers: boolean;
+
+        // User management
+        canCreateUsers: boolean;
+        canUpdateUsers: boolean;
+        canDeleteUsers: boolean;
+        canManageStudents: boolean;
+        canManageTeachers: boolean;
+
+        // Group management
+        canCreateGroups: boolean;
+        canUpdateGroups: boolean;
+        canDeleteGroups: boolean;
+        canManageGroupStudents: boolean;
+
+        // Level management
+        canCreateLevels: boolean;
+        canUpdateLevels: boolean;
+        canDeleteLevels: boolean;
+
+        // Role management
+        canCreateRoles: boolean;
+        canUpdateRoles: boolean;
+        canDeleteRoles: boolean;
+        canAssignPermissions: boolean;
     };
     flash: FlashMessages;
 } & T;

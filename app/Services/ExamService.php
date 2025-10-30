@@ -547,10 +547,19 @@ class ExamService
      * @param string|null $search Optional search term to filter exams by title. If null
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator Paginated list of exams for the teacher.
      */
+    /**
+     * Obtenir les examens d'un professeur avec eager loading optimisé
+     * 
+     * @param int $teacherId ID du professeur
+     * @param int $perPage Nombre d'éléments par page
+     * @param bool|null $status Filtre sur le statut (actif/inactif)
+     * @param string|null $search Recherche sur titre/description
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
     public function getTeacherExams(int $teacherId, int $perPage = 10, ?bool $status = null, ?string $search = null)
     {
         return Exam::where('teacher_id', $teacherId)
-            ->withCount(['questions'])
+            ->withCount(['questions', 'assignments'])
             ->latest()
             ->when($search, fn($query) => $query->where('title', 'like', "%{$search}%")->orWhere('description', 'like', "%{$search}%"))
             ->when($status !== null, fn($query) => $query->where('is_active', $status))
@@ -628,11 +637,33 @@ class ExamService
      */
     public function getAssignedExamsForStudent(User $student, ?int $perPage = 10, ?string $status = null, ?string $search = null)
     {
-        $examIdsFromGroups = $student->activeGroups()
-            ->with('exams')
-            ->get()
-            ->pluck('exams')
-            ->flatten()
+        // Vérifier si les groupes avec exams sont déjà chargés
+        // Si oui, les utiliser directement. Sinon, les charger.
+        if (!$student->relationLoaded('groups')) {
+            // Cas où les groupes ne sont pas encore chargés (rare maintenant)
+            $student->load(['groups' => function ($query) {
+                $query->with(['exams' => function ($q) {
+                    $q->where('is_active', true);
+                }])
+                    ->withPivot(['enrolled_at', 'left_at', 'is_active']);
+            }]);
+        }
+
+        // Utiliser les groupes déjà chargés et filtrer les actifs EN PHP
+        // Pas de nouvelle requête SQL ici
+        $examIdsFromGroups = $student->groups
+            ->filter(fn($group) => $group->pivot && $group->pivot->is_active)
+            ->flatMap(function ($group) {
+                // Vérifier si les exams sont chargés
+                if (!$group->relationLoaded('exams')) {
+                    // Charger les exams seulement si nécessaire
+                    $group->load(['exams' => function ($q) {
+                        $q->where('is_active', true);
+                    }]);
+                }
+                // Retourner la collection d'exams (peut être vide)
+                return $group->exams ?? collect([]);
+            })
             ->pluck('id')
             ->unique()
             ->toArray();

@@ -8,6 +8,7 @@ import { Button } from '@/Components';
 import StudentExamAssignmentList from '@/Components/exam/StudentExamAssignmentList';
 import { ExamAssignment, User } from '@/types';
 import { PaginationType } from '@/types/datatable';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 
 interface Stats {
     totalExams: number;
@@ -24,7 +25,9 @@ interface Props {
 
 export default function StudentDashboard({ user, stats, examAssignments }: Props) {
     return (
-        <AuthenticatedLayout title='Tableau de bord étudiant'>
+        <AuthenticatedLayout title='Tableau de bord étudiant'
+            breadcrumb={breadcrumbs.studentDashboard()}
+        >
 
             <Section title={`Bonjour, ${user.name} !`}
                 actions={

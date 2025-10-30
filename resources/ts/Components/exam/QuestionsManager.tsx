@@ -165,7 +165,7 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
                     <div className="space-y-4">
                         {questions.map((question, index) => (
                             <SortableQuestionItem
-                                key={question.id || `question-${index}`}
+                                key={question.id ? question.id.toString() : `question-new-${index}`}
                                 question={question}
                                 index={index}
                                 isCollapsed={collapsedQuestions.has(`question-${index}`)}

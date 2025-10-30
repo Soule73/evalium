@@ -158,6 +158,7 @@ const SortableQuestionItem: React.FC<SortableQuestionItemProps> = ({
             {!isCollapsed && (
                 <div className="p-6 space-y-6">
                     <MarkdownEditor
+                        key={`question-content-${question.id || index}`}
                         value={question.content}
                         onChange={(value) => onUpdateQuestion(index, 'content', value)}
                         placeholder="Saisissez votre question ici..."
@@ -421,4 +422,17 @@ const QuestionBooleanItem: React.FC<QuestionBooleanItemProps> = ({
     );
 }
 
-export default SortableQuestionItem;
+// Mémoïser le composant pour éviter les re-renders inutiles
+export default React.memo(SortableQuestionItem, (prevProps, nextProps) => {
+    // Ne re-render que si les propriétés essentielles changent
+    return (
+        prevProps.question.id === nextProps.question.id &&
+        prevProps.question.content === nextProps.question.content &&
+        prevProps.question.type === nextProps.question.type &&
+        prevProps.question.points === nextProps.question.points &&
+        prevProps.isCollapsed === nextProps.isCollapsed &&
+        prevProps.index === nextProps.index &&
+        JSON.stringify(prevProps.question.choices) === JSON.stringify(nextProps.question.choices) &&
+        JSON.stringify(prevProps.errors) === JSON.stringify(nextProps.errors)
+    );
+});

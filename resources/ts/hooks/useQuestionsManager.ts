@@ -167,6 +167,8 @@ export const useQuestionsManager = ({
 
     const addQuestion = (type: QuestionType) => {
         const newQuestion: QuestionFormData = {
+            // Créer un ID temporaire unique pour les nouvelles questions
+            id: -Date.now(), // ID négatif temporaire
             content: '',
             type,
             points: 1,

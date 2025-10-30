@@ -149,7 +149,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
 
         const baseClasses = 'relative w-full';
         const triggerClasses = `
-            w-full px-3 py-2 bg-white border rounded-md shadow-sm 
+            w-full px-3 py-2 bg-white border rounded-md
             focus:outline-none focus:ring-2 focus:ring-blue-500 
             transition-all duration-200 cursor-pointer
             flex items-center justify-between

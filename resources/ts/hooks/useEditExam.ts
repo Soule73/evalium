@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useForm } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { QuestionFormData, Exam } from '@/types';
 
@@ -20,7 +20,7 @@ export const useEditExam = (exam: Exam, onClearHistory?: () => void) => {
     const [deletedQuestionIds, setDeletedQuestionIds] = useState<number[]>([]);
     const [deletedChoiceIds, setDeletedChoiceIds] = useState<number[]>([]);
 
-    const { data, setData, put, processing, errors } = useForm<ExamEditData>({
+    const { data, setData, processing, errors } = useForm<ExamEditData>({
         title: exam.title || '',
         description: exam.description || '',
         duration: exam.duration || 60,
@@ -32,9 +32,9 @@ export const useEditExam = (exam: Exam, onClearHistory?: () => void) => {
         deletedChoiceIds: []
     });
 
-    // Initialiser les questions depuis l'examen
+    // Initialiser les questions depuis l'examen (une seule fois au montage)
     useEffect(() => {
-        if (exam.questions) {
+        if (exam.questions && questions.length === 0) {
             const formattedQuestions: QuestionFormData[] = exam.questions.map((q, index) => ({
                 id: q.id,
                 content: q.content,
@@ -67,7 +67,8 @@ export const useEditExam = (exam: Exam, onClearHistory?: () => void) => {
             setQuestions(formattedQuestions);
             setData('questions', formattedQuestions);
         }
-    }, [exam]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Log des erreurs pour débogage
     useEffect(() => {
@@ -78,24 +79,25 @@ export const useEditExam = (exam: Exam, onClearHistory?: () => void) => {
 
     const handleQuestionsChange = (newQuestions: QuestionFormData[]) => {
         setQuestions(newQuestions);
-        setData('questions', newQuestions);
+        // Ne pas appeler setData ici pour éviter les re-renders
+        // setData('questions', newQuestions);
     };
 
     const handleQuestionDelete = (questionId: number) => {
 
         const newDeletedQuestionIds = [...deletedQuestionIds, questionId];
         setDeletedQuestionIds(newDeletedQuestionIds);
-        setData('deletedQuestionIds', newDeletedQuestionIds);
+        // setData('deletedQuestionIds', newDeletedQuestionIds);
 
         const filteredQuestions = questions.filter(q => q.id !== questionId);
         setQuestions(filteredQuestions);
-        setData('questions', filteredQuestions);
+        // setData('questions', filteredQuestions);
     };
 
     const handleChoiceDelete = (choiceId: number, questionIndex: number) => {
         const newDeletedChoiceIds = [...deletedChoiceIds, choiceId];
         setDeletedChoiceIds(newDeletedChoiceIds);
-        setData('deletedChoiceIds', newDeletedChoiceIds);
+        // setData('deletedChoiceIds', newDeletedChoiceIds);
 
         const updatedQuestions = questions.map((q, i) => {
             if (i === questionIndex) {
@@ -107,7 +109,7 @@ export const useEditExam = (exam: Exam, onClearHistory?: () => void) => {
             return q;
         });
         setQuestions(updatedQuestions);
-        setData('questions', updatedQuestions);
+        // setData('questions', updatedQuestions);
     };
 
     const handleFieldChange = (field: string, value: any) => {
@@ -142,17 +144,30 @@ export const useEditExam = (exam: Exam, onClearHistory?: () => void) => {
             return;
         }
 
-        setData('questions', questions);
-        setData('deletedQuestionIds', deletedQuestionIds);
-        setData('deletedChoiceIds', deletedChoiceIds);
+        // Préparer les données complètes à envoyer
+        const submitData = {
+            title: data.title,
+            description: data.description,
+            duration: data.duration,
+            start_time: data.start_time,
+            end_time: data.end_time,
+            is_active: data.is_active,
+            questions,
+            deletedQuestionIds,
+            deletedChoiceIds
+        };
 
-        console.log('Données soumises:', { ...data, questions, deletedQuestionIds, deletedChoiceIds });
+        console.log('Données soumises:', submitData);
 
-        put(route('teacher.exams.update', exam.id), {
+        // Utiliser la méthode router.put avec les données
+        router.put(route('teacher.exams.update', exam.id), submitData as any, {
             onSuccess: () => {
                 if (onClearHistory) {
                     onClearHistory();
                 }
+            },
+            onError: (errors) => {
+                console.error('Erreurs de soumission:', errors);
             }
         });
     };

@@ -5,19 +5,31 @@ import Select from '@/Components/Select';
 import { route } from 'ziggy-js';
 import Modal from '@/Components/Modal';
 
+interface Group {
+    id: number;
+    display_name: string;
+    academic_year: string;
+    is_active: boolean;
+}
+
 interface Props {
     roles: string[];
+    groups: Group[];
     isOpen: boolean;
     onClose: () => void;
 }
 
-export default function CreateUser({ roles, isOpen, onClose }: Props) {
-    const { data, setData, post, processing, errors } = useForm({
+export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
+    const { data, setData, post, processing, errors } = useForm<{
+        name: string;
+        email: string;
+        role: string;
+        group_id: number | null;
+    }>({
         name: '',
         email: '',
-        password: '',
-        password_confirmation: '',
         role: 'student',
+        group_id: null,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -37,9 +49,8 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
         setData({
             name: '',
             email: '',
-            password: '',
-            password_confirmation: '',
             role: 'student',
+            group_id: null,
         });
     };
 
@@ -51,10 +62,15 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
                 return 'Enseignant';
             case 'student':
                 return 'Étudiant';
+            case 'super_admin':
+                return 'Super Administrateur';
             default:
                 return roleName;
         }
     };
+
+    // Filtrer les groupes actifs uniquement
+    const activeGroups = groups.filter(group => group.is_active);
 
     return (
         <Modal isOpen={isOpen} size='2xl' onClose={onClose} isCloseableInside={false}>
@@ -78,6 +94,7 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
                         required
                         error={errors.name}
                     />
+
                     <Input
                         label="Adresse email"
                         type="email"
@@ -87,6 +104,7 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
                         required
                         error={errors.email}
                     />
+
                     <Select
                         label="Rôle"
                         options={roles.map(role => ({
@@ -99,25 +117,37 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
                         searchable={false}
                         placeholder="Sélectionner un rôle"
                     />
-                    <Input
-                        label="Mot de passe"
-                        type="password"
-                        value={data.password}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('password', e.target.value)}
-                        placeholder="Entrez le mot de passe"
-                        required
-                        error={errors.password}
-                        helperText="Le mot de passe doit contenir au moins 8 caractères"
-                    />
-                    <Input
-                        label="Confirmer le mot de passe"
-                        type="password"
-                        value={data.password_confirmation}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('password_confirmation', e.target.value)}
-                        placeholder="Confirmez le mot de passe"
-                        required
-                        error={errors.password_confirmation}
-                    />
+
+                    {data.role === 'student' && (
+                        <Select
+                            label="Groupe"
+                            options={activeGroups.map(group => ({
+                                value: group.id,
+                                label: `${group.display_name} (${group.academic_year})`
+                            }))}
+                            value={data.group_id ?? ''}
+                            onChange={(value) => setData('group_id', Number(value))}
+                            error={errors.group_id}
+                            searchable={true}
+                            placeholder="Sélectionner un groupe"
+                        />
+                    )}
+
+                    <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
+                        <div className="flex">
+                            <div className="shrink-0">
+                                <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                </svg>
+                            </div>
+                            <div className="ml-3">
+                                <p className="text-sm text-blue-700">
+                                    Un mot de passe sera généré automatiquement et envoyé par email à l'utilisateur.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
                         <Button
                             type="button"

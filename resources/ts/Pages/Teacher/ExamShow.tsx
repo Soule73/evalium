@@ -1,45 +1,134 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { formatDuration } from '@/utils/formatters';
 import { Button } from '@/Components';
-import { Exam } from '@/types';
+import { Exam, Group } from '@/types';
 import StatCard from '@/Components/StatCard';
-import { ClockIcon, QuestionMarkCircleIcon, StarIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, QuestionMarkCircleIcon, StarIcon, DocumentDuplicateIcon, UserGroupIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
 import Section from '@/Components/Section';
-import TextEntry from '@/Components/TextEntry';
 import { route } from 'ziggy-js';
 import QuestionReadOnlySection from '@/Components/exam/QuestionReadOnlySection';
 import { QuestionResultReadOnlyText, QuestionTeacherReadOnlyChoices } from '@/Components/exam/QuestionResultReadOnly';
+import { breadcrumbs } from '@/utils/breadcrumbs';
+import { DataTable } from '@/Components/DataTable';
+import { getGroupTableConfig, ExamHeader } from '@/Components/exam';
+import { groupsToPaginationType } from '@/utils';
+import Toggle from '@/Components/form/Toggle';
+import ConfirmationModal from '@/Components/ConfirmationModal';
 
 
 interface Props {
     exam: Exam;
+    assignedGroups: Group[];
 }
 
-const TeacherExamShow: React.FC<Props> = ({ exam }) => {
+const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
+    const [isToggling, setIsToggling] = useState(false);
+    const [isDuplicating, setIsDuplicating] = useState(false);
+    const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+    const [removeGroupModal, setRemoveGroupModal] = useState<{ isOpen: boolean; group: Group | null }>({
+        isOpen: false,
+        group: null
+    });
 
-    const totalPoints = (exam.questions ?? []).reduce((sum, q) => sum + q.points, 0);
+    const totalPoints = useMemo(() =>
+        (exam.questions ?? []).reduce((sum, q) => sum + q.points, 0),
+        [exam.questions]
+    );
+
+    const totalStudents = useMemo(() =>
+        assignedGroups.reduce((sum, group) => sum + (group.active_students_count || 0), 0),
+        [assignedGroups]
+    );
+
+    const questionsCount = (exam.questions ?? []).length;
+
+    const handleRemoveGroup = () => {
+        if (!removeGroupModal.group) return;
+
+        router.delete(
+            route('teacher.exams.groups.remove', {
+                exam: exam.id,
+                group: removeGroupModal.group.id,
+            }),
+            {
+                onFinish: () => setRemoveGroupModal({ isOpen: false, group: null })
+            }
+        );
+    };
+
+    const groupsTableConfig = getGroupTableConfig({
+        exam,
+        showActions: true,
+        showDetailsButton: true,
+        onRemove: (group) => setRemoveGroupModal({ isOpen: true, group })
+    });
+
+    const handleToggleStatus = () => {
+        if (isToggling) return;
+
+        setIsToggling(true);
+        router.patch(
+            route('teacher.exams.toggle-active', exam.id),
+            {},
+            {
+                preserveScroll: true,
+                onFinish: () => setIsToggling(false),
+            }
+        );
+    };
+
+    const handleDuplicate = () => {
+        if (isDuplicating) return;
+
+        setIsDuplicating(true);
+        router.post(
+            route('teacher.exams.duplicate', exam.id),
+            {},
+            {
+                onFinish: () => {
+                    setIsDuplicating(false);
+                    setShowDuplicateModal(false);
+                },
+            }
+        );
+    };
 
     return (
-        <AuthenticatedLayout title={exam.title}>
+        <AuthenticatedLayout title={exam.title}
+            breadcrumb={breadcrumbs.teacherExamShow(exam.title)}
+        >
             <div className="max-w-6xl mx-auto space-y-6">
                 <Section title={"Détails et gestion de l'examen"}
                     actions={
                         <div className="flex flex-col md:flex-row space-y-2 md:space-x-3 md:space-y-0">
+                            <Toggle
+                                checked={exam.is_active}
+                                onChange={handleToggleStatus}
+                                disabled={isToggling}
+                                color="green"
+                                size="sm"
+                                showLabel
+                                activeLabel="Actif"
+                                inactiveLabel="Inactif"
+                            />
+                            <Button
+                                onClick={() => setShowDuplicateModal(true)}
+                                color="secondary"
+                                variant='outline'
+                                size="sm"
+                                disabled={isDuplicating}
+                            >
+                                <DocumentDuplicateIcon className="h-4 w-4 mr-1" />
+                                Dupliquer
+                            </Button>
                             <Button
                                 onClick={() => router.visit(route('teacher.exams.edit', exam.id))}
                                 color="secondary"
                                 variant='outline'
                                 size="sm" >
                                 Modifier
-                            </Button>
-                            <Button
-                                onClick={() => router.visit(route('teacher.exams.assign', exam.id))}
-                                variant='outline'
-                                color="secondary"
-                                size="sm" >
-                                Assigner
                             </Button>
                             <Button
                                 onClick={() => router.visit(route('teacher.exams.assignments', exam.id))}
@@ -54,39 +143,64 @@ const TeacherExamShow: React.FC<Props> = ({ exam }) => {
                 >
                     <div className="flex items-start justify-between">
                         <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-2">
 
-                                <TextEntry label={exam.title} value={exam.description ?? ''} />
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${exam.is_active
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-gray-100 text-gray-800'
-                                    }`}>
-                                    {exam.is_active ? 'Actif' : 'Inactif'}
-                                </span>
-                            </div>
+                            <ExamHeader exam={exam} showDescription={true} showMetadata={false} />
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <StatCard title="Questions" value={(exam.questions ?? []).length}
-                                    icon={
-                                        QuestionMarkCircleIcon
-                                    } color='blue' />
-                                <StatCard title="Points totaux" value={totalPoints} color='green'
-                                    icon={
-                                        StarIcon
-                                    }
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                                <StatCard
+                                    title="Questions"
+                                    value={questionsCount}
+                                    icon={QuestionMarkCircleIcon}
+                                    color='blue'
                                 />
-                                {/* <div className="bg-white p-4 rounded-lg shadow">
-                                    <div className="text-2xl font-bold text-purple-600">{exam?.answers_count || 0}</div>
-                                    <div className="text-sm text-gray-600">Réponses reçues</div>
-                                </div> */}
-                                <StatCard title="Durée" value={formatDuration(exam.duration)} color='yellow'
-                                    icon={
-                                        ClockIcon
-                                    } />
+                                <StatCard
+                                    title="Points totaux"
+                                    value={totalPoints}
+                                    color='green'
+                                    icon={StarIcon}
+                                />
+                                <StatCard
+                                    title="Durée"
+                                    value={formatDuration(exam.duration)}
+                                    color='yellow'
+                                    icon={ClockIcon}
+                                />
+                                <StatCard
+                                    title="Groupes assignés"
+                                    value={assignedGroups.length}
+                                    color='purple'
+                                    icon={UserGroupIcon}
+                                />
                             </div>
+
+                            {totalStudents > 0 && (
+                                <div className="mt-4">
+                                    <StatCard
+                                        title="Étudiants concernés"
+                                        value={totalStudents}
+                                        color='blue'
+                                        icon={AcademicCapIcon}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </Section>
+
+                {/* Groupes assignés */}
+                {assignedGroups && assignedGroups.length > 0 && (
+                    <Section
+                        title="Groupes assignés"
+                        subtitle={`${assignedGroups.length} groupe(s) ont accès à cet examen`}
+                        collapsible
+                        defaultOpen={true}
+                    >
+                        <DataTable
+                            data={groupsToPaginationType(assignedGroups)}
+                            config={groupsTableConfig}
+                        />
+                    </Section>
+                )}
 
                 {/* Questions */}
                 <Section title="Questions de l'examen" collapsible>
@@ -129,6 +243,29 @@ const TeacherExamShow: React.FC<Props> = ({ exam }) => {
                     )}
                 </Section>
             </div >
+
+            <ConfirmationModal
+                isOpen={showDuplicateModal}
+                onClose={() => setShowDuplicateModal(false)}
+                onConfirm={handleDuplicate}
+                title="Dupliquer l'examen"
+                message={`Voulez-vous vraiment dupliquer l'examen "${exam.title}" ? Une copie sera créée avec toutes les questions.`}
+                confirmText="Dupliquer"
+                cancelText="Annuler"
+                type="info"
+                loading={isDuplicating}
+            />
+
+            <ConfirmationModal
+                isOpen={removeGroupModal.isOpen}
+                onClose={() => setRemoveGroupModal({ isOpen: false, group: null })}
+                onConfirm={handleRemoveGroup}
+                title="Retirer le groupe"
+                message={`Êtes-vous sûr de vouloir retirer l'examen "${exam.title}" du groupe "${removeGroupModal.group?.display_name}" ?`}
+                confirmText="Retirer"
+                cancelText="Annuler"
+                type="danger"
+            />
         </AuthenticatedLayout >
     );
 };

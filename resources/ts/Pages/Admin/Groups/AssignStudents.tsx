@@ -9,6 +9,7 @@ import { UserPlusIcon } from '@heroicons/react/24/outline';
 import { DataTable } from '@/Components/DataTable';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
 import ConfirmationModal from '@/Components/ConfirmationModal';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 
 interface Props {
     group: Group & { active_students_count?: number };
@@ -123,7 +124,9 @@ export default function AssignStudents({ group, availableStudents }: Props) {
     };
 
     return (
-        <AuthenticatedLayout title={`Assigner des étudiants - ${group.display_name}`}>
+        <AuthenticatedLayout title={`Assigner des étudiants - ${group.display_name}`}
+            breadcrumb={breadcrumbs.adminGroupAssignStudents(group.display_name, group.id)}
+        >
             <Section
                 title={`Assigner des étudiants au groupe "${group.display_name}"`}
                 subtitle={`Places disponibles: ${availableSlots} / ${group.max_students}`}

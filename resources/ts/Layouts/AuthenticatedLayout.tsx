@@ -1,102 +1,94 @@
 import { Head, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
-import { useEffect, useMemo, useState } from 'react';
-import {
-    Logo,
-    DesktopNavigation,
-    MobileNavigation,
-    UserMenu,
-    MobileMenuButton
-} from '@/Components/Navigation';
+import { useMemo, useState, useEffect } from 'react';
+import { Sidebar } from '@/Components/Sidebar';
 import FlashToastHandler from '@/Components/Toast/FlashToastHandler';
+import { Breadcrumb, BreadcrumbItem } from '@/Components/Breadcrumb/Breadcrumb';
 
 interface AuthenticatedLayoutProps {
     children: React.ReactNode;
     title?: string;
+    breadcrumb?: BreadcrumbItem[];
 }
 
-const AuthenticatedLayout = ({ children, title }: AuthenticatedLayoutProps) => {
-    const { auth, flash } = usePage<PageProps>().props;
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+const AuthenticatedLayout = ({ children, title, breadcrumb }: AuthenticatedLayoutProps) => {
+    const { auth, flash, permissions } = usePage<PageProps>().props;
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-    const isAdmin = !!auth.user.roles?.some(role => role.name === 'admin');
+    const isSuperAdmin = !!auth.user.roles?.some(role => role.name === 'super_admin');
+    const isAdmin = !!auth.user.roles?.some(role => role.name === 'admin' || role.name === 'super_admin');
     const isTeacher = !!auth.user.roles?.some(role => role.name === 'teacher');
     const isStudent = !!auth.user.roles?.some(role => role.name === 'student');
 
+    const currentPath = useMemo(() => window.location.pathname, []);
+
+    // Écouter les changements de l'état collapsed depuis localStorage
     useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth >= 640) {
-                setIsMobileMenuOpen(false);
-            }
+        const checkCollapsed = () => {
+            const collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            setSidebarCollapsed(collapsed);
         };
 
-        window.addEventListener('resize', handleResize);
+        checkCollapsed();
+        window.addEventListener('storage', checkCollapsed);
+
+        // Custom event pour les changements dans la même fenêtre
+        window.addEventListener('sidebarToggle', checkCollapsed);
+
         return () => {
-            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('storage', checkCollapsed);
+            window.removeEventListener('sidebarToggle', checkCollapsed);
         };
     }, []);
-
-    const currentHref = useMemo(() => window.location.href, []);
 
     return (
         <>
             <Head title={title} />
 
             <div className="min-h-screen bg-gray-50">
-                <nav className="bg-white border-b border-gray-200 fixed w-full z-10 top-0">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-between h-16">
-                            <div className="flex items-center">
-                                <div className="flex-shrink-0">
-                                    <Logo />
-                                </div>
+                {/* Sidebar */}
+                <Sidebar
+                    isAdmin={isAdmin}
+                    isSuperAdmin={isSuperAdmin}
+                    isTeacher={isTeacher}
+                    isStudent={isStudent}
+                    currentPath={currentPath}
+                    permissions={permissions}
+                    user={auth.user}
+                />
 
-                                <DesktopNavigation
-                                    isAdmin={isAdmin}
-                                    isTeacher={isTeacher}
-                                    isStudent={isStudent}
-                                    currentHref={currentHref}
-                                />
+                {/* Main container avec marge ajustée selon l'état de la sidebar */}
+                <div
+                    className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}
+                >
+                    {/* Header */}
+                    <header className="sticky top-0 z-2 bg-white border-b border-gray-200 h-16">
+                        <div className="flex items-center justify-between h-full px-4 lg:px-8">
+                            {/* Espace pour le bouton hamburger mobile (géré par Sidebar) */}
+                            <div className="lg:hidden w-10"></div>
+
+                            {/* Breadcrumb ou Titre */}
+                            <div className="flex-1">
+                                {breadcrumb ? (
+                                    <Breadcrumb items={breadcrumb} />
+                                ) : title ? (
+                                    <h1 className="lg:text-lg font-semibold text-gray-900 hidden sm:block">{title}</h1>
+                                ) : null}
                             </div>
 
-                            <div className="flex items-center">
-                                <UserMenu
-                                    user={auth.user}
-                                    isAdmin={isAdmin}
-                                    isTeacher={isTeacher}
-                                />
-
-                                <MobileMenuButton
-                                    isOpen={isMobileMenuOpen}
-                                    onToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                />
-                            </div>
+                            {/* Espace vide à droite pour l'équilibre */}
+                            <div className="w-10"></div>
                         </div>
+                    </header>
 
-                        <MobileNavigation
-                            isAdmin={isAdmin}
-                            isTeacher={isTeacher}
-                            isStudent={isStudent}
-                            currentHref={currentHref}
-                            isOpen={isMobileMenuOpen}
-                        />
+                    {/* Main content */}
+                    <main className="p-4 lg:p-8 min-h-[calc(100vh-4rem)]">
+                        <div className="max-w-7xl mx-auto">
+                            {children}
+                        </div>
+                    </main>
+                </div>
 
-                        {isMobileMenuOpen && (
-                            <UserMenu
-                                user={auth.user}
-                                isAdmin={isAdmin}
-                                isTeacher={isTeacher}
-                                isMobile={true}
-                            />
-                        )}
-                    </div>
-                </nav>
-
-                <main className="pb-8 pt-20">
-                    <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-                        {children}
-                    </div>
-                </main>
                 <FlashToastHandler flash={flash} />
             </div>
         </>

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Modèle représentant un groupe (classe) d'étudiants
@@ -64,6 +65,17 @@ class Group extends Model
         'is_active' => 'boolean',
         'max_students' => 'integer',
     ];
+
+    /**
+     * Événements du modèle pour gérer le cache
+     */
+    protected static function booted(): void
+    {
+        // Invalider le cache des groupes quand un groupe change
+        static::created(fn() => Cache::forget('groups_active_with_levels'));
+        static::updated(fn() => Cache::forget('groups_active_with_levels'));
+        static::deleted(fn() => Cache::forget('groups_active_with_levels'));
+    }
 
     public function level(): BelongsTo
     {

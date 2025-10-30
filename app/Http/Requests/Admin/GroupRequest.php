@@ -12,7 +12,7 @@ class GroupRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::user() && Auth::user()->hasRole('admin');
+        return Auth::user() && Auth::user()->hasRole(['admin', 'super_admin']);
     }
 
     /**

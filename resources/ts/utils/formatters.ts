@@ -164,6 +164,8 @@ export const getRoleLabel = (roleName: string) => {
     switch (roleName) {
         case 'admin':
             return 'Administrateur';
+        case 'super_admin':
+            return 'Super Administrateur';
         case 'teacher':
             return 'Enseignant';
         case 'student':
@@ -177,6 +179,8 @@ export const getRoleColor = (roleName: string) => {
     switch (roleName) {
         case 'admin':
             return 'bg-red-100 text-red-800';
+        case 'super_admin':
+            return 'bg-purple-100 text-purple-800';
         case 'teacher':
             return 'bg-blue-100 text-blue-800';
         case 'student':
@@ -361,6 +365,7 @@ export const formatExamAssignmentStatus = (status: string): { label: string; col
         'submitted': { label: 'Soumis', color: 'info' },
         'pending_review': { label: 'En attente de révision', color: 'warning' },
         'graded': { label: 'Noté', color: 'success' },
+        'not_assigned': { label: 'Non commencé', color: 'gray' }
     };
 
     return statusMap[status as keyof typeof statusMap] || { label: status, color: 'gray' };

@@ -12,6 +12,7 @@ import { Group } from '@/types';
 import Badge from '@/Components/Badge';
 import { useState } from 'react';
 import ConfirmationModal from '@/Components/ConfirmationModal';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 
 interface Props {
     groups: PaginationType<Group>;
@@ -236,9 +237,37 @@ export default function GroupIndex({ groups, levels }: Props) {
     const averageStudentsPerGroup = totalGroups > 0 ? Math.round(totalStudents / totalGroups) : 0;
 
     return (
-        <AuthenticatedLayout title="Gestion des groupes">
-            <Section
-                title="Gestion des groupes"
+        <AuthenticatedLayout title="Gestion des groupes"
+            breadcrumb={breadcrumbs.adminGroupIndex()}
+        >
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <StatCard
+                    title="Total groupes"
+                    value={totalGroups}
+                    icon={UserGroupIcon}
+                    color="blue"
+                />
+                <StatCard
+                    title="Groupes actifs"
+                    value={activeGroups}
+                    icon={UserGroupIcon}
+                    color="green"
+                />
+                <StatCard
+                    title="Total étudiants"
+                    value={totalStudents}
+                    icon={UsersIcon}
+                    color="purple"
+                />
+                <StatCard
+                    title="Moyenne par groupe"
+                    value={averageStudentsPerGroup}
+                    icon={AcademicCapIcon}
+                    color="yellow"
+                />
+            </div>
+
+            <Section title="Liste des groupes"
                 subtitle="Gérez les groupes de classes et leurs étudiants."
                 actions={
                     <Button
@@ -251,35 +280,6 @@ export default function GroupIndex({ groups, levels }: Props) {
                     </Button>
                 }
             >
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <StatCard
-                        title="Total groupes"
-                        value={totalGroups}
-                        icon={UserGroupIcon}
-                        color="blue"
-                    />
-                    <StatCard
-                        title="Groupes actifs"
-                        value={activeGroups}
-                        icon={UserGroupIcon}
-                        color="green"
-                    />
-                    <StatCard
-                        title="Total étudiants"
-                        value={totalStudents}
-                        icon={UsersIcon}
-                        color="purple"
-                    />
-                    <StatCard
-                        title="Moyenne par groupe"
-                        value={averageStudentsPerGroup}
-                        icon={AcademicCapIcon}
-                        color="yellow"
-                    />
-                </div>
-            </Section>
-
-            <Section title="Liste des groupes">
                 <DataTable
                     data={groups}
                     config={dataTableConfig}

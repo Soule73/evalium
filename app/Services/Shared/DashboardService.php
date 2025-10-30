@@ -19,7 +19,13 @@ class DashboardService
             throw new \Exception('Utilisateur non authentifié');
         }
 
-        return PermissionHelper::getUserMainRole();
+        $role = PermissionHelper::getUserDashboardType();
+
+        if (!$role) {
+            throw new \Exception('Aucun rôle assigné à l\'utilisateur');
+        }
+
+        return $role;
     }
 
     /**
@@ -30,6 +36,7 @@ class DashboardService
         $role = $this->getDashboardType($user);
 
         return match ($role) {
+            'super_admin' => 'admin.dashboard',
             'admin' => 'admin.dashboard',
             'teacher' => 'teacher.dashboard',
             'student' => 'student.dashboard',
@@ -43,6 +50,11 @@ class DashboardService
     public function canAccessDashboard(string $dashboardType, ?User $user = null): bool
     {
         $userRole = $this->getDashboardType($user);
+
+        // Super admin peut accéder au dashboard admin
+        if ($userRole === 'super_admin' && $dashboardType === 'admin') {
+            return true;
+        }
 
         return $userRole === $dashboardType;
     }

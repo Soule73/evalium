@@ -10,6 +10,7 @@ use App\Services\ExamService;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
+use App\Services\Teacher\ExamGroupService;
 use App\Http\Requests\Teacher\StoreExamRequest;
 use App\Http\Requests\Teacher\UpdateExamRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -37,7 +38,8 @@ class ExamController extends Controller
     use AuthorizesRequests, HasFlashMessages;
 
     public function __construct(
-        private ExamService $examService
+        private ExamService $examService,
+        private ExamGroupService $examGroupService
     ) {}
 
     /**
@@ -126,9 +128,11 @@ class ExamController extends Controller
         $exam->load(['questions.choices']);
         $exam->loadCount(['questions']);
 
+        $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
+
         return Inertia::render('Teacher/ExamShow', [
             'exam' => $exam,
-            'assignedGroups' => []  // Cette info est maintenant gérée par ExamAssignmentController
+            'assignedGroups' => $assignedGroups
         ]);
     }
 

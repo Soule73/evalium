@@ -10,6 +10,10 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ExamAssignmentService
 {
+    public function __construct(
+        private ExamGroupService $examGroupService
+    ) {}
+
     /**
      * Récupérer les assignations d'un examen avec pagination et filtres
      */
@@ -42,16 +46,29 @@ class ExamAssignmentService
      */
     public function getExamAssignmentStats(Exam $exam): array
     {
+        // Récupérer tous les groupes assignés et leurs étudiants actifs
+        $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
+        $totalStudentsInGroups = $assignedGroups->sum(function ($group) {
+            return $group->activeStudents->count();
+        });
+
+        // Récupérer toutes les assignations existantes
         $allAssignments = $exam->assignments()->get();
+        $assignedStudentsCount = $allAssignments->count();
+
+        // Calculer combien d'étudiants n'ont pas encore d'assignation créée
+        $notAssignedYet = $totalStudentsInGroups - $assignedStudentsCount;
+
+        $completedCount = $allAssignments->whereIn('status', ['submitted', 'graded'])->count();
 
         return [
-            'total_assigned' => $allAssignments->count(),
-            'total_submitted' => $allAssignments->whereIn('status', ['submitted', 'graded'])->count(),
-            'completed' => $allAssignments->whereIn('status', ['submitted', 'graded'])->count(),
+            'total_assigned' => $totalStudentsInGroups,
+            'total_submitted' => $completedCount,
+            'completed' => $completedCount,
             'in_progress' => $allAssignments->where('status', 'started')->count(),
-            'not_started' => $allAssignments->where('status', 'assigned')->count(),
-            'completion_rate' => $allAssignments->count() > 0 ?
-                ($allAssignments->whereIn('status', ['submitted', 'graded'])->count() / $allAssignments->count()) * 100 : 0,
+            'not_started' => $allAssignments->where('status', 'assigned')->count() + $notAssignedYet,
+            'completion_rate' => $totalStudentsInGroups > 0 ?
+                ($completedCount / $totalStudentsInGroups) * 100 : 0,
             'average_score' => $allAssignments->whereNotNull('score')->avg('score')
         ];
     }
@@ -208,19 +225,32 @@ class ExamAssignmentService
 
         $assignments = $query->paginate($params['per_page'])->withQueryString();
 
+        // Récupérer tous les groupes assignés et leurs étudiants actifs
+        $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
+        $totalStudentsInGroups = $assignedGroups->sum(function ($group) {
+            return $group->activeStudents->count();
+        });
+
+        // Récupérer toutes les assignations existantes
         $allAssignments = $exam->assignments()->get();
+        $assignedStudentsCount = $allAssignments->count();
+
+        // Calculer combien d'étudiants n'ont pas encore d'assignation créée
+        $notAssignedYet = $totalStudentsInGroups - $assignedStudentsCount;
+
         $stats = [
-            'total_assigned' => $allAssignments->count(),
+            'total_assigned' => $totalStudentsInGroups,
             'completed' => $allAssignments->whereIn('status', ['submitted', 'graded'])->count(),
             'in_progress' => $allAssignments->where('status', 'started')->count(),
-            'not_started' => $allAssignments->where('status', 'assigned')->count(),
+            'not_started' => $allAssignments->where('status', 'assigned')->count() + $notAssignedYet,
             'average_score' => $allAssignments->whereNotNull('score')->avg('score')
         ];
 
         return [
             'exam' => $exam,
             'assignments' => $assignments,
-            'stats' => $stats
+            'stats' => $stats,
+            'assignedGroups' => $assignedGroups
         ];
     }
 }

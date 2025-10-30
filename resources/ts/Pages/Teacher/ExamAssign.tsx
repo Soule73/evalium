@@ -9,6 +9,8 @@ import { UserGroupIcon, UserIcon, UserPlusIcon } from '@heroicons/react/24/outli
 import { DataTable } from '@/Components/DataTable';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
 import ConfirmationModal from '@/Components/ConfirmationModal';
+import MarkdownRenderer from '@/Components/form/MarkdownRenderer';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 
 interface Props {
     exam: Exam;
@@ -21,6 +23,10 @@ export default function ExamAssign({ exam, students, assignedGroups, availableGr
     const [activeTab, setActiveTab] = useState<'groups' | 'students'>('groups');
     const [isProcessing, setIsProcessing] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showRemoveGroupModal, setShowRemoveGroupModal] = useState<{ isOpen: boolean; group: Group | null }>({
+        isOpen: false,
+        group: null
+    });
     const [pendingAssignment, setPendingAssignment] = useState<{
         type: 'groups' | 'students';
         ids: (string | number)[];
@@ -74,6 +80,17 @@ export default function ExamAssign({ exam, students, assignedGroups, availableGr
     const cancelAssignment = () => {
         setShowConfirmModal(false);
         setPendingAssignment(null);
+    };
+
+    const handleRemoveGroup = () => {
+        if (!showRemoveGroupModal.group) return;
+
+        router.delete(
+            route('teacher.exams.groups.remove', { exam: exam.id, group: showRemoveGroupModal.group.id }),
+            {
+                onFinish: () => setShowRemoveGroupModal({ isOpen: false, group: null })
+            }
+        );
     };
 
     // Transformer availableGroups en format PaginationType
@@ -196,7 +213,9 @@ export default function ExamAssign({ exam, students, assignedGroups, availableGr
     };
 
     return (
-        <AuthenticatedLayout title={`Assigner l'examen: ${exam.title}`}>
+        <AuthenticatedLayout title={`Assigner l'examen: ${exam.title}`}
+            breadcrumb={breadcrumbs.teacherExamAssign(exam.title, exam.id)}
+        >
 
             <Section
                 title="Informations sur l'examen"
@@ -213,7 +232,7 @@ export default function ExamAssign({ exam, students, assignedGroups, availableGr
                 <div className="space-y-2">
                     <h2 className="text-xl font-semibold text-gray-900">{exam.title}</h2>
                     {exam.description && (
-                        <p className="text-gray-600">{exam.description}</p>
+                        <MarkdownRenderer>{exam.description}</MarkdownRenderer>
                     )}
                     <p className="text-sm text-gray-500">
                         Durée: {exam.duration} minutes
@@ -229,34 +248,75 @@ export default function ExamAssign({ exam, students, assignedGroups, availableGr
                     collapsible
                     defaultOpen={false}
                 >
-                    <div className="space-y-2">
-                        {assignedGroups.map((group) => (
-                            <div key={group.id} className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                                <div className="flex items-center space-x-3">
-                                    <UserGroupIcon className="h-5 w-5 text-green-600" />
-                                    <div>
-                                        <div className="font-medium text-gray-900">{group.display_name}</div>
-                                        <div className="text-sm text-gray-500">
-                                            {group.active_students_count} étudiant(s) actif(s)
+                    <DataTable
+                        data={{
+                            data: assignedGroups,
+                            current_page: 1,
+                            per_page: assignedGroups.length,
+                            total: assignedGroups.length,
+                            last_page: 1,
+                            from: 1,
+                            to: assignedGroups.length,
+                            first_page_url: '',
+                            last_page_url: '',
+                            next_page_url: null,
+                            prev_page_url: null,
+                            path: '',
+                            links: []
+                        }}
+                        config={{
+                            columns: [
+                                {
+                                    key: 'display_name',
+                                    label: 'Groupe',
+                                    render: (group) => (
+                                        <div className="flex items-center space-x-3">
+                                            <UserGroupIcon className="h-5 w-5 text-green-600 shrink-0" />
+                                            <div>
+                                                <div className="font-medium text-gray-900">{group.display_name}</div>
+                                                <div className="text-sm text-gray-500">
+                                                    {group.active_students_count} étudiant(s) actif(s)
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <Button
-                                    type="button"
-                                    color="danger"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                        if (confirm('Êtes-vous sûr de vouloir retirer cet examen de ce groupe ?')) {
-                                            router.delete(route('teacher.exams.groups.remove', { exam: exam.id, group: group.id }));
-                                        }
-                                    }}
-                                >
-                                    Retirer
-                                </Button>
-                            </div>
-                        ))}
-                    </div>
+                                    )
+                                },
+                                {
+                                    key: 'actions',
+                                    label: 'Actions',
+                                    render: (group) => (
+                                        <div className="flex space-x-2">
+                                            <Button
+                                                type="button"
+                                                color="primary"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => router.visit(route('teacher.exams.group-details', { exam: exam.id, group: group.id }))}
+                                            >
+                                                Voir détails
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                color="danger"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setShowRemoveGroupModal({ isOpen: true, group })}
+                                            >
+                                                Retirer
+                                            </Button>
+                                        </div>
+                                    )
+                                }
+                            ],
+                            searchPlaceholder: 'Rechercher un groupe...',
+                            emptyState: {
+                                title: 'Aucun groupe assigné',
+                                subtitle: 'Aucun groupe n\'a encore accès à cet examen',
+                                icon: 'UserGroupIcon'
+                            },
+                            perPageOptions: [10, 25, 50],
+                        }}
+                    />
                 </Section>
             )}
 
@@ -345,6 +405,17 @@ export default function ExamAssign({ exam, students, assignedGroups, availableGr
                     </p>
                 </div>
             </ConfirmationModal>
+
+            <ConfirmationModal
+                isOpen={showRemoveGroupModal.isOpen}
+                onClose={() => setShowRemoveGroupModal({ isOpen: false, group: null })}
+                onConfirm={handleRemoveGroup}
+                title="Retirer le groupe"
+                message={`Êtes-vous sûr de vouloir retirer l'examen "${exam.title}" du groupe "${showRemoveGroupModal.group?.display_name}" ?`}
+                confirmText="Retirer"
+                cancelText="Annuler"
+                type="danger"
+            />
         </AuthenticatedLayout>
     );
 }

@@ -9,7 +9,7 @@ class AssignStudentsToGroupRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Auth::user()->hasRole('admin');
+        return Auth::user()->hasRole(['admin', 'super_admin']);
     }
 
     public function rules(): array

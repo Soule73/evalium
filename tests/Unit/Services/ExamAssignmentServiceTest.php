@@ -9,6 +9,7 @@ use App\Models\ExamAssignment;
 use Spatie\Permission\Models\Role;
 use PHPUnit\Framework\Attributes\Test;
 use App\Services\Teacher\ExamAssignmentService;
+use App\Services\Teacher\ExamGroupService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -29,7 +30,8 @@ class ExamAssignmentServiceTest extends TestCase
         Role::create(['name' => 'teacher']);
         Role::create(['name' => 'student']);
 
-        $this->service = new ExamAssignmentService();
+        $examGroupService = new ExamGroupService();
+        $this->service = new ExamAssignmentService($examGroupService);
 
         // Créer un enseignant
         $this->teacher = User::factory()->create([

@@ -7,6 +7,7 @@ use App\Models\Group;
 use App\Models\Exam;
 use Tests\TestCase;
 use App\Services\Teacher\ExamAssignmentService;
+use App\Services\Teacher\ExamGroupService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExamGroupAssignmentTest extends TestCase
@@ -36,7 +37,8 @@ class ExamGroupAssignmentTest extends TestCase
             ]);
         }
 
-        $service = new ExamAssignmentService();
+        $examGroupService = new ExamGroupService();
+        $service = new ExamAssignmentService($examGroupService);
         $result = $service->assignExamToGroup($exam, $group->id);
 
         $this->assertTrue($result['success']);
@@ -63,7 +65,8 @@ class ExamGroupAssignmentTest extends TestCase
             'is_active' => true,
         ]);
 
-        $service = new ExamAssignmentService();
+        $examGroupService = new ExamGroupService();
+        $service = new ExamAssignmentService($examGroupService);
 
         // Première assignation
         $result1 = $service->assignExamToGroup($exam, $group->id);
@@ -100,7 +103,8 @@ class ExamGroupAssignmentTest extends TestCase
             'is_active' => false,
         ]);
 
-        $service = new ExamAssignmentService();
+        $examGroupService = new ExamGroupService();
+        $service = new ExamAssignmentService($examGroupService);
         $result = $service->assignExamToGroup($exam, $group->id);
 
         // Seul l'étudiant actif doit être assigné

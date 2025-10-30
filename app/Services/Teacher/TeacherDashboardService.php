@@ -27,29 +27,27 @@ class TeacherDashboardService
     }
 
     /**
-     * Obtenir les examens récents du professeur
+     * Obtenir les examens récents du professeur avec pagination
      */
-    public function getRecentExams(User $teacher, int $limit = 5): Collection
+    public function getRecentExams(User $teacher, int $perPage = 10, ?string $status = null, ?string $search = null)
     {
-        return Exam::where('teacher_id', $teacher->id)
-            ->withCount('questions')
-            ->with(['assignments' => function ($query) {
-                $query->selectRaw('exam_id, count(*) as total_assignments')
-                    ->groupBy('exam_id');
-            }])
-            ->orderBy('created_at', 'desc')
-            ->limit($limit)
-            ->get()
-            ->map(function ($exam) {
-                return [
-                    'id' => $exam->id,
-                    'title' => $exam->title,
-                    'questions_count' => $exam->questions_count,
-                    'total_assignments' => $exam->assignments->first()?->total_assignments ?? 0,
-                    'created_at' => $exam->created_at->format('Y-m-d H:i'),
-                    'status' => $exam->is_active ? 'active' : 'inactive',
-                ];
+        $query = Exam::where('teacher_id', $teacher->id)
+            ->withCount('questions');
+
+        if ($status !== null) {
+            $query->where('is_active', $status === '1');
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
+        }
+
+        return $query->orderBy('created_at', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     /**
@@ -80,11 +78,11 @@ class TeacherDashboardService
     /**
      * Obtenir les données complètes du dashboard professeur
      */
-    public function getDashboardData(User $teacher): array
+    public function getDashboardData(User $teacher, int $perPage = 10, ?string $status = null, ?string $search = null): array
     {
         return [
             'stats' => $this->getDashboardStats($teacher),
-            'recent_exams' => $this->getRecentExams($teacher),
+            'recent_exams' => $this->getRecentExams($teacher, $perPage, $status, $search),
             'pending_reviews' => $this->getPendingReviews($teacher),
         ];
     }

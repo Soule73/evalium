@@ -9,6 +9,7 @@ import LevelSelect from '@/Components/form/LevelSelect';
 import { route } from 'ziggy-js';
 import { Group } from '@/types';
 import { formatDateForInput } from '@/utils';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 
 interface Props {
     group: Group;
@@ -52,14 +53,47 @@ export default function EditGroup({ group, levels }: Props) {
 
 
     return (
-        <AuthenticatedLayout title={`Modifier le groupe`}>
+        <AuthenticatedLayout title={`Modifier le groupe`}
+            breadcrumb={breadcrumbs.adminGroupEdit(group.display_name)}
+
+
+        >
             <Section
                 title={`Modifier le groupe`}
                 subtitle="Modifiez les informations du groupe."
+
+                actions={
+                    <div className="flex justify-end space-x-4 ">
+                        <Button
+                            type="button"
+                            onClick={handleCancel}
+                            color="secondary"
+                            variant="outline"
+                            disabled={processing}
+                        >
+                            Annuler
+                        </Button>
+                        <Button
+                            type="submit"
+                            color="primary"
+                            variant="solid"
+                            disabled={processing}
+                            loading={processing}
+                        >
+                            Mettre à jour
+                        </Button>
+                    </div>
+                }
             >
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div className="space-y-6">
+                            <Checkbox
+                                id="is_active"
+                                label="Groupe actif"
+                                checked={data.is_active}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('is_active', e.target.checked)}
+                            />
                             <LevelSelect
                                 value={data.level_id}
                                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setData('level_id', e.target.value)}
@@ -108,35 +142,7 @@ export default function EditGroup({ group, levels }: Props) {
                                 max="100"
                                 required
                             />
-
-                            <Checkbox
-                                id="is_active"
-                                label="Groupe actif"
-                                checked={data.is_active}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('is_active', e.target.checked)}
-                            />
                         </div>
-                    </div>
-
-                    <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-                        <Button
-                            type="button"
-                            onClick={handleCancel}
-                            color="secondary"
-                            variant="outline"
-                            disabled={processing}
-                        >
-                            Annuler
-                        </Button>
-                        <Button
-                            type="submit"
-                            color="primary"
-                            variant="solid"
-                            disabled={processing}
-                            loading={processing}
-                        >
-                            Mettre à jour
-                        </Button>
                     </div>
                 </form>
             </Section>

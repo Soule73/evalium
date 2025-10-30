@@ -41,16 +41,18 @@ class ExamSeeder extends Seeder
 
         $question1 = \App\Models\Question::create([
             'exam_id' => $mathExam->id,
-            'content' => '## Équation du Second Degré
+            'content' => '
+## Équation du Second Degré
 
-                        Résolvez l\'équation quadratique suivante :
+Résolvez l\'équation quadratique suivante :
 
-                        $$x^2 - 5x + 6 = 0$$
+$$x^2 - 5x + 6 = 0$$
 
-                        ### Méthode suggérée :
-                        Utiliser la factorisation ou la formule quadratique.
+### Méthode suggérée :
+Utiliser la factorisation ou la formule quadratique.
 
-                        Quelle est la solution correcte ?',
+Quelle est la solution correcte ?
+                        ',
             'type' => 'one_choice',
             'points' => 5,
         ]);
@@ -73,11 +75,12 @@ class ExamSeeder extends Seeder
         // Question 2: Choix multiples (multiple)
         $question2 = \App\Models\Question::create([
             'exam_id' => $mathExam->id,
-            'content' => '## Propriétés des Nombres
+            'content' => '
+## Propriétés des Nombres
 
-                            Quelles sont les propriétés vraies pour le nombre **12** ?
+Quelles sont les propriétés vraies pour le nombre **12** ?
 
-                            ### Sélectionnez toutes les bonnes réponses :',
+### Sélectionnez toutes les bonnes réponses :',
             'type' => 'multiple',
             'points' => 6,
         ]);
@@ -101,12 +104,13 @@ class ExamSeeder extends Seeder
         // Question 3: Vrai/Faux (boolean)
         $question3 = \App\Models\Question::create([
             'exam_id' => $mathExam->id,
-            'content' => '## Géométrie
+            'content' =>
+            '## Géométrie
 
-                            ### Affirmation :
-                            Dans un triangle rectangle, le carré de l\'hypoténuse est égal à la somme des carrés des deux autres côtés.
+### Affirmation :
+Dans un triangle rectangle, le carré de l\'hypoténuse est égal à la somme des carrés des deux autres côtés.
 
-                            **Cette affirmation décrit-elle le théorème de Pythagore ?**',
+**Cette affirmation décrit-elle le théorème de Pythagore ?**',
             'type' => 'boolean',
             'points' => 3,
         ]);
@@ -127,21 +131,22 @@ class ExamSeeder extends Seeder
         // Question 4: Question ouverte (text)
         \App\Models\Question::create([
             'exam_id' => $mathExam->id,
-            'content' => '## Démonstration
+            'content' =>
+            '## Démonstration
 
-                        ### Exercice :
-                        Démontrez que la somme des angles intérieurs d\'un triangle est égale à 180°.
+### Exercice :
+Démontrez que la somme des angles intérieurs d\'un triangle est égale à 180°.
 
-                        ### Instructions :
-                        - Utilisez une méthode géométrique claire
-                        - Dessinez un schéma si nécessaire
-                        - Expliquez chaque étape de votre raisonnement
-                        - Votre réponse doit être complète et rigoureuse
+### Instructions :
+- Utilisez une méthode géométrique claire
+- Dessinez un schéma si nécessaire
+- Expliquez chaque étape de votre raisonnement
+- Votre réponse doit être complète et rigoureuse
 
-                        ### Critères d\'évaluation :
-                        - Clarté du raisonnement (5 points)
-                        - Justesse mathématique (5 points)
-                        - Présentation (2 points)',
+### Critères d\'évaluation :
+- Clarté du raisonnement (5 points)
+- Justesse mathématique (5 points)
+- Présentation (2 points)',
             'type' => 'text',
             'points' => 12,
         ]);

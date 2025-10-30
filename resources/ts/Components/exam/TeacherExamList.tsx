@@ -1,14 +1,13 @@
-import React from 'react';
-import { Link } from '@inertiajs/react';
+import React, { useState } from 'react';
+import { Link, router } from '@inertiajs/react';
 import { EyeIcon, PencilIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { DataTable } from '@/Components/DataTable';
-import Badge from '@/Components/Badge';
 import { route } from 'ziggy-js';
 import { formatDate, formatDuration } from '@/utils/formatters';
 import { Exam } from '@/types';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
 import type { FilterConfig } from '@/types/datatable';
-
+import Toggle from '@/Components/form/Toggle';
 interface TeacherExamListProps {
     data: PaginationType<Exam>;
     variant?: 'teacher' | 'admin';
@@ -26,6 +25,28 @@ const TeacherExamList: React.FC<TeacherExamListProps> = ({
     showFilters = true,
     showSearch = true
 }) => {
+    const [togglingExams, setTogglingExams] = useState<Set<number>>(new Set());
+    const handleToggleStatus = (examId: number) => {
+        if (togglingExams.has(examId)) return;
+
+        setTogglingExams(prev => new Set(prev).add(examId));
+        router.patch(
+            route('teacher.exams.toggle-active', examId),
+            {},
+            {
+                preserveScroll: true,
+                onFinish: () => {
+                    setTogglingExams(prev => {
+                        const next = new Set(prev);
+                        next.delete(examId);
+                        return next;
+                    });
+                },
+            }
+        );
+    };
+
+
     // Fonctions utilitaires pour les colonnes
     const renderTitle = (exam: Exam) => (
         <div>
@@ -39,7 +60,16 @@ const TeacherExamList: React.FC<TeacherExamListProps> = ({
     );
 
     const renderStatus = (exam: Exam) => (
-        <Badge type={exam.is_active ? 'success' : 'gray'} label={exam.is_active ? 'Actif' : 'Inactif'} />
+        <div className="flex items-center space-x-2">
+            <Toggle
+                checked={exam.is_active}
+                onChange={() => handleToggleStatus(exam.id)}
+                disabled={togglingExams.has(exam.id)}
+                color="green"
+                size="sm"
+                showLabel={false}
+            />
+        </div>
     );
 
     const renderCreatedAt = (exam: Exam) => (
@@ -127,10 +157,13 @@ const TeacherExamList: React.FC<TeacherExamListProps> = ({
     };
 
     return (
-        <DataTable
-            data={data}
-            config={tableConfig}
-        />
+        <>
+            <DataTable
+                data={data}
+                config={tableConfig}
+            />
+
+        </>
     );
 };
 export default TeacherExamList;

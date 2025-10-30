@@ -13,6 +13,7 @@ import { DataTable } from '@/Components/DataTable';
 import ConfirmationModal from '@/Components/ConfirmationModal';
 import { useState } from 'react';
 import TextEntry from '@/Components/TextEntry';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 
 interface Props {
     group: Group & {
@@ -216,7 +217,9 @@ export default function ShowGroup({ group }: Props) {
     const inactiveStudents = group.students?.filter(student => !student.pivot.is_active).length || 0;
 
     return (
-        <AuthenticatedLayout title={group.display_name}>
+        <AuthenticatedLayout title={group.display_name}
+            breadcrumb={breadcrumbs.adminGroupShow(group.display_name)}
+        >
             <ConfirmationModal
                 isOpen={showDeleteModal}
                 onClose={() => setShowDeleteModal(false)}
@@ -264,7 +267,7 @@ export default function ShowGroup({ group }: Props) {
                         </Button>
                         <Button
                             onClick={() => setShowDeleteModal(true)}
-                            color="secondary"
+                            color="danger"
                             variant="outline"
                             size="sm"
                         >

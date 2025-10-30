@@ -3,7 +3,7 @@ import { NavIcon } from './NavIcon';
 
 interface NavLinkProps {
     href: string;
-    icon?: 'dashboard' | 'exams' | 'results' | 'manage-exams' | 'users' | 'groups' | 'logout';
+    icon?: 'dashboard' | 'exams' | 'results' | 'manage-exams' | 'users' | 'groups' | 'levels' | 'roles' | 'logout';
     children: React.ReactNode;
     isActive?: boolean;
     variant?: 'desktop' | 'mobile';

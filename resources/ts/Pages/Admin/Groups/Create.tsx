@@ -7,6 +7,7 @@ import Input from '@/Components/form/Input';
 import LevelSelect from '@/Components/form/LevelSelect';
 import { route } from 'ziggy-js';
 import Checkbox from '@/Components/form/Checkbox';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 
 interface Props {
     levels: Record<number, string>;
@@ -48,10 +49,36 @@ export default function CreateGroup({ levels }: Props) {
 
 
     return (
-        <AuthenticatedLayout title="Créer un groupe">
+        <AuthenticatedLayout title="Créer un groupe"
+            breadcrumb={breadcrumbs.adminGroupCreate()}
+        >
             <Section
                 title="Créer un nouveau groupe"
                 subtitle="Ajoutez un nouveau groupe de classe avec ses informations."
+                actions={
+                    <div className="flex justify-end space-x-4">
+                        <Button
+                            type="button"
+                            onClick={handleCancel}
+                            color="secondary"
+                            variant="outline"
+                            disabled={processing}
+                            size="sm"
+                        >
+                            Annuler
+                        </Button>
+                        <Button
+                            type="submit"
+                            color="primary"
+                            variant="solid"
+                            disabled={processing}
+                            loading={processing}
+                            size="sm"
+                        >
+                            Créer le groupe
+                        </Button>
+                    </div>
+                }
             >
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -111,27 +138,6 @@ export default function CreateGroup({ levels }: Props) {
                                 required
                             />
                         </div>
-                    </div>
-
-                    <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-                        <Button
-                            type="button"
-                            onClick={handleCancel}
-                            color="secondary"
-                            variant="outline"
-                            disabled={processing}
-                        >
-                            Annuler
-                        </Button>
-                        <Button
-                            type="submit"
-                            color="primary"
-                            variant="solid"
-                            disabled={processing}
-                            loading={processing}
-                        >
-                            Créer le groupe
-                        </Button>
                     </div>
                 </form>
             </Section>

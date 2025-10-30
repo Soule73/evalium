@@ -15,7 +15,7 @@ class EditUserRequest extends FormRequest
         $user = Auth::user();
         $routeUser = request()->user();
 
-        return $user && ($user->hasRole('admin') || ($routeUser && $user === $routeUser));
+        return $user && ($user->hasRole(['admin', 'super_admin']) || ($routeUser && $user === $routeUser));
     }
 
     /**
@@ -29,7 +29,7 @@ class EditUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . request()->user()->id],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'string', 'in:admin,teacher,student'],
+            'role' => ['required', 'string', 'in:admin,teacher,student,super_admin'],
         ];
     }
 
@@ -48,7 +48,7 @@ class EditUserRequest extends FormRequest
             'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
             'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
             'role.required' => 'Le rôle est requis.',
-            'role.in' => 'Le rôle sélectionné est invalide. Choisissez parmi : admin, teacher, student.',
+            'role.in' => 'Le rôle sélectionné est invalide. Choisissez parmi : admin, super_admin, teacher, student.',
         ];
     }
 }
