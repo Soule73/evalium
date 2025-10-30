@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Teacher;
+namespace App\Http\Controllers;
 
 use App\Models\Exam;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\Request;
 use App\Services\ExamService;
-use App\Http\Controllers\Controller;
 use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
 use App\Services\Teacher\ExamGroupService;
@@ -16,22 +15,16 @@ use App\Http\Requests\Teacher\UpdateExamRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
- * Controller responsible for managing exam CRUD operations.
+ * ExamController - Contrôleur UNIFIÉ pour la gestion des examens (NON-STUDENTS)
  * 
- * This controller handles:
- * - Listing exams (index)
- * - Creating new exams (create, store)
- * - Viewing exams (show)
- * - Editing exams (edit, update)
- * - Deleting exams (destroy)
- * - Duplicating exams (duplicate)
- * - Toggling exam active status (toggleActive)
+ * ARCHITECTURE :
+ * - Student/ExamController : Actions STRICT student-only (take, submit, abandon)
+ * - ExamController (ce fichier) : Toutes les autres actions basées sur PERMISSIONS
  * 
- * For other responsibilities, see:
- * - ExamAssignmentController (student assignments)
- * - ExamGroupAssignmentController (group assignments)
- * - ExamCorrectionController (corrections & reviews)
- * - ExamResultsController (results & statistics)
+ * Les permissions sont vérifiées par le MIDDLEWARE dans routes/web.php
+ * Pas besoin de re-vérifier dans le contrôleur (pas de duplication)
+ * 
+ * Les POLICIES vérifient l'accès au niveau du modèle (ownership, etc.)
  */
 class ExamController extends Controller
 {
@@ -43,15 +36,14 @@ class ExamController extends Controller
     ) {}
 
     /**
-     * Display a listing of exams for the teacher.
-     *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request.
-     * @return \Illuminate\Http\Response The response containing the list of exams.
+     * Liste des examens - Adapté selon les permissions de l'utilisateur.
+     * Middleware vérifie déjà 'view exams' permission.
+     * Policy vérifie l'accès au niveau modèle.
      */
     public function index(Request $request): Response
     {
-        /** @var \App\Models\User $student */
-        $student = $request->user();
+        /** @var \App\Models\User $user */
+        $user = $request->user();
         $perPage = $request->input('per_page', 10);
 
         $status = null;
@@ -61,13 +53,11 @@ class ExamController extends Controller
 
         $search = $request->input('search');
 
-        if (!$student) {
-            abort(401);
-        }
-
+        // Policy vérifie viewAny
         $this->authorize('viewAny', Exam::class);
 
-        $exams = $this->examService->getTeacherExams($student->id, $perPage, $status, $search);
+        // Service adapte automatiquement selon les permissions de l'utilisateur
+        $exams = $this->examService->getTeacherExams($user->id, $perPage, $status, $search);
 
         return Inertia::render('Teacher/ExamIndex', [
             'exams' => $exams

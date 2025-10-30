@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Teacher\ExamController as TeacherExamController;
+use App\Http\Controllers\ExamController;
 use App\Http\Controllers\Teacher\ExamAssignmentController;
 use App\Http\Controllers\Teacher\ExamGroupAssignmentController;
 use App\Http\Controllers\Teacher\ExamCorrectionController;
@@ -73,45 +73,45 @@ Route::middleware('auth')->group(function () {
     // Interface dynamique selon les permissions de l'utilisateur
 
     // Liste des examens - Accessible selon 'view exams'
-    Route::get('/exams', [TeacherExamController::class, 'index'])
+    Route::get('/exams', [ExamController::class, 'index'])
         ->middleware('permission:view exams')
         ->name('exams.index');
 
     // Voir un examen - Accessible selon 'view exams'
-    Route::get('/exams/{exam}', [TeacherExamController::class, 'show'])
+    Route::get('/exams/{exam}', [ExamController::class, 'show'])
         ->middleware('permission:view exams')
         ->name('exams.show');
 
     // Créer un examen - Permission 'create exams'
-    Route::get('/exams/create', [TeacherExamController::class, 'create'])
+    Route::get('/exams/create', [ExamController::class, 'create'])
         ->middleware('permission:create exams')
         ->name('exams.create');
 
-    Route::post('/exams', [TeacherExamController::class, 'store'])
+    Route::post('/exams', [ExamController::class, 'store'])
         ->middleware('permission:create exams')
         ->name('exams.store');
 
     // Modifier un examen - Permission 'update exams'
-    Route::get('/exams/{exam}/edit', [TeacherExamController::class, 'edit'])
+    Route::get('/exams/{exam}/edit', [ExamController::class, 'edit'])
         ->middleware('permission:update exams')
         ->name('exams.edit');
 
-    Route::put('/exams/{exam}', [TeacherExamController::class, 'update'])
+    Route::put('/exams/{exam}', [ExamController::class, 'update'])
         ->middleware('permission:update exams')
         ->name('exams.update');
 
     // Supprimer un examen - Permission 'delete exams'
-    Route::delete('/exams/{exam}', [TeacherExamController::class, 'destroy'])
+    Route::delete('/exams/{exam}', [ExamController::class, 'destroy'])
         ->middleware('permission:delete exams')
         ->name('exams.destroy');
 
     // Dupliquer un examen - Permission 'create exams'
-    Route::post('/exams/{exam}/duplicate', [TeacherExamController::class, 'duplicate'])
+    Route::post('/exams/{exam}/duplicate', [ExamController::class, 'duplicate'])
         ->middleware('permission:create exams')
         ->name('exams.duplicate');
 
     // Publier/Dépublier un examen - Permission 'publish exams'
-    Route::patch('/exams/{exam}/toggle-active', [TeacherExamController::class, 'toggleActive'])
+    Route::patch('/exams/{exam}/toggle-active', [ExamController::class, 'toggleActive'])
         ->middleware('permission:publish exams')
         ->name('exams.toggle-active');
 
