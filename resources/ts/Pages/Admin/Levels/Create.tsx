@@ -25,7 +25,7 @@ export default function CreateLevel() {
         e.preventDefault();
         setIsSubmitting(true);
 
-        router.post(route('admin.levels.store'), formData, {
+        router.post(route('levels.store'), formData, {
             onError: (errors) => {
                 setErrors(errors);
                 setIsSubmitting(false);
@@ -37,7 +37,7 @@ export default function CreateLevel() {
     };
 
     const handleCancel = () => {
-        router.visit(route('admin.levels.index'));
+        router.visit(route('levels.index'));
     };
 
     return (

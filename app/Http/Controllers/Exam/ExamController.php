@@ -94,7 +94,7 @@ class ExamController extends Controller
             $exam = $this->examService->createExam($request->validated());
 
             return $this->redirectWithSuccess(
-                'teacher.exams.show',
+                'exams.show',
                 'Examen créé avec succès !',
                 ['exam' => $exam->id]
             );
@@ -159,7 +159,7 @@ class ExamController extends Controller
             $exam = $this->examService->updateExam($exam, $request->validated());
 
             return $this->redirectWithSuccess(
-                'teacher.exams.show',
+                'exams.show',
                 'Examen mis à jour avec succès !',
                 ['exam' => $exam->id]
             );
@@ -185,7 +185,7 @@ class ExamController extends Controller
             $this->examService->deleteExam($exam);
 
             return $this->redirectWithSuccess(
-                'teacher.exams.index',
+                'exams.index',
                 'Examen supprimé avec succès !'
             );
         } catch (\Exception $e) {
@@ -212,7 +212,7 @@ class ExamController extends Controller
             $newExam = $this->examService->duplicateExam($exam);
 
             return $this->redirectWithSuccess(
-                'teacher.exams.edit',
+                'exams.edit',
                 'Examen dupliqué avec succès ! Vous pouvez maintenant le modifier.',
                 ['exam' => $newExam->id]
             );

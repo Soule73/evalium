@@ -52,7 +52,7 @@ export const getGroupTableConfig = ({
                             variant="outline"
                             size="sm"
                             onClick={() => router.visit(
-                                route('teacher.exams.group-details', {
+                                route('exams.group-details', {
                                     exam: exam.id,
                                     group: group.id,
                                 })
@@ -74,7 +74,7 @@ export const getGroupTableConfig = ({
                                 // Cette partie ne devrait jamais être exécutée si onRemove est fourni
                                 console.warn('onRemove callback non fourni pour GroupTableConfig');
                                 router.delete(
-                                    route('teacher.exams.groups.remove', {
+                                    route('exams.groups.remove', {
                                         exam: exam.id,
                                         group: group.id,
                                     })

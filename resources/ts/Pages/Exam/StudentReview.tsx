@@ -119,7 +119,7 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
                             color="secondary"
                             variant="outline"
                             size="sm"
-                            onClick={() => router.visit(route('teacher.exams.assignments', exam.id))}
+                            onClick={() => router.visit(route('exams.assignments', exam.id))}
                         >
                             Retour aux assignations
                         </Button>

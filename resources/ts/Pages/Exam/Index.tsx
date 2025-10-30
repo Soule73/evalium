@@ -22,7 +22,7 @@ const TeacherExamIndex: React.FC<Props> = ({ exams }) => {
                     size='sm'
                     variant='outline'
                     color='secondary'
-                    onClick={() => router.visit(route('teacher.exams.create'))} >
+                    onClick={() => router.visit(route('exams.create'))} >
                     Nouvel examen
                 </Button>}
             >

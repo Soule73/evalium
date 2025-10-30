@@ -71,7 +71,7 @@ class LevelManagementController extends Controller
         Cache::forget('groups_active_with_levels');
 
         return redirect()
-            ->route('admin.levels.index')
+            ->route('levels.index')
             ->with('success', 'Le niveau a été créé avec succès.');
     }
 
@@ -98,7 +98,7 @@ class LevelManagementController extends Controller
         Cache::forget('groups_active_with_levels');
 
         return redirect()
-            ->route('admin.levels.index')
+            ->route('levels.index')
             ->with('success', 'Le niveau a été modifié avec succès.');
     }
 
@@ -118,7 +118,7 @@ class LevelManagementController extends Controller
         Cache::forget('groups_active_with_levels');
 
         return redirect()
-            ->route('admin.levels.index')
+            ->route('levels.index')
             ->with('success', 'Le niveau a été supprimé avec succès.');
     }
 

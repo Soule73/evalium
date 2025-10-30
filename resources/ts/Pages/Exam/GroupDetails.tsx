@@ -63,7 +63,7 @@ export default function ExamGroupDetails({ exam, group, assignments, stats }: Pr
                     }
                     actions={
                         <Button
-                            onClick={() => router.visit(route('teacher.exams.assign', exam.id))}
+                            onClick={() => router.visit(route('exams.assign', exam.id))}
                             color="secondary"
                             variant="outline"
                             size="sm"

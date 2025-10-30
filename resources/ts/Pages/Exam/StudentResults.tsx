@@ -48,7 +48,7 @@ const ExamStudentResults: React.FC<Props> = ({ exam, student, assignment, userAn
                         <Button
                             color="primary"
                             size="sm"
-                            onClick={() => router.visit(route('teacher.exams.review', { exam: exam.id, student: student.id }))}
+                            onClick={() => router.visit(route('exams.review', { exam: exam.id, student: student.id }))}
                         >
                             {isPendingReview ? "Corriger l'examen" : "Modifier la correction"}
                         </Button>
@@ -57,7 +57,7 @@ const ExamStudentResults: React.FC<Props> = ({ exam, student, assignment, userAn
                             color="secondary"
                             variant="outline"
                             size="sm"
-                            onClick={() => router.visit(route('teacher.exams.assignments', exam.id))}
+                            onClick={() => router.visit(route('exams.assignments', exam.id))}
                         >
                             Retour aux assignations
                         </Button>

@@ -35,15 +35,15 @@ export default function CreateGroup({ levels }: Props) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('admin.groups.store'), {
+        post(route('groups.store'), {
             onSuccess: () => {
-                router.visit(route('admin.groups.index'));
+                router.visit(route('groups.index'));
             }
         });
     };
 
     const handleCancel = () => {
-        router.visit(route('admin.groups.index'));
+        router.visit(route('groups.index'));
     };
 
 

@@ -10,97 +10,97 @@ export const breadcrumbs = {
 
     adminUsers: (): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Utilisateurs', href: route('admin.users.index') }
+        { label: 'Utilisateurs', href: route('users.index') }
     ],
 
     adminUserCreate: (): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Utilisateurs', href: route('admin.users.index') },
+        { label: 'Utilisateurs', href: route('users.index') },
         { label: 'Créer' }
     ],
 
     adminUserEdit: (userName: string): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Utilisateurs', href: route('admin.users.index') },
+        { label: 'Utilisateurs', href: route('users.index') },
         { label: userName }
     ],
 
     adminGroups: (): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Groupes', href: route('admin.groups.index') }
+        { label: 'Groupes', href: route('groups.index') }
     ],
 
     adminGroupCreate: (): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Groupes', href: route('admin.groups.index') },
+        { label: 'Groupes', href: route('groups.index') },
         { label: 'Créer' }
     ],
 
     adminGroupEdit: (groupName: string): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Groupes', href: route('admin.groups.index') },
+        { label: 'Groupes', href: route('groups.index') },
         { label: groupName }
     ],
     adminGroupAssignStudents: (groupName: string, id: number): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Groupes', href: route('admin.groups.index') },
-        { label: groupName, href: route('admin.groups.show', { group: id }) },
+        { label: 'Groupes', href: route('groups.index') },
+        { label: groupName, href: route('groups.show', { group: id }) },
         { label: 'Assigner des étudiants' }
     ],
 
     adminGroupShow: (groupName: string): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Groupes', href: route('admin.groups.index') },
+        { label: 'Groupes', href: route('groups.index') },
         { label: groupName }
     ],
 
     adminLevels: (): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Niveaux', href: route('admin.levels.index') }
+        { label: 'Niveaux', href: route('levels.index') }
     ],
 
     adminLevelCreate: (): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Niveaux', href: route('admin.levels.index') },
+        { label: 'Niveaux', href: route('levels.index') },
         { label: 'Créer' }
     ],
 
     adminLevelEdit: (levelName: string): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Niveaux', href: route('admin.levels.index') },
+        { label: 'Niveaux', href: route('levels.index') },
         { label: levelName }
     ],
 
     adminRoles: (): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Rôles & Permissions', href: route('admin.roles.index') }
+        { label: 'Rôles & Permissions', href: route('roles.index') }
     ],
 
     adminRoleCreate: (): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Rôles & Permissions', href: route('admin.roles.index') },
+        { label: 'Rôles & Permissions', href: route('roles.index') },
         { label: 'Créer' }
     ],
 
     adminRoleEdit: (roleName: string): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Rôles & Permissions', href: route('admin.roles.index') },
+        { label: 'Rôles & Permissions', href: route('roles.index') },
         { label: roleName }
     ],
     adminStudentShow: (user: { name: string }): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Utilisateurs', href: route('admin.users.index') },
+        { label: 'Utilisateurs', href: route('users.index') },
         { label: user.name }
     ],
     adminTeacherShow: (user: { name: string }): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Utilisateurs', href: route('admin.users.index') },
+        { label: 'Utilisateurs', href: route('users.index') },
         { label: user.name }
     ],
 
     adminGroupIndex: (): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('admin.dashboard') },
-        { label: 'Groupes', href: route('admin.groups.index') }
+        { label: 'Groupes', href: route('groups.index') }
     ],
 
 
@@ -112,44 +112,44 @@ export const breadcrumbs = {
 
     teacherExams: (): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('teacher.dashboard') },
-        { label: 'Mes Examens', href: route('teacher.exams.index') }
+        { label: 'Mes Examens', href: route('exams.index') }
     ],
 
     teacherExamCreate: (): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('teacher.dashboard') },
-        { label: 'Mes Examens', href: route('teacher.exams.index') },
+        { label: 'Mes Examens', href: route('exams.index') },
         { label: 'Créer' }
     ],
 
     teacherExamEdit: (examTitle: string): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('teacher.dashboard') },
-        { label: 'Mes Examens', href: route('teacher.exams.index') },
+        { label: 'Mes Examens', href: route('exams.index') },
         { label: examTitle }
     ],
 
     teacherExamShow: (examTitle: string): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('teacher.dashboard') },
-        { label: 'Mes Examens', href: route('teacher.exams.index') },
+        { label: 'Mes Examens', href: route('exams.index') },
         { label: examTitle }
     ],
     teacherExamAssign: (examTitle: string, examId: number): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('teacher.dashboard') },
-        { label: 'Mes Examens', href: route('teacher.exams.index') },
-        { label: examTitle, href: route('teacher.exams.show', { exam: examId }) },
+        { label: 'Mes Examens', href: route('exams.index') },
+        { label: examTitle, href: route('exams.show', { exam: examId }) },
         { label: 'Assigner' }
     ],
     teacherExamAssignments: (examTitle: string, examId: number): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('teacher.dashboard') },
-        { label: 'Mes Examens', href: route('teacher.exams.index') },
-        { label: examTitle, href: route('teacher.exams.show', { exam: examId }) },
+        { label: 'Mes Examens', href: route('exams.index') },
+        { label: examTitle, href: route('exams.show', { exam: examId }) },
         { label: 'Assignations' }
     ],
 
     teacherExamGroupDetails: (examTitle: string, examId: number, groupName: string): BreadcrumbItem[] => [
         { label: 'Tableau de bord', href: route('teacher.dashboard') },
-        { label: 'Mes Examens', href: route('teacher.exams.index') },
-        { label: examTitle, href: route('teacher.exams.show', { exam: examId }) },
-        { label: 'Assignations', href: route('teacher.exams.assignments', { exam: examId }) },
+        { label: 'Mes Examens', href: route('exams.index') },
+        { label: examTitle, href: route('exams.show', { exam: examId }) },
+        { label: 'Assignations', href: route('exams.assignments', { exam: examId }) },
         { label: groupName }
     ],
 

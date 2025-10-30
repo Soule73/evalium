@@ -68,7 +68,7 @@ class CorrectionController extends Controller
             $result = $this->examScoringService->saveManualCorrection($exam, $student, $request->validated());
 
             return $this->redirectWithSuccess(
-                'teacher.exams.review',
+                'exams.review',
                 "Correction sauvegardée avec succès ! {$result['updated_answers']} réponses mises à jour. Note total: {$result['total_score']} points.",
                 ['exam' => $exam->id, 'student' => $student->id]
             );
@@ -76,7 +76,7 @@ class CorrectionController extends Controller
             Log::error("Erreur lors de la sauvegarde de la correction : " . $e->getMessage());
 
             return $this->redirectWithError(
-                'teacher.exams.review',
+                'exams.review',
                 'Erreur lors de la sauvegarde de la correction',
                 ['exam' => $exam->id, 'student' => $student->id]
             );

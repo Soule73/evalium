@@ -33,7 +33,7 @@ export default function ShowUser({ user, children, canDelete, canToggleStatus, b
     };
 
     const handleBack = () => {
-        router.visit(route('admin.users.index'));
+        router.visit(route('users.index'));
     };
 
     const handleDelete = () => {
@@ -41,7 +41,7 @@ export default function ShowUser({ user, children, canDelete, canToggleStatus, b
     };
 
     const handleToggleStatus = () => {
-        router.patch(route('admin.users.toggle-status', { user: user.id }), {}, {
+        router.patch(route('users.toggle-status', { user: user.id }), {}, {
             preserveScroll: true
         });
     };
@@ -49,7 +49,7 @@ export default function ShowUser({ user, children, canDelete, canToggleStatus, b
     const onConfirmDeleteUser = () => {
         if (user) {
             setDeleteInProgress(true);
-            router.delete(route('admin.users.destroy', { user: user.id }), {
+            router.delete(route('users.destroy', { user: user.id }), {
                 preserveScroll: true,
                 onSuccess: () => {
                     setIsShowDeleteModal(false);
@@ -87,7 +87,7 @@ export default function ShowUser({ user, children, canDelete, canToggleStatus, b
             </ConfirmationModal>
             {user && (
                 <EditUser
-                    route={route('admin.users.update', user.id)}
+                    route={route('users.update', user.id)}
                     isOpen={isShowUpdateModal}
                     onClose={() => {
                         setIsShowUpdateModal(false);

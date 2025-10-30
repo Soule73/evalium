@@ -30,7 +30,7 @@ export default function CreateRole({ permissions }: Props) {
         e.preventDefault();
         setIsSubmitting(true);
 
-        router.post(route('admin.roles.store'), formData, {
+        router.post(route('roles.store'), formData, {
             onError: (errors) => {
                 setErrors(errors);
                 setIsSubmitting(false);
@@ -42,7 +42,7 @@ export default function CreateRole({ permissions }: Props) {
     };
 
     const handleCancel = () => {
-        router.visit(route('admin.roles.index'));
+        router.visit(route('roles.index'));
     };
 
     const handlePermissionToggle = (permissionId: number) => {

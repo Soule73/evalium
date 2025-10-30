@@ -84,7 +84,7 @@ class UserManagementController extends Controller
 
             $this->userService->store($validated);
 
-            return $this->redirectWithSuccess('admin.users.index', 'Utilisateur créé avec succès.');
+            return $this->redirectWithSuccess('users.index', 'Utilisateur créé avec succès.');
         } catch (\Exception $e) {
             return $this->flashError("Erreur lors de la création de l'utilisateur ");
         }
@@ -240,7 +240,7 @@ class UserManagementController extends Controller
 
         $this->userService->delete($user);
 
-        return $this->redirectWithSuccess('admin.users.index', 'Utilisateur supprimé avec succès.');
+        return $this->redirectWithSuccess('users.index', 'Utilisateur supprimé avec succès.');
     }
 
 
@@ -270,7 +270,7 @@ class UserManagementController extends Controller
 
         $this->userService->toggleStatus($user);
 
-        return $this->redirectWithSuccess('admin.users.index', 'Statut de l\'utilisateur modifié.');
+        return $this->redirectWithSuccess('users.index', 'Statut de l\'utilisateur modifié.');
     }
 
     /**
@@ -284,7 +284,7 @@ class UserManagementController extends Controller
 
         try {
             $this->userService->changeStudentGroup($user, $request->validated()['group_id']);
-            return $this->redirectWithSuccess('admin.users.show.student', 'Groupe de l\'étudiant modifié avec succès.', ['user' => $user->id]);
+            return $this->redirectWithSuccess('users.show.student', 'Groupe de l\'étudiant modifié avec succès.', ['user' => $user->id]);
         } catch (\Exception $e) {
             return $this->flashError("Erreur lors du changement de groupe : " . $e->getMessage());
         }
@@ -306,7 +306,7 @@ class UserManagementController extends Controller
             $user = User::withTrashed()->findOrFail($id);
             $user->restore();
 
-            return $this->redirectWithSuccess('admin.users.index', 'Utilisateur restauré avec succès.');
+            return $this->redirectWithSuccess('users.index', 'Utilisateur restauré avec succès.');
         } catch (\Exception $e) {
             return $this->flashError("Erreur lors de la restauration de l'utilisateur.");
         }
@@ -333,7 +333,7 @@ class UserManagementController extends Controller
 
             $user->forceDelete();
 
-            return $this->redirectWithSuccess('admin.users.index', 'Utilisateur supprimé définitivement.');
+            return $this->redirectWithSuccess('users.index', 'Utilisateur supprimé définitivement.');
         } catch (\Exception $e) {
             return $this->flashError("Erreur lors de la suppression définitive de l'utilisateur.");
         }

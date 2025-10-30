@@ -59,8 +59,8 @@ export default function Assign({ exam, students, assignedGroups, availableGroups
 
         setIsProcessing(true);
         const routeName = pendingAssignment.type === 'groups'
-            ? 'teacher.exams.assign.groups'
-            : 'teacher.exams.assign.store';
+            ? 'exams.assign.groups'
+            : 'exams.assign.store';
 
         const dataKey = pendingAssignment.type === 'groups' ? 'group_ids' : 'student_ids';
 
@@ -86,7 +86,7 @@ export default function Assign({ exam, students, assignedGroups, availableGroups
         if (!showRemoveGroupModal.group) return;
 
         router.delete(
-            route('teacher.exams.groups.remove', { exam: exam.id, group: showRemoveGroupModal.group.id }),
+            route('exams.groups.remove', { exam: exam.id, group: showRemoveGroupModal.group.id }),
             {
                 onFinish: () => setShowRemoveGroupModal({ isOpen: false, group: null })
             }
@@ -222,7 +222,7 @@ export default function Assign({ exam, students, assignedGroups, availableGroups
                 subtitle="Détails de l'examen à assigner"
                 actions={<Button
                     type="button"
-                    onClick={() => router.visit(route('teacher.exams.show', exam.id))}
+                    onClick={() => router.visit(route('exams.show', exam.id))}
                     color="secondary"
                     variant="outline"
                 >
@@ -291,7 +291,7 @@ export default function Assign({ exam, students, assignedGroups, availableGroups
                                                 color="primary"
                                                 variant="outline"
                                                 size="sm"
-                                                onClick={() => router.visit(route('teacher.exams.group-details', { exam: exam.id, group: group.id }))}
+                                                onClick={() => router.visit(route('exams.group-details', { exam: exam.id, group: group.id }))}
                                             >
                                                 Voir détails
                                             </Button>

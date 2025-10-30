@@ -46,7 +46,7 @@ class GroupController extends Controller
     {
         try {
             $this->groupService->createGroup($request->validated());
-            return $this->redirectWithSuccess('admin.groups.index', 'Groupe créé avec succès.');
+            return $this->redirectWithSuccess('groups.index', 'Groupe créé avec succès.');
         } catch (\Exception $e) {
             return $this->flashError('Erreur lors de la création du groupe.');
         }
@@ -77,7 +77,7 @@ class GroupController extends Controller
     {
         try {
             $this->groupService->updateGroup($group, $request->validated());
-            return $this->redirectWithSuccess('admin.groups.show', 'Groupe mis à jour avec succès.', ['group' => $group->id]);
+            return $this->redirectWithSuccess('groups.show', 'Groupe mis à jour avec succès.', ['group' => $group->id]);
         } catch (\Exception $e) {
             return $this->flashError('Erreur lors de la mise à jour du groupe.');
         }
@@ -87,7 +87,7 @@ class GroupController extends Controller
     {
         try {
             $this->groupService->deleteGroup($group);
-            return $this->redirectWithSuccess('admin.groups.index', 'Groupe supprimé avec succès.');
+            return $this->redirectWithSuccess('groups.index', 'Groupe supprimé avec succès.');
         } catch (\Exception $e) {
             return $this->flashError('Erreur lors de la suppression du groupe.');
         }
@@ -112,7 +112,7 @@ class GroupController extends Controller
                 $message .= " ({$result['already_assigned_count']} déjà assignés)";
             }
 
-            return $this->redirectWithSuccess('admin.groups.show', $message, ['group' => $group->id]);
+            return $this->redirectWithSuccess('groups.show', $message, ['group' => $group->id]);
         } catch (\Exception $e) {
             return $this->flashError('Erreur lors de l\'assignation des étudiants.');
         }
@@ -122,7 +122,7 @@ class GroupController extends Controller
     {
         try {
             $this->groupService->removeStudentFromGroup($group, $student);
-            return $this->redirectWithSuccess('admin.groups.show', 'Étudiant retiré du groupe avec succès.', ['group' => $group->id]);
+            return $this->redirectWithSuccess('groups.show', 'Étudiant retiré du groupe avec succès.', ['group' => $group->id]);
         } catch (\Exception $e) {
             return $this->flashError('Erreur lors du retrait de l\'étudiant.');
         }
@@ -143,7 +143,7 @@ class GroupController extends Controller
                 $message .= " ({$result['already_active_count']} déjà actif(s))";
             }
 
-            return $this->redirectWithSuccess('admin.groups.index', $message);
+            return $this->redirectWithSuccess('groups.index', $message);
         } catch (\Exception $e) {
             return $this->flashError('Erreur lors de l\'activation des groupes.');
         }
@@ -164,7 +164,7 @@ class GroupController extends Controller
                 $message .= " ({$result['already_inactive_count']} déjà inactif(s))";
             }
 
-            return $this->redirectWithSuccess('admin.groups.index', $message);
+            return $this->redirectWithSuccess('groups.index', $message);
         } catch (\Exception $e) {
             return $this->flashError('Erreur lors de la désactivation des groupes.');
         }
@@ -185,7 +185,7 @@ class GroupController extends Controller
                 $message .= " ({$result['not_in_group_count']} n'étaient pas dans le groupe)";
             }
 
-            return $this->redirectWithSuccess('admin.groups.show', $message, ['group' => $group->id]);
+            return $this->redirectWithSuccess('groups.show', $message, ['group' => $group->id]);
         } catch (\Exception $e) {
             return $this->flashError('Erreur lors du retrait des étudiants.');
         }

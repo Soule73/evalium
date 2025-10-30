@@ -160,7 +160,7 @@ export const useEditExam = (exam: Exam, onClearHistory?: () => void) => {
         console.log('Données soumises:', submitData);
 
         // Utiliser la méthode router.put avec les données
-        router.put(route('teacher.exams.update', exam.id), submitData as any, {
+        router.put(route('exams.update', exam.id), submitData as any, {
             onSuccess: () => {
                 if (onClearHistory) {
                     onClearHistory();

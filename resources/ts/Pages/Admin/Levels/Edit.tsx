@@ -37,7 +37,7 @@ export default function EditLevel({ level }: Props) {
         e.preventDefault();
         setIsSubmitting(true);
 
-        router.put(route('admin.levels.update', { level: level.id }), formData, {
+        router.put(route('levels.update', { level: level.id }), formData, {
             onError: (errors) => {
                 setErrors(errors);
                 setIsSubmitting(false);
@@ -49,7 +49,7 @@ export default function EditLevel({ level }: Props) {
     };
 
     const handleCancel = () => {
-        router.visit(route('admin.levels.index'));
+        router.visit(route('levels.index'));
     };
 
     return (

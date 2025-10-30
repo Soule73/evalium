@@ -61,7 +61,7 @@ const useExamStudentReview = (
                 feedback: feedbacks[scoreData.question_id] || null
             }));
 
-            router.post(route('teacher.exams.review.save', { exam: exam.id, student: student.id }), {
+            router.post(route('exams.review.save', { exam: exam.id, student: student.id }), {
                 scores: scoresWithFeedback,
                 teacher_notes: teacherNotes
             }, {

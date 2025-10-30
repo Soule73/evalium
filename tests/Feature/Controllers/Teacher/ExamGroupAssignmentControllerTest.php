@@ -60,11 +60,11 @@ class ExamGroupAssignmentControllerTest extends TestCase
     public function teacher_can_assign_exam_to_group()
     {
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign.groups', $this->exam), [
+            ->post(route('exams.assign.groups', $this->exam), [
                 'group_ids' => [$this->group->id]
             ]);
 
-        $response->assertRedirect(route('teacher.exams.show', $this->exam));
+        $response->assertRedirect(route('exams.show', $this->exam));
         $response->assertSessionHas('success');
 
         // Vérifier que l'assignation de groupe a été créée
@@ -81,7 +81,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
         $group3 = Group::factory()->active()->create();
 
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign.groups', $this->exam), [
+            ->post(route('exams.assign.groups', $this->exam), [
                 'group_ids' => [$this->group->id, $group2->id, $group3->id]
             ]);
 
@@ -96,7 +96,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
     public function teacher_cannot_assign_exam_to_invalid_group()
     {
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign.groups', $this->exam), [
+            ->post(route('exams.assign.groups', $this->exam), [
                 'group_ids' => [999] // ID qui n'existe pas
             ]);
 
@@ -108,13 +108,13 @@ class ExamGroupAssignmentControllerTest extends TestCase
     {
         // Première assignation
         $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign.groups', $this->exam), [
+            ->post(route('exams.assign.groups', $this->exam), [
                 'group_ids' => [$this->group->id]
             ]);
 
         // Tentative de réassignation
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign.groups', $this->exam), [
+            ->post(route('exams.assign.groups', $this->exam), [
                 'group_ids' => [$this->group->id]
             ]);
 
@@ -135,7 +135,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->delete(route('teacher.exams.groups.remove', [$this->exam, $this->group->id]));
+            ->delete(route('exams.groups.remove', [$this->exam, $this->group->id]));
 
         $response->assertSessionHas('success');
 
@@ -150,7 +150,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
     public function teacher_cannot_remove_exam_from_non_assigned_group()
     {
         $response = $this->actingAs($this->teacher)
-            ->delete(route('teacher.exams.groups.remove', [$this->exam, $this->group->id]));
+            ->delete(route('exams.groups.remove', [$this->exam, $this->group->id]));
 
         $response->assertSessionHas('error');
     }
@@ -167,7 +167,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign.groups', $otherExam), [
+            ->post(route('exams.assign.groups', $otherExam), [
                 'group_ids' => [$this->group->id]
             ]);
 
@@ -178,7 +178,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
     public function student_cannot_access_group_assignment_routes()
     {
         $response = $this->actingAs($this->student)
-            ->post(route('teacher.exams.assign.groups', $this->exam), [
+            ->post(route('exams.assign.groups', $this->exam), [
                 'group_ids' => [$this->group->id]
             ]);
 
@@ -190,7 +190,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
     {
         // Assigner l'examen au groupe
         $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign.groups', $this->exam), [
+            ->post(route('exams.assign.groups', $this->exam), [
                 'group_ids' => [$this->group->id]
             ]);
 

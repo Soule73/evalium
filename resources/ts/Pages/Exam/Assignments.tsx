@@ -63,7 +63,7 @@ export default function ExamAssignments({ exam, assignments, stats, assignedGrou
             subtitle: 'Aucun étudiant n\'est assigné à cet examen.',
             actions: (
                 <Button
-                    onClick={() => router.visit(route('teacher.exams.assign', exam.id))}
+                    onClick={() => router.visit(route('exams.assign', exam.id))}
                     color="primary"
                 >
                     Assigner des étudiants
@@ -105,7 +105,7 @@ export default function ExamAssignments({ exam, assignments, stats, assignedGrou
                         size='sm'
                         variant='outline'
 
-                        onClick={() => router.visit(route('teacher.exams.assign', exam.id))}
+                        onClick={() => router.visit(route('exams.assign', exam.id))}
                         color="secondary"
                     >
                         Ajouter des étudiants

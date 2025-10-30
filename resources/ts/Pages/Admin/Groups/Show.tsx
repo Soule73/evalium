@@ -35,17 +35,17 @@ export default function ShowGroup({ group }: Props) {
     const [loading, setLoading] = useState(false);
 
     const handleEditGroup = () => {
-        router.visit(route('admin.groups.edit', { group: group.id }));
+        router.visit(route('groups.edit', { group: group.id }));
     };
 
     const handleAssignStudents = () => {
-        router.visit(route('admin.groups.assign-students', { group: group.id }));
+        router.visit(route('groups.assign-students', { group: group.id }));
     };
 
     const handleDeleteGroup = () => {
-        router.delete(route('admin.groups.destroy', { group: group.id }), {
+        router.delete(route('groups.destroy', { group: group.id }), {
             onSuccess: () => {
-                router.visit(route('admin.groups.index'));
+                router.visit(route('groups.index'));
             }
         });
     };
@@ -56,7 +56,7 @@ export default function ShowGroup({ group }: Props) {
 
     const confirmRemoveStudent = () => {
         if (studentToRemove) {
-            router.delete(route('admin.groups.remove-student', {
+            router.delete(route('groups.remove-student', {
                 group: group.id,
                 student: studentToRemove.id
             }), {
@@ -75,7 +75,7 @@ export default function ShowGroup({ group }: Props) {
         if (selectedStudents.length === 0) return;
 
         setLoading(true);
-        router.post(route('admin.groups.bulk-remove-students', { group: group.id }), {
+        router.post(route('groups.bulk-remove-students', { group: group.id }), {
             student_ids: selectedStudents
         }, {
             onSuccess: () => {

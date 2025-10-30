@@ -39,15 +39,15 @@ export default function EditGroup({ group, levels }: Props) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(route('admin.groups.update', { group: group.id }), {
+        put(route('groups.update', { group: group.id }), {
             onSuccess: () => {
-                router.visit(route('admin.groups.show', { group: group.id }));
+                router.visit(route('groups.show', { group: group.id }));
             }
         });
     };
 
     const handleCancel = () => {
-        router.visit(route('admin.groups.show', { group: group.id }));
+        router.visit(route('groups.show', { group: group.id }));
     };
 
 

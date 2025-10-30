@@ -80,7 +80,7 @@ class AssignmentController extends Controller
             $message .= " ({$result['already_assigned_count']} déjà assignés)";
         }
 
-        return $this->redirectWithSuccess('teacher.exams.show', $message, ['exam' => $exam->id]);
+        return $this->redirectWithSuccess('exams.show', $message, ['exam' => $exam->id]);
     }
 
     /**
@@ -115,7 +115,7 @@ class AssignmentController extends Controller
 
         if (!$assignment) {
             return $this->redirectWithError(
-                'teacher.exams.show',
+                'exams.show',
                 "Cet étudiant n'est pas assigné à cet examen.",
                 ['exam' => $exam->id]
             );
@@ -124,7 +124,7 @@ class AssignmentController extends Controller
         $assignment->delete();
 
         return $this->redirectWithSuccess(
-            'teacher.exams.show',
+            'exams.show',
             "Assignation de {$user->name} supprimée avec succès.",
             ['exam' => $exam->id]
         );

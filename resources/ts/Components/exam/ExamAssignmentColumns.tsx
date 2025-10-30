@@ -85,7 +85,7 @@ export const getExamAssignmentColumns = ({ exam, onRemove, showActions = true }:
                 <div className="flex space-x-2">
                     {(assignment.status === 'submitted' || assignment.status === 'graded' || assignment.status === 'pending_review') ? (
                         <Button
-                            onClick={() => router.visit(route('teacher.exams.results', { exam: exam.id, student: assignment.student_id }))}
+                            onClick={() => router.visit(route('exams.results', { exam: exam.id, student: assignment.student_id }))}
                             color="success"
                             size="sm"
                             variant="outline"

@@ -92,7 +92,7 @@ export const useCreateExam = () => {
 
         console.log('Données soumises:', submitData);
 
-        router.post(route('teacher.exams.store'), submitData as any, {
+        router.post(route('exams.store'), submitData as any, {
             onSuccess: () => {
                 reset();
                 setQuestions([]);

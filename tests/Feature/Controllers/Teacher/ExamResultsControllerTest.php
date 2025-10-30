@@ -62,7 +62,7 @@ class ExamResultsControllerTest extends TestCase
     public function teacher_can_view_student_results()
     {
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.results.show', [$this->exam, $this->student]));
+            ->get(route('exams.results.show', [$this->exam, $this->student]));
 
         $response->assertOk();
         $response->assertInertia(
@@ -92,7 +92,7 @@ class ExamResultsControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.results', [$this->exam, $this->student]));
+            ->get(route('exams.results', [$this->exam, $this->student]));
 
         $response->assertOk();
         $response->assertInertia(
@@ -108,7 +108,7 @@ class ExamResultsControllerTest extends TestCase
         $otherStudent->assignRole('student');
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.results', [$this->exam, $otherStudent]));
+            ->get(route('exams.results', [$this->exam, $otherStudent]));
 
         // Devrait échouer car l'étudiant n'a pas d'assignation
         $response->assertStatus(404);
@@ -118,7 +118,7 @@ class ExamResultsControllerTest extends TestCase
     public function teacher_can_view_exam_statistics()
     {
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.stats', $this->exam));
+            ->get(route('exams.stats', $this->exam));
 
         // Actuellement redirige avec un message info (TODO non implémenté)
         $response->assertRedirect();
@@ -146,7 +146,7 @@ class ExamResultsControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.results', [$otherExam, $otherStudent]));
+            ->get(route('exams.results', [$otherExam, $otherStudent]));
 
         $response->assertForbidden();
     }
@@ -155,7 +155,7 @@ class ExamResultsControllerTest extends TestCase
     public function student_cannot_access_results_routes()
     {
         $response = $this->actingAs($this->student)
-            ->get(route('teacher.exams.results', [$this->exam, $this->student]));
+            ->get(route('exams.results', [$this->exam, $this->student]));
 
         $response->assertForbidden();
     }
@@ -193,7 +193,7 @@ class ExamResultsControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.results.show', [$this->exam, $this->student]));
+            ->get(route('exams.results.show', [$this->exam, $this->student]));
 
         $response->assertOk();
         $response->assertInertia(
@@ -235,7 +235,7 @@ class ExamResultsControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.results', [$this->exam, $this->student]));
+            ->get(route('exams.results', [$this->exam, $this->student]));
 
         $response->assertOk();
         // Le score total devrait être 8.5 + 12.0 = 20.5
@@ -256,7 +256,7 @@ class ExamResultsControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.results', [$this->exam, $newStudent]));
+            ->get(route('exams.results', [$this->exam, $newStudent]));
 
         // Devrait permettre l'accès même sans correction
         $response->assertOk();

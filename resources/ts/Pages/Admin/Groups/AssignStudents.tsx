@@ -22,7 +22,7 @@ export default function AssignStudents({ group, availableStudents }: Props) {
     const [loading, setLoading] = useState(false);
 
     const handleCancel = () => {
-        router.visit(route('admin.groups.show', { group: group.id }));
+        router.visit(route('groups.show', { group: group.id }));
     };
 
     const handleAssignStudents = (_ids: (number | string)[]) => {
@@ -33,14 +33,14 @@ export default function AssignStudents({ group, availableStudents }: Props) {
         if (selectedStudents.length === 0) return;
 
         setLoading(true);
-        router.post(route('admin.groups.store-students', { group: group.id }), {
+        router.post(route('groups.store-students', { group: group.id }), {
             student_ids: selectedStudents
         }, {
             onSuccess: () => {
                 setSelectedStudents([]);
                 setConfirmModal(false);
                 setLoading(false);
-                router.visit(route('admin.groups.show', { group: group.id }));
+                router.visit(route('groups.show', { group: group.id }));
             },
             onError: () => {
                 setLoading(false);

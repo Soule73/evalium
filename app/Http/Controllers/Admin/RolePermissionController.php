@@ -63,7 +63,7 @@ class RolePermissionController extends Controller
         }
 
         return redirect()
-            ->route('admin.roles.index')
+            ->route('roles.index')
             ->with('success', 'Le rôle a été créé avec succès.');
     }
 
@@ -107,7 +107,7 @@ class RolePermissionController extends Controller
         }
 
         return redirect()
-            ->route('admin.roles.index')
+            ->route('roles.index')
             ->with('success', 'Le rôle a été modifié avec succès.');
     }
 
@@ -144,7 +144,7 @@ class RolePermissionController extends Controller
         $role->delete();
 
         return redirect()
-            ->route('admin.roles.index')
+            ->route('roles.index')
             ->with('success', 'Le rôle a été supprimé avec succès.');
     }
 

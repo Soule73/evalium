@@ -34,15 +34,15 @@ export default function GroupIndex({ groups, levels }: Props) {
     const [loading, setLoading] = useState(false);
 
     const handleCreateGroup = () => {
-        router.visit(route('admin.groups.create'));
+        router.visit(route('groups.create'));
     };
 
     const handleViewGroup = (groupId: number) => {
-        router.visit(route('admin.groups.show', { group: groupId }));
+        router.visit(route('groups.show', { group: groupId }));
     };
 
     const handleEditGroup = (groupId: number) => {
-        router.visit(route('admin.groups.edit', { group: groupId }));
+        router.visit(route('groups.edit', { group: groupId }));
     };
 
     const handleBulkActivate = (ids: (number | string)[]) => {
@@ -58,8 +58,8 @@ export default function GroupIndex({ groups, levels }: Props) {
 
         setLoading(true);
         const routeName = confirmModal.type === 'activate'
-            ? 'admin.groups.bulk-activate'
-            : 'admin.groups.bulk-deactivate';
+            ? 'groups.bulk-activate'
+            : 'groups.bulk-deactivate';
 
         router.post(route(routeName), {
             ids: confirmModal.ids

@@ -41,7 +41,7 @@ export default function EditRole({ role, allPermissions }: Props) {
         e.preventDefault();
         setIsSubmitting(true);
 
-        router.put(route('admin.roles.update', { role: role.id }), formData, {
+        router.put(route('roles.update', { role: role.id }), formData, {
             onError: (errors) => {
                 setErrors(errors);
                 setIsSubmitting(false);
@@ -55,7 +55,7 @@ export default function EditRole({ role, allPermissions }: Props) {
     const handleSyncPermissions = () => {
         setIsSubmitting(true);
 
-        router.post(route('admin.roles.sync-permissions', { role: role.id }),
+        router.post(route('roles.sync-permissions', { role: role.id }),
             { permissions: formData.permissions },
             {
                 onError: (errors) => {
@@ -71,7 +71,7 @@ export default function EditRole({ role, allPermissions }: Props) {
     };
 
     const handleCancel = () => {
-        router.visit(route('admin.roles.index'));
+        router.visit(route('roles.index'));
     };
 
     const handlePermissionToggle = (permissionId: number) => {

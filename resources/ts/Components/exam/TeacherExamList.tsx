@@ -31,7 +31,7 @@ const TeacherExamList: React.FC<TeacherExamListProps> = ({
 
         setTogglingExams(prev => new Set(prev).add(examId));
         router.patch(
-            route('teacher.exams.toggle-active', examId),
+            route('exams.toggle-active', examId),
             {},
             {
                 preserveScroll: true,
@@ -79,7 +79,7 @@ const TeacherExamList: React.FC<TeacherExamListProps> = ({
     const renderActions = (exam: Exam, variant: string) => (
         <div className="flex items-center justify-end space-x-2">
             <Link
-                href={route('teacher.exams.show', exam.id)}
+                href={route('exams.show', exam.id)}
                 className="text-blue-600 hover:text-blue-900 p-1"
                 title="Voir l'examen"
             >
@@ -88,14 +88,14 @@ const TeacherExamList: React.FC<TeacherExamListProps> = ({
             {variant === 'teacher' && (
                 <>
                     <Link
-                        href={route('teacher.exams.edit', exam.id)}
+                        href={route('exams.edit', exam.id)}
                         className="text-indigo-600 hover:text-indigo-900 p-1"
                         title="Modifier l'examen"
                     >
                         <PencilIcon className="h-4 w-4" />
                     </Link>
                     <Link
-                        href={route('teacher.exams.assign', exam.id)}
+                        href={route('exams.assign', exam.id)}
                         className="text-green-600 hover:text-green-900 p-1"
                         title="Assigner l'examen"
                     >

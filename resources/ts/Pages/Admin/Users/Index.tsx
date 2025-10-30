@@ -50,9 +50,9 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
 
     const handleViewUser = (userId: number, role: string) => {
         if (role === 'student') {
-            router.visit(route('admin.users.show.student', { user: userId }));
+            router.visit(route('users.show.student', { user: userId }));
         } else if (role === 'teacher') {
-            router.visit(route('admin.users.show.teacher', { user: userId }));
+            router.visit(route('users.show.teacher', { user: userId }));
         }
 
     };
@@ -62,27 +62,27 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
     }
 
     const handleToggleStatus = (userId: number) => {
-        router.patch(route('admin.users.toggle-status', { user: userId }), {}, {
+        router.patch(route('users.toggle-status', { user: userId }), {}, {
             preserveScroll: true,
         });
     };
 
     const handleDeleteUser = (userId: number) => {
         if (!deleteModal.userId) return;
-        router.delete(route('admin.users.destroy', { user: userId }), {
+        router.delete(route('users.destroy', { user: userId }), {
             onFinish: () => setDeleteModal({ isOpen: false, userId: null, userName: '' })
         });
     };
 
     const handleRestoreUser = (userId: number) => {
-        router.post(route('admin.users.restore', { id: userId }), {}, {
+        router.post(route('users.restore', { id: userId }), {}, {
             preserveScroll: true,
         });
     };
 
     const handleForceDeleteUser = (userId: number) => {
         if (!forceDeleteModal.userId) return;
-        router.delete(route('admin.users.force-delete', { id: userId }), {
+        router.delete(route('users.force-delete', { id: userId }), {
             onFinish: () => setForceDeleteModal({ isOpen: false, userId: null, userName: '' })
         });
     };

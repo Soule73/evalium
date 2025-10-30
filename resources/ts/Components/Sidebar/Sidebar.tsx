@@ -91,24 +91,24 @@ export const Sidebar = ({ isSuperAdmin, isAdmin, isTeacher, isStudent, currentPa
     if (isTeacher) {
         navItems.push(
             { name: 'Tableau de bord', href: route('teacher.dashboard'), icon: 'dashboard' },
-            { name: 'Mes Examens', href: route('teacher.exams.index'), icon: 'exams' }
+            { name: 'Mes Examens', href: route('exams.index'), icon: 'exams' }
         );
     }
 
     if (isAdmin) {
 
         navItems.push(
-            { name: 'Tableau de bord', href: route('admin.dashboard'), icon: 'dashboard' },
-            { name: 'Utilisateurs', href: route('admin.users.index'), icon: 'users' },
-            { name: 'Groupes', href: route('admin.groups.index'), icon: 'groups' }
+            { name: 'Tableau de bord', href: route('dashboard'), icon: 'dashboard' },
+            { name: 'Utilisateurs', href: route('users.index'), icon: 'users' },
+            { name: 'Groupes', href: route('groups.index'), icon: 'groups' }
         );
 
         if (permissions.canManageLevels) {
-            navItems.push({ name: 'Niveaux', href: route('admin.levels.index'), icon: 'levels' });
+            navItems.push({ name: 'Niveaux', href: route('levels.index'), icon: 'levels' });
         }
 
         if (permissions.canManageRoles) {
-            navItems.push({ name: 'Rôles & Permissions', href: route('admin.roles.index'), icon: 'roles' });
+            navItems.push({ name: 'Rôles & Permissions', href: route('roles.index'), icon: 'roles' });
         }
     }
 

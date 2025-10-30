@@ -62,7 +62,7 @@ class TeacherExamControllerTest extends TestCase
     public function teacher_can_access_exam_index()
     {
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.index'));
+            ->get(route('exams.index'));
 
         $response->assertOk();
         $response->assertInertia(
@@ -85,7 +85,7 @@ class TeacherExamControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.index'));
+            ->get(route('exams.index'));
 
         $response->assertOk();
         $response->assertInertia(
@@ -104,7 +104,7 @@ class TeacherExamControllerTest extends TestCase
     public function teacher_can_view_create_form()
     {
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.create'));
+            ->get(route('exams.create'));
 
         $response->assertOk();
         $response->assertInertia(
@@ -136,7 +136,7 @@ class TeacherExamControllerTest extends TestCase
         ];
 
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.store'), $examData);
+            ->post(route('exams.store'), $examData);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -151,7 +151,7 @@ class TeacherExamControllerTest extends TestCase
     public function teacher_cannot_create_exam_with_invalid_data()
     {
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.store'), [
+            ->post(route('exams.store'), [
                 'title' => '', // Titre vide
                 'duration' => -10 // Duration négative
             ]);
@@ -170,7 +170,7 @@ class TeacherExamControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.show', $this->exam));
+            ->get(route('exams.show', $this->exam));
 
         $response->assertOk();
         $response->assertInertia(
@@ -193,7 +193,7 @@ class TeacherExamControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.show', $otherExam));
+            ->get(route('exams.show', $otherExam));
 
         $response->assertForbidden();
     }
@@ -204,7 +204,7 @@ class TeacherExamControllerTest extends TestCase
     public function teacher_can_view_edit_form()
     {
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.edit', $this->exam));
+            ->get(route('exams.edit', $this->exam));
 
         $response->assertOk();
         $response->assertInertia(
@@ -225,7 +225,7 @@ class TeacherExamControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.edit', $otherExam));
+            ->get(route('exams.edit', $otherExam));
 
         $response->assertForbidden();
     }
@@ -253,7 +253,7 @@ class TeacherExamControllerTest extends TestCase
         ];
 
         $response = $this->actingAs($this->teacher)
-            ->put(route('teacher.exams.update', $this->exam), $updateData);
+            ->put(route('exams.update', $this->exam), $updateData);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -276,7 +276,7 @@ class TeacherExamControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->put(route('teacher.exams.update', $otherExam), [
+            ->put(route('exams.update', $otherExam), [
                 'title' => 'Hacked Title'
             ]);
 
@@ -289,7 +289,7 @@ class TeacherExamControllerTest extends TestCase
     public function teacher_can_delete_exam()
     {
         $response = $this->actingAs($this->teacher)
-            ->delete(route('teacher.exams.destroy', $this->exam));
+            ->delete(route('exams.destroy', $this->exam));
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -310,7 +310,7 @@ class TeacherExamControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->delete(route('teacher.exams.destroy', $otherExam));
+            ->delete(route('exams.destroy', $otherExam));
 
         $response->assertForbidden();
 
@@ -331,7 +331,7 @@ class TeacherExamControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.duplicate', $this->exam));
+            ->post(route('exams.duplicate', $this->exam));
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -354,7 +354,7 @@ class TeacherExamControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.duplicate', $otherExam));
+            ->post(route('exams.duplicate', $otherExam));
 
         $response->assertForbidden();
     }
@@ -367,7 +367,7 @@ class TeacherExamControllerTest extends TestCase
         $this->assertTrue($this->exam->is_active);
 
         $response = $this->actingAs($this->teacher)
-            ->patch(route('teacher.exams.toggle-active', $this->exam));
+            ->patch(route('exams.toggle-active', $this->exam));
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -388,7 +388,7 @@ class TeacherExamControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->patch(route('teacher.exams.toggle-active', $otherExam));
+            ->patch(route('exams.toggle-active', $otherExam));
 
         $response->assertForbidden();
 
@@ -402,7 +402,7 @@ class TeacherExamControllerTest extends TestCase
     public function student_cannot_access_teacher_exam_routes()
     {
         $response = $this->actingAs($this->student)
-            ->get(route('teacher.exams.index'));
+            ->get(route('exams.index'));
 
         $response->assertForbidden();
     }
@@ -410,7 +410,7 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function guest_cannot_access_teacher_exam_routes()
     {
-        $response = $this->get(route('teacher.exams.index'));
+        $response = $this->get(route('exams.index'));
 
         $response->assertRedirect(route('login'));
     }

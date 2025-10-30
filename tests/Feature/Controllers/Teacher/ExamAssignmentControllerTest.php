@@ -52,7 +52,7 @@ class ExamAssignmentControllerTest extends TestCase
     public function teacher_can_view_exam_assignment_form()
     {
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.assign.show', $this->exam));
+            ->get(route('exams.assign.show', $this->exam));
 
         $response->assertOk();
         $response->assertInertia(
@@ -69,11 +69,11 @@ class ExamAssignmentControllerTest extends TestCase
     public function teacher_can_assign_exam_to_students()
     {
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign.store', $this->exam), [
+            ->post(route('exams.assign.store', $this->exam), [
                 'student_ids' => [$this->student->id]
             ]);
 
-        $response->assertRedirect(route('teacher.exams.show', $this->exam));
+        $response->assertRedirect(route('exams.show', $this->exam));
         $response->assertSessionHas('success');
 
         // Vérifier que l'assignation a été créée
@@ -88,7 +88,7 @@ class ExamAssignmentControllerTest extends TestCase
     public function teacher_cannot_assign_exam_to_invalid_students()
     {
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign.store', $this->exam), [
+            ->post(route('exams.assign.store', $this->exam), [
                 'student_ids' => [999] // ID qui n'existe pas
             ]);
 
@@ -105,7 +105,7 @@ class ExamAssignmentControllerTest extends TestCase
         $student3->assignRole('student');
 
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign.store', $this->exam), [
+            ->post(route('exams.assign.store', $this->exam), [
                 'student_ids' => [$this->student->id, $student2->id, $student3->id]
             ]);
 
@@ -121,13 +121,13 @@ class ExamAssignmentControllerTest extends TestCase
     {
         // Première assignation
         $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign.store', $this->exam), [
+            ->post(route('exams.assign.store', $this->exam), [
                 'student_ids' => [$this->student->id]
             ]);
 
         // Tentative de réassignation
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.assign.store', $this->exam), [
+            ->post(route('exams.assign.store', $this->exam), [
                 'student_ids' => [$this->student->id]
             ]);
 
@@ -147,7 +147,7 @@ class ExamAssignmentControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.assignments', $this->exam));
+            ->get(route('exams.assignments', $this->exam));
 
         $response->assertOk();
         $response->assertInertia(
@@ -181,7 +181,7 @@ class ExamAssignmentControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.assignments', $this->exam) . '?status=submitted');
+            ->get(route('exams.assignments', $this->exam) . '?status=submitted');
 
         $response->assertOk();
         $response->assertInertia(
@@ -202,9 +202,9 @@ class ExamAssignmentControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->delete(route('teacher.exams.assignment.remove', [$this->exam, $this->student]));
+            ->delete(route('exams.assignment.remove', [$this->exam, $this->student]));
 
-        $response->assertRedirect(route('teacher.exams.show', $this->exam));
+        $response->assertRedirect(route('exams.show', $this->exam));
         $response->assertSessionHas('success');
 
         // Vérifier que l'assignation a été supprimée
@@ -217,9 +217,9 @@ class ExamAssignmentControllerTest extends TestCase
     public function teacher_cannot_remove_non_existent_assignment()
     {
         $response = $this->actingAs($this->teacher)
-            ->delete(route('teacher.exams.assignment.remove', [$this->exam, $this->student]));
+            ->delete(route('exams.assignment.remove', [$this->exam, $this->student]));
 
-        $response->assertRedirect(route('teacher.exams.show', $this->exam));
+        $response->assertRedirect(route('exams.show', $this->exam));
         $response->assertSessionHas('error');
     }
 
@@ -235,7 +235,7 @@ class ExamAssignmentControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.assign.show', $otherExam));
+            ->get(route('exams.assign.show', $otherExam));
 
         $response->assertForbidden();
     }
@@ -244,7 +244,7 @@ class ExamAssignmentControllerTest extends TestCase
     public function student_cannot_access_assignment_routes()
     {
         $response = $this->actingAs($this->student)
-            ->get(route('teacher.exams.assign.show', $this->exam));
+            ->get(route('exams.assign.show', $this->exam));
 
         $response->assertForbidden();
     }

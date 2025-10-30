@@ -77,7 +77,7 @@ class ExamCorrectionControllerTest extends TestCase
     public function teacher_can_view_student_review_page()
     {
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.review', [$this->exam, $this->student]));
+            ->get(route('exams.review', [$this->exam, $this->student]));
 
         $response->assertOk();
         $response->assertInertia(
@@ -92,7 +92,7 @@ class ExamCorrectionControllerTest extends TestCase
     public function teacher_can_save_student_review()
     {
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.review.save', [$this->exam, $this->student]), [
+            ->post(route('exams.review.save', [$this->exam, $this->student]), [
                 'scores' => [
                     [
                         'question_id' => $this->question->id,
@@ -103,7 +103,7 @@ class ExamCorrectionControllerTest extends TestCase
                 'teacher_notes' => 'Excellent work overall'
             ]);
 
-        $response->assertRedirect(route('teacher.exams.review', [$this->exam, $this->student]));
+        $response->assertRedirect(route('exams.review', [$this->exam, $this->student]));
         $response->assertSessionHas('success');
 
         // Vérifier que l'assignment existe toujours
@@ -115,7 +115,7 @@ class ExamCorrectionControllerTest extends TestCase
     public function teacher_can_update_single_question_score()
     {
         $response = $this->actingAs($this->teacher)
-            ->postJson(route('teacher.exams.score.update', $this->exam), [
+            ->postJson(route('exams.score.update', $this->exam), [
                 'exam_id' => $this->exam->id,
                 'student_id' => $this->student->id,
                 'question_id' => $this->question->id,
@@ -141,7 +141,7 @@ class ExamCorrectionControllerTest extends TestCase
     public function teacher_cannot_give_score_higher_than_max_points()
     {
         $response = $this->actingAs($this->teacher)
-            ->postJson(route('teacher.exams.score.update', $this->exam), [
+            ->postJson(route('exams.score.update', $this->exam), [
                 'exam_id' => $this->exam->id,
                 'student_id' => $this->student->id,
                 'question_id' => $this->question->id,
@@ -157,7 +157,7 @@ class ExamCorrectionControllerTest extends TestCase
     public function teacher_can_save_review_with_feedback_only()
     {
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.review.save', [$this->exam, $this->student]), [
+            ->post(route('exams.review.save', [$this->exam, $this->student]), [
                 'scores' => [
                     [
                         'question_id' => $this->question->id,
@@ -185,7 +185,7 @@ class ExamCorrectionControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.review', [$this->exam, $newStudent]));
+            ->get(route('exams.review', [$this->exam, $newStudent]));
 
         // Devrait quand même permettre l'accès (pour préparer la correction)
         $response->assertOk();
@@ -212,7 +212,7 @@ class ExamCorrectionControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.exams.review', [$otherExam, $otherStudent]));
+            ->get(route('exams.review', [$otherExam, $otherStudent]));
 
         $response->assertForbidden();
     }
@@ -221,7 +221,7 @@ class ExamCorrectionControllerTest extends TestCase
     public function student_cannot_access_correction_routes()
     {
         $response = $this->actingAs($this->student)
-            ->get(route('teacher.exams.review', [$this->exam, $this->student]));
+            ->get(route('exams.review', [$this->exam, $this->student]));
 
         $response->assertForbidden();
     }
@@ -256,7 +256,7 @@ class ExamCorrectionControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->post(route('teacher.exams.review.save', [$this->exam, $this->student]), [
+            ->post(route('exams.review.save', [$this->exam, $this->student]), [
                 'scores' => [
                     [
                         'question_id' => $this->question->id,
@@ -285,7 +285,7 @@ class ExamCorrectionControllerTest extends TestCase
     public function teacher_can_update_score_with_notes()
     {
         $response = $this->actingAs($this->teacher)
-            ->postJson(route('teacher.exams.score.update', $this->exam), [
+            ->postJson(route('exams.score.update', $this->exam), [
                 'exam_id' => $this->exam->id,
                 'student_id' => $this->student->id,
                 'question_id' => $this->question->id,

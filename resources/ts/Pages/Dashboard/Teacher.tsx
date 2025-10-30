@@ -26,11 +26,11 @@ interface Props {
 
 export default function TeacherDashboard({ stats, recent_exams }: Props) {
     const handleCreateExam = () => {
-        router.visit(route('teacher.exams.create'));
+        router.visit(route('exams.create'));
     };
 
     const handleViewExams = () => {
-        router.visit(route('teacher.exams.index'));
+        router.visit(route('exams.index'));
     };
 
     return (

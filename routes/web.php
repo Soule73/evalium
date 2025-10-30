@@ -1,17 +1,19 @@
 <?php
 
+use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Exam\ExamController;
-use App\Http\Controllers\Exam\AssignmentController;
-use App\Http\Controllers\Exam\GroupAssignmentController;
-use App\Http\Controllers\Exam\CorrectionController;
-use App\Http\Controllers\Exam\ResultsController;
-use App\Http\Controllers\Student\ExamController as StudentExamController;
-use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\GroupController;
-use Inertia\Inertia;
+use App\Http\Controllers\Exam\ResultsController;
+use App\Http\Controllers\Exam\AssignmentController;
+use App\Http\Controllers\Exam\CorrectionController;
+use App\Http\Controllers\Admin\RolePermissionController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Exam\GroupAssignmentController;
+use App\Http\Controllers\Admin\LevelManagementController;
+use App\Http\Controllers\Student\ExamController as StudentExamController;
 
 // Routes publiques
 Route::get('/', function () {
@@ -119,7 +121,8 @@ Route::middleware('auth')->group(function () {
         ->name('exams.toggle-active');
 
     // Assignations d'examens
-    Route::controller(AssignmentController::class)->prefix('exams')
+    Route::controller(AssignmentController::class)
+        ->prefix('exams')
         ->group(function () {
             Route::get('/{exam}/assign', 'showAssignForm')
                 ->middleware('permission:assign exams')
@@ -139,7 +142,8 @@ Route::middleware('auth')->group(function () {
         });
 
     // Assignations de groupes
-    Route::controller(GroupAssignmentController::class)->prefix('exams')
+    Route::controller(GroupAssignmentController::class)
+        ->prefix('exams')
         ->group(function () {
             Route::post('/{exam}/assign-groups', 'assignToGroups')
                 ->middleware('permission:assign group exams')
@@ -155,7 +159,8 @@ Route::middleware('auth')->group(function () {
         });
 
     // Correction d'examens
-    Route::controller(CorrectionController::class)->prefix('exams')
+    Route::controller(CorrectionController::class)
+        ->prefix('exams')
         ->group(function () {
             Route::get('/{exam}/review/{student}', 'showStudentReview')
                 ->middleware('permission:correct exams')
@@ -171,15 +176,17 @@ Route::middleware('auth')->group(function () {
         });
 
     // Résultats et statistiques
-    Route::controller(ResultsController::class)->prefix('exams')->group(function () {
-        Route::get('/{exam}/results/{student}', 'showStudentResults')
-            ->middleware('permission:view exam results')
-            ->name('exams.results');
+    Route::controller(ResultsController::class)
+        ->prefix('exams')
+        ->group(function () {
+            Route::get('/{exam}/results/{student}', 'showStudentResults')
+                ->middleware('permission:view exam results')
+                ->name('exams.results');
 
-        Route::get('/{exam}/stats', 'stats')
-            ->middleware('permission:view reports')
-            ->name('exams.stats');
-    });
+            Route::get('/{exam}/stats', 'stats')
+                ->middleware('permission:view reports')
+                ->name('exams.stats');
+        });
 
     // ==================== DASHBOARDS SPÉCIFIQUES PAR RÔLE ====================
     // Dashboards qui restent séparés car ils affichent des interfaces différentes
@@ -192,186 +199,191 @@ Route::middleware('auth')->group(function () {
         ->name('admin.dashboard');
 
     // ==================== ADMIN ROUTES ====================
-    Route::prefix('admin')->name('admin.')->group(function () {
-        // User Management Routes
-        Route::prefix('/users')->name('users.')
-            ->controller(UserManagementController::class)
-            ->group(function () {
-                Route::get('/', 'index')
-                    ->middleware('permission:view users')
-                    ->name('index');
+    Route::prefix('admin')
+        ->group(function () {
+            // User Management Routes
+            Route::prefix('/users')
+                ->name('users.')
+                ->controller(UserManagementController::class)
+                ->group(function () {
+                    Route::get('/', 'index')
+                        ->middleware('permission:view users')
+                        ->name('index');
 
-                Route::get('/students/{user}', 'showStudent')
-                    ->middleware('permission:view users')
-                    ->name('show.student');
+                    Route::get('/students/{user}', 'showStudent')
+                        ->middleware('permission:view users')
+                        ->name('show.student');
 
-                Route::get('/teachers/{user}', 'showTeacher')
-                    ->middleware('permission:view users')
-                    ->name('show.teacher');
+                    Route::get('/teachers/{user}', 'showTeacher')
+                        ->middleware('permission:view users')
+                        ->name('show.teacher');
 
-                Route::post('/', 'store')
-                    ->middleware('permission:create users')
-                    ->name('store');
+                    Route::post('/', 'store')
+                        ->middleware('permission:create users')
+                        ->name('store');
 
-                Route::put('/{user}', 'update')
-                    ->middleware('permission:update users')
-                    ->name('update');
+                    Route::put('/{user}', 'update')
+                        ->middleware('permission:update users')
+                        ->name('update');
 
-                Route::delete('/{user}', 'destroy')
-                    ->middleware('permission:delete users')
-                    ->name('destroy');
+                    Route::delete('/{user}', 'destroy')
+                        ->middleware('permission:delete users')
+                        ->name('destroy');
 
-                Route::patch('/{user}/toggle-status', 'toggleStatus')
-                    ->middleware('permission:toggle user status')
-                    ->name('toggle-status');
+                    Route::patch('/{user}/toggle-status', 'toggleStatus')
+                        ->middleware('permission:toggle user status')
+                        ->name('toggle-status');
 
-                Route::put('/{user}/change-group', 'changeStudentGroup')
-                    ->middleware('permission:manage students')
-                    ->name('change-group');
+                    Route::put('/{user}/change-group', 'changeStudentGroup')
+                        ->middleware('permission:manage students')
+                        ->name('change-group');
 
-                Route::post('/{id}/restore', 'restore')
-                    ->middleware('permission:restore users')
-                    ->name('restore');
+                    Route::post('/{id}/restore', 'restore')
+                        ->middleware('permission:restore users')
+                        ->name('restore');
 
-                Route::delete('/{id}/force', 'forceDelete')
-                    ->middleware('permission:force delete users')
-                    ->name('force-delete');
-            });
+                    Route::delete('/{id}/force', 'forceDelete')
+                        ->middleware('permission:force delete users')
+                        ->name('force-delete');
+                });
 
-        // Group Management Routes
-        Route::prefix('/groups')->name('groups.')
-            ->controller(GroupController::class)
-            ->group(function () {
-                Route::get('/', 'index')
-                    ->middleware('permission:view groups')
-                    ->name('index');
+            // Group Management Routes
+            Route::prefix('/groups')
+                ->name('groups.')
+                ->controller(GroupController::class)
+                ->group(function () {
+                    Route::get('/', 'index')
+                        ->middleware('permission:view groups')
+                        ->name('index');
 
-                Route::get('/create', 'create')
-                    ->middleware('permission:create groups')
-                    ->name('create');
+                    Route::get('/create', 'create')
+                        ->middleware('permission:create groups')
+                        ->name('create');
 
-                Route::post('/', 'store')
-                    ->middleware('permission:create groups')
-                    ->name('store');
+                    Route::post('/', 'store')
+                        ->middleware('permission:create groups')
+                        ->name('store');
 
-                Route::post('/bulk-activate', 'bulkActivate')
-                    ->middleware('permission:toggle group status')
-                    ->name('bulk-activate');
+                    Route::post('/bulk-activate', 'bulkActivate')
+                        ->middleware('permission:toggle group status')
+                        ->name('bulk-activate');
 
-                Route::post('/bulk-deactivate', 'bulkDeactivate')
-                    ->middleware('permission:toggle group status')
-                    ->name('bulk-deactivate');
+                    Route::post('/bulk-deactivate', 'bulkDeactivate')
+                        ->middleware('permission:toggle group status')
+                        ->name('bulk-deactivate');
 
-                Route::get('/{group}', 'show')
-                    ->middleware('permission:view groups')
-                    ->name('show');
+                    Route::get('/{group}', 'show')
+                        ->middleware('permission:view groups')
+                        ->name('show');
 
-                Route::get('/{group}/edit', 'edit')
-                    ->middleware('permission:update groups')
-                    ->name('edit');
+                    Route::get('/{group}/edit', 'edit')
+                        ->middleware('permission:update groups')
+                        ->name('edit');
 
-                Route::put('/{group}', 'update')
-                    ->middleware('permission:update groups')
-                    ->name('update');
+                    Route::put('/{group}', 'update')
+                        ->middleware('permission:update groups')
+                        ->name('update');
 
-                Route::delete('/{group}', 'destroy')
-                    ->middleware('permission:delete groups')
-                    ->name('destroy');
+                    Route::delete('/{group}', 'destroy')
+                        ->middleware('permission:delete groups')
+                        ->name('destroy');
 
-                Route::get('/{group}/assign-students', 'assignStudents')
-                    ->middleware('permission:manage group students')
-                    ->name('assign-students');
+                    Route::get('/{group}/assign-students', 'assignStudents')
+                        ->middleware('permission:manage group students')
+                        ->name('assign-students');
 
-                Route::post('/{group}/assign-students', 'storeStudents')
-                    ->middleware('permission:manage group students')
-                    ->name('store-students');
+                    Route::post('/{group}/assign-students', 'storeStudents')
+                        ->middleware('permission:manage group students')
+                        ->name('store-students');
 
-                Route::post('/{group}/bulk-remove-students', 'bulkRemoveStudents')
-                    ->middleware('permission:manage group students')
-                    ->name('bulk-remove-students');
+                    Route::post('/{group}/bulk-remove-students', 'bulkRemoveStudents')
+                        ->middleware('permission:manage group students')
+                        ->name('bulk-remove-students');
 
-                Route::delete('/{group}/students/{student}', 'removeStudent')
-                    ->middleware('permission:manage group students')
-                    ->name('remove-student');
-            });
+                    Route::delete('/{group}/students/{student}', 'removeStudent')
+                        ->middleware('permission:manage group students')
+                        ->name('remove-student');
+                });
 
-        // Level Management Routes
-        Route::prefix('/levels')->name('levels.')
-            ->controller(\App\Http\Controllers\Admin\LevelManagementController::class)
-            ->group(function () {
-                Route::get('/', 'index')
-                    ->middleware('permission:view levels')
-                    ->name('index');
+            // Level Management Routes
+            Route::prefix('/levels')
+                ->name('levels.')
+                ->controller(LevelManagementController::class)
+                ->group(function () {
+                    Route::get('/', 'index')
+                        ->middleware('permission:view levels')
+                        ->name('index');
 
-                Route::get('/create', 'create')
-                    ->middleware('permission:create levels')
-                    ->name('create');
+                    Route::get('/create', 'create')
+                        ->middleware('permission:create levels')
+                        ->name('create');
 
-                Route::post('/', 'store')
-                    ->middleware('permission:create levels')
-                    ->name('store');
+                    Route::post('/', 'store')
+                        ->middleware('permission:create levels')
+                        ->name('store');
 
-                Route::get('/{level}/edit', 'edit')
-                    ->middleware('permission:update levels')
-                    ->name('edit');
+                    Route::get('/{level}/edit', 'edit')
+                        ->middleware('permission:update levels')
+                        ->name('edit');
 
-                Route::put('/{level}', 'update')
-                    ->middleware('permission:update levels')
-                    ->name('update');
+                    Route::put('/{level}', 'update')
+                        ->middleware('permission:update levels')
+                        ->name('update');
 
-                Route::delete('/{level}', 'destroy')
-                    ->middleware('permission:delete levels')
-                    ->name('destroy');
+                    Route::delete('/{level}', 'destroy')
+                        ->middleware('permission:delete levels')
+                        ->name('destroy');
 
-                Route::patch('/{level}/toggle-status', 'toggleStatus')
-                    ->middleware('permission:manage levels')
-                    ->name('toggle-status');
-            });
+                    Route::patch('/{level}/toggle-status', 'toggleStatus')
+                        ->middleware('permission:manage levels')
+                        ->name('toggle-status');
+                });
 
-        // Role & Permission Management Routes
-        Route::prefix('/roles')->name('roles.')
-            ->controller(\App\Http\Controllers\Admin\RolePermissionController::class)
-            ->group(function () {
-                Route::get('/', 'index')
-                    ->middleware('permission:view roles')
-                    ->name('index');
+            // Role & Permission Management Routes
+            Route::prefix('/roles')
+                ->name('roles.')
+                ->controller(RolePermissionController::class)
+                ->group(function () {
+                    Route::get('/', 'index')
+                        ->middleware('permission:view roles')
+                        ->name('index');
 
-                Route::get('/create', 'create')
-                    ->middleware('permission:create roles')
-                    ->name('create');
+                    Route::get('/create', 'create')
+                        ->middleware('permission:create roles')
+                        ->name('create');
 
-                Route::post('/', 'store')
-                    ->middleware('permission:create roles')
-                    ->name('store');
+                    Route::post('/', 'store')
+                        ->middleware('permission:create roles')
+                        ->name('store');
 
-                Route::get('/{role}/edit', 'edit')
-                    ->middleware('permission:update roles')
-                    ->name('edit');
+                    Route::get('/{role}/edit', 'edit')
+                        ->middleware('permission:update roles')
+                        ->name('edit');
 
-                Route::put('/{role}', 'update')
-                    ->middleware('permission:update roles')
-                    ->name('update');
+                    Route::put('/{role}', 'update')
+                        ->middleware('permission:update roles')
+                        ->name('update');
 
-                Route::delete('/{role}', 'destroy')
-                    ->middleware('permission:delete roles')
-                    ->name('destroy');
+                    Route::delete('/{role}', 'destroy')
+                        ->middleware('permission:delete roles')
+                        ->name('destroy');
 
-                Route::post('/{role}/sync-permissions', 'syncPermissions')
-                    ->middleware('permission:assign permissions')
-                    ->name('sync-permissions');
+                    Route::post('/{role}/sync-permissions', 'syncPermissions')
+                        ->middleware('permission:assign permissions')
+                        ->name('sync-permissions');
 
-                // Permissions routes
-                Route::get('/permissions', 'permissionsIndex')
-                    ->middleware('permission:view permissions')
-                    ->name('permissions.index');
+                    // Permissions routes
+                    Route::get('/permissions', 'permissionsIndex')
+                        ->middleware('permission:view permissions')
+                        ->name('permissions.index');
 
-                Route::post('/permissions', 'storePermission')
-                    ->middleware('permission:create permissions')
-                    ->name('permissions.store');
+                    Route::post('/permissions', 'storePermission')
+                        ->middleware('permission:create permissions')
+                        ->name('permissions.store');
 
-                Route::delete('/permissions/{permission}', 'destroyPermission')
-                    ->middleware('permission:delete permissions')
-                    ->name('permissions.destroy');
-            });
-    });
+                    Route::delete('/permissions/{permission}', 'destroyPermission')
+                        ->middleware('permission:delete permissions')
+                        ->name('permissions.destroy');
+                });
+        });
 });

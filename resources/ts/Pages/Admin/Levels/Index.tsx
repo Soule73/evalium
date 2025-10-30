@@ -36,22 +36,22 @@ export default function LevelIndex({ levels }: Props) {
     });
 
     const handleCreate = () => {
-        router.visit(route('admin.levels.create'));
+        router.visit(route('levels.create'));
     };
 
     const handleEdit = (levelId: number) => {
-        router.visit(route('admin.levels.edit', { level: levelId }));
+        router.visit(route('levels.edit', { level: levelId }));
     };
 
     const handleToggleStatus = (levelId: number) => {
-        router.patch(route('admin.levels.toggle-status', { level: levelId }), {}, {
+        router.patch(route('levels.toggle-status', { level: levelId }), {}, {
             preserveScroll: true,
         });
     };
 
     const handleDelete = (levelId: number) => {
         if (!deleteModal.levelId) return;
-        router.delete(route('admin.levels.destroy', { level: levelId }), {
+        router.delete(route('levels.destroy', { level: levelId }), {
             onFinish: () => setDeleteModal({ isOpen: false, levelId: null, levelName: '' })
         });
     };

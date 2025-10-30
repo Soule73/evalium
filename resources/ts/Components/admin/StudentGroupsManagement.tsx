@@ -24,7 +24,7 @@ export default function StudentGroupsManagement({ userId, currentGroups, availab
         if (!selectedGroupId) return;
 
         router.put(
-            route('admin.users.change-group', { user: userId }),
+            route('users.change-group', { user: userId }),
             { group_id: selectedGroupId },
             {
                 preserveScroll: true,

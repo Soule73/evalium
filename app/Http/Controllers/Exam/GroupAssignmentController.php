@@ -54,7 +54,7 @@ class GroupAssignmentController extends Controller
             $message .= " ({$result['already_assigned_count']} déjà assigné(s))";
         }
 
-        return $this->redirectWithSuccess('teacher.exams.show', $message, ['exam' => $exam->id]);
+        return $this->redirectWithSuccess('exams.show', $message, ['exam' => $exam->id]);
     }
 
     /**

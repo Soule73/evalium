@@ -48,7 +48,7 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
         if (!removeGroupModal.group) return;
 
         router.delete(
-            route('teacher.exams.groups.remove', {
+            route('exams.groups.remove', {
                 exam: exam.id,
                 group: removeGroupModal.group.id,
             }),
@@ -70,7 +70,7 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
 
         setIsToggling(true);
         router.patch(
-            route('teacher.exams.toggle-active', exam.id),
+            route('exams.toggle-active', exam.id),
             {},
             {
                 preserveScroll: true,
@@ -84,7 +84,7 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
 
         setIsDuplicating(true);
         router.post(
-            route('teacher.exams.duplicate', exam.id),
+            route('exams.duplicate', exam.id),
             {},
             {
                 onFinish: () => {
@@ -124,14 +124,14 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
                                 Dupliquer
                             </Button>
                             <Button
-                                onClick={() => router.visit(route('teacher.exams.edit', exam.id))}
+                                onClick={() => router.visit(route('exams.edit', exam.id))}
                                 color="secondary"
                                 variant='outline'
                                 size="sm" >
                                 Modifier
                             </Button>
                             <Button
-                                onClick={() => router.visit(route('teacher.exams.assignments', exam.id))}
+                                onClick={() => router.visit(route('exams.assignments', exam.id))}
                                 color="secondary"
                                 variant='outline'
                                 size="sm" >
@@ -207,7 +207,7 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
                     {(exam.questions ?? []).length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
                             <p>Aucune question ajoutée à cet examen.</p>
-                            <Link href={route('teacher.exams.edit', exam.id)} className="mt-2 inline-block">
+                            <Link href={route('exams.edit', exam.id)} className="mt-2 inline-block">
                                 <Button>Ajouter des questions</Button>
                             </Link>
                         </div>
