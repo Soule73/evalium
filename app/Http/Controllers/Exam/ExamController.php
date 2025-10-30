@@ -1,17 +1,18 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Exam;
 
 use App\Models\Exam;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\Request;
 use App\Services\ExamService;
+use App\Http\Controllers\Controller;
 use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
-use App\Services\Teacher\ExamGroupService;
-use App\Http\Requests\Teacher\StoreExamRequest;
-use App\Http\Requests\Teacher\UpdateExamRequest;
+use App\Services\Exam\ExamGroupService;
+use App\Http\Requests\Exam\StoreExamRequest;
+use App\Http\Requests\Exam\UpdateExamRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
@@ -59,7 +60,7 @@ class ExamController extends Controller
         // Service adapte automatiquement selon les permissions de l'utilisateur
         $exams = $this->examService->getTeacherExams($user->id, $perPage, $status, $search);
 
-        return Inertia::render('Teacher/ExamIndex', [
+        return Inertia::render('Exam/Index', [
             'exams' => $exams
         ]);
     }
@@ -73,7 +74,7 @@ class ExamController extends Controller
     {
         $this->authorize('create', Exam::class);
 
-        return Inertia::render('Teacher/ExamCreate');
+        return Inertia::render('Exam/Create');
     }
 
     /**
@@ -120,7 +121,7 @@ class ExamController extends Controller
 
         $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
 
-        return Inertia::render('Teacher/ExamShow', [
+        return Inertia::render('Exam/Show', [
             'exam' => $exam,
             'assignedGroups' => $assignedGroups
         ]);
@@ -138,7 +139,7 @@ class ExamController extends Controller
 
         $exam->load(['questions.choices']);
 
-        return Inertia::render('Teacher/ExamEdit', [
+        return Inertia::render('Exam/Edit', [
             'exam' => $exam
         ]);
     }

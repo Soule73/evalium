@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Teacher;
+namespace App\Http\Requests\Exam;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
@@ -11,7 +11,7 @@ use Illuminate\Foundation\Http\FormRequest;
  * This request class is typically used to ensure that the incoming request
  * contains valid data and that the user has the necessary permissions to access exam results.
  *
- * @package App\Http\Requests\Teacher
+ * @package App\Http\Requests\Exam
  */
 class GetExamResultsRequest extends FormRequest
 {

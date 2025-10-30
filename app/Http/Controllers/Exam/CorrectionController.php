@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Teacher;
+namespace App\Http\Controllers\Exam;
 
 use App\Models\Exam;
 use App\Models\User;
@@ -12,9 +12,9 @@ use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use App\Services\Shared\UserAnswerService;
-use App\Services\Teacher\ExamScoringService;
-use App\Http\Requests\Teacher\UpdateScoreRequest;
-use App\Http\Requests\Teacher\SaveStudentReviewRequest;
+use App\Services\Exam\ExamScoringService;
+use App\Http\Requests\Exam\UpdateScoreRequest;
+use App\Http\Requests\Exam\SaveStudentReviewRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
@@ -25,7 +25,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  * - Saving manual corrections and teacher notes
  * - Updating individual question scores
  */
-class ExamCorrectionController extends Controller
+class CorrectionController extends Controller
 {
     use AuthorizesRequests, HasFlashMessages;
 
@@ -49,7 +49,7 @@ class ExamCorrectionController extends Controller
 
         $data = $this->userAnswerService->getStudentReviewData($assignment);
 
-        return Inertia::render('Teacher/ExamStudentReview', $data);
+        return Inertia::render('Exam/StudentReview', $data);
     }
 
     /**

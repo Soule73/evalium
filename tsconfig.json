@@ -56,7 +56,7 @@
         "resources/ts/**/*.tsx",
         "resources/ts/**/*.d.ts",
         "resources/ts/hooks/useExamResults.tx",
-        "resources/ts/Pages/Teacher/ExamCreate.backup"
+        "resources/ts/Pages/Exam/ExamCreate.backup"
     ],
     "references": [
         {

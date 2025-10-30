@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Feature\Teacher;
+namespace Tests\Feature\Exam;
 
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Exam;
 use Tests\TestCase;
-use App\Services\Teacher\ExamAssignmentService;
-use App\Services\Teacher\ExamGroupService;
+use App\Services\Exam\ExamAssignmentService;
+use App\Services\Exam\ExamGroupService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExamGroupAssignmentTest extends TestCase

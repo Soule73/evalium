@@ -9,7 +9,7 @@ use App\Services\ExamService;
 use Illuminate\Http\RedirectResponse;
 use App\Services\Shared\DashboardService;
 use App\Services\Admin\AdminDashboardService;
-use App\Services\Teacher\TeacherDashboardService;
+use App\Services\Exam\TeacherDashboardService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class DashboardController extends Controller

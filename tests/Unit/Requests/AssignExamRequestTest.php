@@ -8,7 +8,7 @@ use App\Models\User;
 use Tests\Traits\CreatesTestRoles;
 use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\Teacher\AssignExamRequest;
+use App\Http\Requests\Exam\AssignExamRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class AssignExamRequestTest extends TestCase

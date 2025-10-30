@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Teacher;
+namespace App\Services\Exam;
 
 use App\Models\Exam;
 use App\Models\Group;
@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Service pour gérer l'assignation des examens aux groupes
+ * 
+ * @package App\Services\Exam
  */
 class ExamGroupService
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Controllers\Teacher;
+namespace Tests\Feature\Controllers\Exam;
 
 use Tests\TestCase;
 use App\Models\Exam;

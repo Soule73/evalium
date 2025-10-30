@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
- * Tests pour Teacher/ExamController (CRUD uniquement)
+ * Tests pour Exam/ExamController (CRUD uniquement)
  * 
  * Les tests pour les fonctionnalités spécialisées ont été migrés vers :
  * - ExamAssignmentControllerTest.php (assignations étudiants)
@@ -67,7 +67,7 @@ class TeacherExamControllerTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn(AssertableInertia $page) => $page
-                ->component('Teacher/ExamIndex', false)
+                ->component('Exam/Index', false)
                 ->has('exams')
         );
     }
@@ -90,7 +90,7 @@ class TeacherExamControllerTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn(AssertableInertia $page) => $page
-                ->component('Teacher/ExamIndex', false)
+                ->component('Exam/Index', false)
                 ->where('exams.data', function ($exams) {
                     // Vérifier que tous les examens appartiennent au teacher connecté
                     return collect($exams)->every(fn($exam) => $exam['teacher_id'] === $this->teacher->id);
@@ -109,7 +109,7 @@ class TeacherExamControllerTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn(AssertableInertia $page) => $page
-                ->component('Teacher/ExamCreate', false)
+                ->component('Exam/Create', false)
         );
     }
 
@@ -175,7 +175,7 @@ class TeacherExamControllerTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn(AssertableInertia $page) => $page
-                ->component('Teacher/ExamShow', false)
+                ->component('Exam/Show', false)
                 ->has('exam')
                 ->has('exam.questions', 3)
         );
@@ -209,7 +209,7 @@ class TeacherExamControllerTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn(AssertableInertia $page) => $page
-                ->component('Teacher/ExamEdit', false)
+                ->component('Exam/Edit', false)
                 ->has('exam')
         );
     }

@@ -1,10 +1,17 @@
 <?php
 
-namespace App\Http\Requests\Teacher;
+namespace App\Http\Requests\Exam;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Handles validation logic for saving student reviews by a teacher.
+ *
+ * This request class is responsible for authorizing the user and validating
+ * the input data when a teacher attempts to save reviews for students.
+ * @package App\Http\Requests\Exam
+ */
 class SaveStudentReviewRequest extends FormRequest
 {
     /**

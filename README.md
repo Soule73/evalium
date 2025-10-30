@@ -177,14 +177,14 @@ examena/
 │   ├── Console/           # Commandes Artisan
 │   ├── Helpers/           # Helper functions
 │   ├── Http/
-│   │   ├── Controllers/   # Admin, Teacher, Student
+│   │   ├── Controllers/   # Admin, Exam, Student
 │   │   ├── Middleware/    # Custom middleware
 │   │   └── Requests/      # Form requests
 │   ├── Models/            # Eloquent models
 │   ├── Policies/          # Authorization policies
 │   └── Services/          # Business logic
 │       ├── Admin/
-│       ├── Teacher/
+│       ├── Exam/
 │       └── Student/
 ├── database/
 │   ├── factories/         # Model factories

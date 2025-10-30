@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Controllers\Teacher;
+namespace Tests\Feature\Controllers\Exam;
 
 use Tests\TestCase;
 use App\Models\Exam;
@@ -82,7 +82,7 @@ class ExamCorrectionControllerTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn(AssertableInertia $page) => $page
-                ->component('Teacher/ExamStudentReview', false)
+                ->component('Exam/StudentReview', false)
                 ->has('exam')
                 ->has('student')
         );

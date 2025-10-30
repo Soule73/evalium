@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Teacher;
+namespace App\Http\Controllers\Exam;
 
 use App\Models\Exam;
 use App\Models\User;
@@ -19,7 +19,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  * - Displaying individual student results for an exam
  * - Displaying exam statistics (TODO)
  */
-class ExamResultsController extends Controller
+class ResultsController extends Controller
 {
     use AuthorizesRequests, HasFlashMessages;
 
@@ -42,7 +42,7 @@ class ExamResultsController extends Controller
 
         $data = $this->userAnswerService->getStudentResultsData($assignment);
 
-        return Inertia::render('Teacher/ExamStudentResults', $data);
+        return Inertia::render('Exam/StudentResults', $data);
     }
 
     /**

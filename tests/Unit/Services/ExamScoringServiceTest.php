@@ -8,10 +8,9 @@ use App\Models\User;
 use App\Models\Answer;
 use App\Models\Question;
 use App\Models\ExamAssignment;
-use Spatie\Permission\Models\Role;
 use Tests\Traits\CreatesTestRoles;
 use PHPUnit\Framework\Attributes\Test;
-use App\Services\Teacher\ExamScoringService;
+use App\Services\Exam\ExamScoringService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExamScoringServiceTest extends TestCase

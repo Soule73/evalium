@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Teacher;
+namespace App\Services\Exam;
 
 use App\Models\Exam;
 use App\Models\User;
@@ -8,6 +8,11 @@ use App\Models\ExamAssignment;
 use App\Models\Group;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
+/**
+ * Service pour gérer les assignations des examens aux étudiants
+ * 
+ * @package App\Services\Exam
+ */
 class ExamAssignmentService
 {
     public function __construct(

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Teacher;
+namespace App\Http\Requests\Exam;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +12,7 @@ use Illuminate\Foundation\Http\FormRequest;
  * This request class is responsible for authorizing the user and validating
  * the input data when assigning an exam to a teacher.
  *
- * @package App\Http\Requests\Teacher
+ * @package App\Http\Requests\Exam
  */
 class AssignExamRequest extends FormRequest
 {

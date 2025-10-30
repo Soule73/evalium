@@ -10,7 +10,7 @@ use App\Models\ExamAssignment;
 use Spatie\Permission\Models\Role;
 use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\Teacher\UpdateScoreRequest;
+use App\Http\Requests\Exam\UpdateScoreRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UpdateScoreRequestTest extends TestCase

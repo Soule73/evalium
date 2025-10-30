@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Teacher;
+namespace App\Http\Controllers\Exam;
 
 use App\Models\Exam;
 use App\Models\User;
@@ -9,10 +9,10 @@ use Inertia\Response;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
-use App\Services\Teacher\ExamGroupService;
-use App\Http\Requests\Teacher\AssignExamRequest;
-use App\Services\Teacher\ExamAssignmentService;
-use App\Http\Requests\Teacher\GetExamResultsRequest;
+use App\Services\Exam\ExamGroupService;
+use App\Http\Requests\Exam\AssignExamRequest;
+use App\Services\Exam\ExamAssignmentService;
+use App\Http\Requests\Exam\GetExamResultsRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
@@ -24,7 +24,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  * - Viewing assignment lists
  * - Removing student assignments
  */
-class ExamAssignmentController extends Controller
+class AssignmentController extends Controller
 {
     use AuthorizesRequests, HasFlashMessages;
 
@@ -49,7 +49,7 @@ class ExamAssignmentController extends Controller
 
         $legacyAssignments = $this->examAssignmentService->getAssignmentFormData($exam);
 
-        return Inertia::render('Teacher/ExamAssign', [
+        return Inertia::render('Exam/Assign', [
             'exam' => $exam,
             'assignedGroups' => $assignedGroups,
             'availableGroups' => $availableGroups,
@@ -97,7 +97,7 @@ class ExamAssignmentController extends Controller
         $params = $request->validatedWithDefaults();
         $data = $this->examAssignmentService->getPaginatedAssignments($exam, $params);
 
-        return Inertia::render('Teacher/ExamAssignments', $data);
+        return Inertia::render('Exam/Assignments', $data);
     }
 
     /**

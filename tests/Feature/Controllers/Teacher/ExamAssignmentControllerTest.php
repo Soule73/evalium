@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Controllers\Teacher;
+namespace Tests\Feature\Controllers\Exam;
 
 use Tests\TestCase;
 use App\Models\Exam;
@@ -57,7 +57,7 @@ class ExamAssignmentControllerTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn(AssertableInertia $page) => $page
-                ->component('Teacher/ExamAssign', false)
+                ->component('Exam/Assign', false)
                 ->has('exam')
                 ->has('students')
                 ->has('assignedGroups')
@@ -152,7 +152,7 @@ class ExamAssignmentControllerTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn(AssertableInertia $page) => $page
-                ->component('Teacher/ExamAssignments', false)
+                ->component('Exam/Assignments', false)
                 ->has('exam')
                 ->has('assignments')
         );
@@ -186,7 +186,7 @@ class ExamAssignmentControllerTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn(AssertableInertia $page) => $page
-                ->component('Teacher/ExamAssignments', false)
+                ->component('Exam/Assignments', false)
                 ->has('assignments')
         );
     }

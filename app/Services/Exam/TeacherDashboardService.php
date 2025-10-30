@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Teacher;
+namespace App\Services\Exam;
 
 use App\Models\User;
 use App\Models\Exam;
@@ -8,6 +8,11 @@ use App\Models\Question;
 use App\Models\ExamAssignment;
 use Illuminate\Support\Collection;
 
+/**
+ * Service pour gérer le tableau de bord des enseignants
+ * 
+ * @package App\Services\Exam
+ */
 class TeacherDashboardService
 {
     /**

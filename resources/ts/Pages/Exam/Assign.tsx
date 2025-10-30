@@ -19,7 +19,7 @@ interface Props {
     availableGroups: Group[];
 }
 
-export default function ExamAssign({ exam, students, assignedGroups, availableGroups }: Props) {
+export default function Assign({ exam, students, assignedGroups, availableGroups }: Props) {
     const [activeTab, setActiveTab] = useState<'groups' | 'students'>('groups');
     const [isProcessing, setIsProcessing] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);

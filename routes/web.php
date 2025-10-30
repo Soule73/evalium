@@ -3,11 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\ExamController;
-use App\Http\Controllers\Teacher\ExamAssignmentController;
-use App\Http\Controllers\Teacher\ExamGroupAssignmentController;
-use App\Http\Controllers\Teacher\ExamCorrectionController;
-use App\Http\Controllers\Teacher\ExamResultsController;
+use App\Http\Controllers\Exam\ExamController;
+use App\Http\Controllers\Exam\AssignmentController;
+use App\Http\Controllers\Exam\GroupAssignmentController;
+use App\Http\Controllers\Exam\CorrectionController;
+use App\Http\Controllers\Exam\ResultsController;
 use App\Http\Controllers\Student\ExamController as StudentExamController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\GroupController;
@@ -38,35 +38,38 @@ Route::middleware('auth')->group(function () {
 
     // ==================== ROUTES STRICTEMENT RÉSERVÉES AU RÔLE "STUDENT" ====================
     // Ces actions nécessitent hasRole('student') - Ne peuvent PAS être assignées à d'autres rôles
-    Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {
-        Route::get('/dashboard/student', [DashboardController::class, 'student'])
-            ->name('dashboard');
+    Route::middleware('role:student')
+        ->prefix('student')
+        ->name('student.')
+        ->group(function () {
+            Route::get('/dashboard/student', [DashboardController::class, 'student'])
+                ->name('dashboard');
 
-        Route::controller(StudentExamController::class)
-            ->prefix('exams')
-            ->name('exams.')
-            ->group(function () {
-                // Passer un examen - STRICT student only
-                Route::get('/{exam}/take', 'take')
-                    ->name('take');
+            Route::controller(StudentExamController::class)
+                ->prefix('exams')
+                ->name('exams.')
+                ->group(function () {
+                    // Passer un examen - STRICT student only
+                    Route::get('/{exam}/take', 'take')
+                        ->name('take');
 
-                // Sauvegarder les réponses en cours - STRICT student only
-                Route::post('/{exam}/save-answers', 'saveAnswers')
-                    ->name('save-answers');
+                    // Sauvegarder les réponses en cours - STRICT student only
+                    Route::post('/{exam}/save-answers', 'saveAnswers')
+                        ->name('save-answers');
 
-                // Gérer les violations de sécurité - STRICT student only
-                Route::post('/{exam}/security-violation', 'handleSecurityViolation')
-                    ->name('security-violation');
+                    // Gérer les violations de sécurité - STRICT student only
+                    Route::post('/{exam}/security-violation', 'handleSecurityViolation')
+                        ->name('security-violation');
 
-                // Abandonner un examen - STRICT student only
-                Route::post('/{exam}/abandon', 'abandon')
-                    ->name('abandon');
+                    // Abandonner un examen - STRICT student only
+                    Route::post('/{exam}/abandon', 'abandon')
+                        ->name('abandon');
 
-                // Soumettre un examen - STRICT student only
-                Route::post('/{exam}/submit', 'submit')
-                    ->name('submit');
-            });
-    });
+                    // Soumettre un examen - STRICT student only
+                    Route::post('/{exam}/submit', 'submit')
+                        ->name('submit');
+                });
+        });
 
     // ==================== ROUTES UNIFIÉES BASÉES SUR PERMISSIONS ====================
     // Accessibles à TOUS les utilisateurs ayant les permissions appropriées
@@ -116,56 +119,59 @@ Route::middleware('auth')->group(function () {
         ->name('exams.toggle-active');
 
     // Assignations d'examens
-    Route::controller(ExamAssignmentController::class)->prefix('exams')->group(function () {
-        Route::get('/{exam}/assign', 'showAssignForm')
-            ->middleware('permission:assign exams')
-            ->name('exams.assign');
+    Route::controller(AssignmentController::class)->prefix('exams')
+        ->group(function () {
+            Route::get('/{exam}/assign', 'showAssignForm')
+                ->middleware('permission:assign exams')
+                ->name('exams.assign');
 
-        Route::post('/{exam}/assign', 'assignToStudents')
-            ->middleware('permission:create assignments')
-            ->name('exams.assign.store');
+            Route::post('/{exam}/assign', 'assignToStudents')
+                ->middleware('permission:create assignments')
+                ->name('exams.assign.store');
 
-        Route::get('/{exam}/assignments', 'showAssignments')
-            ->middleware('permission:view assignments')
-            ->name('exams.assignments');
+            Route::get('/{exam}/assignments', 'showAssignments')
+                ->middleware('permission:view assignments')
+                ->name('exams.assignments');
 
-        Route::delete('/{exam}/assignments/{user}', 'removeAssignment')
-            ->middleware('permission:delete assignments')
-            ->name('exams.assignment.remove');
-    });
+            Route::delete('/{exam}/assignments/{user}', 'removeAssignment')
+                ->middleware('permission:delete assignments')
+                ->name('exams.assignment.remove');
+        });
 
     // Assignations de groupes
-    Route::controller(ExamGroupAssignmentController::class)->prefix('exams')->group(function () {
-        Route::post('/{exam}/assign-groups', 'assignToGroups')
-            ->middleware('permission:assign group exams')
-            ->name('exams.assign.groups');
+    Route::controller(GroupAssignmentController::class)->prefix('exams')
+        ->group(function () {
+            Route::post('/{exam}/assign-groups', 'assignToGroups')
+                ->middleware('permission:assign group exams')
+                ->name('exams.assign.groups');
 
-        Route::delete('/{exam}/groups/{group}', 'removeFromGroup')
-            ->middleware('permission:assign group exams')
-            ->name('exams.groups.remove');
+            Route::delete('/{exam}/groups/{group}', 'removeFromGroup')
+                ->middleware('permission:assign group exams')
+                ->name('exams.groups.remove');
 
-        Route::get('/{exam}/groups/{group}/details', 'showGroupDetails')
-            ->middleware('permission:view assignments')
-            ->name('exams.group-details');
-    });
+            Route::get('/{exam}/groups/{group}/details', 'showGroupDetails')
+                ->middleware('permission:view assignments')
+                ->name('exams.group-details');
+        });
 
     // Correction d'examens
-    Route::controller(ExamCorrectionController::class)->prefix('exams')->group(function () {
-        Route::get('/{exam}/review/{student}', 'showStudentReview')
-            ->middleware('permission:correct exams')
-            ->name('exams.review');
+    Route::controller(CorrectionController::class)->prefix('exams')
+        ->group(function () {
+            Route::get('/{exam}/review/{student}', 'showStudentReview')
+                ->middleware('permission:correct exams')
+                ->name('exams.review');
 
-        Route::post('/{exam}/review/{student}', 'saveStudentReview')
-            ->middleware('permission:grade answers')
-            ->name('exams.review.save');
+            Route::post('/{exam}/review/{student}', 'saveStudentReview')
+                ->middleware('permission:grade answers')
+                ->name('exams.review.save');
 
-        Route::post('/{exam}/score/update', 'updateScore')
-            ->middleware('permission:grade assignments')
-            ->name('exams.score.update');
-    });
+            Route::post('/{exam}/score/update', 'updateScore')
+                ->middleware('permission:grade assignments')
+                ->name('exams.score.update');
+        });
 
     // Résultats et statistiques
-    Route::controller(ExamResultsController::class)->prefix('exams')->group(function () {
+    Route::controller(ResultsController::class)->prefix('exams')->group(function () {
         Route::get('/{exam}/results/{student}', 'showStudentResults')
             ->middleware('permission:view exam results')
             ->name('exams.results');

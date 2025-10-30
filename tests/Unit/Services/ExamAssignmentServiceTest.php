@@ -8,8 +8,8 @@ use App\Models\User;
 use App\Models\ExamAssignment;
 use Spatie\Permission\Models\Role;
 use PHPUnit\Framework\Attributes\Test;
-use App\Services\Teacher\ExamAssignmentService;
-use App\Services\Teacher\ExamGroupService;
+use App\Services\Exam\ExamAssignmentService;
+use App\Services\Exam\ExamGroupService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

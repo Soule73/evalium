@@ -77,7 +77,7 @@ class Exam extends Model
     /**
      * Get the teacher that owns the exam.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Teacher, self>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User, self>
      */
     public function teacher(): BelongsTo
     {

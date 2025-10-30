@@ -1,13 +1,17 @@
 <?php
 
-namespace App\Services\Teacher;
+namespace App\Services\Exam;
 
 use App\Models\Exam;
-use App\Models\User;
 use App\Models\ExamAssignment;
 use Illuminate\Support\Facades\DB;
 use App\Services\Core\Scoring\ScoringService;
 
+/**
+ * Service pour gérer la notation des examens
+ * 
+ * @package App\Services\Exam
+ */
 class ExamScoringService
 {
     public function __construct(

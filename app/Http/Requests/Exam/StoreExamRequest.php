@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Teacher;
+namespace App\Http\Requests\Exam;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Validator;
@@ -11,6 +11,7 @@ use Illuminate\Foundation\Http\FormRequest;
  *
  * This request class is responsible for authorizing the user and validating
  * the incoming data when creating a new exam resource.
+ * @package App\Http\Requests\Exam
  */
 class StoreExamRequest extends FormRequest
 {

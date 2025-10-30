@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Teacher;
+namespace App\Http\Controllers\Exam;
 
 use App\Models\Exam;
 use App\Models\Group;
@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
-use App\Services\Teacher\ExamGroupService;
+use App\Services\Exam\ExamGroupService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
@@ -20,7 +20,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  * - Assigning exams to groups of students
  * - Removing group assignments
  */
-class ExamGroupAssignmentController extends Controller
+class GroupAssignmentController extends Controller
 {
     use AuthorizesRequests, HasFlashMessages;
 
@@ -181,7 +181,7 @@ class ExamGroupAssignmentController extends Controller
             'average_score' => $allAssignments->whereNotNull('score')->avg('score')
         ];
 
-        return Inertia::render('Teacher/ExamGroupDetails', [
+        return Inertia::render('Exam/GroupDetails', [
             'exam' => $exam->load('questions'),
             'group' => $group,
             'assignments' => $paginatedData->withQueryString(),
