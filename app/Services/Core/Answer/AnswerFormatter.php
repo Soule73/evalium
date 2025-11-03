@@ -31,9 +31,11 @@ class AnswerFormatter implements AnswerFormatterInterface
      */
     public function formatForFrontend(ExamAssignment $assignment): array
     {
-        return $assignment->answers()
-            ->with(['choice', 'question'])
-            ->get()
+        $answers = $assignment->relationLoaded('answers')
+            ? $assignment->answers
+            : $assignment->answers()->with(['choice', 'question'])->get();
+
+        return $answers
             ->groupBy('question_id')
             ->map(function ($questionAnswers) {
                 // Une seule réponse : question à choix unique, booléenne ou texte
@@ -44,7 +46,6 @@ class AnswerFormatter implements AnswerFormatterInterface
                 // Plusieurs réponses : question à choix multiples
                 return $this->formatMultipleAnswers($questionAnswers);
             })
-            ->values()
             ->toArray();
     }
 
@@ -160,7 +161,7 @@ class AnswerFormatter implements AnswerFormatterInterface
             'assignment' => $assignment,
             'student' => $assignment->student,
             'exam' => $assignment->exam,
-            'user_answers' => $this->formatForFrontend($assignment),
+            'userAnswers' => $this->formatForFrontend($assignment),
             'stats' => $this->getCompletionStats($assignment),
         ];
     }
@@ -189,27 +190,5 @@ class AnswerFormatter implements AnswerFormatterInterface
             'answer_text' => $requestData['answer_text'] ?? '',
             'choice_id' => null,
         ];
-    }
-
-    /**
-     * Récupère une collection groupée des réponses (ancienne signature)
-     * 
-     * @deprecated Utiliser formatForFrontend() qui retourne un array
-     * @param ExamAssignment $assignment
-     * @return Collection
-     */
-    public function getUserAnswersCollection(ExamAssignment $assignment): Collection
-    {
-        return $assignment->answers()
-            ->with(['choice', 'question'])
-            ->get()
-            ->groupBy('question_id')
-            ->map(function ($questionAnswers) {
-                if ($questionAnswers->count() === 1) {
-                    return $this->formatSingleAnswer($questionAnswers->first());
-                }
-
-                return $this->formatMultipleAnswers($questionAnswers);
-            });
     }
 }

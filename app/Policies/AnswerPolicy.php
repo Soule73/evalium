@@ -4,77 +4,123 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Answer;
-use Illuminate\Auth\Access\Response;
+// use Illuminate\Auth\Access\Response;
 
 /**
- * AnswerPolicy - Contrôle d'accès basé sur les permissions Spatie
+ * AnswerPolicy - Policies for managing access to Answer model.
+ *
+ * This policy class defines authorization logic for various actions
+ * related to the Answer model, such as viewing, creating, updating,
+ * deleting, restoring, and force deleting answers.
+ *
+ * @package App\Policies
  */
 class AnswerPolicy
 {
     /**
-     * Détermine si l'utilisateur peut voir la liste des réponses.
+     * Determine whether the given user is allowed to view any answers.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to view any answers,
+     *
+     * @param User $user The user attempting to view answers.
+     * @return bool True if the user is authorized to view any answers, false otherwise.
      */
     public function viewAny(User $user): bool
     {
         return $user->can('view answers');
     }
 
+
     /**
-     * Détermine si l'utilisateur peut voir une réponse spécifique.
+     * Determine whether the given user is allowed to view the specified answer.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to view any answers,
+     * - whether the user owns the answer,
+     *
+     * @param User $user The user attempting to view the answer.
+     * @param Answer $answer The answer instance to be viewed.
+     * @return bool True if the user is authorized to view the answer, false otherwise.
      */
     public function view(User $user, Answer $answer): bool
     {
-        // STRATÉGIE HYBRIDE : Un étudiant peut SEULEMENT voir ses propres réponses
         if ($user->hasRole('student')) {
             return $answer->assignment && $answer->assignment->student_id === $user->id;
         }
 
-        // Autres utilisateurs : basé sur la permission
         return $user->can('view answers');
     }
 
     /**
-     * Détermine si l'utilisateur peut créer des réponses.
+     * Determine whether the given user is allowed to create answers.
+     * 
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to create answers,
+     * 
+     * @param User $user The user attempting to create an answer.
+     * @return bool True if the user is authorized to create an answer, false otherwise.
      */
     public function create(User $user): bool
     {
-        // STRATÉGIE HYBRIDE : Les étudiants peuvent créer des réponses
-        // (vérifié dans le controller qu'il s'agit de leurs propres réponses)
         if ($user->hasRole('student')) {
             return true;
         }
 
-        // Autres utilisateurs : basé sur la permission
         return $user->can('create answers');
     }
 
     /**
-     * Détermine si l'utilisateur peut modifier une réponse.
+     * Determine whether the given user is allowed to update the specified answer.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to update answers,
+     * - whether the user owns the answer,
+     *
+     * @param User $user The user attempting to update the answer.
+     * @param Answer $answer The answer instance to be updated.
+     * @return bool True if the user is authorized to update the answer, false otherwise.
      */
     public function update(User $user, Answer $answer): bool
     {
-        // STRATÉGIE HYBRIDE : Un étudiant peut SEULEMENT modifier ses propres réponses
-        // et SEULEMENT avant la soumission
         if ($user->hasRole('student')) {
             return $answer->assignment &&
-                $answer->assignment->student_id === $user->id &&
-                $answer->assignment->status !== 'submitted';
+                $answer->assignment->student_id === $user->id;
         }
 
-        // Autres utilisateurs : basé sur la permission
         return $user->can('update answers');
     }
 
     /**
-     * Détermine si l'utilisateur peut supprimer une réponse.
+     * Determine whether the given user is allowed to delete the specified answer.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to delete answers,
+     * - whether the user owns the answer,
+     *
+     * @param User $user The user attempting to delete the answer.
+     * @param Answer $answer The answer instance to be deleted.
+     * @return bool True if the user is authorized to delete the answer, false otherwise.
      */
     public function delete(User $user, Answer $answer): bool
     {
+        if ($user->hasRole('student')) {
+            return $answer->assignment &&
+                $answer->assignment->student_id === $user->id;
+        }
+
         return $user->can('delete answers');
     }
 
     /**
-     * Détermine si l'utilisateur peut noter une réponse.
+     * Determine whether the given user is allowed to grade the specified answer.
+     * 
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to grade answers,
+     * 
+     * @param User $user The user attempting to grade the answer.
+     * @param Answer $answer The answer instance to be graded.
+     * @return bool True if the user is authorized to grade the answer, false otherwise.
      */
     public function grade(User $user, Answer $answer): bool
     {

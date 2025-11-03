@@ -4,43 +4,65 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\ExamAssignment;
-use Illuminate\Auth\Access\Response;
+// use Illuminate\Auth\Access\Response;
 
 /**
- * ExamAssignmentPolicy - Contrôle d'accès basé sur les permissions Spatie
+ * ExamAssignmentPolicy - Policies for managing access to ExamAssignment model.
+ * 
+ * This policy class defines authorization logic for various actions
+ * related to the ExamAssignment model, such as viewing, creating, updating,
+ * deleting, and submitting assignments.
+ * 
+ * @package App\Policies
  */
 class ExamAssignmentPolicy
 {
     /**
-     * Détermine si l'utilisateur peut voir la liste des assignations.
+     * Determine whether the given user is allowed to view any exam assignments.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to view any exam assignments,
+     *
+     * @param User $user The user attempting to view exam assignments.
+     * @return bool True if the user is authorized to view any exam assignments, false otherwise.
      */
     public function viewAny(User $user): bool
     {
-        // STRATÉGIE HYBRIDE : Les étudiants peuvent voir leurs assignations
         if ($user->hasRole('student')) {
             return true;
         }
 
-        // Autres utilisateurs : basé sur la permission
         return $user->can('view assignments');
     }
 
     /**
-     * Détermine si l'utilisateur peut voir une assignation spécifique.
+     * Determine whether the given user is allowed to view the specified exam assignment.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to view the assignment,
+     * - whether the user owns the assignment,
+     *
+     * @param User $user The user attempting to view the assignment.
+     * @param ExamAssignment $assignment The exam assignment instance to be viewed.
+     * @return bool True if the user is authorized to view the assignment, false otherwise.
      */
     public function view(User $user, ExamAssignment $assignment): bool
     {
-        // STRATÉGIE HYBRIDE : Un étudiant peut SEULEMENT voir ses propres assignations
         if ($user->hasRole('student')) {
             return $assignment->student_id === $user->id;
         }
 
-        // Autres utilisateurs : basé sur la permission
         return $user->can('view assignments');
     }
 
     /**
-     * Détermine si l'utilisateur peut créer des assignations.
+     * Determine whether the given user is allowed to create exam assignments.
+     * 
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to create assignments,
+     * 
+     * @param User $user The user attempting to create an answer.
+     * @return bool True if the user is authorized to create an answer, false otherwise.
      */
     public function create(User $user): bool
     {
@@ -48,41 +70,83 @@ class ExamAssignmentPolicy
     }
 
     /**
-     * Détermine si l'utilisateur peut modifier une assignation.
+     * Determine whether the given user is allowed to update the specified exam assignment.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to update the assignment,
+     * - whether the user owns the assignment,
+     *
+     * @param User $user The user attempting to update the assignment.
+     * @param ExamAssignment $assignment The exam assignment instance to be updated.
+     * @return bool True if the user is authorized to update the assignment, false otherwise.
      */
     public function update(User $user, ExamAssignment $assignment): bool
     {
+        if ($user->hasRole('student')) {
+            return $assignment->student_id === $user->id;
+        }
+
         return $user->can('update assignments');
     }
 
     /**
-     * Détermine si l'utilisateur peut supprimer une assignation.
+     * Determine whether the given user is allowed to delete the specified exam assignment.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to delete the assignment,
+     * - whether the user owns the assignment,
+     *
+     * @param User $user The user attempting to delete the assignment.
+     * @param ExamAssignment $assignment The exam assignment instance to be deleted.
+     * @return bool True if the user is authorized to delete the assignment, false otherwise.
      */
     public function delete(User $user, ExamAssignment $assignment): bool
     {
+        if ($user->hasRole('student')) {
+            return $assignment->student_id === $user->id;
+        }
+
         return $user->can('delete assignments');
     }
 
     /**
-     * Détermine si l'utilisateur peut soumettre une assignation.
+     * Determine whether the given user is allowed to submit the specified exam assignment.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to submit the assignment,
+     * - whether the user owns the assignment,
+     *
+     * @param User $user The user attempting to submit the assignment.
+     * @param ExamAssignment $assignment The exam assignment instance to be submitted.
+     * @return bool True if the user is authorized to submit the assignment, false otherwise.
      */
     public function submit(User $user, ExamAssignment $assignment): bool
     {
-        // STRICT : Seulement les étudiants peuvent soumettre
         if (!$user->hasRole('student')) {
             return false;
         }
 
-        // Un étudiant peut SEULEMENT soumettre sa propre assignation
         return $assignment->student_id === $user->id &&
-            $assignment->status === 'in_progress';
+            $assignment->started_at !== null &&
+            $assignment->submitted_at === null;
     }
 
     /**
-     * Détermine si l'utilisateur peut noter une assignation.
+     * Determine whether the given user is allowed to grade the specified exam assignment.
+     * 
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to grade the assignment,
+     * 
+     * @param User $user The user attempting to grade the assignment.
+     * @param ExamAssignment $assignment The exam assignment instance to be graded.
+     * @return bool True if the user is authorized to grade the assignment, false otherwise.
      */
     public function grade(User $user, ExamAssignment $assignment): bool
     {
+        if ($user->hasRole('student')) {
+            return false;
+        }
+
         return $user->can('grade assignments');
     }
 }

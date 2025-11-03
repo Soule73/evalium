@@ -1,11 +1,11 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/Components/Button';
 import Section from '@/Components/Section';
 import StatCard from '@/Components/StatCard';
 import { UserGroupIcon, UsersIcon, UserMinusIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
-import { Group, User } from '@/types';
+import { Group, User, PageProps } from '@/types';
 import Badge from '@/Components/Badge';
 import { formatDate } from '@/utils/formatters';
 import { DataTableConfig } from '@/types/datatable';
@@ -14,6 +14,7 @@ import ConfirmationModal from '@/Components/ConfirmationModal';
 import { useState } from 'react';
 import TextEntry from '@/Components/TextEntry';
 import { breadcrumbs } from '@/utils/breadcrumbs';
+import { hasPermission } from '@/utils/permissions';
 
 interface Props {
     group: Group & {
@@ -28,6 +29,13 @@ interface Props {
 }
 
 export default function ShowGroup({ group }: Props) {
+    const { auth } = usePage<PageProps>().props;
+
+    // Vérifications des permissions
+    const canUpdateGroups = hasPermission(auth.permissions, 'update groups');
+    const canDeleteGroups = hasPermission(auth.permissions, 'delete groups');
+    const canManageGroupStudents = hasPermission(auth.permissions, 'manage group students');
+
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [studentToRemove, setStudentToRemove] = useState<User | null>(null);
     const [selectedStudents, setSelectedStudents] = useState<(number | string)[]>([]);
@@ -146,7 +154,7 @@ export default function ShowGroup({ group }: Props) {
                 key: 'actions',
                 label: 'Actions',
                 render: (student) => (
-                    student.pivot.is_active ? (
+                    student.pivot.is_active && canManageGroupStudents ? (
                         <Button
                             onClick={() => handleRemoveStudent(student)}
                             color="secondary"
@@ -178,9 +186,9 @@ export default function ShowGroup({ group }: Props) {
             icon: <UserGroupIcon className="w-12 h-12 mx-auto text-gray-400" />
         },
         perPageOptions: [10, 25, 50],
-        enableSelection: true,
+        enableSelection: canManageGroupStudents,
         isSelectable: (student) => student.pivot.is_active,
-        selectionActions: (selectedIds) => (
+        selectionActions: canManageGroupStudents ? (selectedIds) => (
             <>
                 <Button
                     onClick={() => handleBulkRemove(selectedIds)}
@@ -191,7 +199,7 @@ export default function ShowGroup({ group }: Props) {
                     Retirer ({selectedIds.length})
                 </Button>
             </>
-        ),
+        ) : undefined,
     };
 
     // Convertir les données pour la table
@@ -218,7 +226,7 @@ export default function ShowGroup({ group }: Props) {
 
     return (
         <AuthenticatedLayout title={group.display_name}
-            breadcrumb={breadcrumbs.adminGroupShow(group.display_name)}
+            breadcrumb={breadcrumbs.groupShow(group.display_name)}
         >
             <ConfirmationModal
                 isOpen={showDeleteModal}
@@ -247,34 +255,40 @@ export default function ShowGroup({ group }: Props) {
                 title={group.display_name}
                 subtitle={group.description || 'Détails du groupe'}
                 collapsible
-                actions={
+                actions={(canManageGroupStudents || canUpdateGroups || canDeleteGroups) && (
                     <div className="flex space-x-2">
-                        <Button
-                            onClick={handleAssignStudents}
-                            color="secondary"
-                            variant="outline"
-                            size="sm"
-                        >
-                            Assigner des étudiants
-                        </Button>
-                        <Button
-                            onClick={handleEditGroup}
-                            color="primary"
-                            variant="outline"
-                            size="sm"
-                        >
-                            Modifier
-                        </Button>
-                        <Button
-                            onClick={() => setShowDeleteModal(true)}
-                            color="danger"
-                            variant="outline"
-                            size="sm"
-                        >
-                            Supprimer
-                        </Button>
+                        {canUpdateGroups && (
+                            <Button
+                                onClick={handleAssignStudents}
+                                color="secondary"
+                                variant="outline"
+                                size="sm"
+                            >
+                                Assigner des étudiants
+                            </Button>
+                        )}
+                        {canUpdateGroups && (
+                            <Button
+                                onClick={handleEditGroup}
+                                color="primary"
+                                variant="outline"
+                                size="sm"
+                            >
+                                Modifier
+                            </Button>
+                        )}
+                        {canDeleteGroups && (
+                            <Button
+                                onClick={() => setShowDeleteModal(true)}
+                                color="danger"
+                                variant="outline"
+                                size="sm"
+                            >
+                                Supprimer
+                            </Button>
+                        )}
                     </div>
-                }
+                )}
             >
                 {/* Informations générales */}
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Informations générales</h3>

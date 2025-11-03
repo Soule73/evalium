@@ -52,7 +52,7 @@ const Section = ({
     ].join(' ');
 
     const sectionClasses = [
-        'bg-white rounded-lg border border-gray-200 mb-6 transition-all duration-200',
+        'bg-white rounded-lg mb-6 transition-all duration-200',
         shouldShowContent ? 'p-2 md:p-6' : 'p-2 md:px-6 md:py-4',
         className
     ].join(' ');

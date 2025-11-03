@@ -105,7 +105,8 @@ Quelles sont les propriétés vraies pour le nombre **12** ?
         $question3 = \App\Models\Question::create([
             'exam_id' => $mathExam->id,
             'content' =>
-            '## Géométrie
+            '
+## Géométrie
 
 ### Affirmation :
 Dans un triangle rectangle, le carré de l\'hypoténuse est égal à la somme des carrés des deux autres côtés.
@@ -132,7 +133,8 @@ Dans un triangle rectangle, le carré de l\'hypoténuse est égal à la somme de
         \App\Models\Question::create([
             'exam_id' => $mathExam->id,
             'content' =>
-            '## Démonstration
+            '
+## Démonstration
 
 ### Exercice :
 Démontrez que la somme des angles intérieurs d\'un triangle est égale à 180°.
@@ -168,19 +170,20 @@ Démontrez que la somme des angles intérieurs d\'un triangle est égale à 180�
         // Question 1: Choix unique sur les langages
         $question1 = \App\Models\Question::create([
             'exam_id' => $csExam->id,
-            'content' => '## Langages de Programmation
+            'content' => '
+## Langages de Programmation
 
-                        ### Question :
-                        Quel langage de programmation est principalement utilisé pour le développement web côté serveur et a été créé par Rasmus Lerdorf ?
+### Question :
+Quel langage de programmation est principalement utilisé pour le développement web côté serveur et a été créé par Rasmus Lerdorf ?
 
-                        ```php
-                        <?php
-                        echo "Hello World!";
-                        ?>
-                        ```
+```php
+<?php
+    echo "Hello World!";
+?>
+```
 
-                        ### Indice :
-                        Ce langage est très populaire pour les sites web dynamiques.',
+### Indice :
+Ce langage est très populaire pour les sites web dynamiques.',
             'type' => 'one_choice',
             'points' => 3,
         ]);
@@ -203,7 +206,8 @@ Démontrez que la somme des angles intérieurs d\'un triangle est égale à 180�
         // Question 2: Choix multiples sur les structures de données
         $question2 = \App\Models\Question::create([
             'exam_id' => $csExam->id,
-            'content' => '## Structures de Données
+            'content' => '
+## Structures de Données
 
 ### Question :
 Quelles sont les caractéristiques d\'une **pile** (stack) en informatique ?
@@ -232,7 +236,8 @@ Quelles sont les caractéristiques d\'une **pile** (stack) en informatique ?
         // Question 3: Vrai/Faux sur les algorithmes
         $question3 = \App\Models\Question::create([
             'exam_id' => $csExam->id,
-            'content' => '## Complexité Algorithmique
+            'content' => '
+## Complexité Algorithmique
 
 ### Affirmation :
 L\'algorithme de tri rapide (QuickSort) a une complexité temporelle moyenne de O(n log n).
@@ -258,7 +263,8 @@ L\'algorithme de tri rapide (QuickSort) a une complexité temporelle moyenne de 
         // Question 4: Question ouverte sur la programmation
         \App\Models\Question::create([
             'exam_id' => $csExam->id,
-            'content' => '## Programmation Orientée Objet
+            'content' => '
+## Programmation Orientée Objet
 
 ### Exercice :
 Expliquez les quatre principes fondamentaux de la programmation orientée objet.
@@ -301,7 +307,8 @@ Pour chaque principe, vous devez :
         // Question 1: Choix unique sur les philosophes
         $question1 = \App\Models\Question::create([
             'exam_id' => $philoExam->id,
-            'content' => '## Histoire de la Philosophie
+            'content' => '
+## Histoire de la Philosophie
 
 ### Question :
 Quel philosophe grec est considéré comme le fondateur de la philosophie occidentale et a développé la méthode dialectique ?
@@ -330,7 +337,8 @@ Ce philosophe n\'a laissé aucun écrit et nous le connaissons principalement pa
         // Question 2: Choix multiples sur l'éthique
         $question2 = \App\Models\Question::create([
             'exam_id' => $philoExam->id,
-            'content' => '## Éthique et Morale
+            'content' => '
+## Éthique et Morale
 
 ### Question :
 Quelles sont les caractéristiques de l\'éthique déontologique selon Kant ?
@@ -359,7 +367,8 @@ Quelles sont les caractéristiques de l\'éthique déontologique selon Kant ?
         // Question 3: Vrai/Faux sur la métaphysique
         $question3 = \App\Models\Question::create([
             'exam_id' => $philoExam->id,
-            'content' => '## Métaphysique
+            'content' => '
+## Métaphysique
 
 ### Affirmation :
 Selon René Descartes, la seule chose dont on ne peut douter est l\'existence de la pensée elle-même, d\'où sa célèbre formule "Cogito ergo sum" (Je pense, donc je suis).
@@ -385,7 +394,8 @@ Selon René Descartes, la seule chose dont on ne peut douter est l\'existence de
         // Question 4: Question ouverte sur l'éthique
         \App\Models\Question::create([
             'exam_id' => $philoExam->id,
-            'content' => '## Dissertation Philosophique
+            'content' => '
+## Dissertation Philosophique
 
 ### Sujet :
 **"La liberté consiste-t-elle à faire ce que l\'on veut ?"**

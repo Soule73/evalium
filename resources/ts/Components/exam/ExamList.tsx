@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
-import { Link, router } from '@inertiajs/react';
-import { EyeIcon, PencilIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import { router, usePage } from '@inertiajs/react';
+// import { EyeIcon, PencilIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { DataTable } from '@/Components/DataTable';
 import { route } from 'ziggy-js';
 import { formatDate, formatDuration } from '@/utils/formatters';
-import { Exam } from '@/types';
+import { Exam, PageProps } from '@/types';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
 import type { FilterConfig } from '@/types/datatable';
 import Toggle from '@/Components/form/Toggle';
-interface TeacherExamListProps {
+import { hasPermission } from '@/utils/permissions';
+import MarkdownRenderer from '../form/MarkdownRenderer';
+import { Button } from '../Button';
+
+interface ExamListProps {
     data: PaginationType<Exam>;
     variant?: 'teacher' | 'admin';
     showFilters?: boolean;
@@ -16,18 +20,29 @@ interface TeacherExamListProps {
 }
 
 /**
- * Composant de tableau commun pour afficher les examens aux étudiants
- * Utilisé dans ExamIndex et Dashboard Student pour assurer la cohérence
+ * Composant UNIFIÉ pour afficher les examens - Basé sur PERMISSIONS
+ * 
+ * STRATÉGIE HYBRIDE :
+ * - Affichage dynamique selon les permissions de l'utilisateur
+ * - Actions conditionnelles (edit, assign, toggle) selon permissions
+ * - Utilisé par tous les rôles sauf students (ont leur propre StudentExamList)
  */
-const TeacherExamList: React.FC<TeacherExamListProps> = ({
+const ExamList: React.FC<ExamListProps> = ({
     data,
     variant = 'teacher',
     showFilters = true,
     showSearch = true
 }) => {
+    const { auth } = usePage<PageProps>().props;
+    const canViewExams = hasPermission(auth.permissions, 'view exams') || hasPermission(auth.permissions, 'view any exams');
+    // const canUpdateExams = hasPermission(auth.permissions, 'update exams');
+    const canPublishExams = hasPermission(auth.permissions, 'publish exams');
+    // const canAssignExams = hasPermission(auth.permissions, 'assign exams');
+
     const [togglingExams, setTogglingExams] = useState<Set<number>>(new Set());
+
     const handleToggleStatus = (examId: number) => {
-        if (togglingExams.has(examId)) return;
+        if (togglingExams.has(examId) || !canPublishExams) return;
 
         setTogglingExams(prev => new Set(prev).add(examId));
         router.patch(
@@ -47,11 +62,14 @@ const TeacherExamList: React.FC<TeacherExamListProps> = ({
     };
 
 
-    // Fonctions utilitaires pour les colonnes
     const renderTitle = (exam: Exam) => (
         <div>
             <div className="text-sm font-medium text-gray-900">{exam.title}</div>
-            <div className="text-sm text-gray-500 truncate max-w-sm line-clamp-2">{exam.description}</div>
+            <div className="text-sm text-gray-500 truncate max-w-sm line-clamp-2">
+                <MarkdownRenderer>
+                    {exam.description ?? ''}
+                </MarkdownRenderer>
+            </div>
         </div>
     );
 
@@ -64,7 +82,7 @@ const TeacherExamList: React.FC<TeacherExamListProps> = ({
             <Toggle
                 checked={exam.is_active}
                 onChange={() => handleToggleStatus(exam.id)}
-                disabled={togglingExams.has(exam.id)}
+                disabled={togglingExams.has(exam.id) || !canPublishExams}
                 color="green"
                 size="sm"
                 showLabel={false}
@@ -76,33 +94,16 @@ const TeacherExamList: React.FC<TeacherExamListProps> = ({
         <span className="text-sm text-gray-500">{formatDate(exam.created_at, "datetime")}</span>
     );
 
-    const renderActions = (exam: Exam, variant: string) => (
+    const renderActions = (exam: Exam) => (
         <div className="flex items-center justify-end space-x-2">
-            <Link
-                href={route('exams.show', exam.id)}
-                className="text-blue-600 hover:text-blue-900 p-1"
+            {canViewExams && <Button
+                size="sm"
+                onClick={() => router.visit(route('exams.show', exam.id))}
                 title="Voir l'examen"
+                variant="outline"
             >
-                <EyeIcon className="h-4 w-4" />
-            </Link>
-            {variant === 'teacher' && (
-                <>
-                    <Link
-                        href={route('exams.edit', exam.id)}
-                        className="text-indigo-600 hover:text-indigo-900 p-1"
-                        title="Modifier l'examen"
-                    >
-                        <PencilIcon className="h-4 w-4" />
-                    </Link>
-                    <Link
-                        href={route('exams.assign', exam.id)}
-                        className="text-green-600 hover:text-green-900 p-1"
-                        title="Assigner l'examen"
-                    >
-                        <UserGroupIcon className="h-4 w-4" />
-                    </Link>
-                </>
-            )}
+                Voir
+            </Button>}
         </div>
     );
 
@@ -117,7 +118,7 @@ const TeacherExamList: React.FC<TeacherExamListProps> = ({
             { key: 'duration', label: 'Durée', render: renderDuration },
             { key: 'is_active', label: 'Statut', render: renderStatus },
             { key: 'created_at', label: 'Créé le', render: renderCreatedAt },
-            { key: 'actions', label: 'Actions', className: 'text-right', render: (item) => renderActions(item, 'teacher') },
+            { key: 'actions', label: 'Actions', className: 'text-right', render: renderActions },
         ];
 
     const filters: FilterConfig[] = showFilters ? [
@@ -166,4 +167,4 @@ const TeacherExamList: React.FC<TeacherExamListProps> = ({
         </>
     );
 };
-export default TeacherExamList;
+export default ExamList;

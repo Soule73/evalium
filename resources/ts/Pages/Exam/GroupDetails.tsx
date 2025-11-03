@@ -20,18 +20,18 @@ interface Props {
     stats: {
         total_students: number;
         completed: number;
-        in_progress: number;
-        not_started: number;
+        started: number;
+        assigned: number;
         average_score: number | null;
     };
 }
 
 export default function ExamGroupDetails({ exam, group, assignments, stats }: Props) {
-    // Utiliser la configuration réutilisable pour les colonnes d'assignation
     const columns = getExamAssignmentColumns({
         exam,
+        group,
         showActions: true,
-        onRemove: undefined // Pas de suppression dans cette vue
+        onRemove: undefined
     });
 
     const dataTableConfig = {
@@ -47,10 +47,9 @@ export default function ExamGroupDetails({ exam, group, assignments, stats }: Pr
     return (
         <AuthenticatedLayout
             title={`${group.display_name} - ${exam.title}`}
-            breadcrumb={breadcrumbs.teacherExamGroupDetails(exam.title, exam.id, group.display_name)}
+            breadcrumb={breadcrumbs.examGroupShow(exam.title, exam.id, group.display_name)}
         >
             <div className="space-y-6">
-                {/* En-tête avec bouton retour */}
                 <Section
                     title={
                         <div className="flex items-center space-x-3">
@@ -95,7 +94,6 @@ export default function ExamGroupDetails({ exam, group, assignments, stats }: Pr
                     </div>
                 </Section>
 
-                {/* Statistiques */}
                 <Section title="Statistiques du groupe">
                     <ExamStatsCards stats={stats} />
                     {stats.average_score !== null && (
@@ -110,7 +108,6 @@ export default function ExamGroupDetails({ exam, group, assignments, stats }: Pr
                     )}
                 </Section>
 
-                {/* Liste des étudiants */}
                 <Section
                     title="Étudiants du groupe"
                     subtitle={`Liste complète des étudiants et leur progression`}

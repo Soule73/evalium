@@ -10,8 +10,8 @@ interface ExamStats {
     total_students?: number;
     total_assigned?: number;
     completed: number;
-    in_progress: number;
-    not_started: number;
+    started: number;
+    assigned: number;
     average_score: number | null;
 }
 
@@ -44,13 +44,13 @@ export default function ExamStatsCards({ stats, className = '' }: ExamStatsCards
             />
             <StatCard
                 title="En cours"
-                value={stats.in_progress}
+                value={stats.started}
                 color="yellow"
                 icon={ClockIcon}
             />
             <StatCard
                 title="Non commencé"
-                value={stats.not_started}
+                value={stats.assigned}
                 color="purple"
                 icon={MinusCircleIcon}
             />

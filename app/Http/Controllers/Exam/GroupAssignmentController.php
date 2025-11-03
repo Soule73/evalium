@@ -11,13 +11,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
 use App\Services\Exam\ExamGroupService;
+use App\Services\Exam\ExamAssignmentService;
+use App\Http\Requests\Exam\GetExamResultsRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
  * Controller responsible for managing group assignments to exams.
  * 
+ * ARCHITECTURE SIMPLIFIÉE : Assignation UNIQUEMENT par groupes
+ * Les assignations individuelles ne sont plus supportées.
+ * 
  * This controller handles:
+ * - Displaying assignment forms (groups only)
  * - Assigning exams to groups of students
+ * - Viewing assignment lists with statistics
  * - Removing group assignments
  */
 class GroupAssignmentController extends Controller
@@ -25,8 +32,46 @@ class GroupAssignmentController extends Controller
     use AuthorizesRequests, HasFlashMessages;
 
     public function __construct(
-        private ExamGroupService $examGroupService
+        private ExamGroupService $examGroupService,
+        private ExamAssignmentService $examAssignmentService
     ) {}
+
+    /**
+     * Display the form to assign an exam to groups.
+     *
+     * @param Exam $exam The exam instance to be assigned.
+     * @return Response The response containing the assignment form view.
+     */
+    public function showAssignForm(Exam $exam): Response
+    {
+        $this->authorize('update', $exam);
+
+        $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
+        $availableGroups = $this->examGroupService->getAvailableGroupsForExam($exam);
+
+        return Inertia::render('Exam/Assign', [
+            'exam' => $exam,
+            'assignedGroups' => $assignedGroups,
+            'availableGroups' => $availableGroups,
+        ]);
+    }
+
+    /**
+     * Display the assignments related to the specified exam.
+     *
+     * @param Exam $exam The exam instance for which assignments are to be shown.
+     * @param GetExamResultsRequest $request The request containing parameters for fetching exam results.
+     * @return Response The HTTP response containing the assignments data.
+     */
+    public function showAssignments(Exam $exam, GetExamResultsRequest $request): Response
+    {
+        $this->authorize('view', $exam);
+
+        $params = $request->validatedWithDefaults();
+        $data = $this->examAssignmentService->getPaginatedAssignments($exam, $params);
+
+        return Inertia::render('Exam/Assignments', $data);
+    }
 
     /**
      * Assigns the specified exam to one or multiple groups.
@@ -87,7 +132,7 @@ class GroupAssignmentController extends Controller
      * @param Request $request The request instance.
      * @return Response The response containing group details.
      */
-    public function showGroupDetails(Exam $exam, Group $group, Request $request): Response
+    public function showGroupShow(Exam $exam, Group $group, Request $request): Response
     {
         $this->authorize('view', $exam);
 
@@ -173,11 +218,20 @@ class GroupAssignmentController extends Controller
         $assignedStudents = $allAssignments->count();
         $notAssigned = $totalStudents - $assignedStudents;
 
+        // Compter les statuts basés sur les timestamps
+        $inProgressCount = $allAssignments->filter(function ($assignment) {
+            return $assignment->started_at !== null && $assignment->submitted_at === null;
+        })->count();
+
+        $notStartedCount = $allAssignments->filter(function ($assignment) {
+            return $assignment->started_at === null;
+        })->count();
+
         $stats = [
             'total_students' => $totalStudents,
             'completed' => $allAssignments->whereIn('status', ['submitted', 'graded'])->count(),
-            'in_progress' => $allAssignments->where('status', 'started')->count(),
-            'not_started' => $allAssignments->where('status', 'assigned')->count() + $notAssigned,
+            'in_progress' => $inProgressCount,
+            'not_started' => $notStartedCount + $notAssigned,
             'average_score' => $allAssignments->whereNotNull('score')->avg('score')
         ];
 

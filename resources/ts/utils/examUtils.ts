@@ -121,6 +121,9 @@ export const hasUserResponse = (result: any): boolean => {
  * @returns An object with the formatted score text and a color class, or `null` if the score is not available or total points is zero.
  */
 export const calculateScoreDisplay = (assignment: ExamAssignment): { text: string; colorClass: string } | null => {
+    if (assignment.status !== 'graded') {
+        return null;
+    }
 
     const finalScore = assignment.score ?? assignment.auto_score;
 

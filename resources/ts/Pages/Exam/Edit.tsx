@@ -6,6 +6,7 @@ import QuestionsManager from '@/Components/exam/QuestionsManager';
 import ExamGeneralConfig from '@/Components/ExamGeneralConfig';
 import { useEditExam, useDeleteHistory } from '@/hooks';
 import { Exam } from '@/types';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 
 interface Props {
     exam: Exam;
@@ -42,7 +43,10 @@ export default function ExamEdit({ exam }: Props) {
     const totalPoints = questions.reduce((sum, question) => sum + question.points, 0);
 
     return (
-        <AuthenticatedLayout title="Modifier l'examen">
+        <AuthenticatedLayout
+            title="Modifier l'examen"
+            breadcrumb={breadcrumbs.examEdit(exam.title, exam.id)}
+        >
             <form onSubmit={handleSubmit} noValidate className="space-y-6">
                 <Section
                     title="Modifier l'examen"

@@ -20,7 +20,7 @@ class TeacherDashboardService
      */
     public function getDashboardStats(User $teacher): array
     {
-        $teacherExams = $this->getTeacherExams($teacher);
+        $teacherExams = $this->getExams($teacher);
         $teacherExamIds = $teacherExams->pluck('id');
 
         return [
@@ -95,7 +95,7 @@ class TeacherDashboardService
     /**
      * Méthodes privées pour les calculs
      */
-    private function getTeacherExams(User $teacher): Collection
+    private function getExams(User $teacher): Collection
     {
         return Exam::where('teacher_id', $teacher->id)->get();
     }

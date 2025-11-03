@@ -11,7 +11,6 @@ import AlertEntry from '@/Components/AlertEntry';
 import Section from '@/Components/Section';
 import { formatTime } from '@/utils';
 import ConfirmationModal from '@/Components/ConfirmationModal';
-// import MathEditorTest from '@/Components/form/MathEditorTest';
 
 interface TakeExamProps {
     exam: Exam;
@@ -48,14 +47,11 @@ export default function TakeExam({ exam, assignment, questions = [], userAnswers
         );
     }
 
-    if (assignment.submitted_at || assignment.status === 'pending_review') {
+    if (assignment.submitted_at) {
         return (
             <CanNotTakeExam
                 title="Examen Terminé"
-                message={assignment.status === 'pending_review' ?
-                    "Votre examen a été soumis et est en cours de révision." :
-                    "Vous avez déjà terminé cet examen."
-                }
+                message="Vous avez déjà terminé cet examen."
                 icon={<ExclamationCircleIcon className="h-12 w-12 text-yellow-500 mx-auto mb-4" />}
             />
         );

@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/Components/Button';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
@@ -10,6 +10,8 @@ import Toggle from '@/Components/form/Toggle';
 import Badge from '@/Components/Badge';
 import { useState } from 'react';
 import ConfirmationModal from '@/Components/ConfirmationModal';
+import { hasPermission } from '@/utils/permissions';
+import { PageProps } from '@/types';
 
 interface Level {
     id: number;
@@ -29,6 +31,13 @@ interface Props {
 }
 
 export default function LevelIndex({ levels }: Props) {
+    const { auth } = usePage<PageProps>().props;
+
+    // Vérification des permissions
+    const canCreateLevels = hasPermission(auth.permissions, 'create levels');
+    const canUpdateLevels = hasPermission(auth.permissions, 'update levels');
+    const canDeleteLevels = hasPermission(auth.permissions, 'delete levels');
+
     const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; levelId: number | null; levelName: string }>({
         isOpen: false,
         levelId: null,
@@ -100,39 +109,50 @@ export default function LevelIndex({ levels }: Props) {
                 key: 'is_active',
                 label: 'Statut',
                 render: (level) => (
-                    <Toggle
-                        checked={level.is_active}
-                        onChange={() => handleToggleStatus(level.id)}
-                        size="sm"
-                    />
+                    canUpdateLevels ? (
+                        <Toggle
+                            checked={level.is_active}
+                            onChange={() => handleToggleStatus(level.id)}
+                            size="sm"
+                        />
+                    ) : (
+                        <Badge
+                            label={level.is_active ? 'Actif' : 'Inactif'}
+                            type={level.is_active ? 'success' : 'gray'}
+                        />
+                    )
                 ),
             },
             {
                 key: 'actions',
                 label: 'Actions',
-                render: (level) => (
+                render: (level) => (canUpdateLevels || canDeleteLevels) ? (
                     <div className="flex gap-2">
-                        <Button
-                            onClick={() => handleEdit(level.id)}
-                            size="sm"
-                            color="primary"
-                        >
-                            Modifier
-                        </Button>
-                        <Button
-                            onClick={() => setDeleteModal({
-                                isOpen: true,
-                                levelId: level.id,
-                                levelName: level.name
-                            })}
-                            size="sm"
-                            color="danger"
-                            disabled={level.groups_count > 0}
-                        >
-                            Supprimer
-                        </Button>
+                        {canUpdateLevels && (
+                            <Button
+                                onClick={() => handleEdit(level.id)}
+                                size="sm"
+                                color="primary"
+                            >
+                                Modifier
+                            </Button>
+                        )}
+                        {canDeleteLevels && (
+                            <Button
+                                onClick={() => setDeleteModal({
+                                    isOpen: true,
+                                    levelId: level.id,
+                                    levelName: level.name
+                                })}
+                                size="sm"
+                                color="danger"
+                                disabled={level.groups_count > 0}
+                            >
+                                Supprimer
+                            </Button>
+                        )}
                     </div>
-                ),
+                ) : null,
             },
         ],
     };
@@ -142,12 +162,12 @@ export default function LevelIndex({ levels }: Props) {
             <Section
                 title="Niveaux"
                 subtitle="Liste des niveaux disponibles"
-                actions={
+                actions={canCreateLevels && (
                     <Button onClick={handleCreate} color="primary">
                         <PlusIcon className="w-5 h-5 mr-2" />
                         Nouveau niveau
                     </Button>
-                }
+                )}
             >
                 <DataTable
                     config={dataTableConfig}

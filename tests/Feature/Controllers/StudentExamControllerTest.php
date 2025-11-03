@@ -10,8 +10,8 @@ use App\Models\Answer;
 use App\Models\Choice;
 use App\Models\Question;
 use App\Models\ExamAssignment;
-use Spatie\Permission\Models\Role;
 use PHPUnit\Framework\Attributes\Test;
+use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class StudentExamControllerTest extends TestCase
@@ -27,9 +27,8 @@ class StudentExamControllerTest extends TestCase
     {
         parent::setUp();
 
-        // Créer les rôles
-        Role::create(['name' => 'teacher']);
-        Role::create(['name' => 'student']);
+        // Utiliser le seeder pour créer les rôles et permissions
+        $this->seed(RoleAndPermissionSeeder::class);
 
         // Créer un enseignant
         $this->teacher = User::factory()->create([
@@ -44,12 +43,14 @@ class StudentExamControllerTest extends TestCase
         $this->student->assignRole('student');
 
         // Créer un examen
-        $this->exam = Exam::factory()->create([
+        /** @var Exam $exam */
+        $exam = Exam::factory()->create([
             'teacher_id' => $this->teacher->id,
             'title' => 'Test Exam',
             'is_active' => true,
             'duration' => 90
         ]);
+        $this->exam = $exam;
 
         // Créer des questions pour l'examen
         Question::factory()->count(3)->create([
@@ -57,11 +58,13 @@ class StudentExamControllerTest extends TestCase
         ]);
 
         // Créer une assignation
-        $this->assignment = ExamAssignment::factory()->create([
+        /** @var ExamAssignment $assignment */
+        $assignment = ExamAssignment::factory()->create([
             'exam_id' => $this->exam->id,
             'student_id' => $this->student->id,
             'status' => 'assigned'
         ]);
+        $this->assignment = $assignment;
     }
 
     #[Test]
@@ -283,7 +286,7 @@ class StudentExamControllerTest extends TestCase
         $response = $this->actingAs($this->student)
             ->get(route('student.exams.show', $otherExam));
 
-        $response->assertNotFound();
+        $response->assertForbidden(); // 403 car l'étudiant n'a pas la permission d'accéder à cet examen
     }
 
     #[Test]

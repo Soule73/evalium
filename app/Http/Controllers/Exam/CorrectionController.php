@@ -5,14 +5,15 @@ namespace App\Http\Controllers\Exam;
 use App\Models\Exam;
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Group;
 use Inertia\Response;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Log;
-use App\Services\Shared\UserAnswerService;
 use App\Services\Exam\ExamScoringService;
+use App\Services\Shared\UserAnswerService;
 use App\Http\Requests\Exam\UpdateScoreRequest;
 use App\Http\Requests\Exam\SaveStudentReviewRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -38,16 +39,36 @@ class CorrectionController extends Controller
      * Display the review of a student's exam.
      *
      * @param Exam $exam The exam instance to be reviewed.
+     * @param Group $group The group to which the student belongs.
      * @param User $student The student whose exam review is to be shown.
      * @return Response The HTTP response containing the student's exam review.
      */
-    public function showStudentReview(Exam $exam, User $student): Response
+    public function showStudentReview(Exam $exam, Group $group, User $student): Response
     {
         $this->authorize('view', $exam);
 
-        $assignment = $exam->assignments()->where('student_id', $student->id)->firstOrFail();
+        $belongsToGroup = $group->students()
+            ->where('student_id', $student->id)->exists();
 
-        $data = $this->userAnswerService->getStudentReviewData($assignment);
+        if (!$belongsToGroup) {
+            abort(403, "L'étudiant n'appartient pas à ce groupe.");
+        }
+
+        $exam->load('questions.choices');
+
+        $group->load('level');
+
+        $assignment = $exam->assignments()
+            ->with([
+                'answers.choice',
+                'student'
+            ])
+            ->where('student_id', $student->id)
+            ->firstOrFail();
+
+        $assignment->setRelation('exam', $exam);
+
+        $data = $this->userAnswerService->getStudentReviewData($assignment, $exam, $group);
 
         return Inertia::render('Exam/StudentReview', $data);
     }
@@ -60,7 +81,7 @@ class CorrectionController extends Controller
      * @param User $student The student for whom the review is being saved.
      * @return RedirectResponse Redirects back after saving the review.
      */
-    public function saveStudentReview(SaveStudentReviewRequest $request, Exam $exam, User $student): RedirectResponse
+    public function saveStudentReview(SaveStudentReviewRequest $request, Exam $exam, Group $group, User $student): RedirectResponse
     {
         $this->authorize('view', $exam);
 
@@ -70,7 +91,7 @@ class CorrectionController extends Controller
             return $this->redirectWithSuccess(
                 'exams.review',
                 "Correction sauvegardée avec succès ! {$result['updated_answers']} réponses mises à jour. Note total: {$result['total_score']} points.",
-                ['exam' => $exam->id, 'student' => $student->id]
+                ['exam' => $exam->id, 'student' => $student->id, 'group' => $group->id]
             );
         } catch (\Exception $e) {
             Log::error("Erreur lors de la sauvegarde de la correction : " . $e->getMessage());
@@ -78,7 +99,7 @@ class CorrectionController extends Controller
             return $this->redirectWithError(
                 'exams.review',
                 'Erreur lors de la sauvegarde de la correction',
-                ['exam' => $exam->id, 'student' => $student->id]
+                ['exam' => $exam->id, 'student' => $student->id, 'group' => $group->id]
             );
         }
     }

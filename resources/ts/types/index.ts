@@ -1,4 +1,4 @@
-export type AssignmentStatus = 'assigned' | 'started' | 'submitted' | 'pending_review' | 'graded';
+export type AssignmentStatus = 'submitted' | 'graded';
 
 export type QuestionType = 'multiple' | 'text' | 'one_choice' | 'boolean';
 

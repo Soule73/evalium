@@ -1,5 +1,5 @@
 import { formatDate, formatExamAssignmentStatus } from '@/utils/formatters';
-import { ExamAssignment, Exam } from '@/types';
+import { ExamAssignment, Exam, Group } from '@/types';
 import Badge from '@/Components/Badge';
 import { Button } from '@/Components/Button';
 import { router } from '@inertiajs/react';
@@ -7,14 +7,15 @@ import { route } from 'ziggy-js';
 
 interface ExamAssignmentColumnsOptions {
     exam: Exam;
-    onRemove?: (assignment: ExamAssignment) => void;
+    group?: Group;
+    // onRemove?: (assignment: ExamAssignment) => void;
     showActions?: boolean;
 }
 
 /**
  * Configuration des colonnes réutilisables pour afficher les assignations d'examens
  */
-export const getExamAssignmentColumns = ({ exam, onRemove, showActions = true }: ExamAssignmentColumnsOptions) => {
+export const getExamAssignmentColumns = ({ exam, group, showActions = true }: ExamAssignmentColumnsOptions) => {
     const columns = [
         {
             key: 'student',
@@ -83,25 +84,15 @@ export const getExamAssignmentColumns = ({ exam, onRemove, showActions = true }:
             label: 'Actions',
             render: (assignment: ExamAssignment) => (
                 <div className="flex space-x-2">
-                    {(assignment.status === 'submitted' || assignment.status === 'graded' || assignment.status === 'pending_review') ? (
+                    {(assignment.status === 'submitted' || assignment.status === 'graded') ? (
                         <Button
-                            onClick={() => router.visit(route('exams.results', { exam: exam.id, student: assignment.student_id }))}
+                            onClick={() => router.visit(route('exams.submissions', { exam: exam.id, group: group?.id, student: assignment.student_id }))}
                             color="success"
                             size="sm"
                             variant="outline"
                             className='text-xs'
                         >
                             Voir résultat
-                        </Button>
-                    ) : assignment.status === 'assigned' || assignment.status === 'started' ? (
-                        <Button
-                            onClick={() => onRemove?.(assignment)}
-                            color="danger"
-                            className='text-xs'
-                            variant="outline"
-                            size="sm"
-                        >
-                            Retirer
                         </Button>
                     ) : (
                         <span className="text-xs text-gray-400">-</span>
@@ -124,8 +115,7 @@ export const examAssignmentFilters = [
         type: 'select' as const,
         options: [
             { value: '', label: 'Tous les statuts' },
-            { value: 'assigned', label: 'Non commencé' },
-            { value: 'started', label: 'En cours' },
+            { value: null, label: 'Non commencé' },
             { value: 'submitted', label: 'Soumis' },
             { value: 'graded', label: 'Noté' },
         ],

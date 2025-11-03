@@ -15,327 +15,339 @@ use Spatie\Permission\Models\Permission;
  */
 class PermissionHelper
 {
+    /**
+     * Méthode centrale pour vérifier les permissions en utilisant hasPermissionTo() de Spatie.
+     * Cette méthode garantit une vérification cohérente des permissions à travers toute l'application.
+     *
+     * @param string $permission
+     * @return bool
+     */
+    public static function hasPermission(string $permission): bool
+    {
+        return Auth::check() && Auth::user()->hasPermissionTo($permission);
+    }
+
     // ==================== User Permissions ====================
 
     public static function canViewUsers(): bool
     {
-        return Auth::check() && Auth::user()->can('view users');
+        return self::hasPermission('view users');
     }
 
     public static function canCreateUsers(): bool
     {
-        return Auth::check() && Auth::user()->can('create users');
+        return self::hasPermission('create users');
     }
 
     public static function canUpdateUsers(): bool
     {
-        return Auth::check() && Auth::user()->can('update users');
+        return self::hasPermission('update users');
     }
 
     public static function canDeleteUsers(): bool
     {
-        return Auth::check() && Auth::user()->can('delete users');
+        return self::hasPermission('delete users');
     }
 
     public static function canRestoreUsers(): bool
     {
-        return Auth::check() && Auth::user()->can('restore users');
+        return self::hasPermission('restore users');
     }
 
     public static function canForceDeleteUsers(): bool
     {
-        return Auth::check() && Auth::user()->can('force delete users');
+        return self::hasPermission('force delete users');
     }
 
     public static function canManageStudents(): bool
     {
-        return Auth::check() && Auth::user()->can('manage students');
+        return self::hasPermission('manage students');
     }
 
     public static function canManageTeachers(): bool
     {
-        return Auth::check() && Auth::user()->can('manage teachers');
+        return self::hasPermission('manage teachers');
     }
 
     public static function canManageAdmins(): bool
     {
-        return Auth::check() && Auth::user()->can('manage admins');
+        return self::hasPermission('manage admins');
     }
 
     public static function canToggleUserStatus(): bool
     {
-        return Auth::check() && Auth::user()->can('toggle user status');
+        return self::hasPermission('toggle user status');
     }
 
     // ==================== Exam Permissions ====================
 
     public static function canViewExams(): bool
     {
-        return Auth::check() && Auth::user()->can('view exams');
+        return self::hasPermission('view exams');
     }
 
     public static function canViewAnyExams(): bool
     {
-        return Auth::check() && Auth::user()->can('view any exams');
+        return self::hasPermission('view any exams');
     }
 
     public static function canCreateExams(): bool
     {
-        return Auth::check() && Auth::user()->can('create exams');
+        return self::hasPermission('create exams');
     }
 
     public static function canUpdateExams(): bool
     {
-        return Auth::check() && Auth::user()->can('update exams');
+        return self::hasPermission('update exams');
     }
 
     public static function canDeleteExams(): bool
     {
-        return Auth::check() && Auth::user()->can('delete exams');
+        return self::hasPermission('delete exams');
     }
 
     public static function canRestoreExams(): bool
     {
-        return Auth::check() && Auth::user()->can('restore exams');
+        return self::hasPermission('restore exams');
     }
 
     public static function canForceDeleteExams(): bool
     {
-        return Auth::check() && Auth::user()->can('force delete exams');
+        return self::hasPermission('force delete exams');
     }
 
     public static function canPublishExams(): bool
     {
-        return Auth::check() && Auth::user()->can('publish exams');
+        return self::hasPermission('publish exams');
     }
 
     public static function canAssignExams(): bool
     {
-        return Auth::check() && Auth::user()->can('assign exams');
+        return self::hasPermission('assign exams');
     }
 
     public static function canCorrectExams(): bool
     {
-        return Auth::check() && Auth::user()->can('correct exams');
+        return self::hasPermission('correct exams');
     }
 
     public static function canViewExamResults(): bool
     {
-        return Auth::check() && Auth::user()->can('view exam results');
+        return self::hasPermission('view exam results');
     }
 
     // ==================== Question Permissions ====================
 
     public static function canViewQuestions(): bool
     {
-        return Auth::check() && Auth::user()->can('view questions');
+        return self::hasPermission('view questions');
     }
 
     public static function canCreateQuestions(): bool
     {
-        return Auth::check() && Auth::user()->can('create questions');
+        return self::hasPermission('create questions');
     }
 
     public static function canUpdateQuestions(): bool
     {
-        return Auth::check() && Auth::user()->can('update questions');
+        return self::hasPermission('update questions');
     }
 
     public static function canDeleteQuestions(): bool
     {
-        return Auth::check() && Auth::user()->can('delete questions');
+        return self::hasPermission('delete questions');
     }
 
     // ==================== Answer Permissions ====================
 
     public static function canViewAnswers(): bool
     {
-        return Auth::check() && Auth::user()->can('view answers');
+        return self::hasPermission('view answers');
     }
 
     public static function canCreateAnswers(): bool
     {
-        return Auth::check() && Auth::user()->can('create answers');
+        return self::hasPermission('create answers');
     }
 
     public static function canUpdateAnswers(): bool
     {
-        return Auth::check() && Auth::user()->can('update answers');
+        return self::hasPermission('update answers');
     }
 
     public static function canDeleteAnswers(): bool
     {
-        return Auth::check() && Auth::user()->can('delete answers');
+        return self::hasPermission('delete answers');
     }
 
     public static function canGradeAnswers(): bool
     {
-        return Auth::check() && Auth::user()->can('grade answers');
+        return self::hasPermission('grade answers');
     }
 
     // ==================== ExamAssignment Permissions ====================
 
     public static function canViewAssignments(): bool
     {
-        return Auth::check() && Auth::user()->can('view assignments');
+        return self::hasPermission('view assignments');
     }
 
     public static function canCreateAssignments(): bool
     {
-        return Auth::check() && Auth::user()->can('create assignments');
+        return self::hasPermission('create assignments');
     }
 
     public static function canUpdateAssignments(): bool
     {
-        return Auth::check() && Auth::user()->can('update assignments');
+        return self::hasPermission('update assignments');
     }
 
     public static function canDeleteAssignments(): bool
     {
-        return Auth::check() && Auth::user()->can('delete assignments');
+        return self::hasPermission('delete assignments');
     }
 
     public static function canSubmitAssignments(): bool
     {
-        return Auth::check() && Auth::user()->can('submit assignments');
+        return self::hasPermission('submit assignments');
     }
 
     public static function canGradeAssignments(): bool
     {
-        return Auth::check() && Auth::user()->can('grade assignments');
+        return self::hasPermission('grade assignments');
     }
 
     // ==================== Group Permissions ====================
 
     public static function canViewGroups(): bool
     {
-        return Auth::check() && Auth::user()->can('view groups');
+        return self::hasPermission('view groups');
     }
 
     public static function canCreateGroups(): bool
     {
-        return Auth::check() && Auth::user()->can('create groups');
+        return self::hasPermission('create groups');
     }
 
     public static function canUpdateGroups(): bool
     {
-        return Auth::check() && Auth::user()->can('update groups');
+        return self::hasPermission('update groups');
     }
 
     public static function canDeleteGroups(): bool
     {
-        return Auth::check() && Auth::user()->can('delete groups');
+        return self::hasPermission('delete groups');
     }
 
     public static function canManageGroupStudents(): bool
     {
-        return Auth::check() && Auth::user()->can('manage group students');
+        return self::hasPermission('manage group students');
     }
 
     public static function canAssignGroupExams(): bool
     {
-        return Auth::check() && Auth::user()->can('assign group exams');
+        return self::hasPermission('assign group exams');
     }
 
     public static function canToggleGroupStatus(): bool
     {
-        return Auth::check() && Auth::user()->can('toggle group status');
+        return self::hasPermission('toggle group status');
     }
 
     // ==================== Level Permissions ====================
 
     public static function canViewLevels(): bool
     {
-        return Auth::check() && Auth::user()->can('view levels');
+        return self::hasPermission('view levels');
     }
 
     public static function canCreateLevels(): bool
     {
-        return Auth::check() && Auth::user()->can('create levels');
+        return self::hasPermission('create levels');
     }
 
     public static function canUpdateLevels(): bool
     {
-        return Auth::check() && Auth::user()->can('update levels');
+        return self::hasPermission('update levels');
     }
 
     public static function canDeleteLevels(): bool
     {
-        return Auth::check() && Auth::user()->can('delete levels');
+        return self::hasPermission('delete levels');
     }
 
     public static function canManageLevels(): bool
     {
-        return Auth::check() && Auth::user()->can('manage levels');
+        return self::hasPermission('update levels') || self::hasPermission('delete levels');
     }
 
     // ==================== Role & Permission Management ====================
 
     public static function canViewRoles(): bool
     {
-        return Auth::check() && Auth::user()->can('view roles');
+        return self::hasPermission('view roles');
     }
 
     public static function canCreateRoles(): bool
     {
-        return Auth::check() && Auth::user()->can('create roles');
+        return self::hasPermission('create roles');
     }
 
     public static function canUpdateRoles(): bool
     {
-        return Auth::check() && Auth::user()->can('update roles');
+        return self::hasPermission('update roles');
     }
 
     public static function canDeleteRoles(): bool
     {
-        return Auth::check() && Auth::user()->can('delete roles');
+        return self::hasPermission('delete roles');
     }
 
     public static function canAssignPermissions(): bool
     {
-        return Auth::check() && Auth::user()->can('assign permissions');
+        return self::hasPermission('assign permissions');
     }
 
     public static function canViewPermissions(): bool
     {
-        return Auth::check() && Auth::user()->can('view permissions');
+        return self::hasPermission('view permissions');
     }
 
     public static function canCreatePermissions(): bool
     {
-        return Auth::check() && Auth::user()->can('create permissions');
+        return self::hasPermission('create permissions');
     }
 
     public static function canDeletePermissions(): bool
     {
-        return Auth::check() && Auth::user()->can('delete permissions');
+        return self::hasPermission('delete permissions');
     }
 
     // ==================== Dashboard & Reports ====================
 
     public static function canViewAdminDashboard(): bool
     {
-        return Auth::check() && Auth::user()->can('view admin dashboard');
+        return self::hasPermission('view admin dashboard');
     }
 
     public static function canViewTeacherDashboard(): bool
     {
-        return Auth::check() && Auth::user()->can('view teacher dashboard');
+        return self::hasPermission('view teacher dashboard');
     }
 
     public static function canViewStudentDashboard(): bool
     {
-        return Auth::check() && Auth::user()->can('view student dashboard');
+        return self::hasPermission('view student dashboard');
     }
 
     public static function canViewReports(): bool
     {
-        return Auth::check() && Auth::user()->can('view reports');
+        return self::hasPermission('view reports');
     }
 
     public static function canExportReports(): bool
     {
-        return Auth::check() && Auth::user()->can('export reports');
+        return self::hasPermission('export reports');
     }
 
     // ==================== Utility Methods ====================
@@ -365,17 +377,6 @@ class PermissionHelper
     }
 
     /**
-     * Vérifie si l'utilisateur a une permission spécifique.
-     *
-     * @param string $permission
-     * @return bool
-     */
-    public static function hasPermission(string $permission): bool
-    {
-        return Auth::check() && Auth::user()->can($permission);
-    }
-
-    /**
      * Détermine le type de dashboard approprié basé sur les permissions.
      * Priorité: admin > teacher > student
      * 
@@ -387,13 +388,11 @@ class PermissionHelper
             return null;
         }
 
-        $user = Auth::user();
-
-        if ($user->can('view admin dashboard')) {
+        if (self::hasPermission('view admin dashboard')) {
             return 'admin';
-        } elseif ($user->can('view teacher dashboard')) {
+        } elseif (self::hasPermission('view teacher dashboard')) {
             return 'teacher';
-        } elseif ($user->can('view student dashboard')) {
+        } elseif (self::hasPermission('view student dashboard')) {
             return 'student';
         }
 
@@ -410,9 +409,9 @@ class PermissionHelper
         $type = self::getUserDashboardType();
 
         return match ($type) {
-            'admin' => route('admin.dashboard'),
-            'teacher' => route('teacher.dashboard'),
-            'student' => route('student.dashboard'),
+            'admin' => route('dashboard'),
+            'teacher' => route('dashboard'),
+            'student' => route('dashboard'),
             default => route('dashboard')
         };
     }

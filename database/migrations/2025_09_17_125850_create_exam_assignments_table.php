@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamp('submitted_at')->nullable();
             $table->decimal('score', 5, 2)->nullable();
             $table->decimal('auto_score', 5, 2)->nullable()->comment('Note automatique des QCM');
-            $table->enum('status', ['assigned', 'started', 'submitted', 'graded'])->default('assigned');
+            $table->enum('status', ['submitted', 'graded'])->nullable();
             $table->text('teacher_notes')->nullable();
             $table->string('security_violation')->nullable();
             $table->boolean('forced_submission')->default(false)->comment('Soumission forcée par timeout ou détection de triche');
@@ -28,7 +28,7 @@ return new class extends Migration
 
             $table->unique(['exam_id', 'student_id']);
 
-            $table->index(['exam_id', 'student_id', 'status']);
+            $table->index(['exam_id', 'student_id']);
         });
     }
 

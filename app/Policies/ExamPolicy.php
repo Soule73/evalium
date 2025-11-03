@@ -4,42 +4,65 @@ namespace App\Policies;
 
 use App\Models\Exam;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+// use Illuminate\Auth\Access\Response;
 
 /**
- * ExamPolicy - Utilise maintenant les PERMISSIONS au lieu des ROLES
+ * ExamPolicy - Policies for managing access to Exam model.
  * 
- * Cela permet la création de rôles personnalisés par les administrateurs
- * tout en maintenant un contrôle d'accès cohérent basé sur les permissions.
+ * This policy class defines authorization logic for various actions
+ * related to the Exam model, such as viewing, creating, updating,
+ * deleting, restoring, and force deleting exams.
+ * 
+ * @package App\Policies 
  */
 class ExamPolicy
 {
     /**
-     * Détermine si l'utilisateur peut voir tous les examens.
+     * Determine whether the given user is allowed to view any exams.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to view any exams,
+     * - whether the user has permission to create exams,
+     *
+     * @param User $user The user attempting to view exams.
+     * @return bool True if the user is authorized to view any exams, false otherwise.
      */
     public function viewAny(User $user): bool
     {
         return $user->can('view any exams') || $user->can('create exams');
     }
 
+
     /**
-     * Détermine si l'utilisateur peut voir un examen spécifique.
+     * Determine whether the given user is allowed to view the specified exam.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to view any exams,
+     * - whether the user owns the exam,
+     * - whether the user is enrolled in the exam (for students),
+     *
+     * @param User $user The user attempting to view the exam.
+     * @param Exam $exam The exam instance to be viewed.
+     * @return bool True if the user is authorized to view the exam, false otherwise.
      */
     public function view(User $user, Exam $exam): bool
     {
-        // STRATÉGIE HYBRIDE : Les étudiants voient SEULEMENT les examens qui leur sont assignés
         if ($user->hasRole('student')) {
-            return $exam->assignments()
-                ->where('student_id', $user->id)
-                ->exists();
+            return $exam->assignments()->where('student_id', $user->id)->exists()
+                || $exam->groups()->whereIn('groups.id', $user->activeGroups()->pluck('groups.id'))->exists();
         }
 
-        // Autres utilisateurs : permission 'view any exams' OU propriétaire
         return $user->can('view any exams') || $exam->teacher_id === $user->id;
     }
 
     /**
-     * Détermine si l'utilisateur peut créer des examens.
+     * Determine whether the given user is allowed to create exams.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to create exams,
+     *
+     * @param User $user The user attempting to create an exam.
+     * @return bool True if the user is authorized to create exams, false otherwise.
      */
     public function create(User $user): bool
     {
@@ -47,87 +70,143 @@ class ExamPolicy
     }
 
     /**
-     * Détermine si l'utilisateur peut modifier un examen.
+     * Determine whether the given user is allowed to update the specified exam.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to update exams,
+     *
+     * @param User $user The user attempting to update the exam.
+     * @param Exam $exam The exam instance to be updated.
+     * @return bool True if the user is authorized to update the exam, false otherwise.
      */
     public function update(User $user, Exam $exam): bool
     {
-        return $user->can('update exams') &&
-            ($user->can('view any exams') || $exam->teacher_id === $user->id);
+        return ($user->can('view any exams') && $user->can('update exams'))
+            || ($user->can('update exams') && $exam->teacher_id === $user->id);
     }
 
     /**
-     * Détermine si l'utilisateur peut supprimer un examen.
+     * Determine whether the given user is allowed to delete the specified exam.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to delete exams,
+     *
+     * @param User $user The user attempting to delete the exam.
+     * @param Exam $exam The exam instance to be deleted.
+     * @return bool True if the user is authorized to delete the exam, false otherwise.
      */
     public function delete(User $user, Exam $exam): bool
     {
-        return $user->can('delete exams') &&
-            ($user->can('view any exams') || $exam->teacher_id === $user->id);
+        return ($user->can('view any exams') && $user->can('delete exams'))
+            || ($user->can('delete exams') && $exam->teacher_id === $user->id);
     }
 
     /**
-     * Détermine si l'utilisateur peut restaurer un examen.
+     * Determine whether the given user is allowed to restore the specified exam.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to restore exams,
+     *
+     * @param User $user The user attempting to restore the exam.
+     * @param Exam $exam The exam instance to be restored.
+     * @return bool True if the user is authorized to restore the exam, false otherwise.
      */
     public function restore(User $user, Exam $exam): bool
     {
-        return $user->can('restore exams') &&
-            ($user->can('view any exams') || $exam->teacher_id === $user->id);
+        return ($user->can('view any exams') && $user->can('restore exams'))
+            || ($user->can('restore exams') && $exam->teacher_id === $user->id);
     }
 
     /**
-     * Détermine si l'utilisateur peut supprimer définitivement un examen.
+     * Determine whether the given user is allowed to permanently delete the specified exam.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to force delete exams,
+     *
+     * @param User $user The user attempting to force delete the exam.
+     * @param Exam $exam The exam instance to be permanently deleted.
+     * @return bool True if the user is authorized to force delete the exam, false otherwise.
      */
     public function forceDelete(User $user, Exam $exam): bool
     {
-        return $user->can('force delete exams');
+        return ($user->can('view any exams') && $user->can('force delete exams'))
+            || ($user->can('force delete exams') && $exam->teacher_id === $user->id);
     }
 
     /**
      * Détermine si l'utilisateur peut assigner un examen.
      */
+    /**
+     * Determine whether the given user is allowed to assign the specified exam.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user has permission to assign exams,
+     *
+     * @param User $user The user attempting to assign the exam.
+     * @param Exam $exam The exam instance to be assigned.
+     * @return bool True if the user is authorized to assign the exam, false otherwise.
+     */
     public function assign(User $user, Exam $exam): bool
     {
-        return $user->can('assign exams') &&
-            ($user->can('view any exams') || $exam->teacher_id === $user->id);
+        return ($user->can('view any exams') && $user->can('assign exams'))
+            || ($user->can('assign exams') && $exam->teacher_id === $user->id);
     }
 
     /**
-     * Détermine si l'utilisateur peut PASSER un examen (student-only).
-     * Cette méthode est STRICTEMENT réservée au rôle "student".
+     * Détermine si l'utilisateur peut passer un examen.
+     */
+    /**
+     * Determine whether the given user is allowed to take the specified exam.
+     * 
+     * Typical checks performed by this policy may include:
+     * - whether the user has the `student` role,
+     * - whether the user is enrolled in the exam,
+     *
+     * @param User $user The user attempting to take the exam.
+     * @param Exam $exam The exam instance to be taken.
+     * @return bool True if the user is authorized to take the exam, false otherwise.
      */
     public function take(User $user, Exam $exam): bool
     {
-        // STRICT : Seulement les étudiants peuvent passer un examen
         if (!$user->hasRole('student')) {
             return false;
         }
 
-        // Vérifier que l'examen est assigné à l'étudiant
-        $assignment = $exam->assignments()
-            ->where('student_id', $user->id)
-            ->first();
+        // Vérifier si l'étudiant a une assignation (qu'elle soit 'assigned' ou 'started')
+        $assignment = $exam->assignments()->where('student_id', $user->id)->first();
 
-        if (!$assignment) {
-            return false;
+        if ($assignment) {
+            return in_array($assignment->status, ['assigned', 'started']);
         }
 
-        // Vérifier que l'examen n'est pas déjà commencé ou soumis
-        return in_array($assignment->status, ['assigned', 'not_started']);
+        // Vérifier si l'étudiant fait partie d'un groupe actif assigné à l'examen
+        return $exam->groups()
+            ->whereIn('groups.id', $user->activeGroups()->pluck('groups.id'))
+            ->exists();
     }
 
     /**
-     * Détermine si l'utilisateur peut SOUMETTRE un examen (student-only).
+     * Determine whether the given user is allowed to submit the specified exam.
+     *
+     * Typical checks performed by this policy may include:
+     * - whether the user is enrolled in the exam,
+     * - whether the user has the `student` role,
+     * - whether the exam is statused as 'started',
+     *
+     * @param User $user The user attempting to submit the exam.
+     * @param Exam $exam The exam instance to be submitted.
+     * @return bool True if the user is authorized to submit the exam, false otherwise.
      */
     public function submit(User $user, Exam $exam): bool
     {
-        // STRICT : Seulement les étudiants
         if (!$user->hasRole('student')) {
             return false;
         }
 
-        $assignment = $exam->assignments()
+        return $exam->assignments()
             ->where('student_id', $user->id)
-            ->first();
-
-        return $assignment && $assignment->status === 'in_progress';
+            ->whereNotNull('started_at')
+            ->whereNull('submitted_at')
+            ->exists();
     }
 }

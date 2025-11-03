@@ -6,8 +6,8 @@ use Tests\TestCase;
 use App\Models\Exam;
 use App\Models\User;
 use App\Models\Group;
-use Spatie\Permission\Models\Role;
 use PHPUnit\Framework\Attributes\Test;
+use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExamGroupAssignmentControllerTest extends TestCase
@@ -23,9 +23,8 @@ class ExamGroupAssignmentControllerTest extends TestCase
     {
         parent::setUp();
 
-        // Créer les rôles
-        Role::create(['name' => 'teacher']);
-        Role::create(['name' => 'student']);
+        // Utiliser le seeder pour créer les rôles et permissions
+        $this->seed(RoleAndPermissionSeeder::class);
 
         // Créer un enseignant
         $this->teacher = User::factory()->create([
@@ -49,11 +48,13 @@ class ExamGroupAssignmentControllerTest extends TestCase
         ]);
 
         // Créer un examen
-        $this->exam = Exam::factory()->create([
+        /** @var Exam $exam */
+        $exam = Exam::factory()->create([
             'teacher_id' => $this->teacher->id,
             'title' => 'Test Exam',
             'is_active' => true
         ]);
+        $this->exam = $exam;
     }
 
     #[Test]

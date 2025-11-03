@@ -76,30 +76,6 @@ class ExamScoringService
         });
     }
 
-    /**
-     * Calculer le score automatique
-     * 
-     * @deprecated Utiliser directement ScoringService::calculateAutoCorrectableScore()
-     */
-    public function calculateAutoScore(ExamAssignment $assignment): float
-    {
-        return $this->scoringService->calculateAutoCorrectableScore($assignment);
-    }
-
-    /**
-     * Calculer le score pour une question spécifique
-     * 
-     * @deprecated Utiliser ScoringService::calculateQuestionScore()
-     */
-    private function calculateQuestionScore(ExamAssignment $assignment, $question): float
-    {
-        $answers = $assignment->answers()
-            ->where('question_id', $question->id)
-            ->with('choice')
-            ->get();
-
-        return $this->scoringService->calculateQuestionScore($question, $answers);
-    }
 
     /**
      * Recalculer tous les scores automatiques pour un examen

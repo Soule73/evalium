@@ -1,22 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Link } from '@inertiajs/react';
-import { route } from 'ziggy-js';
+import { Link, usePage } from '@inertiajs/react';
 import { NavIcon } from '../Navigation/NavIcon';
 import { UserAvatar } from '../Navigation/UserAvatar';
 import { RoleBadge } from '../Navigation/RoleBadge';
-import { User } from '@/types';
+import { User, PageProps } from '@/types';
 import LogoExamena from '../LogoExamena';
+import { hasPermission } from '@/utils/permissions';
+import { navRoutes } from '@/utils/breadcrumbs';
 
 interface SidebarProps {
-    isAdmin: boolean;
-    isSuperAdmin: boolean;
-    isTeacher: boolean;
-    isStudent: boolean;
     currentPath: string;
-    permissions: {
-        canManageLevels: boolean;
-        canManageRoles: boolean;
-    };
     user: User;
 }
 
@@ -26,11 +19,29 @@ interface NavItem {
     icon: 'dashboard' | 'exams' | 'users' | 'groups' | 'levels' | 'roles' | 'results' | 'manage-exams';
 }
 
-export const Sidebar = ({ isSuperAdmin, isAdmin, isTeacher, isStudent, currentPath, permissions, user }: SidebarProps) => {
+export const Sidebar = ({ currentPath, user }: SidebarProps) => {
+    const { auth } = usePage<PageProps>().props;
+
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-    const userRole = isSuperAdmin ? 'super_admin' : isAdmin ? 'admin' : isTeacher ? 'teacher' : 'student';
+    const canViewUsers = hasPermission(auth.permissions, 'view users');
+
+    const canViewGroups = hasPermission(auth.permissions, 'view groups');
+
+    const canViewRoles = hasPermission(auth.permissions, 'view roles');
+
+    const canViewLevels = hasPermission(auth.permissions, 'view levels');
+
+    const canViewExams = hasPermission(auth.permissions, 'view exams');
+
+    const canViewAnyExam = hasPermission(auth.permissions, 'view any exam');
+
+    const canViewExamList = canViewExams || canViewAnyExam;
+
+    const userRole = user.roles?.[0]?.name as 'super_admin' | 'admin' | 'teacher' | 'student' | undefined;
+
+    const isStudent = userRole === 'student';
 
     useEffect(() => {
         const handleResize = () => {
@@ -43,7 +54,6 @@ export const Sidebar = ({ isSuperAdmin, isAdmin, isTeacher, isStudent, currentPa
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Charger l'état collapsed depuis localStorage
     useEffect(() => {
         const saved = localStorage.getItem('sidebarCollapsed');
         if (saved !== null) {
@@ -76,40 +86,36 @@ export const Sidebar = ({ isSuperAdmin, isAdmin, isTeacher, isStudent, currentPa
         return currentPath === hrefPath || currentPath.startsWith(hrefPath + '/');
     };
 
-    // Construire la liste des liens de navigation selon le rôle
     const navItems: NavItem[] = [];
 
-    // navItems.push({ name: 'Tableau de bord', href: route('dashboard'), icon: 'dashboard' });
+    navItems.push({ name: 'Tableau de bord', href: navRoutes.dashboard(), icon: 'dashboard' });
 
     if (isStudent) {
         navItems.push(
-            { name: 'Tableau de bord', href: route('student.dashboard'), icon: 'dashboard' },
-            { name: 'Mes Examens', href: route('student.exams.index'), icon: 'exams' }
+            { name: 'Mes Examens', href: navRoutes.studentExams(), icon: 'exams' }
         );
     }
 
-    if (isTeacher) {
+    if (canViewExamList) {
         navItems.push(
-            { name: 'Tableau de bord', href: route('teacher.dashboard'), icon: 'dashboard' },
-            { name: 'Mes Examens', href: route('exams.index'), icon: 'exams' }
+            { name: 'Examens', href: navRoutes.exams(), icon: 'exams' }
         );
     }
 
-    if (isAdmin) {
+    if (canViewUsers) {
+        navItems.push({ name: 'Utilisateurs', href: navRoutes.users(), icon: 'users' });
+    }
 
-        navItems.push(
-            { name: 'Tableau de bord', href: route('dashboard'), icon: 'dashboard' },
-            { name: 'Utilisateurs', href: route('users.index'), icon: 'users' },
-            { name: 'Groupes', href: route('groups.index'), icon: 'groups' }
-        );
+    if (canViewGroups) {
+        navItems.push({ name: 'Groupes', href: navRoutes.groups(), icon: 'groups' });
+    }
 
-        if (permissions.canManageLevels) {
-            navItems.push({ name: 'Niveaux', href: route('levels.index'), icon: 'levels' });
-        }
+    if (canViewLevels) {
+        navItems.push({ name: 'Niveaux', href: navRoutes.levels(), icon: 'levels' });
+    }
 
-        if (permissions.canManageRoles) {
-            navItems.push({ name: 'Rôles & Permissions', href: route('roles.index'), icon: 'roles' });
-        }
+    if (canViewRoles) {
+        navItems.push({ name: 'Rôles & Permissions', href: navRoutes.roles(), icon: 'roles' });
     }
 
     return (
@@ -149,14 +155,14 @@ export const Sidebar = ({ isSuperAdmin, isAdmin, isTeacher, isStudent, currentPa
                     {/* Header avec logo */}
                     <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
                         {!isCollapsed && (
-                            <Link href={route('dashboard')} className="flex items-center">
+                            <Link href={navRoutes.dashboard()} className="flex items-center">
                                 <LogoExamena />
                                 <span className="ml-2 text-xl font-bold text-indigo-600">Examena</span>
                             </Link>
                         )}
 
                         {isCollapsed && (
-                            <Link href={route('dashboard')} className="flex items-center justify-center w-full">
+                            <Link href={navRoutes.dashboard()} className="flex items-center justify-center w-full">
                                 <LogoExamena width={32} height={32} />
                             </Link>
                         )}
@@ -164,7 +170,7 @@ export const Sidebar = ({ isSuperAdmin, isAdmin, isTeacher, isStudent, currentPa
                         {/* Bouton toggle collapse (desktop uniquement) */}
                         <button
                             onClick={toggleCollapse}
-                            className="hidden lg:block p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
+                            className="hidden lg:block cursor-pointer p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
                             aria-label="Toggle sidebar"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,10 +213,10 @@ export const Sidebar = ({ isSuperAdmin, isAdmin, isTeacher, isStudent, currentPa
                         {!isCollapsed ? (
                             <>
                                 <Link
-                                    href={route('profile')}
+                                    href={navRoutes.profile()}
                                     className={`
                                         flex items-center space-x-3 p-3 transition-all mb-3
-                                        ${isActive(route('profile'))
+                                        ${isActive(navRoutes.profile())
                                             ? 'bg-indigo-50 border-b border-indigo-200'
                                             : 'bg-white border-b border-gray-200 hover:border-indigo-200 hover:bg-indigo-50'
                                         }
@@ -218,7 +224,7 @@ export const Sidebar = ({ isSuperAdmin, isAdmin, isTeacher, isStudent, currentPa
                                 >
                                     <UserAvatar name={user.name} size="md" />
                                     <div className="flex-1 min-w-0">
-                                        <p className={`text-sm font-semibold truncate ${isActive(route('profile')) ? 'text-indigo-900' : 'text-gray-900'
+                                        <p className={`text-sm font-semibold truncate ${isActive(navRoutes.profile()) ? 'text-indigo-900' : 'text-gray-900'
                                             }`}>
                                             {user.name}
                                         </p>
@@ -235,7 +241,7 @@ export const Sidebar = ({ isSuperAdmin, isAdmin, isTeacher, isStudent, currentPa
 
                                 <div className=' px-2 pb-3'>
                                     <Link
-                                        href={route('logout')}
+                                        href={navRoutes.logout()}
                                         method="post"
                                         as="button"
                                         className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
@@ -248,10 +254,10 @@ export const Sidebar = ({ isSuperAdmin, isAdmin, isTeacher, isStudent, currentPa
                         ) : (
                             <div className="p-2 space-y-2">
                                 <Link
-                                    href={route('profile')}
+                                    href={navRoutes.profile()}
                                     className={`
                                         relative flex items-center justify-center p-2 rounded-lg transition-all
-                                        ${isActive(route('profile'))
+                                        ${isActive(navRoutes.profile())
                                             ? 'bg-indigo-50 ring-2 ring-indigo-600'
                                             : 'bg-white hover:bg-indigo-50'
                                         }
@@ -259,13 +265,13 @@ export const Sidebar = ({ isSuperAdmin, isAdmin, isTeacher, isStudent, currentPa
                                     title={`${user.name} - Profil`}
                                 >
                                     <UserAvatar name={user.name} size="sm" />
-                                    {isActive(route('profile')) && (
+                                    {isActive(navRoutes.profile()) && (
                                         <span className="absolute top-1 right-1 w-2 h-2 bg-indigo-600 rounded-full"></span>
                                     )}
                                 </Link>
 
                                 <Link
-                                    href={route('logout')}
+                                    href={navRoutes.logout()}
                                     method="post"
                                     as="button"
                                     className="w-full flex items-center justify-center p-2.5 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"

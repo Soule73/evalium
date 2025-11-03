@@ -50,7 +50,7 @@ export default function CreateGroup({ levels }: Props) {
 
     return (
         <AuthenticatedLayout title="Créer un groupe"
-            breadcrumb={breadcrumbs.adminGroupCreate()}
+            breadcrumb={breadcrumbs.groupCreate()}
         >
             <Section
                 title="Créer un nouveau groupe"

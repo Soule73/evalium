@@ -120,7 +120,9 @@ class User extends Authenticatable
      */
     public function activeGroup(): BelongsToMany
     {
-        return $this->groups()->wherePivot('is_active', true);
+        return $this->groups()
+            ->wherePivot('is_active', true)
+            ->where('groups.is_active', true);
     }
 
     /**

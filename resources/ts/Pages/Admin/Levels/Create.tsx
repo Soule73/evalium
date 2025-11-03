@@ -41,7 +41,7 @@ export default function CreateLevel() {
     };
 
     return (
-        <AuthenticatedLayout breadcrumb={breadcrumbs.adminLevelCreate()}>
+        <AuthenticatedLayout breadcrumb={breadcrumbs.levelCreate()}>
             <Section
                 title="Nouveau niveau"
                 subtitle="Créer un nouveau niveau d'enseignement"

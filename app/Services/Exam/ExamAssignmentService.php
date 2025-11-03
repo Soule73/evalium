@@ -64,14 +64,23 @@ class ExamAssignmentService
         // Calculer combien d'étudiants n'ont pas encore d'assignation créée
         $notAssignedYet = $totalStudentsInGroups - $assignedStudentsCount;
 
+        // Compter les statuts basés sur les timestamps
+        $inProgressCount = $allAssignments->filter(function ($assignment) {
+            return $assignment->started_at !== null && $assignment->submitted_at === null;
+        })->count();
+
+        $notStartedCount = $allAssignments->filter(function ($assignment) {
+            return $assignment->started_at === null;
+        })->count();
+
         $completedCount = $allAssignments->whereIn('status', ['submitted', 'graded'])->count();
 
         return [
             'total_assigned' => $totalStudentsInGroups,
             'total_submitted' => $completedCount,
             'completed' => $completedCount,
-            'in_progress' => $allAssignments->where('status', 'started')->count(),
-            'not_started' => $allAssignments->where('status', 'assigned')->count() + $notAssignedYet,
+            'in_progress' => $inProgressCount,
+            'not_started' => $notStartedCount + $notAssignedYet,
             'completion_rate' => $totalStudentsInGroups > 0 ?
                 ($completedCount / $totalStudentsInGroups) * 100 : 0,
             'average_score' => $allAssignments->whereNotNull('score')->avg('score')
@@ -131,7 +140,6 @@ class ExamAssignmentService
             'student_id' => $studentId,
         ], [
             'assigned_at' => now(),
-            'status' => 'assigned',
         ]);
 
         return [
@@ -243,11 +251,20 @@ class ExamAssignmentService
         // Calculer combien d'étudiants n'ont pas encore d'assignation créée
         $notAssignedYet = $totalStudentsInGroups - $assignedStudentsCount;
 
+        // Compter les statuts basés sur les timestamps
+        $inProgressCount = $allAssignments->filter(function ($assignment) {
+            return $assignment->started_at !== null && $assignment->submitted_at === null;
+        })->count();
+
+        $notStartedCount = $allAssignments->filter(function ($assignment) {
+            return $assignment->started_at === null;
+        })->count();
+
         $stats = [
             'total_assigned' => $totalStudentsInGroups,
             'completed' => $allAssignments->whereIn('status', ['submitted', 'graded'])->count(),
-            'in_progress' => $allAssignments->where('status', 'started')->count(),
-            'not_started' => $allAssignments->where('status', 'assigned')->count() + $notAssignedYet,
+            'in_progress' => $inProgressCount,
+            'not_started' => $notStartedCount + $notAssignedYet,
             'average_score' => $allAssignments->whereNotNull('score')->avg('score')
         ];
 

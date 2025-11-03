@@ -24,16 +24,13 @@ class ExamSessionService
         return ExamAssignment::firstOrCreate([
             'student_id' => $student->id,
             'exam_id' => $exam->id,
-        ], [
-            'status' => 'assigned',
         ]);
     }
 
     public function startExam(ExamAssignment $assignment): void
     {
-        if (in_array($assignment->status, ['assigned'])) {
+        if ($assignment->started_at === null) {
             $assignment->update([
-                'status' => 'started',
                 'started_at' => Carbon::now(),
             ]);
         }
@@ -52,25 +49,6 @@ class ExamSessionService
             'score' => ($hasTextQuestions || $isSecurityViolation) ? null : $autoScore,
             'auto_score' => $autoScore ?? $assignment->auto_score,
         ]);
-    }
-
-    /**
-     * Calcule le score automatique en utilisant le ScoringService centralisé
-     * 
-     * @deprecated Utiliser directement ScoringService::calculateAutoCorrectableScore()
-     */
-    public function calculateAutoScore(ExamAssignment $assignment): float
-    {
-        return $this->scoringService->calculateAutoCorrectableScore($assignment);
-    }
-
-    /**
-     * @deprecated Utiliser ScoringService::isAnswerCorrect()
-     */
-    private function checkAnswerCorrectness($question, $answer): bool
-    {
-        $answers = collect([$answer]);
-        return $this->scoringService->isAnswerCorrect($question, $answers);
     }
 
     public function saveAnswer(ExamAssignment $assignment, Question $question, array $data): void

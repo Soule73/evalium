@@ -12,13 +12,8 @@ interface AuthenticatedLayoutProps {
 }
 
 const AuthenticatedLayout = ({ children, title, breadcrumb }: AuthenticatedLayoutProps) => {
-    const { auth, flash, permissions } = usePage<PageProps>().props;
+    const { auth, flash } = usePage<PageProps>().props;
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-    const isSuperAdmin = !!auth.user.roles?.some(role => role.name === 'super_admin');
-    const isAdmin = !!auth.user.roles?.some(role => role.name === 'admin' || role.name === 'super_admin');
-    const isTeacher = !!auth.user.roles?.some(role => role.name === 'teacher');
-    const isStudent = !!auth.user.roles?.some(role => role.name === 'student');
 
     const currentPath = useMemo(() => window.location.pathname, []);
 
@@ -48,12 +43,7 @@ const AuthenticatedLayout = ({ children, title, breadcrumb }: AuthenticatedLayou
             <div className="min-h-screen bg-gray-50">
                 {/* Sidebar */}
                 <Sidebar
-                    isAdmin={isAdmin}
-                    isSuperAdmin={isSuperAdmin}
-                    isTeacher={isTeacher}
-                    isStudent={isStudent}
                     currentPath={currentPath}
-                    permissions={permissions}
                     user={auth.user}
                 />
 

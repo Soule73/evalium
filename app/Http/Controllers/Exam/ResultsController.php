@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Exam;
 use App\Models\Exam;
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Group;
 use Inertia\Response;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\HasFlashMessages;
@@ -31,16 +32,29 @@ class ResultsController extends Controller
      * Display the results of a specific exam for a given student.
      *
      * @param Exam $exam The exam instance for which results are to be shown.
+     * @param Group $group The group to which the student belongs.
      * @param User $student The student whose exam results are to be displayed.
      * @return Response The HTTP response containing the student's exam results.
      */
-    public function showStudentResults(Exam $exam, User $student): Response
+    public function showStudentSubmission(Exam $exam, Group $group, User $student): Response
     {
         $this->authorize('view', $exam);
 
-        $assignment = $exam->assignments()->where('student_id', $student->id)->firstOrFail();
+        // Vérifier que l'étudiant appartient bien au groupe et est actif
+        $belongsToGroup = $group->students()
+            ->where('student_id', $student->id)
+            ->wherePivot('is_active', true)
+            ->exists();
 
-        $data = $this->userAnswerService->getStudentResultsData($assignment);
+        if (!$belongsToGroup) {
+            abort(403, "L'étudiant n'appartient pas à ce groupe ou n'est pas actif.");
+        }
+
+        $assignment = $exam->assignments()
+            ->where('student_id', $student->id)
+            ->firstOrFail();
+
+        $data = $this->userAnswerService->getStudentResultsData($assignment, $exam, $group);
 
         return Inertia::render('Exam/StudentResults', $data);
     }

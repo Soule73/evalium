@@ -117,7 +117,7 @@ class UserManagementController extends Controller
             $user->load('roles');
         }
 
-        $exams = $this->examService->getTeacherExams($user->id, $perPage, $status, $search);
+        $exams = $this->examService->getExams($user->id, $perPage, $status, $search);
 
         $currentUser = Auth::user();
 

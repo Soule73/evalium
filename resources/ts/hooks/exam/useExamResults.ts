@@ -42,7 +42,7 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
     );
 
     const isPendingReview = useMemo(
-        () => assignment.status === "pending_review",
+        () => assignment.status !== "graded",
         [assignment.status]
     );
 

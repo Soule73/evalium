@@ -58,7 +58,7 @@ class ExamController extends Controller
         $this->authorize('viewAny', Exam::class);
 
         // Service adapte automatiquement selon les permissions de l'utilisateur
-        $exams = $this->examService->getTeacherExams($user->id, $perPage, $status, $search);
+        $exams = $this->examService->getExams($user->id, $perPage, $status, $search);
 
         return Inertia::render('Exam/Index', [
             'exams' => $exams
@@ -153,6 +153,7 @@ class ExamController extends Controller
      */
     public function update(UpdateExamRequest $request, Exam $exam): RedirectResponse
     {
+        // dd($request->all());
         $this->authorize('update', $exam);
 
         try {

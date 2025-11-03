@@ -97,7 +97,7 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
 
     return (
         <AuthenticatedLayout title={exam.title}
-            breadcrumb={breadcrumbs.teacherExamShow(exam.title)}
+            breadcrumb={breadcrumbs.examShow(exam.title)}
         >
             <div className="max-w-6xl mx-auto space-y-6">
                 <Section title={"Détails et gestion de l'examen"}
@@ -131,7 +131,7 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
                                 Modifier
                             </Button>
                             <Button
-                                onClick={() => router.visit(route('exams.assignments', exam.id))}
+                                onClick={() => router.visit(route('exams.groups', exam.id))}
                                 color="secondary"
                                 variant='outline'
                                 size="sm" >

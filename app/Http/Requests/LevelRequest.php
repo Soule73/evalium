@@ -13,7 +13,15 @@ class LevelRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::user()->can('manage levels');
+        $user = Auth::user();
+
+        // Pour la création (pas de paramètre level dans la route)
+        if (!request()->route('level')) {
+            return $user->can('create levels');
+        }
+
+        // Pour la modification (paramètre level présent dans la route)
+        return $user->can('update levels');
     }
 
     /**

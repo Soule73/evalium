@@ -16,37 +16,27 @@ class ExamService
 {
 
     /**
-     * List of statuses that indicate an exam is currently active.
-     * Exams with these statuses are considered as ongoing or in progress.
-     * 
-     * Possible values:
-     * - 'assigned': The exam has been assigned to a user.
-     * - 'started': The user has started the exam.
-     *
-     * @var string[]
-     */
-    private const EXAM_ACTIVE_STATUSES = ['assigned', 'started'];
-
-    /**
      * List of statuses that indicate an exam has been completed.
      * 
      * Possible values:
      * - 'submitted': The exam has been submitted by the user.
-     * - 'pending_review': The exam is awaiting review.
      * - 'graded': The exam has been graded.
      * @var string[]
      */
-    private const EXAM_COMPLETED_STATUSES = ['submitted', 'pending_review', 'graded'];
+    private const EXAM_COMPLETED_STATUSES = ['submitted', 'graded'];
 
     /**
-     * Filters the given collection of assignments to include only active assignments.
+     * Filters the given collection of assignments to include only active assignments (in progress).
+     * An assignment is considered active if it has been started but not yet submitted.
      *
      * @param \Illuminate\Database\Eloquent\Collection<int, ExamAssignment> $assignments The collection of assignments to filter.
      * @return \Illuminate\Database\Eloquent\Collection<int, ExamAssignment> The filtered collection containing only active assignments.
      */
     public function filterActiveAssignments(\Illuminate\Database\Eloquent\Collection $assignments): \Illuminate\Database\Eloquent\Collection
     {
-        return $assignments->whereIn('status', self::EXAM_ACTIVE_STATUSES);
+        return $assignments->filter(function ($assignment) {
+            return $assignment->started_at !== null && $assignment->submitted_at === null;
+        });
     }
 
     /**
@@ -66,7 +56,7 @@ class ExamService
 
 
     /**
-     * Determines if the given exam can be taken by the user based on the provided assignment.
+     * Determines if a student can take an exam based on their assignment status and exam availability.
      *
      * @param Exam $exam The exam to be taken.
      * @param ExamAssignment $assignment The assignment details for the exam.
@@ -75,7 +65,7 @@ class ExamService
     public function canTakeExam(Exam $exam, ExamAssignment $assignment): bool
     {
         return $assignment &&
-            in_array($assignment->status, self::EXAM_ACTIVE_STATUSES) &&
+            $assignment->submitted_at === null &&
             $this->examIsActive($exam);
     }
 
@@ -548,17 +538,25 @@ class ExamService
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator Paginated list of exams for the teacher.
      */
     /**
-     * Obtenir les examens d'un professeur avec eager loading optimisé
+     * Récupère les examens d'un enseignant (ou tous si admin)
      * 
-     * @param int $teacherId ID du professeur
-     * @param int $perPage Nombre d'éléments par page
+     * @param int $teacherId ID de l'enseignant
+     * @param int $perPage Nombre d'examens par page
      * @param bool|null $status Filtre sur le statut (actif/inactif)
      * @param string|null $search Recherche sur titre/description
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getTeacherExams(int $teacherId, int $perPage = 10, ?bool $status = null, ?string $search = null)
+    public function getExams(int $teacherId, int $perPage = 10, ?bool $status = null, ?string $search = null)
     {
-        return Exam::where('teacher_id', $teacherId)
+        $query = Exam::query();
+
+        // Si l'utilisateur n'a PAS 'view any exams', on filtre par teacher_id
+        // Seuls les utilisateurs avec 'view any exams' peuvent voir TOUS les examens
+        if (!Auth::user()?->can('view any exams')) {
+            $query->where('teacher_id', $teacherId);
+        }
+
+        return $query
             ->withCount(['questions', 'assignments'])
             ->latest()
             ->when($search, fn($query) => $query->where('title', 'like', "%{$search}%")->orWhere('description', 'like', "%{$search}%"))
@@ -715,7 +713,7 @@ class ExamService
                 $assignment = new ExamAssignment();
                 $assignment->exam_id = $exam->id;
                 $assignment->student_id = $student->id;
-                $assignment->status = 'assigned';
+                $assignment->status = null;
                 $assignment->assigned_at = now();
 
                 // Utiliser setRelation au lieu de l'assignation directe
@@ -732,7 +730,18 @@ class ExamService
         }
 
         if ($status) {
-            $allAssignments = $allAssignments->where('status', $status);
+            // Filter based on timestamps for in-progress exams
+            if ($status === 'in_progress') {
+                $allAssignments = $allAssignments->filter(function ($assignment) {
+                    return $assignment->started_at !== null && $assignment->submitted_at === null;
+                });
+            } elseif ($status === 'not_started') {
+                $allAssignments = $allAssignments->filter(function ($assignment) {
+                    return $assignment->started_at === null;
+                });
+            } else {
+                $allAssignments = $allAssignments->where('status', $status);
+            }
         }
 
         $page = request()->input('page', 1);
@@ -823,34 +832,56 @@ class ExamService
 
     /**
      * Retrieves the assigned exam details for a specific student.
+     * Checks both direct assignments and group-based assignments.
      *
      * @param Exam $exam The exam instance to retrieve information for.
      * @param int $studentId The unique identifier of the student.
-     * @return mixed The assigned exam details for the student, or null if not found.
-     * 
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @return ExamAssignment|null The assigned exam details for the student, or null if not accessible.
      */
-    public function getAssignedExamForStudent(Exam $exam, int $studentId)
+    public function getAssignedExamForStudent(Exam $exam, int $studentId): ?ExamAssignment
     {
-        return $exam->assignments()
+        // First, check if there's a direct assignment
+        $assignment = $exam->assignments()
             ->where('student_id', $studentId)
             ->orderBy('assigned_at', 'desc')
-            ->firstOrFail();
+            ->first();
+
+        if ($assignment) {
+            return $assignment;
+        }
+
+        // If no direct assignment, check if student has access via their active group
+        if ($this->studentHasAccessViaGroup($exam, $studentId)) {
+            // Create a virtual assignment for display purposes
+            $assignment = new ExamAssignment();
+            $assignment->exam_id = $exam->id;
+            $assignment->student_id = $studentId;
+            $assignment->status = null;
+            $assignment->assigned_at = now();
+            $assignment->setRelation('exam', $exam);
+            $assignment->exists = false;
+
+            return $assignment;
+        }
+
+        return null;
     }
 
     /**
      * Retrieves the started exam instance for a specific student.
+     * Only returns actual started assignments (not virtual ones) - assignments that have been started but not submitted.
      *
      * @param Exam $exam The exam object to retrieve for the student.
      * @param int $studentId The ID of the student.
-     * @return mixed The started exam instance for the student, or null if not found.
+     * @return ExamAssignment|null The started exam instance for the student, or null if not found.
      */
-    public function getStartedExamForStudent(Exam $exam, int $studentId)
+    public function getStartedExamForStudent(Exam $exam, int $studentId): ?ExamAssignment
     {
         return $exam->assignments()
             ->where('student_id', $studentId)
-            ->where('status', 'started')
-            ->firstOrFail();
+            ->whereNotNull('started_at')
+            ->whereNull('submitted_at')
+            ->first();
     }
 
     /**
@@ -858,13 +889,63 @@ class ExamService
      *
      * @param Exam $exam L'objet examen à récupérer pour l'étudiant.
      * @param int $studentId L'ID de l'étudiant.
-     * @return mixed L'assignment complété pour l'étudiant, ou null s'il n'est pas trouvé.
+     * @return ExamAssignment|null L'assignment complété pour l'étudiant, ou null s'il n'est pas trouvé.
      */
-    public function getCompletedAssignmentForStudent(Exam $exam, int $studentId)
+    public function getCompletedAssignmentForStudent(Exam $exam, int $studentId): ?ExamAssignment
     {
         return $exam->assignments()
             ->where('student_id', $studentId)
             ->whereIn('status', self::EXAM_COMPLETED_STATUSES)
-            ->firstOrFail();
+            ->first();
+    }
+
+    /**
+     * Check if a student has access to an exam via their active group.
+     *
+     * @param Exam $exam The exam to check access for.
+     * @param int $studentId The ID of the student.
+     * @return bool True if student has access via their active group, false otherwise.
+     */
+    private function studentHasAccessViaGroup(Exam $exam, int $studentId): bool
+    {
+        $student = User::find($studentId);
+
+        if (!$student) {
+            return false;
+        }
+
+        // Get student's active groups
+        $activeGroupIds = $student->activeGroups()->pluck('groups.id')->toArray();
+
+        if (empty($activeGroupIds)) {
+            return false;
+        }
+
+        // Check if the exam is assigned to any of the student's active groups
+        return $exam->groups()
+            ->whereIn('groups.id', $activeGroupIds)
+            ->exists();
+    }
+
+    /**
+     * Check if student can access an exam (either directly or via group).
+     *
+     * @param Exam $exam The exam to check.
+     * @param int $studentId The student ID.
+     * @return bool True if student can access the exam.
+     */
+    public function studentCanAccessExam(Exam $exam, int $studentId): bool
+    {
+        // Check direct assignment
+        $hasDirectAssignment = $exam->assignments()
+            ->where('student_id', $studentId)
+            ->exists();
+
+        if ($hasDirectAssignment) {
+            return true;
+        }
+
+        // Check group-based access
+        return $this->studentHasAccessViaGroup($exam, $studentId);
     }
 }

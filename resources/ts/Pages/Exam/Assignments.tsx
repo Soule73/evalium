@@ -1,77 +1,28 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/Components/Button';
-import { Exam, ExamAssignment, Group } from '@/types';
+import { Exam, Group } from '@/types';
 import Section from '@/Components/Section';
 import { DataTable } from '@/Components/DataTable';
 import { route } from 'ziggy-js';
-import { useState } from 'react';
-import { PaginationType } from '@/types/datatable';
 import { breadcrumbs } from '@/utils/breadcrumbs';
-import { getExamAssignmentColumns, examAssignmentFilters, getGroupTableConfig, ExamStatsCards, ExamHeader } from '@/Components/exam';
+import { getGroupTableConfig, ExamStatsCards, ExamHeader } from '@/Components/exam';
 import { groupsToPaginationType } from '@/utils';
-import ConfirmationModal from '@/Components/ConfirmationModal';
 
 interface Props {
     exam: Exam;
-    assignments: PaginationType<ExamAssignment>;
     assignedGroups?: Group[];
     stats: {
         total_assigned: number;
         completed: number;
-        in_progress: number;
-        not_started: number;
+        started: number;
+        assigned: number;
         average_score: number | null;
     };
 }
 
-interface ConfirmModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-    isSubmitting: boolean;
-}
 
-
-export default function ExamAssignments({ exam, assignments, stats, assignedGroups }: Props) {
-    const [confirmModal, setConfirmModal] = useState<ConfirmModalProps | null>(null);
-
-    const handleRemoveAssignment = (assignment: ExamAssignment) => {
-        setConfirmModal({
-            isOpen: true,
-            onClose: () => setConfirmModal(null),
-            onConfirm: () => {
-                router.delete(`/teacher/exams/${exam.id}/assignments/${assignment.student_id}`);
-                setConfirmModal(null);
-            },
-            isSubmitting: false,
-        });
-    };
-
-    const columns = getExamAssignmentColumns({
-        exam,
-        onRemove: handleRemoveAssignment,
-        showActions: true
-    });
-
-    const dataTableConfig = {
-        columns,
-        filters: examAssignmentFilters,
-        searchPlaceholder: 'Rechercher par nom ou email...',
-        emptyState: {
-            title: 'Aucune assignation trouvée',
-            subtitle: 'Aucun étudiant n\'est assigné à cet examen.',
-            actions: (
-                <Button
-                    onClick={() => router.visit(route('exams.assign', exam.id))}
-                    color="primary"
-                >
-                    Assigner des étudiants
-                </Button>
-            ),
-        },
-    };
-
+export default function ExamAssignments({ exam, stats, assignedGroups }: Props) {
     const groupsTableConfig = getGroupTableConfig({
         exam,
         showActions: true,
@@ -80,22 +31,7 @@ export default function ExamAssignments({ exam, assignments, stats, assignedGrou
 
     return (
         <AuthenticatedLayout title={`Assignations : ${exam.title}`}
-            breadcrumb={breadcrumbs.teacherExamAssignments(exam.title, exam.id)}
-        >
-            {/* <ConfirmModal {...(confirmModal || { isOpen: false, onClose: () => { }, onConfirm: () => { }, isSubmitting: false })} /> */}
-
-            <ConfirmationModal
-                isOpen={confirmModal?.isOpen || false}
-                onClose={confirmModal?.onClose || (() => { })}
-                onConfirm={confirmModal?.onConfirm || (() => { })}
-                title='Êtes-vous sûr de vouloir retirer cette assignation ?'
-                message='Cette action ne peut pas être annulée.'
-                type="warning"
-                confirmText="Retirer"
-                cancelText='Annuler'
-            >
-
-            </ConfirmationModal>
+            breadcrumb={breadcrumbs.examAssignments(exam.title, exam.id)}>
 
             <Section
                 title="Assignations de l'examen"
@@ -104,41 +40,56 @@ export default function ExamAssignments({ exam, assignments, stats, assignedGrou
                     <Button
                         size='sm'
                         variant='outline'
-
                         onClick={() => router.visit(route('exams.assign', exam.id))}
-                        color="secondary"
-                    >
-                        Ajouter des étudiants
+                        color="secondary">
+                        Assigner à de nouveaux groupes
                     </Button>
-                }
-            >
-                {/* Statistiques */}
+                }>
                 <ExamStatsCards stats={stats} className="mb-6" />
-
-                {/* Groupes assignés */}
-                {assignedGroups && assignedGroups.length > 0 && (
-                    <div className="mb-6">
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">
-                            Groupes assignés ({assignedGroups.length})
-                        </h3>
-                        <DataTable
-                            data={groupsToPaginationType(assignedGroups)}
-                            config={groupsTableConfig}
-                        />
-                    </div>
-                )}
-
-                {/* Tableau des assignations */}
-                <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
-                        Assignations individuelles
-                    </h3>
-                    <DataTable
-                        data={assignments}
-                        config={dataTableConfig}
-                    />
-                </div>
             </Section>
+
+            {assignedGroups && assignedGroups.length > 0 ? (
+                <Section
+                    title={`Groupes assignés (${assignedGroups.length})`}
+                    subtitle="Liste des groupes ayant accès à cet examen"
+                >
+                    <DataTable
+                        data={groupsToPaginationType(assignedGroups)}
+                        config={groupsTableConfig}
+                    />
+                </Section>
+            ) : (
+                <Section title="Aucun groupe assigné">
+                    <div className="text-center py-12">
+                        <svg
+                            className="mx-auto h-12 w-12 text-gray-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            aria-hidden="true"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                            />
+                        </svg>
+                        <h3 className="mt-2 text-sm font-medium text-gray-900">Aucun groupe assigné</h3>
+                        <p className="mt-1 text-sm text-gray-500">
+                            Commencez par assigner cet examen à des groupes d'étudiants.
+                        </p>
+                        <div className="mt-6">
+                            <Button
+                                onClick={() => router.visit(route('exams.assign', exam.id))}
+                                color="primary"
+                            >
+                                Assigner des groupes
+                            </Button>
+                        </div>
+                    </div>
+                </Section>
+            )}
         </AuthenticatedLayout>
     );
 }

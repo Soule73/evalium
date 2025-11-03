@@ -13,6 +13,51 @@ use Spatie\Permission\Models\Permission;
 class RolePermissionController extends Controller
 {
     /**
+     * Groupe les permissions par catégorie (model name)
+     */
+    private function groupPermissions($permissions)
+    {
+        $grouped = [
+            'Utilisateurs' => [],
+            'Examens' => [],
+            'Questions' => [],
+            'Réponses' => [],
+            'Assignations' => [],
+            'Groupes' => [],
+            'Niveaux' => [],
+            'Rôles & Permissions' => [],
+            'Tableaux de bord' => [],
+        ];
+
+        foreach ($permissions as $permission) {
+            $name = $permission->name;
+
+            if (str_contains($name, 'user') || str_contains($name, 'student') || str_contains($name, 'teacher') || str_contains($name, 'admin')) {
+                $grouped['Utilisateurs'][] = $permission;
+            } elseif (str_contains($name, 'exam')) {
+                $grouped['Examens'][] = $permission;
+            } elseif (str_contains($name, 'question')) {
+                $grouped['Questions'][] = $permission;
+            } elseif (str_contains($name, 'answer')) {
+                $grouped['Réponses'][] = $permission;
+            } elseif (str_contains($name, 'assignment')) {
+                $grouped['Assignations'][] = $permission;
+            } elseif (str_contains($name, 'group')) {
+                $grouped['Groupes'][] = $permission;
+            } elseif (str_contains($name, 'level')) {
+                $grouped['Niveaux'][] = $permission;
+            } elseif (str_contains($name, 'role') || str_contains($name, 'permission')) {
+                $grouped['Rôles & Permissions'][] = $permission;
+            } elseif (str_contains($name, 'dashboard') || str_contains($name, 'report')) {
+                $grouped['Tableaux de bord'][] = $permission;
+            }
+        }
+
+        // Retirer les catégories vides
+        return array_filter($grouped, fn($items) => !empty($items));
+    }
+
+    /**
      * Display a listing of roles.
      */
     public function index(): Response
@@ -23,10 +68,12 @@ class RolePermissionController extends Controller
             ->get();
 
         $allPermissions = Permission::orderBy('name')->get();
+        $groupedPermissions = $this->groupPermissions($allPermissions);
 
         return Inertia::render('Admin/Roles/Index', [
             'roles' => $roles,
             'allPermissions' => $allPermissions,
+            'groupedPermissions' => $groupedPermissions,
         ]);
     }
 
@@ -36,9 +83,11 @@ class RolePermissionController extends Controller
     public function create(): Response
     {
         $permissions = Permission::orderBy('name')->get();
+        $groupedPermissions = $this->groupPermissions($permissions);
 
         return Inertia::render('Admin/Roles/Create', [
             'permissions' => $permissions,
+            'groupedPermissions' => $groupedPermissions,
         ]);
     }
 
@@ -74,10 +123,12 @@ class RolePermissionController extends Controller
     {
         $role->load('permissions');
         $allPermissions = Permission::orderBy('name')->get();
+        $groupedPermissions = $this->groupPermissions($allPermissions);
 
         return Inertia::render('Admin/Roles/Edit', [
             'role' => $role,
             'allPermissions' => $allPermissions,
+            'groupedPermissions' => $groupedPermissions,
         ]);
     }
 

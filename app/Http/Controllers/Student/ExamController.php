@@ -15,18 +15,19 @@ use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response as InertiaResponse;
 use App\Services\Shared\UserAnswerService;
-use App\Services\Student\ExamSessionService;
 use App\Services\Student\ExamTimingService;
-use App\Services\Student\ExamSecurityService;
-use App\Services\Core\Scoring\ScoringService;
+use App\Services\Student\ExamSessionService;
 use App\Services\Core\Answer\AnswerFormatter;
+use App\Services\Core\Scoring\ScoringService;
+use App\Services\Student\ExamSecurityService;
 use App\Http\Requests\Student\SubmitExamRequest;
 use App\Http\Requests\Student\SaveAnswersRequest;
 use App\Http\Requests\Student\SecurityViolationRequest;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ExamController extends Controller
 {
-    use HasFlashMessages;
+    use AuthorizesRequests, HasFlashMessages;
 
     public function __construct(
         private readonly ExamService $examService,
@@ -78,8 +79,9 @@ class ExamController extends Controller
         /** @var \App\Models\User $student */
         $student = $request->user();
 
-        if (!$student) {
-            abort(401);
+        // Check if student can access this exam (direct or via group)
+        if (!$this->examService->studentCanAccessExam($exam, $student->id)) {
+            abort(403, 'Cet examen ne vous est pas assigné.');
         }
 
         $assignment = $this->examService->getAssignedExamForStudent($exam, $student->id);
@@ -99,11 +101,6 @@ class ExamController extends Controller
                 'creator' => $creator,
             ]);
         } else {
-            // Vérifier que l'examen est noté avant d'afficher les résultats
-            if ($assignment->status !== 'graded') {
-                abort(403, 'Les résultats ne sont pas encore disponibles.');
-            }
-
             $exam->load(['questions.choices']);
 
             $userAnswers = $this->answerFormatter->formatForFrontend($assignment);
@@ -129,11 +126,15 @@ class ExamController extends Controller
     {
         /** @var \App\Models\User $student */
         $student = $request->user();
+
         if (!$student) {
             abort(401);
         }
 
-        $assignment = $this->examSessionService->findOrCreateAssignment($exam, $student);
+        // Check if student can access this exam (direct or via group)
+        if (!$this->examService->studentCanAccessExam($exam, $student->id)) {
+            return $this->redirectWithError('student.exams.index', 'Cet examen ne vous est pas assigné.', []);
+        }
 
         if (!$this->examService->examIsActive($exam)) {
             return $this->redirectWithError('student.exams.show', "Cet examen n'est pas disponible.", ['exam' => $exam->id]);
@@ -142,6 +143,8 @@ class ExamController extends Controller
         if (!$this->timingService->validateExamTiming($exam)) {
             return $this->redirectWithError('student.exams.show', "Cet examen n'est pas accessible actuellement.", ['exam' => $exam->id]);
         }
+
+        $assignment = $this->examSessionService->findOrCreateAssignment($exam, $student);
 
         if (!$this->examService->canTakeExam($exam, $assignment)) {
             return $this->redirectWithInfo('student.exams.show', "Vous avez déjà complété cet examen.", ['exam' => $exam->id]);
@@ -172,9 +175,8 @@ class ExamController extends Controller
     {
         /** @var \App\Models\User $student */
         $student = Auth::user();
-        if (!$student) {
-            abort(401);
-        }
+
+        $this->authorize('take', $exam);
 
         $assignment = $this->examService->getStartedExamForStudent($exam, $student->id);
 
@@ -208,35 +210,44 @@ class ExamController extends Controller
     {
         /** @var \App\Models\User $student */
         $student = Auth::user();
-        if (!$student) {
-            abort(401);
-        }
+
+        // Note: On ne fait PAS d'authorize ici car une violation de sécurité
+        // doit être traitée même si l'examen n'est plus "takeable" normalement
 
         $assignment =  $this->examService->getStartedExamForStudent($exam, $student->id);
 
+        if (!$assignment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Examen non trouvé ou déjà soumis'
+            ], 404);
+        }
+
         $validated = $request->validated();
 
+        // Sauvegarder les réponses si fournies
         if (isset($validated['answers'])) {
             $this->examSessionService->saveMultipleAnswers($assignment, $exam, $validated['answers']);
         }
 
+        // Calculer le score automatique
         $autoScore = $this->scoringService->calculateAutoCorrectableScore($assignment);
-        $assignment->update(['auto_score' => $autoScore, 'submitted_at' => Carbon::now(), 'status' => 'submitted']);
 
-        // Utiliser le service de sécurité pour gérer la violation
-        $this->securityService->handleViolation(
+        // Laisser le service de sécurité gérer la mise à jour complète
+        $terminated = $this->securityService->handleViolation(
             $assignment,
             $validated['violation_type'],
-            $validated['violation_details'] ?? ''
+            $validated['violation_details'] ?? '',
+            $autoScore
         );
 
-        // Recharger l'assignment pour avoir les données à jour
+        // Rafraîchir pour obtenir les dernières données
         $assignment->refresh();
 
         return response()->json([
             'success' => true,
             'message' => 'Violation de sécurité traitée',
-            'exam_terminated' => true,
+            'exam_terminated' => $terminated,
             'violation_type' => $validated['violation_type'],
             'violation_details' => $validated['violation_details'] ?? '',
             'assignment' => $assignment
@@ -254,11 +265,11 @@ class ExamController extends Controller
     {
         /** @var \App\Models\User $student */
         $student = Auth::user();
-        if (!$student) {
-            abort(401);
-        }
 
-        $assignment = $this->examService->getAssignedExamForStudent($exam, $student->id);
+        $this->authorize('take', $exam);
+
+        // Get the actual started assignment (not virtual)
+        $assignment = $this->examService->getStartedExamForStudent($exam, $student->id);
 
         if (!$assignment) {
             abort(404, 'Examen non trouvé ou déjà soumis');
@@ -285,15 +296,17 @@ class ExamController extends Controller
     {
         /** @var \App\Models\User $student */
         $student = Auth::user();
-        if (!$student) {
-            abort(401);
-        }
+
+        $this->authorize('take', $exam);
 
         $assignment = $this->examService->getAssignedExamForStudent($exam, $student->id);
 
-        // Vérifier que l'examen a été commencé
-        if ($assignment->status !== 'started') {
-            return back()->withErrors(['exam' => 'Vous devez commencer l\'examen avant de le soumettre.']);
+        if ($assignment->started_at === null) {
+            return back()->withErrors(['exam' => "Vous devez commencer l'examen avant de le soumettre."]);
+        }
+
+        if ($assignment->submitted_at !== null) {
+            return back()->withErrors(['exam' => "Cet examen a déjà été soumis."]);
         }
 
         $validated = $request->validated();

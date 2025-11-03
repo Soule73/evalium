@@ -5,12 +5,13 @@ namespace Tests\Feature\Controllers\Exam;
 use Tests\TestCase;
 use App\Models\Exam;
 use App\Models\User;
+use App\Models\Group;
 use App\Models\Answer;
 use App\Models\Question;
 use App\Models\ExamAssignment;
-use Spatie\Permission\Models\Role;
 use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\Test;
+use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExamResultsControllerTest extends TestCase
@@ -20,15 +21,15 @@ class ExamResultsControllerTest extends TestCase
     private User $teacher;
     private User $student;
     private Exam $exam;
+    private Group $group;
     private ExamAssignment $assignment;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Créer les rôles
-        Role::create(['name' => 'teacher']);
-        Role::create(['name' => 'student']);
+        // Utiliser le seeder pour créer les rôles et permissions
+        $this->seed(RoleAndPermissionSeeder::class);
 
         // Créer un enseignant
         $this->teacher = User::factory()->create([
@@ -42,12 +43,23 @@ class ExamResultsControllerTest extends TestCase
         ]);
         $this->student->assignRole('student');
 
+        // Créer un groupe
+        $this->group = Group::factory()->active()->create();
+
+        // Ajouter l'étudiant au groupe
+        $this->group->students()->attach($this->student->id, [
+            'enrolled_at' => now(),
+            'is_active' => true
+        ]);
+
         // Créer un examen
-        $this->exam = Exam::factory()->create([
+        /** @var Exam $exam */
+        $exam = Exam::factory()->create([
             'teacher_id' => $this->teacher->id,
             'title' => 'Test Exam',
             'is_active' => true
         ]);
+        $this->exam = $exam;
 
         // Créer une assignation soumise
         $this->assignment = ExamAssignment::factory()->create([
@@ -62,7 +74,7 @@ class ExamResultsControllerTest extends TestCase
     public function teacher_can_view_student_results()
     {
         $response = $this->actingAs($this->teacher)
-            ->get(route('exams.results.show', [$this->exam, $this->student]));
+            ->get(route('exams.submissions', [$this->exam, $this->group, $this->student]));
 
         $response->assertOk();
         $response->assertInertia(
@@ -92,7 +104,7 @@ class ExamResultsControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('exams.results', [$this->exam, $this->student]));
+            ->get(route('exams.submissions', [$this->exam, $this->group, $this->student]));
 
         $response->assertOk();
         $response->assertInertia(
@@ -108,10 +120,10 @@ class ExamResultsControllerTest extends TestCase
         $otherStudent->assignRole('student');
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('exams.results', [$this->exam, $otherStudent]));
+            ->get(route('exams.submissions', [$this->exam, $this->group, $otherStudent]));
 
-        // Devrait échouer car l'étudiant n'a pas d'assignation
-        $response->assertStatus(404);
+        // Devrait échouer avec 403 car l'étudiant n'appartient pas au groupe
+        $response->assertForbidden();
     }
 
     #[Test]
@@ -139,6 +151,13 @@ class ExamResultsControllerTest extends TestCase
         $otherStudent = User::factory()->create();
         $otherStudent->assignRole('student');
 
+        // Créer un groupe pour l'autre étudiant
+        $otherGroup = Group::factory()->active()->create();
+        $otherGroup->students()->attach($otherStudent->id, [
+            'enrolled_at' => now(),
+            'is_active' => true
+        ]);
+
         ExamAssignment::factory()->create([
             'exam_id' => $otherExam->id,
             'student_id' => $otherStudent->id,
@@ -146,7 +165,7 @@ class ExamResultsControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('exams.results', [$otherExam, $otherStudent]));
+            ->get(route('exams.submissions', [$otherExam, $otherGroup, $otherStudent]));
 
         $response->assertForbidden();
     }
@@ -155,7 +174,7 @@ class ExamResultsControllerTest extends TestCase
     public function student_cannot_access_results_routes()
     {
         $response = $this->actingAs($this->student)
-            ->get(route('exams.results', [$this->exam, $this->student]));
+            ->get(route('exams.submissions', [$this->exam, $this->group, $this->student]));
 
         $response->assertForbidden();
     }
@@ -193,13 +212,15 @@ class ExamResultsControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('exams.results.show', [$this->exam, $this->student]));
+            ->get(route('exams.submissions', [$this->exam, $this->group, $this->student]));
 
         $response->assertOk();
         $response->assertInertia(
             fn(AssertableInertia $page) => $page
                 ->component('Exam/StudentResults', false)
-                ->has('answers')
+                ->has('exam')
+                ->has('student')
+                ->has('assignment')
         );
     }
 
@@ -235,7 +256,7 @@ class ExamResultsControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('exams.results', [$this->exam, $this->student]));
+            ->get(route('exams.submissions', [$this->exam, $this->group, $this->student]));
 
         $response->assertOk();
         // Le score total devrait être 8.5 + 12.0 = 20.5
@@ -248,6 +269,12 @@ class ExamResultsControllerTest extends TestCase
         $newStudent = User::factory()->create();
         $newStudent->assignRole('student');
 
+        // Ajouter le nouvel étudiant au groupe
+        $this->group->students()->attach($newStudent->id, [
+            'enrolled_at' => now(),
+            'is_active' => true
+        ]);
+
         $newAssignment = ExamAssignment::factory()->create([
             'exam_id' => $this->exam->id,
             'student_id' => $newStudent->id,
@@ -256,9 +283,67 @@ class ExamResultsControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('exams.results', [$this->exam, $newStudent]));
+            ->get(route('exams.submissions', [$this->exam, $this->group, $newStudent]));
 
         // Devrait permettre l'accès même sans correction
         $response->assertOk();
+    }
+
+    #[Test]
+    public function teacher_cannot_view_results_for_student_not_in_group()
+    {
+        // Créer un autre groupe
+        $otherGroup = Group::factory()->active()->create();
+
+        // Créer un étudiant qui n'appartient PAS au groupe principal
+        $studentNotInGroup = User::factory()->create();
+        $studentNotInGroup->assignRole('student');
+
+        // Ajouter l'étudiant à un autre groupe
+        $otherGroup->students()->attach($studentNotInGroup->id, [
+            'enrolled_at' => now(),
+            'is_active' => true
+        ]);
+
+        // Créer une assignation pour cet étudiant
+        ExamAssignment::factory()->create([
+            'exam_id' => $this->exam->id,
+            'student_id' => $studentNotInGroup->id,
+            'status' => 'submitted'
+        ]);
+
+        // Essayer d'accéder aux résultats avec le mauvais groupe
+        $response = $this->actingAs($this->teacher)
+            ->get(route('exams.submissions', [$this->exam, $this->group, $studentNotInGroup]));
+
+        // Devrait échouer car l'étudiant n'appartient pas à ce groupe
+        $response->assertForbidden();
+    }
+
+    #[Test]
+    public function teacher_cannot_view_results_for_inactive_student_in_group()
+    {
+        // Créer un étudiant et l'ajouter au groupe mais en inactif
+        $inactiveStudent = User::factory()->create();
+        $inactiveStudent->assignRole('student');
+
+        $this->group->students()->attach($inactiveStudent->id, [
+            'enrolled_at' => now(),
+            'is_active' => false // Inactif
+        ]);
+
+        // Créer une assignation pour cet étudiant
+        ExamAssignment::factory()->create([
+            'exam_id' => $this->exam->id,
+            'student_id' => $inactiveStudent->id,
+            'status' => 'submitted'
+        ]);
+
+        // Essayer d'accéder aux résultats
+        $response = $this->actingAs($this->teacher)
+            ->get(route('exams.submissions', [$this->exam, $this->group, $inactiveStudent]));
+
+        // Devrait échouer car l'étudiant est inactif dans le groupe
+        $response->assertForbidden();
     }
 }

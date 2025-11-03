@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -42,6 +41,7 @@ class RoleAndPermissionSeeder extends Seeder
             'publish exams',
             'assign exams',
             'correct exams',
+            'grade exams',
             'view exam results',
 
             // Question permissions
@@ -79,7 +79,6 @@ class RoleAndPermissionSeeder extends Seeder
             'create levels',
             'update levels',
             'delete levels',
-            'manage levels',
 
             // Role & Permission management
             'view roles',
@@ -116,6 +115,7 @@ class RoleAndPermissionSeeder extends Seeder
             'view users',
             'create users',
             'update users',
+            'delete users',
             'manage students',
             'manage teachers',
             'toggle user status',
@@ -139,7 +139,12 @@ class RoleAndPermissionSeeder extends Seeder
             'create levels',
             'update levels',
             'delete levels',
-            'manage levels',
+
+            // Roles
+            'view roles',
+            'create roles',
+            'update roles',
+            'delete roles',
 
             // Assignments
             'view assignments',
@@ -152,15 +157,16 @@ class RoleAndPermissionSeeder extends Seeder
         // Rôle Teacher - Gestion des examens et corrections
         $teacherRole = Role::firstOrCreate(['name' => 'teacher']);
         $teacherRole->syncPermissions([
-            // Exams
+            // Exams (own exams only - NOT 'view any exams')
             'view exams',
-            'view any exams',
             'create exams',
             'update exams',
             'delete exams',
             'publish exams',
             'assign exams',
+            'assign group exams', // Permission pour assigner aux groupes
             'correct exams',
+            'grade exams',
             'view exam results',
 
             // Questions

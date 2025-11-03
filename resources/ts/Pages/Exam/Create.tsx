@@ -5,8 +5,9 @@ import Section from '@/Components/Section';
 import QuestionsManager from '@/Components/exam/QuestionsManager';
 import ExamGeneralConfig from '@/Components/ExamGeneralConfig';
 import { useCreateExam } from '@/hooks';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 
-const TeacherExamCreate: React.FC = () => {
+const ExamCreate: React.FC = () => {
     const {
         data,
         errors,
@@ -18,7 +19,10 @@ const TeacherExamCreate: React.FC = () => {
     } = useCreateExam();
 
     return (
-        <AuthenticatedLayout title="Créer un examen">
+        <AuthenticatedLayout
+            title="Créer un examen"
+            breadcrumb={breadcrumbs.examCreate()}
+        >
             <form onSubmit={handleSubmit} noValidate className="space-y-6">
                 <Section
                     title="Créer un examen"
@@ -64,4 +68,4 @@ const TeacherExamCreate: React.FC = () => {
     );
 };
 
-export default TeacherExamCreate;
+export default ExamCreate;

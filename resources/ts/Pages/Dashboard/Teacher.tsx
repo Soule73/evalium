@@ -8,8 +8,7 @@ import StatCard from '@/Components/StatCard';
 import { ArrowTrendingUpIcon, DocumentTextIcon, QuestionMarkCircleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { PaginationType } from '@/types/datatable';
-import TeacherExamList from '@/Components/exam/TeacherExamList';
-
+import ExamList from '@/Components/exam/ExamList';
 
 interface Stats {
     total_exams: number;
@@ -35,7 +34,7 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
 
     return (
         <AuthenticatedLayout title="Tableau de bord enseignant"
-            breadcrumb={breadcrumbs.teacherDashboard()}
+            breadcrumb={breadcrumbs.dashboard()}
         >
             {/* Statistiques principales */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -99,7 +98,7 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
                     </div>
                 }
             >
-                <TeacherExamList data={recent_exams} />
+                <ExamList data={recent_exams} />
             </Section>
 
         </AuthenticatedLayout >

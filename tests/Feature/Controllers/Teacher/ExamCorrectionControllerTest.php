@@ -8,9 +8,9 @@ use App\Models\User;
 use App\Models\Answer;
 use App\Models\Question;
 use App\Models\ExamAssignment;
-use Spatie\Permission\Models\Role;
 use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\Test;
+use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExamCorrectionControllerTest extends TestCase
@@ -27,9 +27,8 @@ class ExamCorrectionControllerTest extends TestCase
     {
         parent::setUp();
 
-        // Créer les rôles
-        Role::create(['name' => 'teacher']);
-        Role::create(['name' => 'student']);
+        // Utiliser le seeder pour créer les rôles et permissions
+        $this->seed(RoleAndPermissionSeeder::class);
 
         // Créer un enseignant
         $this->teacher = User::factory()->create([
@@ -44,18 +43,22 @@ class ExamCorrectionControllerTest extends TestCase
         $this->student->assignRole('student');
 
         // Créer un examen
-        $this->exam = Exam::factory()->create([
+        /** @var Exam $exam */
+        $exam = Exam::factory()->create([
             'teacher_id' => $this->teacher->id,
             'title' => 'Test Exam',
             'is_active' => true
         ]);
+        $this->exam = $exam;
 
         // Créer une question
-        $this->question = Question::factory()->create([
+        /** @var Question $question */
+        $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'text',
             'points' => 10
         ]);
+        $this->question = $question;
 
         // Créer une assignation soumise
         $this->assignment = ExamAssignment::factory()->create([

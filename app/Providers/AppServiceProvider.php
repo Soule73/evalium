@@ -89,7 +89,7 @@ class AppServiceProvider extends ServiceProvider
 
                 return [
                     // Navigation permissions
-                    'canManageLevels' => $user->can('manage levels'),
+                    'canManageLevels' => $user->can('view levels'),
                     'canManageRoles' => $user->can('view roles'),
                     'canManageUsers' => $user->can('view users'),
                     'canManageGroups' => $user->can('view groups'),

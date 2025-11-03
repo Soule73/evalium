@@ -26,7 +26,7 @@ interface Props {
 export default function StudentDashboard({ user, stats, examAssignments }: Props) {
     return (
         <AuthenticatedLayout title='Tableau de bord étudiant'
-            breadcrumb={breadcrumbs.studentDashboard()}
+            breadcrumb={breadcrumbs.dashboard()}
         >
 
             <Section title={`Bonjour, ${user.name} !`}

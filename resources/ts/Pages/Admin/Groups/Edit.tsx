@@ -54,7 +54,7 @@ export default function EditGroup({ group, levels }: Props) {
 
     return (
         <AuthenticatedLayout title={`Modifier le groupe`}
-            breadcrumb={breadcrumbs.adminGroupEdit(group.display_name)}
+            breadcrumb={breadcrumbs.groupEdit(group.display_name)}
 
 
         >

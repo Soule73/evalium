@@ -36,10 +36,10 @@ class DashboardService
         $role = $this->getDashboardType($user);
 
         return match ($role) {
-            'super_admin' => 'admin.dashboard',
-            'admin' => 'admin.dashboard',
-            'teacher' => 'teacher.dashboard',
-            'student' => 'student.dashboard',
+            'super_admin' => 'dashboard',
+            'admin' => 'dashboard',
+            'teacher' => 'dashboard',
+            'student' => 'dashboard',
             default => throw new \Exception('Rôle non reconnu: ' . $role)
         };
     }

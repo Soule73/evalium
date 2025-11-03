@@ -2,32 +2,41 @@ import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Section from '@/Components/Section';
 import Badge from '@/Components/Badge';
-import { Exam, ExamAssignment, Answer, User } from '@/types';
+import { Exam, ExamAssignment, Answer, User, PageProps, Group } from '@/types';
 import useExamResults from '@/hooks/exam/useExamResults';
 import useExamScoring from '@/hooks/exam/useExamScoring';
 import ExamInfoSection from '@/Components/exam/ExamInfoSection';
 import QuestionRenderer from '@/Components/exam/QuestionRenderer';
 import { route } from 'ziggy-js';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { Button } from '@/Components';
+import { hasPermission } from '@/utils/permissions';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 
 interface Props {
     exam: Exam;
+    group: Group;
     student: User;
     assignment: ExamAssignment;
     userAnswers: Record<number, Answer>;
     creator: User;
 }
 
-const ExamStudentResults: React.FC<Props> = ({ exam, student, assignment, userAnswers, creator }) => {
+const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment, userAnswers, creator }) => {
+    const { auth } = usePage<PageProps>().props;
     const { isPendingReview, assignmentStatus, examIsActive } = useExamResults({ exam, assignment, userAnswers });
     const { totalPoints, finalPercentage, getQuestionResult } = useExamScoring({ exam, assignment, userAnswers });
 
+    // Vérification de la permission de correction
+    const canGradeExams = hasPermission(auth.permissions, 'grade exams');
+
 
     return (
-        <AuthenticatedLayout title={`Résultats - ${student.name} - ${exam.title}`}>
+        <AuthenticatedLayout title={`Résultats - ${student.name} - ${exam.title}`}
+            breadcrumb={breadcrumbs.examGroupSubmission(exam.id, group.id, exam.title, group.display_name, student.name)}
+        >
             <Section
-                title={`Résultats de ${student.name}`}
+                title={`Copie de ${student.name}`}
                 subtitle={
                     <div className='flex items-center space-x-4'>
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${assignmentStatus.color}`}>
@@ -44,20 +53,20 @@ const ExamStudentResults: React.FC<Props> = ({ exam, student, assignment, userAn
                 }
                 actions={
                     <div className="flex space-x-2">
-                        {/* {isPendingReview && ( */}
-                        <Button
-                            color="primary"
-                            size="sm"
-                            onClick={() => router.visit(route('exams.review', { exam: exam.id, student: student.id }))}
-                        >
-                            {isPendingReview ? "Corriger l'examen" : "Modifier la correction"}
-                        </Button>
-                        {/* )} */}
+                        {canGradeExams && (
+                            <Button
+                                color="primary"
+                                size="sm"
+                                onClick={() => router.visit(route('exams.review', { exam: exam.id, group: group.id, student: student.id }))}
+                            >
+                                {isPendingReview ? "Corriger l'examen" : "Modifier la correction"}
+                            </Button>
+                        )}
                         <Button
                             color="secondary"
                             variant="outline"
                             size="sm"
-                            onClick={() => router.visit(route('exams.assignments', exam.id))}
+                            onClick={() => router.visit(route('exams.groups', exam.id))}
                         >
                             Retour aux assignations
                         </Button>

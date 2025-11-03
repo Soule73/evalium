@@ -5,24 +5,30 @@ import AlertEntry from '@/Components/AlertEntry';
 import Badge from '@/Components/Badge';
 import Modal from '@/Components/Modal';
 import Textarea from '@/Components/Textarea';
-import { Exam, ExamAssignment, Answer, User, Question } from '@/types';
+import { Exam, ExamAssignment, Answer, User, Question, PageProps, Group } from '@/types';
 import ExamInfoSection from '@/Components/exam/ExamInfoSection';
 import QuestionRenderer from '@/Components/exam/QuestionRenderer';
 import { requiresManualGrading, getCorrectionStatus } from '@/utils/examUtils';
 import { route } from 'ziggy-js';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { Button } from '@/Components';
 import TextEntry from '@/Components/TextEntry';
 import useExamStudentReview from '@/hooks/exam/useExamStudentReview';
+import { hasPermission } from '@/utils/permissions';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 
 interface Props {
     exam: Exam;
+    group: Group;
     student: User;
     assignment: ExamAssignment;
     userAnswers: Record<number, Answer>;
 }
 
-const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAnswers }) => {
+const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAnswers, group }) => {
+    const { auth } = usePage<PageProps>().props;
+    const canGradeExams = hasPermission(auth.permissions, 'grade exams');
+
     const {
         assignmentStatus,
         totalPoints,
@@ -40,7 +46,7 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
         handleSubmit,
         handleConfirmSubmit,
         handleCancelSubmit
-    } = useExamStudentReview({ exam, assignment, userAnswers, student });
+    } = useExamStudentReview({ exam, group, assignment, userAnswers, student });
 
     const renderScoreInput = (question: Question) => {
         const questionScore = scores[question.id] || 0;
@@ -94,7 +100,10 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
             </div>
         );
     }; return (
-        <AuthenticatedLayout title={`Correction - ${student.name} - ${exam.title}`}>
+        <AuthenticatedLayout title={`Correction - ${student.name} - ${exam.title}`}
+            breadcrumb={breadcrumbs.examGroupReview(exam.id, group.id, student.id, exam.title, group.display_name, student.name)}
+
+        >
             <Section
                 title={`Correction de l'examen de ${student.name}`}
                 subtitle={
@@ -107,19 +116,21 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
                 }
                 actions={
                     <div className="flex space-x-2">
-                        <Button
-                            color="primary"
-                            size="sm"
-                            onClick={handleSubmit}
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? 'Sauvegarde...' : 'Sauvegarder les notes'}
-                        </Button>
+                        {canGradeExams && (
+                            <Button
+                                color="primary"
+                                size="sm"
+                                onClick={handleSubmit}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Sauvegarde...' : 'Sauvegarder les notes'}
+                            </Button>
+                        )}
                         <Button
                             color="secondary"
                             variant="outline"
                             size="sm"
-                            onClick={() => router.visit(route('exams.assignments', exam.id))}
+                            onClick={() => router.visit(route('exams.groups', exam.id))}
                         >
                             Retour aux assignations
                         </Button>

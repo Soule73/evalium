@@ -194,7 +194,6 @@ export const getAssignmentBadgeType = (status: string) => {
     switch (status) {
         case 'graded': return 'success';
         case 'submitted': return 'info';
-        case 'pending_review': return 'warning';
         default: return 'error';
     }
 };
@@ -203,9 +202,6 @@ export const getAssignmentBadgeLabel = (status: string) => {
     switch (status) {
         case 'graded': return 'Noté';
         case 'submitted': return 'Soumis';
-        case 'pending_review': return 'En attente de révision';
-        case 'started': return 'Commencé';
-        case 'assigned': return 'Assigné';
         default: return 'Non commencé';
     }
 };
@@ -222,20 +218,14 @@ export const securityViolationLabel = (violation: string | undefined): string =>
 }
 
 export const assignmentStatusColors: Record<string, string> = {
-    assigned: 'bg-yellow-100 text-yellow-800',
-    started: 'bg-blue-100 text-blue-800',
     submitted: 'bg-green-100 text-green-800',
     graded: 'bg-purple-100 text-purple-800',
-    pending_review: 'bg-orange-100 text-orange-800',
     default: 'bg-gray-100 text-gray-800'
 };
 
 export const assignmentStatusLabels: Record<string, string> = {
-    assigned: 'À faire',
-    started: 'En cours',
     submitted: 'Soumis',
     graded: 'Noté',
-    pending_review: 'En révision',
     default: 'Non commencé'
 };
 
@@ -355,15 +345,12 @@ export const truncateText = (text: string, maxLength: number): string => {
  * Maps known status strings to their corresponding French label and color.
  * If the status is not recognized, returns the status as the label and 'gray' as the color.
  *
- * @param status - The status string of the exam assignment (e.g., 'assigned', 'started', 'submitted', 'pending_review', 'graded').
+ * @param status - The status string of the exam assignment (e.g., 'submitted', 'graded').
  * @returns An object containing the `label` (string) and `color` (string) for the given status.
  */
 export const formatExamAssignmentStatus = (status: string): { label: string; color: string } => {
     const statusMap = {
-        'assigned': { label: 'Assigné', color: 'info' },
-        'started': { label: 'Commencé', color: 'warning' },
         'submitted': { label: 'Soumis', color: 'info' },
-        'pending_review': { label: 'En attente de révision', color: 'warning' },
         'graded': { label: 'Noté', color: 'success' },
         'not_assigned': { label: 'Non commencé', color: 'gray' }
     };
@@ -379,10 +366,10 @@ export const canShowExamResults = (assignmentStatus: string): boolean => {
  * Returns an array of possible assignment status strings.
  *
  * @returns {string[]} An array containing the assignment statuses: 
- * 'assigned', 'started', 'submitted', 'pending_review', and 'graded'.
+ * 'submitted' and 'graded'.
  */
 export const getAssignmentStatus = () => {
-    return ['assigned', 'started', 'submitted', 'pending_review', 'graded'];
+    return ['submitted', 'graded'];
 };
 
 /**
@@ -393,19 +380,13 @@ export const getAssignmentStatus = () => {
  *
  * Status values include:
  * - 'all': All statuses
- * - 'assigned': Assigned
- * - 'started':  Started
  * - 'submitted':  Submitted
- * - 'pending_review': Pending review
  * - 'graded': Graded
  */
 export const getAssignmentStatusWithLabel = (): Array<{ value: string; label: string; }> => {
     return [
         { value: 'all', label: 'Tous les statuts' },
-        { value: 'assigned', label: 'Assigné' },
-        { value: 'started', label: 'Commencé' },
         { value: 'submitted', label: 'Soumis' },
-        { value: 'pending_review', label: 'En attente de révision' },
         { value: 'graded', label: 'Noté' },
     ];
 };

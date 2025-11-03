@@ -38,14 +38,14 @@ class ExamSecurityService
     ];
 
     /**
-     * Enregistre une violation de sécurité
+     * Enregistre une violation de sécurité dans les logs uniquement (sans update DB)
      *
      * @param ExamAssignment $assignment
      * @param string $violationType
      * @param string $details
      * @return void
      */
-    public function logViolation(
+    private function logViolationToFile(
         ExamAssignment $assignment,
         string $violationType,
         string $details = ''
@@ -58,6 +58,22 @@ class ExamSecurityService
             'details' => $details,
             'timestamp' => Carbon::now()->toDateTimeString(),
         ]);
+    }
+
+    /**
+     * Enregistre une violation de sécurité
+     *
+     * @param ExamAssignment $assignment
+     * @param string $violationType
+     * @param string $details
+     * @return void
+     */
+    public function logViolation(
+        ExamAssignment $assignment,
+        string $violationType,
+        string $details = ''
+    ): void {
+        $this->logViolationToFile($assignment, $violationType, $details);
 
         // Mettre à jour l'assignment avec la violation
         $assignment->update([
@@ -82,23 +98,33 @@ class ExamSecurityService
      * @param ExamAssignment $assignment
      * @param string $violationType
      * @param string $details
+     * @param float|null $autoScore Score auto-calculé à enregistrer
      * @return void
      */
     public function forceSubmitDueToViolation(
         ExamAssignment $assignment,
         string $violationType,
-        string $details = ''
+        string $details = '',
+        ?float $autoScore = null
     ): void {
         $submissionTime = Carbon::now();
 
-        $assignment->update([
+        $updateData = [
             'status' => 'submitted',
             'submitted_at' => $submissionTime,
             'security_violation' => $violationType,
             'forced_submission' => true,
-        ]);
+        ];
 
-        $this->logViolation($assignment, $violationType, $details);
+        // Ajouter le score auto si fourni
+        if ($autoScore !== null) {
+            $updateData['auto_score'] = $autoScore;
+        }
+
+        $assignment->update($updateData);
+
+        // Log uniquement, pas d'update supplémentaire
+        $this->logViolationToFile($assignment, $violationType, $details);
     }
 
     /**
@@ -107,15 +133,17 @@ class ExamSecurityService
      * @param ExamAssignment $assignment
      * @param string $violationType
      * @param string $details
+     * @param float|null $autoScore Score auto-calculé à enregistrer
      * @return bool True si l'examen a été forcé à se terminer
      */
     public function handleViolation(
         ExamAssignment $assignment,
         string $violationType,
-        string $details = ''
+        string $details = '',
+        ?float $autoScore = null
     ): bool {
         if ($this->shouldTerminateExam($violationType)) {
-            $this->forceSubmitDueToViolation($assignment, $violationType, $details);
+            $this->forceSubmitDueToViolation($assignment, $violationType, $details, $autoScore);
             return true;
         }
 

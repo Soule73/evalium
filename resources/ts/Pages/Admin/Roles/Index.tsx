@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/Components/Button';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
@@ -10,6 +10,8 @@ import Badge from '@/Components/Badge';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { useState } from 'react';
 import ConfirmationModal from '@/Components/ConfirmationModal';
+import { hasPermission } from '@/utils/permissions';
+import { PageProps } from '@/types';
 
 interface Permission {
     id: number;
@@ -32,6 +34,13 @@ interface Props {
 }
 
 export default function RoleIndex({ roles }: Props) {
+    const { auth } = usePage<PageProps>().props;
+
+    // Vérification des permissions
+    const canCreateRoles = hasPermission(auth.permissions, 'create roles');
+    const canUpdateRoles = hasPermission(auth.permissions, 'update roles');
+    const canDeleteRoles = hasPermission(auth.permissions, 'delete roles');
+
     const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; roleId: number | null; roleName: string }>({
         isOpen: false,
         roleId: null,
@@ -118,17 +127,19 @@ export default function RoleIndex({ roles }: Props) {
             {
                 key: 'actions',
                 label: 'Actions',
-                render: (role) => (
+                render: (role) => (canUpdateRoles || canDeleteRoles) ? (
                     <div className="flex gap-2">
-                        <Button
-                            onClick={() => handleEdit(role.id)}
-                            size="sm"
-                            color="primary"
-                            variant="outline"
-                        >
-                            {isSystemRole(role.name) ? 'Voir' : 'Modifier'}
-                        </Button>
-                        {!isSystemRole(role.name) && (
+                        {canUpdateRoles && (
+                            <Button
+                                onClick={() => handleEdit(role.id)}
+                                size="sm"
+                                color="primary"
+                                variant="outline"
+                            >
+                                {isSystemRole(role.name) ? 'Voir' : 'Modifier'}
+                            </Button>
+                        )}
+                        {!isSystemRole(role.name) && canDeleteRoles && (
                             <Button
                                 onClick={() => setDeleteModal({
                                     isOpen: true,
@@ -142,23 +153,23 @@ export default function RoleIndex({ roles }: Props) {
                             </Button>
                         )}
                     </div>
-                ),
+                ) : null,
             },
         ],
     };
 
     return (
         <AuthenticatedLayout title="Gestion des rôles & permissions"
-            breadcrumb={breadcrumbs.adminRoles()}
+            breadcrumb={breadcrumbs.roles()}
         >
             <Section
                 title="Rôles & Permissions"
                 subtitle="Gérer les rôles et leurs permissions"
-                actions={
+                actions={canCreateRoles && (
                     <Button onClick={handleCreate} color="primary" size='sm'>
                         Nouveau rôle
                     </Button>
-                }
+                )}
             >
                 <DataTable
                     config={dataTableConfig}

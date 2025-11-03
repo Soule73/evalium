@@ -72,7 +72,7 @@ class GetExamResultsRequest extends FormRequest
             'filter_status' => [
                 'nullable',
                 'string',
-                'in:completed,in_progress,not_started'
+                'in:submitted,graded'
             ],
             'search' => [
                 'nullable',
@@ -90,16 +90,16 @@ class GetExamResultsRequest extends FormRequest
     public function messages()
     {
         return [
-            'per_page.integer' => 'Le nombre d\'éléments par page doit être un entier.',
-            'per_page.min' => 'Le nombre d\'éléments par page doit être au moins 1.',
-            'per_page.max' => 'Le nombre d\'éléments par page ne peut pas dépasser 100.',
-            'page.integer' => 'Le numéro de page doit être un entier.',
-            'page.min' => 'Le numéro de page doit être au moins 1.',
-            'sort_by.in' => 'Le tri doit être l\'un des suivants : user_name, total_score, completed_at, status.',
-            'sort_direction.in' => 'La direction du tri doit être asc ou desc.',
-            'filter_status.in' => 'Le filtre de statut doit être l\'un des suivants : completed, in_progress, not_started.',
-            'search.string' => 'La recherche doit être du texte.',
-            'search.max' => 'La recherche ne peut pas dépasser 255 caractères.'
+            'per_page.integer' => "Le nombre d'éléments par page doit être un entier.",
+            'per_page.min' => "Le nombre d'éléments par page doit être au moins 1.",
+            'per_page.max' => "Le nombre d'éléments par page ne peut pas dépasser 100.",
+            'page.integer' => "Le numéro de page doit être un entier.",
+            'page.min' => "Le numéro de page doit être au moins 1.",
+            'sort_by.in' => "Le tri doit être l'un des suivants : user_name, total_score, completed_at, status.",
+            'sort_direction.in' => "La direction du tri doit être asc ou desc.",
+            'filter_status.in' => "Le filtre de statut doit être l'un des suivants : submitted, graded.",
+            'search.string' => "La recherche doit être du texte.",
+            'search.max' => "La recherche ne peut pas dépasser 255 caractères."
         ];
     }
 

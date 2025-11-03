@@ -2,7 +2,7 @@ import { Exam, User } from '@/types';
 import { PaginationType } from '@/types/datatable';
 import ShowUser from './ShowUser';
 import Section from '@/Components/Section';
-import TeacherExamList from '@/Components/exam/TeacherExamList';
+import ExamList from '@/Components/exam/ExamList';
 import StatCard from '@/Components/StatCard';
 import { DocumentTextIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { breadcrumbs } from '@/utils/breadcrumbs';
@@ -22,7 +22,7 @@ export default function ShowTeacher({ user, exams, canDelete, canToggleStatus }:
 
     return (
         <ShowUser user={user} canDelete={canDelete} canToggleStatus={canToggleStatus}
-            breadcrumb={breadcrumbs.adminTeacherShow(user)}
+            breadcrumb={breadcrumbs.teacherShow(user)}
         >
             <Section title="Statistiques" subtitle="Aperçu de l'activité de l'enseignant">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -48,7 +48,7 @@ export default function ShowTeacher({ user, exams, canDelete, canToggleStatus }:
             </Section>
 
             <Section title="Examens créés" subtitle="Liste des examens créés par l'enseignant">
-                <TeacherExamList
+                <ExamList
                     data={exams}
                     variant="admin"
                     showFilters={true}

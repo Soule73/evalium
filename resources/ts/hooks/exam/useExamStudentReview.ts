@@ -2,19 +2,20 @@ import { useState } from 'react';
 import { route } from 'ziggy-js';
 import useExamResults from './useExamResults';
 import useExamScoring from './useExamScoring';
-import { Answer, Exam, ExamAssignment, User } from '@/types';
+import { Answer, Exam, ExamAssignment, Group, User } from '@/types';
 import useScoreManagement from './useScoreManagement';
 import { router } from '@inertiajs/react';
 
 interface ExamStudentReviewProps {
     exam: Exam;
+    group?: Group;
     assignment: ExamAssignment;
     userAnswers: Record<number, Answer>;
     student: User;
 }
 
 const useExamStudentReview = (
-    { exam, assignment, userAnswers, student }: ExamStudentReviewProps
+    { exam, group, assignment, userAnswers, student }: ExamStudentReviewProps
 ) => {
 
     const { assignmentStatus } = useExamResults({ exam, assignment, userAnswers });
@@ -61,7 +62,7 @@ const useExamStudentReview = (
                 feedback: feedbacks[scoreData.question_id] || null
             }));
 
-            router.post(route('exams.review.save', { exam: exam.id, student: student.id }), {
+            router.post(route('exams.review.save', { exam: exam.id, student: student.id, group: group?.id }), {
                 scores: scoresWithFeedback,
                 teacher_notes: teacherNotes
             }, {

@@ -1,15 +1,16 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/Components/Button';
 import Section from '@/Components/Section';
 import { route } from 'ziggy-js';
-import { Group, User } from '@/types';
+import { Group, User, PageProps } from '@/types';
 import { useState } from 'react';
 import { UserPlusIcon } from '@heroicons/react/24/outline';
 import { DataTable } from '@/Components/DataTable';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
 import ConfirmationModal from '@/Components/ConfirmationModal';
 import { breadcrumbs } from '@/utils/breadcrumbs';
+import { hasPermission } from '@/utils/permissions';
 
 interface Props {
     group: Group & { active_students_count?: number };
@@ -17,6 +18,11 @@ interface Props {
 }
 
 export default function AssignStudents({ group, availableStudents }: Props) {
+    const { auth } = usePage<PageProps>().props;
+
+    // Vérification des permissions
+    const canManageGroupStudents = hasPermission(auth.permissions, 'manage group students');
+
     const [selectedStudents, setSelectedStudents] = useState<(number | string)[]>([]);
     const [confirmModal, setConfirmModal] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -107,9 +113,9 @@ export default function AssignStudents({ group, availableStudents }: Props) {
             resetLabel: 'Réinitialiser la recherche'
         },
         perPageOptions: [10, 25, 50, 100],
-        enableSelection: true,
+        enableSelection: canManageGroupStudents,
         maxSelectable: maxSelectable,
-        selectionActions: (selectedIds) => (
+        selectionActions: canManageGroupStudents ? (selectedIds) => (
             <>
                 <Button
                     onClick={() => handleAssignStudents(selectedIds)}
@@ -120,12 +126,12 @@ export default function AssignStudents({ group, availableStudents }: Props) {
                     Assigner ({selectedIds.length})
                 </Button>
             </>
-        ),
+        ) : undefined,
     };
 
     return (
         <AuthenticatedLayout title={`Assigner des étudiants - ${group.display_name}`}
-            breadcrumb={breadcrumbs.adminGroupAssignStudents(group.display_name, group.id)}
+            breadcrumb={breadcrumbs.groupAssignStudents(group.display_name, group.id)}
         >
             <Section
                 title={`Assigner des étudiants au groupe "${group.display_name}"`}
@@ -152,22 +158,35 @@ export default function AssignStudents({ group, availableStudents }: Props) {
                     </div>
                 ) : (
                     <>
-                        {maxSelectable < availableStudents.length && (
-                            <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <p className="text-sm text-blue-800">
-                                    <strong>Note :</strong> Vous pouvez sélectionner jusqu'à {maxSelectable} étudiant(s)
-                                    (places disponibles dans le groupe).
+                        {!canManageGroupStudents ? (
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                                <div className="text-gray-800 font-medium mb-2">
+                                    Permission insuffisante
+                                </div>
+                                <p className="text-gray-700 text-sm">
+                                    Vous n'avez pas la permission d'assigner des étudiants à ce groupe.
                                 </p>
                             </div>
-                        )}
+                        ) : (
+                            <>
+                                {maxSelectable < availableStudents.length && (
+                                    <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <p className="text-sm text-blue-800">
+                                            <strong>Note :</strong> Vous pouvez sélectionner jusqu'à {maxSelectable} étudiant(s)
+                                            (places disponibles dans le groupe).
+                                        </p>
+                                    </div>
+                                )}
 
-                        <DataTable
-                            data={studentsData}
-                            config={dataTableConfig}
-                            onSelectionChange={(selectedIds) => {
-                                setSelectedStudents(selectedIds);
-                            }}
-                        />
+                                <DataTable
+                                    data={studentsData}
+                                    config={dataTableConfig}
+                                    onSelectionChange={(selectedIds) => {
+                                        setSelectedStudents(selectedIds);
+                                    }}
+                                />
+                            </>
+                        )}
                     </>
                 )}
             </Section>

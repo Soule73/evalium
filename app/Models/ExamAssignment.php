@@ -63,7 +63,7 @@ class ExamAssignment extends Model
      * @var array<string, mixed>
      */
     protected $attributes = [
-        'status' => 'assigned',
+        'status' => null,
         'forced_submission' => false,
     ];
 
@@ -115,30 +115,27 @@ class ExamAssignment extends Model
     }
 
     /**
-     * Scope a query to only include assigned exam assignments.
+     * Scope a query to only include assignments not yet started (no started_at timestamp).
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @return \Illuminate\Database\Eloquent\Builder
      *
      * @noinspection PhpUnused
      */
-    public function scopeAssigned($query)
+    public function scopeNotStarted($query)
     {
-        return $query->where('status', 'assigned');
+        return $query->whereNull('started_at');
     }
 
     /**
-     * Scope pour les assignations commencées
-     */
-    /**
-     * Scope a query to only include exam assignments that have been started.
+     * Scope a query to only include exam assignments that have been started but not submitted.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeStarted($query)
+    public function scopeInProgress($query)
     {
-        return $query->where('status', 'started');
+        return $query->whereNotNull('started_at')->whereNull('submitted_at');
     }
 
     /**
@@ -159,7 +156,7 @@ class ExamAssignment extends Model
      */
     public function isInProgress(): bool
     {
-        return $this->status === 'started';
+        return $this->started_at !== null && $this->submitted_at === null;
     }
 
     /**

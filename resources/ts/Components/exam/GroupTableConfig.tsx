@@ -52,7 +52,7 @@ export const getGroupTableConfig = ({
                             variant="outline"
                             size="sm"
                             onClick={() => router.visit(
-                                route('exams.group-details', {
+                                route('exams.group.show', {
                                     exam: exam.id,
                                     group: group.id,
                                 })

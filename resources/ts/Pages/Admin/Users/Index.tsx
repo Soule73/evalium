@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/Components/Button';
 import { formatDate, getRoleColor, getRoleLabel } from '@/utils/formatters';
@@ -10,10 +10,11 @@ import { DataTable } from '@/Components/DataTable';
 import { route } from 'ziggy-js';
 import { useState } from 'react';
 import CreateUser from './Create';
-import { User } from '@/types';
+import { User, PageProps } from '@/types';
 import Toggle from '@/Components/form/Toggle';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import ConfirmationModal from '@/Components/ConfirmationModal';
+import { hasPermission } from '@/utils/permissions';
 
 interface Group {
     id: number;
@@ -22,7 +23,7 @@ interface Group {
     is_active: boolean;
 }
 
-interface Props {
+interface Props extends PageProps {
     users: PaginationType<User>;
     roles: string[];
     groups: Group[];
@@ -31,6 +32,12 @@ interface Props {
 }
 
 export default function UserIndex({ users, roles, groups, canDeleteUsers }: Props) {
+    const { auth } = usePage<PageProps>().props;
+
+    // Vérifications des permissions
+    const canCreateUsers = hasPermission(auth.permissions, 'create users');
+    const canUpdateUsers = hasPermission(auth.permissions, 'update users');
+    const canToggleUserStatus = hasPermission(auth.permissions, 'toggle user status');
 
     const [isShowCreateModal, setIsShowCreateModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; userId: number | null; userName: string }>({
@@ -127,7 +134,7 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                 Supprimé
                             </span>
-                        ) : (
+                        ) : canToggleUserStatus ? (
                             <Toggle
                                 checked={user.is_active}
                                 onChange={() => handleToggleStatus(user.id)}
@@ -137,6 +144,10 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
                                 activeLabel="Actif"
                                 inactiveLabel="Inactif"
                             />
+                        ) : (
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                {user.is_active ? 'Actif' : 'Inactif'}
+                            </span>
                         )}
                     </div>
                 )
@@ -184,14 +195,16 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
                             <>
                                 {canViewUser(user.roles?.length && user.roles[0] ? user.roles[0].name : ''
 
-                                ) && (<Button
-                                    onClick={() => handleViewUser(user.id, user.roles?.length && user.roles[0] ? user.roles[0].name : '')}
-                                    color="secondary"
-                                    size="sm"
-                                    variant='outline'
-                                >
-                                    Voir
-                                </Button>)}
+                                ) && canUpdateUsers && (
+                                        <Button
+                                            onClick={() => handleViewUser(user.id, user.roles?.length && user.roles[0] ? user.roles[0].name : '')}
+                                            color="secondary"
+                                            size="sm"
+                                            variant='outline'
+                                        >
+                                            Voir
+                                        </Button>
+                                    )}
                                 {canDeleteUsers && !canViewUser(user.roles?.length && user.roles[0] ? user.roles[0].name : '') && (
                                     <Button
                                         onClick={() => setDeleteModal({
@@ -256,7 +269,7 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
 
     return (
         <AuthenticatedLayout title="Gestion des utilisateurs"
-            breadcrumb={breadcrumbs.adminUsers()}
+            breadcrumb={breadcrumbs.users()}
         >
 
             <CreateUser
@@ -293,11 +306,11 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
                 />
             </div>
             <Section title="Liste des utilisateurs"
-                actions={
+                actions={canCreateUsers && (
                     <Button onClick={handleCreateUser} color="secondary" variant='outline' size='sm'>
                         Créer un utilisateur
                     </Button>
-                }
+                )}
             >
                 <DataTable
                     data={users}

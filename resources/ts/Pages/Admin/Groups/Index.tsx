@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/Components/Button';
 import { formatDate } from '@/utils/formatters';
@@ -8,13 +8,14 @@ import StatCard from '@/Components/StatCard';
 import { UserGroupIcon, AcademicCapIcon, UsersIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { DataTable } from '@/Components/DataTable';
 import { route } from 'ziggy-js';
-import { Group } from '@/types';
+import { Group, PageProps } from '@/types';
 import Badge from '@/Components/Badge';
 import { useState } from 'react';
 import ConfirmationModal from '@/Components/ConfirmationModal';
 import { breadcrumbs } from '@/utils/breadcrumbs';
+import { hasPermission } from '@/utils/permissions';
 
-interface Props {
+interface Props extends PageProps {
     groups: PaginationType<Group>;
     filters: {
         search?: string;
@@ -25,7 +26,14 @@ interface Props {
 }
 
 export default function GroupIndex({ groups, levels }: Props) {
-    // const [selectedGroups, setSelectedGroups] = useState<(number | string)[]>([]);
+    const { auth } = usePage<PageProps>().props;
+
+    // Vérifications des permissions
+    const canCreateGroups = hasPermission(auth.permissions, 'create groups');
+    const canViewGroups = hasPermission(auth.permissions, 'view groups');
+    const canUpdateGroups = hasPermission(auth.permissions, 'update groups');
+    const canToggleStatus = hasPermission(auth.permissions, 'toggle group status');
+
     const [confirmModal, setConfirmModal] = useState<{
         isOpen: boolean;
         type: 'activate' | 'deactivate' | null;
@@ -65,12 +73,12 @@ export default function GroupIndex({ groups, levels }: Props) {
             ids: confirmModal.ids
         }, {
             onSuccess: () => {
-                // setSelectedGroups([]);
                 setConfirmModal({ isOpen: false, type: null, ids: [] });
                 setLoading(false);
             },
             onError: () => {
                 setLoading(false);
+                setConfirmModal({ isOpen: false, type: null, ids: [] });
             }
         });
     };
@@ -125,13 +133,6 @@ export default function GroupIndex({ groups, levels }: Props) {
                     </div>
                 )
             },
-            // {
-            //     key: 'academic_year',
-            //     label: 'Année académique',
-            //     render: (group) => (
-            //         <span className="text-sm text-gray-600">{group.academic_year}</span>
-            //     )
-            // },
             {
                 key: 'period',
                 label: 'Période',
@@ -152,22 +153,26 @@ export default function GroupIndex({ groups, levels }: Props) {
                 label: 'Actions',
                 render: (group) => (
                     <div className="flex space-x-2">
-                        <Button
-                            onClick={() => handleViewGroup(group.id)}
-                            color="secondary"
-                            size="sm"
-                            variant="outline"
-                        >
-                            Voir
-                        </Button>
-                        <Button
-                            onClick={() => handleEditGroup(group.id)}
-                            color="primary"
-                            size="sm"
-                            variant="outline"
-                        >
-                            Modifier
-                        </Button>
+                        {canViewGroups && (
+                            <Button
+                                onClick={() => handleViewGroup(group.id)}
+                                color="secondary"
+                                size="sm"
+                                variant="outline"
+                            >
+                                Voir
+                            </Button>
+                        )}
+                        {canUpdateGroups && (
+                            <Button
+                                onClick={() => handleEditGroup(group.id)}
+                                color="primary"
+                                size="sm"
+                                variant="outline"
+                            >
+                                Modifier
+                            </Button>
+                        )}
                     </div>
                 )
             }
@@ -207,8 +212,8 @@ export default function GroupIndex({ groups, levels }: Props) {
             resetLabel: 'Réinitialiser les filtres'
         },
         perPageOptions: [10, 25, 50],
-        enableSelection: true,
-        selectionActions: (selectedIds) => (
+        enableSelection: canToggleStatus,
+        selectionActions: canToggleStatus ? (selectedIds) => (
             <>
                 <Button
                     size="sm"
@@ -227,7 +232,7 @@ export default function GroupIndex({ groups, levels }: Props) {
                     Désactiver ({selectedIds.length})
                 </Button>
             </>
-        ),
+        ) : undefined,
     };
 
     // Calcul des statistiques
@@ -238,7 +243,7 @@ export default function GroupIndex({ groups, levels }: Props) {
 
     return (
         <AuthenticatedLayout title="Gestion des groupes"
-            breadcrumb={breadcrumbs.adminGroupIndex()}
+            breadcrumb={breadcrumbs.groups()}
         >
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <StatCard
@@ -269,7 +274,7 @@ export default function GroupIndex({ groups, levels }: Props) {
 
             <Section title="Liste des groupes"
                 subtitle="Gérez les groupes de classes et leurs étudiants."
-                actions={
+                actions={canCreateGroups && (
                     <Button
                         onClick={handleCreateGroup}
                         color="primary"
@@ -278,14 +283,11 @@ export default function GroupIndex({ groups, levels }: Props) {
                     >
                         Créer un groupe
                     </Button>
-                }
+                )}
             >
                 <DataTable
                     data={groups}
                     config={dataTableConfig}
-                // onSelectionChange={(selectedIds) => {
-                //     // setSelectedGroups(selectedIds);
-                // }}
                 />
             </Section>
 

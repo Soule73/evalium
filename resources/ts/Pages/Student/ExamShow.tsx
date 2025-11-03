@@ -73,7 +73,7 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
                                 onClick={() => setIsModalOpen(true)}
                             >
                                 {
-                                    assignment?.status === 'started'
+                                    assignment?.started_at
                                         ? "Continuer l'examen"
                                         : "Commencer l'examen"
                                 }
@@ -127,9 +127,9 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
                     <StatCard
                         title="Statut"
                         value={
-                            assignment?.status === 'submitted' || assignment?.status === 'pending_review' || assignment?.status === 'graded'
+                            assignment?.submitted_at
                                 ? 'Terminé' :
-                                assignment?.status === 'started' ? 'En cours' :
+                                assignment?.started_at ? 'En cours' :
                                     'Non commencé'}
                         icon={QuestionMarkCircleIcon}
                         color="purple"

@@ -3,6 +3,7 @@
 namespace App\Services\Shared;
 
 use App\Models\Exam;
+use App\Models\Group;
 use App\Models\ExamAssignment;
 use App\Services\Core\Answer\AnswerFormatter;
 
@@ -58,23 +59,9 @@ class UserAnswerService
     /**
      * Récupérer les données formatées pour l'affichage des résultats d'un étudiant
      */
-    public function getStudentResultsData(ExamAssignment $assignment): array
+    public function getStudentResultsData(ExamAssignment $assignment, Exam $exam, Group $group): array
     {
-        $data = $this->answerFormatter->getStudentResultsData($assignment);
 
-        // Ajouter le creator (teacher) pour compatibilité avec les vues existantes
-        $data['creator'] = $assignment->exam->teacher;
-        $data['formattedAnswers'] = $data['user_answers']; // Alias pour compatibilité
-        $data['answers'] = $data['user_answers']; // Alias pour compatibilité avec les tests
-
-        return $data;
-    }
-
-    /**
-     * Récupérer les données formatées pour la page de révision/correction
-     */
-    public function getStudentReviewData(ExamAssignment $assignment): array
-    {
         $assignment->load([
             'answers.question.choices',
             'answers.choice',
@@ -82,17 +69,47 @@ class UserAnswerService
             'student'
         ]);
 
-        $exam = $assignment->exam;
-        $userAnswers = $this->answerFormatter->formatForFrontend($assignment);
+        $exam->load('teacher');
 
         return [
             'assignment' => $assignment,
             'student' => $assignment->student,
-            'exam' => $exam,
-            'questions' => $exam->questions,
-            'userAnswers' => $userAnswers,
-            'totalQuestions' => $exam->questions->count(),
-            'totalPoints' => $exam->questions->sum('points'),
+            'exam' => $assignment->exam,
+            'group' => $group,
+            'creator' => $exam->teacher,
+            'userAnswers' => $this->answerFormatter->formatForFrontend($assignment),
+            'stats' => $this->answerFormatter->getCompletionStats($assignment),
+        ];
+    }
+
+    /**
+     * Récupérer les données formatées pour la page de révision/correction
+     */
+    public function getStudentReviewData(ExamAssignment $assignment, Exam $exam, Group $group): array
+    {
+        if (!$assignment->relationLoaded('answers')) {
+            $assignment->load(['answers.choice']);
+        }
+
+        $loadedExam = $assignment->exam;
+
+        $questionsById = $loadedExam->questions->keyBy('id');
+
+        foreach ($assignment->answers as $answer) {
+            if (!$answer->relationLoaded('question') && isset($questionsById[$answer->question_id])) {
+                $answer->setRelation('question', $questionsById[$answer->question_id]);
+            }
+        }
+
+        return [
+            'assignment' => $assignment,
+            'student' => $assignment->student,
+            'exam' => $loadedExam,
+            'group' => $group,
+            'questions' => $loadedExam->questions,
+            'userAnswers' => $this->answerFormatter->formatForFrontend($assignment),
+            'totalQuestions' => $loadedExam->questions->count(),
+            'totalPoints' => $loadedExam->questions->sum('points'),
         ];
     }
 }
