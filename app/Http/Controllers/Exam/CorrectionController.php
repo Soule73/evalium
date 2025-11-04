@@ -71,17 +71,26 @@ class CorrectionController extends Controller
         try {
             $result = $this->examScoringService->saveManualCorrection($exam, $student, $request->validated());
 
+            $message = __('messages.scores_saved', [
+                'updated_answers' => $result['updated_answers'],
+                'total_score' => $result['total_score']
+            ]);
+
             return $this->redirectWithSuccess(
                 'exams.review',
-                "Correction saved successfully! {$result['updated_answers']} answers updated. Total score: {$result['total_score']} points.",
+                $message,
                 ['exam' => $exam->id, 'student' => $student->id, 'group' => $group->id]
             );
         } catch (\Exception $e) {
-            Log::error("Error saving correction: " . $e->getMessage());
+            Log::error('Error saving correction', [
+                'exam_id' => $exam->id,
+                'student_id' => $student->id,
+                'error' => $e->getMessage()
+            ]);
 
             return $this->redirectWithError(
                 'exams.review',
-                'Error saving correction',
+                __('messages.error_saving_correction'),
                 ['exam' => $exam->id, 'student' => $student->id, 'group' => $group->id]
             );
         }
@@ -117,14 +126,19 @@ class CorrectionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Score updated successfully'
+                'message' => __('messages.score_updated')
             ]);
         } catch (\Exception $e) {
-            Log::error("Error updating score: " . $e->getMessage());
+            Log::error('Error updating score', [
+                'exam_id' => $exam->id,
+                'student_id' => $studentId,
+                'question_id' => $validated['question_id'],
+                'error' => $e->getMessage()
+            ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating score'
+                'message' => __('messages.error_updating_score')
             ], 422);
         }
     }

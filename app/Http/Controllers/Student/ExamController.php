@@ -10,6 +10,7 @@ use App\Helpers\ExamHelper;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response as InertiaResponse;
@@ -85,7 +86,7 @@ class ExamController extends Controller
         $studentPivot = $this->accessService->getStudentGroupMembership($group, $student);
 
         if (!$studentPivot) {
-            abort(403, 'You are not a member of this group.');
+            abort(403, __('messages.not_member_of_group'));
         }
 
         $isActiveGroup = $this->accessService->isActiveGroupMembership($studentPivot);
@@ -127,7 +128,7 @@ class ExamController extends Controller
         $assignment = $this->assignmentRepository->findByExamAndStudent($exam, $student->id);
 
         if (!$assignment) {
-            abort(403, 'This exam is not assigned to you.');
+            abort(403, __('messages.exam_not_assigned'));
         }
 
         $canTake = ExamHelper::canTakeExam($exam, $assignment);
@@ -180,17 +181,17 @@ class ExamController extends Controller
         }
 
         if (!$exam->is_active) {
-            return $this->redirectWithError('student.exams.show', "This exam is not available.", ['exam' => $exam->id]);
+            return $this->redirectWithError('student.exams.show', __('messages.exam_not_available'), ['exam' => $exam->id]);
         }
 
         if (!$this->examSessionService->validateExamTiming($exam)) {
-            return $this->redirectWithError('student.exams.show', "This exam is not accessible at this time.", ['exam' => $exam->id]);
+            return $this->redirectWithError('student.exams.show', __('messages.exam_not_accessible'), ['exam' => $exam->id]);
         }
 
         $existingAssignment = $this->assignmentRepository->findByExamAndStudent($exam, $student->id);
 
         if (!$existingAssignment) {
-            return $this->redirectWithError('student.exams.index', 'This exam is not assigned to you.', []);
+            return $this->redirectWithError('student.exams.index', __('messages.exam_not_assigned'), []);
         }
 
         $assignment = $existingAssignment->exists
@@ -198,7 +199,7 @@ class ExamController extends Controller
             : $this->examSessionService->findOrCreateAssignment($exam, $student);
 
         if (!ExamHelper::canTakeExam($exam, $assignment)) {
-            return $this->redirectWithInfo('student.exams.show', "You have already completed this exam.", ['exam' => $exam->id]);
+            return $this->redirectWithInfo('student.exams.show', __('messages.exam_already_completed'), ['exam' => $exam->id]);
         }
 
         $this->examSessionService->startExam($assignment);
@@ -237,12 +238,19 @@ class ExamController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Answers saved'
+                'message' => __('messages.answers_saved')
             ]);
         } catch (\Exception $e) {
+            Log::error('Error saving student answers', [
+                'exam_id' => $exam->id,
+                'student_id' => $student->id,
+                'assignment_id' => $assignment->id,
+                'error' => $e->getMessage()
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => __('messages.error_saving_answers')
             ], 500);
         }
     }
@@ -266,7 +274,7 @@ class ExamController extends Controller
         if (!$assignment) {
             return response()->json([
                 'success' => false,
-                'message' => 'Exam not found or already submitted'
+                'message' => __('messages.exam_not_found_or_submitted')
             ], 404);
         }
 
@@ -290,7 +298,7 @@ class ExamController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Security violation processed',
+            'message' => __('messages.security_violation_processed'),
             'exam_terminated' => true,
             'violation_type' => $validated['violation_type'],
             'violation_details' => $validated['violation_details'] ?? '',
@@ -316,7 +324,7 @@ class ExamController extends Controller
         $assignment = $this->assignmentRepository->findStartedAssignment($exam, $student->id);
 
         if (!$assignment) {
-            abort(404, 'Exam not found or already submitted');
+            abort(404, __('messages.exam_not_found_or_submitted'));
         }
 
         $this->examSessionService->submitExam($assignment, false, true);
@@ -344,7 +352,7 @@ class ExamController extends Controller
         $assignment = $this->assignmentRepository->findStartedAssignment($exam, $student->id);
 
         if (!$assignment) {
-            return back()->withErrors(['exam' => "You must start the exam before submitting it."]);
+            return back()->withErrors(['exam' => __('messages.exam_must_start_before_submit')]);
         }
 
         $validated = $request->validated();
@@ -359,6 +367,6 @@ class ExamController extends Controller
 
         $this->examSessionService->submitExam($assignment, $autoScore, $hasTextQuestions, $isSecurityViolation);
 
-        return $this->redirectWithSuccess('student.exams.show', 'Exam submitted successfully!', ['exam' => $exam->id]);
+        return $this->redirectWithSuccess('student.exams.show', __('messages.exam_submitted'), ['exam' => $exam->id]);
     }
 }

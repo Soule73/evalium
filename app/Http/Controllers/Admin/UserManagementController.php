@@ -10,6 +10,7 @@ use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use App\Http\Traits\HasFlashMessages;
 use App\Http\Requests\Admin\EditUserRequest;
 use App\Services\Admin\UserManagementService;
@@ -83,9 +84,10 @@ class UserManagementController extends Controller
 
             $this->userService->store($validated);
 
-            return $this->redirectWithSuccess('users.index', 'User created successfully.');
+            return $this->redirectWithSuccess('users.index', __('messages.user_created'));
         } catch (\Exception $e) {
-            return $this->flashError("Error creating user");
+            Log::error('Error creating user', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -102,7 +104,7 @@ class UserManagementController extends Controller
     public function showTeacher(Request $request, User $user)
     {
         if (!$user->hasRole('teacher')) {
-            return $this->flashError("User is not a teacher.");
+            return $this->flashError(__('messages.unauthorized'));
         }
 
         $perPage = $request->input('per_page', 10);
@@ -144,7 +146,7 @@ class UserManagementController extends Controller
     public function showStudent(Request $request, User $user)
     {
         if (!$user->hasRole('student')) {
-            return $this->flashError("User is not a student.");
+            return $this->flashError(__('messages.unauthorized'));
         }
 
         $perPage = $request->input('per_page', 10);
@@ -200,7 +202,7 @@ class UserManagementController extends Controller
         $auth = Auth::user();
 
         if ($user->hasRole(['admin', 'super_admin']) && !$auth->hasRole('super_admin')) {
-            return $this->flashError("Unauthorized. Only super admin can edit administrators.");
+            return $this->flashError(__('messages.unauthorized'));
         }
 
         try {
@@ -209,10 +211,10 @@ class UserManagementController extends Controller
 
             $this->userService->update($user, $validated);
 
-            return $this->flashSuccess('User updated successfully.');
+            return $this->flashSuccess(__('messages.user_updated'));
         } catch (\Exception $e) {
-
-            return $this->flashError("Error updating user");
+            Log::error('Error updating user', ['user_id' => $user->id, 'error' => $e->getMessage()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -232,22 +234,22 @@ class UserManagementController extends Controller
         $auth = Auth::user();
 
         if ($user->id === $auth->id) {
-            return $this->flashError('You cannot delete your own account.');
+            return $this->flashError(__('messages.unauthorized'));
         }
 
         // Only super_admin can delete accounts
         if (!$auth->can('delete users')) {
-            return $this->flashError("Unauthorized. You do not have permission to delete users.");
+            return $this->flashError(__('messages.unauthorized'));
         }
 
         // Only super_admin can delete admins
         if ($user->hasRole(['admin', 'super_admin']) && !$auth->hasRole('super_admin')) {
-            return $this->flashError("Unauthorized. Only super admin can delete administrators.");
+            return $this->flashError(__('messages.unauthorized'));
         }
 
         $this->userService->delete($user);
 
-        return $this->redirectWithSuccess('users.index', 'User deleted successfully.');
+        return $this->redirectWithSuccess('users.index', __('messages.user_deleted'));
     }
 
 
@@ -266,21 +268,22 @@ class UserManagementController extends Controller
         $auth = Auth::user();
 
         if ($user->id === $auth->id) {
-            return $this->flashError('You cannot modify your own account status.');
+            return $this->flashError(__('messages.unauthorized'));
         }
 
         if (!$auth->can('toggle user status')) {
-            return $this->flashError("Unauthorized. You do not have permission to modify user status.");
+            return $this->flashError(__('messages.unauthorized'));
         }
 
         // Only super_admin can modify admin status
         if ($user->hasRole(['admin', 'super_admin']) && !$auth->hasRole('super_admin')) {
-            return $this->flashError("Unauthorized. Only super admin can modify administrator status.");
+            return $this->flashError(__('messages.unauthorized'));
         }
 
         $this->userService->toggleStatus($user);
 
-        return $this->redirectWithSuccess('users.index', 'User status modified.');
+        $messageKey = $user->is_active ? 'messages.user_activated' : 'messages.user_deactivated';
+        return $this->redirectWithSuccess('users.index', __($messageKey));
     }
 
     /**
@@ -295,14 +298,15 @@ class UserManagementController extends Controller
     public function changeStudentGroup(ChangeStudentGroupRequest $request, User $user)
     {
         if (!$user->hasRole('student')) {
-            return $this->flashError("User is not a student.");
+            return $this->flashError(__('messages.unauthorized'));
         }
 
         try {
             $this->userService->changeStudentGroup($user, $request->validated()['group_id']);
-            return $this->redirectWithSuccess('users.show.student', 'Student group changed successfully.', ['user' => $user->id]);
+            return $this->redirectWithSuccess('users.show.student', __('messages.group_changed'), ['user' => $user->id]);
         } catch (\Exception $e) {
-            return $this->flashError("Error changing group: " . $e->getMessage());
+            Log::error('Error changing group', ['user_id' => $user->id, 'error' => $e->getMessage()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -318,16 +322,17 @@ class UserManagementController extends Controller
         $auth = Auth::user();
 
         if (!$auth->can('restore users')) {
-            return $this->flashError("Unauthorized. You do not have permission to restore users.");
+            return $this->flashError(__('messages.unauthorized'));
         }
 
         try {
             $user = User::withTrashed()->findOrFail($id);
             $user->restore();
 
-            return $this->redirectWithSuccess('users.index', 'User restored successfully.');
+            return $this->redirectWithSuccess('users.index', __('messages.user_restored'));
         } catch (\Exception $e) {
-            return $this->flashError("Error restoring user.");
+            Log::error('Error restoring user', ['user_id' => $id, 'error' => $e->getMessage()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -343,21 +348,22 @@ class UserManagementController extends Controller
         $auth = Auth::user();
 
         if (!$auth->can('force delete users')) {
-            return $this->flashError("Unauthorized. You do not have permission to permanently delete users.");
+            return $this->flashError(__('messages.unauthorized'));
         }
 
         try {
             $user = User::withTrashed()->findOrFail($id);
 
             if ($user->id === $auth->id) {
-                return $this->flashError('You cannot delete your own account.');
+                return $this->flashError(__('messages.unauthorized'));
             }
 
             $user->forceDelete();
 
-            return $this->redirectWithSuccess('users.index', 'User permanently deleted.');
+            return $this->redirectWithSuccess('users.index', __('messages.user_deleted'));
         } catch (\Exception $e) {
-            return $this->flashError("Error permanently deleting user.");
+            Log::error('Error permanently deleting user', ['user_id' => $id, 'error' => $e->getMessage()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 }

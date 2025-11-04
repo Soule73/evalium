@@ -15,6 +15,7 @@ use App\Services\Exam\ExamGroupService;
 use App\Http\Requests\Exam\StoreExamRequest;
 use App\Http\Requests\Exam\UpdateExamRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Exam Controller - Unified controller for exam management (NON-STUDENTS)
@@ -107,13 +108,14 @@ class ExamController extends Controller
 
             return $this->redirectWithSuccess(
                 'exams.show',
-                'Exam created successfully!',
+                __('messages.exam_created'),
                 ['exam' => $exam->id]
             );
         } catch (\Exception $e) {
+            Log::error('Error creating exam', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return $this->redirectWithError(
                 null,
-                "Error creating exam: " . $e->getMessage()
+                __('messages.operation_failed')
             );
         }
     }
@@ -176,13 +178,14 @@ class ExamController extends Controller
 
             return $this->redirectWithSuccess(
                 'exams.show',
-                'Exam updated successfully!',
+                __('messages.exam_updated'),
                 ['exam' => $exam->id]
             );
         } catch (\Exception $e) {
+            Log::error('Error updating exam', ['exam_id' => $exam->id, 'error' => $e->getMessage()]);
             return $this->redirectWithError(
                 null,
-                "Error updating exam: " . $e->getMessage()
+                __('messages.operation_failed')
             );
         }
     }
@@ -207,12 +210,13 @@ class ExamController extends Controller
 
             return $this->redirectWithSuccess(
                 'exams.index',
-                'Exam deleted successfully!'
+                __('messages.exam_deleted')
             );
         } catch (\Exception $e) {
+            Log::error('Error deleting exam', ['exam_id' => $exam->id, 'error' => $e->getMessage()]);
             return $this->redirectWithError(
                 null,
-                "Error deleting exam: " . $e->getMessage()
+                __('messages.operation_failed')
             );
         }
     }
@@ -237,13 +241,14 @@ class ExamController extends Controller
 
             return $this->redirectWithSuccess(
                 'exams.edit',
-                'Exam duplicated successfully! You can now modify it.',
+                __('messages.exam_duplicated'),
                 ['exam' => $newExam->id]
             );
         } catch (\Exception $e) {
+            Log::error('Error duplicating exam', ['exam_id' => $exam->id, 'error' => $e->getMessage()]);
             return $this->redirectWithError(
                 null,
-                "Error duplicating exam: " . $e->getMessage()
+                __('messages.operation_failed')
             );
         }
     }
@@ -264,11 +269,12 @@ class ExamController extends Controller
         try {
             $exam = $this->examCrudService->toggleStatus($exam);
 
-            $status = $exam->is_active ? 'activated' : 'deactivated';
+            $messageKey = $exam->is_active ? 'messages.exam_activated' : 'messages.exam_deactivated';
 
-            return $this->flashSuccess("Exam {$status} successfully!");
+            return $this->flashSuccess(__($messageKey));
         } catch (\Exception $e) {
-            return $this->flashError("Error changing exam status: " . $e->getMessage());
+            Log::error('Error changing exam status', ['exam_id' => $exam->id, 'error' => $e->getMessage()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 }

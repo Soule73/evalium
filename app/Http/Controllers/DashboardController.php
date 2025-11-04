@@ -7,6 +7,7 @@ use App\Models\User;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Services\Core\ExamQueryService;
 use App\Services\Admin\AdminDashboardService;
 use App\Services\Exam\TeacherDashboardService;
@@ -38,7 +39,7 @@ class DashboardController extends Controller
             $user = $request->user();
 
             if (!$user) {
-                abort(401, 'Utilisateur non authentifié');
+                abort(401, __('messages.unauthenticated'));
             }
 
             if (PermissionHelper::canViewAdminDashboard()) {
@@ -51,7 +52,11 @@ class DashboardController extends Controller
                 return $this->unified($request, $user);
             }
         } catch (\Exception $e) {
-            abort(403, $e->getMessage());
+            Log::error('Error accessing dashboard', [
+                'user_id' => $user?->id,
+                'error' => $e->getMessage()
+            ]);
+            abort(403, __('messages.unauthorized'));
         }
     }
 

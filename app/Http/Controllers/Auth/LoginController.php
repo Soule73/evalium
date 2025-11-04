@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Helpers\PermissionHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Http\Traits\HasFlashMessages;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Support\Facades\RateLimiter;
@@ -75,7 +76,7 @@ class LoginController extends Controller
         RateLimiter::hit($this->throttleKey($request));
 
         throw ValidationException::withMessages([
-            'email' => 'Ces identifiants ne correspondent à aucun de nos enregistrements.',
+            'email' => __('auth.failed'),
         ]);
     }
 
@@ -84,7 +85,7 @@ class LoginController extends Controller
         $user = $request->user();
 
         if (!$user) {
-            abort(401, 'Utilisateur non authentifié');
+            abort(401, __('messages.unauthenticated'));
         }
 
         return Inertia::render('Auth/Profile', [
@@ -100,9 +101,13 @@ class LoginController extends Controller
 
             $this->userService->update($user, $data);
 
-            return $this->flashSuccess('Profil mis à jour avec succès.');
+            return $this->flashSuccess(__('messages.profile_updated'));
         } catch (\Exception $e) {
-            return $this->flashError('error', "Erreur lors de la mise à jour du profil. " . $e->getMessage());
+            Log::error('Error updating user profile', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+            return $this->flashError('error', __('messages.error_updating_profile'));
         }
     }
 
@@ -149,7 +154,7 @@ class LoginController extends Controller
         $seconds = RateLimiter::availableIn($this->throttleKey($request));
 
         throw ValidationException::withMessages([
-            'email' => 'Trop de tentatives de connexion. Veuillez réessayer dans ' . ceil($seconds / 60) . ' minutes.',
+            'email' => __('auth.throttle_minutes', ['minutes' => ceil($seconds / 60)]),
         ]);
     }
 

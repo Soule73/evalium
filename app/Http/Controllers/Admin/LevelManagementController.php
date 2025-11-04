@@ -72,7 +72,7 @@ class LevelManagementController extends Controller
 
         return redirect()
             ->route('levels.index')
-            ->with('success', 'Le niveau a été créé avec succès.');
+            ->with('success', __('messages.level_created'));
     }
 
     /**
@@ -99,7 +99,7 @@ class LevelManagementController extends Controller
 
         return redirect()
             ->route('levels.index')
-            ->with('success', 'Le niveau a été modifié avec succès.');
+            ->with('success', __('messages.level_updated'));
     }
 
     /**
@@ -109,7 +109,7 @@ class LevelManagementController extends Controller
     {
         // Vérifier si le niveau a des groupes associés
         if ($level->groups()->count() > 0) {
-            return back()->with('error', 'Impossible de supprimer ce niveau car il contient des groupes.');
+            return back()->with('error', __('messages.level_cannot_delete_with_groups'));
         }
 
         $level->delete();
@@ -119,7 +119,7 @@ class LevelManagementController extends Controller
 
         return redirect()
             ->route('levels.index')
-            ->with('success', 'Le niveau a été supprimé avec succès.');
+            ->with('success', __('messages.level_deleted'));
     }
 
     /**
@@ -134,8 +134,8 @@ class LevelManagementController extends Controller
         // Invalider le cache des groupes
         Cache::forget('groups_active_with_levels');
 
-        $status = $level->is_active ? 'activé' : 'désactivé';
+        $messageKey = $level->is_active ? 'messages.level_activated' : 'messages.level_deactivated';
 
-        return back()->with('success', "Le niveau a été {$status} avec succès.");
+        return back()->with('success', __($messageKey));
     }
 }

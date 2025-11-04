@@ -113,7 +113,7 @@ class RolePermissionController extends Controller
 
         return redirect()
             ->route('roles.index')
-            ->with('success', 'Le rôle a été créé avec succès.');
+            ->with('success', __('messages.role_created'));
     }
 
     /**
@@ -139,7 +139,7 @@ class RolePermissionController extends Controller
     {
         // Empêcher la modification des rôles système
         if (in_array($role->name, ['super_admin', 'admin', 'teacher', 'student'])) {
-            return back()->with('error', 'Les rôles système ne peuvent pas être renommés.');
+            return back()->with('error', __('messages.role_cannot_rename_system'));
         }
 
         $validated = $request->validate([
@@ -159,7 +159,7 @@ class RolePermissionController extends Controller
 
         return redirect()
             ->route('roles.index')
-            ->with('success', 'Le rôle a été modifié avec succès.');
+            ->with('success', __('messages.role_updated'));
     }
 
     /**
@@ -174,7 +174,7 @@ class RolePermissionController extends Controller
 
         $role->syncPermissions($validated['permissions']);
 
-        return back()->with('success', 'Les permissions ont été mises à jour avec succès.');
+        return back()->with('success', __('messages.permissions_updated'));
     }
 
     /**
@@ -184,19 +184,19 @@ class RolePermissionController extends Controller
     {
         // Empêcher la suppression des rôles système
         if (in_array($role->name, ['super_admin', 'admin', 'teacher', 'student'])) {
-            return back()->with('error', 'Les rôles système ne peuvent pas être supprimés.');
+            return back()->with('error', __('messages.role_cannot_delete_system'));
         }
 
         // Vérifier si le rôle est assigné à des utilisateurs
         if ($role->users()->count() > 0) {
-            return back()->with('error', 'Impossible de supprimer ce rôle car il est assigné à des utilisateurs.');
+            return back()->with('error', __('messages.role_cannot_delete_assigned'));
         }
 
         $role->delete();
 
         return redirect()
             ->route('roles.index')
-            ->with('success', 'Le rôle a été supprimé avec succès.');
+            ->with('success', __('messages.role_deleted'));
     }
 
     /**
@@ -225,7 +225,7 @@ class RolePermissionController extends Controller
 
         Permission::create(['name' => $validated['name']]);
 
-        return back()->with('success', 'La permission a été créée avec succès.');
+        return back()->with('success', __('messages.permission_created'));
     }
 
     /**
@@ -235,11 +235,11 @@ class RolePermissionController extends Controller
     {
         // Vérifier si la permission est assignée à des rôles
         if ($permission->roles()->count() > 0) {
-            return back()->with('error', 'Impossible de supprimer cette permission car elle est assignée à des rôles.');
+            return back()->with('error', __('messages.permission_cannot_delete_assigned'));
         }
 
         $permission->delete();
 
-        return back()->with('success', 'La permission a été supprimée avec succès.');
+        return back()->with('success', __('messages.permission_deleted'));
     }
 }

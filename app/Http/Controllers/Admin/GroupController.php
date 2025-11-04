@@ -14,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\Admin\StoreGroupRequest;
 use App\Http\Requests\Admin\UpdateGroupRequest;
 use App\Http\Requests\Admin\AssignStudentsToGroupRequest;
+use Illuminate\Support\Facades\Log;
 
 class GroupController extends Controller
 {
@@ -70,9 +71,10 @@ class GroupController extends Controller
     {
         try {
             $this->groupService->createGroup($request->validated());
-            return $this->redirectWithSuccess('groups.index', 'Group created successfully.');
+            return $this->redirectWithSuccess('groups.index', __('messages.group_created'));
         } catch (\Exception $e) {
-            return $this->flashError('Error creating group.');
+            Log::error('Error creating group', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -122,9 +124,10 @@ class GroupController extends Controller
     {
         try {
             $this->groupService->updateGroup($group, $request->validated());
-            return $this->redirectWithSuccess('groups.show', 'Group updated successfully.', ['group' => $group->id]);
+            return $this->redirectWithSuccess('groups.show', __('messages.group_updated'), ['group' => $group->id]);
         } catch (\Exception $e) {
-            return $this->flashError('Error updating group.');
+            Log::error('Error updating group', ['group_id' => $group->id, 'error' => $e->getMessage()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -140,9 +143,10 @@ class GroupController extends Controller
     {
         try {
             $this->groupService->deleteGroup($group);
-            return $this->redirectWithSuccess('groups.index', 'Group deleted successfully.');
+            return $this->redirectWithSuccess('groups.index', __('messages.group_deleted'));
         } catch (\Exception $e) {
-            return $this->flashError('Error deleting group.');
+            Log::error('Error deleting group', ['group_id' => $group->id, 'error' => $e->getMessage()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -175,14 +179,10 @@ class GroupController extends Controller
         try {
             $result = $this->groupService->assignStudentsToGroup($group, $request->validated()['student_ids']);
 
-            $message = "Assignment completed: {$result['assigned_count']} students assigned";
-            if ($result['already_assigned_count'] > 0) {
-                $message .= " ({$result['already_assigned_count']} already assigned)";
-            }
-
-            return $this->redirectWithSuccess('groups.show', $message, ['group' => $group->id]);
+            return $this->redirectWithSuccess('groups.show', __('messages.students_assigned', ['count' => $result['assigned_count']]), ['group' => $group->id]);
         } catch (\Exception $e) {
-            return $this->flashError('Error assigning students.');
+            Log::error('Error assigning students', ['group_id' => $group->id, 'error' => $e->getMessage()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -197,9 +197,10 @@ class GroupController extends Controller
     {
         try {
             $this->groupService->removeStudentFromGroup($group, $student);
-            return $this->redirectWithSuccess('groups.show', 'Student removed from group successfully.', ['group' => $group->id]);
+            return $this->redirectWithSuccess('groups.show', __('messages.student_removed'), ['group' => $group->id]);
         } catch (\Exception $e) {
-            return $this->flashError('Error removing student.');
+            Log::error('Error removing student', ['group_id' => $group->id, 'student_id' => $student->id, 'error' => $e->getMessage()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -219,14 +220,10 @@ class GroupController extends Controller
         try {
             $result = $this->groupService->bulkActivate($request->input('ids'));
 
-            $message = "{$result['activated_count']} group(s) activated successfully";
-            if ($result['already_active_count'] > 0) {
-                $message .= " ({$result['already_active_count']} already active)";
-            }
-
-            return $this->redirectWithSuccess('groups.index', $message);
+            return $this->redirectWithSuccess('groups.index', __('messages.groups_activated', ['count' => $result['activated_count']]));
         } catch (\Exception $e) {
-            return $this->flashError('Error activating groups.');
+            Log::error('Error activating groups', ['ids' => $request->input('ids'), 'error' => $e->getMessage()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -246,14 +243,10 @@ class GroupController extends Controller
         try {
             $result = $this->groupService->bulkDeactivate($request->input('ids'));
 
-            $message = "{$result['deactivated_count']} group(s) deactivated successfully";
-            if ($result['already_inactive_count'] > 0) {
-                $message .= " ({$result['already_inactive_count']} already inactive)";
-            }
-
-            return $this->redirectWithSuccess('groups.index', $message);
+            return $this->redirectWithSuccess('groups.index', __('messages.groups_deactivated', ['count' => $result['deactivated_count']]));
         } catch (\Exception $e) {
-            return $this->flashError('Error deactivating groups.');
+            Log::error('Error deactivating groups', ['ids' => $request->input('ids'), 'error' => $e->getMessage()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -274,14 +267,10 @@ class GroupController extends Controller
         try {
             $result = $this->groupService->bulkRemoveStudentsFromGroup($group, $request->input('student_ids'));
 
-            $message = "{$result['removed_count']} student(s) removed successfully";
-            if ($result['not_in_group_count'] > 0) {
-                $message .= " ({$result['not_in_group_count']} were not in the group)";
-            }
-
-            return $this->redirectWithSuccess('groups.show', $message, ['group' => $group->id]);
+            return $this->redirectWithSuccess('groups.show', __('messages.students_removed', ['count' => $result['removed_count']]), ['group' => $group->id]);
         } catch (\Exception $e) {
-            return $this->flashError('Error removing students.');
+            Log::error('Error removing students', ['group_id' => $group->id, 'error' => $e->getMessage()]);
+            return $this->flashError(__('messages.operation_failed'));
         }
     }
 }

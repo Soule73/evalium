@@ -97,9 +97,9 @@ class GroupAssignmentController extends Controller
             $validated['group_ids']
         );
 
-        $message = "Assignment completed: {$result['assigned_count']} group(s) assigned";
+        $message = __('messages.groups_assigned_to_exam', ['count' => $result['assigned_count']]);
         if ($result['already_assigned_count'] > 0) {
-            $message .= " ({$result['already_assigned_count']} already assigned)";
+            $message .= ' ' . __('messages.groups_already_assigned', ['already_assigned' => $result['already_assigned_count']]);
         }
 
         return $this->redirectWithSuccess('exams.show', $message, ['exam' => $exam->id]);
@@ -124,10 +124,10 @@ class GroupAssignmentController extends Controller
         $removed = $this->examGroupService->removeExamFromGroup($exam, $group);
 
         if ($removed) {
-            return $this->flashSuccess("Exam removed from group successfully.");
+            return $this->flashSuccess(__('messages.group_removed_from_exam'));
         }
 
-        return $this->flashError("Unable to remove exam from this group.");
+        return $this->flashError(__('messages.unable_to_remove_group'));
     }
 
     /**
