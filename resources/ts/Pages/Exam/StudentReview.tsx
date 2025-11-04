@@ -16,6 +16,7 @@ import TextEntry from '@/Components/TextEntry';
 import useExamStudentReview from '@/hooks/exam/useExamStudentReview';
 import { hasPermission } from '@/utils/permissions';
 import { breadcrumbs } from '@/utils/breadcrumbs';
+import { trans } from '@/utils/translations';
 
 interface Props {
     exam: Exam;
@@ -58,16 +59,16 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
                 <div className="flex items-center justify-between">
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Note pour cette question (max: {maxScore} points)
+                            {trans('exam_pages.student_review.question_score_label', { max: maxScore })}
                         </label>
                         {isAutoGraded && (
                             <p className="text-xs text-blue-600 mt-1">
-                                Note calculé automatiquement - modifiable si nécessaire
+                                {trans('exam_pages.student_review.auto_graded_info')}
                             </p>
                         )}
                         {!isAutoGraded && (
                             <p className="text-xs text-orange-600 mt-1">
-                                Correction manuelle requise
+                                {trans('exam_pages.student_review.manual_grading_required')}
                             </p>
                         )}
                     </div>
@@ -87,12 +88,12 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Commentaire pour cette question:
+                        {trans('exam_pages.student_review.question_comment_label')}
                     </label>
                     <Textarea
                         value={feedbacks[question.id] || ''}
                         onChange={(e) => handleFeedbackChange(question.id, e.target.value)}
-                        placeholder="Ajoutez vos commentaires pour cette réponse..."
+                        placeholder={trans('exam_pages.student_review.question_comment_placeholder')}
                         className="w-full"
                         rows={3}
                     />
@@ -100,18 +101,18 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
             </div>
         );
     }; return (
-        <AuthenticatedLayout title={`Correction - ${student.name} - ${exam.title}`}
+        <AuthenticatedLayout title={trans('exam_pages.student_review.title', { student: student.name, exam: exam.title })}
             breadcrumb={breadcrumbs.examGroupReview(exam.id, group.id, student.id, exam.title, group.display_name, student.name)}
 
         >
             <Section
-                title={`Correction de l'examen de ${student.name}`}
+                title={trans('exam_pages.student_review.correction_title', { student: student.name })}
                 subtitle={
                     <div className='flex items-center space-x-4'>
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${assignmentStatus.color}`}>
                             {assignmentStatus.label}
                         </span>
-                        <Badge label="Mode correction" type="warning" />
+                        <Badge label={trans('exam_pages.student_review.correction_mode')} type="warning" />
                     </div>
                 }
                 actions={
@@ -123,7 +124,7 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
                                 onClick={handleSubmit}
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? 'Sauvegarde...' : 'Sauvegarder les notes'}
+                                {isSubmitting ? trans('exam_pages.student_review.saving') : trans('exam_pages.student_review.save_grades')}
                             </Button>
                         )}
                         <Button
@@ -132,7 +133,7 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
                             size="sm"
                             onClick={() => router.visit(route('exams.groups', exam.id))}
                         >
-                            Retour aux assignations
+                            {trans('exam_pages.student_review.back_to_assignments')}
                         </Button>
                     </div>
                 }
@@ -149,14 +150,12 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
 
                 <AlertEntry title="Note" type="info">
                     <p className="text-sm">
-                        Les QCM sont
-                        <strong> automatiquement corrigées</strong> mais vous pouvez ajuster les notes
-                        si nécessaire.
+                        {trans('exam_pages.student_review.auto_corrected_info')}
                     </p>
                 </AlertEntry>
             </Section>
 
-            <Section title="Questions et correction">
+            <Section title={trans('exam_pages.student_review.questions_correction')}>
                 <QuestionRenderer
                     questions={exam.questions || []}
                     getQuestionResult={getQuestionResult}
@@ -167,22 +166,22 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
 
                 {/* Résumé de la correction */}
                 <div className="mt-8 p-6 bg-blue-50 rounded-lg">
-                    <h3 className="text-lg font-medium text-blue-900 mb-4">Résumé de la correction</h3>
+                    <h3 className="text-lg font-medium text-blue-900 mb-4">{trans('exam_pages.student_review.correction_summary')}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <TextEntry
                             labelClass=' !text-blue-900'
                             valueClass='!text-blue-600'
-                            label="Note total"
+                            label={trans('exam_pages.student_review.total_score')}
                             value={`${calculatedTotalScore} / ${totalPoints}`} />
                         <TextEntry
                             labelClass=' !text-blue-900'
                             valueClass='!text-blue-600'
-                            label="Pourcentage"
+                            label={trans('exam_pages.student_review.percentage')}
                             value={`${percentage}%`} />
                         <TextEntry
                             labelClass=' !text-blue-900'
                             valueClass='!text-blue-600'
-                            label="Statut"
+                            label={trans('exam_pages.student_review.status')}
                             value={getCorrectionStatus(calculatedTotalScore)} />
                     </div>
                 </div>
@@ -197,26 +196,26 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
                 <div className="space-y-6">
                     <div>
                         <h3 className="text-lg font-medium text-gray-900 mb-2">
-                            Confirmer la sauvegarde des notes
+                            {trans('exam_pages.student_review.confirm_save_title')}
                         </h3>
                         <p className="text-sm text-gray-600">
-                            Vous êtes sur le point de sauvegarder les notes pour l'examen de <strong>{student.name}</strong>.
+                            {trans('exam_pages.student_review.confirm_save_message', { student: student.name })}
                         </p>
                     </div>
 
                     <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="text-sm text-gray-700">
-                            <strong>Note total :</strong> {calculatedTotalScore} / {totalPoints} ({percentage}%)
+                            <strong>{trans('exam_pages.student_review.total_score')} :</strong> {calculatedTotalScore} / {totalPoints} ({percentage}%)
                         </div>
                     </div>
 
                     <Textarea
-                        label="Notes du professeur (optionnel)"
-                        placeholder="Ajoutez vos commentaires ou observations sur cette copie..."
+                        label={trans('exam_pages.student_review.teacher_notes_label')}
+                        placeholder={trans('exam_pages.student_review.teacher_notes_placeholder')}
                         value={teacherNotes}
                         onChange={(e) => setTeacherNotes(e.target.value)}
                         rows={4}
-                        helperText="Ces notes seront visibles par l'étudiant avec ses résultats."
+                        helperText={trans('exam_pages.student_review.teacher_notes_help')}
                     />
 
                     <div className="flex justify-end space-x-3">
@@ -227,7 +226,7 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
                             onClick={handleCancelSubmit}
                             disabled={isSubmitting}
                         >
-                            Annuler
+                            {trans('exam_pages.student_review.cancel')}
                         </Button>
                         <Button
                             color="primary"
@@ -235,7 +234,7 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
                             onClick={handleConfirmSubmit}
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? 'Sauvegarde...' : 'Confirmer et sauvegarder'}
+                            {isSubmitting ? trans('exam_pages.student_review.saving') : trans('exam_pages.student_review.confirm_save')}
                         </Button>
                     </div>
                 </div>

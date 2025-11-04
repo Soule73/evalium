@@ -15,6 +15,7 @@ import { useState } from 'react';
 import TextEntry from '@/Components/TextEntry';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { hasPermission } from '@/utils/permissions';
+import { trans } from '@/utils/translations';
 
 interface Props {
     group: Group & {
@@ -107,9 +108,9 @@ export default function ShowGroup({ group }: Props) {
 
     const getStudentStatusBadge = (isActive: boolean) => {
         return isActive ? (
-            <Badge label="Inscrit" type="success" />
+            <Badge label={trans('admin_pages.groups.enrolled')} type="success" />
         ) : (
-            <Badge label="Quitté" type="gray" />
+            <Badge label={trans('admin_pages.groups.left')} type="gray" />
         );
     };
 
@@ -119,7 +120,7 @@ export default function ShowGroup({ group }: Props) {
         columns: [
             {
                 key: 'name',
-                label: 'Étudiant',
+                label: trans('admin_pages.groups.student'),
                 render: (student) => (
                     <div>
                         <div className="text-sm font-medium text-gray-900">{student.name}</div>
@@ -129,7 +130,7 @@ export default function ShowGroup({ group }: Props) {
             },
             {
                 key: 'enrolled_at',
-                label: 'Date d\'inscription',
+                label: trans('admin_pages.groups.enrolled_at'),
                 render: (student) => (
                     <span className="text-sm text-gray-600">
                         {formatDate(student.pivot.enrolled_at)}
@@ -138,7 +139,7 @@ export default function ShowGroup({ group }: Props) {
             },
             {
                 key: 'left_at',
-                label: 'Date de sortie',
+                label: trans('admin_pages.groups.left_at'),
                 render: (student) => (
                     <span className="text-sm text-gray-600">
                         {student.pivot.left_at ? formatDate(student.pivot.left_at) : '-'}
@@ -147,12 +148,12 @@ export default function ShowGroup({ group }: Props) {
             },
             {
                 key: 'status',
-                label: 'Statut',
+                label: trans('admin_pages.common.status'),
                 render: (student) => getStudentStatusBadge(student.pivot.is_active)
             },
             {
                 key: 'actions',
-                label: 'Actions',
+                label: trans('admin_pages.common.actions'),
                 render: (student) => (
                     student.pivot.is_active && canManageGroupStudents ? (
                         <Button
@@ -161,28 +162,28 @@ export default function ShowGroup({ group }: Props) {
                             size="sm"
                             variant="outline"
                         >
-                            Retirer
+                            {trans('admin_pages.groups.remove_button')}
                         </Button>
                     ) : null
                 )
             }
         ],
-        searchPlaceholder: 'Rechercher un étudiant...',
+        searchPlaceholder: trans('admin_pages.groups.search_student_placeholder'),
         filters: [
             {
                 key: 'status',
                 type: 'select',
-                label: 'Filtrer par statut',
+                label: trans('admin_pages.groups.filter_by_status'),
                 options: [
-                    { label: 'Tous les statuts', value: '' },
-                    { label: 'Actifs uniquement', value: 'active' },
-                    { label: 'Sortis uniquement', value: 'inactive' }
+                    { label: trans('admin_pages.groups.all_statuses'), value: '' },
+                    { label: trans('admin_pages.groups.active_only'), value: 'active' },
+                    { label: trans('admin_pages.groups.inactive_only'), value: 'inactive' }
                 ]
             }
         ],
         emptyState: {
-            title: 'Aucun étudiant assigné',
-            subtitle: 'Assignez des étudiants à ce groupe pour commencer',
+            title: trans('admin_pages.groups.no_students_assigned'),
+            subtitle: trans('admin_pages.groups.assign_students_to_start'),
             icon: <UserGroupIcon className="w-12 h-12 mx-auto text-gray-400" />
         },
         perPageOptions: [10, 25, 50],
@@ -196,7 +197,7 @@ export default function ShowGroup({ group }: Props) {
                     size="sm"
                 >
                     <UserMinusIcon className="w-4 h-4 mr-2" />
-                    Retirer ({selectedIds.length})
+                    {trans('admin_pages.groups.bulk_remove_button', { count: selectedIds.length })}
                 </Button>
             </>
         ) : undefined,
@@ -232,10 +233,10 @@ export default function ShowGroup({ group }: Props) {
                 isOpen={showDeleteModal}
                 onClose={() => setShowDeleteModal(false)}
                 onConfirm={handleDeleteGroup}
-                title="Supprimer le groupe"
-                message={`Êtes-vous sûr de vouloir supprimer le groupe "${group.display_name}" ? Cette action est irréversible.`}
-                confirmText="Supprimer"
-                cancelText="Annuler"
+                title={trans('admin_pages.groups.delete_group_title')}
+                message={trans('admin_pages.groups.delete_group_message', { name: group.display_name })}
+                confirmText={trans('admin_pages.common.delete')}
+                cancelText={trans('admin_pages.common.cancel')}
                 type="danger"
             />
 
@@ -243,17 +244,17 @@ export default function ShowGroup({ group }: Props) {
                 isOpen={!!studentToRemove}
                 onClose={() => setStudentToRemove(null)}
                 onConfirm={confirmRemoveStudent}
-                title="Retirer l'étudiant"
-                message={`Êtes-vous sûr de vouloir retirer ${studentToRemove?.name} de ce groupe ?`}
-                confirmText="Retirer"
-                cancelText="Annuler"
+                title={trans('admin_pages.groups.remove_student_title')}
+                message={trans('admin_pages.groups.remove_student_message', { name: studentToRemove?.name || '' })}
+                confirmText={trans('admin_pages.groups.remove_button')}
+                cancelText={trans('admin_pages.common.cancel')}
                 type="warning"
             />
 
 
             <Section
                 title={group.display_name}
-                subtitle={group.description || 'Détails du groupe'}
+                subtitle={group.description || trans('admin_pages.groups.group_details')}
                 collapsible
                 actions={(canManageGroupStudents || canUpdateGroups || canDeleteGroups) && (
                     <div className="flex space-x-2">
@@ -264,7 +265,7 @@ export default function ShowGroup({ group }: Props) {
                                 variant="outline"
                                 size="sm"
                             >
-                                Assigner des étudiants
+                                {trans('admin_pages.groups.assign_students_action')}
                             </Button>
                         )}
                         {canUpdateGroups && (
@@ -274,7 +275,7 @@ export default function ShowGroup({ group }: Props) {
                                 variant="outline"
                                 size="sm"
                             >
-                                Modifier
+                                {trans('admin_pages.common.modify')}
                             </Button>
                         )}
                         {canDeleteGroups && (
@@ -284,43 +285,43 @@ export default function ShowGroup({ group }: Props) {
                                 variant="outline"
                                 size="sm"
                             >
-                                Supprimer
+                                {trans('admin_pages.common.delete')}
                             </Button>
                         )}
                     </div>
                 )}
             >
                 {/* Informations générales */}
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Informations générales</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">{trans('admin_pages.groups.group_information')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <TextEntry label='Niveau académique' value={group.level?.name || '-'} />
-                    <TextEntry label='Année académique' value={group.academic_year ?? '-'} />
-                    <TextEntry label='Période' value={`${formatDate(group.start_date)} - ${formatDate(group.end_date)}`} />
-                    <TextEntry label='Capacité' value={`${group.max_students} étudiants max`} />
+                    <TextEntry label={trans('admin_pages.groups.academic_level')} value={group.level?.name || '-'} />
+                    <TextEntry label={trans('admin_pages.groups.academic_year')} value={group.academic_year ?? '-'} />
+                    <TextEntry label={trans('admin_pages.groups.period')} value={`${formatDate(group.start_date)} - ${formatDate(group.end_date)}`} />
+                    <TextEntry label={trans('admin_pages.groups.capacity')} value={trans('admin_pages.groups.max_students_label', { count: group.max_students })} />
                 </div>
 
                 {/* Statistiques */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <StatCard
-                        title="Total étudiants"
+                        title={trans('admin_pages.groups.total_students')}
                         value={totalStudents}
                         icon={UserGroupIcon}
                         color="blue"
                     />
                     <StatCard
-                        title="Étudiants actifs"
+                        title={trans('admin_pages.groups.active_students_label')}
                         value={activeStudents}
                         icon={UsersIcon}
                         color="green"
                     />
                     <StatCard
-                        title="Étudiants sortis"
+                        title={trans('admin_pages.groups.stats_inactive')}
                         value={inactiveStudents}
                         icon={UsersIcon}
                         color="red"
                     />
                     <StatCard
-                        title="Places disponibles"
+                        title={trans('admin_pages.groups.available_slots')}
                         value={Math.max(0, group.max_students - activeStudents)}
                         icon={UsersIcon}
                         color="purple"
@@ -329,7 +330,7 @@ export default function ShowGroup({ group }: Props) {
             </Section>
 
             {/* Liste des étudiants */}
-            <Section title="Étudiants du groupe">
+            <Section title={trans('admin_pages.groups.students_list')}>
                 <DataTable
                     data={studentsData}
                     config={studentsTableConfig}
@@ -343,10 +344,10 @@ export default function ShowGroup({ group }: Props) {
                 isOpen={confirmBulkRemove}
                 onClose={handleCloseBulkModal}
                 onConfirm={handleConfirmBulkRemove}
-                title="Retirer les étudiants"
-                message={`Voulez-vous vraiment retirer ${selectedStudents.length} étudiant(s) de ce groupe ?`}
-                confirmText="Retirer"
-                cancelText="Annuler"
+                title={trans('admin_pages.groups.bulk_remove_title')}
+                message={trans('admin_pages.groups.bulk_remove_message', { count: selectedStudents.length })}
+                confirmText={trans('admin_pages.groups.remove_button')}
+                cancelText={trans('admin_pages.common.cancel')}
                 type="warning"
                 icon={UserMinusIcon}
                 loading={loading}

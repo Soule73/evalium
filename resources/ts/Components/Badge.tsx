@@ -1,4 +1,4 @@
-type BadgeType = 'success' | 'error' | 'warning' | 'info' | 'gray';
+export type BadgeType = 'success' | 'error' | 'warning' | 'info' | 'gray';
 interface BadgeProps {
     label: string;
     type: BadgeType;

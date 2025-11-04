@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { trans } from '@/utils/translations';
 
 interface ToggleProps {
     checked?: boolean;
@@ -80,8 +81,8 @@ export default function Toggle({
     color = 'blue',
     label,
     showLabel = false,
-    activeLabel = 'Actif',
-    inactiveLabel = 'Inactif',
+    activeLabel = trans('components.toggle.active'),
+    inactiveLabel = trans('components.toggle.inactive'),
     className = '',
 }: ToggleProps) {
     const [isChecked, setIsChecked] = useState(checked);

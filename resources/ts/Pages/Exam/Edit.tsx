@@ -7,6 +7,7 @@ import ExamGeneralConfig from '@/Components/ExamGeneralConfig';
 import { useEditExam, useDeleteHistory } from '@/hooks';
 import { Exam } from '@/types';
 import { breadcrumbs } from '@/utils/breadcrumbs';
+import { trans } from '@/utils/translations';
 
 interface Props {
     exam: Exam;
@@ -41,16 +42,17 @@ export default function ExamEdit({ exam }: Props) {
     }, [clearHistory]);
 
     const totalPoints = questions.reduce((sum, question) => sum + question.points, 0);
+    const pointsLabel = totalPoints !== 1 ? trans('exam_pages.common.s') : '';
 
     return (
         <AuthenticatedLayout
-            title="Modifier l'examen"
+            title={trans('exam_pages.edit.title')}
             breadcrumb={breadcrumbs.examEdit(exam.title, exam.id)}
         >
             <form onSubmit={handleSubmit} noValidate className="space-y-6">
                 <Section
-                    title="Modifier l'examen"
-                    subtitle={`Modifiez les paramètres de votre examen et ajustez vos questions. Total: ${totalPoints} point${totalPoints !== 1 ? 's' : ''}`}
+                    title={trans('exam_pages.edit.title')}
+                    subtitle={trans('exam_pages.edit.subtitle', { points: totalPoints, plural: pointsLabel })}
                     actions={
                         <div className="flex items-center justify-end space-x-4">
                             <Button
@@ -60,7 +62,7 @@ export default function ExamEdit({ exam }: Props) {
                                 size="sm"
                                 onClick={() => window.history.back()}
                             >
-                                Annuler
+                                {trans('exam_pages.edit.cancel')}
                             </Button>
                             <Button
                                 type="submit"
@@ -69,7 +71,7 @@ export default function ExamEdit({ exam }: Props) {
                                 size="sm"
                                 loading={processing}
                             >
-                                Modifier l'examen
+                                {trans('exam_pages.edit.submit')}
                             </Button>
                         </div>
                     }

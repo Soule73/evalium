@@ -4,6 +4,7 @@ import { Button } from '@/Components/Button';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { DataTableConfig } from '@/types/datatable';
+import { trans } from '@/utils/translations';
 
 interface GroupTableConfigOptions {
     exam: Exam;
@@ -24,14 +25,14 @@ export const getGroupTableConfig = ({
     const columns: any[] = [
         {
             key: 'display_name',
-            label: 'Groupe',
+            label: trans('components.group_table_config.group_label'),
             render: (group: Group) => (
                 <div className="flex items-center space-x-3">
                     <UserGroupIcon className="h-6 w-6 text-blue-600 shrink-0" />
                     <div>
                         <div className="font-medium text-gray-900">{group.display_name}</div>
                         <div className="text-sm text-gray-500">
-                            {group.active_students_count || 0} étudiant(s) actif(s)
+                            {trans('components.group_table_config.active_students_count', { count: group.active_students_count || 0 })}
                         </div>
                     </div>
                 </div>
@@ -42,7 +43,7 @@ export const getGroupTableConfig = ({
     if (showActions) {
         columns.push({
             key: 'actions',
-            label: 'Actions',
+            label: trans('components.group_table_config.actions_label'),
             render: (group: Group) => (
                 <div className="flex space-x-2">
                     {showDetailsButton && (
@@ -58,7 +59,7 @@ export const getGroupTableConfig = ({
                                 })
                             )}
                         >
-                            Voir détails
+                            {trans('components.group_table_config.view_details')}
                         </Button>
                     )}
                     <Button
@@ -82,7 +83,7 @@ export const getGroupTableConfig = ({
                             }
                         }}
                     >
-                        Retirer
+                        {trans('components.group_table_config.remove')}
                     </Button>
                 </div>
             )
@@ -91,10 +92,10 @@ export const getGroupTableConfig = ({
 
     return {
         columns,
-        searchPlaceholder: 'Rechercher un groupe...',
+        searchPlaceholder: trans('components.group_table_config.search_placeholder'),
         emptyState: {
-            title: 'Aucun groupe assigné',
-            subtitle: 'Cet examen n\'est pas encore assigné à des groupes',
+            title: trans('components.group_table_config.empty_title'),
+            subtitle: trans('components.group_table_config.empty_subtitle'),
             icon: 'UserGroupIcon'
         },
         perPageOptions: [10, 25, 50],

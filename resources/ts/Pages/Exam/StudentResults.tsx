@@ -12,6 +12,7 @@ import { router, usePage } from '@inertiajs/react';
 import { Button } from '@/Components';
 import { hasPermission } from '@/utils/permissions';
 import { breadcrumbs } from '@/utils/breadcrumbs';
+import { trans } from '@/utils/translations';
 
 interface Props {
     exam: Exam;
@@ -32,11 +33,11 @@ const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment,
 
 
     return (
-        <AuthenticatedLayout title={`Résultats - ${student.name} - ${exam.title}`}
+        <AuthenticatedLayout title={trans('exam_pages.student_results.title', { student: student.name, exam: exam.title })}
             breadcrumb={breadcrumbs.examGroupSubmission(exam.id, group.id, exam.title, group.display_name, student.name)}
         >
             <Section
-                title={`Copie de ${student.name}`}
+                title={trans('exam_pages.student_results.copy_title', { student: student.name })}
                 subtitle={
                     <div className='flex items-center space-x-4'>
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${assignmentStatus.color}`}>
@@ -44,9 +45,9 @@ const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment,
                         </span>
                         <div>
                             {examIsActive ? (
-                                <Badge label="Examen actif" type="success" />
+                                <Badge label={trans('exam_pages.student_results.exam_active')} type="success" />
                             ) : (
-                                <Badge label="Examen désactivé" type="gray" />
+                                <Badge label={trans('exam_pages.student_results.exam_disabled')} type="gray" />
                             )}
                         </div>
                     </div>
@@ -59,7 +60,7 @@ const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment,
                                 size="sm"
                                 onClick={() => router.visit(route('exams.review', { exam: exam.id, group: group.id, student: student.id }))}
                             >
-                                {isPendingReview ? "Corriger l'examen" : "Modifier la correction"}
+                                {isPendingReview ? trans('exam_pages.student_results.correct_exam') : trans('exam_pages.student_results.edit_correction')}
                             </Button>
                         )}
                         <Button
@@ -68,7 +69,7 @@ const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment,
                             size="sm"
                             onClick={() => router.visit(route('exams.groups', exam.id))}
                         >
-                            Retour aux assignations
+                            {trans('exam_pages.student_results.back_to_assignments')}
                         </Button>
                     </div>
                 }
@@ -84,7 +85,7 @@ const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment,
                 />
             </Section>
 
-            <Section title="Détail des réponses">
+            <Section title={trans('exam_pages.student_results.answers_detail')}>
                 <QuestionRenderer
                     questions={exam.questions || []}
                     getQuestionResult={getQuestionResult}
@@ -97,7 +98,7 @@ const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment,
                 {assignment.teacher_notes && (
                     <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                         <h3 className="text-lg font-medium text-green-800 mb-2">
-                            Notes
+                            {trans('exam_pages.student_results.teacher_notes')}
                         </h3>
                         <p className="text-green-700 whitespace-pre-wrap">{assignment.teacher_notes}</p>
                     </div>

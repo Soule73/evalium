@@ -15,6 +15,7 @@ import Toggle from '@/Components/form/Toggle';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import ConfirmationModal from '@/Components/ConfirmationModal';
 import { hasPermission } from '@/utils/permissions';
+import { trans } from '@/utils/translations';
 
 interface Group {
     id: number;
@@ -99,14 +100,14 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
         columns: [
             {
                 key: 'name',
-                label: 'Utilisateur',
+                label: trans('admin_pages.users.name'),
                 render: (user) => (
                     <div>
                         <div className="flex items-center gap-2">
                             <span className="text-sm font-medium text-gray-900">{user.name}</span>
                             {user.deleted_at && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                    Supprimé
+                                    {trans('admin_pages.users.deleted')}
                                 </span>
                             )}
                         </div>
@@ -116,7 +117,7 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
             },
             {
                 key: 'role',
-                label: 'Rôle',
+                label: trans('admin_pages.users.role'),
                 render: (user) => (
                     (user?.roles?.length ?? 0) > 0 ? (
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.roles?.[0]?.name ?? '')}`}>
@@ -127,12 +128,12 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
             },
             {
                 key: 'status',
-                label: 'Statut',
+                label: trans('admin_pages.users.status'),
                 render: (user) => (
                     <div className="flex items-center gap-2">
                         {user.deleted_at ? (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                Supprimé
+                                {trans('admin_pages.users.deleted')}
                             </span>
                         ) : canToggleUserStatus ? (
                             <Toggle
@@ -141,12 +142,12 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
                                 size="md"
                                 color="green"
                                 showLabel={true}
-                                activeLabel="Actif"
-                                inactiveLabel="Inactif"
+                                activeLabel={trans('admin_pages.common.active')}
+                                inactiveLabel={trans('admin_pages.common.inactive')}
                             />
                         ) : (
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                                {user.is_active ? 'Actif' : 'Inactif'}
+                                {user.is_active ? trans('admin_pages.common.active') : trans('admin_pages.common.inactive')}
                             </span>
                         )}
                     </div>
@@ -154,14 +155,14 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
             },
             {
                 key: 'created_at',
-                label: 'Date de création',
+                label: trans('admin_pages.users.created_at'),
                 render: (user) => (
                     <span className="text-sm text-gray-500">{formatDate(user.created_at)}</span>
                 )
             },
             {
                 key: 'actions',
-                label: 'Actions',
+                label: trans('admin_pages.common.actions'),
                 render: (user) => (
                     <div className="flex items-center gap-2">
                         {user.deleted_at ? (
@@ -171,7 +172,7 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
                                     color="success"
                                     size="sm"
                                     variant='outline'
-                                    title="Restaurer l'utilisateur"
+                                    title={trans('admin_pages.users.restore')}
                                 >
                                     <ArrowPathIcon className="h-4 w-4" />
                                 </Button>
@@ -185,7 +186,7 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
                                         color="danger"
                                         size="sm"
                                         variant='outline'
-                                        title="Supprimer définitivement"
+                                        title={trans('admin_pages.users.force_delete')}
                                     >
                                         <TrashIcon className="h-4 w-4" />
                                     </Button>
@@ -202,7 +203,7 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
                                             size="sm"
                                             variant='outline'
                                         >
-                                            Voir
+                                            {trans('admin_pages.common.view')}
                                         </Button>
                                     )}
                                 {canDeleteUsers && !canViewUser(user.roles?.length && user.roles[0] ? user.roles[0].name : '') && (
@@ -215,7 +216,7 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
                                         color="danger"
                                         size="sm"
                                         variant='outline'
-                                        title="Supprimer l'utilisateur"
+                                        title={trans('admin_pages.common.delete')}
                                     >
                                         <TrashIcon className="h-4 w-4" />
                                     </Button>
@@ -226,49 +227,49 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
                 )
             }
         ],
-        searchPlaceholder: 'Rechercher par nom ou email...',
+        searchPlaceholder: trans('admin_pages.users.search_placeholder'),
         filters: [
             {
                 key: 'role',
                 type: 'select',
-                label: 'Filtrer par rôle',
-                options: [{ label: 'Tous les rôles', value: '' }].concat(roles.map(role => ({ label: getRoleLabel(role), value: role })))
+                label: trans('admin_pages.users.filter_role'),
+                options: [{ label: trans('admin_pages.users.all_roles'), value: '' }].concat(roles.map(role => ({ label: getRoleLabel(role), value: role })))
             },
             {
                 key: 'status',
                 type: 'select',
-                label: 'Statut',
+                label: trans('admin_pages.users.filter_status'),
                 options: [
-                    { label: 'Tous', value: '' },
-                    { label: 'Actifs', value: 'active' },
-                    { label: 'Inactifs', value: 'inactive' }
+                    { label: trans('admin_pages.users.all_status'), value: '' },
+                    { label: trans('admin_pages.common.active'), value: 'active' },
+                    { label: trans('admin_pages.common.inactive'), value: 'inactive' }
                 ]
             },
             {
                 key: 'include_deleted',
                 type: 'select',
-                label: 'Afficher',
+                label: trans('admin_pages.common.search'),
                 options: [
-                    { label: 'Actifs uniquement', value: '' },
-                    { label: 'Inclure supprimés', value: '1' }
+                    { label: trans('admin_pages.common.active'), value: '' },
+                    { label: trans('admin_pages.users.deleted'), value: '1' }
                 ]
             }
         ],
         emptyState: {
-            title: 'Aucun utilisateur trouvé',
-            subtitle: 'Essayez de modifier vos critères de recherche',
+            title: trans('admin_pages.users.empty_title'),
+            subtitle: trans('admin_pages.users.empty_subtitle'),
             icon: 'UserIcon'
         },
         emptySearchState: {
-            title: 'Aucun utilisateur trouvé',
-            subtitle: 'Aucun utilisateur ne correspond à vos critères de recherche ou de filtre.',
-            resetLabel: 'Réinitialiser les filtres'
+            title: trans('admin_pages.users.empty_title'),
+            subtitle: trans('admin_pages.users.empty_subtitle'),
+            resetLabel: trans('admin_pages.common.cancel')
         },
         perPageOptions: [10, 25, 50]
     };
 
     return (
-        <AuthenticatedLayout title="Gestion des utilisateurs"
+        <AuthenticatedLayout title={trans('admin_pages.users.title')}
             breadcrumb={breadcrumbs.users()}
         >
 
@@ -280,35 +281,35 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
             />
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <StatCard
-                    title="Total utilisateurs"
+                    title={trans('admin_pages.users.title')}
                     value={users.total}
                     icon={UserGroupIcon}
                     color="blue"
                 />
                 <StatCard
-                    title="Étudiants"
+                    title={trans('admin_pages.roles.role_labels.student')}
                     value={users.data.filter(user => user.roles?.some(role => role.name === 'student')).length}
                     icon={UserGroupIcon}
                     color="green"
                 />
                 <StatCard
-                    title="Enseignants"
+                    title={trans('admin_pages.roles.role_labels.teacher')}
                     value={users.data.filter(user => user.roles?.some(role => role.name === 'teacher')).length}
                     icon={UserGroupIcon}
                     color="purple"
                 />
 
                 <StatCard
-                    title="Administrateurs"
+                    title={trans('admin_pages.roles.role_labels.admin')}
                     value={users.data.filter(user => user.roles?.some(role => role.name === 'admin')).length}
                     icon={UserGroupIcon}
                     color="red"
                 />
             </div>
-            <Section title="Liste des utilisateurs"
+            <Section title={trans('admin_pages.users.subtitle')}
                 actions={canCreateUsers && (
                     <Button onClick={handleCreateUser} color="secondary" variant='outline' size='sm'>
-                        Créer un utilisateur
+                        {trans('admin_pages.users.create')}
                     </Button>
                 )}
             >
@@ -322,10 +323,10 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
                 isOpen={deleteModal.isOpen}
                 onClose={() => setDeleteModal({ isOpen: false, userId: null, userName: '' })}
                 onConfirm={() => deleteModal.userId && handleDeleteUser(deleteModal.userId)}
-                title="Supprimer l'utilisateur"
-                message={`Êtes-vous sûr de vouloir supprimer l'utilisateur "${deleteModal.userName}" ?`}
-                confirmText="Supprimer"
-                cancelText="Annuler"
+                title={trans('admin_pages.users.delete_title')}
+                message={trans('admin_pages.users.delete_message', { name: deleteModal.userName })}
+                confirmText={trans('admin_pages.common.delete')}
+                cancelText={trans('admin_pages.common.cancel')}
                 type="danger"
             />
 
@@ -333,10 +334,10 @@ export default function UserIndex({ users, roles, groups, canDeleteUsers }: Prop
                 isOpen={forceDeleteModal.isOpen}
                 onClose={() => setForceDeleteModal({ isOpen: false, userId: null, userName: '' })}
                 onConfirm={() => forceDeleteModal.userId && handleForceDeleteUser(forceDeleteModal.userId)}
-                title="Suppression définitive"
-                message={`Êtes-vous sûr de vouloir supprimer DÉFINITIVEMENT l'utilisateur "${forceDeleteModal.userName}" ? Cette action est irréversible.`}
-                confirmText="Supprimer définitivement"
-                cancelText="Annuler"
+                title={trans('admin_pages.users.force_delete_title')}
+                message={trans('admin_pages.users.force_delete_message', { name: forceDeleteModal.userName })}
+                confirmText={trans('admin_pages.users.force_delete')}
+                cancelText={trans('admin_pages.common.cancel')}
                 type="danger"
             />
         </AuthenticatedLayout>

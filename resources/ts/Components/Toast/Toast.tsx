@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircleIcon, ExclamationCircleIcon, InformationCircleIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { trans } from '@/utils/translations';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -101,7 +102,7 @@ const Toast: React.FC<ToastProps> = ({
         >
             <div className="p-4 w-full overflow-hidden">
                 <div className="flex items-start w-full">
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                         <IconComponent
                             className={`h-6 w-6 ${config.iconColor}`}
                             aria-hidden="true"
@@ -110,16 +111,16 @@ const Toast: React.FC<ToastProps> = ({
 
                     <div className="ml-3 flex-1 min-w-0 overflow-hidden">
                         {title && (
-                            <p className={`text-sm font-medium ${config.titleColor} break-words word-break`}>
+                            <p className={`text-sm font-medium ${config.titleColor} wrap-break-word word-break`}>
                                 {title}
                             </p>
                         )}
-                        <p className={`text-sm ${config.messageColor} ${title ? 'mt-1' : ''} break-words word-break leading-relaxed`}>
+                        <p className={`text-sm ${config.messageColor} ${title ? 'mt-1' : ''} wrap-break-wordwordword word-break leading-relaxed`}>
                             {message}
                         </p>
                     </div>
 
-                    <div className="ml-4 flex-shrink-0 flex">
+                    <div className="ml-4 shrink-0 flex">
                         <button
                             type="button"
                             className={`
@@ -129,7 +130,7 @@ const Toast: React.FC<ToastProps> = ({
                             `}
                             onClick={handleClose}
                         >
-                            <span className="sr-only">Fermer</span>
+                            <span className="sr-only">{trans('components.toast.close')}</span>
                             <XMarkIcon className="h-5 w-5" aria-hidden="true" />
                         </button>
                     </div>

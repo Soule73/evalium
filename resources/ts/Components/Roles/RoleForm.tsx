@@ -5,6 +5,7 @@ import Badge from '@/Components/Badge';
 import PermissionSelector from './PermissionSelector';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { GroupedPermissions, RoleFormData } from '@/types/role';
+import { trans } from '@/utils/translations';
 
 interface Props {
     formData: RoleFormData;
@@ -36,17 +37,17 @@ export default function RoleForm({
     onDeselectAll,
     isSystemRole = false,
     onSync,
-    submitButtonText = 'Créer le rôle',
-    submittingText = 'Création...',
+    submitButtonText = trans('components.role_form.create_button'),
+    submittingText = trans('components.role_form.creating'),
 }: Props) {
     return (
         <form onSubmit={onSubmit} className="space-y-6">
             {isSystemRole && (
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <div className="flex items-center gap-2">
-                        <Badge label="Rôle système" type="info" />
+                        <Badge label={trans('components.role_form.system_role_badge')} type="info" />
                         <span className="text-sm text-blue-800">
-                            Ce rôle est un rôle système. Vous pouvez uniquement modifier ses permissions.
+                            {trans('components.role_form.system_role_notice')}
                         </span>
                     </div>
                 </div>
@@ -85,7 +86,7 @@ export default function RoleForm({
                         disabled={isSubmitting}
                     >
                         <ArrowLeftIcon className="w-4 h-4 mr-2" />
-                        Annuler
+                        {trans('components.role_form.cancel')}
                     </Button>
                     <Button
                         type="submit"

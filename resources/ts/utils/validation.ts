@@ -2,6 +2,8 @@
  * Validation utilities for forms and data
  */
 
+import { trans } from './translations';
+
 export interface ValidationRule {
     required?: boolean;
     minLength?: number;
@@ -23,7 +25,7 @@ export interface ValidationErrors {
 export function validateField(value: any, rules: ValidationRule): string | null {
     // Required validation
     if (rules.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
-        return 'Ce champ est requis';
+        return trans('formatters.validation_required');
     }
 
     // Skip other validations if value is empty and not required
@@ -34,26 +36,26 @@ export function validateField(value: any, rules: ValidationRule): string | null 
     // String validations
     if (typeof value === 'string') {
         if (rules.minLength && value.length < rules.minLength) {
-            return `Minimum ${rules.minLength} caractères requis`;
+            return trans('formatters.validation_min_length', { min: rules.minLength });
         }
 
         if (rules.maxLength && value.length > rules.maxLength) {
-            return `Maximum ${rules.maxLength} caractères autorisés`;
+            return trans('formatters.validation_max_length', { max: rules.maxLength });
         }
 
         if (rules.pattern && !rules.pattern.test(value)) {
-            return 'Format invalide';
+            return trans('formatters.validation_invalid_format');
         }
     }
 
     // Number validations
     if (typeof value === 'number') {
         if (rules.min !== undefined && value < rules.min) {
-            return `La valeur doit être au moins ${rules.min}`;
+            return trans('formatters.validation_min_value', { min: rules.min });
         }
 
         if (rules.max !== undefined && value > rules.max) {
-            return `La valeur ne peut pas dépasser ${rules.max}`;
+            return trans('formatters.validation_max_value', { max: rules.max });
         }
     }
 
@@ -122,7 +124,7 @@ export const commonValidationSchemas = {
         duration: {
             required: true,
             min: 1,
-            max: 480, // 8 hours max
+            max: 480,
         },
         max_attempts: {
             required: true,
@@ -145,7 +147,7 @@ export const commonValidationSchemas = {
             required: true,
             custom: (value: string) => {
                 const validTypes = ['multiple', 'text'];
-                return validTypes.includes(value) ? null : 'Type de question invalide';
+                return validTypes.includes(value) ? null : trans('formatters.validation_invalid_question_type');
             },
         },
     },
@@ -170,16 +172,16 @@ export function validateFileUpload(
     maxSize: number = 5 * 1024 * 1024 // 5MB
 ): string | null {
     if (!file) {
-        return 'Aucun fichier sélectionné';
+        return trans('formatters.validation_no_file_selected');
     }
 
     if (allowedTypes.length > 0 && !allowedTypes.includes(file.type)) {
-        return `Type de fichier non autorisé. Types acceptés: ${allowedTypes.join(', ')}`;
+        return trans('formatters.validation_file_type_not_allowed', { types: allowedTypes.join(', ') });
     }
 
     if (file.size > maxSize) {
         const maxSizeMB = Math.round(maxSize / (1024 * 1024));
-        return `Fichier trop volumineux. Taille maximale: ${maxSizeMB}MB`;
+        return trans('formatters.validation_file_too_large', { maxMB: maxSizeMB });
     }
 
     return null;

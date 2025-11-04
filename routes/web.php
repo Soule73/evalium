@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Exam\ExamController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Admin\GroupController;
 use App\Http\Controllers\Exam\ResultsController;
 use App\Http\Controllers\Exam\CorrectionController;
@@ -46,6 +47,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/profile/{user}', 'editProfile')->name('profile.update');
         Route::post('/logout', 'logout')->name('logout');
     });
+
+    // Locale Management
+    Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 
     /**
      * Student Routes

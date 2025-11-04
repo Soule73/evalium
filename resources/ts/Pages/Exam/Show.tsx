@@ -16,6 +16,7 @@ import { getGroupTableConfig, ExamHeader } from '@/Components/exam';
 import { groupsToPaginationType } from '@/utils';
 import Toggle from '@/Components/form/Toggle';
 import ConfirmationModal from '@/Components/ConfirmationModal';
+import { trans } from '@/utils/translations';
 
 
 interface Props {
@@ -100,7 +101,7 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
             breadcrumb={breadcrumbs.examShow(exam.title)}
         >
             <div className="max-w-6xl mx-auto space-y-6">
-                <Section title={"Détails et gestion de l'examen"}
+                <Section title={trans('exam_pages.show.title')}
                     actions={
                         <div className="flex flex-col md:flex-row space-y-2 md:space-x-3 md:space-y-0">
                             <Toggle
@@ -110,8 +111,8 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
                                 color="green"
                                 size="sm"
                                 showLabel
-                                activeLabel="Actif"
-                                inactiveLabel="Inactif"
+                                activeLabel={trans('exam_pages.show.toggle_active')}
+                                inactiveLabel={trans('exam_pages.show.toggle_inactive')}
                             />
                             <Button
                                 onClick={() => setShowDuplicateModal(true)}
@@ -121,21 +122,21 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
                                 disabled={isDuplicating}
                             >
                                 <DocumentDuplicateIcon className="h-4 w-4 mr-1" />
-                                Dupliquer
+                                {trans('exam_pages.show.duplicate')}
                             </Button>
                             <Button
                                 onClick={() => router.visit(route('exams.edit', exam.id))}
                                 color="secondary"
                                 variant='outline'
                                 size="sm" >
-                                Modifier
+                                {trans('exam_pages.show.edit')}
                             </Button>
                             <Button
                                 onClick={() => router.visit(route('exams.groups', exam.id))}
                                 color="secondary"
                                 variant='outline'
                                 size="sm" >
-                                Voir les assignations
+                                {trans('exam_pages.show.view_assignments')}
                             </Button>
                         </div>
                     }
@@ -148,25 +149,25 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
 
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
                                 <StatCard
-                                    title="Questions"
+                                    title={trans('exam_pages.show.questions')}
                                     value={questionsCount}
                                     icon={QuestionMarkCircleIcon}
                                     color='blue'
                                 />
                                 <StatCard
-                                    title="Points totaux"
+                                    title={trans('exam_pages.show.total_points')}
                                     value={totalPoints}
                                     color='green'
                                     icon={StarIcon}
                                 />
                                 <StatCard
-                                    title="Durée"
+                                    title={trans('exam_pages.show.duration')}
                                     value={formatDuration(exam.duration)}
                                     color='yellow'
                                     icon={ClockIcon}
                                 />
                                 <StatCard
-                                    title="Groupes assignés"
+                                    title={trans('exam_pages.show.assigned_groups')}
                                     value={assignedGroups.length}
                                     color='purple'
                                     icon={UserGroupIcon}
@@ -176,7 +177,7 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
                             {totalStudents > 0 && (
                                 <div className="mt-4">
                                     <StatCard
-                                        title="Étudiants concernés"
+                                        title={trans('exam_pages.show.concerned_students')}
                                         value={totalStudents}
                                         color='blue'
                                         icon={AcademicCapIcon}
@@ -190,8 +191,8 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
                 {/* Groupes assignés */}
                 {assignedGroups && assignedGroups.length > 0 && (
                     <Section
-                        title="Groupes assignés"
-                        subtitle={`${assignedGroups.length} groupe(s) ont accès à cet examen`}
+                        title={trans('exam_pages.show.assigned_groups_section')}
+                        subtitle={trans('exam_pages.show.assigned_groups_subtitle', { count: assignedGroups.length })}
                         collapsible
                         defaultOpen={true}
                     >
@@ -203,12 +204,12 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
                 )}
 
                 {/* Questions */}
-                <Section title="Questions de l'examen" collapsible>
+                <Section title={trans('exam_pages.show.exam_questions')} collapsible>
                     {(exam.questions ?? []).length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
-                            <p>Aucune question ajoutée à cet examen.</p>
+                            <p>{trans('exam_pages.show.no_questions')}</p>
                             <Link href={route('exams.edit', exam.id)} className="mt-2 inline-block">
-                                <Button>Ajouter des questions</Button>
+                                <Button>{trans('exam_pages.show.add_questions')}</Button>
                             </Link>
                         </div>
                     ) : (
@@ -219,7 +220,7 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
                                     {question.type !== 'text' && (question.choices ?? []).length > 0 && (
                                         <div className="ml-4">
                                             <h5 className="text-sm font-medium text-gray-700 mb-2">
-                                                Choix de réponse :
+                                                {trans('exam_pages.show.answer_choices')}
                                             </h5>
                                             <div className="space-y-2">
                                                 <QuestionTeacherReadOnlyChoices
@@ -232,7 +233,7 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
 
                                     {question.type === 'text' && (
                                         <QuestionResultReadOnlyText
-                                            userText={"Question à réponse libre - correction manuelle requise"}
+                                            userText={trans('exam_pages.show.free_text_info')}
                                             label=""
                                         />
                                     )}
@@ -248,10 +249,10 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
                 isOpen={showDuplicateModal}
                 onClose={() => setShowDuplicateModal(false)}
                 onConfirm={handleDuplicate}
-                title="Dupliquer l'examen"
-                message={`Voulez-vous vraiment dupliquer l'examen "${exam.title}" ? Une copie sera créée avec toutes les questions.`}
-                confirmText="Dupliquer"
-                cancelText="Annuler"
+                title={trans('exam_pages.show.duplicate_modal_title')}
+                message={trans('exam_pages.show.duplicate_modal_message', { title: exam.title })}
+                confirmText={trans('exam_pages.show.duplicate_confirm')}
+                cancelText={trans('exam_pages.create.cancel')}
                 type="info"
                 loading={isDuplicating}
             />
@@ -260,10 +261,11 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
                 isOpen={removeGroupModal.isOpen}
                 onClose={() => setRemoveGroupModal({ isOpen: false, group: null })}
                 onConfirm={handleRemoveGroup}
-                title="Retirer le groupe"
-                message={`Êtes-vous sûr de vouloir retirer l'examen "${exam.title}" du groupe "${removeGroupModal.group?.display_name}" ?`}
-                confirmText="Retirer"
-                cancelText="Annuler"
+                title={trans('exam_pages.show.remove_group_title')}
+                message={trans('exam_pages.show.remove_group_message',
+                    { exam: exam.title, group: removeGroupModal.group?.display_name || '' })}
+                confirmText={trans('exam_pages.show.remove')}
+                cancelText={trans('exam_pages.create.cancel')}
                 type="danger"
             />
         </AuthenticatedLayout >

@@ -9,6 +9,7 @@ import { DataTableConfig, PaginationType } from '@/types/datatable';
 import type { FilterConfig } from '@/types/datatable';
 import Toggle from '@/Components/form/Toggle';
 import { hasPermission } from '@/utils/permissions';
+import { trans } from '@/utils/translations';
 import MarkdownRenderer from '../form/MarkdownRenderer';
 import { Button } from '../Button';
 
@@ -99,51 +100,51 @@ const ExamList: React.FC<ExamListProps> = ({
             {canViewExams && <Button
                 size="sm"
                 onClick={() => router.visit(route('exams.show', exam.id))}
-                title="Voir l'examen"
+                title={trans('components.exam_list.view_exam_title')}
                 variant="outline"
             >
-                Voir
+                {trans('components.exam_list.view_exam')}
             </Button>}
         </div>
     );
 
     const columns: DataTableConfig<Exam>["columns"] =
         variant === 'admin' ? [
-            { key: 'title', label: 'Examen', render: renderTitle },
-            { key: 'duration', label: 'Durée', render: renderDuration },
-            { key: 'is_active', label: 'Statut', render: renderStatus },
-            { key: 'created_at', label: 'Créé le', render: renderCreatedAt },
+            { key: 'title', label: trans('components.exam_list.exam_label'), render: renderTitle },
+            { key: 'duration', label: trans('components.exam_list.duration_label'), render: renderDuration },
+            { key: 'is_active', label: trans('components.exam_list.status_label'), render: renderStatus },
+            { key: 'created_at', label: trans('components.exam_list.created_on'), render: renderCreatedAt },
         ] : [
-            { key: 'title', label: 'Examen', render: renderTitle },
-            { key: 'duration', label: 'Durée', render: renderDuration },
-            { key: 'is_active', label: 'Statut', render: renderStatus },
-            { key: 'created_at', label: 'Créé le', render: renderCreatedAt },
-            { key: 'actions', label: 'Actions', className: 'text-right', render: renderActions },
+            { key: 'title', label: trans('components.exam_list.exam_label'), render: renderTitle },
+            { key: 'duration', label: trans('components.exam_list.duration_label'), render: renderDuration },
+            { key: 'is_active', label: trans('components.exam_list.status_label'), render: renderStatus },
+            { key: 'created_at', label: trans('components.exam_list.created_on'), render: renderCreatedAt },
+            { key: 'actions', label: trans('components.exam_list.actions_label'), className: 'text-right', render: renderActions },
         ];
 
     const filters: FilterConfig[] = showFilters ? [
         {
             key: 'status',
-            label: 'Statut',
+            label: trans('components.exam_list.status_label'),
             type: 'select',
             options: [
-                { value: '1', label: 'Actif' },
-                { value: '0', label: 'Inactif' }
+                { value: '1', label: trans('components.exam_list.status_active') },
+                { value: '0', label: trans('components.exam_list.status_inactive') }
             ]
         }
     ] : [];
 
-    const searchPlaceholder = showSearch ? "Rechercher par titre ou description..." : undefined;
+    const searchPlaceholder = showSearch ? trans('components.exam_list.search_placeholder') : undefined;
 
     const emptyState = {
-        title: "Aucun examen créé",
-        subtitle: "Commencez par créer votre premier examen pour vos étudiants."
+        title: trans('components.exam_list.empty_title'),
+        subtitle: trans('components.exam_list.empty_subtitle')
     };
 
     const emptySearchState = {
-        title: "Aucun examen trouvé",
-        subtitle: "Essayez de modifier vos critères de recherche ou de filtrage.",
-        resetLabel: "Réinitialiser les filtres"
+        title: trans('components.exam_list.empty_search_title'),
+        subtitle: trans('components.exam_list.empty_search_subtitle'),
+        resetLabel: trans('components.exam_list.reset_filters')
     };
 
     const perPageOptions = [10, 25, 50];

@@ -4,6 +4,7 @@ import Badge from '@/Components/Badge';
 import { Button } from '@/Components/Button';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
+import { trans } from '@/utils/translations';
 
 interface ExamAssignmentColumnsOptions {
     exam: Exam;
@@ -19,21 +20,21 @@ export const getExamAssignmentColumns = ({ exam, group, showActions = true }: Ex
     const columns = [
         {
             key: 'student',
-            label: 'Étudiant',
+            label: trans('components.exam_assignment_columns.student_label'),
             render: (assignment: ExamAssignment) => (
                 <div>
                     <div className="text-sm font-medium text-gray-900">
-                        {assignment.student?.name || 'Nom non disponible'}
+                        {assignment.student?.name || trans('components.exam_assignment_columns.name_unavailable')}
                     </div>
                     <div className="text-sm text-gray-500">
-                        {assignment.student?.email || 'Email non disponible'}
+                        {assignment.student?.email || trans('components.exam_assignment_columns.email_unavailable')}
                     </div>
                 </div>
             ),
         },
         {
             key: 'status',
-            label: 'Statut',
+            label: trans('components.exam_assignment_columns.status_label'),
             render: (assignment: ExamAssignment) => {
                 const status = formatExamAssignmentStatus(assignment.status);
                 return (
@@ -46,7 +47,7 @@ export const getExamAssignmentColumns = ({ exam, group, showActions = true }: Ex
         },
         {
             key: 'assigned_at',
-            label: 'Assigné le',
+            label: trans('components.exam_assignment_columns.assigned_on'),
             render: (assignment: ExamAssignment) => (
                 <div className="text-sm text-gray-500">
                     {assignment.assigned_at ? formatDate(assignment.assigned_at, 'datetime') : '-'}
@@ -55,7 +56,7 @@ export const getExamAssignmentColumns = ({ exam, group, showActions = true }: Ex
         },
         {
             key: 'started_at',
-            label: 'Commencé le',
+            label: trans('components.exam_assignment_columns.started_on'),
             render: (assignment: ExamAssignment) => (
                 <div className="text-sm text-gray-500">
                     {assignment.started_at ? formatDate(assignment.started_at, 'datetime') : '-'}
@@ -64,7 +65,7 @@ export const getExamAssignmentColumns = ({ exam, group, showActions = true }: Ex
         },
         {
             key: 'submitted_at',
-            label: 'Terminé le',
+            label: trans('components.exam_assignment_columns.completed_on'),
             render: (assignment: ExamAssignment) => (
                 <div className="text-sm text-gray-500">
                     {assignment.submitted_at ? formatDate(assignment.submitted_at, 'datetime') : '-'}
@@ -73,7 +74,7 @@ export const getExamAssignmentColumns = ({ exam, group, showActions = true }: Ex
         },
         {
             key: 'score',
-            label: 'Note',
+            label: trans('components.exam_assignment_columns.score_label'),
             render: (assignment: ExamAssignment) => assignment?.score ?? '-',
         },
     ];
@@ -81,7 +82,7 @@ export const getExamAssignmentColumns = ({ exam, group, showActions = true }: Ex
     if (showActions) {
         columns.push({
             key: 'actions',
-            label: 'Actions',
+            label: trans('components.exam_assignment_columns.actions_label'),
             render: (assignment: ExamAssignment) => (
                 <div className="flex space-x-2">
                     {(assignment.status === 'submitted' || assignment.status === 'graded') ? (
@@ -92,7 +93,7 @@ export const getExamAssignmentColumns = ({ exam, group, showActions = true }: Ex
                             variant="outline"
                             className='text-xs'
                         >
-                            Voir résultat
+                            {trans('components.exam_assignment_columns.view_result')}
                         </Button>
                     ) : (
                         <span className="text-xs text-gray-400">-</span>
@@ -108,16 +109,16 @@ export const getExamAssignmentColumns = ({ exam, group, showActions = true }: Ex
 /**
  * Configuration par défaut pour les filtres des assignations
  */
-export const examAssignmentFilters = [
+export const getExamAssignmentFilters = () => [
     {
         key: 'status',
-        label: 'Statut',
+        label: trans('components.exam_assignment_columns.status_label'),
         type: 'select' as const,
         options: [
-            { value: '', label: 'Tous les statuts' },
-            { value: null, label: 'Non commencé' },
-            { value: 'submitted', label: 'Soumis' },
-            { value: 'graded', label: 'Noté' },
+            { value: '', label: trans('components.exam_assignment_columns.all_statuses') },
+            { value: null, label: trans('components.exam_assignment_columns.not_started') },
+            { value: 'submitted', label: trans('components.exam_assignment_columns.submitted') },
+            { value: 'graded', label: trans('components.exam_assignment_columns.graded') },
         ],
     },
 ];

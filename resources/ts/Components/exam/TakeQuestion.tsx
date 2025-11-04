@@ -4,6 +4,7 @@ import MarkdownEditor from '@/Components/form/MarkdownEditor';
 import Section from '@/Components/Section';
 import { Choice, Question } from '@/types';
 import Checkbox from '@/Components/form/Checkbox';
+import { trans } from '@/utils/translations';
 
 type AnswerValue = string | number | number[];
 
@@ -22,12 +23,12 @@ interface BaseChoiceProps {
 
 /* ---------- Utilities ---------- */
 
-export const TYPE_LABELS: Record<string, string> = {
-    multiple: 'Choix multiples',
-    one_choice: 'Choix unique',
-    boolean: 'Vrai/Faux',
-    text: 'Réponse texte',
-};
+export const getTypeLabels = (): Record<string, string> => ({
+    multiple: trans('components.take_question.multiple_choice'),
+    one_choice: trans('components.take_question.one_choice'),
+    boolean: trans('components.take_question.boolean'),
+    text: trans('components.take_question.text'),
+});
 
 export const TYPE_COLORS: Record<string, string> = {
     multiple: 'bg-blue-100 text-blue-800',
@@ -105,7 +106,7 @@ const TakeQuestionBoolean: React.FC<BaseChoiceProps> = ({ questionId, choices, a
                 const normalized = choice.content?.toString().toLowerCase() ?? '';
                 const isTrue = ['true', 'vrai'].includes(normalized);
                 const badgeClass = isTrue ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-                const labelText = isTrue ? 'Vrai' : 'Faux';
+                const labelText = isTrue ? trans('components.take_question.true') : trans('components.take_question.false');
 
                 return (
                     <Checkbox
@@ -142,9 +143,9 @@ const TakeQuestionText: React.FC<{
             editorClassName="min-h-[150px] sm:min-h-[200px]"
             value={typeof answers[questionId] === 'string' ? (answers[questionId] as string) : ''}
             onChange={(value) => onAnswerChange(questionId, value)}
-            placeholder="Tapez votre réponse ici... (Markdown supporté)"
+            placeholder={trans('components.take_question.your_answer_placeholder')}
             rows={6}
-            helpText="Vous pouvez utiliser la syntaxe Markdown pour formater votre réponse"
+            helpText={trans('components.take_question.your_answer_help')}
         />
     </div>
 );
@@ -152,6 +153,8 @@ const TakeQuestionText: React.FC<{
 /* ---------- Main Component ---------- */
 
 const TakeQuestion: React.FC<TakeQuestionProps> = ({ question, answers, onAnswerChange }) => {
+    const typeLabels = getTypeLabels();
+
     return (
         <Section
             key={question.id}
@@ -161,11 +164,11 @@ const TakeQuestion: React.FC<TakeQuestionProps> = ({ question, answers, onAnswer
             actions={
                 <div className="flex space-x-2 top-5 right-5 absolute">
                     <div className="text-sm min-w-fit font-medium h-max text-blue-600 px-2 py-1 rounded">
-                        {question.points} point(s)
+                        {trans('components.take_question.points', { points: question.points })}
                     </div>
 
                     <span className={`text-xs px-2 py-1 min-w-fit h-max rounded-full ${TYPE_COLORS[question.type] ?? 'bg-gray-100 text-gray-800'}`}>
-                        {TYPE_LABELS[question.type] ?? question.type}
+                        {typeLabels[question.type] ?? question.type}
                     </span>
                 </div>
             }

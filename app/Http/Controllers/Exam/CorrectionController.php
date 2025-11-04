@@ -53,10 +53,14 @@ class CorrectionController extends Controller
     }
 
     /**
-     * Saves a review for a student on a specific exam.
+     * Save a review for a student on a specific exam.
+     * 
+     * Delegates to ExamScoringService to save manual corrections,
+     * teacher notes, and recalculate total score.
      *
      * @param SaveStudentReviewRequest $request The validated request containing review data.
      * @param Exam $exam The exam instance being reviewed.
+     * @param Group $group The group context for the review.
      * @param User $student The student for whom the review is being saved.
      * @return RedirectResponse Redirects back after saving the review.
      */
@@ -69,22 +73,25 @@ class CorrectionController extends Controller
 
             return $this->redirectWithSuccess(
                 'exams.review',
-                "Correction sauvegardée avec succès ! {$result['updated_answers']} réponses mises à jour. Note total: {$result['total_score']} points.",
+                "Correction saved successfully! {$result['updated_answers']} answers updated. Total score: {$result['total_score']} points.",
                 ['exam' => $exam->id, 'student' => $student->id, 'group' => $group->id]
             );
         } catch (\Exception $e) {
-            Log::error("Erreur lors de la sauvegarde de la correction : " . $e->getMessage());
+            Log::error("Error saving correction: " . $e->getMessage());
 
             return $this->redirectWithError(
                 'exams.review',
-                'Erreur lors de la sauvegarde de la correction',
+                'Error saving correction',
                 ['exam' => $exam->id, 'student' => $student->id, 'group' => $group->id]
             );
         }
     }
 
     /**
-     * Updates the score for a given exam based on the provided request data.
+     * Update the score for a specific question in a student's exam.
+     * 
+     * Delegates to ExamScoringService to save individual question score,
+     * teacher notes, and feedback. Typically used for AJAX updates.
      *
      * @param UpdateScoreRequest $request The validated request containing score update information.
      * @param Exam $exam The exam instance to update the score for.
@@ -110,14 +117,14 @@ class CorrectionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Note mise à jour avec succès'
+                'message' => 'Score updated successfully'
             ]);
         } catch (\Exception $e) {
-            Log::error("Erreur updateScore: " . $e->getMessage());
+            Log::error("Error updating score: " . $e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de la mise à jour de la note'
+                'message' => 'Error updating score'
             ], 422);
         }
     }

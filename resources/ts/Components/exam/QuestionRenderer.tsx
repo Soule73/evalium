@@ -4,6 +4,7 @@ import QuestionReadOnlySection from '@/Components/exam/QuestionReadOnlySection';
 import { QuestionResultReadOnlyChoices, QuestionResultReadOnlyText } from '@/Components/exam/QuestionResultReadOnly';
 import AlertEntry from '@/Components/AlertEntry';
 import { hasUserResponse } from '@/utils/examUtils';
+import { trans } from '@/utils/translations';
 
 interface QuestionRendererProps {
     questions: Question[];
@@ -44,7 +45,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                             {question.type === 'text' && (
                                 <QuestionResultReadOnlyText
                                     userText={result.userText}
-                                    label={isTeacherView ? "Réponse de l'étudiant" : "Votre réponse"}
+                                    label={isTeacherView ? trans('components.question_renderer.student_answer_label') : trans('components.question_renderer.your_answer_label')}
                                 />
                             )}
 
@@ -59,11 +60,11 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                             )}
 
                             {!hasResponse && (
-                                <AlertEntry title="Aucune réponse fournie" type="warning">
+                                <AlertEntry title={trans('components.question_renderer.no_answer')} type="warning">
                                     <p className="text-sm">
                                         {isTeacherView
-                                            ? "L'étudiant n'a pas fourni de réponse pour cette question."
-                                            : "Vous n'avez pas fourni de réponse pour cette question."
+                                            ? trans('components.question_renderer.no_answer_student')
+                                            : trans('components.question_renderer.no_answer_yours')
                                         }
                                     </p>
                                 </AlertEntry>
@@ -74,7 +75,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                         {result.feedback && (
                             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                                 <h4 className="text-sm font-medium text-blue-800 mb-2">
-                                    Commentaire du professeur :
+                                    {trans('components.question_renderer.teacher_feedback')}
                                 </h4>
                                 <p className="text-sm text-blue-700">{result.feedback}</p>
                             </div>

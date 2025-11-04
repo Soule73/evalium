@@ -4,6 +4,7 @@ import TextEntry from '@/Components/TextEntry';
 import { Exam, ExamAssignment, User } from '@/types';
 import { formatExamScore } from '@/utils/examUtils';
 import AlertEntry from '../AlertEntry';
+import { trans } from '@/utils/translations';
 
 interface ExamInfoSectionProps {
     exam: Exam;
@@ -60,39 +61,39 @@ const ExamInfoSection: React.FC<ExamInfoSectionProps> = ({
                     <TextEntry label={exam.title} value={exam.description ?? ''} />
                 ) : (
                     <>
-                        <TextEntry label="Examen" value={exam.title} />
-                        <TextEntry label="Description" value={exam.description ?? ''} />
+                        <TextEntry label={trans('components.exam_info_section.exam_label')} value={exam.title} />
+                        <TextEntry label={trans('components.exam_info_section.description_label')} value={exam.description ?? ''} />
                     </>
                 )}
                 {creator && (
-                    <TextEntry label="Professeur(e)/Créateur(trice)" value={creator.name} />
+                    <TextEntry label={trans('components.exam_info_section.teacher_label')} value={creator.name} />
                 )}
             </div>
 
             <div className={`grid grid-cols-1 gap-4 ${student ? 'md:grid-cols-4' : 'md:grid-cols-2'}`}>
                 {student && (
                     <>
-                        <TextEntry label="Étudiant" value={student.name} />
-                        <TextEntry label="Email" value={student.email} />
+                        <TextEntry label={trans('components.exam_info_section.student_label')} value={student.name} />
+                        <TextEntry label={trans('components.exam_info_section.email_label')} value={student.email} />
                     </>
                 )}
                 <TextEntry
-                    label="Soumis le"
+                    label={trans('components.exam_info_section.submitted_on')}
                     value={assignment?.submitted_at ? formatDate(assignment.submitted_at, 'datetime') : '-'}
                 />
-                <TextEntry label="Durée" value={formatDuration(exam?.duration)} />
+                <TextEntry label={trans('components.exam_info_section.duration_label')} value={formatDuration(exam?.duration)} />
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3 border-t border-gray-300 pt-4 pb-4 mt-4">
                 <TextEntry
                     label={
                         isReviewMode
-                            ? "Note attribuée"
+                            ? trans('components.exam_info_section.score_assigned')
                             : isPendingReview
-                                ? "Note (en attente)"
+                                ? trans('components.exam_info_section.score_pending')
                                 : isStudentView
-                                    ? "Note"
-                                    : "Note finale"
+                                    ? trans('components.exam_info_section.score_label')
+                                    : trans('components.exam_info_section.score_final')
                     }
                     value={
                         isReviewMode
@@ -101,27 +102,27 @@ const ExamInfoSection: React.FC<ExamInfoSectionProps> = ({
                     }
                 />
                 <TextEntry
-                    label="Pourcentage"
+                    label={trans('components.exam_info_section.percentage_label')}
                     value={`${percentage}%`}
                 />
                 <TextEntry
-                    label={isReviewMode ? "Questions" : "Statut"}
+                    label={isReviewMode ? trans('components.exam_info_section.questions_label') : trans('components.exam_info_section.status_label')}
                     value={
                         isReviewMode
-                            ? `${exam.questions?.length || 0} questions`
+                            ? trans('components.exam_info_section.questions_count', { count: exam.questions?.length || 0 })
                             : isStudentView
-                                ? (isPendingReview ? "En attente de correction" : "Terminé")
+                                ? (isPendingReview ? trans('components.exam_info_section.pending_correction') : trans('components.exam_info_section.finished'))
                                 : getAssignmentBadgeLabel(assignment.status)
                     }
                 />
 
                 {assignment.forced_submission && (
-                    <AlertEntry title="Soumission Automatique" type="error" className="md:col-span-3">
+                    <AlertEntry title={trans('components.exam_info_section.automatic_submission')} type="error" className="md:col-span-3">
                         <p className="text-sm">
-                            Cet examen a été soumis automatiquement
+                            {trans('components.exam_info_section.automatic_submission_message')}
                         </p>
                         <p className="text-sm">
-                            Violation détectée : {securityViolationLabel(assignment.security_violation)}
+                            {trans('components.exam_info_section.violation_detected_label', { violation: securityViolationLabel(assignment.security_violation) })}
                         </p>
                     </AlertEntry>
                 )}

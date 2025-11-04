@@ -1,5 +1,6 @@
 import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { trans } from '@/utils/translations';
 
 interface BulkActionsProps {
     selectedCount: number;
@@ -10,18 +11,22 @@ interface BulkActionsProps {
 export function BulkActions({ selectedCount, onDeselectAll, children }: BulkActionsProps) {
     if (selectedCount === 0) return null;
 
+    // Use Laravel pluralization: format is "singular|plural"
+    const itemsText = trans('components.datatable.items_selected', { count: selectedCount });
+    const suffixText = trans('components.datatable.items_selected_suffix', { count: selectedCount });
+
     return (
         <div className="bg-blue-50 border-b border-blue-200 px-6 py-3">
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
                         <span className="text-sm font-medium text-blue-900">
-                            {selectedCount} élément{selectedCount > 1 ? 's' : ''} sélectionné{selectedCount > 1 ? 's' : ''}
+                            {itemsText} {suffixText}
                         </span>
                         <button
                             onClick={onDeselectAll}
                             className="text-blue-600 hover:text-blue-800 transition-colors"
-                            aria-label="Désélectionner tout"
+                            aria-label={trans('components.datatable.deselect_all')}
                         >
                             <XMarkIcon className="h-5 w-5" />
                         </button>

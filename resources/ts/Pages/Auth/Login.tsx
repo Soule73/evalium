@@ -5,6 +5,7 @@ import Input from '@/Components/form/Input';
 import Checkbox from '@/Components/form/Checkbox';
 import { Logo } from '@/Components/Navigation';
 import { route } from 'ziggy-js';
+import { trans } from '@/utils/translations';
 
 interface LoginProps {
     canResetPassword?: boolean;
@@ -24,7 +25,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
     };
 
     return (
-        <GuestLayout title="Connexion">
+        <GuestLayout title={trans('auth_pages.login.title')}>
             <div className="min-h-screen flex flex-col sm:justify-center items-center ">
                 <div className="w-full max-w-lg mx-auto bg-white p-8 border border-gray-300 rounded-lg ">
                     <div className="flex justify-center mb-6">
@@ -33,10 +34,10 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                     <div className="text-center mb-8">
 
                         <h1 className="text-3xl font-bold text-gray-900">
-                            Connexion
+                            {trans('auth_pages.login.title')}
                         </h1>
                         <p className="text-gray-600 mt-2">
-                            Connectez-vous à votre compte
+                            {trans('auth_pages.login.subtitle')}
                         </p>
                     </div>
 
@@ -48,14 +49,14 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <Input
-                            label="Adresse email"
+                            label={trans('auth_pages.login.email_label')}
                             id="email"
                             type="email"
                             name='email'
                             className="mt-1 block w-full"
                             value={data.email}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('email', e.target.value)}
-                            placeholder="Entrez votre email"
+                            placeholder={trans('auth_pages.login.email_placeholder')}
                             required
                             autoComplete="username"
                             autoFocus
@@ -63,14 +64,14 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                         />
 
                         <Input
-                            label="Mot de passe"
+                            label={trans('auth_pages.login.password_label')}
                             id="password"
                             name='password'
                             type="password"
                             className="mt-1 block w-full"
                             value={data.password}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('password', e.target.value)}
-                            placeholder="Entrez votre mot de passe"
+                            placeholder={trans('auth_pages.login.password_placeholder')}
                             required
                             autoComplete="current-password"
                             error={errors.password}
@@ -78,7 +79,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
 
                         <Checkbox
                             id="remember"
-                            label="Se souvenir de moi"
+                            label={trans('auth_pages.login.remember_me')}
                             checked={data.remember}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('remember', e.target.checked)}
                         />
@@ -93,7 +94,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                                 loading={processing}
 
                             >
-                                {processing ? 'Connexion...' : 'Se connecter'}
+                                {processing ? trans('auth_pages.login.submitting') : trans('auth_pages.login.submit_button')}
                             </Button>
                         </div>
 
@@ -102,7 +103,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                                 <span
                                     className="text-sm text-gray-500 "
                                 >
-                                    Mot de passe oublié ? Contactez l'administrateur.
+                                    {trans('auth_pages.login.forgot_password')}
                                 </span>
                             )}
 

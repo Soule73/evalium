@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, forwardRef } from 'react';
 import { ChevronDownIcon, CheckIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { trans } from '@/utils/translations';
 
 interface Option {
     value: string | number;
@@ -28,7 +29,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
         error,
         helperText,
         options,
-        placeholder = "Sélectionner une option",
+        placeholder = trans('components.select.placeholder'),
         value,
         onChange,
         onBlur,
@@ -205,7 +206,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                                             ref={searchInputRef}
                                             type="text"
                                             className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Rechercher..."
+                                            placeholder={trans('components.select.search_placeholder')}
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                             onKeyDown={handleKeyDown}
@@ -222,7 +223,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                             >
                                 {filteredOptions.length === 0 ? (
                                     <li className="px-3 py-2 text-sm text-gray-500 text-center">
-                                        Aucune option trouvée
+                                        {trans('components.select.no_option_found')}
                                     </li>
                                 ) : (
                                     filteredOptions.map((option, index) => (

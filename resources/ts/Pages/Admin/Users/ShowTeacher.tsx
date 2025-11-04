@@ -6,6 +6,7 @@ import ExamList from '@/Components/exam/ExamList';
 import StatCard from '@/Components/StatCard';
 import { DocumentTextIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { breadcrumbs } from '@/utils/breadcrumbs';
+import { trans } from '@/utils/translations';
 
 
 interface Props {
@@ -24,22 +25,22 @@ export default function ShowTeacher({ user, exams, canDelete, canToggleStatus }:
         <ShowUser user={user} canDelete={canDelete} canToggleStatus={canToggleStatus}
             breadcrumb={breadcrumbs.teacherShow(user)}
         >
-            <Section title="Statistiques" subtitle="Aperçu de l'activité de l'enseignant">
+            <Section title={trans('admin_pages.users.show_teacher_stats')} subtitle={trans('admin_pages.users.show_teacher_stats_subtitle')}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <StatCard
-                        title="Total d'examens"
+                        title={trans('admin_pages.users.total_exams')}
                         value={totalExams}
                         icon={DocumentTextIcon}
                         color="blue"
                     />
                     <StatCard
-                        title="Examens actifs"
+                        title={trans('admin_pages.users.active_exams')}
                         value={activeExams}
                         icon={CheckCircleIcon}
                         color="green"
                     />
                     <StatCard
-                        title="Examens inactifs"
+                        title={trans('admin_pages.users.inactive_exams')}
                         value={inactiveExams}
                         icon={ClockIcon}
                         color="yellow"
@@ -47,7 +48,7 @@ export default function ShowTeacher({ user, exams, canDelete, canToggleStatus }:
                 </div>
             </Section>
 
-            <Section title="Examens créés" subtitle="Liste des examens créés par l'enseignant">
+            <Section title={trans('admin_pages.users.show_teacher_exams')} subtitle={trans('admin_pages.users.show_teacher_exams_subtitle')}>
                 <ExamList
                     data={exams}
                     variant="admin"

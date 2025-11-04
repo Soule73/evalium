@@ -1,33 +1,43 @@
+import { trans } from '@/utils/translations';
+import Badge, { BadgeType } from '../Badge';
+
 interface RoleBadgeProps {
     role: 'super_admin' | 'admin' | 'teacher' | 'student' | undefined;
     className?: string;
 }
 
-export const RoleBadge = ({ role, className = '' }: RoleBadgeProps) => {
-    const badgeConfig = {
+export const RoleBadge = ({ role }: RoleBadgeProps) => {
+    const badgeConfig: {
+        [key: string]: {
+            type: BadgeType;
+            label: string;
+        };
+    } = {
         admin: {
-            className: 'bg-red-100 text-red-800',
-            label: 'Admin'
+            type: "info",
+            label: trans('users.admin')
         },
         teacher: {
-            className: 'bg-green-100 text-green-800',
-            label: 'Enseignant'
+            type: "warning",
+            label: trans('users.teacher')
         },
         student: {
-            className: 'bg-blue-100 text-blue-800',
-            label: 'Étudiant'
+            type: "success",
+            label: trans('users.student')
         },
         super_admin: {
-            className: 'bg-purple-100 text-purple-800',
-            label: 'Super Admin'
+            type: "info",
+            label: trans('users.super_admin')
         }
     };
 
-    const config = role ? badgeConfig[role] : { className: 'bg-gray-100 text-gray-800', label: 'Inconnu' };
+    const config = role && badgeConfig[role]
+        ? badgeConfig[role]
+        : { type: "gray" as BadgeType, label: trans('users.unknown') };
 
     return (
-        <span className={`px-2 py-1 text-xs font-medium rounded-full ${config.className} ${className}`}>
-            {config.label}
-        </span>
+        <Badge label={config.label}
+            type={config.type}
+        />
     );
 };

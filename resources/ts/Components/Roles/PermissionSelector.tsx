@@ -1,6 +1,7 @@
 import { Button } from '@/Components/Button';
 import Checkbox from '@/Components/form/Checkbox';
 import { GroupedPermissions } from '@/types/role';
+import { trans } from '@/utils/translations';
 
 interface Props {
     groupedPermissions: GroupedPermissions;
@@ -29,7 +30,7 @@ export default function PermissionSelector({
         <div className="space-y-3">
             <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-gray-700">
-                    Permissions ({selectedPermissions.length} sélectionnées)
+                    {trans('components.permission_selector.label', { count: selectedPermissions.length })}
                 </label>
                 <div className="flex gap-2">
                     <Button
@@ -39,7 +40,7 @@ export default function PermissionSelector({
                         variant='outline'
                         color="secondary"
                     >
-                        Tout sélectionner
+                        {trans('components.permission_selector.select_all')}
                     </Button>
                     <Button
                         type="button"
@@ -48,7 +49,7 @@ export default function PermissionSelector({
                         variant='outline'
                         color="secondary"
                     >
-                        Tout désélectionner
+                        {trans('components.permission_selector.deselect_all')}
                     </Button>
                     {showSyncButton && onSync && (
                         <Button
@@ -58,7 +59,7 @@ export default function PermissionSelector({
                             color="primary"
                             disabled={isSubmitting}
                         >
-                            Synchroniser
+                            {trans('components.permission_selector.sync')}
                         </Button>
                     )}
                 </div>

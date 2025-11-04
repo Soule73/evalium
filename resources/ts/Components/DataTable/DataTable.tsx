@@ -6,6 +6,7 @@ import { DataTablePagination } from './DataTablePagination';
 import { EmptyState } from './EmptyState';
 import { BulkActions } from './BulkActions';
 import Checkbox from '@/Components/form/Checkbox';
+import { trans } from '@/utils/translations';
 
 export function DataTable<T extends { id: number | string }>({
     data,
@@ -82,7 +83,7 @@ export function DataTable<T extends { id: number | string }>({
                             }}
                             onChange={actions.toggleAllOnPage}
                             className="cursor-pointer"
-                            aria-label="Sélectionner tout"
+                            aria-label={trans('components.datatable.select_all')}
                         />
                     </th>
                 )}
@@ -112,7 +113,7 @@ export function DataTable<T extends { id: number | string }>({
                                     onChange={() => actions.toggleItem(item.id)}
                                     disabled={!isItemSelectable}
                                     className={isItemSelectable ? "cursor-pointer" : "cursor-not-allowed opacity-50"}
-                                    aria-label={`Sélectionner l'élément ${item.id}`}
+                                    aria-label={trans('components.datatable.select_item', { id: String(item.id) })}
                                 />
                             </td>
                         )}
@@ -148,7 +149,7 @@ export function DataTable<T extends { id: number | string }>({
                             onClick={actions.resetFilters}
                             className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                            {config.emptySearchState.resetLabel || 'Réinitialiser les filtres'}
+                            {config.emptySearchState.resetLabel || trans('components.datatable.reset_filters_default')}
                         </button>
                     }
                 />

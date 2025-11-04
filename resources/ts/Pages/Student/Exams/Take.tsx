@@ -11,6 +11,7 @@ import Section from '@/Components/Section';
 import { formatTime } from '@/utils';
 import ConfirmationModal from '@/Components/ConfirmationModal';
 import FullscreenModal from '@/Components/exam/FullscreenModal';
+import { trans } from '@/utils/translations';
 
 interface TakeExamProps {
     exam: Exam;
@@ -50,8 +51,8 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
     if (assignment.submitted_at) {
         return (
             <CanNotTakeExam
-                title="Examen Terminé"
-                message="Vous avez déjà terminé cet examen."
+                title={trans('student_pages.take.exam_terminated_title')}
+                message={trans('student_pages.take.exam_already_submitted')}
                 icon={<ExclamationCircleIcon className="h-12 w-12 text-yellow-500 mx-auto mb-4" />}
             />
         );
@@ -62,9 +63,9 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
     ) {
         return (
             <CanNotTakeExam
-                title="Aucune question disponible"
-                subtitle='Cet examen ne contient aucune question.'
-                message="Veuillez contacter votre enseignant pour plus d'informations."
+                title={trans('student_pages.take.no_questions_title')}
+                subtitle={trans('student_pages.take.no_questions_subtitle')}
+                message={trans('student_pages.take.no_questions_message')}
                 icon={<ExclamationCircleIcon className="h-12 w-12 text-yellow-500 mx-auto mb-4" />}
             />
         );
@@ -73,7 +74,7 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
 
     return (
         <div className="bg-gray-50 min-h-screen">
-            <Head title={`Examen - ${exam.title}`} />
+            <Head title={trans('student_pages.take.title', { exam: exam.title })} />
 
             <div className="bg-white py-4 border-b border-gray-200 fixed w-full z-1 top-0">
                 <div className="container mx-auto flex justify-between items-center">
@@ -85,13 +86,13 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
 
                     <TextEntry
                         className=' text-center'
-                        label="Temps restant"
+                        label={trans('student_pages.take.time_remaining')}
                         value={formatTime(timeLeft)}
                     />
 
                     {!security.isFullscreen && <TextEntry
                         className=' text-center'
-                        label={"Mode plein écran requis"}
+                        label={trans('student_pages.take.fullscreen_required')}
                         value=""
                     />}
                     <Button
@@ -103,23 +104,21 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
                         loading={isSubmitting || processing}
 
                     >
-                        {isSubmitting || processing ? 'Soumission...' : "Terminer l'examen"}
+                        {isSubmitting || processing ? trans('student_pages.take.submitting') : trans('student_pages.take.finish_exam')}
                     </Button>
                 </div>
             </div>
 
             <div className="pt-20 max-w-6xl mx-auto">
                 <div className="container mx-auto px-4 py-8">
-                    <Section title="Instructions importantes" collapsible>
-                        <AlertEntry type="warning" title="IMPORTANT">
+                    <Section title={trans('student_pages.take.important_instructions')} collapsible>
+                        <AlertEntry type="warning" title={trans('student_pages.take.warning_title')}>
                             <p>
-                                Toute violation des règles de sécurité (changement d'onglet,
-                                sortie du mode plein écran) terminera
-                                <strong> IMMÉDIATEMENT</strong> votre examen.
+                                {trans('student_pages.take.warning_message_1')}
+                                <strong> {trans('student_pages.take.warning_message_2')}</strong> {trans('student_pages.take.warning_message_3')}
                             </p>
                             <p>
-                                Vos réponses seront automatiquement sauvegardées.
-                                Aucun avertissement ne sera donné.
+                                {trans('student_pages.take.warning_auto_save')}
                             </p>
                         </AlertEntry>
                     </Section>
@@ -135,11 +134,10 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
                     )}
 
                     {!examCanStart && (
-                        <Section title="Activation du mode plein écran requise" collapsible={false}>
-                            <AlertEntry type="info" title="ATTENTION">
+                        <Section title={trans('student_pages.take.fullscreen_activation_title')} collapsible={false}>
+                            <AlertEntry type="info" title={trans('student_pages.take.attention')}>
                                 <p>
-                                    Pour commencer cet examen, vous devez d'abord activer le mode plein écran.
-                                    Les questions ne s'afficheront qu'après l'activation du mode plein écran.
+                                    {trans('student_pages.take.fullscreen_activation_message')}
                                 </p>
                             </AlertEntry>
                         </Section>
@@ -148,8 +146,8 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
             </div>
 
             <ConfirmationModal
-                title="Confirmer la soumission"
-                message="Êtes-vous sûr de vouloir terminer cet examen ? Cette action est irréversible."
+                title={trans('student_pages.take.confirm_submit_title')}
+                message={trans('student_pages.take.confirm_submit_message')}
                 icon={QuestionMarkCircleIcon}
                 type='info'
                 isOpen={showConfirmModal}
@@ -158,7 +156,7 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
                 loading={isSubmitting || processing}
             >
                 <p className="text-gray-600 mb-6 text-center ">
-                    Assurez-vous d'avoir répondu à toutes les questions avant de confirmer.
+                    {trans('student_pages.take.confirm_submit_check')}
                 </p>
             </ConfirmationModal>
 

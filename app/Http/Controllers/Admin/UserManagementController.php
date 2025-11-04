@@ -28,8 +28,9 @@ class UserManagementController extends Controller
 
     /**
      * Display a listing of the users.
-     *
-     * Handles the incoming request to retrieve and display a list of users for management purposes.
+     * 
+     * Delegates to UserManagementService to load paginated users with filtering.
+     * Restricts admin visibility based on user role (super_admin can see all).
      *
      * @param \Illuminate\Http\Request $request The incoming HTTP request instance.
      * @return \Illuminate\Http\Response
@@ -41,14 +42,14 @@ class UserManagementController extends Controller
 
         $filters = $request->only(['search', 'role', 'per_page', 'status', 'include_deleted']);
 
-        // Les admins normaux ne peuvent pas voir les autres admins
+        // Regular admins cannot see other admins
         if (!$currentUser->hasRole('super_admin')) {
             $filters['exclude_roles'] = ['admin', 'super_admin'];
         }
 
         $users = $this->userService->getUserWithPagination($filters, 10, $currentUser);
 
-        // Filtrer les rôles selon les permissions
+        // Filter roles based on permissions
         $availableRoles = $currentUser->hasRole('super_admin')
             ? Role::pluck('name')
             : Role::whereNotIn('name', ['admin', 'super_admin'])->pluck('name');
@@ -69,10 +70,8 @@ class UserManagementController extends Controller
 
     /**
      * Store a newly created user in storage.
-     *
-     * Handles the incoming request to create a new user using the validated data
-     * from the CreateUserRequest. Performs necessary business logic and persists
-     * the user to the database.
+     * 
+     * Delegates to UserManagementService to create user with role assignment.
      *
      * @param  \App\Http\Requests\CreateUserRequest  $request  The validated request containing user data.
      * @return \Illuminate\Http\Response
@@ -84,15 +83,17 @@ class UserManagementController extends Controller
 
             $this->userService->store($validated);
 
-            return $this->redirectWithSuccess('users.index', 'Utilisateur créé avec succès.');
+            return $this->redirectWithSuccess('users.index', 'User created successfully.');
         } catch (\Exception $e) {
-            return $this->flashError("Erreur lors de la création de l'utilisateur ");
+            return $this->flashError("Error creating user");
         }
     }
 
     /**
-     * Display the specified teacher's details.
-     * Optimisé avec eager loading des relations
+     * Display the specified teacher's details with exams.
+     * 
+     * Delegates to ExamQueryService to load paginated exams for teacher.
+     * Uses eager loading for optimization.
      *
      * @param \Illuminate\Http\Request $request The current HTTP request instance.
      * @param \App\Models\User $user The user instance representing the teacher.
@@ -101,7 +102,7 @@ class UserManagementController extends Controller
     public function showTeacher(Request $request, User $user)
     {
         if (!$user->hasRole('teacher')) {
-            return $this->flashError("L'utilisateur n'est pas un professeur.");
+            return $this->flashError("User is not a teacher.");
         }
 
         $perPage = $request->input('per_page', 10);
@@ -131,7 +132,10 @@ class UserManagementController extends Controller
     }
 
     /**
-     * Display the specified student details.
+     * Display the specified student details with groups and exam assignments.
+     * 
+     * Delegates to ExamQueryService to load paginated assignments.
+     * Uses eager loading for groups, levels, and exams optimization.
      *
      * @param \Illuminate\Http\Request $request The incoming HTTP request instance.
      * @param \App\Models\User $user The user instance representing the student.
@@ -140,16 +144,15 @@ class UserManagementController extends Controller
     public function showStudent(Request $request, User $user)
     {
         if (!$user->hasRole('student')) {
-            return $this->flashError("L'utilisateur n'est pas un étudiant.");
+            return $this->flashError("User is not a student.");
         }
 
         $perPage = $request->input('per_page', 10);
         $status = $request->input('status') ? $request->input('status') : null;
         $search = $request->input('search');
 
-        // Charger les relations une seule fois avec eager loading optimisé
-        // Charger TOUS les groupes (actifs et inactifs) avec leurs exams actifs
-        // Le filtre sur is_active se fera dans ExamQueryService
+        // Load ALL groups (active and inactive) with their active exams once with eager loading
+        // Active filtering is handled in ExamQueryService
         $user->load([
             'groups' => function ($query) {
                 $query->with([
@@ -183,6 +186,9 @@ class UserManagementController extends Controller
 
     /**
      * Update the specified user's information.
+     * 
+     * Validates permissions (only super_admin can edit admins).
+     * Delegates to UserManagementService to update user data.
      *
      * @param  \App\Http\Requests\EditUserRequest  $request  The validated request containing user update data.
      * @param  \App\Models\User  $user  The user instance to be updated.
@@ -194,7 +200,7 @@ class UserManagementController extends Controller
         $auth = Auth::user();
 
         if ($user->hasRole(['admin', 'super_admin']) && !$auth->hasRole('super_admin')) {
-            return $this->flashError("Non autorisé. Seul le super administrateur peut modifier des administrateurs.");
+            return $this->flashError("Unauthorized. Only super admin can edit administrators.");
         }
 
         try {
@@ -203,20 +209,19 @@ class UserManagementController extends Controller
 
             $this->userService->update($user, $validated);
 
-            return $this->flashSuccess('Utilisateur mis à jour avec succès.');
+            return $this->flashSuccess('User updated successfully.');
         } catch (\Exception $e) {
 
-            return $this->flashError("Erreur lors de la mise à jour de l'utilisateur ");
+            return $this->flashError("Error updating user");
         }
     }
 
 
     /**
-     * Remove the specified user from storage.
-     *
-     * Handles the incoming request to delete a user. Ensures that the user
-     * cannot delete their own account and performs necessary business logic
-     * to safely remove the user from the database.
+     * Remove the specified user from storage (soft delete).
+     * 
+     * Validates permissions and prevents self-deletion.
+     * Only super_admin can delete admin users.
      *
      * @param  \App\Models\User  $user  The user instance to be deleted.
      * @return \Illuminate\Http\Response
@@ -227,27 +232,30 @@ class UserManagementController extends Controller
         $auth = Auth::user();
 
         if ($user->id === $auth->id) {
-            return $this->flashError('Vous ne pouvez pas supprimer votre propre compte.');
+            return $this->flashError('You cannot delete your own account.');
         }
 
-        // Seul le super_admin peut supprimer des comptes
+        // Only super_admin can delete accounts
         if (!$auth->can('delete users')) {
-            return $this->flashError("Non autorisé. Vous n'avez pas la permission de supprimer des utilisateurs.");
+            return $this->flashError("Unauthorized. You do not have permission to delete users.");
         }
 
-        // Seul le super_admin peut supprimer des admins
+        // Only super_admin can delete admins
         if ($user->hasRole(['admin', 'super_admin']) && !$auth->hasRole('super_admin')) {
-            return $this->flashError("Non autorisé. Seul le super administrateur peut supprimer des administrateurs.");
+            return $this->flashError("Unauthorized. Only super admin can delete administrators.");
         }
 
         $this->userService->delete($user);
 
-        return $this->redirectWithSuccess('users.index', 'Utilisateur supprimé avec succès.');
+        return $this->redirectWithSuccess('users.index', 'User deleted successfully.');
     }
 
 
     /**
      * Toggle the status (active/inactive) of the specified user.
+     * 
+     * Validates permissions and prevents self-modification.
+     * Only super_admin can modify admin status.
      *
      * @param  \App\Models\User  $user  The user instance whose status will be toggled.
      * @return \Illuminate\Http\Response
@@ -258,42 +266,51 @@ class UserManagementController extends Controller
         $auth = Auth::user();
 
         if ($user->id === $auth->id) {
-            return $this->flashError('Vous ne pouvez pas modifier le statut de votre propre compte.');
+            return $this->flashError('You cannot modify your own account status.');
         }
 
         if (!$auth->can('toggle user status')) {
-            return $this->flashError("Non autorisé. Vous n'avez pas la permission de modifier le statut des utilisateurs.");
+            return $this->flashError("Unauthorized. You do not have permission to modify user status.");
         }
 
-        // Seul le super_admin peut modifier le statut des admins
+        // Only super_admin can modify admin status
         if ($user->hasRole(['admin', 'super_admin']) && !$auth->hasRole('super_admin')) {
-            return $this->flashError("Non autorisé. Seul le super administrateur peut modifier le statut des administrateurs.");
+            return $this->flashError("Unauthorized. Only super admin can modify administrator status.");
         }
 
         $this->userService->toggleStatus($user);
 
-        return $this->redirectWithSuccess('users.index', 'Statut de l\'utilisateur modifié.');
+        return $this->redirectWithSuccess('users.index', 'User status modified.');
     }
 
     /**
-     * Change le groupe d'un étudiant
+     * Change the group of a student.
+     * 
+     * Delegates to UserManagementService to reassign student to new group.
+     *
+     * @param ChangeStudentGroupRequest $request
+     * @param User $user
+     * @return \Illuminate\Http\Response
      */
     public function changeStudentGroup(ChangeStudentGroupRequest $request, User $user)
     {
         if (!$user->hasRole('student')) {
-            return $this->flashError("L'utilisateur n'est pas un étudiant.");
+            return $this->flashError("User is not a student.");
         }
 
         try {
             $this->userService->changeStudentGroup($user, $request->validated()['group_id']);
-            return $this->redirectWithSuccess('users.show.student', 'Groupe de l\'étudiant modifié avec succès.', ['user' => $user->id]);
+            return $this->redirectWithSuccess('users.show.student', 'Student group changed successfully.', ['user' => $user->id]);
         } catch (\Exception $e) {
-            return $this->flashError("Erreur lors du changement de groupe : " . $e->getMessage());
+            return $this->flashError("Error changing group: " . $e->getMessage());
         }
     }
 
     /**
-     * Restaurer un utilisateur supprimé (soft delete)
+     * Restore a soft-deleted user.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
      */
     public function restore(int $id)
     {
@@ -301,21 +318,24 @@ class UserManagementController extends Controller
         $auth = Auth::user();
 
         if (!$auth->can('restore users')) {
-            return $this->flashError("Non autorisé. Vous n'avez pas la permission de restaurer des utilisateurs.");
+            return $this->flashError("Unauthorized. You do not have permission to restore users.");
         }
 
         try {
             $user = User::withTrashed()->findOrFail($id);
             $user->restore();
 
-            return $this->redirectWithSuccess('users.index', 'Utilisateur restauré avec succès.');
+            return $this->redirectWithSuccess('users.index', 'User restored successfully.');
         } catch (\Exception $e) {
-            return $this->flashError("Erreur lors de la restauration de l'utilisateur.");
+            return $this->flashError("Error restoring user.");
         }
     }
 
     /**
-     * Supprimer définitivement un utilisateur
+     * Permanently delete a user (force delete).
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
      */
     public function forceDelete(int $id)
     {
@@ -323,21 +343,21 @@ class UserManagementController extends Controller
         $auth = Auth::user();
 
         if (!$auth->can('force delete users')) {
-            return $this->flashError("Non autorisé. Vous n'avez pas la permission de supprimer définitivement des utilisateurs.");
+            return $this->flashError("Unauthorized. You do not have permission to permanently delete users.");
         }
 
         try {
             $user = User::withTrashed()->findOrFail($id);
 
             if ($user->id === $auth->id) {
-                return $this->flashError('Vous ne pouvez pas supprimer votre propre compte.');
+                return $this->flashError('You cannot delete your own account.');
             }
 
             $user->forceDelete();
 
-            return $this->redirectWithSuccess('users.index', 'Utilisateur supprimé définitivement.');
+            return $this->redirectWithSuccess('users.index', 'User permanently deleted.');
         } catch (\Exception $e) {
-            return $this->flashError("Erreur lors de la suppression définitive de l'utilisateur.");
+            return $this->flashError("Error permanently deleting user.");
         }
     }
 }

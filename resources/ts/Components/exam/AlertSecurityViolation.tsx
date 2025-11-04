@@ -6,6 +6,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { LockClosedIcon } from '@heroicons/react/24/outline';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
+import { trans } from '@/utils/translations';
 
 interface AlertSecurityViolationProps {
     exam: {
@@ -20,20 +21,20 @@ export default function AlertSecurityViolation({ exam, reason }: AlertSecurityVi
 
     return (
         <CanNotTakeExam
-            title="Examen Terminé"
-            subtitle={"Votre examen a été automatiquement terminé et soumis en raison d'une violation des règles de sécurité."}
+            title={trans('components.alert_security_violation.title')}
+            subtitle={trans('components.alert_security_violation.subtitle')}
             icon={<LockClosedIcon className="h-16 w-16 text-red-500 mx-auto" />}
         >
             <TextEntry
                 label={exam.title}
                 value={exam.description ? (exam.description.length > 100 ? exam.description.substring(0, 100) + '...' : exam.description) : ''}
             />
-            <AlertEntry type="error" title={`Violation détectée : ${reason}`}>
+            <AlertEntry type="error" title={trans('components.alert_security_violation.violation_detected', { reason })}>
                 <div className="text-sm text-red-700 text-start">
                     <ul className="list-disc list-inside space-y-1">
-                        <li>Votre enseignant sera notifié de cette violation</li>
-                        <li>Vos réponses ont été sauvegardées avant la terminaison</li>
-                        <li>Vous serez contacté concernant la suite à donner</li>
+                        <li>{trans('components.alert_security_violation.teacher_notified')}</li>
+                        <li>{trans('components.alert_security_violation.answers_saved')}</li>
+                        <li>{trans('components.alert_security_violation.will_be_contacted')}</li>
                     </ul>
                 </div>
             </AlertEntry>
@@ -67,7 +68,7 @@ function CanNotTakeExam({ title, subtitle, message, icon, children }: CanNotTake
                             onClick={() => router.visit(route('student.exams.index'))}
 
                         >
-                            Retour aux examens
+                            {trans('components.alert_security_violation.back_to_exams')}
                         </Button>
                     }
                 >

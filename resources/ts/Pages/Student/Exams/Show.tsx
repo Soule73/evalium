@@ -13,6 +13,7 @@ import TextEntry from '@/Components/TextEntry';
 import Modal from '@/Components/Modal';
 import StatCard from '@/Components/StatCard';
 import { ExamHeader } from '@/Components/exam';
+import { trans } from '@/utils/translations';
 
 interface StudentExamShowProps extends PageProps {
     exam: Exam;
@@ -39,6 +40,18 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const AlertMessage = (
+        <AlertEntry type="warning" title={trans('student_pages.show.important_title')} >
+            <ul className="list-disc list-inside space-y-1 text-sm">
+                <li>{trans('student_pages.show.alert_stable_connection')}</li>
+                <li>{trans('student_pages.show.alert_fullscreen')}</li>
+                <li>{trans('student_pages.show.alert_cheating')}</li>
+                <li>{trans('student_pages.show.alert_auto_save')}</li>
+                <li>{trans('student_pages.show.alert_time_limit')}</li>
+            </ul>
+        </AlertEntry>
+    );
+
     return (
         <AuthenticatedLayout
             title={exam.title}
@@ -49,8 +62,8 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
                     <div className='mx-auto my-4 flex flex-col items-center'>
 
                         <QuestionMarkCircleIcon className="w-12 h-12 mb-3 text-yellow-500 mx-auto" />
-                        <h2 className="text-lg font-semibold mb-2">Commencer l'examen</h2>
-                        <p>Êtes-vous prêt à commencer l'examen ?</p>
+                        <h2 className="text-lg font-semibold mb-2">{trans('student_pages.show.start_modal_title')}</h2>
+                        <p>{trans('student_pages.show.start_modal_question')}</p>
                     </div>
                     {AlertMessage}
                     <div className="mt-4 flex justify-end space-x-2">
@@ -58,13 +71,13 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
                             setIsModalOpen(false);
                             router.visit(route('student.exams.take', exam.id));
                         }}>
-                            Oui, commencer l'examen
+                            {trans('student_pages.show.start_modal_confirm')}
                         </Button>
                     </div>
                 </div>
             </Modal>
 
-            <Section title="Détails de l'examen"
+            <Section title={trans('student_pages.show.title')}
                 actions={
                     <div className="flex items-center space-x-4">
                         <Button
@@ -74,7 +87,7 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
                             className=' w-max'
                             onClick={() => router.visit(route('student.exams.index'))}
                         >
-                            Retour aux examens
+                            {trans('student_pages.show.back_to_exams')}
                         </Button>
 
                         {canTake && (
@@ -85,8 +98,8 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
                             >
                                 {
                                     assignment?.started_at
-                                        ? "Continuer l'examen"
-                                        : "Commencer l'examen"
+                                        ? trans('student_pages.show.continue_exam')
+                                        : trans('student_pages.show.start_exam')
                                 }
                             </Button>
                         )
@@ -98,7 +111,7 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
                     <div className=' space-y-3 '>
                         <ExamHeader exam={exam} showDescription={true} showMetadata={false} />
 
-                        <TextEntry label="Professeur(e)/Créateur(trice)" value={creator?.name} />
+                        <TextEntry label={trans('student_pages.show.teacher_creator')} value={creator?.name} />
                     </div>
                     {deadlineWarning && (
                         <div className={`px-4 py-2 rounded-lg ${deadlineWarning.urgency === 'high'
@@ -121,14 +134,14 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
 
                 <div className="grid gap-y-2 grid-cols-1 lg:grid-cols-3 mb-8">
                     <StatCard
-                        title="Durée"
+                        title={trans('student_pages.show.duration')}
                         value={formatDuration(exam.duration)}
                         icon={ClockIcon}
                         color="blue"
                         className=' lg:rounded-r-none! '
                     />
                     <StatCard
-                        title="Questions"
+                        title={trans('student_pages.show.questions')}
                         value={questionsCount || 0}
                         icon={DocumentTextIcon}
                         color="green"
@@ -136,12 +149,12 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
                     />
 
                     <StatCard
-                        title="Statut"
+                        title={trans('student_pages.show.status')}
                         value={
                             assignment?.submitted_at
-                                ? 'Terminé' :
-                                assignment?.started_at ? 'En cours' :
-                                    'Non commencé'}
+                                ? trans('student_pages.show.status_completed') :
+                                assignment?.started_at ? trans('student_pages.show.status_in_progress') :
+                                    trans('student_pages.show.status_not_started')}
                         icon={QuestionMarkCircleIcon}
                         color="purple"
                         className=' lg:rounded-l-none!  '
@@ -151,15 +164,15 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
                 {
                     (exam.start_time || exam.end_time) && (
                         <div className="mb-8">
-                            <h2 className="text-lg font-semibold text-gray-900 mb-3">Dates importantes</h2>
+                            <h2 className="text-lg font-semibold text-gray-900 mb-3">{trans('student_pages.show.important_dates')}</h2>
                             <div className="bg-gray-50 rounded-lg p-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {exam.start_time && (
-                                        <TextEntry label="Début" value={formatDate(exam.start_time)} />
+                                        <TextEntry label={trans('student_pages.show.start_date')} value={formatDate(exam.start_time)} />
 
                                     )}
                                     {exam.end_time && (
-                                        <TextEntry label="Fin" value={formatDate(exam.end_time)} />
+                                        <TextEntry label={trans('student_pages.show.end_date')} value={formatDate(exam.end_time)} />
 
                                     )}
                                 </div>
@@ -173,26 +186,3 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
         </AuthenticatedLayout >
     );
 }
-
-
-/**
- * Un composant d'alerte affichant des instructions importantes pour les étudiants avant de commencer l'examen.
- *
- * NOTE : Cette alerte utilise le composant `AlertEntry` de type avertissement et une liste de consignes clés pour l'examen.
- * Elle informe les étudiants sur la connexion internet, le mode plein écran, la politique anti-triche,
- * la sauvegarde automatique des réponses, et l'obligation de terminer l'examen dans le temps imparti.
- */
-const AlertMessage = (
-    <AlertEntry type="warning" title='IMPORTANTS' >
-
-
-        <ul className="list-disc list-inside space-y-1 text-sm">
-            <li>Assurez-vous d'avoir une connexion internet stable</li>
-            <li>L'examen se déroulera en mode plein écran pour des raisons de sécurité</li>
-            <li>Les tentatives de triche seront détectées et sanctionnées</li>
-            <li>Vos réponses sont sauvegardées automatiquement</li>
-            <li>Une fois commencé, vous devez terminer l'examen dans le temps imparti</li>
-        </ul>
-    </AlertEntry>
-);
-

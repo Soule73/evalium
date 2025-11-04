@@ -2,6 +2,7 @@ import React from 'react';
 import Input from '@/Components/form/Input';
 import Checkbox from '@/Components/form/Checkbox';
 import MarkdownEditor from '@/Components/form/MarkdownEditor';
+import { trans } from '@/utils/translations';
 
 interface ExamGeneralConfigProps {
     data: {
@@ -31,11 +32,11 @@ const ExamGeneralConfig: React.FC<ExamGeneralConfigProps> = ({
     return (
         <div className="space-y-6">
             <h3 className="text-lg font-medium text-gray-900">
-                Informations générales
+                {trans('components.exam_general_config.title')}
             </h3>
 
             <Checkbox
-                label="Examen actif"
+                label={trans('components.exam_general_config.active_label')}
                 checked={data.is_active}
                 onChange={(e) => onFieldChange('is_active', e.target.checked)}
             />
@@ -43,7 +44,7 @@ const ExamGeneralConfig: React.FC<ExamGeneralConfigProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="md:col-span-2 lg:col-span-1">
                     <Input
-                        label="Titre de l'examen"
+                        label={trans('components.exam_general_config.exam_title_label')}
                         type="text"
                         value={data.title}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFieldChange('title', e.target.value)}
@@ -54,7 +55,7 @@ const ExamGeneralConfig: React.FC<ExamGeneralConfigProps> = ({
 
                 <div>
                     <Input
-                        label="Durée (minutes)"
+                        label={trans('components.exam_general_config.duration_label')}
                         type="number"
                         value={data.duration?.toString() || ''}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFieldChange('duration', parseInt(e.target.value))}
@@ -66,7 +67,7 @@ const ExamGeneralConfig: React.FC<ExamGeneralConfigProps> = ({
 
                 <div>
                     <Input
-                        label="Date et heure de début"
+                        label={trans('components.exam_general_config.start_time_label')}
                         type="datetime-local"
                         value={data.start_time || ''}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFieldChange('start_time', e.target.value)}
@@ -76,7 +77,7 @@ const ExamGeneralConfig: React.FC<ExamGeneralConfigProps> = ({
 
                 <div className="md:col-span-2 lg:col-span-1">
                     <Input
-                        label="Date et heure de fin"
+                        label={trans('components.exam_general_config.end_time_label')}
                         type="datetime-local"
                         value={data.end_time || ''}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFieldChange('end_time', e.target.value)}
@@ -89,11 +90,11 @@ const ExamGeneralConfig: React.FC<ExamGeneralConfigProps> = ({
                 <MarkdownEditor
                     value={data.description}
                     onChange={(value) => onFieldChange('description', value)}
-                    placeholder="Description de l'examen..."
-                    label="Description de l'examen"
+                    placeholder={trans('components.exam_general_config.description_placeholder')}
+                    label={trans('components.exam_general_config.description_label')}
                     rows={4}
                     error={errors.description}
-                    helpText="Décrivez l'objectif et les modalités de cet examen. Vous pouvez utiliser le formatage Markdown."
+                    helpText={trans('components.exam_general_config.description_help')}
                 />
             </div>
         </div>

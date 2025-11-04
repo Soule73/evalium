@@ -16,6 +16,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { QuestionFormData, ChoiceFormData } from '@/types';
+import { trans } from '@/utils/translations';
 
 interface SortableQuestionItemProps {
     question: QuestionFormData;
@@ -161,11 +162,11 @@ const SortableQuestionItem: React.FC<SortableQuestionItemProps> = ({
                         key={`question-content-${question.id || index}`}
                         value={question.content}
                         onChange={(value) => onUpdateQuestion(index, 'content', value)}
-                        placeholder="Saisissez votre question ici..."
+                        placeholder={trans('components.question_item.question_placeholder')}
                         required
-                        label="Énoncé de la question"
+                        label={trans('components.question_item.question_statement')}
                         rows={4}
-                        helpText="Saisissez clairement l'énoncé de votre question. Vous pouvez utiliser le formatage Markdown."
+                        helpText={trans('components.question_item.question_help')}
                         error={errors[`questions.${index}.content`]}
                     />
 
@@ -174,7 +175,7 @@ const SortableQuestionItem: React.FC<SortableQuestionItemProps> = ({
                         <div className="space-y-4">
                             <div className="flex justify-between items-center">
                                 <label className="block text-xs font-medium text-gray-700 uppercase tracking-wide">
-                                    Options de réponse
+                                    {trans('components.question_item.answer_options')}
                                 </label>
                                 {question.type !== 'boolean' && (
                                     <button
@@ -183,7 +184,7 @@ const SortableQuestionItem: React.FC<SortableQuestionItemProps> = ({
                                         className="inline-flex items-center px-3 py-1 border border-gray-200 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                                     >
                                         <PlusIcon className="h-3 w-3 mr-1" />
-                                        Ajouter une option
+                                        {trans('components.question_item.add_option')}
                                     </button>
                                 )}
                             </div>

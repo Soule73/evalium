@@ -7,6 +7,7 @@ import {
 } from '@heroicons/react/24/outline';
 import ConfirmationModal from '@/Components/ConfirmationModal';
 import DeleteHistoryModal from '@/Components/DeleteHistoryModal';
+import { trans } from '@/utils/translations';
 import {
     DndContext,
     closestCenter,
@@ -113,7 +114,7 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
         >
-            <Section title="Questions de l'examen" subtitle="Ajoutez et configurez les questions de votre examen."
+            <Section title={trans('components.questions_manager.title')} subtitle={trans('components.questions_manager.subtitle')}
                 className=' relative'
                 actions={
                     <div className="flex items-center space-x-2">
@@ -126,7 +127,7 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
                                 color='secondary'
                             >
                                 <ClockIcon className="-ml-1 mr-2 h-4 w-4" />
-                                Historique ({deleteHistory.getDeletedQuestionsCount() + deleteHistory.getDeletedChoicesCount()})
+                                {trans('components.questions_manager.history_button', { count: deleteHistory.getDeletedQuestionsCount() + deleteHistory.getDeletedChoicesCount() })}
                             </Button>
                         )}
                         <Button
@@ -137,7 +138,7 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
                             color='secondary'
                         >
                             <PlusIcon className="-ml-1 mr-2 h-4 w-4" />
-                            Ajouter une question
+                            {trans('components.questions_manager.add_question')}
                             <ChevronDownIcon className="-mr-1 ml-2 h-4 w-4" />
                         </Button>
                         <div className="flex justify-end">
@@ -156,8 +157,8 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
                 {questions.length === 0 && (
                     <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
                         <InformationCircleIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                        <h3 className="text-sm font-medium text-gray-900 mb-2">Aucune question ajoutée</h3>
-                        <p className="text-sm text-gray-500">Commencez par ajouter votre première question pour créer l'examen</p>
+                        <h3 className="text-sm font-medium text-gray-900 mb-2">{trans('components.questions_manager.no_questions_title')}</h3>
+                        <p className="text-sm text-gray-500">{trans('components.questions_manager.no_questions_subtitle')}</p>
                     </div>
                 )}
 
@@ -189,13 +190,13 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
                     onConfirm={confirmationModal.onConfirm}
                     title={confirmationModal.title}
                     message={confirmationModal.message}
-                    confirmText="Supprimer"
-                    cancelText="Annuler"
+                    confirmText={trans('components.questions_manager.delete_confirm')}
+                    cancelText={trans('components.questions_manager.delete_cancel')}
                     type="warning"
                 >
 
                     <p className="text-gray-600 text-sm mb-6 text-center ">
-                        Cette action peut être annulée via l'historique des suppressions.
+                        {trans('components.questions_manager.delete_notice')}
                     </p>
                 </ConfirmationModal>
 

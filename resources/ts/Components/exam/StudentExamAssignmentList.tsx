@@ -5,11 +5,12 @@ import { DataTable } from '@/Components/DataTable';
 import Badge from '@/Components/Badge';
 import { Button } from '@/Components';
 import { route } from 'ziggy-js';
-import { formatDate, formatDuration, getAssignmentStatusWithLabel, getAssignmentBadgeLabel, getAssignmentBadgeType, assignmentStatusColors, assignmentStatusLabels } from '@/utils/formatters';
+import { formatDate, formatDuration, getAssignmentStatusWithLabel, getAssignmentBadgeLabel, getAssignmentBadgeType, assignmentStatusColors, getAssignmentStatusLabels } from '@/utils/formatters';
 import { calculateScoreDisplay } from '@/utils/examUtils';
 import { ExamAssignment } from '@/types';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
 import type { FilterConfig } from '@/types/datatable';
+import { trans } from '@/utils/translations';
 
 interface StudentExamAssignmentListProps {
     data: PaginationType<ExamAssignment>;
@@ -34,7 +35,7 @@ const StudentExamAssignmentList: React.FC<StudentExamAssignmentListProps> = ({
     const renderExam = (assignment: ExamAssignment, variant: string) => (
         <div>
             <div className="text-sm font-medium text-gray-900">
-                {assignment.exam?.title || 'Titre non disponible'}
+                {assignment.exam?.title || trans('components.student_exam_list.title_unavailable')}
             </div>
             {variant === 'dashboard' ? (
                 <div className="text-sm max-w-sm truncate text-gray-500">
@@ -69,9 +70,11 @@ const StudentExamAssignmentList: React.FC<StudentExamAssignmentListProps> = ({
         return grade ? (
             <span className={`text-sm font-medium ${grade.colorClass}`}>{grade.text}</span>
         ) : (
-            <span className="text-sm text-gray-500">{assignment.status === 'submitted' ? 'En attente' : 'Non noté'}</span>
+            <span className="text-sm text-gray-500">{assignment.status === 'submitted' ? trans('components.student_exam_list.pending') : trans('components.student_exam_list.not_graded')}</span>
         );
     };
+
+    const assignmentStatusLabels = getAssignmentStatusLabels();
 
     const renderStatus = (assignment: ExamAssignment, dashboard?: boolean) => (
         dashboard ? (
@@ -94,13 +97,13 @@ const StudentExamAssignmentList: React.FC<StudentExamAssignmentListProps> = ({
                 variant={'outline'}
                 onClick={() => window.location.href = route('student.exams.show', assignment.exam_id)}
             >
-                Voir
+                {trans('components.student_exam_list.view')}
             </Button>
         ) : (
             <Link
                 href={route('student.exams.show', assignment.exam_id)}
                 className="text-green-600 hover:text-green-900 p-1"
-                title="Voir l'examen"
+                title={trans('components.student_exam_list.view_exam')}
             >
                 <EyeIcon className="h-4 w-4" />
             </Link>
@@ -111,7 +114,7 @@ const StudentExamAssignmentList: React.FC<StudentExamAssignmentListProps> = ({
         <span className="text-sm text-gray-500">
             {assignment.submitted_at
                 ? formatDate(assignment.submitted_at, variant === 'admin' ? 'short' : undefined, 'datetime')
-                : variant === 'admin' ? 'Non soumis' : formatDate(assignment.started_at || assignment.created_at, 'datetime')
+                : variant === 'admin' ? trans('components.student_exam_list.not_submitted') : formatDate(assignment.started_at || assignment.created_at, 'datetime')
             }
         </span>
     );
@@ -120,84 +123,84 @@ const StudentExamAssignmentList: React.FC<StudentExamAssignmentListProps> = ({
         variant === 'dashboard' ? [
             {
                 key: 'exam_title',
-                label: 'Examen',
+                label: trans('components.student_exam_list.exam'),
                 render: (item) => renderExam(item, 'dashboard')
             },
             {
                 key: 'duration',
-                label: 'Durée',
+                label: trans('components.student_exam_list.duration'),
                 render: (item) => renderDuration(item, true)
             },
             {
                 key: 'status',
-                label: 'Statut',
+                label: trans('components.student_exam_list.status'),
                 render: (item) => renderStatus(item, true)
             },
             {
                 key: 'score',
-                label: 'Note',
+                label: trans('components.student_exam_list.score'),
                 render: (item) => renderScore(item, true)
             },
             {
                 key: 'actions',
-                label: 'Actions',
+                label: trans('components.student_exam_list.actions'),
                 render: (item) => renderActions(item, true)
             }
         ] : variant === 'admin' ? [
             {
                 key: 'exam',
-                label: 'Examen',
+                label: trans('components.student_exam_list.exam'),
                 render: (item) => renderExam(item, 'admin')
             },
             {
                 key: 'date',
-                label: 'Soumis le',
+                label: trans('components.student_exam_list.submitted_on'),
                 render: (item) => renderDate(item, 'admin')
             },
             {
                 key: 'duration',
-                label: 'Durée',
+                label: trans('components.student_exam_list.duration'),
                 render: (item) => renderDuration(item)
             },
             {
                 key: 'score',
-                label: 'Note',
+                label: trans('components.student_exam_list.score'),
                 render: (item) => renderScore(item)
             },
             {
                 key: 'status',
-                label: 'Statut',
+                label: trans('components.student_exam_list.status'),
                 render: (item) => renderStatus(item, true)
             }
         ] : [
             {
                 key: 'exam',
-                label: 'Examen',
+                label: trans('components.student_exam_list.exam'),
                 render: (item) => renderExam(item, 'full')
             },
             {
                 key: 'date',
-                label: 'Date',
+                label: trans('components.student_exam_list.date'),
                 render: (item) => renderDate(item, 'full')
             },
             {
                 key: 'duration',
-                label: 'Durée',
+                label: trans('components.student_exam_list.duration'),
                 render: (item) => renderDuration(item)
             },
             {
                 key: 'score',
-                label: 'Note',
+                label: trans('components.student_exam_list.score'),
                 render: (item) => renderScore(item)
             },
             {
                 key: 'status',
-                label: 'Statut',
+                label: trans('components.student_exam_list.status'),
                 render: (item) => renderStatus(item)
             },
             {
                 key: 'actions',
-                label: 'Actions',
+                label: trans('components.student_exam_list.actions'),
                 className: 'text-right',
                 render: (item) => renderActions(item)
             }
@@ -207,7 +210,7 @@ const StudentExamAssignmentList: React.FC<StudentExamAssignmentListProps> = ({
     const filters: FilterConfig[] = showFilters ? [
         {
             key: 'status',
-            label: 'Statut',
+            label: trans('components.student_exam_list.status'),
             type: 'select',
             options: getAssignmentStatusWithLabel().filter(status => status.value !== 'all')
         }
@@ -215,20 +218,20 @@ const StudentExamAssignmentList: React.FC<StudentExamAssignmentListProps> = ({
 
     // Placeholders et empty states
     const searchPlaceholder = showSearch
-        ? (variant === 'dashboard' ? 'Rechercher un examen...' : variant === 'admin' ? "Rechercher par titre d'examen ou nom d'étudiant..." : "Rechercher par titre d'examen...")
+        ? (variant === 'dashboard' ? trans('components.student_exam_list.search_exam') : variant === 'admin' ? trans('components.student_exam_list.search_admin') : trans('components.student_exam_list.search_student'))
         : undefined;
 
     const emptyState = {
-        title: "Aucun examen assigné",
+        title: trans('components.student_exam_list.no_exam_assigned_title'),
         subtitle: variant === 'admin'
-            ? "Aucun examen n'a été assigné aux étudiants."
-            : "Vous n'avez actuellement aucun examen assigné."
+            ? trans('components.student_exam_list.no_exam_assigned_admin')
+            : trans('components.student_exam_list.no_exam_assigned_student')
     };
 
     const emptySearchState = {
-        title: "Aucun examen trouvé",
-        subtitle: "Aucun examen ne correspond à vos critères de recherche ou de filtre.",
-        resetLabel: "Réinitialiser les filtres"
+        title: trans('components.student_exam_list.no_exam_found_title'),
+        subtitle: trans('components.student_exam_list.no_exam_found_subtitle'),
+        resetLabel: trans('components.student_exam_list.reset_filters')
     };
 
     const perPageOptions = variant === 'dashboard' ? [5, 10, 15, 20] : [10, 25, 50];

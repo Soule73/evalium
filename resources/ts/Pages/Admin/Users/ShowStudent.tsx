@@ -5,6 +5,7 @@ import StudentExamAssignmentList from '@/Components/exam/StudentExamAssignmentLi
 import ShowUser from './ShowUser';
 import StudentGroupsManagement from '@/Components/admin/StudentGroupsManagement';
 import { breadcrumbs } from '@/utils/breadcrumbs';
+import { trans } from '@/utils/translations';
 
 
 interface Props {
@@ -19,12 +20,12 @@ export default function ShowStudent({ user, examsAssignments, availableGroups, c
 
     return (
         <ShowUser user={user} canDelete={canDelete} canToggleStatus={canToggleStatus}
-            breadcrumb={breadcrumbs.adminStudentShow(user)}
+            breadcrumb={breadcrumbs.studentShow(user)}
         >
 
             <Section
-                title="Groupes"
-                subtitle="Gestion des groupes de l'étudiant"
+                title={trans('admin_pages.users.show_student_groups')}
+                subtitle={trans('admin_pages.users.show_student_groups_subtitle')}
             >
                 <StudentGroupsManagement
                     userId={user.id}
@@ -33,7 +34,7 @@ export default function ShowStudent({ user, examsAssignments, availableGroups, c
                 />
             </Section>
 
-            <Section title="Examens assignés" subtitle="Liste des examens auxquels l'étudiant est inscrit">
+            <Section title={trans('admin_pages.users.show_student_exams')} subtitle={trans('admin_pages.users.show_student_exams_subtitle')}>
                 <StudentExamAssignmentList
                     data={examsAssignments}
                     variant="admin"

@@ -2,6 +2,7 @@ import React from 'react';
 import Modal, { ModalSize } from './Modal';
 import { Button } from './Button';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { trans } from '@/utils/translations';
 
 interface ConfirmationModalProps {
     isOpen: boolean;
@@ -25,8 +26,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     onConfirm,
     title,
     message,
-    confirmText = 'Confirmer',
-    cancelText = 'Annuler',
+    confirmText = trans('components.confirmation_modal.confirm'),
+    cancelText = trans('components.confirmation_modal.cancel'),
     type = 'warning',
     icon = ExclamationTriangleIcon,
     loading = false,

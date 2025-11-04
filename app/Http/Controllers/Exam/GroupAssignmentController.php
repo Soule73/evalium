@@ -18,8 +18,8 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 /**
  * Controller responsible for managing group assignments to exams.
  * 
- * ARCHITECTURE SIMPLIFIÉE : Assignation UNIQUEMENT par groupes
- * Les assignations individuelles ne sont plus supportées.
+ * SIMPLIFIED ARCHITECTURE: Group-based assignment ONLY
+ * Individual student assignments are no longer supported.
  * 
  * This controller handles:
  * - Displaying assignment forms (groups only)
@@ -74,7 +74,10 @@ class GroupAssignmentController extends Controller
     }
 
     /**
-     * Assigns the specified exam to one or multiple groups.
+     * Assign the specified exam to one or multiple groups.
+     * 
+     * Delegates to ExamGroupService to create exam-group associations
+     * and individual student assignments.
      *
      * @param Request $request The request containing the group IDs.
      * @param Exam $exam The exam instance to be assigned.
@@ -94,9 +97,9 @@ class GroupAssignmentController extends Controller
             $validated['group_ids']
         );
 
-        $message = "Assignation terminée : {$result['assigned_count']} groupe(s) assigné(s)";
+        $message = "Assignment completed: {$result['assigned_count']} group(s) assigned";
         if ($result['already_assigned_count'] > 0) {
-            $message .= " ({$result['already_assigned_count']} déjà assigné(s))";
+            $message .= " ({$result['already_assigned_count']} already assigned)";
         }
 
         return $this->redirectWithSuccess('exams.show', $message, ['exam' => $exam->id]);
@@ -104,6 +107,9 @@ class GroupAssignmentController extends Controller
 
     /**
      * Remove the exam assignment from a group.
+     * 
+     * Delegates to ExamGroupService to delete the exam-group association
+     * and cascade delete related student assignments.
      *
      * @param Exam $exam The exam instance.
      * @param int $groupId The group ID.
@@ -118,10 +124,10 @@ class GroupAssignmentController extends Controller
         $removed = $this->examGroupService->removeExamFromGroup($exam, $group);
 
         if ($removed) {
-            return $this->flashSuccess("L'examen a été retiré du groupe avec succès.");
+            return $this->flashSuccess("Exam removed from group successfully.");
         }
 
-        return $this->flashError("Impossible de retirer l'examen de ce groupe.");
+        return $this->flashError("Unable to remove exam from this group.");
     }
 
     /**

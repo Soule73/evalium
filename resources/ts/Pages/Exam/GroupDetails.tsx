@@ -11,7 +11,8 @@ import {
 import { route } from 'ziggy-js';
 import { PaginationType } from '@/types/datatable';
 import { breadcrumbs } from '@/utils/breadcrumbs';
-import { getExamAssignmentColumns, examAssignmentFilters, ExamStatsCards } from '@/Components/exam';
+import { getExamAssignmentColumns, ExamStatsCards } from '@/Components/exam';
+import { trans } from '@/utils/translations';
 
 interface Props {
     exam: Exam;
@@ -30,23 +31,21 @@ export default function ExamGroupDetails({ exam, group, assignments, stats }: Pr
     const columns = getExamAssignmentColumns({
         exam,
         group,
-        showActions: true,
-        onRemove: undefined
+        showActions: true
     });
 
     const dataTableConfig = {
         columns,
-        filters: examAssignmentFilters,
-        searchPlaceholder: 'Rechercher par nom ou email...',
+        searchPlaceholder: trans('exam_pages.group_details.search_placeholder'),
         emptyState: {
-            title: 'Aucun étudiant dans ce groupe',
-            subtitle: 'Ce groupe ne contient aucun étudiant actif',
+            title: trans('exam_pages.group_details.no_students_title'),
+            subtitle: trans('exam_pages.group_details.no_students_subtitle'),
         },
     };
 
     return (
         <AuthenticatedLayout
-            title={`${group.display_name} - ${exam.title}`}
+            title={trans('exam_pages.group_details.title', { group: group.display_name, exam: exam.title })}
             breadcrumb={breadcrumbs.examGroupShow(exam.title, exam.id, group.display_name)}
         >
             <div className="space-y-6">
@@ -56,7 +55,7 @@ export default function ExamGroupDetails({ exam, group, assignments, stats }: Pr
                             <UserGroupIcon className="h-8 w-8 text-blue-600" />
                             <div>
                                 <h2 className="text-2xl font-bold text-gray-900">{group.display_name}</h2>
-                                <p className="text-sm text-gray-500">Détails de l'examen: {exam.title}</p>
+                                <p className="text-sm text-gray-500">{trans('exam_pages.group_details.subtitle', { exam: exam.title })}</p>
                             </div>
                         </div>
                     }
@@ -68,38 +67,38 @@ export default function ExamGroupDetails({ exam, group, assignments, stats }: Pr
                             size="sm"
                         >
                             <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                            Retour
+                            {trans('exam_pages.group_details.back')}
                         </Button>
                     }
                 >
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <p className="text-sm font-medium text-gray-700">Niveau</p>
-                                <p className="text-base text-gray-900">{group.level?.name || 'Non défini'}</p>
+                                <p className="text-sm font-medium text-gray-700">{trans('exam_pages.group_details.level')}</p>
+                                <p className="text-base text-gray-900">{group.level?.name || trans('exam_pages.group_details.not_defined')}</p>
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-gray-700">Étudiants actifs</p>
+                                <p className="text-sm font-medium text-gray-700">{trans('exam_pages.group_details.active_students')}</p>
                                 <p className="text-base text-gray-900">{group.active_students_count || 0}</p>
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-gray-700">Durée de l'examen</p>
-                                <p className="text-base text-gray-900">{exam.duration} minutes</p>
+                                <p className="text-sm font-medium text-gray-700">{trans('exam_pages.group_details.exam_duration')}</p>
+                                <p className="text-base text-gray-900">{exam.duration} {trans('exam_pages.group_details.minutes')}</p>
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-gray-700">Nombre de questions</p>
+                                <p className="text-sm font-medium text-gray-700">{trans('exam_pages.group_details.questions_count')}</p>
                                 <p className="text-base text-gray-900">{exam.questions?.length || 0}</p>
                             </div>
                         </div>
                     </div>
                 </Section>
 
-                <Section title="Statistiques du groupe">
+                <Section title={trans('exam_pages.group_details.stats_title')}>
                     <ExamStatsCards stats={stats} />
                     {stats.average_score !== null && (
                         <div className="mt-4 bg-purple-50 border border-purple-200 rounded-lg p-4">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-purple-900">Note moyenne du groupe</span>
+                                <span className="text-sm font-medium text-purple-900">{trans('exam_pages.group_details.average_score')}</span>
                                 <span className="text-2xl font-bold text-purple-600">
                                     {Math.round(stats.average_score)}%
                                 </span>
@@ -109,8 +108,8 @@ export default function ExamGroupDetails({ exam, group, assignments, stats }: Pr
                 </Section>
 
                 <Section
-                    title="Étudiants du groupe"
-                    subtitle={`Liste complète des étudiants et leur progression`}
+                    title={trans('exam_pages.group_details.students_title')}
+                    subtitle={trans('exam_pages.group_details.students_subtitle')}
                 >
                     <DataTable
                         data={assignments}

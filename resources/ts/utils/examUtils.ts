@@ -1,4 +1,5 @@
 import { Question, ExamAssignment } from '@/types';
+import { trans } from "./translations";
 
 
 /**
@@ -18,9 +19,9 @@ export const formatExamScore = (
     autoScore?: number
 ): string => {
     if (isPendingReview && autoScore !== undefined) {
-        return `Note partielle (QCM) : ${autoScore} / ${totalPoints} points`;
+        return trans('formatters.partial_score_mcq', { score: autoScore, total: totalPoints });
     }
-    return `${score || 0} / ${totalPoints} points`;
+    return trans('formatters.score_format', { score: score || 0, total: totalPoints });
 };
 
 
@@ -82,7 +83,9 @@ export const formatScoresForSave = (scores: Record<number, number>): Array<{ que
  *          - 'Non noté' if the score is 0 or less.
  */
 export const getCorrectionStatus = (calculatedScore: number): string => {
-    return calculatedScore > 0 ? 'En cours de correction' : 'Non noté';
+    return calculatedScore > 0
+        ? trans('formatters.correction_in_progress')
+        : trans('formatters.not_graded');
 };
 
 /**

@@ -8,6 +8,7 @@ import { breadcrumbs } from '@/utils/breadcrumbs';
 import { Permission, Role, GroupedPermissions } from '@/types/role';
 import { useRoleForm } from '@/hooks/useRoleForm';
 import RoleForm from '@/Components/Roles/RoleForm';
+import { trans } from '@/utils/translations';
 
 interface Props {
     role: Role;
@@ -64,10 +65,10 @@ export default function EditRole({ role, allPermissions, groupedPermissions }: P
     };
 
     return (
-        <AuthenticatedLayout title="Modifier un rôle" breadcrumb={breadcrumbs.roleEdit(role.name)}>
+        <AuthenticatedLayout title={trans('admin_pages.roles.edit')} breadcrumb={breadcrumbs.roleEdit(role.name)}>
             <Section
-                title="Modifier le rôle"
-                subtitle={`Modification du rôle : ${role.name}`}
+                title={trans('admin_pages.roles.edit_title')}
+                subtitle={trans('admin_pages.roles.edit_subtitle')}
                 actions={
                     <Button
                         type="button"
@@ -75,7 +76,7 @@ export default function EditRole({ role, allPermissions, groupedPermissions }: P
                         variant='outline'
                         color="secondary"
                     >
-                        Retour
+                        {trans('admin_pages.common.back')}
                     </Button>
                 }
             >
@@ -92,8 +93,8 @@ export default function EditRole({ role, allPermissions, groupedPermissions }: P
                     onDeselectAll={deselectAll}
                     isSystemRole={isSystemRole}
                     onSync={handleSyncPermissions}
-                    submitButtonText="Enregistrer les modifications"
-                    submittingText="Enregistrement..."
+                    submitButtonText={trans('admin_pages.roles.update_button')}
+                    submittingText={trans('admin_pages.roles.updating')}
                 />
             </Section>
         </AuthenticatedLayout>

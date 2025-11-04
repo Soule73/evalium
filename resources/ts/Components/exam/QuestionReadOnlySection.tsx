@@ -1,7 +1,8 @@
 import { CheckCircleIcon, XMarkIcon } from "@heroicons/react/16/solid";
 import MarkdownRenderer from "../form/MarkdownRenderer";
 import { Question } from "@/types";
-import { TYPE_COLORS, TYPE_LABELS } from "./TakeQuestion";
+import { TYPE_COLORS, getTypeLabels } from "./TakeQuestion";
+import { trans } from '@/utils/translations';
 
 interface QuestionReadOnlySection {
     question: Question;
@@ -12,6 +13,8 @@ interface QuestionReadOnlySection {
 }
 
 const QuestionReadOnlySection: React.FC<QuestionReadOnlySection> = ({ question, children, isCorrect, score, questionIndex }) => {
+    const typeLabels = getTypeLabels();
+
     return (
         <div key={question.id} className="border-b border-gray-200 pb-6 last:border-b-0">
             <div className="flex items-center  justify-between my-3">
@@ -22,20 +25,20 @@ const QuestionReadOnlySection: React.FC<QuestionReadOnlySection> = ({ question, 
                     {isCorrect === true && (
                         <span className="text-green-600 text-sm font-medium flex items-center">
                             <CheckCircleIcon className="w-4 h-4 mr-1" />
-                            Correct
+                            {trans('components.question_readonly_section.correct')}
                         </span>
                     )}
                     {isCorrect === false && (
                         <span className="text-red-600 text-sm font-medium flex items-center">
                             <XMarkIcon className="w-4 h-4 mr-1" />
-                            Incorrect
+                            {trans('components.question_readonly_section.incorrect')}
                         </span>
                     )}
                     <span className="text-sm text-gray-500 ml-2">
                         {score && `${score}/`}{question.points} pts
                     </span>
                     <span className={`text-xs ml-2 px-2 py-1 min-w-fit h-max rounded-full ${TYPE_COLORS[question.type] ?? 'bg-gray-100 text-gray-800'}`}>
-                        {TYPE_LABELS[question.type] ?? question.type}
+                        {typeLabels[question.type] ?? question.type}
                     </span>
                 </div>
             </div>

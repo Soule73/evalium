@@ -5,6 +5,7 @@ import Select from '@/Components/Select';
 import { User } from '@/types';
 import Modal from '@/Components/Modal';
 import { getRoleLabel } from '@/utils';
+import { trans } from '@/utils/translations';
 
 interface Props {
     user: User;
@@ -56,10 +57,10 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
             <div className="p-6 md:min-w-lg lg:min-w-xl w-full ">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold text-gray-900">
-                        {title || "Modifier l'utilisateur"}
+                        {title || trans('admin_pages.users.edit_title')}
                     </h1>
                     <p className="text-gray-600 mt-1">
-                        {description || `Modifiez les informations de ${user.name}`}
+                        {description || trans('admin_pages.users.edit_subtitle', { name: user.name })}
                     </p>
                 </div>
 
@@ -70,7 +71,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         className="mt-1 block w-full"
                         value={data.name}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('name', e.target.value)}
-                        placeholder="Entrez le nom complet"
+                        placeholder={trans('admin_pages.users.name_placeholder')}
                         required
                     />
 
@@ -80,12 +81,12 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         type="email"
                         value={data.email}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('email', e.target.value)}
-                        placeholder="Entrez l'adresse email"
+                        placeholder={trans('admin_pages.users.email_placeholder')}
                         required
                     />
                     {roles && <div>
                         <Select
-                            label="Rôle"
+                            label={trans('admin_pages.users.role')}
                             options={roles.map(role => ({
                                 value: role,
                                 label: getRoleLabel(role)
@@ -94,7 +95,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                             onChange={(value) => setData('role', String(value))}
                             error={errors.role}
                             searchable={false}
-                            placeholder="Sélectionner un rôle"
+                            placeholder={trans('admin_pages.users.select_role')}
                         />
                     </div>}
 
@@ -104,7 +105,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         </div>
                         <div className="relative flex justify-center text-sm">
                             <span className="px-2 bg-white text-gray-500">
-                                Changer le mot de passe (optionnel)
+                                {trans('admin_pages.users.password_change')}
                             </span>
                         </div>
                     </div>
@@ -114,7 +115,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         type="password"
                         value={data.password}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('password', e.target.value)}
-                        placeholder="Laissez vide pour conserver le mot de passe actuel"
+                        placeholder={trans('admin_pages.users.password_keep')}
                     />
 
                     <Input
@@ -122,7 +123,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         type="password"
                         value={data.password_confirmation}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('password_confirmation', e.target.value)}
-                        placeholder="Confirmez le nouveau mot de passe"
+                        placeholder={trans('admin_pages.users.password_confirm_placeholder')}
                     />
                     <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
                         <Button
@@ -132,7 +133,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                             size='sm'
                             onClick={handleCancel}
                         >
-                            Annuler
+                            {trans('admin_pages.common.cancel')}
                         </Button>
                         <Button
                             type="submit"
@@ -142,9 +143,9 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                             disabled={processing}
                         >
                             {processing ? (
-                                'Mise à jour...'
+                                trans('admin_pages.users.updating')
                             ) : (
-                                'Mettre à jour'
+                                trans('admin_pages.users.update_button')
                             )}
                         </Button>
                     </div>

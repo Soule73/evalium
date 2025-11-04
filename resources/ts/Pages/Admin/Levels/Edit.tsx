@@ -7,6 +7,7 @@ import Input from '@/Components/form/Input';
 import Toggle from '@/Components/form/Toggle';
 import { route } from 'ziggy-js';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { trans } from '@/utils/translations';
 
 interface Level {
     id: number;
@@ -53,42 +54,42 @@ export default function EditLevel({ level }: Props) {
     };
 
     return (
-        <AuthenticatedLayout title="Modifier un niveau">
+        <AuthenticatedLayout title={trans('admin_pages.levels.edit')}>
             <Section
-                title="Modifier le niveau"
-                subtitle={`Modification du niveau : ${level.name}`}
+                title={trans('admin_pages.levels.edit_title')}
+                subtitle={trans('admin_pages.levels.edit_subtitle')}
             >
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <Input
-                            label="Nom du niveau"
+                            label={trans('admin_pages.levels.name_label')}
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             error={errors.name}
                             required
-                            placeholder="Ex: Licence 1"
+                            placeholder={trans('admin_pages.levels.name_placeholder')}
                         />
 
                         <Input
-                            label="Code"
+                            label={trans('admin_pages.levels.code')}
                             type="text"
                             value={formData.code}
                             onChange={(e) => setFormData({ ...formData, code: e.target.value })}
                             error={errors.code}
                             required
-                            placeholder="Ex: L1"
+                            placeholder={trans('admin_pages.levels.code_placeholder')}
                         />
                     </div>
 
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-gray-700">
-                            Description
+                            {trans('admin_pages.levels.description')}
                         </label>
                         <textarea
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            placeholder="Description du niveau (optionnel)"
+                            placeholder={trans('admin_pages.levels.description_placeholder')}
                             rows={3}
                             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                         />
@@ -99,7 +100,7 @@ export default function EditLevel({ level }: Props) {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <Input
-                            label="Ordre d'affichage"
+                            label={trans('admin_pages.levels.order_label')}
                             type="number"
                             value={formData.order}
                             onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
@@ -110,13 +111,13 @@ export default function EditLevel({ level }: Props) {
 
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-medium text-gray-700">
-                                Statut
+                                {trans('admin_pages.levels.status_label')}
                             </label>
                             <Toggle
                                 checked={formData.is_active}
                                 onChange={() => setFormData({ ...formData, is_active: !formData.is_active })}
-                                activeLabel="Actif"
-                                inactiveLabel="Inactif"
+                                activeLabel={trans('admin_pages.common.active')}
+                                inactiveLabel={trans('admin_pages.common.inactive')}
                                 showLabel={true}
                             />
                         </div>
@@ -130,14 +131,14 @@ export default function EditLevel({ level }: Props) {
                             disabled={isSubmitting}
                         >
                             <ArrowLeftIcon className="w-4 h-4 mr-2" />
-                            Annuler
+                            {trans('admin_pages.common.cancel')}
                         </Button>
                         <Button
                             type="submit"
                             color="primary"
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? 'Enregistrement...' : 'Enregistrer les modifications'}
+                            {isSubmitting ? trans('admin_pages.levels.updating') : trans('admin_pages.levels.update_button')}
                         </Button>
                     </div>
                 </form>

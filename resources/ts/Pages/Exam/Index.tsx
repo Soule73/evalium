@@ -1,5 +1,5 @@
 import React from 'react';
-import { Head, router, usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PaginationType } from '@/types/datatable';
 import { Button } from '@/Components';
@@ -8,6 +8,8 @@ import Section from '@/Components/Section';
 import { route } from 'ziggy-js';
 import ExamList from '@/Components/exam/ExamList';
 import { hasPermission } from '@/utils/permissions';
+import { trans } from '@/utils/translations';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 
 interface Props extends PageProps {
     exams: PaginationType<Exam>;
@@ -25,12 +27,13 @@ const ExamIndex: React.FC<Props> = ({ exams }) => {
     const canCreateExams = hasPermission(auth.permissions, 'create exams');
 
     return (
-        <AuthenticatedLayout title="Examens">
-            <Head title="Gestion des examens" />
+        <AuthenticatedLayout title={trans('exam_pages.page_titles.index')}
+            breadcrumb={breadcrumbs.exams()}
+        >
 
             <Section
-                title="Gestion des examens"
-                subtitle="Créez, gérez et assignez vos examens aux étudiants."
+                title={trans('exam_pages.index.title')}
+                subtitle={trans('exam_pages.index.subtitle')}
                 actions={canCreateExams && (
                     <Button
                         size='sm'
@@ -38,7 +41,7 @@ const ExamIndex: React.FC<Props> = ({ exams }) => {
                         color='secondary'
                         onClick={() => router.visit(route('exams.create'))}
                     >
-                        Nouvel examen
+                        {trans('exam_pages.index.new_exam')}
                     </Button>
                 )}
             >

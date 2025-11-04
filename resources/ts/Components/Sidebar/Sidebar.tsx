@@ -7,6 +7,7 @@ import { User, PageProps } from '@/types';
 import LogoExamena from '../LogoExamena';
 import { hasPermission } from '@/utils/permissions';
 import { navRoutes } from '@/utils/breadcrumbs';
+import { trans } from '@/utils/translations';
 
 interface SidebarProps {
     currentPath: string;
@@ -88,34 +89,34 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
 
     const navItems: NavItem[] = [];
 
-    navItems.push({ name: 'Tableau de bord', href: navRoutes.dashboard(), icon: 'dashboard' });
+    navItems.push({ name: trans('sidebar.navigation.dashboard'), href: navRoutes.dashboard(), icon: 'dashboard' });
 
     if (isStudent) {
         navItems.push(
-            { name: 'Mes Groupes', href: navRoutes.studentExams(), icon: 'exams' }
+            { name: trans('sidebar.navigation.my_groups'), href: navRoutes.studentExams(), icon: 'exams' }
         );
     }
 
     if (canViewExamList && !isStudent) {
         navItems.push(
-            { name: 'Examens', href: navRoutes.exams(), icon: 'exams' }
+            { name: trans('sidebar.navigation.exams'), href: navRoutes.exams(), icon: 'exams' }
         );
     }
 
     if (canViewUsers) {
-        navItems.push({ name: 'Utilisateurs', href: navRoutes.users(), icon: 'users' });
+        navItems.push({ name: trans('sidebar.navigation.users'), href: navRoutes.users(), icon: 'users' });
     }
 
     if (canViewGroups) {
-        navItems.push({ name: 'Groupes', href: navRoutes.groups(), icon: 'groups' });
+        navItems.push({ name: trans('sidebar.navigation.groups'), href: navRoutes.groups(), icon: 'groups' });
     }
 
     if (canViewLevels) {
-        navItems.push({ name: 'Niveaux', href: navRoutes.levels(), icon: 'levels' });
+        navItems.push({ name: trans('sidebar.navigation.levels'), href: navRoutes.levels(), icon: 'levels' });
     }
 
     if (canViewRoles) {
-        navItems.push({ name: 'Rôles & Permissions', href: navRoutes.roles(), icon: 'roles' });
+        navItems.push({ name: trans('sidebar.navigation.roles_permissions'), href: navRoutes.roles(), icon: 'roles' });
     }
 
     return (
@@ -124,7 +125,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
             <button
                 onClick={toggleMobile}
                 className="lg:hidden fixed top-4 left-4 z-3 p-2 rounded-md bg-white  hover:bg-gray-50"
-                aria-label="Toggle menu"
+                aria-label={trans('sidebar.actions.toggle_menu')}
             >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     {isMobileOpen ? (
@@ -157,7 +158,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                         {!isCollapsed && (
                             <Link href={navRoutes.dashboard()} className="flex items-center">
                                 <LogoExamena />
-                                <span className="ml-2 text-xl font-bold text-indigo-600">Examena</span>
+                                <span className="ml-2 text-xl font-bold text-indigo-600">{trans('sidebar.app_name')}</span>
                             </Link>
                         )}
 
@@ -171,7 +172,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                         <button
                             onClick={toggleCollapse}
                             className="hidden lg:block cursor-pointer p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
-                            aria-label="Toggle sidebar"
+                            aria-label={trans('sidebar.actions.toggle_sidebar')}
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {isCollapsed ? (
@@ -247,7 +248,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                         className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
                                     >
                                         <NavIcon type="logout" className="w-4 h-4" />
-                                        <span>Déconnexion</span>
+                                        <span>{trans('sidebar.actions.logout')}</span>
                                     </Link>
                                 </div>
                             </>
@@ -262,7 +263,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                             : 'bg-white hover:bg-indigo-50'
                                         }
                                     `}
-                                    title={`${user.name} - Profil`}
+                                    title={`${user.name} - ${trans('sidebar.actions.profile')}`}
                                 >
                                     <UserAvatar name={user.name} size="sm" />
                                     {isActive(navRoutes.profile()) && (
@@ -275,7 +276,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                     method="post"
                                     as="button"
                                     className="w-full flex items-center justify-center p-2.5 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
-                                    title="Déconnexion"
+                                    title={trans('sidebar.actions.logout')}
                                 >
                                     <NavIcon type="logout" className="w-5 h-5" />
                                 </Link>

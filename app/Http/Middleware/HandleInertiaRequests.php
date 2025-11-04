@@ -57,6 +57,8 @@ class HandleInertiaRequests extends Middleware
                 'warning' => fn() => $request->session()->pull('warning'),
                 'info' => fn() => $request->session()->pull('info'),
             ],
+            'locale' => app()->getLocale(),
+            'language' => $this->getTranslations(),
             'examConfig' => [
                 'devMode' => config('exam.dev_mode', false),
                 'securityEnabled' => config('exam.security_enabled', true),
@@ -74,5 +76,40 @@ class HandleInertiaRequests extends Middleware
                 ],
             ],
         ];
+    }
+
+    /**
+     * Get all translations for the current locale.
+     *
+     * This method loads all PHP translation files and JSON translations
+     * to make them available in the frontend via Inertia.js.
+     *
+     * @return array<string, mixed>
+     */
+    protected function getTranslations(): array
+    {
+        $locale = app()->getLocale();
+        $translations = [];
+
+        // Load all PHP translation files from lang/{locale}/ directory
+        $langPath = lang_path($locale);
+
+        if (is_dir($langPath)) {
+            $files = glob($langPath . '/*.php');
+
+            foreach ($files as $file) {
+                $filename = basename($file, '.php');
+                $translations[$filename] = require $file;
+            }
+        }
+
+        // Load JSON translations from lang/{locale}.json
+        $jsonFile = lang_path($locale . '.json');
+        if (file_exists($jsonFile)) {
+            $jsonTranslations = json_decode(file_get_contents($jsonFile), true);
+            $translations = array_merge($translations, ['json' => $jsonTranslations]);
+        }
+
+        return $translations;
     }
 }

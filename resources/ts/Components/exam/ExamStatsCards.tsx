@@ -5,6 +5,7 @@ import {
     ClockIcon,
     MinusCircleIcon
 } from '@heroicons/react/24/outline';
+import { trans } from '@/utils/translations';
 
 interface ExamStats {
     total_students?: number;
@@ -25,7 +26,9 @@ interface ExamStatsCardsProps {
  * Utilisé dans ExamAssignments et ExamGroupDetails
  */
 export default function ExamStatsCards({ stats, className = '' }: ExamStatsCardsProps) {
-    const totalLabel = stats.total_students !== undefined ? 'Total étudiants' : 'Total assigné';
+    const totalLabel = stats.total_students !== undefined
+        ? trans('components.exam_stats_cards.total_students')
+        : trans('components.exam_stats_cards.total_assigned');
     const totalValue = stats.total_students ?? stats.total_assigned ?? 0;
 
     return (
@@ -37,19 +40,19 @@ export default function ExamStatsCards({ stats, className = '' }: ExamStatsCards
                 icon={UserGroupIcon}
             />
             <StatCard
-                title="Terminé"
+                title={trans('components.exam_stats_cards.completed')}
                 value={stats.completed}
                 color="green"
                 icon={CheckCircleIcon}
             />
             <StatCard
-                title="En cours"
+                title={trans('components.exam_stats_cards.in_progress')}
                 value={stats.started}
                 color="yellow"
                 icon={ClockIcon}
             />
             <StatCard
-                title="Non commencé"
+                title={trans('components.exam_stats_cards.not_started')}
                 value={stats.assigned}
                 color="purple"
                 icon={MinusCircleIcon}

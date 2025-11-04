@@ -9,6 +9,7 @@ import StudentExamAssignmentList from '@/Components/exam/StudentExamAssignmentLi
 import { ExamAssignment, User } from '@/types';
 import { PaginationType } from '@/types/datatable';
 import { breadcrumbs } from '@/utils/breadcrumbs';
+import { trans } from '@/utils/translations';
 
 interface Stats {
     totalExams: number;
@@ -25,45 +26,45 @@ interface Props {
 
 export default function StudentDashboard({ user, stats, examAssignments }: Props) {
     return (
-        <AuthenticatedLayout title='Tableau de bord étudiant'
+        <AuthenticatedLayout title={trans('dashboard.title.student')}
             breadcrumb={breadcrumbs.dashboard()}
         >
 
-            <Section title={`Bonjour, ${user.name} !`}
+            <Section title={trans('dashboard.student.greeting', { name: user.name })}
                 actions={
                     <Button
                         size='sm'
                         variant='outline'
                         className=' w-max'
                         onClick={() => router.visit(route('student.exams.index'))}>
-                        Voir mes examens
+                        {trans('dashboard.student.view_my_exams')}
                     </Button>
                 }
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <StatCard
-                        title="Total Examens"
+                        title={trans('dashboard.student.total_exams')}
                         value={`${stats.totalExams}`}
                         icon={DocumentTextIcon}
                         color="blue"
                     />
 
                     <StatCard
-                        title="Examens en attente"
+                        title={trans('dashboard.student.pending_exams')}
                         value={`${stats.pendingExams}`}
                         icon={ClockIcon}
                         color="yellow"
                     />
 
                     <StatCard
-                        title="Examens terminés"
+                        title={trans('dashboard.student.completed_exams')}
                         value={`${stats.completedExams}`}
                         icon={CheckIcon}
                         color="green"
                     />
 
                     <StatCard
-                        title="Note moyen"
+                        title={trans('dashboard.student.average_score')}
                         value={`${stats.averageScore} / 20`}
                         icon={ChartBarIcon}
                         color="red"
@@ -72,14 +73,14 @@ export default function StudentDashboard({ user, stats, examAssignments }: Props
 
             </Section>
 
-            <Section title="Examens assignés"
+            <Section title={trans('dashboard.student.assigned_exams')}
                 actions={
                     <Button
                         size='sm'
                         variant='outline'
                         className=' w-max'
                         onClick={() => router.visit(route('student.exams.index'))}>
-                        Voir tous les examens
+                        {trans('dashboard.student.view_all_exams')}
                     </Button>
                 }
             >

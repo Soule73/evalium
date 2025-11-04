@@ -54,6 +54,7 @@ class User extends Authenticatable
         'avatar',
         'active',
         'is_active',
+        'locale',
     ];
 
     /**

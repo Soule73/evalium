@@ -8,6 +8,7 @@ import { BookOpenIcon, CalendarIcon, UserGroupIcon } from '@heroicons/react/24/o
 import Badge from '@/Components/Badge';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { route } from 'ziggy-js';
+import { trans } from '@/utils/translations';
 
 interface StudentGroup extends GroupWithPivot {
     is_current: boolean;
@@ -32,11 +33,11 @@ export default function Index({ groups }: Props) {
         columns: [
             {
                 key: 'name',
-                label: 'Groupe',
+                label: trans('student_pages.groups_index.group'),
                 render: (group) => (
                     <div>
                         <div className="text-sm font-medium text-gray-900">
-                            {group.level?.name || 'Non défini'}
+                            {group.level?.name || trans('student_pages.groups_index.level_undefined')}
                         </div>
                         {group.description && (
                             <div className="text-sm text-gray-500 line-clamp-1">
@@ -48,7 +49,7 @@ export default function Index({ groups }: Props) {
             },
             {
                 key: 'academic_year',
-                label: 'Année scolaire',
+                label: trans('student_pages.groups_index.academic_year'),
                 render: (group) => (
                     <span className="text-sm text-gray-900">
                         {group.academic_year || '-'}
@@ -57,48 +58,57 @@ export default function Index({ groups }: Props) {
             },
             {
                 key: 'period',
-                label: 'Période',
+                label: trans('student_pages.groups_index.period'),
                 render: (group) => (
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                         <CalendarIcon className="h-4 w-4 shrink-0 text-gray-400" />
                         <div>
                             <div>{formatDate(group.start_date)}</div>
-                            <div className="text-xs text-gray-400">au {formatDate(group.end_date)}</div>
+                            <div className="text-xs text-gray-400">{trans('student_pages.groups_index.to')} {formatDate(group.end_date)}</div>
                         </div>
                     </div>
                 )
             },
             {
                 key: 'exams',
-                label: 'Examens',
-                render: (group) => (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <BookOpenIcon className="h-4 w-4 shrink-0 text-gray-400" />
-                        <div>
-                            <span>{group.exams_count} examen{group.exams_count > 1 ? 's' : ''}</span>
-                            {group.is_current && group.completed_exams_count !== undefined && (
-                                <div className="text-xs text-gray-500">
-                                    {group.completed_exams_count} complété{group.completed_exams_count > 1 ? 's' : ''}
-                                </div>
-                            )}
+                label: trans('student_pages.groups_index.exams'),
+                render: (group) => {
+                    const examLabel = group.exams_count > 1
+                        ? trans('student_pages.groups_index.exam_plural')
+                        : trans('student_pages.groups_index.exam_singular');
+                    const completedLabel = (group.completed_exams_count || 0) > 1
+                        ? trans('student_pages.groups_index.completed_plural')
+                        : trans('student_pages.groups_index.completed_singular');
+
+                    return (
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <BookOpenIcon className="h-4 w-4 shrink-0 text-gray-400" />
+                            <div>
+                                <span>{group.exams_count} {examLabel}</span>
+                                {group.is_current && group.completed_exams_count !== undefined && (
+                                    <div className="text-xs text-gray-500">
+                                        {group.completed_exams_count} {completedLabel}
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                )
+                    );
+                }
             },
             {
                 key: 'status',
-                label: 'Statut',
+                label: trans('student_pages.groups_index.status'),
                 render: (group) => (
                     group.is_current ? (
-                        <Badge label="Actif" type="success" />
+                        <Badge label={trans('student_pages.groups_index.active')} type="success" />
                     ) : (
-                        <Badge label="Inactif" type="gray" />
+                        <Badge label={trans('student_pages.groups_index.inactive')} type="gray" />
                     )
                 )
             },
             {
                 key: 'actions',
-                label: 'Actions',
+                label: trans('student_pages.groups_index.actions'),
                 render: (group) => (
                     <Link
                         href={route('student.exams.group.show', { group: group.id })}
@@ -107,31 +117,31 @@ export default function Index({ groups }: Props) {
                             : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                             }`}
                     >
-                        Voir
+                        {trans('student_pages.groups_index.view')}
                     </Link>
                 )
             }
         ],
         emptyState: {
-            title: 'Aucun groupe',
-            subtitle: "Vous n'êtes inscrit dans aucun groupe pour le moment.",
+            title: trans('student_pages.groups_index.empty_title'),
+            subtitle: trans('student_pages.groups_index.empty_subtitle'),
             icon: <UserGroupIcon className="mx-auto h-12 w-12 text-gray-400" />
         },
-        searchPlaceholder: 'Rechercher un groupe...',
+        searchPlaceholder: trans('student_pages.groups_index.search_placeholder'),
         perPageOptions: [10, 20, 30, 50]
     };
 
     return (
         <AuthenticatedLayout
-            title="Mes groupes"
+            title={trans('student_pages.groups_index.title')}
             breadcrumb={breadcrumbs.studentExams()}
         >
-            <Head title="Mes groupes" />
+            <Head title={trans('student_pages.groups_index.title')} />
 
             <div className="space-y-8">
                 <Section
-                    title={`Mes groupes (${groups.total})`}
-                    subtitle="Accédez aux examens de vos différents groupes"
+                    title={trans('student_pages.groups_index.groups_count', { count: groups.total })}
+                    subtitle={trans('student_pages.groups_index.subtitle')}
                 >
                     <DataTable
                         data={groups}

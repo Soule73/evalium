@@ -4,6 +4,7 @@ import Input from '@/Components/form/Input';
 import Select from '@/Components/Select';
 import { route } from 'ziggy-js';
 import Modal from '@/Components/Modal';
+import { trans } from '@/utils/translations';
 
 interface Group {
     id: number;
@@ -57,13 +58,13 @@ export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
     const getRoleLabel = (roleName: string) => {
         switch (roleName) {
             case 'admin':
-                return 'Administrateur';
+                return trans('admin_pages.roles.role_labels.admin');
             case 'teacher':
-                return 'Enseignant';
+                return trans('admin_pages.roles.role_labels.teacher');
             case 'student':
-                return 'Étudiant';
+                return trans('admin_pages.roles.role_labels.student');
             case 'super_admin':
-                return 'Super Administrateur';
+                return trans('admin_pages.roles.role_labels.super_admin');
             default:
                 return roleName;
         }
@@ -77,36 +78,36 @@ export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
             <div className="p-6">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold text-gray-900">
-                        Créer un nouvel utilisateur
+                        {trans('admin_pages.users.create_title')}
                     </h1>
                     <p className="text-gray-600 mt-1">
-                        Remplissez les informations pour créer un nouveau compte utilisateur
+                        {trans('admin_pages.users.create_subtitle')}
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <Input
-                        label="Nom complet"
+                        label={trans('admin_pages.users.name_label')}
                         type="text"
                         value={data.name}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('name', e.target.value)}
-                        placeholder="Entrez le nom complet"
+                        placeholder={trans('admin_pages.users.name_placeholder')}
                         required
                         error={errors.name}
                     />
 
                     <Input
-                        label="Adresse email"
+                        label={trans('admin_pages.users.email_label')}
                         type="email"
                         value={data.email}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('email', e.target.value)}
-                        placeholder="Entrez l'adresse email"
+                        placeholder={trans('admin_pages.users.email_placeholder')}
                         required
                         error={errors.email}
                     />
 
                     <Select
-                        label="Rôle"
+                        label={trans('admin_pages.users.role')}
                         options={roles.map(role => ({
                             value: role,
                             label: getRoleLabel(role)
@@ -115,12 +116,12 @@ export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
                         onChange={(value) => setData('role', String(value))}
                         error={errors.role}
                         searchable={false}
-                        placeholder="Sélectionner un rôle"
+                        placeholder={trans('admin_pages.users.select_role')}
                     />
 
                     {data.role === 'student' && (
                         <Select
-                            label="Groupe"
+                            label={trans('admin_pages.users.group')}
                             options={activeGroups.map(group => ({
                                 value: group.id,
                                 label: `${group.display_name} (${group.academic_year})`
@@ -129,7 +130,7 @@ export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
                             onChange={(value) => setData('group_id', Number(value))}
                             error={errors.group_id}
                             searchable={true}
-                            placeholder="Sélectionner un groupe"
+                            placeholder={trans('admin_pages.users.select_group')}
                         />
                     )}
 
@@ -142,7 +143,7 @@ export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
                             </div>
                             <div className="ml-3">
                                 <p className="text-sm text-blue-700">
-                                    Un mot de passe sera généré automatiquement et envoyé par email à l'utilisateur.
+                                    {trans('admin_pages.users.password_info')}
                                 </p>
                             </div>
                         </div>
@@ -155,7 +156,7 @@ export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
                             variant='outline'
                             onClick={handleCancel}
                         >
-                            Annuler
+                            {trans('admin_pages.common.cancel')}
                         </Button>
                         <Button
                             type="submit"
@@ -164,9 +165,9 @@ export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
                             disabled={processing}
                         >
                             {processing ? (
-                                'Création...'
+                                trans('admin_pages.common.loading')
                             ) : (
-                                "Créer l'utilisateur"
+                                trans('admin_pages.users.create_button')
                             )}
                         </Button>
                     </div>

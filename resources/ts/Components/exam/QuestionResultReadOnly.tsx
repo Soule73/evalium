@@ -2,18 +2,19 @@ import { Choice } from "@/types";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import MarkdownRenderer from "../form/MarkdownRenderer";
 import { questionIndexLabel } from "./TakeQuestion";
+import { trans } from '@/utils/translations';
 
 interface QuestionResultReadOnlyTextProps {
     userText?: string;
     label?: string;
 }
 
-const QuestionResultReadOnlyText: React.FC<QuestionResultReadOnlyTextProps> = ({ userText, label = "Votre réponse" }) => {
+const QuestionResultReadOnlyText: React.FC<QuestionResultReadOnlyTextProps> = ({ userText, label = trans('components.question_result_readonly.your_answer_default') }) => {
     return (
         <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
             <p className="text-sm text-gray-600 mb-1">{label}</p>
             <MarkdownRenderer>
-                {userText || 'Aucune réponse fournie'}
+                {userText || trans('components.question_renderer.no_answer')}
             </MarkdownRenderer>
         </div>
     );
@@ -52,7 +53,7 @@ const getStatusLabel = (isSelected: boolean, isCorrect: boolean, shouldShowCorre
     if (!shouldShowCorrect) {
         return isSelected ? (
             <span className="ml-2 text-xs text-blue-600 font-medium">
-                {isTeacherView ? "Réponse de l'étudiant" : "Votre réponse"}
+                {isTeacherView ? trans('components.question_result_readonly.student_answer') : trans('components.question_result_readonly.your_answer')}
             </span>
         ) : null;
     }
@@ -60,7 +61,7 @@ const getStatusLabel = (isSelected: boolean, isCorrect: boolean, shouldShowCorre
     if (isSelected && !isCorrect) {
         return (
             <span className="ml-2 text-xs text-red-600 font-medium">
-                {isTeacherView ? "Réponse de l'étudiant (incorrecte)" : "Votre réponse (incorrecte)"}
+                {isTeacherView ? trans('components.question_result_readonly.student_answer_incorrect') : trans('components.question_result_readonly.your_answer_incorrect')}
             </span>
         );
     }
@@ -68,7 +69,7 @@ const getStatusLabel = (isSelected: boolean, isCorrect: boolean, shouldShowCorre
     if (isSelected && isCorrect) {
         return (
             <span className="ml-2 text-xs text-green-600 font-medium">
-                {isTeacherView ? "Réponse de l'étudiant (correcte)" : "Votre réponse (correcte)"}
+                {isTeacherView ? trans('components.question_result_readonly.student_answer_correct') : trans('components.question_result_readonly.your_answer_correct')}
             </span>
         );
     }
@@ -76,7 +77,7 @@ const getStatusLabel = (isSelected: boolean, isCorrect: boolean, shouldShowCorre
     if (!isSelected && isCorrect) {
         return (
             <span className="ml-2 text-xs text-green-600 font-medium">
-                Bonne réponse
+                {trans('components.question_result_readonly.correct_answer')}
             </span>
         );
     }
@@ -106,7 +107,7 @@ const ChoiceItem: React.FC<ChoiceItemProps> = ({ choice, index, type, isSelected
                 : (isTrue ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800');
             return (
                 <span className={`inline-flex items-center justify-center h-6 w-6 rounded-full ${badgeClass} text-xs font-medium mr-2`}>
-                    {isTrue ? 'V' : 'F'}
+                    {isTrue ? trans('components.question_result_readonly.boolean_true_short') : trans('components.question_result_readonly.boolean_false_short')}
                 </span>
             );
         })()
@@ -123,7 +124,7 @@ const ChoiceItem: React.FC<ChoiceItemProps> = ({ choice, index, type, isSelected
                 {indexLabel}
                 <span className={styles.text}>
                     {type === 'boolean' ? (
-                        getBooleanDisplay(choice.content || '') ? 'Vrai' : 'Faux'
+                        getBooleanDisplay(choice.content || '') ? trans('components.question_result_readonly.boolean_true') : trans('components.question_result_readonly.boolean_false')
                     ) : choice.content}
                 </span>
                 {getStatusLabel(isSelected, isCorrect, shouldShowCorrect, isTeacherView)}

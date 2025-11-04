@@ -12,6 +12,7 @@ import { useState } from 'react';
 import ConfirmationModal from '@/Components/ConfirmationModal';
 import { hasPermission } from '@/utils/permissions';
 import { PageProps } from '@/types';
+import { trans } from '@/utils/translations';
 
 interface Permission {
     id: number;
@@ -68,10 +69,10 @@ export default function RoleIndex({ roles }: Props) {
 
     const getRoleLabel = (name: string) => {
         const labels: Record<string, string> = {
-            'super_admin': 'Super Administrateur',
-            'admin': 'Administrateur',
-            'teacher': 'Enseignant',
-            'student': 'Étudiant',
+            'super_admin': trans('admin_pages.roles.role_labels.super_admin'),
+            'admin': trans('admin_pages.roles.role_labels.admin'),
+            'teacher': trans('admin_pages.roles.role_labels.teacher'),
+            'student': trans('admin_pages.roles.role_labels.student'),
         };
         return labels[name] || name;
     };
@@ -96,7 +97,7 @@ export default function RoleIndex({ roles }: Props) {
         columns: [
             {
                 key: 'name',
-                label: 'Nom du rôle',
+                label: trans('admin_pages.roles.name'),
                 render: (role) => (
                     <div className="flex items-center gap-2">
                         <ShieldCheckIcon className="w-5 h-5 text-blue-600" />
@@ -105,7 +106,7 @@ export default function RoleIndex({ roles }: Props) {
                             <div className="text-xs text-gray-500">{role.name}</div>
                         </div>
                         {isSystemRole(role.name) && (
-                            <Badge label="Système" type="info" />
+                            <Badge label={trans('admin_pages.roles.system_role')} type="info" />
                         )}
                     </div>
                 ),
@@ -113,20 +114,20 @@ export default function RoleIndex({ roles }: Props) {
             },
             {
                 key: 'permissions',
-                label: 'Permissions',
+                label: trans('admin_pages.roles.permissions'),
                 render: (role) => (
                     <div>
-                        <div className="text-sm font-medium text-gray-900">{role.permissions_count} permissions</div>
+                        <div className="text-sm font-medium text-gray-900">{trans('admin_pages.roles.permissions_count', { count: role.permissions_count })}</div>
                         <div className="text-xs text-gray-500 truncate max-w-md">
                             {role.permissions.slice(0, 3).map(p => p.name).join(', ')}
-                            {role.permissions.length > 3 && ` +${role.permissions.length - 3} autres`}
+                            {role.permissions.length > 3 && ` +${role.permissions.length - 3}`}
                         </div>
                     </div>
                 ),
             },
             {
                 key: 'actions',
-                label: 'Actions',
+                label: trans('admin_pages.common.actions'),
                 render: (role) => (canUpdateRoles || canDeleteRoles) ? (
                     <div className="flex gap-2">
                         {canUpdateRoles && (
@@ -136,7 +137,7 @@ export default function RoleIndex({ roles }: Props) {
                                 color="primary"
                                 variant="outline"
                             >
-                                {isSystemRole(role.name) ? 'Voir' : 'Modifier'}
+                                {isSystemRole(role.name) ? trans('admin_pages.common.view') : trans('admin_pages.common.edit')}
                             </Button>
                         )}
                         {!isSystemRole(role.name) && canDeleteRoles && (
@@ -149,7 +150,7 @@ export default function RoleIndex({ roles }: Props) {
                                 size="sm"
                                 color="danger"
                             >
-                                Supprimer
+                                {trans('admin_pages.common.delete')}
                             </Button>
                         )}
                     </div>
@@ -159,15 +160,15 @@ export default function RoleIndex({ roles }: Props) {
     };
 
     return (
-        <AuthenticatedLayout title="Gestion des rôles & permissions"
+        <AuthenticatedLayout title={trans('admin_pages.roles.title')}
             breadcrumb={breadcrumbs.roles()}
         >
             <Section
-                title="Rôles & Permissions"
-                subtitle="Gérer les rôles et leurs permissions"
+                title={trans('admin_pages.roles.title')}
+                subtitle={trans('admin_pages.roles.subtitle')}
                 actions={canCreateRoles && (
                     <Button onClick={handleCreate} color="primary" size='sm'>
-                        Nouveau rôle
+                        {trans('admin_pages.roles.create')}
                     </Button>
                 )}
             >
@@ -181,10 +182,10 @@ export default function RoleIndex({ roles }: Props) {
                 isOpen={deleteModal.isOpen}
                 onClose={() => setDeleteModal({ isOpen: false, roleId: null, roleName: '' })}
                 onConfirm={() => deleteModal.roleId && handleDelete(deleteModal.roleId)}
-                title="Supprimer le rôle"
-                message={`Êtes-vous sûr de vouloir supprimer le rôle "${deleteModal.roleName}" ?`}
-                confirmText="Supprimer"
-                cancelText="Annuler"
+                title={trans('admin_pages.roles.delete_title')}
+                message={trans('admin_pages.roles.delete_message', { name: deleteModal.roleName })}
+                confirmText={trans('admin_pages.common.delete')}
+                cancelText={trans('admin_pages.common.cancel')}
                 type="danger"
             />
         </AuthenticatedLayout>

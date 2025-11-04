@@ -11,6 +11,7 @@ import { DataTableConfig, PaginationType } from '@/types/datatable';
 import ConfirmationModal from '@/Components/ConfirmationModal';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { hasPermission } from '@/utils/permissions';
+import { trans } from '@/utils/translations';
 
 interface Props {
     group: Group & { active_students_count?: number };
@@ -85,7 +86,7 @@ export default function AssignStudents({ group, availableStudents }: Props) {
         columns: [
             {
                 key: 'name',
-                label: 'Nom',
+                label: trans('admin_pages.common.name'),
                 render: (student) => (
                     <div>
                         <div className="text-sm font-medium text-gray-900">{student.name}</div>
@@ -95,22 +96,22 @@ export default function AssignStudents({ group, availableStudents }: Props) {
             },
             {
                 key: 'email',
-                label: 'Email',
+                label: trans('admin_pages.common.email'),
                 render: (student) => (
                     <span className="text-sm text-gray-600">{student.email}</span>
                 )
             }
         ],
-        searchPlaceholder: 'Rechercher par nom ou email...',
+        searchPlaceholder: trans('admin_pages.groups.search_students_placeholder'),
         emptyState: {
-            title: 'Aucun étudiant disponible',
-            subtitle: 'Tous les étudiants sont déjà assignés à des groupes',
+            title: trans('admin_pages.groups.no_available_students'),
+            subtitle: trans('admin_pages.groups.all_students_assigned'),
             icon: <UserPlusIcon className="w-12 h-12 mx-auto text-gray-400" />
         },
         emptySearchState: {
-            title: 'Aucun étudiant trouvé',
-            subtitle: 'Aucun étudiant ne correspond à vos critères de recherche.',
-            resetLabel: 'Réinitialiser la recherche'
+            title: trans('admin_pages.groups.no_student_found'),
+            subtitle: trans('admin_pages.groups.no_student_match'),
+            resetLabel: trans('admin_pages.groups.reset_search')
         },
         perPageOptions: [10, 25, 50, 100],
         enableSelection: canManageGroupStudents,
@@ -123,19 +124,19 @@ export default function AssignStudents({ group, availableStudents }: Props) {
                     size="sm"
                 >
                     <UserPlusIcon className="w-4 h-4 mr-2" />
-                    Assigner ({selectedIds.length})
+                    {trans('admin_pages.groups.assign_count_button', { count: selectedIds.length })}
                 </Button>
             </>
         ) : undefined,
     };
 
     return (
-        <AuthenticatedLayout title={`Assigner des étudiants - ${group.display_name}`}
+        <AuthenticatedLayout title={trans('admin_pages.groups.assign_students_page_title', { group: group.display_name })}
             breadcrumb={breadcrumbs.groupAssignStudents(group.display_name, group.id)}
         >
             <Section
-                title={`Assigner des étudiants au groupe "${group.display_name}"`}
-                subtitle={`Places disponibles: ${availableSlots} / ${group.max_students}`}
+                title={trans('admin_pages.groups.assign_students_page_subtitle', { group: group.display_name })}
+                subtitle={trans('admin_pages.groups.available_slots_label', { available: availableSlots, max: group.max_students })}
                 actions={
                     <Button
                         onClick={handleCancel}
@@ -143,17 +144,17 @@ export default function AssignStudents({ group, availableStudents }: Props) {
                         variant="outline"
                         size="sm"
                     >
-                        Retour
+                        {trans('admin_pages.users.back')}
                     </Button>
                 }
             >
                 {availableSlots <= 0 ? (
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
                         <div className="text-amber-800 font-medium mb-2">
-                            Le groupe est complet
+                            {trans('admin_pages.groups.group_full_title')}
                         </div>
                         <p className="text-amber-700 text-sm">
-                            Aucune place disponible. Veuillez augmenter la capacité maximale du groupe ou retirer des étudiants.
+                            {trans('admin_pages.groups.group_full_description')}
                         </p>
                     </div>
                 ) : (
@@ -161,10 +162,10 @@ export default function AssignStudents({ group, availableStudents }: Props) {
                         {!canManageGroupStudents ? (
                             <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
                                 <div className="text-gray-800 font-medium mb-2">
-                                    Permission insuffisante
+                                    {trans('admin_pages.groups.insufficient_permission_title')}
                                 </div>
                                 <p className="text-gray-700 text-sm">
-                                    Vous n'avez pas la permission d'assigner des étudiants à ce groupe.
+                                    {trans('admin_pages.groups.insufficient_permission_description')}
                                 </p>
                             </div>
                         ) : (
@@ -172,8 +173,7 @@ export default function AssignStudents({ group, availableStudents }: Props) {
                                 {maxSelectable < availableStudents.length && (
                                     <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
                                         <p className="text-sm text-blue-800">
-                                            <strong>Note :</strong> Vous pouvez sélectionner jusqu'à {maxSelectable} étudiant(s)
-                                            (places disponibles dans le groupe).
+                                            <strong>{trans('admin_pages.groups.selection_note')}</strong> {trans('admin_pages.groups.max_selectable_note', { max: maxSelectable })}
                                         </p>
                                     </div>
                                 )}
@@ -195,10 +195,10 @@ export default function AssignStudents({ group, availableStudents }: Props) {
                 isOpen={confirmModal}
                 onClose={handleCloseModal}
                 onConfirm={handleConfirmAssign}
-                title="Assigner les étudiants"
-                message={`Voulez-vous vraiment assigner ${selectedStudents.length} étudiant(s) au groupe "${group.display_name}" ?`}
-                confirmText="Assigner"
-                cancelText="Annuler"
+                title={trans('admin_pages.groups.assign_title')}
+                message={trans('admin_pages.groups.assign_message', { count: selectedStudents.length, group: group.display_name })}
+                confirmText={trans('admin_pages.groups.assign_button')}
+                cancelText={trans('admin_pages.common.cancel')}
                 type="info"
                 icon={UserPlusIcon}
                 loading={loading}

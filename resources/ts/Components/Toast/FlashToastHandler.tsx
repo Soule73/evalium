@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useToast } from '@/Components/Toast';
 import { FlashMessageObject, FlashMessages } from '@/types';
+import { trans } from '@/utils/translations';
 
 interface FlashToastHandlerProps {
     flash: FlashMessages;
@@ -21,16 +22,16 @@ const FlashToastHandler: React.FC<FlashToastHandlerProps> = ({ flash }) => {
 
             switch (type) {
                 case 'success':
-                    success(data.message, { title: 'Succès', duration: 4000 });
+                    success(data.message, { title: trans('components.toast.success'), duration: 4000 });
                     break;
                 case 'error':
-                    error(data.message, { title: 'Erreur', autoClose: false });
+                    error(data.message, { title: trans('components.toast.error'), autoClose: false });
                     break;
                 case 'warning':
-                    warning(data.message, { title: 'Attention', duration: 6000 });
+                    warning(data.message, { title: trans('components.toast.warning'), duration: 6000 });
                     break;
                 case 'info':
-                    info(data.message, { title: 'Information', duration: 5000 });
+                    info(data.message, { title: trans('components.toast.info'), duration: 5000 });
                     break;
                 case 'message':
                     info(data.message, { duration: 5000 });

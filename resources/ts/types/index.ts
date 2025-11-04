@@ -211,6 +211,7 @@ export type PageProps<T = Record<string, unknown>> = {
         canAssignPermissions: boolean;
     };
     flash: FlashMessages;
+    locale: string;
 } & T;
 
 

@@ -9,6 +9,7 @@ import { Button } from '@/Components';
 import Badge from '@/Components/Badge';
 import TextEntry from '@/Components/TextEntry';
 import AlertEntry from '@/Components/AlertEntry';
+import { trans } from '@/utils/translations';
 
 interface Props extends PageProps {
     group: Group & { level: Level };
@@ -27,15 +28,15 @@ export default function Show({ group, pagination, isActiveGroup }: Props) {
 
     return (
         <AuthenticatedLayout
-            title={`Examens - ${group.level.name}`}
+            title={trans('student_pages.groups_show.title', { level: group.level.name })}
             breadcrumb={breadcrumbs.studentGroupShow(group.level.name)}>
-            <Section title="Informations sur le groupe"
+            <Section title={trans('student_pages.groups_show.group_info')}
                 subtitle={
                     isActiveGroup ? (
-                        <Badge label="Groupe actif" type="success" />
+                        <Badge label={trans('student_pages.groups_show.active_group')} type="success" />
 
                     ) : (
-                        <Badge label="Groupe inactif" type="error" />
+                        <Badge label={trans('student_pages.groups_show.inactive_group')} type="error" />
                     )
                 }
                 actions={
@@ -45,39 +46,39 @@ export default function Show({ group, pagination, isActiveGroup }: Props) {
                         size="sm"
                         onClick={() => route('student.exams.index')}
                     >
-                        Retour aux groupes
+                        {trans('student_pages.groups_show.back_to_groups')}
                     </Button>
                 }
             >
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <TextEntry
-                        label="Niveau"
+                        label={trans('student_pages.groups_show.level')}
                         value={group.level.name}
                     />
                     <TextEntry
-                        label="Année académique"
+                        label={trans('student_pages.groups_show.academic_year')}
                         value={group.academic_year}
                     />
                     <TextEntry
-                        label="Description"
+                        label={trans('student_pages.groups_show.description')}
                         value={group.description}
                     />
                     <TextEntry
-                        label="Période"
+                        label={trans('student_pages.groups_show.period')}
                         value={`${formatDate(group.start_date)} - ${formatDate(group.end_date)}`}
                     />
                 </div>
 
                 {!isActiveGroup &&
-                    <AlertEntry title="Vous ne faites plus partie de ce groupe" type="warning">
+                    <AlertEntry title={trans('student_pages.groups_show.not_member_title')} type="warning">
                         <p className="text-sm">
-                            Vous ne pouvez voir que les examens auxquels vous avez participé.
+                            {trans('student_pages.groups_show.not_member_message')}
                         </p>
                     </AlertEntry>
                 }
             </Section>
             <Section
-                title={`Examens (${pagination?.total || 0})`}
+                title={trans('student_pages.groups_show.exams_count', { count: pagination?.total || 0 })}
             >
                 <StudentExamAssignmentList
                     data={pagination}

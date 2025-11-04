@@ -8,6 +8,7 @@ import LevelSelect from '@/Components/form/LevelSelect';
 import { route } from 'ziggy-js';
 import Checkbox from '@/Components/form/Checkbox';
 import { breadcrumbs } from '@/utils/breadcrumbs';
+import { trans } from '@/utils/translations';
 
 interface Props {
     levels: Record<number, string>;
@@ -49,12 +50,12 @@ export default function CreateGroup({ levels }: Props) {
 
 
     return (
-        <AuthenticatedLayout title="Créer un groupe"
+        <AuthenticatedLayout title={trans('admin_pages.groups.create')}
             breadcrumb={breadcrumbs.groupCreate()}
         >
             <Section
-                title="Créer un nouveau groupe"
-                subtitle="Ajoutez un nouveau groupe de classe avec ses informations."
+                title={trans('admin_pages.groups.create_title')}
+                subtitle={trans('admin_pages.groups.create_subtitle')}
                 actions={
                     <div className="flex justify-end space-x-4">
                         <Button
@@ -65,7 +66,7 @@ export default function CreateGroup({ levels }: Props) {
                             disabled={processing}
                             size="sm"
                         >
-                            Annuler
+                            {trans('admin_pages.common.cancel')}
                         </Button>
                         <Button
                             type="submit"
@@ -75,7 +76,7 @@ export default function CreateGroup({ levels }: Props) {
                             loading={processing}
                             size="sm"
                         >
-                            Créer le groupe
+                            {trans('admin_pages.groups.create_button')}
                         </Button>
                     </div>
                 }
@@ -85,7 +86,7 @@ export default function CreateGroup({ levels }: Props) {
                         <div className="space-y-6">
                             <Checkbox
                                 id="is_active"
-                                label="Groupe actif"
+                                label={trans('admin_pages.groups.group_active')}
                                 checked={data.is_active}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('is_active', e.target.checked)}
                             />
@@ -98,19 +99,19 @@ export default function CreateGroup({ levels }: Props) {
                             />
 
                             <Input
-                                label="Année académique"
+                                label={trans('admin_pages.groups.academic_year')}
                                 type="text"
                                 value={data.academic_year}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('academic_year', e.target.value)}
                                 error={errors.academic_year}
-                                placeholder="Ex: 2024-2025"
+                                placeholder={trans('admin_pages.groups.academic_year_placeholder')}
                                 required
                             />
                         </div>
 
                         <div className="space-y-6">
                             <Input
-                                label="Date de début"
+                                label={trans('admin_pages.groups.start_date')}
                                 type="date"
                                 value={data.start_date}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('start_date', e.target.value)}
@@ -119,7 +120,7 @@ export default function CreateGroup({ levels }: Props) {
                             />
 
                             <Input
-                                label="Date de fin"
+                                label={trans('admin_pages.groups.end_date')}
                                 type="date"
                                 value={data.end_date}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('end_date', e.target.value)}
@@ -128,7 +129,7 @@ export default function CreateGroup({ levels }: Props) {
                             />
 
                             <Input
-                                label="Nombre maximum d'étudiants"
+                                label={trans('admin_pages.groups.max_students')}
                                 type="number"
                                 value={data.max_students}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('max_students', e.target.value)}

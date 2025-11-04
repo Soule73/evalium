@@ -11,6 +11,7 @@ import { breadcrumbs } from '@/utils/breadcrumbs';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { Button } from '@/Components';
+import { trans } from '@/utils/translations';
 
 interface Props {
     exam: Exam;
@@ -27,11 +28,11 @@ const ExamResults: React.FC<Props> = ({ exam, assignment, userAnswers, creator, 
 
     return (
         <AuthenticatedLayout
-            title={`Résultats - ${exam.title}`}
+            title={trans('student_pages.results.title', { exam: exam.title })}
             breadcrumb={group ? breadcrumbs.studentExamShow(group.level.name, group.id, exam.title) : breadcrumbs.studentExams()}
         >
             <Section
-                title="Résultats de l'examen"
+                title={trans('student_pages.results.section_title')}
                 subtitle={
                     <div className='flex items-center space-x-4'>
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${assignmentStatus.color}`}>
@@ -39,9 +40,9 @@ const ExamResults: React.FC<Props> = ({ exam, assignment, userAnswers, creator, 
                         </span>
                         <div>
                             {examIsActive ? (
-                                <Badge label="Examen actif" type="success" />
+                                <Badge label={trans('student_pages.results.exam_active')} type="success" />
                             ) : (
-                                <Badge label="Examen désactivé" type="error" />
+                                <Badge label={trans('student_pages.results.exam_disabled')} type="error" />
                             )}
                         </div>
                     </div>
@@ -54,7 +55,7 @@ const ExamResults: React.FC<Props> = ({ exam, assignment, userAnswers, creator, 
                         className='w-max'
                         onClick={() => router.visit(route('student.exams.index'))}
                     >
-                        Retour aux examens
+                        {trans('student_pages.results.back_to_exams')}
                     </Button>
                 }
             >
@@ -69,11 +70,11 @@ const ExamResults: React.FC<Props> = ({ exam, assignment, userAnswers, creator, 
                 />
             </Section>
 
-            <Section title="Détail des réponses">
+            <Section title={trans('student_pages.results.answers_detail')}>
                 {assignment.teacher_notes && (
                     <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                         <h3 className="text-lg font-medium text-green-800 mb-2">
-                            Commentaires du professeur
+                            {trans('student_pages.results.teacher_comments')}
                         </h3>
                         <p className="text-green-700 whitespace-pre-wrap">{assignment.teacher_notes}</p>
                     </div>

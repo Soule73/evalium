@@ -12,6 +12,7 @@ import { router } from '@inertiajs/react';
 import ConfirmationModal from '@/Components/ConfirmationModal';
 import { ExclamationTriangleIcon } from '@heroicons/react/16/solid';
 import { BreadcrumbItem } from '@/Components/Breadcrumb';
+import { trans } from '@/utils/translations';
 
 
 interface Props {
@@ -67,23 +68,23 @@ export default function ShowUser({ user, children, canDelete, canToggleStatus, b
     const userRole = (user.roles?.length ?? 0) > 0 ? user.roles![0].name : null;
 
     return (
-        <AuthenticatedLayout title={`Utilisateur : ${user.name}`}
+        <AuthenticatedLayout title={trans('admin_pages.users.user_title', { name: user.name })}
             breadcrumb={breadcrumb}
         >
             <ConfirmationModal
                 isOpen={isShowDeleteModal}
                 isCloseableInside={true}
                 type='danger'
-                title="Confirmer la suppression"
-                message={`Êtes-vous sûr de vouloir supprimer l'utilisateur "${user?.name}" ?`}
+                title={trans('admin_pages.users.delete_confirm_title')}
+                message={trans('admin_pages.users.delete_confirm_message', { name: user?.name })}
                 icon={ExclamationTriangleIcon}
-                confirmText="Supprimer"
-                cancelText="Annuler"
+                confirmText={trans('admin_pages.common.delete')}
+                cancelText={trans('admin_pages.common.cancel')}
                 onConfirm={() => onConfirmDeleteUser()}
                 onClose={() => setIsShowDeleteModal(false)}
                 loading={deleteInProgress}
             >
-                <p className='text-sm text-gray-500 mb-6'> Cette action est irréversible.</p>
+                <p className='text-sm text-gray-500 mb-6'> {trans('admin_pages.users.delete_irreversible')}</p>
             </ConfirmationModal>
             {user && (
                 <EditUser
@@ -96,7 +97,7 @@ export default function ShowUser({ user, children, canDelete, canToggleStatus, b
                     userRole={userRole || null}
                 />
             )}
-            <Section title="Profil utilisateur" subtitle="Informations personnelles de l'utilisateur"
+            <Section title={trans('admin_pages.users.user_profile')} subtitle={trans('admin_pages.users.user_profile_subtitle')}
                 actions={
                     <div className="flex space-x-3">
                         <Button
@@ -104,20 +105,20 @@ export default function ShowUser({ user, children, canDelete, canToggleStatus, b
                             variant='outline'
                             size='sm'
                             color="secondary">
-                            Retour
+                            {trans('admin_pages.users.back')}
                         </Button>
                         <Button
                             onClick={handleEdit}
                             size='sm'
                             color="primary">
-                            Modifier
+                            {trans('admin_pages.users.modify')}
                         </Button>
                         {canDelete && (
                             <Button
                                 onClick={handleDelete}
                                 size='sm'
                                 color="danger">
-                                Supprimer
+                                {trans('admin_pages.common.delete')}
                             </Button>
                         )}
                     </div>
@@ -126,47 +127,47 @@ export default function ShowUser({ user, children, canDelete, canToggleStatus, b
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     <TextEntry
-                        label="Nom complet"
+                        label={trans('admin_pages.users.full_name')}
                         value={user.name}
                     />
 
                     <TextEntry
-                        label="Adresse email"
+                        label={trans('admin_pages.users.email_address')}
                         value={user.email}
                     />
 
                     <TextEntry
-                        label="Rôle"
+                        label={trans('admin_pages.users.role')}
                         value={userRole ? getRoleLabel(userRole) : '-'}
                     />
 
                     {canToggleStatus ? (
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-medium text-gray-700">
-                                Statut du compte
+                                {trans('admin_pages.users.account_status')}
                             </label>
                             <Toggle
                                 checked={user.is_active}
                                 onChange={handleToggleStatus}
-                                activeLabel="Actif"
-                                inactiveLabel="Inactif"
+                                activeLabel={trans('admin_pages.users.active_status')}
+                                inactiveLabel={trans('admin_pages.users.inactive_status')}
                                 showLabel={true}
                             />
                         </div>
                     ) : (
                         <TextEntry
-                            label="Statut du compte"
-                            value={user.is_active ? 'Actif' : 'Inactif'}
+                            label={trans('admin_pages.users.account_status')}
+                            value={user.is_active ? trans('admin_pages.users.active_status') : trans('admin_pages.users.inactive_status')}
                         />
                     )}
 
                     <TextEntry
-                        label="Membre depuis"
+                        label={trans('admin_pages.users.member_since')}
                         value={formatDate(user.created_at)}
                     />
 
                     <TextEntry
-                        label="Dernière modification"
+                        label={trans('admin_pages.users.last_modified')}
                         value={formatDate(user.updated_at)}
                     />
                 </div>

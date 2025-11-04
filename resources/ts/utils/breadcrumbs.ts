@@ -1,46 +1,47 @@
 import { route } from 'ziggy-js';
 import { BreadcrumbItem } from '@/Components/Breadcrumb';
+import { trans } from './translations';
 
 // Breadcrumb tableau de board
 const dashboardBreadcrumb = (): BreadcrumbItem => ({
-    label: 'Tableau de bord',
+    label: trans('breadcrumbs.dashboard'),
     href: route('dashboard')
 });
 
 // Breadcrumb index des utilisateurs
 const userIndex = (): BreadcrumbItem[] => [
     dashboardBreadcrumb(),
-    { label: 'Utilisateurs', href: route('users.index') },
+    { label: trans('breadcrumbs.users'), href: route('users.index') },
 ];
 
 // Breadcrumb index des groupes
 const groupIndex = (): BreadcrumbItem[] => [
     dashboardBreadcrumb(),
-    { label: 'Groupes', href: route('groups.index') },
+    { label: trans('breadcrumbs.groups'), href: route('groups.index') },
 ];
 
 // Breadcrumb index des niveaux
 const levelIndex = (): BreadcrumbItem[] => [
     dashboardBreadcrumb(),
-    { label: 'Niveaux', href: route('levels.index') },
+    { label: trans('breadcrumbs.levels'), href: route('levels.index') },
 ];
 
 // Breadcrumb index des rôles et permissions
 const roleIndex = (): BreadcrumbItem[] => [
     dashboardBreadcrumb(),
-    { label: 'Rôles & Permissions', href: route('roles.index') },
+    { label: trans('breadcrumbs.roles_permissions'), href: route('roles.index') },
 ];
 
 // Breadcrumb index des examens
 const examIndex = (): BreadcrumbItem[] => [
     dashboardBreadcrumb(),
-    { label: 'Examens', href: route('exams.index') },
+    { label: trans('breadcrumbs.exams'), href: route('exams.index') },
 ];
 
 // Breadcrumb index des examens pour étudiants
 const studentExamIndex = (): BreadcrumbItem[] => [
     dashboardBreadcrumb(),
-    { label: 'Mes Groupes', href: route('student.exams.index') },
+    { label: trans('breadcrumbs.my_groups'), href: route('student.exams.index') },
 ];
 
 // Breadcrumb détails d'un groupe étudiant
@@ -69,7 +70,7 @@ export const breadcrumbs = {
 
     userCreate: (): BreadcrumbItem[] => [
         ...userIndex(),
-        { label: 'Créer' }
+        { label: trans('breadcrumbs.create') }
     ],
 
     userEdit: (userName: string): BreadcrumbItem[] => [
@@ -81,7 +82,7 @@ export const breadcrumbs = {
 
     groupCreate: (): BreadcrumbItem[] => [
         ...groupIndex(),
-        { label: 'Créer' }
+        { label: trans('breadcrumbs.create') }
     ],
 
     groupEdit: (groupName: string): BreadcrumbItem[] => [
@@ -91,7 +92,7 @@ export const breadcrumbs = {
     groupAssignStudents: (groupName: string, id: number): BreadcrumbItem[] => [
         ...groupIndex(),
         { label: groupName, href: route('groups.show', { group: id }) },
-        { label: 'Assigner des étudiants' }
+        { label: trans('breadcrumbs.assign_students') }
     ],
 
     groupShow: (groupName: string): BreadcrumbItem[] => [
@@ -103,7 +104,7 @@ export const breadcrumbs = {
 
     levelCreate: (): BreadcrumbItem[] => [
         ...levelIndex(),
-        { label: 'Créer' }
+        { label: trans('breadcrumbs.create') }
     ],
 
     levelEdit: (levelName: string): BreadcrumbItem[] => [
@@ -115,7 +116,7 @@ export const breadcrumbs = {
 
     roleCreate: (): BreadcrumbItem[] => [
         ...roleIndex(),
-        { label: 'Créer' }
+        { label: trans('breadcrumbs.create') }
     ],
 
     roleEdit: (roleName: string): BreadcrumbItem[] => [
@@ -133,12 +134,12 @@ export const breadcrumbs = {
 
     examCreate: (): BreadcrumbItem[] => [
         ...examIndex(),
-        { label: 'Créer' }
+        { label: trans('breadcrumbs.create') }
     ],
 
     examEdit: (examTitle: string, examId: number): BreadcrumbItem[] => [
         ...examShowBreadcrumb(examTitle, examId),
-        { label: 'Modifier' }
+        { label: trans('breadcrumbs.edit') }
     ],
 
     examShow: (examTitle: string): BreadcrumbItem[] => [
@@ -148,17 +149,17 @@ export const breadcrumbs = {
 
     examAssign: (examTitle: string, examId: number): BreadcrumbItem[] => [
         ...examShowBreadcrumb(examTitle, examId),
-        { label: 'Assigner' }
+        { label: trans('breadcrumbs.assign') }
     ],
 
     examAssignments: (examTitle: string, examId: number): BreadcrumbItem[] => [
         ...examShowBreadcrumb(examTitle, examId),
-        { label: 'Groupes' }
+        { label: trans('breadcrumbs.exam_groups') }
     ],
 
     examGroupShow: (examTitle: string, examId: number, groupName: string): BreadcrumbItem[] => [
         ...examShowBreadcrumb(examTitle, examId),
-        { label: 'Groupes', href: route('exams.groups', { exam: examId }) },
+        { label: trans('breadcrumbs.exam_groups'), href: route('exams.groups', { exam: examId }) },
         { label: groupName }
     ],
     examGroupSubmission: (
@@ -168,7 +169,7 @@ export const breadcrumbs = {
         groupName: string,
         studentFullName: string): BreadcrumbItem[] => [
             ...examShowBreadcrumb(examTitle, examId),
-            { label: 'Groupes', href: route('exams.groups', { exam: examId }) },
+            { label: trans('breadcrumbs.exam_groups'), href: route('exams.groups', { exam: examId }) },
             { label: groupName, href: route('exams.group.show', { exam: examId, group: groupId }) },
             { label: studentFullName }
         ],
@@ -180,10 +181,10 @@ export const breadcrumbs = {
         groupName: string,
         studentFullName: string): BreadcrumbItem[] => [
             ...examShowBreadcrumb(examTitle, examId),
-            { label: 'Groupes', href: route('exams.groups', { exam: examId }) },
+            { label: trans('breadcrumbs.exam_groups'), href: route('exams.groups', { exam: examId }) },
             { label: groupName, href: route('exams.group.show', { exam: examId, group: groupId }) },
             { label: studentFullName, href: route('exams.submissions', { exam: examId, group: groupId, student: studentId }) },
-            { label: 'Correction' }
+            { label: trans('breadcrumbs.correction') }
         ],
 
     exams: (): BreadcrumbItem[] => examIndex(),
@@ -203,7 +204,7 @@ export const breadcrumbs = {
     studentExamTake: (groupName: string, groupId: number, examTitle: string): BreadcrumbItem[] => [
         ...studentGroupShowBreadcrumb(groupName, groupId),
         { label: examTitle },
-        { label: "Passer l'examen" }
+        { label: trans('breadcrumbs.take_exam') }
     ],
 };
 

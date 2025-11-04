@@ -17,16 +17,22 @@ use App\Http\Requests\Exam\UpdateExamRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
- * ExamController - Contrôleur UNIFIÉ pour la gestion des examens (NON-STUDENTS)
+ * Exam Controller - Unified controller for exam management (NON-STUDENTS)
  * 
- * ARCHITECTURE :
- * - Student/ExamController : Actions STRICT student-only (take, submit, abandon)
- * - ExamController (ce fichier) : Toutes les autres actions basées sur PERMISSIONS
+ * ARCHITECTURE:
+ * - Student/ExamController: Strict student-only actions (take, submit, abandon)
+ * - ExamController (this file): All other permission-based actions
  * 
- * Les permissions sont vérifiées par le MIDDLEWARE dans routes/web.php
- * Pas besoin de re-vérifier dans le contrôleur (pas de duplication)
+ * Permissions are verified by MIDDLEWARE in routes/web.php
+ * No need to re-verify in controller (no duplication)
  * 
- * Les POLICIES vérifient l'accès au niveau du modèle (ownership, etc.)
+ * POLICIES verify access at model level (ownership, etc.)
+ * 
+ * Responsibilities:
+ * - Delegate all business logic to services (ExamCrudService, ExamQueryService)
+ * - Handle HTTP request/response cycle
+ * - Authorize actions via policies
+ * - Return Inertia responses with proper data structure
  */
 class ExamController extends Controller
 {
@@ -39,9 +45,13 @@ class ExamController extends Controller
     ) {}
 
     /**
-     * Liste des examens - Adapté selon les permissions de l'utilisateur.
-     * Middleware vérifie déjà 'view exams' permission.
-     * Policy vérifie l'accès au niveau modèle.
+     * Display list of exams - Adapted based on user permissions
+     * 
+     * Middleware already verifies 'view exams' permission.
+     * Policy verifies model-level access.
+     *
+     * @param Request $request The HTTP request
+     * @return Response Inertia response with paginated exams
      */
     public function index(Request $request): Response
     {
@@ -56,10 +66,8 @@ class ExamController extends Controller
 
         $search = $request->input('search');
 
-        // Policy vérifie viewAny
         $this->authorize('viewAny', Exam::class);
 
-        // Service adapte automatiquement selon les permissions de l'utilisateur
         $exams = $this->examQueryService->getExamsForTeacher($user->id, $perPage, $status, $search);
 
         return Inertia::render('Exam/Index', [
@@ -68,9 +76,9 @@ class ExamController extends Controller
     }
 
     /**
-     * Display the form for creating a new exam.
+     * Display the form for creating a new exam
      *
-     * @return \Illuminate\Http\Response
+     * @return Response Inertia response with create form
      */
     public function create(): Response
     {
@@ -80,13 +88,15 @@ class ExamController extends Controller
     }
 
     /**
-     * Store a newly created exam in storage.
+     * Store a newly created exam in storage
      *
-     * Handles the incoming request to create a new exam using the validated data
-     * from the StoreExamRequest. Redirects the user after successful creation.
+     * Delegates exam creation to ExamCrudService which handles:
+     * - Exam model creation
+     * - Questions creation with choices
+     * - Database transaction management
      *
-     * @param  \App\Http\Requests\StoreExamRequest  $request  The validated request instance containing exam data.
-     * @return \Illuminate\Http\RedirectResponse  Redirects to the appropriate route after storing the exam.
+     * @param StoreExamRequest $request Validated request with exam data
+     * @return RedirectResponse Redirects to exam show page on success
      */
     public function store(StoreExamRequest $request): RedirectResponse
     {
@@ -97,22 +107,25 @@ class ExamController extends Controller
 
             return $this->redirectWithSuccess(
                 'exams.show',
-                'Examen créé avec succès !',
+                'Exam created successfully!',
                 ['exam' => $exam->id]
             );
         } catch (\Exception $e) {
             return $this->redirectWithError(
                 null,
-                "Erreur lors de la création de l'examen : " . $e->getMessage()
+                "Error creating exam: " . $e->getMessage()
             );
         }
     }
 
     /**
-     * Display the specified exam details.
+     * Display the specified exam details
      *
-     * @param  Exam  $exam  The exam instance to display.
-     * @return Response The HTTP response containing exam details.
+     * Loads exam with assigned groups for display.
+     * Uses ExamQueryService to prepare data structure.
+     *
+     * @param Exam $exam The exam instance to display
+     * @return Response Inertia response with exam details
      */
     public function show(Exam $exam): Response
     {
@@ -124,10 +137,12 @@ class ExamController extends Controller
     }
 
     /**
-     * Show the form for editing the specified exam.
+     * Show the form for editing the specified exam
      *
-     * @param  Exam  $exam  The exam instance to edit.
-     * @return Response
+     * Loads exam with questions and choices for editing.
+     *
+     * @param Exam $exam The exam instance to edit
+     * @return Response Inertia response with edit form
      */
     public function edit(Exam $exam): Response
     {
@@ -141,15 +156,19 @@ class ExamController extends Controller
     }
 
     /**
-     * Update the specified exam in storage.
+     * Update the specified exam in storage
      *
-     * @param  \App\Http\Requests\UpdateExamRequest  $request  The validated request containing exam update data.
-     * @param  \App\Models\Exam  $exam  The exam instance to update.
-     * @return \Illuminate\Http\RedirectResponse  Redirect response after updating the exam.
+     * Delegates update logic to ExamCrudService which handles:
+     * - Exam model update
+     * - Questions and choices update/creation/deletion
+     * - Database transaction management
+     *
+     * @param UpdateExamRequest $request Validated request with update data
+     * @param Exam $exam The exam instance to update
+     * @return RedirectResponse Redirects to exam show page on success
      */
     public function update(UpdateExamRequest $request, Exam $exam): RedirectResponse
     {
-        // dd($request->all());
         $this->authorize('update', $exam);
 
         try {
@@ -157,22 +176,27 @@ class ExamController extends Controller
 
             return $this->redirectWithSuccess(
                 'exams.show',
-                'Examen mis à jour avec succès !',
+                'Exam updated successfully!',
                 ['exam' => $exam->id]
             );
         } catch (\Exception $e) {
             return $this->redirectWithError(
                 null,
-                "Erreur lors de la mise à jour de l'examen : " . $e->getMessage()
+                "Error updating exam: " . $e->getMessage()
             );
         }
     }
 
     /**
-     * Remove the specified exam from storage.
+     * Remove the specified exam from storage
      *
-     * @param  \App\Models\Exam  $exam  The exam instance to be deleted.
-     * @return \Illuminate\Http\RedirectResponse Redirects to the previous page after deletion.
+     * Delegates deletion to ExamCrudService which handles:
+     * - Cascade deletion of questions, choices, answers
+     * - Deletion of exam assignments
+     * - Database transaction management
+     *
+     * @param Exam $exam The exam instance to be deleted
+     * @return RedirectResponse Redirects to exams index on success
      */
     public function destroy(Exam $exam): RedirectResponse
     {
@@ -183,23 +207,26 @@ class ExamController extends Controller
 
             return $this->redirectWithSuccess(
                 'exams.index',
-                'Examen supprimé avec succès !'
+                'Exam deleted successfully!'
             );
         } catch (\Exception $e) {
             return $this->redirectWithError(
                 null,
-                "Erreur lors de la suppression de l'examen : " . $e->getMessage()
+                "Error deleting exam: " . $e->getMessage()
             );
         }
     }
 
     /**
-     * Duplicate the specified exam.
+     * Duplicate the specified exam
      *
-     * Creates a copy of the given Exam instance and saves it as a new exam.
+     * Creates a complete copy of the exam including:
+     * - All questions with their choices
+     * - Marks new exam as inactive by default
+     * - Appends " (Copy)" to title
      *
-     * @param  \App\Models\Exam  $exam  The exam to be duplicated.
-     * @return \Illuminate\Http\RedirectResponse Redirects to the appropriate page after duplication.
+     * @param Exam $exam The exam to be duplicated
+     * @return RedirectResponse Redirects to edit page of new exam
      */
     public function duplicate(Exam $exam): RedirectResponse
     {
@@ -210,25 +237,25 @@ class ExamController extends Controller
 
             return $this->redirectWithSuccess(
                 'exams.edit',
-                'Examen dupliqué avec succès ! Vous pouvez maintenant le modifier.',
+                'Exam duplicated successfully! You can now modify it.',
                 ['exam' => $newExam->id]
             );
         } catch (\Exception $e) {
             return $this->redirectWithError(
                 null,
-                "Erreur lors de la duplication de l'examen : " . $e->getMessage()
+                "Error duplicating exam: " . $e->getMessage()
             );
         }
     }
 
     /**
-     * Toggle the active status of the specified exam.
+     * Toggle the active status of the specified exam
      *
-     * This method switches the 'active' state of the given Exam instance.
-     * After toggling, it redirects back to the previous page.
+     * Switches between active and inactive states.
+     * Used to quickly enable/disable exams without editing.
      *
-     * @param Exam $exam The exam instance whose active status will be toggled.
-     * @return RedirectResponse Redirects back to the previous page after toggling.
+     * @param Exam $exam The exam instance whose status will be toggled
+     * @return RedirectResponse Redirects back with flash message
      */
     public function toggleActive(Exam $exam): RedirectResponse
     {
@@ -237,11 +264,11 @@ class ExamController extends Controller
         try {
             $exam = $this->examCrudService->toggleStatus($exam);
 
-            $status = $exam->is_active ? 'activé' : 'désactivé';
+            $status = $exam->is_active ? 'activated' : 'deactivated';
 
-            return $this->flashSuccess("Examen {$status} avec succès !");
+            return $this->flashSuccess("Exam {$status} successfully!");
         } catch (\Exception $e) {
-            return $this->flashError("Erreur lors du changement de statut de l'examen : " . $e->getMessage());
+            return $this->flashError("Error changing exam status: " . $e->getMessage());
         }
     }
 }

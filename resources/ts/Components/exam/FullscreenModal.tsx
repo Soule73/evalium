@@ -1,6 +1,7 @@
 import { ArrowsPointingOutIcon } from "@heroicons/react/24/outline";
 import Modal from "../Modal";
 import { Button } from "../Button";
+import { trans } from '@/utils/translations';
 
 interface FullscreenModalProps {
     isOpen: boolean;
@@ -20,11 +21,12 @@ function FullscreenModal({ isOpen, onEnterFullscreen }: FullscreenModalProps) {
 
                 <div className="text-center mb-6">
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        Mode plein écran requis
+                        {trans('components.fullscreen_modal.title')}
                     </h3>
                     <p className="text-gray-600">
-                        Pour des raisons de sécurité, cet examen doit être passé en mode plein écran.
-                        Cliquez sur le bouton ci-dessous pour entrer en mode plein écran.
+                        {trans('components.fullscreen_modal.description_line1')}
+                        {' '}
+                        {trans('components.fullscreen_modal.description_line2')}
                     </p>
                 </div>
 
@@ -37,7 +39,7 @@ function FullscreenModal({ isOpen, onEnterFullscreen }: FullscreenModalProps) {
                         className="flex items-center"
                     >
                         <ArrowsPointingOutIcon className="w-4 h-4 mr-2" />
-                        Entrer en plein écran
+                        {trans('components.fullscreen_modal.button')}
                     </Button>
                 </div>
             </div>

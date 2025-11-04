@@ -6,6 +6,7 @@ import QuestionsManager from '@/Components/exam/QuestionsManager';
 import ExamGeneralConfig from '@/Components/ExamGeneralConfig';
 import { useCreateExam } from '@/hooks';
 import { breadcrumbs } from '@/utils/breadcrumbs';
+import { trans } from '@/utils/translations';
 
 const ExamCreate: React.FC = () => {
     const {
@@ -20,13 +21,13 @@ const ExamCreate: React.FC = () => {
 
     return (
         <AuthenticatedLayout
-            title="Créer un examen"
+            title={trans('exam_pages.create.title')}
             breadcrumb={breadcrumbs.examCreate()}
         >
             <form onSubmit={handleSubmit} noValidate className="space-y-6">
                 <Section
-                    title="Créer un examen"
-                    subtitle="Configurez les paramètres de votre examen et ajoutez vos questions."
+                    title={trans('exam_pages.create.title')}
+                    subtitle={trans('exam_pages.create.subtitle')}
                     actions={
                         <div className="flex items-center justify-end space-x-4">
                             <Button
@@ -36,7 +37,7 @@ const ExamCreate: React.FC = () => {
                                 size="sm"
                                 onClick={() => window.history.back()}
                             >
-                                Annuler
+                                {trans('exam_pages.create.cancel')}
                             </Button>
                             <Button
                                 type="submit"
@@ -46,7 +47,7 @@ const ExamCreate: React.FC = () => {
                                 loading={processing}
                                 disabled={questions.length === 0}
                             >
-                                Créer l'examen
+                                {trans('exam_pages.create.submit')}
                             </Button>
                         </div>
                     }

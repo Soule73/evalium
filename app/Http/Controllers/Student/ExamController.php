@@ -38,7 +38,10 @@ class ExamController extends Controller
     ) {}
 
     /**
-     * Display a listing of student's groups with exam statistics
+     * Display a listing of student's groups with exam statistics.
+     * 
+     * Delegates to ExamQueryService to load groups with exam counts,
+     * completion stats, and pending exams.
      *
      * @param Request $request
      * @return InertiaResponse
@@ -60,7 +63,10 @@ class ExamController extends Controller
     }
 
     /**
-     * Display exams for a specific group
+     * Display exams for a specific group.
+     * 
+     * Verifies student membership in the group and delegates to
+     * ExamQueryService to load paginated exams with filtering.
      *
      * @param \App\Models\Group $group
      * @param Request $request
@@ -79,7 +85,7 @@ class ExamController extends Controller
         $studentPivot = $this->accessService->getStudentGroupMembership($group, $student);
 
         if (!$studentPivot) {
-            abort(403, 'Vous ne faites pas partie de ce groupe.');
+            abort(403, 'You are not a member of this group.');
         }
 
         $isActiveGroup = $this->accessService->isActiveGroupMembership($studentPivot);
@@ -105,7 +111,11 @@ class ExamController extends Controller
     }
 
     /**
-     * Display the specified exam details for the student
+     * Display the specified exam details for the student.
+     * 
+     * Shows different views based on exam completion status:
+     * - If can take: Show exam overview with start button
+     * - If completed: Show results with answers and score
      *
      * @param Exam $exam
      * @param Request $request
@@ -117,7 +127,7 @@ class ExamController extends Controller
         $assignment = $this->assignmentRepository->findByExamAndStudent($exam, $student->id);
 
         if (!$assignment) {
-            abort(403, 'Cet examen ne vous est pas assigné.');
+            abort(403, 'This exam is not assigned to you.');
         }
 
         $canTake = ExamHelper::canTakeExam($exam, $assignment);
@@ -152,7 +162,10 @@ class ExamController extends Controller
 
 
     /**
-     * Display the exam interface for the student to take
+     * Display the exam interface for the student to take.
+     * 
+     * Validates exam availability, timing, and assignment status.
+     * Delegates to ExamSessionService to start the exam session.
      *
      * @param Exam $exam
      * @param Request $request
@@ -167,17 +180,17 @@ class ExamController extends Controller
         }
 
         if (!$exam->is_active) {
-            return $this->redirectWithError('student.exams.show', "Cet examen n'est pas disponible.", ['exam' => $exam->id]);
+            return $this->redirectWithError('student.exams.show', "This exam is not available.", ['exam' => $exam->id]);
         }
 
         if (!$this->examSessionService->validateExamTiming($exam)) {
-            return $this->redirectWithError('student.exams.show', "Cet examen n'est pas accessible actuellement.", ['exam' => $exam->id]);
+            return $this->redirectWithError('student.exams.show', "This exam is not accessible at this time.", ['exam' => $exam->id]);
         }
 
         $existingAssignment = $this->assignmentRepository->findByExamAndStudent($exam, $student->id);
 
         if (!$existingAssignment) {
-            return $this->redirectWithError('student.exams.index', 'Cet examen ne vous est pas assigné.', []);
+            return $this->redirectWithError('student.exams.index', 'This exam is not assigned to you.', []);
         }
 
         $assignment = $existingAssignment->exists
@@ -185,7 +198,7 @@ class ExamController extends Controller
             : $this->examSessionService->findOrCreateAssignment($exam, $student);
 
         if (!ExamHelper::canTakeExam($exam, $assignment)) {
-            return $this->redirectWithInfo('student.exams.show', "Vous avez déjà complété cet examen.", ['exam' => $exam->id]);
+            return $this->redirectWithInfo('student.exams.show', "You have already completed this exam.", ['exam' => $exam->id]);
         }
 
         $this->examSessionService->startExam($assignment);
@@ -203,7 +216,10 @@ class ExamController extends Controller
     }
 
     /**
-     * Save student answers during exam
+     * Save student answers during exam (AJAX endpoint).
+     * 
+     * Delegates to ExamSessionService to persist answers without
+     * submitting the exam. Used for auto-save functionality.
      *
      * @param SaveAnswersRequest $request
      * @param Exam $exam
@@ -221,20 +237,22 @@ class ExamController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Réponses sauvegardées'
+                'message' => 'Answers saved'
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur: ' . $e->getMessage()
+                'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Handle security violation during exam
+     * Handle security violation during exam (AJAX endpoint).
      * 
-     * Note: No authorization check - violations must be processed regardless of exam accessibility
+     * Saves current answers, calculates score, and force-submits exam
+     * with violation flag. No authorization check - violations must be
+     * processed regardless of exam accessibility.
      *
      * @param SecurityViolationRequest $request
      * @param Exam $exam
@@ -248,7 +266,7 @@ class ExamController extends Controller
         if (!$assignment) {
             return response()->json([
                 'success' => false,
-                'message' => 'Examen non trouvé ou déjà soumis'
+                'message' => 'Exam not found or already submitted'
             ], 404);
         }
 
@@ -272,7 +290,7 @@ class ExamController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Violation de sécurité traitée',
+            'message' => 'Security violation processed',
             'exam_terminated' => true,
             'violation_type' => $validated['violation_type'],
             'violation_details' => $validated['violation_details'] ?? '',
@@ -282,7 +300,10 @@ class ExamController extends Controller
 
 
     /**
-     * Abandon an exam without scoring
+     * Abandon an exam without scoring.
+     * 
+     * Delegates to ExamSessionService to submit exam with
+     * abandoned flag (no score calculation).
      *
      * @param Exam $exam
      * @return Response
@@ -295,7 +316,7 @@ class ExamController extends Controller
         $assignment = $this->assignmentRepository->findStartedAssignment($exam, $student->id);
 
         if (!$assignment) {
-            abort(404, 'Examen non trouvé ou déjà soumis');
+            abort(404, 'Exam not found or already submitted');
         }
 
         $this->examSessionService->submitExam($assignment, false, true);
@@ -305,7 +326,11 @@ class ExamController extends Controller
 
 
     /**
-     * Submit exam with answers
+     * Submit exam with answers.
+     * 
+     * Saves final answers, calculates auto-correctable score,
+     * and delegates to ExamSessionService to finalize submission.
+     * Marks exam as requiring manual correction if text questions present.
      *
      * @param SubmitExamRequest $request
      * @param Exam $exam
@@ -319,7 +344,7 @@ class ExamController extends Controller
         $assignment = $this->assignmentRepository->findStartedAssignment($exam, $student->id);
 
         if (!$assignment) {
-            return back()->withErrors(['exam' => "Vous devez commencer l'examen avant de le soumettre."]);
+            return back()->withErrors(['exam' => "You must start the exam before submitting it."]);
         }
 
         $validated = $request->validated();
@@ -334,6 +359,6 @@ class ExamController extends Controller
 
         $this->examSessionService->submitExam($assignment, $autoScore, $hasTextQuestions, $isSecurityViolation);
 
-        return $this->redirectWithSuccess('student.exams.show', 'Examen soumis avec succès !', ['exam' => $exam->id]);
+        return $this->redirectWithSuccess('student.exams.show', 'Exam submitted successfully!', ['exam' => $exam->id]);
     }
 }

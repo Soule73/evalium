@@ -47,6 +47,9 @@ class ResultsController extends Controller
 
     /**
      * Display statistics for the specified exam.
+     * 
+     * TODO: Implement statistics view with score distribution,
+     * average, median, and question-level analytics.
      *
      * @param Exam $exam The exam instance for which statistics are to be shown.
      * @return RedirectResponse Redirects back with a message.
@@ -55,6 +58,6 @@ class ResultsController extends Controller
     {
         $this->authorize('view', $exam);
 
-        return $this->flashInfo('Les statistiques seront disponibles prochainement.');
+        return $this->flashInfo('Statistics will be available soon.');
     }
 }

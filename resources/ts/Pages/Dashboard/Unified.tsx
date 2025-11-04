@@ -3,6 +3,7 @@ import { usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps, User } from '@/types';
 import Section from '@/Components/Section';
+import { trans } from '@/utils/translations';
 
 interface UnifiedDashboardProps extends PageProps {
     user: User;
@@ -17,22 +18,22 @@ const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({
     const { auth } = usePage<PageProps>().props;
 
     return (
-        <AuthenticatedLayout title={"ableau de bord"}>
-            <Section title="Mon compte">
+        <AuthenticatedLayout title={trans('dashboard.title.unified')}>
+            <Section title={trans('dashboard.unified.my_account')}>
                 <div className="bg-gray-50 p-6 rounded-lg">
                     <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <dt className="text-sm font-medium text-gray-500">Nom</dt>
+                            <dt className="text-sm font-medium text-gray-500">{trans('dashboard.unified.name')}</dt>
                             <dd className="mt-1 text-sm text-gray-900">{user.name}</dd>
                         </div>
                         <div>
-                            <dt className="text-sm font-medium text-gray-500">Email</dt>
+                            <dt className="text-sm font-medium text-gray-500">{trans('dashboard.unified.email')}</dt>
                             <dd className="mt-1 text-sm text-gray-900">{user.email}</dd>
                         </div>
                         <div>
-                            <dt className="text-sm font-medium text-gray-500">Permissions</dt>
+                            <dt className="text-sm font-medium text-gray-500">{trans('dashboard.unified.permissions')}</dt>
                             <dd className="mt-1 text-sm text-gray-900">
-                                {auth.permissions.length} permissions actives
+                                {trans('dashboard.unified.active_permissions', { count: auth.permissions.length })}
                             </dd>
                         </div>
                     </dl>

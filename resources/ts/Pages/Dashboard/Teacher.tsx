@@ -9,6 +9,7 @@ import { ArrowTrendingUpIcon, DocumentTextIcon, QuestionMarkCircleIcon, UserGrou
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { PaginationType } from '@/types/datatable';
 import ExamList from '@/Components/exam/ExamList';
+import { trans } from '@/utils/translations';
 
 interface Stats {
     total_exams: number;
@@ -33,13 +34,13 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
     };
 
     return (
-        <AuthenticatedLayout title="Tableau de bord enseignant"
+        <AuthenticatedLayout title={trans('dashboard.title.teacher')}
             breadcrumb={breadcrumbs.dashboard()}
         >
             {/* Statistiques principales */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <StatCard
-                    title="Examens créés"
+                    title={trans('dashboard.teacher.exams_created')}
                     value={stats.total_exams}
                     icon={
                         DocumentTextIcon
@@ -47,7 +48,7 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
                     color="blue"
                 />
                 <StatCard
-                    title="Questions créées"
+                    title={trans('dashboard.teacher.questions_created')}
                     value={stats.total_questions}
                     color='green'
                     icon={
@@ -57,7 +58,7 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
                 />
 
                 <StatCard
-                    title="Étudiants évalués"
+                    title={trans('dashboard.teacher.students_evaluated')}
                     value={stats.students_evaluated}
                     color='purple'
                     icon={
@@ -66,7 +67,7 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
                 />
 
                 <StatCard
-                    title="Note moyen"
+                    title={trans('dashboard.teacher.average_score')}
                     value={stats.average_score}
                     color='yellow'
                     icon={
@@ -75,8 +76,8 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
                 />
             </div>
             <Section
-                title="Examens récents"
-                subtitle="Gérez vos examens et suivez les performances de vos étudiants."
+                title={trans('dashboard.teacher.recent_exams')}
+                subtitle={trans('dashboard.teacher.recent_exams_subtitle')}
                 actions={
                     <div className='flex justify-end space-x-4 items-center'>
                         <Button
@@ -85,7 +86,7 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
                             variant='outline'
                             size='sm'
                         >
-                            Créer un examen
+                            {trans('dashboard.teacher.create_exam')}
                         </Button>
                         <Button
                             onClick={handleViewExams}
@@ -93,7 +94,7 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
                             variant='outline'
                             size='sm'
                         >
-                            Voir tous les examens
+                            {trans('dashboard.teacher.view_all_exams')}
                         </Button>
                     </div>
                 }

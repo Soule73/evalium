@@ -8,6 +8,7 @@ import { route } from 'ziggy-js';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { getGroupTableConfig, ExamStatsCards, ExamHeader } from '@/Components/exam';
 import { groupsToPaginationType } from '@/utils';
+import { trans } from '@/utils/translations';
 
 interface Props {
     exam: Exam;
@@ -34,7 +35,7 @@ export default function ExamAssignments({ exam, stats, assignedGroups }: Props) 
             breadcrumb={breadcrumbs.examAssignments(exam.title, exam.id)}>
 
             <Section
-                title="Assignations de l'examen"
+                title={trans('exam_pages.assignments.title')}
                 subtitle={<ExamHeader exam={exam} showDescription={true} />}
                 actions={
                     <Button
@@ -42,7 +43,7 @@ export default function ExamAssignments({ exam, stats, assignedGroups }: Props) 
                         variant='outline'
                         onClick={() => router.visit(route('exams.assign', exam.id))}
                         color="secondary">
-                        Assigner à de nouveaux groupes
+                        {trans('exam_pages.assignments.assign_new_groups')}
                     </Button>
                 }>
                 <ExamStatsCards stats={stats} className="mb-6" />
@@ -50,8 +51,8 @@ export default function ExamAssignments({ exam, stats, assignedGroups }: Props) 
 
             {assignedGroups && assignedGroups.length > 0 ? (
                 <Section
-                    title={`Groupes assignés (${assignedGroups.length})`}
-                    subtitle="Liste des groupes ayant accès à cet examen"
+                    title={trans('exam_pages.assignments.groups_list_title', { count: assignedGroups.length })}
+                    subtitle={trans('exam_pages.assignments.groups_list_subtitle')}
                 >
                     <DataTable
                         data={groupsToPaginationType(assignedGroups)}
@@ -59,7 +60,7 @@ export default function ExamAssignments({ exam, stats, assignedGroups }: Props) 
                     />
                 </Section>
             ) : (
-                <Section title="Aucun groupe assigné">
+                <Section title={trans('exam_pages.assignments.no_groups_title')}>
                     <div className="text-center py-12">
                         <svg
                             className="mx-auto h-12 w-12 text-gray-400"
@@ -75,16 +76,16 @@ export default function ExamAssignments({ exam, stats, assignedGroups }: Props) 
                                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                             />
                         </svg>
-                        <h3 className="mt-2 text-sm font-medium text-gray-900">Aucun groupe assigné</h3>
+                        <h3 className="mt-2 text-sm font-medium text-gray-900">{trans('exam_pages.assignments.no_groups_title')}</h3>
                         <p className="mt-1 text-sm text-gray-500">
-                            Commencez par assigner cet examen à des groupes d'étudiants.
+                            {trans('exam_pages.assignments.no_groups_message')}
                         </p>
                         <div className="mt-6">
                             <Button
                                 onClick={() => router.visit(route('exams.assign', exam.id))}
                                 color="primary"
                             >
-                                Assigner des groupes
+                                {trans('exam_pages.assignments.assign_groups_button')}
                             </Button>
                         </div>
                     </div>

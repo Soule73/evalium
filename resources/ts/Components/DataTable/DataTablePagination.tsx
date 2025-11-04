@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { PaginationType } from '@/types/datatable';
+import { trans } from '@/utils/translations';
 
 interface DataTablePaginationProps<T> {
     data: PaginationType<T>;
@@ -69,14 +70,16 @@ export function DataTablePagination<T>({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-6 py-4 bg-white border-t border-gray-200">
             <div className="flex items-center gap-4">
                 <div className="text-sm text-gray-700">
-                    Affichage de <span className="font-medium">{from || 0}</span> à{' '}
-                    <span className="font-medium">{to || 0}</span> sur{' '}
-                    <span className="font-medium">{total}</span> résultats
+                    {trans('components.datatable.showing_records', {
+                        from: String(from || 0),
+                        to: String(to || 0),
+                        total: String(total)
+                    })}
                 </div>
 
                 <div className="flex items-center gap-2">
                     <label htmlFor="per-page" className="text-sm text-gray-700">
-                        Par page:
+                        {trans('components.datatable.per_page')}
                     </label>
                     <select
                         id="per-page"
@@ -101,7 +104,7 @@ export function DataTablePagination<T>({
                     className="inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <ChevronLeftIcon className="h-4 w-4" />
-                    <span className="sr-only">Précédent</span>
+                    <span className="sr-only">{trans('components.datatable.previous')}</span>
                 </button>
 
                 {visiblePages.map((page, index) => (
@@ -131,7 +134,7 @@ export function DataTablePagination<T>({
                     className="inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <ChevronRightIcon className="h-4 w-4" />
-                    <span className="sr-only">Suivant</span>
+                    <span className="sr-only">{trans('components.datatable.next')}</span>
                 </button>
             </div>
         </div>

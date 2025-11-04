@@ -1,4 +1,7 @@
 
+import { trans } from './translations';
+
+
 /**
  * Formats a given number of seconds into a time string.
  *
@@ -93,13 +96,15 @@ export const formatDate = (
 
 // Formatage des durées en texte lisible
 export const formatDuration = (minutes: number): string => {
-    if (minutes < 0) return '0 min';
+    if (minutes < 0) return trans('formatters.duration_min', { value: 0 });
     if (minutes < 60) {
-        return `${minutes} min`;
+        return trans('formatters.duration_min', { value: minutes });
     }
     const hrs = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    return mins === 0 ? `${hrs}h` : `${hrs}h ${mins}min`;
+    return mins === 0
+        ? trans('formatters.duration_hours', { value: hrs })
+        : trans('formatters.duration_hours_min', { hours: hrs, minutes: mins });
 };
 // Formatage des pourcentages
 export const formatPercentage = (value: number, decimals: number = 1): string => {
@@ -134,8 +139,9 @@ export function formatGrade(score: number, total: number): { text: string; color
  * @returns A string representing the exam status: 'Actif' if active, 'Inactif' if inactive.
  */
 export function formatExamStatus(status: boolean): string {
-
-    return status ? 'Actif' : 'Inactif';
+    return status
+        ? trans('formatters.exam_status_active')
+        : trans('formatters.exam_status_inactive');
 }
 
 
@@ -151,28 +157,23 @@ export function capitalize(text: string): string {
 }
 
 export const getQuestionTypeLabel = (type: string) => {
-    const labels = {
-        'multiple': 'Choix multiples',
-        'one_choice': 'Choix unique',
-        'boolean': 'Vrai/Faux',
-        'text': 'Réponse libre'
+    const labels: Record<string, string> = {
+        'multiple': trans('formatters.question_type_multiple'),
+        'one_choice': trans('formatters.question_type_one_choice'),
+        'boolean': trans('formatters.question_type_boolean'),
+        'text': trans('formatters.question_type_text')
     };
-    return labels[type as keyof typeof labels] || type;
+    return labels[type] || type;
 };
 
 export const getRoleLabel = (roleName: string) => {
-    switch (roleName) {
-        case 'admin':
-            return 'Administrateur';
-        case 'super_admin':
-            return 'Super Administrateur';
-        case 'teacher':
-            return 'Enseignant';
-        case 'student':
-            return 'Étudiant';
-        default:
-            return roleName;
-    }
+    const roleMap: Record<string, string> = {
+        'admin': trans('formatters.role_admin'),
+        'super_admin': trans('formatters.role_super_admin'),
+        'teacher': trans('formatters.role_teacher'),
+        'student': trans('formatters.role_student')
+    };
+    return roleMap[roleName] || roleName;
 };
 
 export const getRoleColor = (roleName: string) => {
@@ -199,22 +200,19 @@ export const getAssignmentBadgeType = (status: string) => {
 };
 
 export const getAssignmentBadgeLabel = (status: string) => {
-    switch (status) {
-        case 'graded': return 'Noté';
-        case 'submitted': return 'Soumis';
-        default: return 'Non commencé';
-    }
+    const statusMap: Record<string, string> = {
+        'graded': trans('formatters.assignment_graded'),
+        'submitted': trans('formatters.assignment_submitted')
+    };
+    return statusMap[status] || trans('formatters.assignment_not_started');
 };
 
 export const securityViolationLabel = (violation: string | undefined): string => {
-    switch (violation) {
-        case 'tab_switch':
-            return "Changement d'onglet détecté";
-        case 'fullscreen_exit':
-            return "Sortie du mode plein écran détectée";
-        default:
-            return "Violation de sécurité détectée";
-    }
+    const violationMap: Record<string, string> = {
+        'tab_switch': trans('formatters.security_tab_switch'),
+        'fullscreen_exit': trans('formatters.security_fullscreen_exit')
+    };
+    return violationMap[violation || ''] || trans('formatters.security_violation_default');
 }
 
 export const assignmentStatusColors: Record<string, string> = {
@@ -223,11 +221,11 @@ export const assignmentStatusColors: Record<string, string> = {
     default: 'bg-gray-100 text-gray-800'
 };
 
-export const assignmentStatusLabels: Record<string, string> = {
-    submitted: 'Soumis',
-    graded: 'Noté',
-    default: 'Non commencé'
-};
+export const getAssignmentStatusLabels = (): Record<string, string> => ({
+    submitted: trans('formatters.assignment_submitted'),
+    graded: trans('formatters.assignment_graded'),
+    default: trans('formatters.assignment_not_started')
+});
 
 
 /**
@@ -252,16 +250,21 @@ export function formatDeadlineWarning(endDate: string): { text: string; urgency:
     const days = Math.floor(hours / 24);
 
     if (diff <= 0) {
-        return { text: 'Examen terminé', urgency: 'high' };
+        return { text: trans('formatters.deadline_exam_finished'), urgency: 'high' };
     } else if (hours < 1) {
         const minutes = Math.floor(diff / (1000 * 60));
-        return { text: `${minutes} minutes restantes`, urgency: 'high' };
+        return { text: trans('formatters.deadline_minutes_remaining', { minutes }), urgency: 'high' };
     } else if (hours < 24) {
-        return { text: `${hours} heures restantes`, urgency: 'high' };
+        return { text: trans('formatters.deadline_hours_remaining', { hours }), urgency: 'high' };
     } else if (days < 7) {
-        return { text: `${days} jours restants`, urgency: 'medium' };
+        return {
+            text: days === 1
+                ? trans('formatters.deadline_day_remaining', { days })
+                : trans('formatters.deadline_days_remaining', { days }),
+            urgency: 'medium'
+        };
     } else {
-        return { text: `${days} jours restants`, urgency: 'low' };
+        return { text: trans('formatters.deadline_days_remaining', { days }), urgency: 'low' };
     }
 }
 
@@ -277,9 +280,9 @@ export function formatDeadlineWarning(endDate: string): { text: string; urgency:
  */
 export function formatUserRole(role: string): string {
     const roleMap: Record<string, string> = {
-        'admin': 'Administrateur',
-        'teacher': 'Enseignant',
-        'student': 'Étudiant',
+        'admin': trans('formatters.role_admin'),
+        'teacher': trans('formatters.role_teacher'),
+        'student': trans('formatters.role_student'),
     };
 
     return roleMap[role] || capitalize(role);
@@ -315,13 +318,13 @@ export const formatRelativeTime = (date: Date | string | number): string => {
     const diffDays = Math.floor(diffHours / 24);
 
     if (diffMinutes < 1) {
-        return "À l'instant";
+        return trans('formatters.relative_time_now');
     } else if (diffMinutes < 60) {
-        return `Il y a ${diffMinutes} min`;
+        return trans('formatters.relative_time_minutes_ago', { minutes: diffMinutes });
     } else if (diffHours < 24) {
-        return `Il y a ${diffHours}h`;
+        return trans('formatters.relative_time_hours_ago', { hours: diffHours });
     } else if (diffDays < 7) {
-        return `Il y a ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+        return trans('formatters.relative_time_days_ago', { days: diffDays });
     } else {
         return formatDate(target, 'short');
     }
@@ -349,13 +352,13 @@ export const truncateText = (text: string, maxLength: number): string => {
  * @returns An object containing the `label` (string) and `color` (string) for the given status.
  */
 export const formatExamAssignmentStatus = (status: string): { label: string; color: string } => {
-    const statusMap = {
-        'submitted': { label: 'Soumis', color: 'info' },
-        'graded': { label: 'Noté', color: 'success' },
-        'not_assigned': { label: 'Non commencé', color: 'gray' }
+    const statusMap: Record<string, { label: string; color: string }> = {
+        'submitted': { label: trans('formatters.assignment_submitted'), color: 'info' },
+        'graded': { label: trans('formatters.assignment_graded'), color: 'success' },
+        'not_assigned': { label: trans('formatters.assignment_not_assigned'), color: 'gray' }
     };
 
-    return statusMap[status as keyof typeof statusMap] || { label: status, color: 'gray' };
+    return statusMap[status] || { label: status, color: 'gray' };
 };
 
 export const canShowExamResults = (assignmentStatus: string): boolean => {
@@ -385,8 +388,8 @@ export const getAssignmentStatus = () => {
  */
 export const getAssignmentStatusWithLabel = (): Array<{ value: string; label: string; }> => {
     return [
-        { value: 'all', label: 'Tous les statuts' },
-        { value: 'submitted', label: 'Soumis' },
-        { value: 'graded', label: 'Noté' },
+        { value: 'all', label: trans('formatters.assignment_all_statuses') },
+        { value: 'submitted', label: trans('formatters.assignment_submitted') },
+        { value: 'graded', label: trans('formatters.assignment_graded') },
     ];
 };

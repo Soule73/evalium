@@ -8,6 +8,7 @@ import { breadcrumbs } from '@/utils/breadcrumbs';
 import { Permission, GroupedPermissions } from '@/types/role';
 import { useRoleForm } from '@/hooks/useRoleForm';
 import RoleForm from '@/Components/Roles/RoleForm';
+import { trans } from '@/utils/translations';
 
 interface Props {
     permissions: Permission[];
@@ -43,10 +44,10 @@ export default function CreateRole({ permissions, groupedPermissions }: Props) {
     };
 
     return (
-        <AuthenticatedLayout title="Créer un rôle" breadcrumb={breadcrumbs.roleCreate()}>
+        <AuthenticatedLayout title={trans('admin_pages.roles.create')} breadcrumb={breadcrumbs.roleCreate()}>
             <Section
-                title="Nouveau rôle"
-                subtitle="Créer un nouveau rôle et assigner des permissions"
+                title={trans('admin_pages.roles.create_title')}
+                subtitle={trans('admin_pages.roles.create_subtitle')}
                 actions={
                     <Button
                         type="button"
@@ -54,7 +55,7 @@ export default function CreateRole({ permissions, groupedPermissions }: Props) {
                         color="secondary"
                         variant='outline'
                     >
-                        Retour
+                        {trans('admin_pages.common.back')}
                     </Button>
                 }
             >
@@ -69,8 +70,8 @@ export default function CreateRole({ permissions, groupedPermissions }: Props) {
                     onPermissionToggle={handlePermissionToggle}
                     onSelectAll={selectAll}
                     onDeselectAll={deselectAll}
-                    submitButtonText="Créer le rôle"
-                    submittingText="Création..."
+                    submitButtonText={trans('admin_pages.roles.create_button')}
+                    submittingText={trans('admin_pages.roles.creating')}
                 />
             </Section>
         </AuthenticatedLayout>

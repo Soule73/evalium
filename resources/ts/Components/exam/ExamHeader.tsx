@@ -3,6 +3,7 @@ import MarkdownRenderer from '@/Components/form/MarkdownRenderer';
 import { formatDuration } from '@/utils/formatters';
 import { ClockIcon, QuestionMarkCircleIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { formatDate } from '@/utils/formatters';
+import { trans } from '@/utils/translations';
 
 interface ExamHeaderProps {
     exam: Exam;
@@ -45,13 +46,15 @@ export default function ExamHeader({
                     {exam.questions && exam.questions.length > 0 && (
                         <div className="flex items-center gap-2">
                             <QuestionMarkCircleIcon className="w-4 h-4" />
-                            <span>{exam.questions.length} question{exam.questions.length > 1 ? 's' : ''}</span>
+                            <span>
+                                {trans('components.exam_header.questions_count', { count: exam.questions.length })}
+                            </span>
                         </div>
                     )}
                     {exam.created_at && (
                         <div className="flex items-center gap-2">
                             <CalendarIcon className="w-4 h-4" />
-                            <span>Créé le {formatDate(exam.created_at)}</span>
+                            <span>{trans('components.exam_header.created_on', { date: formatDate(exam.created_at) })}</span>
                         </div>
                     )}
                 </div>

@@ -14,6 +14,7 @@ import { useState } from 'react';
 import ConfirmationModal from '@/Components/ConfirmationModal';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { hasPermission } from '@/utils/permissions';
+import { trans } from '@/utils/translations';
 
 interface Props extends PageProps {
     groups: PaginationType<Group>;
@@ -91,9 +92,9 @@ export default function GroupIndex({ groups, levels }: Props) {
 
     const getStatusBadge = (isActive: boolean) => {
         return isActive ? (
-            <Badge label="Actif" type="success" />
+            <Badge label={trans('admin_pages.common.active')} type="success" />
         ) : (
-            <Badge label="Inactif" type="error" />
+            <Badge label={trans('admin_pages.common.inactive')} type="error" />
         );
     };
 
@@ -101,29 +102,29 @@ export default function GroupIndex({ groups, levels }: Props) {
         columns: [
             {
                 key: 'name',
-                label: 'Groupe',
+                label: trans('admin_pages.groups.display_name'),
                 render: (group) => (
                     <div>
                         <div className="text-sm font-medium text-gray-900">{group.display_name}</div>
-                        <div className="text-sm text-gray-500">{group.description || 'Aucune description'}</div>
+                        <div className="text-sm text-gray-500">{group.description || trans('admin_pages.groups.description')}</div>
                     </div>
                 )
             },
             {
                 key: 'level',
-                label: 'Niveau',
+                label: trans('admin_pages.groups.level'),
                 render: (group) => (
                     <div className="flex items-center">
                         <AcademicCapIcon className="w-4 h-4 mr-2 text-gray-400" />
                         <span className="text-sm text-gray-900">
-                            {group.level?.name || 'Non défini'}
+                            {group.level?.name || trans('admin_pages.groups.level')}
                         </span>
                     </div>
                 )
             },
             {
                 key: 'students',
-                label: 'Étudiants',
+                label: trans('admin_pages.groups.students'),
                 render: (group) => (
                     <div className="flex items-center">
                         <UsersIcon className="w-4 h-4 mr-2 text-gray-400" />
@@ -135,22 +136,22 @@ export default function GroupIndex({ groups, levels }: Props) {
             },
             {
                 key: 'period',
-                label: 'Période',
+                label: trans('admin_pages.groups.period'),
                 render: (group) => (
                     <div className="text-sm text-gray-600">
                         <div>{formatDate(group.start_date)}</div>
-                        <div className="text-xs text-gray-400">au {formatDate(group.end_date)}</div>
+                        <div className="text-xs text-gray-400">{formatDate(group.end_date)}</div>
                     </div>
                 )
             },
             {
                 key: 'is_active',
-                label: 'Statut',
+                label: trans('admin_pages.groups.status'),
                 render: (group) => getStatusBadge(group.is_active)
             },
             {
                 key: 'actions',
-                label: 'Actions',
+                label: trans('admin_pages.common.actions'),
                 render: (group) => (
                     <div className="flex space-x-2">
                         {canViewGroups && (
@@ -160,7 +161,7 @@ export default function GroupIndex({ groups, levels }: Props) {
                                 size="sm"
                                 variant="outline"
                             >
-                                Voir
+                                {trans('admin_pages.common.view')}
                             </Button>
                         )}
                         {canUpdateGroups && (
@@ -170,20 +171,20 @@ export default function GroupIndex({ groups, levels }: Props) {
                                 size="sm"
                                 variant="outline"
                             >
-                                Modifier
+                                {trans('admin_pages.common.edit')}
                             </Button>
                         )}
                     </div>
                 )
             }
         ],
-        searchPlaceholder: 'Rechercher par nom de groupe...',
+        searchPlaceholder: trans('admin_pages.groups.search_placeholder'),
         filters: [
             {
                 key: 'level_id',
                 type: 'select',
-                label: 'Filtrer par niveau',
-                options: [{ label: 'Tous les niveaux', value: '' }].concat(
+                label: trans('admin_pages.groups.filter_level'),
+                options: [{ label: trans('admin_pages.groups.all_levels'), value: '' }].concat(
                     Object.entries(levels).map(([id, name]) => ({
                         label: name,
                         value: id
@@ -193,23 +194,23 @@ export default function GroupIndex({ groups, levels }: Props) {
             {
                 key: 'is_active',
                 type: 'select',
-                label: 'Filtrer par statut',
+                label: trans('admin_pages.groups.filter_status'),
                 options: [
-                    { label: 'Tous les statuts', value: '' },
-                    { label: 'Actifs', value: '1' },
-                    { label: 'Inactifs', value: '0' }
+                    { label: trans('admin_pages.groups.all_statuses'), value: '' },
+                    { label: trans('admin_pages.common.active'), value: '1' },
+                    { label: trans('admin_pages.common.inactive'), value: '0' }
                 ]
             }
         ],
         emptyState: {
-            title: 'Aucun groupe trouvé',
-            subtitle: 'Commencez par créer votre premier groupe',
+            title: trans('admin_pages.groups.empty_title'),
+            subtitle: trans('admin_pages.groups.empty_subtitle'),
             icon: 'UserGroupIcon'
         },
         emptySearchState: {
-            title: 'Aucun groupe trouvé',
-            subtitle: 'Aucun groupe ne correspond à vos critères de recherche.',
-            resetLabel: 'Réinitialiser les filtres'
+            title: trans('admin_pages.groups.empty_title'),
+            subtitle: trans('admin_pages.groups.empty_subtitle'),
+            resetLabel: trans('admin_pages.common.cancel')
         },
         perPageOptions: [10, 25, 50],
         enableSelection: canToggleStatus,
@@ -221,7 +222,7 @@ export default function GroupIndex({ groups, levels }: Props) {
                     variant="outline"
                     color="success"
                 >
-                    Activer ({selectedIds.length})
+                    {trans('admin_pages.groups.activate')} ({selectedIds.length})
                 </Button>
                 <Button
                     size="sm"
@@ -229,7 +230,7 @@ export default function GroupIndex({ groups, levels }: Props) {
                     variant="outline"
                     color="danger"
                 >
-                    Désactiver ({selectedIds.length})
+                    {trans('admin_pages.groups.deactivate')} ({selectedIds.length})
                 </Button>
             </>
         ) : undefined,
@@ -242,38 +243,38 @@ export default function GroupIndex({ groups, levels }: Props) {
     const averageStudentsPerGroup = totalGroups > 0 ? Math.round(totalStudents / totalGroups) : 0;
 
     return (
-        <AuthenticatedLayout title="Gestion des groupes"
+        <AuthenticatedLayout title={trans('admin_pages.groups.title')}
             breadcrumb={breadcrumbs.groups()}
         >
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <StatCard
-                    title="Total groupes"
+                    title={trans('admin_pages.groups.stats_total')}
                     value={totalGroups}
                     icon={UserGroupIcon}
                     color="blue"
                 />
                 <StatCard
-                    title="Groupes actifs"
+                    title={trans('admin_pages.groups.stats_active')}
                     value={activeGroups}
                     icon={UserGroupIcon}
                     color="green"
                 />
                 <StatCard
-                    title="Total étudiants"
+                    title={trans('admin_pages.groups.stats_students')}
                     value={totalStudents}
                     icon={UsersIcon}
                     color="purple"
                 />
                 <StatCard
-                    title="Moyenne par groupe"
+                    title={trans('admin_pages.groups.students')}
                     value={averageStudentsPerGroup}
                     icon={AcademicCapIcon}
                     color="yellow"
                 />
             </div>
 
-            <Section title="Liste des groupes"
-                subtitle="Gérez les groupes de classes et leurs étudiants."
+            <Section title={trans('admin_pages.groups.title')}
+                subtitle={trans('admin_pages.groups.subtitle')}
                 actions={canCreateGroups && (
                     <Button
                         onClick={handleCreateGroup}
@@ -281,7 +282,7 @@ export default function GroupIndex({ groups, levels }: Props) {
                         variant="solid"
                         size="sm"
                     >
-                        Créer un groupe
+                        {trans('admin_pages.groups.create')}
                     </Button>
                 )}
             >
@@ -295,14 +296,14 @@ export default function GroupIndex({ groups, levels }: Props) {
                 isOpen={confirmModal.isOpen}
                 onClose={handleCloseModal}
                 onConfirm={handleConfirmAction}
-                title={confirmModal.type === 'activate' ? 'Activer les groupes' : 'Désactiver les groupes'}
+                title={confirmModal.type === 'activate' ? trans('admin_pages.groups.bulk_activate_title') : trans('admin_pages.groups.bulk_deactivate_title')}
                 message={
                     confirmModal.type === 'activate'
-                        ? `Voulez-vous vraiment activer ${confirmModal.ids.length} groupe(s) ?`
-                        : `Voulez-vous vraiment désactiver ${confirmModal.ids.length} groupe(s) ?`
+                        ? trans('admin_pages.groups.bulk_activate_message', { count: confirmModal.ids.length })
+                        : trans('admin_pages.groups.bulk_deactivate_message', { count: confirmModal.ids.length })
                 }
-                confirmText="Confirmer"
-                cancelText="Annuler"
+                confirmText={trans('admin_pages.common.confirm')}
+                cancelText={trans('admin_pages.common.cancel')}
                 type={confirmModal.type === 'activate' ? 'info' : 'warning'}
                 icon={confirmModal.type === 'activate' ? CheckCircleIcon : XCircleIcon}
                 loading={loading}
