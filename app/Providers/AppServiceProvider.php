@@ -2,10 +2,7 @@
 
 namespace App\Providers;
 
-use App\Services\ExamService;
 use Illuminate\Support\ServiceProvider;
-use App\Services\Shared\DashboardService;
-use App\Services\Shared\UserAnswerService;
 use App\Services\Student\ExamSessionService;
 use App\Services\Admin\AdminDashboardService;
 use App\Services\Admin\UserManagementService;
@@ -13,8 +10,8 @@ use App\Services\Exam\ExamAssignmentService;
 use App\Services\Exam\TeacherDashboardService;
 use App\Services\Exam\ExamScoringService as TeacherExamScoringService;
 use App\Services\Core\Scoring\ScoringService;
-use App\Services\Core\Answer\AnswerFormatter;
-use App\Services\Core\Answer\AnswerFormatterInterface;
+use App\Contracts\Answer\AnswerFormatterInterface;
+use App\Services\Core\Answer\AnswerFormatterService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
@@ -42,18 +39,22 @@ class AppServiceProvider extends ServiceProvider
     {
         // Core services (singleton pour réutilisation)
         $this->app->singleton(ScoringService::class, ScoringService::class);
-        $this->app->singleton(AnswerFormatterInterface::class, AnswerFormatter::class);
-        $this->app->singleton(AnswerFormatter::class, AnswerFormatter::class);
+        $this->app->singleton(AnswerFormatterInterface::class, AnswerFormatterService::class);
+        $this->app->singleton(AnswerFormatterService::class, AnswerFormatterService::class);
 
-        $this->app->bind(ExamService::class, ExamService::class);
+        // New Architecture - Repositories
+        $this->app->singleton(\App\Repositories\AssignmentRepository::class);
 
+        // New Architecture - Core Services
+        $this->app->singleton(\App\Services\Core\QuestionManagementService::class);
+        $this->app->singleton(\App\Services\Core\ExamCrudService::class);
+        $this->app->singleton(\App\Services\Core\ExamQueryService::class);
+
+        // Application services
         $this->app->bind(ExamSessionService::class, ExamSessionService::class);
 
         $this->app->bind(ExamAssignmentService::class, ExamAssignmentService::class);
         $this->app->bind(TeacherExamScoringService::class, TeacherExamScoringService::class);
-
-        $this->app->bind(UserAnswerService::class, UserAnswerService::class);
-        $this->app->bind(DashboardService::class, DashboardService::class);
 
         $this->app->bind(TeacherDashboardService::class, TeacherDashboardService::class);
         $this->app->bind(AdminDashboardService::class, AdminDashboardService::class);
@@ -87,6 +88,7 @@ class AppServiceProvider extends ServiceProvider
                     ];
                 }
 
+                /** @var \App\Models\User $user */
                 return [
                     // Navigation permissions
                     'canManageLevels' => $user->can('view levels'),

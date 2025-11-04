@@ -172,14 +172,13 @@ class ExamPolicy
             return false;
         }
 
-        // Vérifier si l'étudiant a une assignation (qu'elle soit 'assigned' ou 'started')
         $assignment = $exam->assignments()->where('student_id', $user->id)->first();
 
         if ($assignment) {
-            return in_array($assignment->status, ['assigned', 'started']);
+            return $assignment->started_at === null ||
+                ($assignment->started_at !== null && $assignment->submitted_at === null);
         }
 
-        // Vérifier si l'étudiant fait partie d'un groupe actif assigné à l'examen
         return $exam->groups()
             ->whereIn('groups.id', $user->activeGroups()->pluck('groups.id'))
             ->exists();
@@ -191,7 +190,6 @@ class ExamPolicy
      * Typical checks performed by this policy may include:
      * - whether the user is enrolled in the exam,
      * - whether the user has the `student` role,
-     * - whether the exam is statused as 'started',
      *
      * @param User $user The user attempting to submit the exam.
      * @param Exam $exam The exam instance to be submitted.

@@ -16,12 +16,17 @@ const useExamScoring = ({ exam, assignment, userAnswers }: UseExamScoringParams)
 
     const calculateQuestionScore = useMemo(() => {
         return (question: Question): number => {
+            const result = getQuestionResult(question);
+
             if (question.type === 'text') {
                 return userAnswers[question.id]?.score ?? 0;
             }
 
-            const result = getQuestionResult(question);
-            if (result.isCorrect) {
+            if (result?.score !== undefined && result?.score !== null) {
+                return result.score;
+            }
+
+            if (result?.isCorrect) {
                 return question.points || 0;
             }
 

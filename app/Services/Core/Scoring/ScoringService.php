@@ -2,16 +2,20 @@
 
 namespace App\Services\Core\Scoring;
 
+use App\Contracts\Scoring\ScoringStrategyInterface;
+use App\Strategies\Scoring\OneChoiceScoringStrategy;
+use App\Strategies\Scoring\MultipleChoiceScoringStrategy;
+use App\Strategies\Scoring\BooleanScoringStrategy;
+use App\Strategies\Scoring\TextQuestionScoringStrategy;
 use App\Models\Question;
 use App\Models\ExamAssignment;
 use Illuminate\Support\Collection;
 
 /**
- * Service central de calcul de score
+ * Central scoring service orchestrating question scoring strategies.
  * 
- * Ce service orchestre les différentes stratégies de scoring selon le type de question.
- * Il élimine les duplications de logique présentes dans ExamService, ExamSessionService
- * et ExamScoringService.
+ * Eliminates scoring logic duplication previously present in
+ * ExamService, ExamSessionService, and ExamScoringService.
  * 
  * Design Pattern: Strategy Pattern
  */
@@ -23,7 +27,7 @@ class ScoringService
     private array $strategies;
 
     /**
-     * Constructeur - Enregistre toutes les stratégies disponibles
+     * Initialize the service with all available scoring strategies.
      */
     public function __construct()
     {
@@ -36,18 +40,17 @@ class ScoringService
     }
 
     /**
-     * Calcule le score total pour une assignation d'examen
+     * Calculate the total score for an exam assignment.
      * 
-     * Parcourt toutes les questions et calcule le score pour chacune
+     * Iterates through all questions and calculates the score for each.
      *
-     * @param ExamAssignment $assignment L'assignation à évaluer
-     * @return float Le score total obtenu
+     * @param ExamAssignment $assignment The assignment to evaluate
+     * @return float The total earned score
      */
     public function calculateAssignmentScore(ExamAssignment $assignment): float
     {
         $totalScore = 0.0;
 
-        // Charger l'examen avec ses questions
         $exam = $assignment->exam()->with('questions.choices')->first();
 
         foreach ($exam->questions as $question) {
@@ -58,38 +61,34 @@ class ScoringService
     }
 
     /**
-     * Calcule le score pour une question spécifique
+     * Calculate the score for a specific question.
      *
-     * @param ExamAssignment $assignment L'assignation
-     * @param Question $question La question à évaluer
-     * @return float Le score obtenu pour cette question
+     * @param ExamAssignment $assignment The assignment being evaluated
+     * @param Question $question The question to score
+     * @return float The earned score for this question
      */
     public function calculateQuestionScore(ExamAssignment $assignment, Question $question): float
     {
-        // Récupérer les réponses de l'étudiant pour cette question
         $answers = $assignment->answers()
             ->where('question_id', $question->id)
             ->with('choice')
             ->get();
 
-        // Trouver la stratégie appropriée
         $strategy = $this->getStrategyForQuestionType($question->type);
 
         if (!$strategy) {
-            // Type de question non supporté
             return 0.0;
         }
 
-        // Calculer le score via la stratégie
         return $strategy->calculateScore($question, $answers);
     }
 
     /**
-     * Vérifie si une réponse est correcte
+     * Check if an answer is correct.
      *
-     * @param Question $question La question
-     * @param Collection $answers Les réponses données
-     * @return bool
+     * @param Question $question The question being evaluated
+     * @param Collection $answers The provided answers
+     * @return bool True if the answer is correct
      */
     public function isAnswerCorrect(Question $question, Collection $answers): bool
     {
@@ -103,17 +102,17 @@ class ScoringService
     }
 
     /**
-     * Calcule uniquement le score auto-corrigeable (QCM, boolean)
-     * Exclut les questions textuelles qui nécessitent une correction manuelle
+     * Calculate only auto-correctable score (MCQ, boolean).
+     * 
+     * Excludes text questions that require manual grading.
      *
-     * @param ExamAssignment $assignment
-     * @return float
+     * @param ExamAssignment $assignment The assignment to evaluate
+     * @return float The auto-correctable score
      */
     public function calculateAutoCorrectableScore(ExamAssignment $assignment): float
     {
         $totalScore = 0.0;
 
-        // Types de questions auto-corrigeables
         $autoCorrectableTypes = ['one_choice', 'multiple', 'boolean'];
 
         $exam = $assignment->exam()->with('questions.choices')->first();
@@ -128,10 +127,10 @@ class ScoringService
     }
 
     /**
-     * Vérifie si un examen contient des questions nécessitant une correction manuelle
+     * Check if an exam contains questions requiring manual grading.
      *
-     * @param ExamAssignment $assignment
-     * @return bool
+     * @param ExamAssignment $assignment The assignment to check
+     * @return bool True if the exam has text/essay questions
      */
     public function hasManualCorrectionQuestions(ExamAssignment $assignment): bool
     {
@@ -141,10 +140,10 @@ class ScoringService
     }
 
     /**
-     * Récupère la stratégie appropriée pour un type de question
+     * Get the appropriate strategy for a question type.
      *
-     * @param string $questionType
-     * @return ScoringStrategyInterface|null
+     * @param string $questionType The type of question
+     * @return ScoringStrategyInterface|null The matching strategy or null
      */
     private function getStrategyForQuestionType(string $questionType): ?ScoringStrategyInterface
     {
@@ -158,7 +157,7 @@ class ScoringService
     }
 
     /**
-     * Obtient la liste de toutes les stratégies enregistrées
+     * Get all registered scoring strategies.
      *
      * @return array<ScoringStrategyInterface>
      */
@@ -168,11 +167,12 @@ class ScoringService
     }
 
     /**
-     * Ajoute une stratégie personnalisée
-     * Utile pour ajouter de nouveaux types de questions sans modifier ce fichier
+     * Add a custom scoring strategy.
+     * 
+     * Useful for adding new question types without modifying this file.
      *
-     * @param ScoringStrategyInterface $strategy
-     * @return self
+     * @param ScoringStrategyInterface $strategy The strategy to add
+     * @return self Fluent interface
      */
     public function addStrategy(ScoringStrategyInterface $strategy): self
     {

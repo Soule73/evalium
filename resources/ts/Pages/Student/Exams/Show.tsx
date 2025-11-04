@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps, Exam, ExamAssignment, User } from '@/types';
 import { formatDate, formatDuration, formatDeadlineWarning } from '@/utils/formatters';
 import { Button } from '@/Components';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 import { route } from 'ziggy-js';
 import { ClockIcon, DocumentTextIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import AlertEntry from '@/Components/AlertEntry';
@@ -19,9 +20,16 @@ interface StudentExamShowProps extends PageProps {
     canTake: boolean;
     questionsCount?: number;
     creator: User;
+    group?: {
+        id: number;
+        level: {
+            id: number;
+            name: string;
+        };
+    };
 }
 
-export default function StudentExamShow({ exam, assignment, canTake, questionsCount, creator }: StudentExamShowProps) {
+export default function StudentExamShow({ exam, assignment, canTake, questionsCount, creator, group }: StudentExamShowProps) {
 
     const deadlineWarning = exam.end_time
         ? formatDeadlineWarning(
@@ -32,7 +40,10 @@ export default function StudentExamShow({ exam, assignment, canTake, questionsCo
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
-        <AuthenticatedLayout title={exam.title}>
+        <AuthenticatedLayout
+            title={exam.title}
+            breadcrumb={group ? breadcrumbs.studentExamShow(group.level.name, group.id, exam.title) : breadcrumbs.studentExams()}
+        >
             <Modal size='xl' isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
                 <div className=' flex flex-col justify-between'>
                     <div className='mx-auto my-4 flex flex-col items-center'>

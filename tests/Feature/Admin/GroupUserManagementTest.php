@@ -108,7 +108,7 @@ class GroupUserManagementTest extends TestCase
             $service->store($data);
             $this->fail('Expected exception for full group');
         } catch (\Exception $e) {
-            $this->assertStringContainsString('complet', $e->getMessage());
+            $this->assertStringContainsString('full', $e->getMessage());
         }
     }
 }

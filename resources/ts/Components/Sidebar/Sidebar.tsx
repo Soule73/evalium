@@ -92,11 +92,11 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
 
     if (isStudent) {
         navItems.push(
-            { name: 'Mes Examens', href: navRoutes.studentExams(), icon: 'exams' }
+            { name: 'Mes Groupes', href: navRoutes.studentExams(), icon: 'exams' }
         );
     }
 
-    if (canViewExamList) {
+    if (canViewExamList && !isStudent) {
         navItems.push(
             { name: 'Examens', href: navRoutes.exams(), icon: 'exams' }
         );

@@ -27,8 +27,9 @@ class ExamAssignmentModelTest extends TestCase
         $this->student = $this->createUserWithRole('student', [
             'email' => 'student@test.com',
         ]);
-
-        $this->exam = Exam::factory()->create();
+        /** @var Exam $exam */
+        $exam = Exam::factory()->create();
+        $this->exam = $exam;
     }
 
     #[Test]
@@ -112,31 +113,57 @@ class ExamAssignmentModelTest extends TestCase
     #[Test]
     public function assignment_has_valid_status_values()
     {
-        $validStatuses = ['assigned', 'started', 'submitted', 'graded'];
+        // Status is now calculated dynamically based on timestamps
+        // Valid stored values are: null, 'submitted', 'graded'
 
-        foreach ($validStatuses as $index => $status) {
-            $exam = Exam::factory()->create();
-            $student = User::factory()->create();
+        // Test null status (not started)
+        $exam1 = Exam::factory()->create();
+        $student1 = User::factory()->create();
+        $assignment1 = ExamAssignment::factory()->create([
+            'exam_id' => $exam1->id,
+            'student_id' => $student1->id,
+            'status' => null,
+            'started_at' => null,
+            'submitted_at' => null,
+        ]);
+        $this->assertNull($assignment1->status);
 
-            $assignment = ExamAssignment::factory()->create([
-                'exam_id' => $exam->id,
-                'student_id' => $student->id,
-                'status' => $status
-            ]);
+        // Test submitted status
+        $exam2 = Exam::factory()->create();
+        $student2 = User::factory()->create();
+        $assignment2 = ExamAssignment::factory()->create([
+            'exam_id' => $exam2->id,
+            'student_id' => $student2->id,
+            'status' => 'submitted',
+            'started_at' => now()->subHour(),
+            'submitted_at' => now(),
+        ]);
+        $this->assertEquals('submitted', $assignment2->status);
 
-            $this->assertEquals($status, $assignment->status);
-        }
+        // Test graded status
+        $exam3 = Exam::factory()->create();
+        $student3 = User::factory()->create();
+        $assignment3 = ExamAssignment::factory()->create([
+            'exam_id' => $exam3->id,
+            'student_id' => $student3->id,
+            'status' => 'graded',
+            'started_at' => now()->subHours(2),
+            'submitted_at' => now()->subHour(),
+            'score' => 15.5,
+        ]);
+        $this->assertEquals('graded', $assignment3->status);
     }
 
     #[Test]
     public function assignment_has_default_status()
     {
+        // Default status is now null (not started)
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $this->exam->id,
             'student_id' => $this->student->id
         ]);
 
-        $this->assertEquals('assigned', $assignment->status);
+        $this->assertNull($assignment->status);
     }
 
     #[Test]
@@ -164,15 +191,15 @@ class ExamAssignmentModelTest extends TestCase
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $this->exam->id,
             'student_id' => $this->student->id,
-            'status' => 'assigned'
+            'status' => null,
+            'started_at' => null
         ]);
 
         $assignment->update([
-            'status' => 'started',
             'started_at' => Carbon::now()
         ]);
 
-        $this->assertEquals('started', $assignment->status);
+        $this->assertNull($assignment->status);
         $this->assertNotNull($assignment->started_at);
     }
 
@@ -182,7 +209,8 @@ class ExamAssignmentModelTest extends TestCase
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $this->exam->id,
             'student_id' => $this->student->id,
-            'status' => 'started'
+            'status' => null,
+            'started_at' => Carbon::now()->subHour()
         ]);
 
         $assignment->update([

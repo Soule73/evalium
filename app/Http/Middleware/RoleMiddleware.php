@@ -29,6 +29,7 @@ class RoleMiddleware
             abort(401, 'Non autorisé');
         }
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if (!$user->hasAnyRole($roles)) {

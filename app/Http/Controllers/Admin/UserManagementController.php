@@ -15,7 +15,7 @@ use App\Http\Requests\Admin\EditUserRequest;
 use App\Services\Admin\UserManagementService;
 use App\Http\Requests\Admin\CreateUserRequest;
 use App\Http\Requests\Admin\ChangeStudentGroupRequest;
-use App\Services\ExamService;
+use App\Services\Core\ExamQueryService;
 
 class UserManagementController extends Controller
 {
@@ -23,7 +23,7 @@ class UserManagementController extends Controller
 
     public function __construct(
         public readonly UserManagementService $userService,
-        public readonly ExamService $examService
+        public readonly ExamQueryService $examQueryService
     ) {}
 
     /**
@@ -117,8 +117,9 @@ class UserManagementController extends Controller
             $user->load('roles');
         }
 
-        $exams = $this->examService->getExams($user->id, $perPage, $status, $search);
+        $exams = $this->examQueryService->getExamsForTeacher($user->id, $perPage, $status, $search);
 
+        /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
         return Inertia::render('Admin/Users/ShowTeacher', [
@@ -148,7 +149,7 @@ class UserManagementController extends Controller
 
         // Charger les relations une seule fois avec eager loading optimisé
         // Charger TOUS les groupes (actifs et inactifs) avec leurs exams actifs
-        // Le filtre sur is_active se fera en PHP dans ExamService
+        // Le filtre sur is_active se fera dans ExamQueryService
         $user->load([
             'groups' => function ($query) {
                 $query->with([
@@ -162,12 +163,13 @@ class UserManagementController extends Controller
             }
         ]);
 
-        $assignments = $this->examService->getAssignedExamsForStudent($user, $perPage, $status, $search);
+        $assignments = $this->examQueryService->getAssignedExamsForStudent($user, $perPage, $status, $search);
 
         $availableGroups = Cache::remember('groups_active_with_levels', 3600, function () {
             return Group::active()->with('level')->orderBy('academic_year', 'desc')->get();
         });
 
+        /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
         return Inertia::render('Admin/Users/ShowStudent', [

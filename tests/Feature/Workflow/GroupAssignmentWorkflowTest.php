@@ -9,8 +9,9 @@ use App\Models\Group;
 use App\Models\Level;
 use App\Models\Question;
 use App\Models\ExamAssignment;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
+use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
@@ -105,7 +106,7 @@ class GroupAssignmentWorkflowTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function teacher_can_assign_exam_to_group()
     {
         $this->actingAs($this->teacher);
@@ -124,7 +125,7 @@ class GroupAssignmentWorkflowTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function students_in_assigned_group_can_access_exam()
     {
         // Assigner l'examen au groupe
@@ -146,7 +147,7 @@ class GroupAssignmentWorkflowTest extends TestCase
         $response->assertOk();
     }
 
-    /** @test */
+    #[Test]
     public function student_outside_group_cannot_access_exam()
     {
         // Assigner l'examen au groupe
@@ -163,7 +164,7 @@ class GroupAssignmentWorkflowTest extends TestCase
         $response->assertStatus(403); // Forbidden
     }
 
-    /** @test */
+    #[Test]
     public function virtual_assignment_is_created_for_student_in_group()
     {
         // Assigner l'examen au groupe
@@ -186,7 +187,7 @@ class GroupAssignmentWorkflowTest extends TestCase
         $response->assertOk();
     }
 
-    /** @test */
+    #[Test]
     public function real_assignment_is_created_when_student_starts_exam()
     {
         // Assigner l'examen au groupe
@@ -201,22 +202,24 @@ class GroupAssignmentWorkflowTest extends TestCase
         $this->actingAs($this->student1);
         $response = $this->get(route('student.exams.take', $this->exam));
 
-        // Vérifier qu'on peut accéder (200) ou qu'il y a une redirection vers l'examen (302)
-        // Le contrôleur peut rediriger si l'examen a déjà été démarré
         $this->assertTrue(
             in_array($response->status(), [200, 302]),
             "Expected status 200 or 302, got {$response->status()}"
         );
 
-        // Maintenant, l'ExamAssignment DOIT exister en DB
         $this->assertDatabaseHas('exam_assignments', [
             'exam_id' => $this->exam->id,
             'student_id' => $this->student1->id,
-            'status' => 'started'
         ]);
+
+        $assignment = ExamAssignment::where('exam_id', $this->exam->id)
+            ->where('student_id', $this->student1->id)
+            ->first();
+
+        $this->assertNotNull($assignment->started_at);
     }
 
-    /** @test */
+    #[Test]
     public function teacher_can_view_group_assignments()
     {
         // Assigner l'examen au groupe
@@ -239,7 +242,7 @@ class GroupAssignmentWorkflowTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function statistics_reflect_group_based_assignments()
     {
         // Assigner l'examen au groupe (2 étudiants)
@@ -250,15 +253,12 @@ class GroupAssignmentWorkflowTest extends TestCase
             'assigned_at' => now()
         ]);
 
-        // Étudiant 1 démarre l'examen
         ExamAssignment::create([
             'exam_id' => $this->exam->id,
             'student_id' => $this->student1->id,
-            'status' => 'started',
+            'status' => null,
             'started_at' => now()
         ]);
-
-        // Étudiant 2 ne l'a pas encore démarré (virtual)
 
         $this->actingAs($this->teacher);
         $response = $this->get(route('exams.groups', $this->exam));
@@ -266,14 +266,14 @@ class GroupAssignmentWorkflowTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn($page) =>
-            $page->component('Exam/Assignments', false) // false = ne pas vérifier l'existence du fichier
-                ->where('stats.total_assigned', 2) // 2 étudiants dans le groupe
-                ->where('stats.started', 1) // 1 a démarré
-                ->where('stats.assigned', 1) // 1 n'a pas encore démarré
+            $page->component('Exam/Assignments', false)
+                ->where('stats.total_assigned', 2)
+                ->where('stats.in_progress', 1)
+                ->where('stats.not_started', 1)
         );
     }
 
-    /** @test */
+    #[Test]
     public function teacher_can_remove_group_from_exam()
     {
         // Assigner l'examen au groupe
@@ -299,7 +299,7 @@ class GroupAssignmentWorkflowTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function after_group_removal_students_lose_access()
     {
         // Assigner puis retirer
@@ -323,7 +323,7 @@ class GroupAssignmentWorkflowTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function inactive_students_in_group_cannot_access()
     {
         // Assigner l'examen au groupe

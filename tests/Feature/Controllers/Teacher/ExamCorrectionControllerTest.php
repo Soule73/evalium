@@ -5,6 +5,7 @@ namespace Tests\Feature\Controllers\Exam;
 use Tests\TestCase;
 use App\Models\Exam;
 use App\Models\User;
+use App\Models\Group;
 use App\Models\Answer;
 use App\Models\Question;
 use App\Models\ExamAssignment;
@@ -20,6 +21,7 @@ class ExamCorrectionControllerTest extends TestCase
     private User $teacher;
     private User $student;
     private Exam $exam;
+    private Group $group;
     private Question $question;
     private ExamAssignment $assignment;
 
@@ -42,6 +44,13 @@ class ExamCorrectionControllerTest extends TestCase
         ]);
         $this->student->assignRole('student');
 
+        // Créer un groupe et y ajouter l'étudiant
+        $this->group = Group::factory()->create();
+        $this->group->students()->attach($this->student->id, [
+            'is_active' => true,
+            'enrolled_at' => now(),
+        ]);
+
         // Créer un examen
         /** @var Exam $exam */
         $exam = Exam::factory()->create([
@@ -50,6 +59,12 @@ class ExamCorrectionControllerTest extends TestCase
             'is_active' => true
         ]);
         $this->exam = $exam;
+
+        // Assigner l'examen au groupe
+        $this->exam->groups()->attach($this->group->id, [
+            'assigned_at' => now(),
+            'assigned_by' => $this->teacher->id,
+        ]);
 
         // Créer une question
         /** @var Question $question */
@@ -80,7 +95,7 @@ class ExamCorrectionControllerTest extends TestCase
     public function teacher_can_view_student_review_page()
     {
         $response = $this->actingAs($this->teacher)
-            ->get(route('exams.review', [$this->exam, $this->student]));
+            ->get(route('exams.review', [$this->exam, $this->group, $this->student]));
 
         $response->assertOk();
         $response->assertInertia(
@@ -95,7 +110,7 @@ class ExamCorrectionControllerTest extends TestCase
     public function teacher_can_save_student_review()
     {
         $response = $this->actingAs($this->teacher)
-            ->post(route('exams.review.save', [$this->exam, $this->student]), [
+            ->post(route('exams.review.save', [$this->exam, $this->group, $this->student]), [
                 'scores' => [
                     [
                         'question_id' => $this->question->id,
@@ -106,7 +121,7 @@ class ExamCorrectionControllerTest extends TestCase
                 'teacher_notes' => 'Excellent work overall'
             ]);
 
-        $response->assertRedirect(route('exams.review', [$this->exam, $this->student]));
+        $response->assertRedirect(route('exams.review', [$this->exam, $this->group, $this->student]));
         $response->assertSessionHas('success');
 
         // Vérifier que l'assignment existe toujours
@@ -137,7 +152,7 @@ class ExamCorrectionControllerTest extends TestCase
             ->first();
 
         $this->assertEquals(8.5, $answer->score);
-        $this->assertEquals('Good answer', $answer->feedback); // Vérifier feedback, pas teacher_notes
+        $this->assertEquals('Good answer', $answer->feedback);
     }
 
     #[Test]
@@ -160,7 +175,7 @@ class ExamCorrectionControllerTest extends TestCase
     public function teacher_can_save_review_with_feedback_only()
     {
         $response = $this->actingAs($this->teacher)
-            ->post(route('exams.review.save', [$this->exam, $this->student]), [
+            ->post(route('exams.review.save', [$this->exam, $this->group, $this->student]), [
                 'scores' => [
                     [
                         'question_id' => $this->question->id,
@@ -181,14 +196,22 @@ class ExamCorrectionControllerTest extends TestCase
         $newStudent = User::factory()->create();
         $newStudent->assignRole('student');
 
+        // Ajouter le nouvel étudiant au groupe
+        $this->group->students()->attach($newStudent->id, [
+            'is_active' => true,
+            'enrolled_at' => now(),
+        ]);
+
         $newAssignment = ExamAssignment::factory()->create([
             'exam_id' => $this->exam->id,
             'student_id' => $newStudent->id,
-            'status' => 'assigned' // Pas encore soumis
+            'status' => null,
+            'started_at' => now(),
+            'submitted_at' => null,
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('exams.review', [$this->exam, $newStudent]));
+            ->get(route('exams.review', [$this->exam, $this->group, $newStudent]));
 
         // Devrait quand même permettre l'accès (pour préparer la correction)
         $response->assertOk();
@@ -201,6 +224,8 @@ class ExamCorrectionControllerTest extends TestCase
         $otherTeacher = User::factory()->create();
         $otherTeacher->assignRole('teacher');
 
+        $otherGroup = Group::factory()->create();
+
         $otherExam = Exam::factory()->create([
             'teacher_id' => $otherTeacher->id
         ]);
@@ -208,14 +233,20 @@ class ExamCorrectionControllerTest extends TestCase
         $otherStudent = User::factory()->create();
         $otherStudent->assignRole('student');
 
+        $otherGroup->students()->attach($otherStudent->id, [
+            'is_active' => true,
+            'enrolled_at' => now(),
+        ]);
+
         ExamAssignment::factory()->create([
             'exam_id' => $otherExam->id,
             'student_id' => $otherStudent->id,
-            'status' => 'submitted'
+            'status' => 'submitted',
+            'submitted_at' => now(),
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->get(route('exams.review', [$otherExam, $otherStudent]));
+            ->get(route('exams.review', [$otherExam, $otherGroup, $otherStudent]));
 
         $response->assertForbidden();
     }
@@ -224,7 +255,7 @@ class ExamCorrectionControllerTest extends TestCase
     public function student_cannot_access_correction_routes()
     {
         $response = $this->actingAs($this->student)
-            ->get(route('exams.review', [$this->exam, $this->student]));
+            ->get(route('exams.review', [$this->exam, $this->group, $this->student]));
 
         $response->assertForbidden();
     }
@@ -259,7 +290,7 @@ class ExamCorrectionControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->teacher)
-            ->post(route('exams.review.save', [$this->exam, $this->student]), [
+            ->post(route('exams.review.save', [$this->exam, $this->group, $this->student]), [
                 'scores' => [
                     [
                         'question_id' => $this->question->id,

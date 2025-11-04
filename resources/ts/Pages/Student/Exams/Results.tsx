@@ -1,13 +1,13 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Section from '@/Components/Section';
-import AlertEntry from '@/Components/AlertEntry';
 import Badge from '@/Components/Badge';
-import { Exam, ExamAssignment, Answer, User } from '@/types';
+import { Exam, ExamAssignment, Answer, User, Level, Group } from '@/types';
 import useExamResults from '@/hooks/exam/useExamResults';
 import useExamScoring from '@/hooks/exam/useExamScoring';
 import ExamInfoSection from '@/Components/exam/ExamInfoSection';
 import QuestionRenderer from '@/Components/exam/QuestionRenderer';
+import { breadcrumbs } from '@/utils/breadcrumbs';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { Button } from '@/Components';
@@ -17,16 +17,19 @@ interface Props {
     assignment: ExamAssignment;
     userAnswers: Record<number, Answer>;
     creator: User;
-
+    group?: Group & { level: Level };
 }
 
-const ExamResults: React.FC<Props> = ({ exam, assignment, userAnswers, creator }) => {
+const ExamResults: React.FC<Props> = ({ exam, assignment, userAnswers, creator, group }) => {
     const { isPendingReview, assignmentStatus, showCorrectAnswers, examIsActive } = useExamResults({ exam, assignment, userAnswers });
     const { totalPoints, finalPercentage, getQuestionResult } = useExamScoring({ exam, assignment, userAnswers });
 
 
     return (
-        <AuthenticatedLayout title={`Résultats - ${exam.title}`}>
+        <AuthenticatedLayout
+            title={`Résultats - ${exam.title}`}
+            breadcrumb={group ? breadcrumbs.studentExamShow(group.level.name, group.id, exam.title) : breadcrumbs.studentExams()}
+        >
             <Section
                 title="Résultats de l'examen"
                 subtitle={
@@ -64,27 +67,9 @@ const ExamResults: React.FC<Props> = ({ exam, assignment, userAnswers, creator }
                     isPendingReview={isPendingReview}
                     isStudentView={true}
                 />
-
-                {isPendingReview && (
-                    <AlertEntry title="En attente de correction" type="warning">
-                        <p className="text-sm">
-                            Votre examen contient des questions nécessitant une correction manuelle.
-                            Les résultats seront disponibles après correction par l'enseignant.
-                        </p>
-                    </AlertEntry>
-                )}
             </Section>
 
             <Section title="Détail des réponses">
-                <QuestionRenderer
-                    questions={exam.questions || []}
-                    getQuestionResult={getQuestionResult}
-                    isTeacherView={false}
-                    showCorrectAnswers={showCorrectAnswers}
-                    assignment={assignment}
-                />
-
-                {/* Notes du professeur */}
                 {assignment.teacher_notes && (
                     <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                         <h3 className="text-lg font-medium text-green-800 mb-2">
@@ -93,6 +78,13 @@ const ExamResults: React.FC<Props> = ({ exam, assignment, userAnswers, creator }
                         <p className="text-green-700 whitespace-pre-wrap">{assignment.teacher_notes}</p>
                     </div>
                 )}
+                <QuestionRenderer
+                    questions={exam.questions || []}
+                    getQuestionResult={getQuestionResult}
+                    isTeacherView={false}
+                    showCorrectAnswers={showCorrectAnswers}
+                    assignment={assignment}
+                />
             </Section>
         </AuthenticatedLayout>
     );

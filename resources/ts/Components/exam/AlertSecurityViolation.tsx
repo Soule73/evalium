@@ -7,7 +7,7 @@ import { LockClosedIcon } from '@heroicons/react/24/outline';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 
-interface SecurityViolationPageProps {
+interface AlertSecurityViolationProps {
     exam: {
         id: number;
         title: string;
@@ -16,7 +16,7 @@ interface SecurityViolationPageProps {
     reason: string;
 }
 
-export default function SecurityViolationPage({ exam, reason }: SecurityViolationPageProps) {
+export default function AlertSecurityViolation({ exam, reason }: AlertSecurityViolationProps) {
 
     return (
         <CanNotTakeExam
@@ -57,7 +57,7 @@ function CanNotTakeExam({ title, subtitle, message, icon, children }: CanNotTake
 
             <div className="w-full min-h-[80vh] flex justify-center items-center space-y-8">
                 <Section title={title}
-                    className='!max-w-4xl w-full md:min-w-md '
+                    className='max-w-4xl! w-full md:min-w-md '
                     subtitle={subtitle ?? ''}
                     actions={
                         <Button

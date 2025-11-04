@@ -2,22 +2,23 @@
 
 namespace App\Services\Admin;
 
-use App\Models\User;
-use App\Models\Exam;
-use App\Models\ExamAssignment;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
 
+/**
+ * Admin Dashboard Service - Provide statistics and data for admin dashboard
+ * 
+ * Single Responsibility: Aggregate and format admin dashboard data
+ * Optimized with raw SQL queries for performance
+ */
 class AdminDashboardService
 {
     /**
-     * Obtenir les statistiques du tableau de bord administrateur
-     * Optimisé avec une seule requête SQL pour les counts par rôle
+     * Get admin dashboard statistics with optimized single query
+     *
+     * @return array Statistics with user counts by role
      */
     public function getDashboardStats(): array
     {
-        // Utilisation d'une requête brute optimisée pour compter les utilisateurs par rôle
         $userCounts = DB::table('users')
             ->leftJoin('model_has_roles', function ($join) {
                 $join->on('users.id', '=', 'model_has_roles.model_id')
@@ -40,14 +41,16 @@ class AdminDashboardService
             'admins_count' => $userCounts->admins_count ?? 0,
         ];
     }
+
     /**
-     * Obtenir les données complètes du dashboard administrateur
+     * Get complete admin dashboard data
+     *
+     * @return array Dashboard data with statistics
      */
     public function getDashboardData(): array
     {
         return [
             'stats' => $this->getDashboardStats(),
-            //
         ];
     }
 }

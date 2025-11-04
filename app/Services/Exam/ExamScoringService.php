@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\DB;
 use App\Services\Core\Scoring\ScoringService;
 
 /**
- * Service pour gérer la notation des examens
+ * Service for managing exam scoring and teacher corrections.
  * 
- * @package App\Services\Exam
+ * Handles manual grading, score recalculation, and assignment status updates.
  */
 class ExamScoringService
 {
@@ -19,7 +19,14 @@ class ExamScoringService
     ) {}
 
     /**
-     * Sauvegarder les corrections manuelles d'un enseignant
+     * Save manual corrections from a teacher.
+     * 
+     * Updates answer scores and feedback for multiple questions in a transaction.
+     * Automatically updates assignment status to 'graded' after corrections.
+     *
+     * @param ExamAssignment $assignment Assignment to correct
+     * @param array $scores Question scores and feedback [questionId => ['score' => float, 'feedback' => ?string]]
+     * @return array Summary with total score and updated count
      */
     public function saveTeacherCorrections(ExamAssignment $assignment, array $scores): array
     {
@@ -31,14 +38,11 @@ class ExamScoringService
                 $newScore = is_array($scoreData) ? $scoreData['score'] : $scoreData;
                 $feedback = is_array($scoreData) ? ($scoreData['feedback'] ?? $scoreData['teacher_notes'] ?? null) : null;
 
-                // Pour les questions à choix multiples, on ne met à jour que la première réponse
-                // car toutes les réponses de la même question ont le même score
                 $answer = $assignment->answers()
                     ->where('question_id', $questionId)
                     ->first();
 
                 if ($answer) {
-                    // Si c'est une question à choix multiples, mettre à jour toutes les réponses
                     $updateData = ['score' => $newScore];
 
                     if ($feedback !== null) {
@@ -76,9 +80,14 @@ class ExamScoringService
         });
     }
 
-
     /**
-     * Recalculer tous les scores automatiques pour un examen
+     * Recalculate all automatic scores for an exam.
+     * 
+     * Useful after exam questions or scoring rules are modified.
+     * Only processes submitted assignments.
+     *
+     * @param Exam $exam The exam to recalculate scores for
+     * @return array Statistics with total and updated assignment counts
      */
     public function recalculateExamScores(Exam $exam): array
     {
@@ -91,7 +100,6 @@ class ExamScoringService
         foreach ($assignments as $assignment) {
             $autoScore = $this->scoringService->calculateAutoCorrectableScore($assignment);
 
-            // Mettre à jour seulement si le score a changé
             if ($assignment->auto_score !== $autoScore) {
                 $assignment->update(['auto_score' => $autoScore]);
                 $updated++;
@@ -105,26 +113,32 @@ class ExamScoringService
     }
 
     /**
-     * Sauvegarder une correction manuelle d'un professeur
+     * Save manual correction from a teacher.
+     * 
+     * Optimized to use bulk operations instead of N+1 queries.
+     * Supports two input formats:
+     * - Batch: ['scores' => [['question_id' => X, 'score' => Y, 'feedback' => Z]]]
+     * - Single: ['question_id' => X, 'score' => Y, 'feedback' => Z]
+     *
+     * @param Exam $exam Exam being corrected
+     * @param \App\Models\User $student Student whose work is corrected
+     * @param array $validatedData Scores and feedback data
+     * @return array Summary with updated count and scores
      */
     public function saveManualCorrection($exam, $student, array $validatedData): array
     {
-
-        // Récupérer l'assignation
         $assignment = $exam->assignments()
             ->where('student_id', $student->id)
             ->whereNotNull('submitted_at')
             ->firstOrFail();
 
-
         $updatedAnswers = 0;
 
-        // Si on a des scores individuels par question
         if (isset($validatedData['scores'])) {
+            $answers = $assignment->answers()->get()->keyBy('question_id');
+
             foreach ($validatedData['scores'] as $scoreData) {
-                $answer = $assignment->answers()
-                    ->where('question_id', $scoreData['question_id'])
-                    ->first();
+                $answer = $answers->get($scoreData['question_id']);
 
                 if ($answer) {
                     $answer->update([
@@ -136,7 +150,6 @@ class ExamScoringService
             }
         }
 
-        // Si on a un score et un feedback spécifiques pour une question
         if (isset($validatedData['question_id']) && isset($validatedData['score'])) {
             $answer = $assignment->answers()
                 ->where('question_id', $validatedData['question_id'])
@@ -151,7 +164,6 @@ class ExamScoringService
             }
         }
 
-        // Recalculer le score total de l'assignation
         $totalScore = $assignment->answers()->sum('score');
         $assignment->update([
             'score' => $totalScore,

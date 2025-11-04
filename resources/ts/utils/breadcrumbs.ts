@@ -40,8 +40,16 @@ const examIndex = (): BreadcrumbItem[] => [
 // Breadcrumb index des examens pour étudiants
 const studentExamIndex = (): BreadcrumbItem[] => [
     dashboardBreadcrumb(),
-    { label: 'Mes Examens', href: route('student.exams.index') },
+    { label: 'Mes Groupes', href: route('student.exams.index') },
 ];
+
+// Breadcrumb détails d'un groupe étudiant
+const studentGroupShowBreadcrumb = (groupName: string, groupId: number): BreadcrumbItem[] => (
+    [
+        ...studentExamIndex(),
+        { label: groupName, href: route('student.exams.group.show', { group: groupId }) },
+    ]
+);
 
 // Breadcrumb details d'un examen 
 const examShowBreadcrumb = (examTitle: string, examId: number): BreadcrumbItem[] => (
@@ -182,13 +190,18 @@ export const breadcrumbs = {
 
     studentExams: (): BreadcrumbItem[] => studentExamIndex(),
 
-    studentExamShow: (examTitle: string): BreadcrumbItem[] => [
+    studentGroupShow: (groupName: string): BreadcrumbItem[] => [
         ...studentExamIndex(),
+        { label: groupName }
+    ],
+
+    studentExamShow: (groupName: string, groupId: number, examTitle: string): BreadcrumbItem[] => [
+        ...studentGroupShowBreadcrumb(groupName, groupId),
         { label: examTitle }
     ],
 
-    studentExamTake: (examTitle: string): BreadcrumbItem[] => [
-        ...studentExamIndex(),
+    studentExamTake: (groupName: string, groupId: number, examTitle: string): BreadcrumbItem[] => [
+        ...studentGroupShowBreadcrumb(groupName, groupId),
         { label: examTitle },
         { label: "Passer l'examen" }
     ],

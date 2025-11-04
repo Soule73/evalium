@@ -9,9 +9,10 @@ use App\Models\Group;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 /**
- * Service pour gérer les assignations des examens aux étudiants
+ * Exam Assignment Service - Manage exam assignments to students
  * 
- * @package App\Services\Exam
+ * Single Responsibility: Handle exam-student assignments and statistics
+ * Dependencies: ExamGroupService for group-based assignments
  */
 class ExamAssignmentService
 {
@@ -20,7 +21,22 @@ class ExamAssignmentService
     ) {}
 
     /**
-     * Récupérer les assignations d'un examen avec pagination et filtres
+     * Get paginated exam assignments with filters
+     *
+     * @param Exam $exam Target exam
+     * @param int $perPage Number of items per page
+     * @param string|null $search Search term for student name/email
+     * @param string|null $status Filter by assignment status
+     * @return LengthAwarePaginator
+     */
+    /**
+     * Get paginated exam assignments with filters
+     *
+     * @param Exam $exam Target exam
+     * @param int $perPage Number of items per page
+     * @param string|null $search Search term for student name/email
+     * @param string|null $status Filter by assignment status
+     * @return LengthAwarePaginator
      */
     public function getExamAssignments(
         Exam $exam,
@@ -47,24 +63,31 @@ class ExamAssignmentService
     }
 
     /**
-     * Calculer les statistiques des assignations d'un examen
+     * Calculate exam assignment statistics
+     *
+     * @param Exam $exam Target exam
+     * @return array Statistics with counts and rates
+     */
+    /**
+     * Calculate exam assignment statistics
+     *
+     * @param Exam $exam Target exam
+     * @return array Statistics with counts and rates
      */
     public function getExamAssignmentStats(Exam $exam): array
     {
-        // Récupérer tous les groupes assignés et leurs étudiants actifs
         $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
+
         $totalStudentsInGroups = $assignedGroups->sum(function ($group) {
             return $group->activeStudents->count();
         });
 
-        // Récupérer toutes les assignations existantes
         $allAssignments = $exam->assignments()->get();
+
         $assignedStudentsCount = $allAssignments->count();
 
-        // Calculer combien d'étudiants n'ont pas encore d'assignation créée
         $notAssignedYet = $totalStudentsInGroups - $assignedStudentsCount;
 
-        // Compter les statuts basés sur les timestamps
         $inProgressCount = $allAssignments->filter(function ($assignment) {
             return $assignment->started_at !== null && $assignment->submitted_at === null;
         })->count();
@@ -88,7 +111,18 @@ class ExamAssignmentService
     }
 
     /**
-     * Assigner un examen à plusieurs étudiants
+     * Assign an exam to multiple students
+     *
+     * @param Exam $exam Target exam
+     * @param array $studentIds Student IDs to assign
+     * @return array Result with assigned counts
+     */
+    /**
+     * Assign an exam to multiple students
+     *
+     * @param Exam $exam Target exam
+     * @param array $studentIds Student IDs to assign
+     * @return array Result with assigned counts
      */
     public function assignExamToStudents(Exam $exam, array $studentIds): array
     {
@@ -114,7 +148,11 @@ class ExamAssignmentService
     }
 
     /**
-     * Assigner un examen à tous les étudiants d'un groupe
+     * Assign an exam to all active students in a group
+     *
+     * @param Exam $exam Target exam
+     * @param int $groupId Group ID
+     * @return array Result with assigned counts
      */
     public function assignExamToGroup(Exam $exam, int $groupId): array
     {
@@ -126,13 +164,26 @@ class ExamAssignmentService
     }
 
     /**
-     * Assigner un examen à un étudiant spécifique
+     * Assign an exam to a specific student
+     *
+     * @param Exam $exam Target exam
+     * @param int $studentId Student ID
+     * @return array Assignment and creation status
+     * @throws \InvalidArgumentException
+     */
+    /**
+     * Assign an exam to a specific student
+     *
+     * @param Exam $exam Target exam
+     * @param int $studentId Student ID
+     * @return array Assignment and creation status
+     * @throws \InvalidArgumentException
      */
     public function assignExamToStudent(Exam $exam, int $studentId): array
     {
         $student = User::find($studentId);
         if (!$student || !$student->hasRole('student')) {
-            throw new \InvalidArgumentException("L'utilisateur avec l'ID {$studentId} n'est pas un étudiant valide.");
+            throw new \InvalidArgumentException("User with ID {$studentId} is not a valid student.");
         }
 
         $assignment = ExamAssignment::firstOrCreate([
@@ -149,21 +200,30 @@ class ExamAssignmentService
     }
 
     /**
-     * Supprimer l'assignation d'un étudiant
+     * Remove a student's exam assignment
+     *
+     * @param Exam $exam Target exam
+     * @param User $student Student to unassign
+     * @return bool
+     * @throws \InvalidArgumentException
      */
     public function removeStudentAssignment(Exam $exam, User $student): bool
     {
         $assignment = $exam->assignments()->where('student_id', $student->id)->first();
 
         if (!$assignment) {
-            throw new \InvalidArgumentException("Cet étudiant n'est pas assigné à cet examen.");
+            throw new \InvalidArgumentException("This student is not assigned to this exam.");
         }
 
         return $assignment->delete();
     }
 
     /**
-     * Récupérer l'assignation d'un étudiant pour un examen avec toutes les relations nécessaires
+     * Get student's assignment with all necessary relations
+     *
+     * @param Exam $exam Target exam
+     * @param User $student Target student
+     * @return ExamAssignment
      */
     public function getStudentAssignmentWithAnswers(Exam $exam, User $student): ExamAssignment
     {
@@ -174,7 +234,11 @@ class ExamAssignmentService
     }
 
     /**
-     * Récupérer l'assignation soumise d'un étudiant pour un examen
+     * Get student's submitted assignment
+     *
+     * @param Exam $exam Target exam
+     * @param User $student Target student
+     * @return ExamAssignment
      */
     public function getSubmittedStudentAssignment(Exam $exam, User $student): ExamAssignment
     {
@@ -186,7 +250,16 @@ class ExamAssignmentService
     }
 
     /**
-     * Récupérer les données pour le formulaire d'assignation
+     * Get form data for assignment creation
+     *
+     * @param Exam $exam Target exam
+     * @return array Form data with students, groups, and assigned IDs
+     */
+    /**
+     * Get form data for assignment creation
+     *
+     * @param Exam $exam Target exam
+     * @return array Form data with students, groups, and assigned IDs
      */
     public function getAssignmentFormData(Exam $exam): array
     {
@@ -217,41 +290,53 @@ class ExamAssignmentService
     }
 
     /**
-     * Récupérer les assignations paginées avec filtres et statistiques
+     * Get paginated assignments with filters and statistics
+     *
+     * @param Exam $exam Target exam
+     * @param array $params Filter and pagination parameters
+     * @return array Assignments, statistics, and assigned groups
      */
     public function getPaginatedAssignments(Exam $exam, array $params): array
     {
-        $query = $exam->assignments()
-            ->with('student')
-            ->orderBy($params['sort_by'] === 'user_name' ? 'assigned_at' : $params['sort_by'], $params['sort_direction']);
+        $allAssignments = $exam->assignments()->with('student')->get();
+
+        $filtered = $allAssignments;
 
         if ($params['search']) {
-            $query->whereHas('student', function ($q) use ($params) {
-                $q->where('name', 'like', '%' . $params['search'] . '%')
-                    ->orWhere('email', 'like', '%' . $params['search'] . '%');
+            $searchTerm = strtolower($params['search']);
+            $filtered = $filtered->filter(function ($assignment) use ($searchTerm) {
+                return str_contains(strtolower($assignment->student->name ?? ''), $searchTerm) ||
+                    str_contains(strtolower($assignment->student->email ?? ''), $searchTerm);
             });
         }
 
         if ($params['filter_status']) {
-            $query->where('status', $params['filter_status']);
+            $filtered = $filtered->where('status', $params['filter_status']);
         }
 
-        $assignments = $query->paginate($params['per_page'])->withQueryString();
+        $sortBy = $params['sort_by'] === 'user_name' ? 'assigned_at' : $params['sort_by'];
+        $sortDirection = $params['sort_direction'] === 'desc';
+        $sorted = $filtered->sortBy($sortBy, SORT_REGULAR, $sortDirection)->values();
 
-        // Récupérer tous les groupes assignés et leurs étudiants actifs
+        $currentPage = request()->input('page', 1);
+        $perPage = $params['per_page'];
+        $paginated = $sorted->forPage($currentPage, $perPage);
+
+        $assignments = new \Illuminate\Pagination\LengthAwarePaginator(
+            $paginated,
+            $sorted->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
         $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
-        $totalStudentsInGroups = $assignedGroups->sum(function ($group) {
-            return $group->activeStudents->count();
-        });
+        $totalStudentsInGroups = $assignedGroups->sum('active_students_count');
 
-        // Récupérer toutes les assignations existantes
-        $allAssignments = $exam->assignments()->get();
         $assignedStudentsCount = $allAssignments->count();
 
-        // Calculer combien d'étudiants n'ont pas encore d'assignation créée
         $notAssignedYet = $totalStudentsInGroups - $assignedStudentsCount;
 
-        // Compter les statuts basés sur les timestamps
         $inProgressCount = $allAssignments->filter(function ($assignment) {
             return $assignment->started_at !== null && $assignment->submitted_at === null;
         })->count();

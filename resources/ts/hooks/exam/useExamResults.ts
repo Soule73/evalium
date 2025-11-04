@@ -85,11 +85,16 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
                     const hasAllCorrectChoices = correctChoiceIds.size === selectedChoiceIds.size &&
                         [...correctChoiceIds].every(id => selectedChoiceIds.has(id));
 
+                    const score = userAnswer.score !== undefined && userAnswer.score !== null
+                        ? userAnswer.score
+                        : (hasAllCorrectChoices ? question.points : 0);
+
                     return {
                         isCorrect: hasAllCorrectChoices,
                         userChoices: selectedChoices,
                         hasMultipleAnswers: true,
                         feedback: userAnswer.feedback,
+                        score: score,
                     };
                 }
 
@@ -98,6 +103,7 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
                     userChoices: [],
                     hasMultipleAnswers: true,
                     feedback: userAnswer.feedback,
+                    score: userAnswer.score ?? 0,
                 };
             }
 
@@ -113,21 +119,32 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
             }
 
             if (userAnswer.type === 'single' && userAnswer.choice) {
+                const isCorrect = userAnswer.choice.is_correct;
+                const score = userAnswer.score !== undefined && userAnswer.score !== null
+                    ? userAnswer.score
+                    : (isCorrect ? question.points : 0);
+
                 return {
-                    isCorrect: userAnswer.choice.is_correct,
+                    isCorrect: isCorrect,
                     userChoices: [userAnswer.choice],
                     hasMultipleAnswers: false,
                     feedback: userAnswer.feedback,
+                    score: score,
                 };
             }
 
             const userChoice = userAnswer.choice || userAnswer.selectedChoice;
+            const isCorrect = userChoice?.is_correct ?? null;
+            const score = userAnswer.score !== undefined && userAnswer.score !== null
+                ? userAnswer.score
+                : (isCorrect ? question.points : 0);
 
             return {
-                isCorrect: null,
+                isCorrect: isCorrect,
                 userChoices: userChoice ? [userChoice] : [],
                 hasMultipleAnswers: false,
                 feedback: userAnswer.feedback,
+                score: score,
             };
         };
     }, [userAnswers]);

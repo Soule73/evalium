@@ -24,7 +24,13 @@ class PermissionHelper
      */
     public static function hasPermission(string $permission): bool
     {
-        return Auth::check() && Auth::user()->hasPermissionTo($permission);
+        if (!Auth::check()) {
+            return false;
+        }
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        return $user->hasPermissionTo($permission);
     }
 
     // ==================== User Permissions ====================
@@ -363,7 +369,10 @@ class PermissionHelper
             return [];
         }
 
-        return Auth::user()->getAllPermissions()->pluck('name')->toArray();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        return $user->getAllPermissions()->pluck('name')->toArray();
     }
 
     /**

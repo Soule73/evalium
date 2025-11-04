@@ -7,8 +7,7 @@ use App\Models\User;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\Request;
-use App\Services\ExamService;
-use App\Services\Shared\DashboardService;
+use App\Services\Core\ExamQueryService;
 use App\Services\Admin\AdminDashboardService;
 use App\Services\Exam\TeacherDashboardService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -18,8 +17,7 @@ class DashboardController extends Controller
     use AuthorizesRequests;
 
     public function __construct(
-        private readonly ExamService $examService,
-        private readonly DashboardService $dashboardService,
+        private readonly ExamQueryService $examQueryService,
         private readonly TeacherDashboardService $teacherDashboardService,
         private readonly AdminDashboardService $adminDashboardService
     ) {}
@@ -74,12 +72,24 @@ class DashboardController extends Controller
      */
     public function student(Request $request, User $user): Response
     {
+        $allAssignments = $this->examQueryService->getAssignedExamsForStudentLight($user);
 
-        $allAssignments = $this->examService->getAssignedExamsForStudent($user, null);
+        $stats = $this->examQueryService->getStudentDashboardStats($allAssignments);
 
-        $stats = $this->examService->getStudentDashboardStats($allAssignments);
+        $page = $request->input('page', 1);
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
 
-        $examAssignments = $this->examService->getAssignedExamsForStudent($user, 10);
+        $items = $allAssignments->slice($offset, $perPage)->values();
+        $total = $allAssignments->count();
+
+        $examAssignments = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         return Inertia::render('Dashboard/Student', [
             'user' => $user,
@@ -125,9 +135,6 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard/Admin', [
             'user' => $user,
             'stats' => $dashboardData['stats'],
-            // 'activity_stats' => $dashboardData['activity_stats'],
-            // 'recent_exams' => $dashboardData['recent_exams'],
-            // 'role_distribution' => $dashboardData['role_distribution']
         ]);
     }
 }

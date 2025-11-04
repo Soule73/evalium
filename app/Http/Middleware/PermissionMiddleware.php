@@ -36,6 +36,7 @@ class PermissionMiddleware
             abort(401, 'Non autorisé');
         }
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         // Vérifier si l'utilisateur a au moins une des permissions requises

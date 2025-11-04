@@ -31,7 +31,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             {questions.map((question, index) => {
                 const result = getQuestionResult(question);
                 const hasResponse = hasUserResponse(result);
-                const questionScore = scores ? scores[question.id] : result.score;
+                const questionScore = scores?.[question.id] ?? result?.score ?? null;
 
                 return (
                     <div key={question.id} className="border border-gray-200 rounded-lg p-6">

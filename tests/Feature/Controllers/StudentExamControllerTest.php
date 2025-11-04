@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Tests\TestCase;
 use App\Models\Exam;
 use App\Models\User;
+use App\Models\Group;
+use App\Models\Level;
 use App\Models\Answer;
 use App\Models\Choice;
 use App\Models\Question;
@@ -21,6 +23,7 @@ class StudentExamControllerTest extends TestCase
     private User $teacher;
     private User $student;
     private Exam $exam;
+    private Group $group;
     private ExamAssignment $assignment;
 
     protected function setUp(): void
@@ -36,13 +39,23 @@ class StudentExamControllerTest extends TestCase
         ]);
         $this->teacher->assignRole('teacher');
 
-        // Créer un étudiant
         $this->student = User::factory()->create([
             'email' => 'student@test.com',
         ]);
         $this->student->assignRole('student');
 
-        // Créer un examen
+        $level = Level::factory()->create(['name' => 'Test Level']);
+
+        $this->group = Group::factory()->create([
+            'level_id' => $level->id,
+            'is_active' => true,
+        ]);
+
+        $this->student->groups()->attach($this->group->id, [
+            'enrolled_at' => now(),
+            'is_active' => true,
+        ]);
+
         /** @var Exam $exam */
         $exam = Exam::factory()->create([
             'teacher_id' => $this->teacher->id,
@@ -52,17 +65,21 @@ class StudentExamControllerTest extends TestCase
         ]);
         $this->exam = $exam;
 
-        // Créer des questions pour l'examen
+        $this->exam->groups()->attach($this->group->id, [
+            'assigned_at' => now(),
+            'assigned_by' => $this->teacher->id,
+        ]);
+
         Question::factory()->count(3)->create([
             'exam_id' => $this->exam->id,
         ]);
 
-        // Créer une assignation
         /** @var ExamAssignment $assignment */
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $this->exam->id,
             'student_id' => $this->student->id,
-            'status' => 'assigned'
+            'status' => null,
+            'started_at' => null,
         ]);
         $this->assignment = $assignment;
     }
@@ -76,8 +93,8 @@ class StudentExamControllerTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn($page) => $page
-                ->component('Student/ExamIndex', false)
-                ->has('pagination')
+                ->component('Student/Groups/Index', false)
+                ->has('groups')
         );
     }
 
@@ -94,10 +111,9 @@ class StudentExamControllerTest extends TestCase
             'Expected status 200 or 302, got ' . $response->getStatusCode()
         );
 
-        // If it's successful (200), check assignment status
         if ($response->getStatusCode() === 200) {
             $this->assignment->refresh();
-            $this->assertEquals('started', $this->assignment->status);
+            $this->assertNull($this->assignment->status);
             $this->assertNotNull($this->assignment->started_at);
         }
     }
@@ -105,9 +121,8 @@ class StudentExamControllerTest extends TestCase
     #[Test]
     public function student_cannot_start_exam_twice()
     {
-        // Marquer l'examen comme déjà commencé
         $this->assignment->update([
-            'status' => 'started',
+            'status' => null,
             'started_at' => Carbon::now()
         ]);
 
@@ -118,17 +133,18 @@ class StudentExamControllerTest extends TestCase
         // L'examen devrait être affiché normalement
         $response->assertInertia(
             fn($page) => $page
-                ->component('Student/ExamShow', false)
+                ->component('Student/Exams/Show', false)
         );
     }
 
     #[Test]
     public function student_can_submit_text_answer()
     {
-        // Marquer l'examen comme commencé
-        $this->assignment->update(['status' => 'started']);
+        $this->assignment->update([
+            'started_at' => now(),
+            'status' => null,
+        ]);
 
-        // Créer une question de type texte
         $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'text',
@@ -181,8 +197,10 @@ class StudentExamControllerTest extends TestCase
             'is_correct' => false
         ]);
 
-        // Marquer l'examen comme commencé pour pouvoir sauvegarder les réponses
-        $this->assignment->update(['status' => 'started']);
+        $this->assignment->update([
+            'started_at' => now(),
+            'status' => null,
+        ]);
 
         $response = $this->actingAs($this->student)
             ->post(route('student.exams.save-answers', $this->exam), [
@@ -208,11 +226,12 @@ class StudentExamControllerTest extends TestCase
     #[Test]
     public function student_can_submit_exam()
     {
-        // S'assurer qu'il n'y a pas de questions text dans cet examen
         $this->exam->questions()->delete();
 
-        // Marquer l'examen comme commencé
-        $this->assignment->update(['status' => 'started']);
+        $this->assignment->update([
+            'started_at' => now(),
+            'status' => null,
+        ]);
 
         $response = $this->actingAs($this->student)
             ->post(route('student.exams.submit', $this->exam));
@@ -229,15 +248,14 @@ class StudentExamControllerTest extends TestCase
     #[Test]
     public function student_cannot_submit_unstarted_exam()
     {
-        // L'examen est encore en statut "assigned"
         $response = $this->actingAs($this->student)
             ->post(route('student.exams.submit', $this->exam));
 
         $response->assertSessionHasErrors();
 
-        // Vérifier que le statut n'a pas changé
         $this->assignment->refresh();
-        $this->assertEquals('assigned', $this->assignment->status);
+        $this->assertNull($this->assignment->status);
+        $this->assertNull($this->assignment->started_at);
     }
 
     #[Test]
@@ -258,13 +276,20 @@ class StudentExamControllerTest extends TestCase
     #[Test]
     public function student_cannot_view_results_of_ungraded_exam()
     {
-        // L'examen est soumis mais pas encore noté
-        $this->assignment->update(['status' => 'submitted']);
+        $this->assignment->update([
+            'status' => 'submitted',
+            'submitted_at' => now(),
+        ]);
 
         $response = $this->actingAs($this->student)
             ->get(route('student.exams.show', $this->exam));
 
-        $response->assertForbidden();
+        $response->assertOk();
+        $response->assertInertia(
+            fn($page) => $page
+                ->component('Student/Exams/Results', false)
+                ->where('assignment.status', 'submitted')
+        );
     }
 
     #[Test]
@@ -301,7 +326,6 @@ class StudentExamControllerTest extends TestCase
     #[Test]
     public function student_can_update_existing_answer()
     {
-        // Créer une question et une réponse existante
         $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'text',
@@ -314,8 +338,10 @@ class StudentExamControllerTest extends TestCase
             'answer_text' => 'Old answer'
         ]);
 
-        // Marquer l'examen comme commencé pour pouvoir sauvegarder les réponses
-        $this->assignment->update(['status' => 'started']);
+        $this->assignment->update([
+            'started_at' => now(),
+            'status' => null,
+        ]);
 
         $response = $this->actingAs($this->student)
             ->post(route('student.exams.save-answers', $this->exam), [

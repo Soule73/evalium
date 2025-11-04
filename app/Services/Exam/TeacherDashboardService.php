@@ -9,30 +9,66 @@ use App\Models\ExamAssignment;
 use Illuminate\Support\Collection;
 
 /**
- * Service pour gérer le tableau de bord des enseignants
+ * Teacher Dashboard Service
+ * 
+ * Handles teacher dashboard statistics, recent exams, and pending reviews.
  * 
  * @package App\Services\Exam
  */
 class TeacherDashboardService
 {
     /**
-     * Obtenir les statistiques du tableau de bord professeur
+     * Get comprehensive dashboard statistics for a teacher
+     *
+     * Calculates:
+     * - Total exams created
+     * - Total questions across all exams
+     * - Number of unique students evaluated
+     * - Average score percentage across all submitted assignments
+     *
+     * @param User $teacher The teacher user
+     * @return array{total_exams: int, total_questions: int, students_evaluated: int, average_score: float}
      */
     public function getDashboardStats(User $teacher): array
     {
-        $teacherExams = $this->getExams($teacher);
-        $teacherExamIds = $teacherExams->pluck('id');
+        $exams = Exam::where('teacher_id', $teacher->id)
+            ->withCount('questions')
+            ->get();
+
+        $examIds = $exams->pluck('id');
+
+        $assignments = ExamAssignment::whereIn('exam_id', $examIds)
+            ->whereIn('status', ['submitted', 'graded'])
+            ->whereNotNull('score')
+            ->get();
+
+        $totalQuestions = $exams->sum('questions_count');
+        $studentsEvaluated = $assignments->unique('student_id')->count();
+
+        $totalScore = $assignments->sum('score');
+        $totalPossible = $assignments->sum(function ($assignment) use ($exams) {
+            $exam = $exams->firstWhere('id', $assignment->exam_id);
+            return $exam?->total_points ?? 0;
+        });
+
+        $averageScore = $totalPossible > 0 ? round(($totalScore / $totalPossible) * 100, 2) : 0;
 
         return [
-            'total_exams' => $teacherExams->count(),
-            'total_questions' => $this->getTotalQuestions($teacherExamIds),
-            'students_evaluated' => $this->getStudentsEvaluatedCount($teacherExamIds),
-            'average_score' => $this->calculateAverageScore($teacherExamIds),
+            'total_exams' => $exams->count(),
+            'total_questions' => $totalQuestions,
+            'students_evaluated' => $studentsEvaluated,
+            'average_score' => $averageScore,
         ];
     }
 
     /**
-     * Obtenir les examens récents du professeur avec pagination
+     * Get recent exams for a teacher with pagination and filters
+     *
+     * @param User $teacher The teacher user
+     * @param int $perPage Number of items per page
+     * @param string|null $status Filter by active status ('1' for active)
+     * @param string|null $search Search term for title or description
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function getRecentExams(User $teacher, int $perPage = 10, ?string $status = null, ?string $search = null)
     {
@@ -56,7 +92,13 @@ class TeacherDashboardService
     }
 
     /**
-     * Obtenir les assignations récentes nécessitant une correction
+     * Get recent exam assignments requiring review/grading
+     *
+     * Returns submitted assignments without scores that need teacher attention.
+     *
+     * @param User $teacher The teacher user
+     * @param int $limit Maximum number of pending reviews to return
+     * @return Collection Collection of pending review data
      */
     public function getPendingReviews(User $teacher, int $limit = 5): Collection
     {
@@ -81,57 +123,37 @@ class TeacherDashboardService
     }
 
     /**
-     * Obtenir les données complètes du dashboard professeur
+     * Get complete dashboard data for a teacher
+     *
+     * Aggregates statistics, recent exams, and pending reviews.
+     *
+     * @param User $teacher The teacher user
+     * @param int $perPage Number of exams per page
+     * @param string|null $status Filter by exam status
+     * @param string|null $search Search term for exams
+     * @return array{stats: array, recent_exams: \Illuminate\Contracts\Pagination\LengthAwarePaginator, pending_reviews: Collection}
      */
     public function getDashboardData(User $teacher, int $perPage = 10, ?string $status = null, ?string $search = null): array
     {
+        $stats = $this->getDashboardStats($teacher);
+
+        $recentExams = $this->getRecentExams($teacher, $perPage, $status, $search);
+
+        $pendingReviews = $this->getPendingReviews($teacher);
+
         return [
-            'stats' => $this->getDashboardStats($teacher),
-            'recent_exams' => $this->getRecentExams($teacher, $perPage, $status, $search),
-            'pending_reviews' => $this->getPendingReviews($teacher),
+            'stats' => $stats,
+            'recent_exams' => $recentExams,
+            'pending_reviews' => $pendingReviews,
         ];
     }
 
     /**
-     * Méthodes privées pour les calculs
+     * Format duration in seconds to human-readable time format
+     *
+     * @param int|null $seconds Duration in seconds
+     * @return string Formatted duration (HH:MM:SS or MM:SS) or 'N/A'
      */
-    private function getExams(User $teacher): Collection
-    {
-        return Exam::where('teacher_id', $teacher->id)->get();
-    }
-
-    private function getTotalQuestions(Collection $examIds): int
-    {
-        return Question::whereIn('exam_id', $examIds)->count();
-    }
-
-    private function getStudentsEvaluatedCount(Collection $examIds): int
-    {
-        return ExamAssignment::whereIn('exam_id', $examIds)
-            ->whereIn('status', ['submitted', 'graded'])
-            ->distinct('student_id')
-            ->count();
-    }
-
-    private function calculateAverageScore(Collection $examIds): float
-    {
-        $assignments = ExamAssignment::whereIn('exam_id', $examIds)
-            ->whereIn('status', ['submitted', 'graded'])
-            ->whereNotNull('score')
-            ->get();
-
-        if ($assignments->isEmpty()) {
-            return 0;
-        }
-
-        $totalScore = $assignments->sum('score');
-        $totalPossible = $assignments->sum(function ($assignment) {
-            return $assignment->exam->total_points ?? 0;
-        });
-
-        return $totalPossible > 0 ? round(($totalScore / $totalPossible) * 100, 2) : 0;
-    }
-
     private function formatDuration(?int $seconds): string
     {
         if (!$seconds) {

@@ -10,7 +10,7 @@ use Inertia\Response;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
-use App\Services\Shared\UserAnswerService;
+use App\Services\Core\Answer\AnswerFormatterService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
@@ -25,7 +25,7 @@ class ResultsController extends Controller
     use AuthorizesRequests, HasFlashMessages;
 
     public function __construct(
-        private UserAnswerService $userAnswerService
+        private AnswerFormatterService $answerFormatter
     ) {}
 
     /**
@@ -40,21 +40,7 @@ class ResultsController extends Controller
     {
         $this->authorize('view', $exam);
 
-        // Vérifier que l'étudiant appartient bien au groupe et est actif
-        $belongsToGroup = $group->students()
-            ->where('student_id', $student->id)
-            ->wherePivot('is_active', true)
-            ->exists();
-
-        if (!$belongsToGroup) {
-            abort(403, "L'étudiant n'appartient pas à ce groupe ou n'est pas actif.");
-        }
-
-        $assignment = $exam->assignments()
-            ->where('student_id', $student->id)
-            ->firstOrFail();
-
-        $data = $this->userAnswerService->getStudentResultsData($assignment, $exam, $group);
+        $data = $this->answerFormatter->getStudentResultsDataInGroup($exam, $group, $student);
 
         return Inertia::render('Exam/StudentResults', $data);
     }
@@ -69,7 +55,6 @@ class ResultsController extends Controller
     {
         $this->authorize('view', $exam);
 
-        // TODO: Implémenter les statistiques et créer la vue
         return $this->flashInfo('Les statistiques seront disponibles prochainement.');
     }
 }

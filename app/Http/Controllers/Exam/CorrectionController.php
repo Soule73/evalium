@@ -13,7 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
 use App\Services\Exam\ExamScoringService;
-use App\Services\Shared\UserAnswerService;
+use App\Services\Core\Answer\AnswerFormatterService;
 use App\Http\Requests\Exam\UpdateScoreRequest;
 use App\Http\Requests\Exam\SaveStudentReviewRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -31,7 +31,7 @@ class CorrectionController extends Controller
     use AuthorizesRequests, HasFlashMessages;
 
     public function __construct(
-        private UserAnswerService $userAnswerService,
+        private AnswerFormatterService $answerFormatter,
         private ExamScoringService $examScoringService
     ) {}
 
@@ -47,28 +47,7 @@ class CorrectionController extends Controller
     {
         $this->authorize('view', $exam);
 
-        $belongsToGroup = $group->students()
-            ->where('student_id', $student->id)->exists();
-
-        if (!$belongsToGroup) {
-            abort(403, "L'étudiant n'appartient pas à ce groupe.");
-        }
-
-        $exam->load('questions.choices');
-
-        $group->load('level');
-
-        $assignment = $exam->assignments()
-            ->with([
-                'answers.choice',
-                'student'
-            ])
-            ->where('student_id', $student->id)
-            ->firstOrFail();
-
-        $assignment->setRelation('exam', $exam);
-
-        $data = $this->userAnswerService->getStudentReviewData($assignment, $exam, $group);
+        $data = $this->answerFormatter->getStudentReviewData($exam, $group, $student);
 
         return Inertia::render('Exam/StudentReview', $data);
     }
@@ -119,7 +98,6 @@ class CorrectionController extends Controller
             $studentId = $validated['student_id'] ?? request()->route('student');
             $assignment = $exam->assignments()->where('student_id', $studentId)->firstOrFail();
 
-            // Préparer les données au format attendu par saveTeacherCorrections
             $scores = [
                 $validated['question_id'] => [
                     'score' => $validated['score'],

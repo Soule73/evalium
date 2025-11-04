@@ -15,11 +15,6 @@ class ExamAssignmentFactory extends Factory
 {
     protected $model = ExamAssignment::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $assignedAt = $this->faker->dateTimeBetween('-1 week', 'now');
@@ -32,20 +27,17 @@ class ExamAssignmentFactory extends Factory
             'submitted_at' => null,
             'score' => null,
             'auto_score' => null,
-            'status' => 'assigned',
+            'status' => null,
             'teacher_notes' => null,
             'security_violation' => null,
             'forced_submission' => false,
         ];
     }
 
-    /**
-     * Set the assignment as just assigned
-     */
     public function assigned(): static
     {
         return $this->state(fn(array $attributes) => [
-            'status' => 'assigned',
+            'status' => null,
             'started_at' => null,
             'submitted_at' => null,
             'score' => null,
@@ -54,13 +46,10 @@ class ExamAssignmentFactory extends Factory
         ]);
     }
 
-    /**
-     * Set the assignment as started
-     */
     public function started(): static
     {
         return $this->state(fn(array $attributes) => [
-            'status' => 'started',
+            'status' => null,
             'started_at' => $this->faker->dateTimeBetween('-2 hours', 'now'),
             'submitted_at' => null,
             'score' => null,
@@ -105,13 +94,10 @@ class ExamAssignmentFactory extends Factory
         ]);
     }
 
-    /**
-     * Set the assignment as pending
-     */
     public function pending(): static
     {
         return $this->state(fn(array $attributes) => [
-            'status' => 'pending',
+            'status' => null,
             'started_at' => null,
             'submitted_at' => null,
             'score' => null,
@@ -120,13 +106,10 @@ class ExamAssignmentFactory extends Factory
         ]);
     }
 
-    /**
-     * Set the assignment as in progress
-     */
     public function inProgress(): static
     {
         return $this->state(fn(array $attributes) => [
-            'status' => 'in_progress',
+            'status' => null,
             'started_at' => $this->faker->dateTimeBetween('-2 hours', 'now'),
             'submitted_at' => null,
             'score' => null,
@@ -135,16 +118,13 @@ class ExamAssignmentFactory extends Factory
         ]);
     }
 
-    /**
-     * Set the assignment as completed
-     */
     public function completed(): static
     {
         $startedAt = $this->faker->dateTimeBetween('-4 hours', '-1 hour');
         $submittedAt = $this->faker->dateTimeBetween($startedAt, 'now');
 
         return $this->state(fn(array $attributes) => [
-            'status' => 'completed',
+            'status' => 'graded',
             'started_at' => $startedAt,
             'submitted_at' => $submittedAt,
             'auto_score' => $this->faker->randomFloat(2, 0, 20),

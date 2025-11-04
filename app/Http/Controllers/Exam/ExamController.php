@@ -6,7 +6,8 @@ use App\Models\Exam;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\Request;
-use App\Services\ExamService;
+use App\Services\Core\ExamCrudService;
+use App\Services\Core\ExamQueryService;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
@@ -32,7 +33,8 @@ class ExamController extends Controller
     use AuthorizesRequests, HasFlashMessages;
 
     public function __construct(
-        private ExamService $examService,
+        private ExamQueryService $examQueryService,
+        private ExamCrudService $examCrudService,
         private ExamGroupService $examGroupService
     ) {}
 
@@ -58,7 +60,7 @@ class ExamController extends Controller
         $this->authorize('viewAny', Exam::class);
 
         // Service adapte automatiquement selon les permissions de l'utilisateur
-        $exams = $this->examService->getExams($user->id, $perPage, $status, $search);
+        $exams = $this->examQueryService->getExamsForTeacher($user->id, $perPage, $status, $search);
 
         return Inertia::render('Exam/Index', [
             'exams' => $exams
@@ -91,7 +93,7 @@ class ExamController extends Controller
         $this->authorize('create', Exam::class);
 
         try {
-            $exam = $this->examService->createExam($request->validated());
+            $exam = $this->examCrudService->create($request->validated());
 
             return $this->redirectWithSuccess(
                 'exams.show',
@@ -116,15 +118,9 @@ class ExamController extends Controller
     {
         $this->authorize('view', $exam);
 
-        $exam->load(['questions.choices']);
-        $exam->loadCount(['questions']);
+        $data = $this->examQueryService->getExamForDisplay($exam, $this->examGroupService);
 
-        $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
-
-        return Inertia::render('Exam/Show', [
-            'exam' => $exam,
-            'assignedGroups' => $assignedGroups
-        ]);
+        return Inertia::render('Exam/Show', $data);
     }
 
     /**
@@ -137,7 +133,7 @@ class ExamController extends Controller
     {
         $this->authorize('update', $exam);
 
-        $exam->load(['questions.choices']);
+        $exam = $this->examQueryService->getExamForEdit($exam);
 
         return Inertia::render('Exam/Edit', [
             'exam' => $exam
@@ -157,7 +153,7 @@ class ExamController extends Controller
         $this->authorize('update', $exam);
 
         try {
-            $exam = $this->examService->updateExam($exam, $request->validated());
+            $exam = $this->examCrudService->update($exam, $request->validated());
 
             return $this->redirectWithSuccess(
                 'exams.show',
@@ -183,7 +179,7 @@ class ExamController extends Controller
         $this->authorize('delete', $exam);
 
         try {
-            $this->examService->deleteExam($exam);
+            $this->examCrudService->delete($exam);
 
             return $this->redirectWithSuccess(
                 'exams.index',
@@ -210,7 +206,7 @@ class ExamController extends Controller
         $this->authorize('view', $exam);
 
         try {
-            $newExam = $this->examService->duplicateExam($exam);
+            $newExam = $this->examCrudService->duplicate($exam);
 
             return $this->redirectWithSuccess(
                 'exams.edit',
@@ -239,7 +235,7 @@ class ExamController extends Controller
         $this->authorize('update', $exam);
 
         try {
-            $exam->update(['is_active' => !$exam->is_active]);
+            $exam = $this->examCrudService->toggleStatus($exam);
 
             $status = $exam->is_active ? 'activé' : 'désactivé';
 

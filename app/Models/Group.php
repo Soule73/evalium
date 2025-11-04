@@ -123,6 +123,10 @@ class Group extends Model
      */
     public function getActiveStudentsCountAttribute(): int
     {
+        if (array_key_exists('active_students_count', $this->attributes)) {
+            return (int) $this->attributes['active_students_count'];
+        }
+
         return $this->activeStudents()->count();
     }
 

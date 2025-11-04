@@ -27,12 +27,12 @@ class GroupController extends Controller
     {
         $filters = $request->only(['search', 'level_id', 'is_active']);
         $groups = $this->groupService->getGroupsWithPagination($filters, 15);
-        $formData = $this->groupService->getFormData();
+        $levels = $this->groupService->getLevelsForFilters();
 
         return Inertia::render('Admin/Groups/Index', [
             'groups' => $groups,
             'filters' => $filters,
-            'levels' => $formData['levels'],
+            'levels' => $levels,
         ]);
     }
 
@@ -54,7 +54,7 @@ class GroupController extends Controller
 
     public function show(Group $group): Response
     {
-        $group->load(['level', 'activeStudents', 'students' => function ($query) {
+        $group->load(['level', 'students' => function ($query) {
             $query->withPivot(['enrolled_at', 'left_at', 'is_active'])
                 ->orderBy('group_student.enrolled_at', 'desc');
         }]);

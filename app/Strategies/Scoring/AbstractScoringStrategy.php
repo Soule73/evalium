@@ -1,19 +1,20 @@
 <?php
 
-namespace App\Services\Core\Scoring;
+namespace App\Strategies\Scoring;
 
 use App\Models\Question;
+use App\Contracts\Scoring\ScoringStrategyInterface;
 use Illuminate\Support\Collection;
 
 /**
- * Classe abstraite de base pour les stratégies de scoring
+ * Abstract base class for scoring strategies.
  * 
- * Fournit des méthodes utilitaires communes à toutes les stratégies
+ * Provides common utility methods shared across all concrete scoring strategies.
  */
 abstract class AbstractScoringStrategy implements ScoringStrategyInterface
 {
     /**
-     * Type(s) de question supporté(s) par cette stratégie
+     * Question type(s) supported by this strategy.
      *
      * @var array<string>
      */
@@ -42,7 +43,7 @@ abstract class AbstractScoringStrategy implements ScoringStrategyInterface
     }
 
     /**
-     * Vérifie si les réponses contiennent un choix valide
+     * Check if answers contain a valid choice.
      *
      * @param Collection $answers
      * @return bool
@@ -53,7 +54,7 @@ abstract class AbstractScoringStrategy implements ScoringStrategyInterface
     }
 
     /**
-     * Récupère tous les IDs de choix sélectionnés
+     * Get all selected choice IDs from answers.
      *
      * @param Collection $answers
      * @return array<int>
@@ -64,7 +65,7 @@ abstract class AbstractScoringStrategy implements ScoringStrategyInterface
     }
 
     /**
-     * Récupère tous les choix corrects pour une question
+     * Get all correct choices for a question.
      *
      * @param Question $question
      * @return Collection
@@ -75,7 +76,7 @@ abstract class AbstractScoringStrategy implements ScoringStrategyInterface
     }
 
     /**
-     * Vérifie si un choix spécifique est correct
+     * Check if a specific choice is correct.
      *
      * @param Question $question
      * @param int $choiceId
