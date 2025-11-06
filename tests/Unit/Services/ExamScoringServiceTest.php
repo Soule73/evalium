@@ -4,21 +4,17 @@ namespace Tests\Unit\Services;
 
 use Tests\TestCase;
 use App\Models\Exam;
-use App\Models\User;
-use App\Models\Answer;
-use App\Models\Question;
 use App\Models\ExamAssignment;
-use Tests\Traits\CreatesTestRoles;
 use PHPUnit\Framework\Attributes\Test;
 use App\Services\Exam\ExamScoringService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\InteractsWithTestData;
 
 class ExamScoringServiceTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestRoles;
+    use RefreshDatabase, InteractsWithTestData;
 
     private ExamScoringService $service;
-    private User $student;
     private Exam $exam;
     private ExamAssignment $assignment;
 
@@ -26,41 +22,21 @@ class ExamScoringServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->createTestRoles();
-
+        $this->seedRolesAndPermissions();
         $this->service = app(ExamScoringService::class);
 
-        $this->student = $this->createUserWithRole('student', [
-            'email' => 'student@test.com',
-        ]);
+        $teacher = $this->createTeacher();
+        $student = $this->createStudent(['email' => 'student@test.com']);
 
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create();
-
-        $this->exam = $exam;
-
-        // Créer une assignation
-        $this->assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'status' => 'submitted'
-        ]);
+        $this->exam = $this->createExamWithQuestions($teacher, questionCount: 0);
+        $this->assignment = $this->createSubmittedAssignment($this->exam, $student);
     }
 
     #[Test]
     public function it_can_save_teacher_corrections()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
-
-        $answer = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
-            'answer_text' => 'Student answer'
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'text', ['points' => 10]);
+        $this->createAnswerForQuestion($this->assignment, $question, ['answer_text' => 'Student answer']);
 
         $scores = [
             $question->id => [
@@ -78,48 +54,27 @@ class ExamScoringServiceTest extends TestCase
     #[Test]
     public function it_validates_score_range()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'text', ['points' => 10]);
+        $this->createAnswerForQuestion($this->assignment, $question, ['answer_text' => 'Student answer']);
 
-        $answer = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
-            'answer_text' => 'Student answer'
-        ]);
-
-        // Test score trop élevé
         $scores = [
             $question->id => [
-                'score' => 15, // Plus que les points de la question
+                'score' => 15,
                 'teacher_notes' => 'Test'
             ]
         ];
 
         $result = $this->service->saveCorrections($this->assignment, $scores);
 
-        // Le service devrait gérer la validation
         $this->assertArrayHasKey('success', $result);
     }
 
     #[Test]
     public function it_can_calculate_auto_score()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'text', ['points' => 10]);
+        $this->createAnswerForQuestion($this->assignment, $question, ['answer_text' => 'Student answer']);
 
-        $answer = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
-            'answer_text' => 'Student answer'
-        ]);
-
-        // Utiliser le ScoringService directement
         $scoringService = app(\App\Services\Core\Scoring\ScoringService::class);
         $autoScore = $scoringService->calculateAutoCorrectableScore($this->assignment);
 
@@ -170,11 +125,7 @@ class ExamScoringServiceTest extends TestCase
     {
         $this->assignment->update(['status' => 'submitted']);
 
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'text', ['points' => 10]);
 
         $scores = [
             $question->id => [
@@ -194,17 +145,8 @@ class ExamScoringServiceTest extends TestCase
     #[Test]
     public function it_can_save_corrections_with_unified_method()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
-
-        $answer = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
-            'answer_text' => 'Student answer'
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'text', ['points' => 10]);
+        $this->createAnswerForQuestion($this->assignment, $question, ['answer_text' => 'Student answer']);
 
         $scores = [
             $question->id => [
@@ -213,7 +155,7 @@ class ExamScoringServiceTest extends TestCase
             ]
         ];
 
-        $result = $this->service->saveCorrections($this->assignment, $scores, 'Overall good work');
+        $result = $this->service->saveCorrections($this->assignment, $scores, teacherNotes: 'Overall good work');
 
         $this->assertTrue($result['success']);
         $this->assertEquals(1, $result['updated_count']);
@@ -227,17 +169,8 @@ class ExamScoringServiceTest extends TestCase
     #[Test]
     public function it_normalizes_simple_score_format()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
-
-        $answer = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
-            'answer_text' => 'Student answer'
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'text', ['points' => 10]);
+        $this->createAnswerForQuestion($this->assignment, $question, ['answer_text' => 'Student answer']);
 
         $scores = [
             $question->id => 7.5
@@ -253,29 +186,11 @@ class ExamScoringServiceTest extends TestCase
     #[Test]
     public function it_normalizes_batch_scores_format()
     {
-        $question1 = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
+        $question1 = $this->createQuestionForExam($this->exam, 'text', ['points' => 10]);
+        $question2 = $this->createQuestionForExam($this->exam, 'text', ['points' => 5]);
 
-        $question2 = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 5
-        ]);
-
-        $answer1 = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question1->id,
-            'answer_text' => 'Answer 1'
-        ]);
-
-        $answer2 = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question2->id,
-            'answer_text' => 'Answer 2'
-        ]);
+        $this->createAnswerForQuestion($this->assignment, $question1, ['answer_text' => 'Answer 1']);
+        $this->createAnswerForQuestion($this->assignment, $question2, ['answer_text' => 'Answer 2']);
 
         $data = [
             'scores' => [
@@ -294,17 +209,8 @@ class ExamScoringServiceTest extends TestCase
     #[Test]
     public function it_normalizes_single_question_format()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
-
-        $answer = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
-            'answer_text' => 'Student answer'
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'text', ['points' => 10]);
+        $answer = $this->createAnswerForQuestion($this->assignment, $question, ['answer_text' => 'Student answer']);
 
         $data = [
             'question_id' => $question->id,
@@ -325,17 +231,8 @@ class ExamScoringServiceTest extends TestCase
     #[Test]
     public function it_handles_teacher_notes_in_single_format()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
-
-        $answer = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
-            'answer_text' => 'Student answer'
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'text', ['points' => 10]);
+        $answer = $this->createAnswerForQuestion($this->assignment, $question, ['answer_text' => 'Student answer']);
 
         $data = [
             'question_id' => $question->id,
@@ -354,17 +251,8 @@ class ExamScoringServiceTest extends TestCase
     #[Test]
     public function legacy_methods_still_work()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
-
-        $answer = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
-            'answer_text' => 'Student answer'
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'text', ['points' => 10]);
+        $this->createAnswerForQuestion($this->assignment, $question, ['answer_text' => 'Student answer']);
 
         $scores = [
             $question->id => [
