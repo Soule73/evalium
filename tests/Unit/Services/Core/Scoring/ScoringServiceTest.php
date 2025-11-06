@@ -2,17 +2,17 @@
 
 namespace Tests\Unit\Services\Core\Scoring;
 
-use Tests\TestCase;
 use App\Models\Answer;
 use App\Models\Choice;
-use PHPUnit\Framework\Attributes\Test;
 use App\Services\Core\Scoring\ScoringService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 class ScoringServiceTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private ScoringService $scoringService;
 

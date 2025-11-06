@@ -9,7 +9,7 @@ class SingleQuestionExistsValidationStrategy implements ScoreValidationStrategy
 {
     public function validate(Validator $validator, array $data, array $context = []): void
     {
-        if (!isset($data['exam_id']) || !isset($data['question_id'])) {
+        if (! isset($data['exam_id']) || ! isset($data['question_id'])) {
             return;
         }
 
@@ -17,11 +17,12 @@ class SingleQuestionExistsValidationStrategy implements ScoreValidationStrategy
             ->where('exam_id', $data['exam_id'])
             ->first();
 
-        if (!$question) {
+        if (! $question) {
             $validator->errors()->add(
                 'question_id',
                 __('validation.custom.question_id.not_in_exam')
             );
+
             return;
         }
 

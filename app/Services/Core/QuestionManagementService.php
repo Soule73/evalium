@@ -2,16 +2,16 @@
 
 namespace App\Services\Core;
 
-use App\Models\Exam;
 use App\Models\Answer;
 use App\Models\Choice;
+use App\Models\Exam;
 use App\Models\Question;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Question Management Service - Handle all question-related operations
- * 
+ *
  * Single Responsibility: Manage questions and choices for exams
  * No business logic about exams themselves (delegated to ExamCrudService)
  */
@@ -19,10 +19,6 @@ class QuestionManagementService
 {
     /**
      * Create questions for an exam
-     *
-     * @param Exam $exam
-     * @param array $questionsData
-     * @return void
      */
     public function createQuestionsForExam(Exam $exam, array $questionsData): void
     {
@@ -40,16 +36,12 @@ class QuestionManagementService
 
     /**
      * Update questions for an exam
-     *
-     * @param Exam $exam
-     * @param array $questionsData
-     * @return void
      */
     public function updateQuestionsForExam(Exam $exam, array $questionsData): void
     {
         DB::transaction(function () use ($exam, $questionsData) {
             foreach ($questionsData as $questionData) {
-                if (isset($questionData['id']) && !empty($questionData['id'])) {
+                if (isset($questionData['id']) && ! empty($questionData['id'])) {
                     $this->updateQuestion($exam, $questionData);
                 } else {
                     $this->createSingleQuestion($exam, $questionData);
@@ -60,10 +52,6 @@ class QuestionManagementService
 
     /**
      * Update a single question
-     *
-     * @param Exam $exam
-     * @param array $questionData
-     * @return void
      */
     private function updateQuestion(Exam $exam, array $questionData): void
     {
@@ -85,10 +73,6 @@ class QuestionManagementService
 
     /**
      * Create a single question
-     *
-     * @param Exam $exam
-     * @param array $questionData
-     * @return Question
      */
     private function createSingleQuestion(Exam $exam, array $questionData): Question
     {
@@ -106,10 +90,6 @@ class QuestionManagementService
 
     /**
      * Delete questions by IDs
-     *
-     * @param Exam $exam
-     * @param array $questionIds
-     * @return void
      */
     public function deleteQuestionsById(Exam $exam, array $questionIds): void
     {
@@ -118,7 +98,7 @@ class QuestionManagementService
             ->pluck('id')
             ->toArray();
 
-        if (!empty($validQuestionIds)) {
+        if (! empty($validQuestionIds)) {
             Answer::whereIn('question_id', $validQuestionIds)->delete();
             Choice::whereIn('question_id', $validQuestionIds)->delete();
             Question::whereIn('id', $validQuestionIds)->delete();
@@ -127,10 +107,6 @@ class QuestionManagementService
 
     /**
      * Delete choices by IDs
-     *
-     * @param Exam $exam
-     * @param array $choiceIds
-     * @return void
      */
     public function deleteChoicesById(Exam $exam, array $choiceIds): void
     {
@@ -141,7 +117,7 @@ class QuestionManagementService
             ->pluck('id')
             ->toArray();
 
-        if (!empty($validChoiceIds)) {
+        if (! empty($validChoiceIds)) {
             Answer::whereIn('choice_id', $validChoiceIds)->delete();
             Choice::whereIn('id', $validChoiceIds)->delete();
         }
@@ -150,8 +126,7 @@ class QuestionManagementService
     /**
      * Delete questions in bulk
      *
-     * @param Collection|array $questionIds
-     * @return void
+     * @param  Collection|array  $questionIds
      */
     public function deleteBulk($questionIds): void
     {
@@ -159,7 +134,7 @@ class QuestionManagementService
             $questionIds = $questionIds->toArray();
         }
 
-        if (!empty($questionIds)) {
+        if (! empty($questionIds)) {
             Choice::whereIn('question_id', $questionIds)->delete();
             Answer::whereIn('question_id', $questionIds)->delete();
             Question::whereIn('id', $questionIds)->delete();
@@ -168,10 +143,6 @@ class QuestionManagementService
 
     /**
      * Duplicate a question to a new exam
-     *
-     * @param Question $originalQuestion
-     * @param Exam $newExam
-     * @return Question
      */
     public function duplicateQuestion(Question $originalQuestion, Exam $newExam): Question
     {
@@ -192,10 +163,6 @@ class QuestionManagementService
 
     /**
      * Create choices for a question based on type
-     *
-     * @param Question $question
-     * @param array $questionData
-     * @return void
      */
     private function createChoicesForQuestion(Question $question, array $questionData): void
     {
@@ -208,14 +175,10 @@ class QuestionManagementService
 
     /**
      * Create choice options
-     *
-     * @param Question $question
-     * @param array $questionData
-     * @return void
      */
     private function createChoiceOptions(Question $question, array $questionData): void
     {
-        if (!isset($questionData['choices']) || !is_array($questionData['choices'])) {
+        if (! isset($questionData['choices']) || ! is_array($questionData['choices'])) {
             return;
         }
 
@@ -231,17 +194,13 @@ class QuestionManagementService
             ];
         }
 
-        if (!empty($choicesToCreate)) {
+        if (! empty($choicesToCreate)) {
             Choice::insert($choicesToCreate);
         }
     }
 
     /**
      * Create boolean options
-     *
-     * @param Question $question
-     * @param array $questionData
-     * @return void
      */
     private function createBooleanOptions(Question $question, array $questionData): void
     {
@@ -272,7 +231,7 @@ class QuestionManagementService
                 'order_index' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]
+            ],
         ];
 
         Choice::insert($booleanChoices);
@@ -280,10 +239,6 @@ class QuestionManagementService
 
     /**
      * Update choices for an existing question
-     *
-     * @param Question $question
-     * @param array $questionData
-     * @return void
      */
     private function updateChoicesForQuestion(Question $question, array $questionData): void
     {
@@ -297,14 +252,10 @@ class QuestionManagementService
 
     /**
      * Update choice options for multiple/one choice questions
-     *
-     * @param Question $question
-     * @param array $questionData
-     * @return void
      */
     private function updateChoiceOptions(Question $question, array $questionData): void
     {
-        if (!isset($questionData['choices']) || !is_array($questionData['choices'])) {
+        if (! isset($questionData['choices']) || ! is_array($questionData['choices'])) {
             return;
         }
 
@@ -313,7 +264,7 @@ class QuestionManagementService
         foreach ($questionData['choices'] as $index => $choiceData) {
             $isCorrect = (bool) ($choiceData['is_correct'] ?? false);
 
-            if (isset($choiceData['id']) && !empty($choiceData['id'])) {
+            if (isset($choiceData['id']) && ! empty($choiceData['id'])) {
                 Choice::where('id', $choiceData['id'])
                     ->where('question_id', $question->id)
                     ->update([
@@ -334,17 +285,13 @@ class QuestionManagementService
             }
         }
 
-        if (!empty($choicesToCreate)) {
+        if (! empty($choicesToCreate)) {
             Choice::insert($choicesToCreate);
         }
     }
 
     /**
      * Update boolean options
-     *
-     * @param Question $question
-     * @param array $questionData
-     * @return void
      */
     private function updateBooleanOptions(Question $question, array $questionData): void
     {
@@ -386,15 +333,12 @@ class QuestionManagementService
 
     /**
      * Delete all choices for a question
-     *
-     * @param Question $question
-     * @return void
      */
     private function deleteAllChoices(Question $question): void
     {
         $choiceIds = $question->choices()->pluck('id')->toArray();
 
-        if (!empty($choiceIds)) {
+        if (! empty($choiceIds)) {
             Answer::whereIn('choice_id', $choiceIds)->delete();
             $question->choices()->delete();
         }

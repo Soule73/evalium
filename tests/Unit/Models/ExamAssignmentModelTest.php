@@ -2,19 +2,19 @@
 
 namespace Tests\Unit\Models;
 
-use Carbon\Carbon;
-use Tests\TestCase;
-use App\Models\Exam;
-use App\Models\User;
 use App\Models\Answer;
+use App\Models\Exam;
 use App\Models\ExamAssignment;
-use Tests\Traits\InteractsWithTestData;
-use PHPUnit\Framework\Attributes\Test;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
+use Tests\Traits\InteractsWithTestData;
 
 class ExamAssignmentModelTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -31,7 +31,7 @@ class ExamAssignmentModelTest extends TestCase
 
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
-            'student_id' => $student->id
+            'student_id' => $student->id,
         ]);
 
         $this->assertInstanceOf(Exam::class, $assignment->exam);
@@ -46,7 +46,7 @@ class ExamAssignmentModelTest extends TestCase
 
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
-            'student_id' => $student->id
+            'student_id' => $student->id,
         ]);
 
         $this->assertInstanceOf(User::class, $assignment->student);
@@ -61,11 +61,11 @@ class ExamAssignmentModelTest extends TestCase
 
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
-            'student_id' => $student->id
+            'student_id' => $student->id,
         ]);
 
         $answers = Answer::factory()->count(3)->create([
-            'assignment_id' => $assignment->id
+            'assignment_id' => $assignment->id,
         ]);
 
         $this->assertCount(3, $assignment->answers);
@@ -75,7 +75,7 @@ class ExamAssignmentModelTest extends TestCase
     #[Test]
     public function assignment_has_correct_fillable_attributes()
     {
-        $fillable = (new ExamAssignment())->getFillable();
+        $fillable = (new ExamAssignment)->getFillable();
 
         $expectedFillable = [
             'exam_id',
@@ -105,7 +105,7 @@ class ExamAssignmentModelTest extends TestCase
             'student_id' => $student->id,
             'assigned_at' => '2025-01-01 10:00:00',
             'started_at' => '2025-01-01 10:30:00',
-            'submitted_at' => '2025-01-01 12:00:00'
+            'submitted_at' => '2025-01-01 12:00:00',
         ]);
 
         $this->assertInstanceOf(Carbon::class, $assignment->assigned_at);
@@ -159,7 +159,7 @@ class ExamAssignmentModelTest extends TestCase
 
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
-            'student_id' => $student->id
+            'student_id' => $student->id,
         ]);
 
         $this->assertNull($assignment->status);
@@ -178,7 +178,7 @@ class ExamAssignmentModelTest extends TestCase
             'exam_id' => $exam->id,
             'student_id' => $student->id,
             'started_at' => $startTime,
-            'submitted_at' => $endTime
+            'submitted_at' => $endTime,
         ]);
 
         if ($assignment->started_at && $assignment->submitted_at) {
@@ -197,11 +197,11 @@ class ExamAssignmentModelTest extends TestCase
             'exam_id' => $exam->id,
             'student_id' => $student->id,
             'status' => null,
-            'started_at' => null
+            'started_at' => null,
         ]);
 
         $assignment->update([
-            'started_at' => Carbon::now()
+            'started_at' => Carbon::now(),
         ]);
 
         $this->assertNull($assignment->status);
@@ -218,12 +218,12 @@ class ExamAssignmentModelTest extends TestCase
             'exam_id' => $exam->id,
             'student_id' => $student->id,
             'status' => null,
-            'started_at' => Carbon::now()->subHour()
+            'started_at' => Carbon::now()->subHour(),
         ]);
 
         $assignment->update([
             'status' => 'submitted',
-            'submitted_at' => Carbon::now()
+            'submitted_at' => Carbon::now(),
         ]);
 
         $this->assertEquals('submitted', $assignment->status);
@@ -240,7 +240,7 @@ class ExamAssignmentModelTest extends TestCase
             'exam_id' => $exam->id,
             'student_id' => $student->id,
             'score' => 85.5,
-            'auto_score' => 78.0
+            'auto_score' => 78.0,
         ]);
 
         $this->assertEquals(85.5, $assignment->score);
@@ -255,14 +255,14 @@ class ExamAssignmentModelTest extends TestCase
 
         ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
-            'student_id' => $student->id
+            'student_id' => $student->id,
         ]);
 
         $this->expectException(\Illuminate\Database\QueryException::class);
 
         ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
-            'student_id' => $student->id
+            'student_id' => $student->id,
         ]);
     }
 
@@ -275,7 +275,7 @@ class ExamAssignmentModelTest extends TestCase
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
             'student_id' => $student->id,
-            'teacher_notes' => 'Excellent work, but could improve on question 3'
+            'teacher_notes' => 'Excellent work, but could improve on question 3',
         ]);
 
         $this->assertEquals('Excellent work, but could improve on question 3', $assignment->teacher_notes);
@@ -290,7 +290,7 @@ class ExamAssignmentModelTest extends TestCase
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
             'student_id' => $student->id,
-            'security_violation' => 'full_screen_exit'
+            'security_violation' => 'full_screen_exit',
         ]);
 
         $this->assertEquals('full_screen_exit', $assignment->security_violation);
@@ -305,7 +305,7 @@ class ExamAssignmentModelTest extends TestCase
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
             'student_id' => $student->id,
-            'forced_submission' => true
+            'forced_submission' => true,
         ]);
 
         $this->assertTrue($assignment->forced_submission);
@@ -319,7 +319,7 @@ class ExamAssignmentModelTest extends TestCase
 
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
-            'student_id' => $student->id
+            'student_id' => $student->id,
         ]);
 
         $this->assertNull($assignment->security_violation);

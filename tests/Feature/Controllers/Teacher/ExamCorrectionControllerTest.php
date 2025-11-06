@@ -2,22 +2,22 @@
 
 namespace Tests\Feature\Controllers\Exam;
 
-use Tests\TestCase;
-use App\Models\Exam;
-use App\Models\User;
-use App\Models\Group;
 use App\Models\Answer;
-use App\Models\Question;
+use App\Models\Exam;
 use App\Models\ExamAssignment;
-use Inertia\Testing\AssertableInertia;
-use PHPUnit\Framework\Attributes\Test;
+use App\Models\Group;
+use App\Models\Question;
+use App\Models\User;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 class ExamCorrectionControllerTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -40,7 +40,7 @@ class ExamCorrectionControllerTest extends TestCase
         $exam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
             'title' => 'Test Exam',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $exam->groups()->attach($group->id, [
@@ -51,7 +51,7 @@ class ExamCorrectionControllerTest extends TestCase
         $question = Question::factory()->create([
             'exam_id' => $exam->id,
             'type' => 'text',
-            'points' => 10
+            'points' => 10,
         ]);
 
         $assignment = ExamAssignment::factory()->create([
@@ -64,7 +64,7 @@ class ExamCorrectionControllerTest extends TestCase
         Answer::create([
             'assignment_id' => $assignment->id,
             'question_id' => $question->id,
-            'answer_text' => 'Student answer'
+            'answer_text' => 'Student answer',
         ]);
 
         return compact('teacher', 'student', 'exam', 'group', 'question', 'assignment');
@@ -80,7 +80,7 @@ class ExamCorrectionControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn(AssertableInertia $page) => $page
+            fn (AssertableInertia $page) => $page
                 ->component('Exam/StudentReview', false)
                 ->has('exam')
                 ->has('student')
@@ -98,10 +98,10 @@ class ExamCorrectionControllerTest extends TestCase
                     [
                         'question_id' => $question->id,
                         'score' => 8.5,
-                        'feedback' => 'Good answer'
-                    ]
+                        'feedback' => 'Good answer',
+                    ],
                 ],
-                'teacher_notes' => 'Excellent work overall'
+                'teacher_notes' => 'Excellent work overall',
             ]);
 
         $response->assertRedirect(route('exams.review', [$exam, $group, $student]));
@@ -122,12 +122,12 @@ class ExamCorrectionControllerTest extends TestCase
                 'student_id' => $student->id,
                 'question_id' => $question->id,
                 'score' => 8.5,
-                'teacher_notes' => 'Good answer'
+                'teacher_notes' => 'Good answer',
             ]);
 
         $response->assertOk();
         $response->assertJson([
-            'success' => true
+            'success' => true,
         ]);
 
         $answer = Answer::where('assignment_id', $assignment->id)
@@ -149,7 +149,7 @@ class ExamCorrectionControllerTest extends TestCase
                 'student_id' => $student->id,
                 'question_id' => $question->id,
                 'score' => 15,
-                'teacher_notes' => 'Too much'
+                'teacher_notes' => 'Too much',
             ]);
 
         $response->assertStatus(422);
@@ -166,9 +166,9 @@ class ExamCorrectionControllerTest extends TestCase
                     [
                         'question_id' => $question->id,
                         'score' => 0,
-                        'feedback' => 'Needs improvement'
-                    ]
-                ]
+                        'feedback' => 'Needs improvement',
+                    ],
+                ],
             ]);
 
         $response->assertRedirect();
@@ -213,7 +213,7 @@ class ExamCorrectionControllerTest extends TestCase
         $otherGroup = Group::factory()->create();
 
         $otherExam = Exam::factory()->create([
-            'teacher_id' => $otherTeacher->id
+            'teacher_id' => $otherTeacher->id,
         ]);
 
         $otherStudent = User::factory()->create();
@@ -256,25 +256,25 @@ class ExamCorrectionControllerTest extends TestCase
         $question2 = Question::factory()->create([
             'exam_id' => $exam->id,
             'type' => 'text',
-            'points' => 5
+            'points' => 5,
         ]);
 
         $question3 = Question::factory()->create([
             'exam_id' => $exam->id,
             'type' => 'multiple',
-            'points' => 3
+            'points' => 3,
         ]);
 
         Answer::create([
             'assignment_id' => $assignment->id,
             'question_id' => $question2->id,
-            'answer_text' => 'Answer 2'
+            'answer_text' => 'Answer 2',
         ]);
 
         Answer::create([
             'assignment_id' => $assignment->id,
             'question_id' => $question3->id,
-            'answer_text' => 'Answer 3'
+            'answer_text' => 'Answer 3',
         ]);
 
         $response = $this->actingAs($teacher)
@@ -283,20 +283,20 @@ class ExamCorrectionControllerTest extends TestCase
                     [
                         'question_id' => $question->id,
                         'score' => 8.5,
-                        'feedback' => 'Good'
+                        'feedback' => 'Good',
                     ],
                     [
                         'question_id' => $question2->id,
                         'score' => 4.0,
-                        'feedback' => 'Very good'
+                        'feedback' => 'Very good',
                     ],
                     [
                         'question_id' => $question3->id,
                         'score' => 3.0,
-                        'feedback' => 'Perfect'
-                    ]
+                        'feedback' => 'Perfect',
+                    ],
                 ],
-                'teacher_notes' => 'Overall excellent work'
+                'teacher_notes' => 'Overall excellent work',
             ]);
 
         $response->assertRedirect();
@@ -314,7 +314,7 @@ class ExamCorrectionControllerTest extends TestCase
                 'student_id' => $student->id,
                 'question_id' => $question->id,
                 'score' => 7.5,
-                'teacher_notes' => 'Could be better, work on...'
+                'teacher_notes' => 'Could be better, work on...',
             ]);
 
         $response->assertOk();

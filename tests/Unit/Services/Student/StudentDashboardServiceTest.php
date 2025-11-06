@@ -2,14 +2,14 @@
 
 namespace Tests\Unit\Services\Student;
 
-use Tests\TestCase;
-use Tests\Traits\InteractsWithTestData;
 use App\Services\Student\StudentDashboardService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use Tests\Traits\InteractsWithTestData;
 
 class StudentDashboardServiceTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private StudentDashboardService $service;
 
@@ -93,11 +93,11 @@ class StudentDashboardServiceTest extends TestCase
         $student = $this->createStudent();
         $exam1 = $this->createExamWithQuestions(examAttributes: [
             'title' => 'Math Exam',
-            'is_active' => true
+            'is_active' => true,
         ], questionCount: 0);
         $exam2 = $this->createExamWithQuestions(examAttributes: [
             'title' => 'Science Exam',
-            'is_active' => true
+            'is_active' => true,
         ], questionCount: 0);
 
         $this->createAssignmentForStudent($exam1, $student, [
@@ -125,11 +125,11 @@ class StudentDashboardServiceTest extends TestCase
         $student = $this->createStudent();
         $mathExam = $this->createExamWithQuestions(examAttributes: [
             'title' => 'Math Test',
-            'is_active' => true
+            'is_active' => true,
         ], questionCount: 0);
         $scienceExam = $this->createExamWithQuestions(examAttributes: [
             'title' => 'Science Test',
-            'is_active' => true
+            'is_active' => true,
         ], questionCount: 0);
 
         $this->createAssignmentForStudent($mathExam, $student, ['score' => 85.0]);

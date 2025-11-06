@@ -3,18 +3,18 @@
 namespace App\Services\Core;
 
 use App\Models\Exam;
-use App\Models\User;
-use App\Models\Group;
 use App\Models\ExamAssignment;
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
 /**
  * Exam Statistics Service
- * 
+ *
  * Centralizes ALL statistics calculations for exams, groups, and students.
- * Eliminates duplication previously spread across ExamGroupService, 
+ * Eliminates duplication previously spread across ExamGroupService,
  * ExamAssignmentService, and ExamQueryService.
- * 
+ *
  * Single Responsibility: Calculate statistics only
  * No queries, no business logic, just pure calculations.
  */
@@ -23,7 +23,7 @@ class ExamStatsService
     /**
      * Calculate comprehensive statistics for an exam
      *
-     * @param Exam $exam The exam to calculate stats for
+     * @param  Exam  $exam  The exam to calculate stats for
      * @return array Statistics with counts and rates
      */
     public function calculateExamStats(Exam $exam): array
@@ -60,8 +60,8 @@ class ExamStatsService
     /**
      * Calculate statistics for a specific group in an exam
      *
-     * @param Exam $exam The exam
-     * @param Group $group The group
+     * @param  Exam  $exam  The exam
+     * @param  Group  $group  The group
      * @return array Group-specific statistics
      */
     public function calculateGroupStats(Exam $exam, Group $group): array
@@ -100,11 +100,11 @@ class ExamStatsService
 
     /**
      * Calculate statistics for exam assignments including potential students
-     * 
+     *
      * Takes into account students in assigned groups who haven't started yet.
      *
-     * @param Exam $exam The exam
-     * @param Collection $assignedGroups Groups assigned to the exam
+     * @param  Exam  $exam  The exam
+     * @param  Collection  $assignedGroups  Groups assigned to the exam
      * @return array Enhanced statistics
      */
     public function calculateExamStatsWithGroups(Exam $exam, Collection $assignedGroups): array
@@ -148,7 +148,7 @@ class ExamStatsService
     /**
      * Calculate student progress across all exams
      *
-     * @param User $student The student
+     * @param  User  $student  The student
      * @return array Student progress statistics
      */
     public function calculateStudentProgress(User $student): array
@@ -192,8 +192,8 @@ class ExamStatsService
     /**
      * Calculate completion rate for a collection of assignments
      *
-     * @param Collection $assignments Collection of exam assignments
-     * @param int $totalPossible Total possible assignments (e.g., students in group)
+     * @param  Collection  $assignments  Collection of exam assignments
+     * @param  int  $totalPossible  Total possible assignments (e.g., students in group)
      * @return float Completion rate as percentage
      */
     public function calculateCompletionRate(Collection $assignments, int $totalPossible): float
@@ -210,7 +210,7 @@ class ExamStatsService
     /**
      * Calculate average score from a collection of assignments
      *
-     * @param Collection $assignments Collection of exam assignments
+     * @param  Collection  $assignments  Collection of exam assignments
      * @return float|null Average score or null if no scores
      */
     public function calculateAverageScore(Collection $assignments): ?float
@@ -223,16 +223,15 @@ class ExamStatsService
     /**
      * Count assignments by status
      *
-     * @param Collection $assignments Collection of exam assignments
+     * @param  Collection  $assignments  Collection of exam assignments
      * @return array Counts by status
      */
     public function countByStatus(Collection $assignments): array
     {
         return [
-            'not_started' => $assignments->filter(fn($a) => $a->started_at === null)->count(),
+            'not_started' => $assignments->filter(fn ($a) => $a->started_at === null)->count(),
             'in_progress' => $assignments->filter(
-                fn($a) =>
-                $a->started_at !== null && $a->submitted_at === null
+                fn ($a) => $a->started_at !== null && $a->submitted_at === null
             )->count(),
             'submitted' => $assignments->where('status', 'submitted')->count(),
             'graded' => $assignments->where('status', 'graded')->count(),
@@ -242,8 +241,8 @@ class ExamStatsService
     /**
      * Calculate teacher dashboard statistics
      *
-     * @param User $teacher The teacher
-     * @param Collection $exams Teacher's exams with questions loaded
+     * @param  User  $teacher  The teacher
+     * @param  Collection  $exams  Teacher's exams with questions loaded
      * @return array Dashboard statistics
      */
     public function calculateTeacherDashboardStats(User $teacher, Collection $exams): array
@@ -261,6 +260,7 @@ class ExamStatsService
         $totalScore = $assignments->sum('score');
         $totalPossible = $assignments->sum(function ($assignment) use ($exams) {
             $exam = $exams->firstWhere('id', $assignment->exam_id);
+
             return $exam?->total_points ?? 0;
         });
 

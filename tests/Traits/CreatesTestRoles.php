@@ -11,15 +11,15 @@ trait CreatesTestRoles
      */
     protected function createTestRoles(): void
     {
-        if (!Role::where('name', 'admin')->exists()) {
+        if (! Role::where('name', 'admin')->exists()) {
             Role::create(['name' => 'admin']);
         }
 
-        if (!Role::where('name', 'teacher')->exists()) {
+        if (! Role::where('name', 'teacher')->exists()) {
             Role::create(['name' => 'teacher']);
         }
 
-        if (!Role::where('name', 'student')->exists()) {
+        if (! Role::where('name', 'student')->exists()) {
             Role::create(['name' => 'student']);
         }
     }
@@ -31,6 +31,7 @@ trait CreatesTestRoles
     {
         $user = \App\Models\User::factory()->create($attributes);
         $user->assignRole($role);
+
         return $user;
     }
 }

@@ -4,15 +4,15 @@ namespace App\Services\Core\Answer;
 
 use App\Contracts\Answer\AnswerFormatterInterface;
 use App\Models\Exam;
-use App\Models\User;
-use App\Models\Group;
 use App\Models\ExamAssignment;
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
 /**
  * Centralized service for exam answer formatting.
  *
- * 
+ *
  * Responsibilities:
  * - Format answers for frontend display
  * - Handle different answer types (single, multiple, text)
@@ -25,8 +25,8 @@ class AnswerFormatterService implements AnswerFormatterInterface
     /**
      * Format assignment answers for frontend display.
      *
-     * 
-     * @param ExamAssignment $assignment The assignment containing the answers
+     *
+     * @param  ExamAssignment  $assignment  The assignment containing the answers
      * @return array Formatted answers, grouped by question_id
      */
     public function formatForFrontend(ExamAssignment $assignment): array
@@ -49,8 +49,8 @@ class AnswerFormatterService implements AnswerFormatterInterface
 
     /**
      * Format a single answer (one_choice, boolean, text).
-     * 
-     * @param mixed $answer The Answer object
+     *
+     * @param  mixed  $answer  The Answer object
      * @return array Formatted answer with all metadata
      */
     public function formatSingleAnswer($answer): array
@@ -68,8 +68,8 @@ class AnswerFormatterService implements AnswerFormatterInterface
 
     /**
      * Format multiple answers (multiple choice questions).
-     * 
-     * @param Collection $answers Collection of answers for the same question
+     *
+     * @param  Collection  $answers  Collection of answers for the same question
      * @return array Formatted answers as an array of choices
      */
     public function formatMultipleAnswers($answers): array
@@ -93,8 +93,7 @@ class AnswerFormatterService implements AnswerFormatterInterface
 
     /**
      * Check if an assignment has at least one answer.
-     * 
-     * @param ExamAssignment $assignment
+     *
      * @return bool True if the assignment has any answers
      */
     public function hasAnswers(ExamAssignment $assignment): bool
@@ -104,8 +103,7 @@ class AnswerFormatterService implements AnswerFormatterInterface
 
     /**
      * Count the number of distinct answered questions.
-     * 
-     * @param ExamAssignment $assignment
+     *
      * @return int Number of questions with at least one answer
      */
     public function countAnsweredQuestions(ExamAssignment $assignment): int
@@ -117,8 +115,7 @@ class AnswerFormatterService implements AnswerFormatterInterface
 
     /**
      * Get assignment completion statistics.
-     * 
-     * @param ExamAssignment $assignment
+     *
      * @return array Statistics including total, answered, and completion percentage
      */
     public function getCompletionStats(ExamAssignment $assignment): array
@@ -146,9 +143,8 @@ class AnswerFormatterService implements AnswerFormatterInterface
 
     /**
      * Get complete data for displaying student results.
-     * 
-     * 
-     * @param ExamAssignment $assignment
+     *
+     *
      * @return array Formatted data with assignment, student, exam, and answers
      */
     public function getStudentResultsData(ExamAssignment $assignment): array
@@ -157,7 +153,7 @@ class AnswerFormatterService implements AnswerFormatterInterface
             'answers.question.choices',
             'answers.choice',
             'exam.questions.choices',
-            'student'
+            'student',
         ]);
 
         return [
@@ -172,9 +168,9 @@ class AnswerFormatterService implements AnswerFormatterInterface
     /**
      * Get formatted data for displaying student results in a group context.
      *
-     * @param Exam $exam Target exam
-     * @param Group $group Student's group
-     * @param User $student Target student
+     * @param  Exam  $exam  Target exam
+     * @param  Group  $group  Student's group
+     * @param  User  $student  Target student
      * @return array Complete data for results display
      */
     public function getStudentResultsDataInGroup(Exam $exam, Group $group, User $student): array
@@ -184,8 +180,8 @@ class AnswerFormatterService implements AnswerFormatterInterface
             ->wherePivot('is_active', true)
             ->exists();
 
-        if (!$belongsToGroup) {
-            abort(403, "Student does not belong to this group or is not active.");
+        if (! $belongsToGroup) {
+            abort(403, 'Student does not belong to this group or is not active.');
         }
 
         $exam->load(['questions.choices', 'teacher']);
@@ -221,9 +217,9 @@ class AnswerFormatterService implements AnswerFormatterInterface
     /**
      * Get formatted data for student review/correction page.
      *
-     * @param Exam $exam Target exam
-     * @param Group $group Student's group
-     * @param User $student Target student
+     * @param  Exam  $exam  Target exam
+     * @param  Group  $group  Student's group
+     * @param  User  $student  Target student
      * @return array Complete data for review page
      */
     public function getStudentReviewData(Exam $exam, Group $group, User $student): array
@@ -231,8 +227,8 @@ class AnswerFormatterService implements AnswerFormatterInterface
         $belongsToGroup = $group->students()
             ->where('student_id', $student->id)->exists();
 
-        if (!$belongsToGroup) {
-            abort(403, "Student does not belong to this group.");
+        if (! $belongsToGroup) {
+            abort(403, 'Student does not belong to this group.');
         }
 
         $exam->load('questions.choices');
@@ -241,14 +237,14 @@ class AnswerFormatterService implements AnswerFormatterInterface
         $assignment = $exam->assignments()
             ->with([
                 'answers.choice',
-                'student'
+                'student',
             ])
             ->where('student_id', $student->id)
             ->firstOrFail();
 
         $assignment->setRelation('exam', $exam);
 
-        if (!$assignment->relationLoaded('answers')) {
+        if (! $assignment->relationLoaded('answers')) {
             $assignment->load(['answers.choice']);
         }
 
@@ -257,7 +253,7 @@ class AnswerFormatterService implements AnswerFormatterInterface
         $questionsById = $loadedExam->questions->keyBy('id');
 
         foreach ($assignment->answers as $answer) {
-            if (!$answer->relationLoaded('question') && isset($questionsById[$answer->question_id])) {
+            if (! $answer->relationLoaded('question') && isset($questionsById[$answer->question_id])) {
                 $answer->setRelation('question', $questionsById[$answer->question_id]);
             }
         }
@@ -276,11 +272,11 @@ class AnswerFormatterService implements AnswerFormatterInterface
 
     /**
      * Prepare answer data based on question type.
-     * 
+     *
      * Replaces ExamSessionService::prepareAnswerData()
-     * 
-     * @param string $questionType Question type (multiple, one_choice, boolean, text)
-     * @param array $requestData Request data containing the answer
+     *
+     * @param  string  $questionType  Question type (multiple, one_choice, boolean, text)
+     * @param  array  $requestData  Request data containing the answer
      * @return array Prepared data for insertion
      */
     public function prepareAnswerData(string $questionType, array $requestData): array

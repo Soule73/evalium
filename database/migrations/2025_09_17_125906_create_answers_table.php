@@ -22,7 +22,6 @@ return new class extends Migration
             $table->float('score')->nullable()->default(null)->comment('Note obtenu pour cette réponse, si applicable');
             $table->text('feedback')->nullable();
 
-
             $table->timestamps();
         });
     }

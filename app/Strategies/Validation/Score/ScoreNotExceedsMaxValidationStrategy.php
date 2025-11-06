@@ -11,12 +11,12 @@ class ScoreNotExceedsMaxValidationStrategy implements ScoreValidationStrategy
         $exam = $context['exam'] ?? null;
         $scores = $data['scores'] ?? [];
 
-        if (!$exam || empty($scores)) {
+        if (! $exam || empty($scores)) {
             return;
         }
 
         foreach ($scores as $index => $scoreData) {
-            if (!isset($scoreData['question_id']) || !isset($scoreData['score'])) {
+            if (! isset($scoreData['question_id']) || ! isset($scoreData['score'])) {
                 continue;
             }
 

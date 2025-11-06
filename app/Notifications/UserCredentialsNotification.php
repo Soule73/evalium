@@ -41,8 +41,8 @@ class UserCredentialsNotification extends Notification implements ShouldQueue
             ->greeting(__('Hello :name,', ['name' => $notifiable->name]))
             ->line(__('Your :role account has been successfully created on the Examena platform.', ['role' => $roleName]))
             ->line(__('Here are your login credentials:'))
-            ->line("**" . __('Email:') . "** {$notifiable->email}")
-            ->line("**" . __('Temporary Password:') . "** {$this->password}")
+            ->line('**'.__('Email:')."** {$notifiable->email}")
+            ->line('**'.__('Temporary Password:')."** {$this->password}")
             ->action(__('Log In'), url('/login'))
             ->line(__('For security reasons, we recommend changing your password after your first login.'))
             ->line(__('If you did not request this account, please contact the administrator.'));

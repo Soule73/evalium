@@ -9,7 +9,6 @@ use Illuminate\Foundation\Http\FormRequest;
  *
  * Handles validation and authorization logic for user login requests.
  *
- * @package App\Http\Requests\Auth
  *
  * @extends \Illuminate\Foundation\Http\FormRequest
  */

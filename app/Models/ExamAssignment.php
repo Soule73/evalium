@@ -38,6 +38,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ExamAssignment extends Model
 {
     use HasFactory;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -117,7 +118,7 @@ class ExamAssignment extends Model
     /**
      * Scope a query to only include assignments not yet started (no started_at timestamp).
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      *
      * @noinspection PhpUnused
@@ -130,7 +131,7 @@ class ExamAssignment extends Model
     /**
      * Scope a query to only include exam assignments that have been started but not submitted.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeInProgress($query)
@@ -141,7 +142,7 @@ class ExamAssignment extends Model
     /**
      * Scope a query to only include submitted exam assignments.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeSubmitted($query)

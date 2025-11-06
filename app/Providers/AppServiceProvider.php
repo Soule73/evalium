@@ -2,18 +2,18 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use App\Services\Student\ExamSessionService;
+use App\Contracts\Answer\AnswerFormatterInterface;
 use App\Services\Admin\AdminDashboardService;
 use App\Services\Admin\UserManagementService;
-use App\Services\Exam\ExamAssignmentService;
-use App\Services\Exam\TeacherDashboardService;
-use App\Services\Exam\ExamScoringService as TeacherExamScoringService;
-use App\Services\Core\Scoring\ScoringService;
-use App\Contracts\Answer\AnswerFormatterInterface;
 use App\Services\Core\Answer\AnswerFormatterService;
+use App\Services\Core\Scoring\ScoringService;
+use App\Services\Exam\ExamAssignmentService;
+use App\Services\Exam\ExamScoringService as TeacherExamScoringService;
+use App\Services\Exam\TeacherDashboardService;
+use App\Services\Student\ExamSessionService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -74,7 +74,7 @@ class AppServiceProvider extends ServiceProvider
         \Inertia\Inertia::share([
             'permissions' => function () {
                 $user = Auth::user();
-                if (!$user) {
+                if (! $user) {
                     return [
                         'canManageLevels' => false,
                         'canManageRoles' => false,
@@ -119,7 +119,7 @@ class AppServiceProvider extends ServiceProvider
                     'canUpdateRoles' => $user->can('update roles'),
                     'canDeleteRoles' => $user->can('delete roles'),
                 ];
-            }
+            },
         ]);
     }
 }

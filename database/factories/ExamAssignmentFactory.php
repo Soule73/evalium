@@ -2,11 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\ExamAssignment;
 use App\Models\Exam;
+use App\Models\ExamAssignment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Carbon\Carbon;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ExamAssignment>
@@ -36,7 +35,7 @@ class ExamAssignmentFactory extends Factory
 
     public function assigned(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'status' => null,
             'started_at' => null,
             'submitted_at' => null,
@@ -48,7 +47,7 @@ class ExamAssignmentFactory extends Factory
 
     public function started(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'status' => null,
             'started_at' => $this->faker->dateTimeBetween('-2 hours', 'now'),
             'submitted_at' => null,
@@ -66,7 +65,7 @@ class ExamAssignmentFactory extends Factory
         $startedAt = $this->faker->dateTimeBetween('-4 hours', '-1 hour');
         $submittedAt = $this->faker->dateTimeBetween($startedAt, 'now');
 
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'status' => 'submitted',
             'started_at' => $startedAt,
             'submitted_at' => $submittedAt,
@@ -84,7 +83,7 @@ class ExamAssignmentFactory extends Factory
         $startedAt = $this->faker->dateTimeBetween('-1 week', '-2 hours');
         $submittedAt = $this->faker->dateTimeBetween($startedAt, '-1 hour');
 
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'status' => 'graded',
             'started_at' => $startedAt,
             'submitted_at' => $submittedAt,
@@ -96,7 +95,7 @@ class ExamAssignmentFactory extends Factory
 
     public function pending(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'status' => null,
             'started_at' => null,
             'submitted_at' => null,
@@ -108,7 +107,7 @@ class ExamAssignmentFactory extends Factory
 
     public function inProgress(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'status' => null,
             'started_at' => $this->faker->dateTimeBetween('-2 hours', 'now'),
             'submitted_at' => null,
@@ -123,7 +122,7 @@ class ExamAssignmentFactory extends Factory
         $startedAt = $this->faker->dateTimeBetween('-4 hours', '-1 hour');
         $submittedAt = $this->faker->dateTimeBetween($startedAt, 'now');
 
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'status' => 'graded',
             'started_at' => $startedAt,
             'submitted_at' => $submittedAt,

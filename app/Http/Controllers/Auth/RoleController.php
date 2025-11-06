@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreRoleRequest;
+use App\Http\Requests\Admin\SyncRolePermissionsRequest;
+use App\Http\Requests\Admin\UpdateRoleRequest;
+use App\Http\Traits\HasFlashMessages;
+use App\Services\Admin\RoleService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
-use App\Services\Admin\RoleService;
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Traits\HasFlashMessages;
-use Illuminate\Http\RedirectResponse;
-use App\Http\Requests\Admin\StoreRoleRequest;
-use App\Http\Requests\Admin\UpdateRoleRequest;
-use App\Http\Requests\Admin\SyncRolePermissionsRequest;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class RoleController extends Controller
 {
-    use HasFlashMessages, AuthorizesRequests;
+    use AuthorizesRequests, HasFlashMessages;
 
     public function __construct(
         private readonly RoleService $roleService
@@ -26,7 +26,7 @@ class RoleController extends Controller
 
     /**
      * Display a listing of roles.
-     * 
+     *
      * @return Response The response containing the list of roles.
      */
     public function index(): Response
@@ -48,7 +48,7 @@ class RoleController extends Controller
 
     /**
      * Show the form for creating a new role.
-     * 
+     *
      * @return Response The response containing the creation form view.
      */
     public function create(): Response
@@ -67,8 +67,8 @@ class RoleController extends Controller
 
     /**
      * Store a newly created role in storage.
-     * 
-     * @param StoreRoleRequest $request The validated request instance containing role data.
+     *
+     * @param  StoreRoleRequest  $request  The validated request instance containing role data.
      * @return RedirectResponse Redirect response after storing the role.
      */
     public function store(StoreRoleRequest $request): RedirectResponse
@@ -80,8 +80,8 @@ class RoleController extends Controller
 
     /**
      * Show the form for editing the specified role.
-     * 
-     * @param Role $role The role instance to be edited.
+     *
+     * @param  Role  $role  The role instance to be edited.
      * @return Response The response containing the edit form view.
      */
     public function edit(Role $role): Response
@@ -103,9 +103,9 @@ class RoleController extends Controller
 
     /**
      * Update the specified role in storage.
-     * 
-     * @param UpdateRoleRequest $request The validated request instance containing role data.
-     * @param Role $role The role instance to be updated.
+     *
+     * @param  UpdateRoleRequest  $request  The validated request instance containing role data.
+     * @param  Role  $role  The role instance to be updated.
      * @return RedirectResponse Redirect response after updating the role.
      */
     public function update(UpdateRoleRequest $request, Role $role): RedirectResponse
@@ -125,9 +125,9 @@ class RoleController extends Controller
 
     /**
      * Sync permissions for a role.
-     * 
-     * @param SyncRolePermissionsRequest $request The validated request containing permissions to sync.
-     * @param Role $role The role instance to be updated.
+     *
+     * @param  SyncRolePermissionsRequest  $request  The validated request containing permissions to sync.
+     * @param  Role  $role  The role instance to be updated.
      * @return RedirectResponse Redirect response after syncing role permissions.
      */
     public function syncPermissions(SyncRolePermissionsRequest $request, Role $role): RedirectResponse
@@ -141,8 +141,8 @@ class RoleController extends Controller
 
     /**
      * Remove the specified role from storage.
-     * 
-     * @param Role $role The role instance to be deleted.
+     *
+     * @param  Role  $role  The role instance to be deleted.
      * @return RedirectResponse Redirect response after deleting the role.
      */
     public function destroy(Role $role): RedirectResponse

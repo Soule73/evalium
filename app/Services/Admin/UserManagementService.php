@@ -2,20 +2,19 @@
 
 namespace App\Services\Admin;
 
-use App\Models\User;
 use App\Models\Group;
-use App\Services\Admin\GroupService;
+use App\Models\User;
 use App\Notifications\UserCredentialsNotification;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
 /**
  * User Management Service - Handle user CRUD operations and role assignments
- * 
+ *
  * Single Responsibility: Manage user lifecycle and role/group assignments
  * Dependencies: GroupService for student group assignments
  */
@@ -28,22 +27,22 @@ class UserManagementService
     /**
      * Get paginated list of users with filtering
      *
-     * @param array $filters Filter criteria (role, status, search, exclude_roles, include_deleted)
-     * @param int $perPage Number of items per page
-     * @param User $currentUser Current authenticated user
+     * @param  array  $filters  Filter criteria (role, status, search, exclude_roles, include_deleted)
+     * @param  int  $perPage  Number of items per page
+     * @param  User  $currentUser  Current authenticated user
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function getUserWithPagination(array $filters, int $perPage, User $currentUser)
     {
         $query = User::with('roles')->whereNot('id', $currentUser->id);
 
-        if (!empty($filters['exclude_roles'])) {
+        if (! empty($filters['exclude_roles'])) {
             $query->whereDoesntHave('roles', function ($q) use ($filters) {
                 $q->whereIn('name', $filters['exclude_roles']);
             });
         }
 
-        if (!empty($filters['role'])) {
+        if (! empty($filters['role'])) {
             $query->role($filters['role']);
         }
 
@@ -51,13 +50,13 @@ class UserManagementService
             $query->where('is_active', $filters['status'] === 'active');
         }
 
-        if (!empty($filters['include_deleted'])) {
+        if (! empty($filters['include_deleted'])) {
             $query->withTrashed();
         }
 
         $per_page = $filters['per_page'] ?? 10;
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -73,7 +72,7 @@ class UserManagementService
     /**
      * Create a new user with random password and send credentials notification
      *
-     * @param array $data User data (name, email, role, group_id optional)
+     * @param  array  $data  User data (name, email, role, group_id optional)
      * @return User
      */
     public function store(array $data)
@@ -104,9 +103,10 @@ class UserManagementService
     /**
      * Update existing user data and role
      *
-     * @param User $user User to update
-     * @param array $data Updated data (name, email, password optional, role, group_id optional)
+     * @param  User  $user  User to update
+     * @param  array  $data  Updated data (name, email, password optional, role, group_id optional)
      * @return void
+     *
      * @throws \InvalidArgumentException
      */
     public function update(User $user, array $data)
@@ -124,8 +124,8 @@ class UserManagementService
 
                 $user->update($updatedData);
 
-                if (!isset($data['role']) || !Role::where('name', $data['role'])->exists()) {
-                    throw new \InvalidArgumentException("Role is required for update.");
+                if (! isset($data['role']) || ! Role::where('name', $data['role'])->exists()) {
+                    throw new \InvalidArgumentException('Role is required for update.');
                 }
 
                 $user->syncRoles([$data['role']]);
@@ -136,7 +136,7 @@ class UserManagementService
                 }
             });
         } catch (\Exception $e) {
-            Log::error("Error updating user: " . $e->getMessage());
+            Log::error('Error updating user: '.$e->getMessage());
             throw $e;
         }
     }
@@ -144,7 +144,7 @@ class UserManagementService
     /**
      * Soft delete a user
      *
-     * @param User $user User to delete
+     * @param  User  $user  User to delete
      * @return void
      */
     public function delete(User $user)
@@ -155,27 +155,28 @@ class UserManagementService
     /**
      * Toggle user active status
      *
-     * @param User $user User to toggle
+     * @param  User  $user  User to toggle
      * @return void
      */
     public function toggleStatus(User $user)
     {
-        $user->is_active = !$user->is_active;
+        $user->is_active = ! $user->is_active;
         $user->save();
     }
 
     /**
      * Change student's group assignment
      *
-     * @param User $student Student to reassign
-     * @param int $newGroupId New group ID
+     * @param  User  $student  Student to reassign
+     * @param  int  $newGroupId  New group ID
      * @return void
+     *
      * @throws \InvalidArgumentException
      */
     public function changeStudentGroup(User $student, int $newGroupId)
     {
-        if (!$student->hasRole('student')) {
-            throw new \InvalidArgumentException("User must be a student.");
+        if (! $student->hasRole('student')) {
+            throw new \InvalidArgumentException('User must be a student.');
         }
 
         $newGroup = Group::findOrFail($newGroupId);
@@ -200,8 +201,8 @@ class UserManagementService
     /**
      * Restore a soft-deleted user
      *
-     * @param int $userId User ID to restore
-     * @return User
+     * @param  int  $userId  User ID to restore
+     *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function restoreUser(int $userId): User
@@ -215,20 +216,21 @@ class UserManagementService
     /**
      * Permanently delete a user from database
      *
-     * @param int $userId User ID to force delete
-     * @return bool
+     * @param  int  $userId  User ID to force delete
+     *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function forceDeleteUser(int $userId): bool
     {
         $user = User::withTrashed()->findOrFail($userId);
+
         return $user->forceDelete();
     }
 
     /**
      * Get available roles for current user based on permissions
      *
-     * @param User $currentUser Current authenticated user
+     * @param  User  $currentUser  Current authenticated user
      * @return \Illuminate\Support\Collection
      */
     public function getAvailableRoles(User $currentUser)
@@ -241,23 +243,22 @@ class UserManagementService
     /**
      * Check if user can modify target user (admin permission check)
      *
-     * @param User $currentUser Current authenticated user
-     * @param User $targetUser Target user to check
-     * @return bool
+     * @param  User  $currentUser  Current authenticated user
+     * @param  User  $targetUser  Target user to check
      */
     public function canModifyUser(User $currentUser, User $targetUser): bool
     {
         if ($targetUser->hasRole(['admin', 'super_admin'])) {
             return $currentUser->hasRole('super_admin');
         }
+
         return true;
     }
 
     /**
      * Check if user is super admin
      *
-     * @param User $currentUser Current authenticated user
-     * @return bool
+     * @param  User  $currentUser  Current authenticated user
      */
     public function isSuperAdmin(User $currentUser): bool
     {
@@ -267,9 +268,8 @@ class UserManagementService
     /**
      * Check if user can force delete users and if target is not self
      *
-     * @param User $currentUser Current authenticated user
-     * @param int $targetUserId Target user ID to check
-     * @return bool
+     * @param  User  $currentUser  Current authenticated user
+     * @param  int  $targetUserId  Target user ID to check
      */
     public function canForceDeleteUser(User $currentUser, int $targetUserId): bool
     {
@@ -283,8 +283,7 @@ class UserManagementService
     /**
      * Check if user is a teacher
      *
-     * @param User $user User to check
-     * @return bool
+     * @param  User  $user  User to check
      */
     public function isTeacher(User $user): bool
     {
@@ -294,8 +293,7 @@ class UserManagementService
     /**
      * Check if user is a student
      *
-     * @param User $user User to check
-     * @return bool
+     * @param  User  $user  User to check
      */
     public function isStudent(User $user): bool
     {
@@ -305,8 +303,7 @@ class UserManagementService
     /**
      * Load student groups with levels and active exams
      *
-     * @param User $student Student to load groups for
-     * @return void
+     * @param  User  $student  Student to load groups for
      */
     public function loadStudentGroupsWithExams(User $student): void
     {
@@ -316,23 +313,22 @@ class UserManagementService
                     'level',
                     'exams' => function ($q) {
                         $q->where('is_active', true);
-                    }
+                    },
                 ])
                     ->withPivot(['enrolled_at', 'left_at', 'is_active'])
                     ->orderBy('group_student.enrolled_at', 'desc');
-            }
+            },
         ]);
     }
 
     /**
      * Load user roles if not already loaded
      *
-     * @param User $user User to load roles for
-     * @return void
+     * @param  User  $user  User to load roles for
      */
     public function ensureRolesLoaded(User $user): void
     {
-        if (!$user->relationLoaded('roles')) {
+        if (! $user->relationLoaded('roles')) {
             $user->load('roles');
         }
     }

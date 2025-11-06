@@ -2,16 +2,16 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
 use App\Models\Choice;
-use Tests\Traits\InteractsWithTestData;
-use PHPUnit\Framework\Attributes\Test;
 use App\Services\Core\Answer\AnswerFormatterService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
+use Tests\Traits\InteractsWithTestData;
 
 class AnswerFormatterServiceTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private AnswerFormatterService $service;
 
@@ -29,39 +29,39 @@ class AnswerFormatterServiceTest extends TestCase
         $exam = $this->createExamWithQuestions(questionCount: 0);
         $assignment = $this->createAssignmentForStudent($exam, $student, [
             'status' => 'submitted',
-            'score' => 85.5
+            'score' => 85.5,
         ]);
 
         $textQuestion = $this->createQuestionForExam($exam, 'text', [
             'content' => 'Text question',
-            'points' => 5
+            'points' => 5,
         ]);
 
         $multipleQuestion = $this->createQuestionForExam($exam, 'multiple', [
             'content' => 'Multiple choice question',
-            'points' => 3
+            'points' => 3,
         ]);
 
         $choice1 = Choice::factory()->create([
             'question_id' => $multipleQuestion->id,
             'content' => 'Choice 1',
-            'is_correct' => true
+            'is_correct' => true,
         ]);
 
         $choice2 = Choice::factory()->create([
             'question_id' => $multipleQuestion->id,
             'content' => 'Choice 2',
-            'is_correct' => false
+            'is_correct' => false,
         ]);
 
         $this->createAnswerForQuestion($assignment, $textQuestion, [
             'answer_text' => 'Text answer',
-            'score' => 4.5
+            'score' => 4.5,
         ]);
 
         $this->createAnswerForQuestion($assignment, $multipleQuestion, [
             'choice_id' => $choice1->id,
-            'score' => 3.0
+            'score' => 3.0,
         ]);
 
         $assignment->load(['answers.choice', 'exam.questions.choices']);
@@ -92,7 +92,7 @@ class AnswerFormatterServiceTest extends TestCase
 
         $this->createAnswerForQuestion($assignment, $question, [
             'answer_text' => 'Simple text answer',
-            'choice_id' => null
+            'choice_id' => null,
         ]);
 
         $assignment->load(['answers.choice', 'exam.questions.choices']);
@@ -130,13 +130,13 @@ class AnswerFormatterServiceTest extends TestCase
         $choice = Choice::factory()->create([
             'question_id' => $question->id,
             'content' => 'Correct answer',
-            'is_correct' => true
+            'is_correct' => true,
         ]);
 
         $answer = $this->createAnswerForQuestion($assignment, $question, [
             'choice_id' => $choice->id,
             'score' => 5.0,
-            'feedback' => 'Good job!'
+            'feedback' => 'Good job!',
         ]);
 
         $answer->load('choice');
@@ -161,25 +161,25 @@ class AnswerFormatterServiceTest extends TestCase
         $choice1 = Choice::factory()->create([
             'question_id' => $question->id,
             'content' => 'Choice 1',
-            'is_correct' => true
+            'is_correct' => true,
         ]);
 
         $choice2 = Choice::factory()->create([
             'question_id' => $question->id,
             'content' => 'Choice 2',
-            'is_correct' => true
+            'is_correct' => true,
         ]);
 
         $answer1 = $this->createAnswerForQuestion($assignment, $question, [
             'choice_id' => $choice1->id,
             'score' => 10.0,
-            'feedback' => 'Correct!'
+            'feedback' => 'Correct!',
         ]);
 
         $answer2 = $this->createAnswerForQuestion($assignment, $question, [
             'choice_id' => $choice2->id,
             'score' => 10.0,
-            'feedback' => 'Correct!'
+            'feedback' => 'Correct!',
         ]);
 
         $answer1->load('choice');
@@ -207,7 +207,7 @@ class AnswerFormatterServiceTest extends TestCase
         $question = $this->createQuestionForExam($exam, 'text');
 
         $this->createAnswerForQuestion($assignment, $question, [
-            'answer_text' => 'Test answer'
+            'answer_text' => 'Test answer',
         ]);
 
         $this->assertTrue($this->service->hasAnswers($assignment));
@@ -234,19 +234,19 @@ class AnswerFormatterServiceTest extends TestCase
         $choice3 = Choice::factory()->create(['question_id' => $question3->id]);
 
         $this->createAnswerForQuestion($assignment, $question1, [
-            'answer_text' => 'Answer 1'
+            'answer_text' => 'Answer 1',
         ]);
 
         $this->createAnswerForQuestion($assignment, $question2, [
-            'choice_id' => $choice1->id
+            'choice_id' => $choice1->id,
         ]);
 
         $this->createAnswerForQuestion($assignment, $question3, [
-            'choice_id' => $choice2->id
+            'choice_id' => $choice2->id,
         ]);
 
         $this->createAnswerForQuestion($assignment, $question3, [
-            'choice_id' => $choice3->id
+            'choice_id' => $choice3->id,
         ]);
 
         $count = $this->service->countAnsweredQuestions($assignment);
@@ -268,11 +268,11 @@ class AnswerFormatterServiceTest extends TestCase
         $choice = Choice::factory()->create(['question_id' => $question2->id]);
 
         $this->createAnswerForQuestion($assignment, $question1, [
-            'answer_text' => 'Answer 1'
+            'answer_text' => 'Answer 1',
         ]);
 
         $this->createAnswerForQuestion($assignment, $question2, [
-            'choice_id' => $choice->id
+            'choice_id' => $choice->id,
         ]);
 
         $assignment->load('exam.questions');
@@ -299,11 +299,11 @@ class AnswerFormatterServiceTest extends TestCase
         $choice = Choice::factory()->create(['question_id' => $question2->id]);
 
         $this->createAnswerForQuestion($assignment, $question1, [
-            'answer_text' => 'Answer 1'
+            'answer_text' => 'Answer 1',
         ]);
 
         $this->createAnswerForQuestion($assignment, $question2, [
-            'choice_id' => $choice->id
+            'choice_id' => $choice->id,
         ]);
 
         $assignment->load('exam.questions');
@@ -330,7 +330,7 @@ class AnswerFormatterServiceTest extends TestCase
 
         $this->createAnswerForQuestion($assignment, $question, [
             'answer_text' => 'Test answer',
-            'score' => 8.5
+            'score' => 8.5,
         ]);
 
         $result = $this->service->getStudentResultsData($assignment);
@@ -357,14 +357,14 @@ class AnswerFormatterServiceTest extends TestCase
 
         $group->students()->attach($student->id, [
             'enrolled_at' => now(),
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $question = $this->createQuestionForExam($exam, 'text', ['points' => 10]);
 
         $this->createAnswerForQuestion($assignment, $question, [
             'answer_text' => 'Test answer',
-            'score' => 8.5
+            'score' => 8.5,
         ]);
 
         $result = $this->service->getStudentResultsDataInGroup($exam, $group, $student);
@@ -405,14 +405,14 @@ class AnswerFormatterServiceTest extends TestCase
 
         $group->students()->attach($student->id, [
             'enrolled_at' => now(),
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $question = $this->createQuestionForExam($exam, 'text', ['points' => 10]);
 
         $this->createAnswerForQuestion($assignment, $question, [
             'answer_text' => 'Test answer',
-            'score' => 8.5
+            'score' => 8.5,
         ]);
 
         $result = $this->service->getStudentReviewData($exam, $group, $student);

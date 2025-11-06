@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services\Admin;
 
-use Tests\TestCase;
 use App\Services\Admin\RoleService;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 class RolePermissionServiceTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private RoleService $service;
 

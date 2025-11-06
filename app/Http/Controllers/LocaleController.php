@@ -12,17 +12,17 @@ class LocaleController extends Controller
 
     /**
      * Update the user's locale preference.
-     * 
+     *
      * - Store locale in session
      * - If user is authenticated, we could also store it in the database
-     * 
-     * @param Request $request The HTTP request containing the locale data.
+     *
+     * @param  Request  $request  The HTTP request containing the locale data.
      * @return \Illuminate\Http\RedirectResponse Redirects back with a success message.
      */
     public function update(Request $request)
     {
         $request->validate([
-            'locale' => 'required|in:fr,en'
+            'locale' => 'required|in:fr,en',
         ]);
 
         $locale = $request->input('locale');
@@ -31,7 +31,7 @@ class LocaleController extends Controller
 
         if ($request->user()) {
             $request->user()->update([
-                'locale' => $locale
+                'locale' => $locale,
             ]);
         }
 

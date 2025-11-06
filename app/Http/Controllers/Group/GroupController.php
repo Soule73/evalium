@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers\Group;
 
-use App\Models\User;
-use Inertia\Inertia;
-use App\Models\Group;
-use Inertia\Response;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Services\Admin\GroupService;
-use App\Http\Traits\HasFlashMessages;
-use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\Admin\AssignStudentsToGroupRequest;
+use App\Http\Requests\Admin\GroupBulkActionRequest;
 use App\Http\Requests\Admin\StoreGroupRequest;
 use App\Http\Requests\Admin\UpdateGroupRequest;
-use App\Http\Requests\Admin\GroupBulkActionRequest;
-use App\Http\Requests\Admin\AssignStudentsToGroupRequest;
+use App\Http\Traits\HasFlashMessages;
+use App\Models\Group;
+use App\Models\User;
+use App\Services\Admin\GroupService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class GroupController extends Controller
 {
-    use HasFlashMessages, AuthorizesRequests;
+    use AuthorizesRequests, HasFlashMessages;
 
     public function __construct(
         private readonly GroupService $groupService
@@ -29,7 +29,7 @@ class GroupController extends Controller
     /**
      * Display a listing of groups with filters.
      *
-     * @param Request $request The incoming HTTP request.
+     * @param  Request  $request  The incoming HTTP request.
      * @return Response The response containing the groups list view.
      */
     public function index(Request $request): Response
@@ -65,10 +65,10 @@ class GroupController extends Controller
 
     /**
      * Store a newly created group.
-     * 
+     *
      * Delegates to GroupService to create group with validated data.
      *
-     * @param StoreGroupRequest $request The validated request containing group data.
+     * @param  StoreGroupRequest  $request  The validated request containing group data.
      * @return RedirectResponse Redirects to groups index on success.
      */
     public function store(StoreGroupRequest $request): RedirectResponse
@@ -92,8 +92,7 @@ class GroupController extends Controller
     /**
      * Display the specified group with students.
      *
-     * @param Group $group The group instance to be displayed.
-     * @return Response
+     * @param  Group  $group  The group instance to be displayed.
      */
     public function show(Group $group): Response
     {
@@ -110,8 +109,7 @@ class GroupController extends Controller
     /**
      * Show the form for editing a group.
      *
-     * @param Group $group The group instance to be edited.
-     * @return Response
+     * @param  Group  $group  The group instance to be edited.
      */
     public function edit(Group $group): Response
     {
@@ -132,9 +130,8 @@ class GroupController extends Controller
     /**
      * Update the specified group.
      *
-     * @param UpdateGroupRequest $request The validated request containing group update data.
-     * @param Group $group The group instance to be updated.
-     * @return RedirectResponse
+     * @param  UpdateGroupRequest  $request  The validated request containing group update data.
+     * @param  Group  $group  The group instance to be updated.
      */
     public function update(UpdateGroupRequest $request, Group $group): RedirectResponse
     {
@@ -157,8 +154,7 @@ class GroupController extends Controller
     /**
      * Remove the specified group.
      *
-     * @param Group $group The group instance to be deleted.
-     * @return RedirectResponse
+     * @param  Group  $group  The group instance to be deleted.
      */
     public function destroy(Group $group): RedirectResponse
     {
@@ -183,8 +179,7 @@ class GroupController extends Controller
     /**
      * Show form to assign students to group.
      *
-     * @param Group $group The group instance to assign students to.
-     * @return Response
+     * @param  Group  $group  The group instance to assign students to.
      */
     public function assignStudents(Group $group): Response
     {
@@ -201,9 +196,8 @@ class GroupController extends Controller
     /**
      * Assign students to the specified group.
      *
-     * @param AssignStudentsToGroupRequest $request The validated request containing student IDs.
-     * @param Group $group The group instance to assign students to.
-     * @return RedirectResponse
+     * @param  AssignStudentsToGroupRequest  $request  The validated request containing student IDs.
+     * @param  Group  $group  The group instance to assign students to.
      */
     public function storeStudents(AssignStudentsToGroupRequest $request, Group $group): RedirectResponse
     {
@@ -234,9 +228,8 @@ class GroupController extends Controller
     /**
      * Remove a student from the group.
      *
-     * @param Group $group The group instance to remove the student from.
-     * @param User $student The student instance to be removed.
-     * @return RedirectResponse
+     * @param  Group  $group  The group instance to remove the student from.
+     * @param  User  $student  The student instance to be removed.
      */
     public function removeStudent(Group $group, User $student): RedirectResponse
     {
@@ -261,8 +254,7 @@ class GroupController extends Controller
     /**
      * Activate multiple groups at once.
      *
-     * @param Request $request The incoming HTTP request.
-     * @return RedirectResponse
+     * @param  Request  $request  The incoming HTTP request.
      */
     public function bulkActivate(GroupBulkActionRequest $request): RedirectResponse
     {
@@ -274,7 +266,7 @@ class GroupController extends Controller
             return $this->redirectWithSuccess(
                 'groups.index',
                 __('messages.groups_activated', [
-                    'count' => $result['activated_count']
+                    'count' => $result['activated_count'],
                 ])
             );
         } catch (\Exception $e) {
@@ -288,8 +280,7 @@ class GroupController extends Controller
     /**
      * Deactivate multiple groups at once.
      *
-     * @param Request $request The incoming HTTP request.
-     * @return RedirectResponse
+     * @param  Request  $request  The incoming HTTP request.
      */
     public function bulkDeactivate(GroupBulkActionRequest $request): RedirectResponse
     {
@@ -301,7 +292,7 @@ class GroupController extends Controller
             return $this->redirectWithSuccess(
                 'groups.index',
                 __('messages.groups_deactivated', [
-                    'count' => $result['deactivated_count']
+                    'count' => $result['deactivated_count'],
                 ])
             );
         } catch (\Exception $e) {
@@ -315,9 +306,8 @@ class GroupController extends Controller
     /**
      * Remove multiple students from a group at once.
      *
-     * @param Request $request The incoming HTTP request.
-     * @param Group $group The group instance to remove students from.
-     * @return RedirectResponse
+     * @param  Request  $request  The incoming HTTP request.
+     * @param  Group  $group  The group instance to remove students from.
      */
     public function bulkRemoveStudents(
         GroupBulkActionRequest $request,

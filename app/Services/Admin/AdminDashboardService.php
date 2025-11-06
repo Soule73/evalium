@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Admin Dashboard Service - Provide statistics and data for admin dashboard
- * 
+ *
  * Single Responsibility: Aggregate and format admin dashboard data
  * Optimized with raw SQL queries for performance
  */

@@ -4,8 +4,8 @@ namespace Database\Factories;
 
 use App\Models\Group;
 use App\Models\Level;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Group>
@@ -39,7 +39,7 @@ class GroupFactory extends Factory
      */
     public function active(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'is_active' => true,
         ]);
     }
@@ -49,7 +49,7 @@ class GroupFactory extends Factory
      */
     public function inactive(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'is_active' => false,
         ]);
     }
@@ -61,10 +61,10 @@ class GroupFactory extends Factory
     {
         $currentYear = Carbon::now()->year;
         $academicYear = Carbon::now()->month >= 9
-            ? "{$currentYear}-" . ($currentYear + 1)
-            : ($currentYear - 1) . "-{$currentYear}";
+            ? "{$currentYear}-".($currentYear + 1)
+            : ($currentYear - 1)."-{$currentYear}";
 
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'academic_year' => $academicYear,
             'start_date' => Carbon::now()->startOfYear(),
             'end_date' => Carbon::now()->endOfYear(),

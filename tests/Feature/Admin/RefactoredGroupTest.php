@@ -2,17 +2,17 @@
 
 namespace Tests\Feature\Admin;
 
-use Tests\TestCase;
 use App\Models\Group;
-use App\Models\User;
 use App\Models\Level;
+use App\Models\User;
 use App\Services\Admin\GroupService;
-use Tests\Traits\InteractsWithTestData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use Tests\Traits\InteractsWithTestData;
 
 class RefactoredGroupTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -35,7 +35,7 @@ class RefactoredGroupTest extends TestCase
 
     public function test_group_service_creates_group_with_level()
     {
-        $service = new GroupService();
+        $service = new GroupService;
         $bts1 = Level::where('code', 'bts_1')->first();
 
         $data = [
@@ -69,7 +69,7 @@ class RefactoredGroupTest extends TestCase
         Group::factory()->count(5)->create(['level_id' => $licence1->id]);
         Group::factory()->count(3)->create(['level_id' => $master1->id]);
 
-        $service = new GroupService();
+        $service = new GroupService;
 
         $result = $service->getGroupsWithPagination(['level_id' => $licence1->id], 10);
 
@@ -89,7 +89,7 @@ class RefactoredGroupTest extends TestCase
             $student->assignRole('student');
         }
 
-        $service = new GroupService();
+        $service = new GroupService;
 
         $result = $service->assignStudentsToGroup($group, $students->pluck('id')->toArray());
 

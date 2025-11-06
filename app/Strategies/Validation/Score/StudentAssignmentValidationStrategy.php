@@ -11,16 +11,17 @@ class StudentAssignmentValidationStrategy implements ScoreValidationStrategy
 {
     public function validate(Validator $validator, array $data, array $context = []): void
     {
-        if (!isset($data['student_id']) || !isset($data['exam_id'])) {
+        if (! isset($data['student_id']) || ! isset($data['exam_id'])) {
             return;
         }
 
         $student = User::find($data['student_id']);
-        if (!$student || !$student->hasRole('student')) {
+        if (! $student || ! $student->hasRole('student')) {
             $validator->errors()->add(
                 'student_id',
                 __('validation.custom.student_id.not_student')
             );
+
             return;
         }
 
@@ -28,11 +29,12 @@ class StudentAssignmentValidationStrategy implements ScoreValidationStrategy
             ->where('exam_id', $data['exam_id'])
             ->first();
 
-        if (!$assignment) {
+        if (! $assignment) {
             $validator->errors()->add(
                 'student_id',
                 __('validation.custom.student_id.not_assigned')
             );
+
             return;
         }
 
@@ -41,7 +43,7 @@ class StudentAssignmentValidationStrategy implements ScoreValidationStrategy
                 ->where('question_id', $data['question_id'])
                 ->first();
 
-            if (!$answer) {
+            if (! $answer) {
                 $validator->errors()->add(
                     'student_id',
                     __('validation.custom.student_id.no_answer')

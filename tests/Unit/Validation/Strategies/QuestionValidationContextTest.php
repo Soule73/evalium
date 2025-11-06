@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Validation\Strategies;
 
-use Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
-use Illuminate\Support\Facades\Validator;
 use App\Strategies\Validation\QuestionValidationContext;
+use Illuminate\Support\Facades\Validator;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class QuestionValidationContextTest extends TestCase
 {
@@ -14,7 +14,7 @@ class QuestionValidationContextTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->context = new QuestionValidationContext();
+        $this->context = new QuestionValidationContext;
     }
 
     #[Test]
@@ -27,9 +27,9 @@ class QuestionValidationContextTest extends TestCase
                 'type' => 'multiple',
                 'choices' => [
                     ['is_correct' => true],
-                    ['is_correct' => false]
-                ]
-            ]
+                    ['is_correct' => false],
+                ],
+            ],
         ];
 
         $this->context->validateQuestions($validator, $questions);
@@ -47,9 +47,9 @@ class QuestionValidationContextTest extends TestCase
                 'type' => 'one_choice',
                 'choices' => [
                     ['is_correct' => true],
-                    ['is_correct' => true]
-                ]
-            ]
+                    ['is_correct' => true],
+                ],
+            ],
         ];
 
         $this->context->validateQuestions($validator, $questions);
@@ -67,9 +67,9 @@ class QuestionValidationContextTest extends TestCase
                 'type' => 'boolean',
                 'choices' => [
                     ['content' => 'Vrai', 'is_correct' => false],
-                    ['content' => 'Faux', 'is_correct' => false]
-                ]
-            ]
+                    ['content' => 'Faux', 'is_correct' => false],
+                ],
+            ],
         ];
 
         $this->context->validateQuestions($validator, $questions);
@@ -85,8 +85,8 @@ class QuestionValidationContextTest extends TestCase
         $questions = [
             [
                 'type' => 'text',
-                'content' => 'What is your answer?'
-            ]
+                'content' => 'What is your answer?',
+            ],
         ];
 
         $this->context->validateQuestions($validator, $questions);
@@ -105,20 +105,20 @@ class QuestionValidationContextTest extends TestCase
                 'choices' => [
                     ['is_correct' => true],
                     ['is_correct' => true],
-                    ['is_correct' => false]
-                ]
+                    ['is_correct' => false],
+                ],
             ],
             [
                 'type' => 'one_choice',
                 'choices' => [
                     ['is_correct' => false],
-                    ['is_correct' => false]
-                ]
+                    ['is_correct' => false],
+                ],
             ],
             [
                 'type' => 'text',
-                'content' => 'Text question'
-            ]
+                'content' => 'Text question',
+            ],
         ];
 
         $this->context->validateQuestions($validator, $questions);
@@ -140,8 +140,8 @@ class QuestionValidationContextTest extends TestCase
 
         $questions = [
             [
-                'content' => 'Question without type'
-            ]
+                'content' => 'Question without type',
+            ],
         ];
 
         $this->context->validateQuestions($validator, $questions);

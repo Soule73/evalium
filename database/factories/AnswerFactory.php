@@ -3,9 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\Answer;
-use App\Models\User;
-use App\Models\Question;
 use App\Models\ExamAssignment;
+use App\Models\Question;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -37,7 +36,7 @@ class AnswerFactory extends Factory
      */
     public function withChoice(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'choice_id' => \App\Models\Choice::factory(),
             'answer_text' => null,
         ]);
@@ -48,7 +47,7 @@ class AnswerFactory extends Factory
      */
     public function withText(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'choice_id' => null,
             'answer_text' => $this->faker->paragraph(),
         ]);
@@ -59,7 +58,7 @@ class AnswerFactory extends Factory
      */
     public function graded(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'score' => $this->faker->randomFloat(2, 0, 20),
             'feedback' => $this->faker->optional()->sentence(),
         ]);

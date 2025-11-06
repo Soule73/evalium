@@ -16,8 +16,8 @@ class GroupSeeder extends Seeder
     {
         $currentYear = Carbon::now()->year;
         $academicYear = Carbon::now()->month >= 9
-            ? "{$currentYear}-" . ($currentYear + 1)
-            : ($currentYear - 1) . "-{$currentYear}";
+            ? "{$currentYear}-".($currentYear + 1)
+            : ($currentYear - 1)."-{$currentYear}";
 
         $bts1 = \App\Models\Level::where('code', 'bts_1')->first();
         $bts2 = \App\Models\Level::where('code', 'bts_2')->first();

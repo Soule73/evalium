@@ -2,27 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Exam;
-use Inertia\Inertia;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use App\Http\Traits\HasFlashMessages;
-use Illuminate\Http\RedirectResponse;
-use Inertia\Response as InertiaResponse;
-use App\Repositories\AssignmentRepository;
-use App\Services\Core\ExamQueryService;
-use App\Services\Student\ExamSessionService;
-use App\Services\Student\StudentAssignmentQueryService;
-use App\Services\Core\Answer\AnswerFormatterService;
-use App\Services\Core\Scoring\ScoringService;
-use App\Http\Requests\Student\SubmitExamRequest;
 use App\Http\Requests\Student\SaveAnswersRequest;
 use App\Http\Requests\Student\SecurityViolationRequest;
+use App\Http\Requests\Student\SubmitExamRequest;
+use App\Http\Traits\HasFlashMessages;
+use App\Models\Exam;
+use App\Repositories\AssignmentRepository;
+use App\Services\Core\Answer\AnswerFormatterService;
+use App\Services\Core\ExamQueryService;
+use App\Services\Core\Scoring\ScoringService;
+use App\Services\Student\ExamSessionService;
+use App\Services\Student\StudentAssignmentQueryService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class StudentController extends Controller
 {
@@ -39,11 +38,11 @@ class StudentController extends Controller
 
     /**
      * Display a listing of student's groups with exam statistics.
-     * 
+     *
      * Delegates to ExamQueryService to load groups with exam counts,
      * completion stats, and pending exams.
      *
-     * @param Request $request The HTTP request instance.
+     * @param  Request  $request  The HTTP request instance.
      * @return InertiaResponse The HTTP response containing the groups data.
      */
     public function index(Request $request): InertiaResponse
@@ -61,12 +60,11 @@ class StudentController extends Controller
 
     /**
      * Display exams for a specific group.
-     * 
+     *
      * Verifies student membership in the group and delegates to
      * ExamQueryService to load paginated exams with filtering.
      *
-     * @param \App\Models\Group $group
-     * @param Request $request The HTTP request instance.
+     * @param  Request  $request  The HTTP request instance.
      * @return InertiaResponse The HTTP response containing the group exams data.
      */
     public function showGroup(\App\Models\Group $group, Request $request): InertiaResponse
@@ -79,7 +77,7 @@ class StudentController extends Controller
             ->wherePivot('student_id', $student->id)
             ->first(['group_student.is_active']);
 
-        if (!$studentPivot) {
+        if (! $studentPivot) {
             abort(403, __('messages.not_member_of_group'));
         }
 
@@ -106,13 +104,13 @@ class StudentController extends Controller
 
     /**
      * Display the specified exam details for the student.
-     * 
+     *
      * Shows different views based on exam completion status:
      * - If can take: Show exam overview with start button
      * - If completed: Show results with answers and score
      *
-     * @param Exam $exam The exam instance to be displayed.
-     * @param Request $request The HTTP request instance.
+     * @param  Exam  $exam  The exam instance to be displayed.
+     * @param  Request  $request  The HTTP request instance.
      * @return InertiaResponse The HTTP response containing the exam details.
      */
     public function show(Exam $exam, Request $request): InertiaResponse
@@ -121,7 +119,7 @@ class StudentController extends Controller
 
         $assignment = $this->assignmentRepository->findByExamAndStudent($exam, $student);
 
-        if (!$assignment) {
+        if (! $assignment) {
             abort(403, __('messages.exam_not_assigned'));
         }
 
@@ -165,15 +163,14 @@ class StudentController extends Controller
         ]);
     }
 
-
     /**
      * Display the exam interface for the student to take.
-     * 
+     *
      * Validates exam availability, timing, and assignment status.
      * Delegates to ExamSessionService to start the exam session.
      *
-     * @param Exam $exam The exam instance to be taken.
-     * @param Request $request The HTTP request instance.
+     * @param  Exam  $exam  The exam instance to be taken.
+     * @param  Request  $request  The HTTP request instance.
      * @return InertiaResponse|RedirectResponse The HTTP response containing the exam interface or a redirect on error.
      */
     public function take(Exam $exam, Request $request): InertiaResponse|RedirectResponse
@@ -184,7 +181,7 @@ class StudentController extends Controller
 
         $existingAssignment = $this->assignmentRepository->findByExamAndStudent($exam, $student);
 
-        if (!$existingAssignment) {
+        if (! $existingAssignment) {
             return $this->redirectWithError('student.exams.index', __('messages.exam_not_assigned'), []);
         }
 
@@ -219,12 +216,12 @@ class StudentController extends Controller
 
     /**
      * Save student answers during exam (AJAX endpoint).
-     * 
+     *
      * Delegates to ExamSessionService to persist answers without
      * submitting the exam. Used for auto-save functionality.
      *
-     * @param SaveAnswersRequest $request The validated request containing answers.
-     * @param Exam $exam The exam instance.
+     * @param  SaveAnswersRequest  $request  The validated request containing answers.
+     * @param  Exam  $exam  The exam instance.
      * @return JsonResponse The JSON response indicating success or failure.
      */
     public function saveAnswers(SaveAnswersRequest $request, Exam $exam): JsonResponse
@@ -239,28 +236,24 @@ class StudentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => __('messages.answers_saved')
+                'message' => __('messages.answers_saved'),
             ]);
         } catch (\Exception $e) {
             Log::error('Error saving student answers', $e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => __('messages.error_saving_answers')
+                'message' => __('messages.error_saving_answers'),
             ], 500);
         }
     }
 
     /**
      * Handle security violation during exam (AJAX endpoint).
-     * 
+     *
      * Saves current answers, calculates score, and force-submits exam
      * with violation flag. No authorization check - violations must be
      * processed regardless of exam accessibility.
-     *
-     * @param SecurityViolationRequest $request
-     * @param Exam $exam
-     * @return JsonResponse
      */
     public function handleSecurityViolation(SecurityViolationRequest $request, Exam $exam): JsonResponse
     {
@@ -268,10 +261,10 @@ class StudentController extends Controller
 
         $assignment = $this->assignmentRepository->findStartedAssignment($exam, $student->id);
 
-        if (!$assignment) {
+        if (! $assignment) {
             return response()->json([
                 'success' => false,
-                'message' => __('messages.exam_not_found_or_submitted')
+                'message' => __('messages.exam_not_found_or_submitted'),
             ], 404);
         }
 
@@ -299,19 +292,15 @@ class StudentController extends Controller
             'exam_terminated' => true,
             'violation_type' => $validated['violation_type'],
             'violation_details' => $validated['violation_details'] ?? '',
-            'assignment' => $assignment
+            'assignment' => $assignment,
         ]);
     }
 
-
     /**
      * Abandon an exam without scoring.
-     * 
+     *
      * Delegates to ExamSessionService to submit exam with
      * abandoned flag (no score calculation).
-     *
-     * @param Exam $exam
-     * @return Response
      */
     public function abandon(Exam $exam): Response
     {
@@ -321,7 +310,7 @@ class StudentController extends Controller
 
         $assignment = $this->assignmentRepository->findStartedAssignment($exam, $student->id);
 
-        if (!$assignment) {
+        if (! $assignment) {
             abort(404, __('messages.exam_not_found_or_submitted'));
         }
 
@@ -330,17 +319,12 @@ class StudentController extends Controller
         return response('', 200);
     }
 
-
     /**
      * Submit exam with answers.
-     * 
+     *
      * Saves final answers, calculates auto-correctable score,
      * and delegates to ExamSessionService to finalize submission.
      * Marks exam as requiring manual correction if text questions present.
-     *
-     * @param SubmitExamRequest $request
-     * @param Exam $exam
-     * @return RedirectResponse
      */
     public function submit(SubmitExamRequest $request, Exam $exam): RedirectResponse
     {
@@ -350,7 +334,7 @@ class StudentController extends Controller
 
         $assignment = $this->assignmentRepository->findStartedAssignment($exam, $student->id);
 
-        if (!$assignment) {
+        if (! $assignment) {
             return back()->withErrors(['exam' => __('messages.exam_must_start_before_submit')]);
         }
 

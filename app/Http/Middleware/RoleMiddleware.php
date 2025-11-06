@@ -15,8 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * Usage:
  * Apply this middleware to routes or controllers that require role-based authorization.
- *
- * @package App\Http\Middleware
  */
 class RoleMiddleware
 {
@@ -25,14 +23,14 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             abort(401, __('messages.unauthenticated'));
         }
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if (!$user->hasAnyRole($roles)) {
+        if (! $user->hasAnyRole($roles)) {
             abort(403, __('messages.operation_failed'));
         }
 

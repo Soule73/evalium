@@ -8,11 +8,11 @@ use Illuminate\Support\Collection;
 
 /**
  * Student Dashboard Service
- * 
+ *
  * Centralizes all dashboard-related data preparation for students.
  * Uses ExamStatsService for statistics calculations.
  * Eliminates duplication from ExamQueryService.
- * 
+ *
  * Single Responsibility: Prepare student dashboard data only
  */
 class StudentDashboardService
@@ -25,7 +25,7 @@ class StudentDashboardService
     /**
      * Get comprehensive dashboard statistics for a student
      *
-     * @param User $student The student
+     * @param  User  $student  The student
      * @return array Dashboard statistics
      */
     public function getDashboardStats(User $student): array
@@ -39,11 +39,11 @@ class StudentDashboardService
             ->count();
 
         $upcomingExams = $assignments
-            ->filter(fn($assignment) => $assignment->started_at === null)
+            ->filter(fn ($assignment) => $assignment->started_at === null)
             ->take(5);
 
         $recentExams = $assignments
-            ->filter(fn($assignment) => $assignment->submitted_at !== null)
+            ->filter(fn ($assignment) => $assignment->submitted_at !== null)
             ->sortByDesc('submitted_at')
             ->take(5);
 
@@ -73,7 +73,7 @@ class StudentDashboardService
     /**
      * Get student performance summary
      *
-     * @param User $student The student
+     * @param  User  $student  The student
      * @return array Performance metrics
      */
     public function getPerformanceSummary(User $student): array
@@ -96,7 +96,7 @@ class StudentDashboardService
 
         $scores = $gradedAssignments->pluck('score');
         $passingThreshold = 50;
-        $passingCount = $scores->filter(fn($score) => $score >= $passingThreshold)->count();
+        $passingCount = $scores->filter(fn ($score) => $score >= $passingThreshold)->count();
 
         return [
             'total_graded' => $gradedAssignments->count(),
@@ -112,8 +112,8 @@ class StudentDashboardService
     /**
      * Get student activity timeline
      *
-     * @param User $student The student
-     * @param int $limit Number of recent activities
+     * @param  User  $student  The student
+     * @param  int  $limit  Number of recent activities
      * @return Collection Recent activities
      */
     public function getRecentActivity(User $student, int $limit = 10): Collection
@@ -135,7 +135,7 @@ class StudentDashboardService
                 ]);
             }
 
-            if ($assignment->started_at && !$assignment->submitted_at) {
+            if ($assignment->started_at && ! $assignment->submitted_at) {
                 $activities->push([
                     'type' => 'started',
                     'exam_title' => $assignment->exam->title,
@@ -154,7 +154,7 @@ class StudentDashboardService
     /**
      * Get subject-based performance breakdown
      *
-     * @param User $student The student
+     * @param  User  $student  The student
      * @return array Performance by subject
      */
     public function getSubjectPerformance(User $student): array
@@ -175,6 +175,7 @@ class StudentDashboardService
 
         return $bySubject->map(function ($subjectAssignments, $subject) {
             $scores = $subjectAssignments->pluck('score');
+
             return [
                 'subject' => $subject,
                 'total_exams' => $subjectAssignments->count(),
@@ -188,8 +189,8 @@ class StudentDashboardService
     /**
      * Get monthly progress chart data
      *
-     * @param User $student The student
-     * @param int $months Number of months to look back
+     * @param  User  $student  The student
+     * @param  int  $months  Number of months to look back
      * @return array Chart data
      */
     public function getMonthlyProgress(User $student, int $months = 6): array
@@ -211,6 +212,7 @@ class StudentDashboardService
             })
             ->map(function ($monthAssignments, $month) {
                 $scores = $monthAssignments->pluck('score');
+
                 return [
                     'month' => $month,
                     'count' => $monthAssignments->count(),
@@ -226,7 +228,7 @@ class StudentDashboardService
     /**
      * Get group-wise performance comparison
      *
-     * @param User $student The student
+     * @param  User  $student  The student
      * @return array Performance per group
      */
     public function getGroupPerformance(User $student): array
@@ -271,7 +273,7 @@ class StudentDashboardService
     /**
      * Get exam status breakdown
      *
-     * @param User $student The student
+     * @param  User  $student  The student
      * @return array Status counts
      */
     public function getExamStatusBreakdown(User $student): array

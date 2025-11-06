@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Cache;
 
 class Level extends Model
@@ -30,9 +30,9 @@ class Level extends Model
     protected static function booted(): void
     {
         // Invalider le cache des groupes quand un niveau change
-        static::created(fn() => Cache::forget('groups_active_with_levels'));
-        static::updated(fn() => Cache::forget('groups_active_with_levels'));
-        static::deleted(fn() => Cache::forget('groups_active_with_levels'));
+        static::created(fn () => Cache::forget('groups_active_with_levels'));
+        static::updated(fn () => Cache::forget('groups_active_with_levels'));
+        static::deleted(fn () => Cache::forget('groups_active_with_levels'));
     }
 
     public function groups(): HasMany

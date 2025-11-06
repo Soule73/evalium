@@ -2,20 +2,22 @@
 
 namespace Tests\Unit\Services\Exam;
 
-use Tests\TestCase;
 use App\Models\Exam;
 use App\Models\Group;
 use App\Services\Exam\ExamGroupService;
-use Tests\Traits\InteractsWithTestData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Tests\TestCase;
+use Tests\Traits\InteractsWithTestData;
 
 class ExamGroupServiceTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private ExamGroupService $service;
+
     private Exam $exam;
+
     private Group $group;
 
     protected function setUp(): void
@@ -24,7 +26,7 @@ class ExamGroupServiceTest extends TestCase
 
         $this->seedRolesAndPermissions();
 
-        $this->service = new ExamGroupService();
+        $this->service = new ExamGroupService;
 
         $teacher = $this->createTeacher();
         $this->exam = $this->createExamWithQuestions($teacher, questionCount: 1);
@@ -198,7 +200,7 @@ class ExamGroupServiceTest extends TestCase
         foreach ($students as $student) {
             $this->group->students()->attach($student->id, [
                 'is_active' => true,
-                'enrolled_at' => now()
+                'enrolled_at' => now(),
             ]);
         }
 

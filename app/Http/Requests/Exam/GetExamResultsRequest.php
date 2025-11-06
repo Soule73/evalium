@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Exam;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -10,8 +9,6 @@ use Illuminate\Foundation\Http\FormRequest;
  *
  * This request class is typically used to ensure that the incoming request
  * contains valid data and that the user has the necessary permissions to access exam results.
- *
- * @package App\Http\Requests\Exam
  */
 class GetExamResultsRequest extends FormRequest
 {
@@ -25,7 +22,7 @@ class GetExamResultsRequest extends FormRequest
 
         $exam = $this->route('exam');
 
-        return  $this->user()->can('view', $exam);
+        return $this->user()->can('view', $exam);
     }
 
     /**
@@ -40,33 +37,33 @@ class GetExamResultsRequest extends FormRequest
                 'nullable',
                 'integer',
                 'min:1',
-                'max:100'
+                'max:100',
             ],
             'page' => [
                 'nullable',
                 'integer',
-                'min:1'
+                'min:1',
             ],
             'sort_by' => [
                 'nullable',
                 'string',
-                'in:user_name,total_score,completed_at,status'
+                'in:user_name,total_score,completed_at,status',
             ],
             'sort_direction' => [
                 'nullable',
                 'string',
-                'in:asc,desc'
+                'in:asc,desc',
             ],
             'filter_status' => [
                 'nullable',
                 'string',
-                'in:submitted,graded'
+                'in:submitted,graded',
             ],
             'search' => [
                 'nullable',
                 'string',
-                'max:255'
-            ]
+                'max:255',
+            ],
         ];
     }
 
@@ -83,7 +80,7 @@ class GetExamResultsRequest extends FormRequest
             'sort_by' => 'user_name',
             'sort_direction' => 'asc',
             'filter_status' => null,
-            'search' => null
+            'search' => null,
         ], $validated);
     }
 }

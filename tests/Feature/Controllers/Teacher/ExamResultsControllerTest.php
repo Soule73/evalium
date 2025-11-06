@@ -2,22 +2,21 @@
 
 namespace Tests\Feature\Controllers\Exam;
 
-use Tests\TestCase;
-use App\Models\Exam;
-use App\Models\User;
-use App\Models\Group;
 use App\Models\Answer;
-use App\Models\Question;
+use App\Models\Exam;
 use App\Models\ExamAssignment;
-use Inertia\Testing\AssertableInertia;
-use PHPUnit\Framework\Attributes\Test;
+use App\Models\Group;
+use App\Models\Question;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 class ExamResultsControllerTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -34,20 +33,20 @@ class ExamResultsControllerTest extends TestCase
         $group = Group::factory()->active()->create();
         $group->students()->attach($student->id, [
             'enrolled_at' => now(),
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $exam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
             'title' => 'Test Exam',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
             'student_id' => $student->id,
             'status' => 'submitted',
-            'score' => 85.5
+            'score' => 85.5,
         ]);
 
         return compact('teacher', 'student', 'exam', 'group', 'assignment');
@@ -63,7 +62,7 @@ class ExamResultsControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn(AssertableInertia $page) => $page
+            fn (AssertableInertia $page) => $page
                 ->component('Exam/StudentResults', false)
                 ->has('exam')
                 ->has('student')
@@ -79,14 +78,14 @@ class ExamResultsControllerTest extends TestCase
         $question = Question::factory()->create([
             'exam_id' => $exam->id,
             'type' => 'text',
-            'points' => 10
+            'points' => 10,
         ]);
 
         Answer::create([
             'assignment_id' => $assignment->id,
             'question_id' => $question->id,
             'answer_text' => 'Student answer',
-            'score' => 8.5
+            'score' => 8.5,
         ]);
 
         $response = $this->actingAs($teacher)
@@ -94,7 +93,7 @@ class ExamResultsControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn(AssertableInertia $page) => $page
+            fn (AssertableInertia $page) => $page
                 ->component('Exam/StudentResults', false)
         );
     }
@@ -131,19 +130,19 @@ class ExamResultsControllerTest extends TestCase
         $otherStudent = $this->createStudent(['email' => 'other-student@test.com']);
 
         $otherExam = Exam::factory()->create([
-            'teacher_id' => $otherTeacher->id
+            'teacher_id' => $otherTeacher->id,
         ]);
 
         $otherGroup = Group::factory()->active()->create();
         $otherGroup->students()->attach($otherStudent->id, [
             'enrolled_at' => now(),
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         ExamAssignment::factory()->create([
             'exam_id' => $otherExam->id,
             'student_id' => $otherStudent->id,
-            'status' => 'submitted'
+            'status' => 'submitted',
         ]);
 
         $response = $this->actingAs($teacher)
@@ -171,13 +170,13 @@ class ExamResultsControllerTest extends TestCase
         $textQuestion = Question::factory()->create([
             'exam_id' => $exam->id,
             'type' => 'text',
-            'points' => 10
+            'points' => 10,
         ]);
 
         $mcqQuestion = Question::factory()->create([
             'exam_id' => $exam->id,
             'type' => 'multiple',
-            'points' => 5
+            'points' => 5,
         ]);
 
         Answer::create([
@@ -185,14 +184,14 @@ class ExamResultsControllerTest extends TestCase
             'question_id' => $textQuestion->id,
             'answer_text' => 'Detailed text answer',
             'score' => 8.5,
-            'teacher_notes' => 'Good work'
+            'teacher_notes' => 'Good work',
         ]);
 
         Answer::create([
             'assignment_id' => $assignment->id,
             'question_id' => $mcqQuestion->id,
             'selected_choices' => json_encode([1, 2]),
-            'score' => 5.0
+            'score' => 5.0,
         ]);
 
         $response = $this->actingAs($teacher)
@@ -200,7 +199,7 @@ class ExamResultsControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn(AssertableInertia $page) => $page
+            fn (AssertableInertia $page) => $page
                 ->component('Exam/StudentResults', false)
                 ->has('exam')
                 ->has('student')
@@ -216,27 +215,27 @@ class ExamResultsControllerTest extends TestCase
         $q1 = Question::factory()->create([
             'exam_id' => $exam->id,
             'type' => 'text',
-            'points' => 10
+            'points' => 10,
         ]);
 
         $q2 = Question::factory()->create([
             'exam_id' => $exam->id,
             'type' => 'text',
-            'points' => 15
+            'points' => 15,
         ]);
 
         Answer::create([
             'assignment_id' => $assignment->id,
             'question_id' => $q1->id,
             'answer_text' => 'Answer 1',
-            'score' => 8.5
+            'score' => 8.5,
         ]);
 
         Answer::create([
             'assignment_id' => $assignment->id,
             'question_id' => $q2->id,
             'answer_text' => 'Answer 2',
-            'score' => 12.0
+            'score' => 12.0,
         ]);
 
         $response = $this->actingAs($teacher)
@@ -253,14 +252,14 @@ class ExamResultsControllerTest extends TestCase
 
         $group->students()->attach($newStudent->id, [
             'enrolled_at' => now(),
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $newAssignment = ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
             'student_id' => $newStudent->id,
             'status' => 'submitted',
-            'score' => null
+            'score' => null,
         ]);
 
         $response = $this->actingAs($teacher)
@@ -278,13 +277,13 @@ class ExamResultsControllerTest extends TestCase
 
         $otherGroup->students()->attach($studentNotInGroup->id, [
             'enrolled_at' => now(),
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
             'student_id' => $studentNotInGroup->id,
-            'status' => 'submitted'
+            'status' => 'submitted',
         ]);
 
         $response = $this->actingAs($teacher)
@@ -301,13 +300,13 @@ class ExamResultsControllerTest extends TestCase
 
         $group->students()->attach($inactiveStudent->id, [
             'enrolled_at' => now(),
-            'is_active' => false
+            'is_active' => false,
         ]);
 
         ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
             'student_id' => $inactiveStudent->id,
-            'status' => 'submitted'
+            'status' => 'submitted',
         ]);
 
         $response = $this->actingAs($teacher)

@@ -3,14 +3,14 @@
 namespace App\Services\Admin;
 
 use App\Models\Group;
-use App\Models\User;
 use App\Models\Level;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Group Service - Handle group management and student assignments
- * 
+ *
  * Single Responsibility: Manage groups, student enrollments, and capacity control
  * Uses bulk operations for performance optimization
  */
@@ -19,23 +19,21 @@ class GroupService
     /**
      * Get paginated groups with filters
      *
-     * @param array $filters Filter criteria (search, level_id, is_active)
-     * @param int $perPage Number of items per page
-     * @return LengthAwarePaginator
+     * @param  array  $filters  Filter criteria (search, level_id, is_active)
+     * @param  int  $perPage  Number of items per page
      */
     /**
      * Get paginated groups with filters
      *
-     * @param array $filters Filter criteria (search, level_id, is_active)
-     * @param int $perPage Number of items per page
-     * @return LengthAwarePaginator
+     * @param  array  $filters  Filter criteria (search, level_id, is_active)
+     * @param  int  $perPage  Number of items per page
      */
     public function getGroupsWithPagination(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
         $query = Group::with('level')
             ->withCount('activeStudents');
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('academic_year', 'like', "%{$search}%")
@@ -46,7 +44,7 @@ class GroupService
             });
         }
 
-        if (!empty($filters['level_id'])) {
+        if (! empty($filters['level_id'])) {
             $query->where('level_id', $filters['level_id']);
         }
 
@@ -63,8 +61,7 @@ class GroupService
     /**
      * Create a new group
      *
-     * @param array $data Group data
-     * @return Group
+     * @param  array  $data  Group data
      */
     public function createGroup(array $data): Group
     {
@@ -83,9 +80,8 @@ class GroupService
     /**
      * Update an existing group
      *
-     * @param Group $group Group to update
-     * @param array $data Updated data
-     * @return Group
+     * @param  Group  $group  Group to update
+     * @param  array  $data  Updated data
      */
     public function updateGroup(Group $group, array $data): Group
     {
@@ -106,13 +102,13 @@ class GroupService
     /**
      * Delete a group and detach all students
      *
-     * @param Group $group Group to delete
-     * @return bool
+     * @param  Group  $group  Group to delete
      */
     public function deleteGroup(Group $group): bool
     {
         return DB::transaction(function () use ($group) {
             $group->students()->detach();
+
             return $group->delete();
         });
     }
@@ -121,8 +117,8 @@ class GroupService
      * Assign multiple students to a group with validation and capacity control
      * Optimized with bulk operations and decomposed methods
      *
-     * @param Group $group Target group
-     * @param array $studentIds Student IDs to assign
+     * @param  Group  $group  Target group
+     * @param  array  $studentIds  Student IDs to assign
      * @return array Result with assigned count, already assigned count, and errors
      */
     public function assignStudentsToGroup(Group $group, array $studentIds): array
@@ -163,7 +159,7 @@ class GroupService
     /**
      * Validate that users exist and have student role
      *
-     * @param array $studentIds Student IDs to validate
+     * @param  array  $studentIds  Student IDs to validate
      * @return array Valid student IDs and errors
      */
     private function validateStudentsForAssignment(array $studentIds): array
@@ -175,13 +171,15 @@ class GroupService
         foreach ($studentIds as $studentId) {
             $student = $students->get($studentId);
 
-            if (!$student) {
+            if (! $student) {
                 $errors[] = "User #{$studentId} not found";
+
                 continue;
             }
 
-            if (!$student->hasRole('student')) {
+            if (! $student->hasRole('student')) {
                 $errors[] = "User #{$studentId} is not a student";
+
                 continue;
             }
 
@@ -194,15 +192,15 @@ class GroupService
     /**
      * Filter students already assigned to the group
      *
-     * @param Group $group Target group
-     * @param array $validStudentIds Valid student IDs
+     * @param  Group  $group  Target group
+     * @param  array  $validStudentIds  Valid student IDs
      * @return array Students to assign and already assigned count
      */
     /**
      * Filter students already assigned to the group
      *
-     * @param Group $group Target group
-     * @param array $validStudentIds Valid student IDs
+     * @param  Group  $group  Target group
+     * @param  array  $validStudentIds  Valid student IDs
      * @return array Students to assign and already assigned count
      */
     private function filterAlreadyAssignedStudents(Group $group, array $validStudentIds): array
@@ -223,11 +221,11 @@ class GroupService
     /**
      * Limit assignments based on group capacity
      *
-     * @param Group $group Target group
-     * @param array $studentsToAssign Students to assign
-     * @param array $validStudentIds All valid student IDs
-     * @param int $alreadyAssignedCount Count of already assigned students
-     * @param array $errors Current errors
+     * @param  Group  $group  Target group
+     * @param  array  $studentsToAssign  Students to assign
+     * @param  array  $validStudentIds  All valid student IDs
+     * @param  int  $alreadyAssignedCount  Count of already assigned students
+     * @param  array  $errors  Current errors
      * @return array Limited students to assign and updated errors
      */
     private function limitByGroupCapacity(
@@ -254,16 +252,14 @@ class GroupService
     /**
      * Perform bulk student assignments (deactivate old, reactivate/create new)
      *
-     * @param Group $group Target group
-     * @param array $studentsToAssign Students to assign
-     * @return void
+     * @param  Group  $group  Target group
+     * @param  array  $studentsToAssign  Students to assign
      */
     /**
      * Perform bulk student assignments (deactivate old, reactivate/create new)
      *
-     * @param Group $group Target group
-     * @param array $studentsToAssign Students to assign
-     * @return void
+     * @param  Group  $group  Target group
+     * @param  array  $studentsToAssign  Students to assign
      */
     private function performBulkAssignments(Group $group, array $studentsToAssign): void
     {
@@ -279,7 +275,7 @@ class GroupService
             ->pluck('student_id')
             ->toArray();
 
-        if (!empty($oldInactiveAssignments)) {
+        if (! empty($oldInactiveAssignments)) {
             DB::table('group_student')
                 ->where('group_id', $group->id)
                 ->whereIn('student_id', $oldInactiveAssignments)
@@ -288,8 +284,8 @@ class GroupService
         }
 
         $newStudents = array_diff($studentsToAssign, $oldInactiveAssignments);
-        if (!empty($newStudents)) {
-            $insertData = array_map(fn($studentId) => [
+        if (! empty($newStudents)) {
+            $insertData = array_map(fn ($studentId) => [
                 'group_id' => $group->id,
                 'student_id' => $studentId,
                 'enrolled_at' => now(),
@@ -305,10 +301,9 @@ class GroupService
     /**
      * Build assignment result
      *
-     * @param int $assignedCount Number of successfully assigned students
-     * @param int $alreadyAssignedCount Number of already assigned students
-     * @param array $errors Errors encountered
-     * @return array
+     * @param  int  $assignedCount  Number of successfully assigned students
+     * @param  int  $alreadyAssignedCount  Number of already assigned students
+     * @param  array  $errors  Errors encountered
      */
     private function buildResult(int $assignedCount, int $alreadyAssignedCount, array $errors): array
     {
@@ -322,8 +317,7 @@ class GroupService
     /**
      * Build empty result (no assignments)
      *
-     * @param array $errors Errors encountered
-     * @return array
+     * @param  array  $errors  Errors encountered
      */
     private function buildEmptyResult(array $errors): array
     {
@@ -333,28 +327,30 @@ class GroupService
     /**
      * Assign a single student to a group
      *
-     * @param Group $group Target group
-     * @param int $studentId Student ID to assign
+     * @param  Group  $group  Target group
+     * @param  int  $studentId  Student ID to assign
      * @return array Result with assigned status and message
+     *
      * @throws \InvalidArgumentException|\Exception
      */
     /**
      * Assign a single student to a group
      *
-     * @param Group $group Target group
-     * @param int $studentId Student ID to assign
+     * @param  Group  $group  Target group
+     * @param  int  $studentId  Student ID to assign
      * @return array Result with assigned status and message
+     *
      * @throws \InvalidArgumentException|\Exception
      */
     public function assignStudentToGroup(Group $group, int $studentId): array
     {
         $student = User::findOrFail($studentId);
 
-        if (!$student->hasRole('student')) {
-            throw new \InvalidArgumentException("User is not a student.");
+        if (! $student->hasRole('student')) {
+            throw new \InvalidArgumentException('User is not a student.');
         }
 
-        if (!$group->hasAvailableSlots()) {
+        if (! $group->hasAvailableSlots()) {
             throw new \Exception("Group '{$group->name}' is full.");
         }
 
@@ -392,17 +388,17 @@ class GroupService
     /**
      * Remove a student from a group
      *
-     * @param Group $group Source group
-     * @param User $student Student to remove
-     * @return bool
+     * @param  Group  $group  Source group
+     * @param  User  $student  Student to remove
+     *
      * @throws \InvalidArgumentException
      */
     /**
      * Remove a student from a group
      *
-     * @param Group $group Source group
-     * @param User $student Student to remove
-     * @return bool
+     * @param  Group  $group  Source group
+     * @param  User  $student  Student to remove
+     *
      * @throws \InvalidArgumentException
      */
     public function removeStudentFromGroup(Group $group, User $student): bool
@@ -413,8 +409,8 @@ class GroupService
                 ->wherePivot('is_active', true)
                 ->first();
 
-            if (!$assignment) {
-                throw new \InvalidArgumentException("Student is not assigned to this group.");
+            if (! $assignment) {
+                throw new \InvalidArgumentException('Student is not assigned to this group.');
             }
 
             $student->groups()->updateExistingPivot($group->id, [
@@ -428,8 +424,6 @@ class GroupService
 
     /**
      * Get students not assigned to any active group
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAvailableStudents(): \Illuminate\Database\Eloquent\Collection
     {
@@ -443,8 +437,6 @@ class GroupService
 
     /**
      * Get form data for group creation/edit
-     *
-     * @return array
      */
     public function getFormData(): array
     {
@@ -456,8 +448,6 @@ class GroupService
 
     /**
      * Get levels for filtering
-     *
-     * @return array
      */
     public function getLevelsForFilters(): array
     {
@@ -467,8 +457,7 @@ class GroupService
     /**
      * Deactivate all active group assignments for a student
      *
-     * @param User $student Student to deactivate assignments
-     * @return void
+     * @param  User  $student  Student to deactivate assignments
      */
     private function deactivateCurrentGroupAssignments(User $student): void
     {
@@ -484,13 +473,13 @@ class GroupService
     /**
      * Activate multiple groups in bulk
      *
-     * @param array $groupIds Group IDs to activate
+     * @param  array  $groupIds  Group IDs to activate
      * @return array Result with activated and already active counts
      */
     /**
      * Activate multiple groups in bulk
      *
-     * @param array $groupIds Group IDs to activate
+     * @param  array  $groupIds  Group IDs to activate
      * @return array Result with activated and already active counts
      */
     public function bulkActivate(array $groupIds): array
@@ -514,7 +503,7 @@ class GroupService
     /**
      * Deactivate multiple groups in bulk
      *
-     * @param array $groupIds Group IDs to deactivate
+     * @param  array  $groupIds  Group IDs to deactivate
      * @return array Result with deactivated and already inactive counts
      */
     public function bulkDeactivate(array $groupIds): array
@@ -538,8 +527,8 @@ class GroupService
     /**
      * Remove multiple students from a group in bulk
      *
-     * @param Group $group Source group
-     * @param array $studentIds Student IDs to remove
+     * @param  Group  $group  Source group
+     * @param  array  $studentIds  Student IDs to remove
      * @return array Result with removed and not in group counts
      */
     public function bulkRemoveStudentsFromGroup(Group $group, array $studentIds): array
@@ -577,17 +566,17 @@ class GroupService
                 $query->withPivot([
                     'enrolled_at',
                     'left_at',
-                    'is_active'
+                    'is_active',
                 ])
                     ->orderBy('group_student.enrolled_at', 'desc');
-            }
+            },
         ]);
     }
 
     /**
      * Load group with its level
      *
-     * @param Group $group Group instance
+     * @param  Group  $group  Group instance
      * @return Group Loaded group with level
      */
     public function loadGroupWithLevel(Group $group): Group

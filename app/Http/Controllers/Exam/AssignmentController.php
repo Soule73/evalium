@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers\Exam;
 
-use App\Models\Exam;
-use Inertia\Inertia;
-use App\Models\Group;
-use Inertia\Response;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Traits\HasFlashMessages;
-use Illuminate\Http\RedirectResponse;
-use App\Services\Exam\ExamGroupService;
-use App\Services\Exam\ExamAssignmentService;
-use App\Services\Core\ExamStatsService;
-use App\Repositories\AssignmentRepository;
 use App\Http\Requests\Exam\AssignToGroupsRequest;
 use App\Http\Requests\Exam\GetExamResultsRequest;
+use App\Http\Traits\HasFlashMessages;
+use App\Models\Exam;
+use App\Models\Group;
+use App\Repositories\AssignmentRepository;
+use App\Services\Core\ExamStatsService;
+use App\Services\Exam\ExamAssignmentService;
+use App\Services\Exam\ExamGroupService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AssignmentController extends Controller
 {
@@ -33,7 +32,7 @@ class AssignmentController extends Controller
     /**
      * Display the form to assign an exam to groups.
      *
-     * @param Exam $exam The exam instance to be assigned.
+     * @param  Exam  $exam  The exam instance to be assigned.
      * @return Response The response containing the assignment form view.
      */
     public function showAssignForm(Exam $exam): Response
@@ -54,8 +53,8 @@ class AssignmentController extends Controller
     /**
      * Display the assignments related to the specified exam.
      *
-     * @param Exam $exam The exam instance for which assignments are to be shown.
-     * @param GetExamResultsRequest $request The request containing parameters for fetching exam results.
+     * @param  Exam  $exam  The exam instance for which assignments are to be shown.
+     * @param  GetExamResultsRequest  $request  The request containing parameters for fetching exam results.
      * @return Response The HTTP response containing the assignments data.
      */
     public function showAssignments(Exam $exam, GetExamResultsRequest $request): Response
@@ -77,15 +76,15 @@ class AssignmentController extends Controller
         return Inertia::render('Exam/Assignments', [
             'assignments' => $assignments,
             'stats' => $stats,
-            'assignedGroups' => $assignedGroups
+            'assignedGroups' => $assignedGroups,
         ]);
     }
 
     /**
      * Assign the specified exam to one or multiple groups.
      *
-     * @param AssignToGroupsRequest $request The request containing the group IDs.
-     * @param Exam $exam The exam instance to be assigned.
+     * @param  AssignToGroupsRequest  $request  The request containing the group IDs.
+     * @param  Exam  $exam  The exam instance to be assigned.
      * @return RedirectResponse Redirects back with a status message upon completion.
      */
     public function assignToGroups(AssignToGroupsRequest $request, Exam $exam): RedirectResponse
@@ -100,7 +99,7 @@ class AssignmentController extends Controller
         $message = __('messages.groups_assigned_to_exam', ['count' => $result['assigned_count']]);
 
         if ($result['already_assigned_count'] > 0) {
-            $message .= ' ' . __('messages.groups_already_assigned', ['already_assigned' => $result['already_assigned_count']]);
+            $message .= ' '.__('messages.groups_already_assigned', ['already_assigned' => $result['already_assigned_count']]);
         }
 
         return $this->redirectWithSuccess('exams.show', $message, ['exam' => $exam->id]);
@@ -109,8 +108,8 @@ class AssignmentController extends Controller
     /**
      * Remove the exam assignment from a group.
      *
-     * @param Exam $exam The exam instance.
-     * @param Group $group The group instance.
+     * @param  Exam  $exam  The exam instance.
+     * @param  Group  $group  The group instance.
      * @return RedirectResponse Redirects back with a status message.
      */
     public function removeFromGroup(Exam $exam, Group $group): RedirectResponse
@@ -129,9 +128,9 @@ class AssignmentController extends Controller
     /**
      * Show group details with students and their exam status.
      *
-     * @param Exam $exam The exam instance.
-     * @param Group $group The group instance.
-     * @param Request $request The request instance.
+     * @param  Exam  $exam  The exam instance.
+     * @param  Group  $group  The group instance.
+     * @param  Request  $request  The request instance.
      * @return Response The response containing group details.
      */
     public function showGroup(Exam $exam, Group $group, Request $request): Response
@@ -146,7 +145,7 @@ class AssignmentController extends Controller
         $search = $request->input('search');
 
         $assignmentsQuery = $exam->assignments()
-            ->whereHas('student.groups', fn($q) => $q->where('groups.id', $group->id))
+            ->whereHas('student.groups', fn ($q) => $q->where('groups.id', $group->id))
             ->with('student');
 
         if ($search) {
@@ -168,7 +167,7 @@ class AssignmentController extends Controller
             'exam' => $exam,
             'group' => $group,
             'assignments' => $assignments,
-            'stats' => $stats
+            'stats' => $stats,
         ]);
     }
 }

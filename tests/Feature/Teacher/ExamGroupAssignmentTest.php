@@ -2,18 +2,18 @@
 
 namespace Tests\Feature\Exam;
 
-use App\Models\User;
-use App\Models\Group;
 use App\Models\Exam;
-use Tests\TestCase;
+use App\Models\Group;
+use App\Models\User;
 use App\Services\Exam\ExamAssignmentService;
 use App\Services\Exam\ExamGroupService;
-use Tests\Traits\InteractsWithTestData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use Tests\Traits\InteractsWithTestData;
 
 class ExamGroupAssignmentTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -39,7 +39,7 @@ class ExamGroupAssignmentTest extends TestCase
             ]);
         }
 
-        $examGroupService = new ExamGroupService();
+        $examGroupService = new ExamGroupService;
         $service = new ExamAssignmentService($examGroupService);
         $result = $service->assignExamToGroup($exam, $group->id);
 
@@ -67,7 +67,7 @@ class ExamGroupAssignmentTest extends TestCase
             'is_active' => true,
         ]);
 
-        $examGroupService = new ExamGroupService();
+        $examGroupService = new ExamGroupService;
         $service = new ExamAssignmentService($examGroupService);
 
         $result1 = $service->assignExamToGroup($exam, $group->id);
@@ -102,7 +102,7 @@ class ExamGroupAssignmentTest extends TestCase
             'is_active' => false,
         ]);
 
-        $examGroupService = new ExamGroupService();
+        $examGroupService = new ExamGroupService;
         $service = new ExamAssignmentService($examGroupService);
         $result = $service->assignExamToGroup($exam, $group->id);
 

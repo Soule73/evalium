@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers\Exam;
 
-use App\Models\Exam;
-use App\Models\User;
-use Inertia\Inertia;
-use App\Models\Group;
-use Inertia\Response;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Http\Traits\HasFlashMessages;
-use Illuminate\Http\RedirectResponse;
-use App\Services\Exam\ExamScoringService;
-use App\Services\Core\Answer\AnswerFormatterService;
-use App\Http\Requests\Exam\UpdateScoreRequest;
 use App\Http\Requests\Exam\SaveStudentReviewRequest;
+use App\Http\Requests\Exam\UpdateScoreRequest;
+use App\Http\Traits\HasFlashMessages;
+use App\Models\Exam;
+use App\Models\Group;
+use App\Models\User;
+use App\Services\Core\Answer\AnswerFormatterService;
+use App\Services\Exam\ExamScoringService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CorrectionController extends Controller
 {
@@ -30,9 +30,9 @@ class CorrectionController extends Controller
     /**
      * Display the review of a student's exam.
      *
-     * @param Exam $exam The exam instance to be reviewed.
-     * @param Group $group The group to which the student belongs.
-     * @param User $student The student whose exam review is to be shown.
+     * @param  Exam  $exam  The exam instance to be reviewed.
+     * @param  Group  $group  The group to which the student belongs.
+     * @param  User  $student  The student whose exam review is to be shown.
      * @return Response The HTTP response containing the student's exam review.
      */
     public function showStudentReview(Exam $exam, Group $group, User $student): Response
@@ -47,10 +47,10 @@ class CorrectionController extends Controller
     /**
      * Save a review for a student on a specific exam.
      *
-     * @param SaveStudentReviewRequest $request The validated request containing review data.
-     * @param Exam $exam The exam instance being reviewed.
-     * @param Group $group The group context for the review.
-     * @param User $student The student for whom the review is being saved.
+     * @param  SaveStudentReviewRequest  $request  The validated request containing review data.
+     * @param  Exam  $exam  The exam instance being reviewed.
+     * @param  Group  $group  The group context for the review.
+     * @param  User  $student  The student for whom the review is being saved.
      * @return RedirectResponse Redirects back after saving the review.
      */
     public function saveStudentReview(SaveStudentReviewRequest $request, Exam $exam, Group $group, User $student): RedirectResponse
@@ -68,7 +68,7 @@ class CorrectionController extends Controller
 
             $message = __('messages.scores_saved', [
                 'updated_answers' => $result['updated_count'],
-                'total_score' => $result['total_score']
+                'total_score' => $result['total_score'],
             ]);
 
             return $this->redirectWithSuccess(
@@ -82,7 +82,7 @@ class CorrectionController extends Controller
                 'message' => $e->getMessage(),
                 'exam' => $exam->id,
                 'student' => $student->id,
-                'group' => $group->id
+                'group' => $group->id,
             ]);
 
             return $this->redirectWithError(
@@ -96,8 +96,8 @@ class CorrectionController extends Controller
     /**
      * Update the score for a specific question in a student's exam.
      *
-     * @param UpdateScoreRequest $request The validated request containing score update information.
-     * @param Exam $exam The exam instance to update the score for.
+     * @param  UpdateScoreRequest  $request  The validated request containing score update information.
+     * @param  Exam  $exam  The exam instance to update the score for.
      * @return JsonResponse The JSON response indicating the result of the update operation.
      */
     public function updateScore(UpdateScoreRequest $request, Exam $exam): JsonResponse
@@ -115,26 +115,26 @@ class CorrectionController extends Controller
                 $validated['question_id'] => [
                     'score' => $validated['score'],
                     'teacher_notes' => $validated['teacher_notes'] ?? null,
-                    'feedback' => $validated['feedback'] ?? null
-                ]
+                    'feedback' => $validated['feedback'] ?? null,
+                ],
             ];
 
             $this->examScoringService->saveCorrections($assignment, $scores);
 
             return response()->json([
                 'success' => true,
-                'message' => __('messages.score_updated')
+                'message' => __('messages.score_updated'),
             ]);
         } catch (\Exception $e) {
             Log::error('Error updating score', [
                 'message' => $e->getMessage(),
                 'exam' => $request->input('exam_id'),
-                'question' => $request->input('question_id')
+                'question' => $request->input('question_id'),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => __('messages.error_updating_score')
+                'message' => __('messages.error_updating_score'),
             ], 422);
         }
     }

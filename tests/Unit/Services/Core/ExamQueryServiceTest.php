@@ -2,8 +2,6 @@
 
 namespace Tests\Unit\Services\Core;
 
-use App\Models\Exam;
-use App\Models\Group;
 use App\Services\Core\ExamQueryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -11,7 +9,7 @@ use Tests\Traits\InteractsWithTestData;
 
 class ExamQueryServiceTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private ExamQueryService $service;
 
@@ -20,7 +18,7 @@ class ExamQueryServiceTest extends TestCase
         parent::setUp();
 
         $this->seedRolesAndPermissions();
-        $this->service = new ExamQueryService();
+        $this->service = new ExamQueryService;
     }
 
     public function test_get_exams_filters_by_teacher_id(): void
@@ -37,7 +35,7 @@ class ExamQueryServiceTest extends TestCase
         $result = $this->service->getExams($teacher1->id, 10);
 
         $this->assertCount(3, $result->items());
-        $this->assertTrue(collect($result->items())->every(fn($exam) => $exam->teacher_id === $teacher1->id));
+        $this->assertTrue(collect($result->items())->every(fn ($exam) => $exam->teacher_id === $teacher1->id));
     }
 
     public function test_get_exams_returns_all_when_no_teacher_filter(): void
@@ -45,8 +43,8 @@ class ExamQueryServiceTest extends TestCase
         $teacher = $this->createTeacher();
         $admin = $this->createAdmin();
 
-        collect()->times(5, fn() => $this->createExamWithQuestions($teacher, questionCount: 0, examAttributes: ['teacher_id' => $teacher->id]));
-        collect()->times(3, fn() => $this->createExamWithQuestions($admin, questionCount: 0, examAttributes: ['teacher_id' => $admin->id]));
+        collect()->times(5, fn () => $this->createExamWithQuestions($teacher, questionCount: 0, examAttributes: ['teacher_id' => $teacher->id]));
+        collect()->times(3, fn () => $this->createExamWithQuestions($admin, questionCount: 0, examAttributes: ['teacher_id' => $admin->id]));
 
         $result = $this->service->getExams(null, 20);
 
@@ -57,17 +55,17 @@ class ExamQueryServiceTest extends TestCase
     {
         $teacher = $this->createTeacher();
 
-        collect()->times(3, fn() => $this->createExamWithQuestions($teacher, questionCount: 0, examAttributes: ['teacher_id' => $teacher->id, 'is_active' => true]));
-        collect()->times(2, fn() => $this->createExamWithQuestions($teacher, questionCount: 0, examAttributes: ['teacher_id' => $teacher->id, 'is_active' => false]));
+        collect()->times(3, fn () => $this->createExamWithQuestions($teacher, questionCount: 0, examAttributes: ['teacher_id' => $teacher->id, 'is_active' => true]));
+        collect()->times(2, fn () => $this->createExamWithQuestions($teacher, questionCount: 0, examAttributes: ['teacher_id' => $teacher->id, 'is_active' => false]));
 
         $activeResult = $this->service->getExams($teacher->id, 10, true);
         $inactiveResult = $this->service->getExams($teacher->id, 10, false);
 
         $this->assertCount(3, $activeResult->items());
-        $this->assertTrue(collect($activeResult->items())->every(fn($exam) => $exam->is_active === true));
+        $this->assertTrue(collect($activeResult->items())->every(fn ($exam) => $exam->is_active === true));
 
         $this->assertCount(2, $inactiveResult->items());
-        $this->assertTrue(collect($inactiveResult->items())->every(fn($exam) => $exam->is_active === false));
+        $this->assertTrue(collect($inactiveResult->items())->every(fn ($exam) => $exam->is_active === false));
     }
 
     public function test_get_exams_searches_title(): void
@@ -107,7 +105,7 @@ class ExamQueryServiceTest extends TestCase
         $group = $this->createGroupWithStudents(0);
         $group->students()->attach($student->id, [
             'is_active' => true,
-            'enrolled_at' => now()
+            'enrolled_at' => now(),
         ]);
 
         $exam->groups()->attach($group->id, ['assigned_by' => $teacher->id]);
@@ -123,7 +121,7 @@ class ExamQueryServiceTest extends TestCase
     {
         $teacher = $this->createTeacher();
 
-        collect()->times(25, fn() => $this->createExamWithQuestions($teacher, questionCount: 0, examAttributes: ['teacher_id' => $teacher->id]));
+        collect()->times(25, fn () => $this->createExamWithQuestions($teacher, questionCount: 0, examAttributes: ['teacher_id' => $teacher->id]));
 
         $page1 = $this->service->getExams($teacher->id, 10);
         $page2 = $this->service->getExams($teacher->id, 10);
@@ -170,7 +168,7 @@ class ExamQueryServiceTest extends TestCase
                 'teacher_id' => $teacher->id,
                 'title' => 'UNIQUE Calculus Exam ACTIVE',
                 'description' => 'Test description',
-                'is_active' => true
+                'is_active' => true,
             ]
         );
         $inactiveExam = $this->createExamWithQuestions(
@@ -180,7 +178,7 @@ class ExamQueryServiceTest extends TestCase
                 'teacher_id' => $teacher->id,
                 'title' => 'UNIQUE Calculus Test INACTIVE',
                 'description' => 'Test description',
-                'is_active' => false
+                'is_active' => false,
             ]
         );
         $otherExam = $this->createExamWithQuestions(
@@ -190,7 +188,7 @@ class ExamQueryServiceTest extends TestCase
                 'teacher_id' => $teacher->id,
                 'title' => 'Physics Exam',
                 'description' => 'Other subject',
-                'is_active' => true
+                'is_active' => true,
             ]
         );
 
@@ -207,7 +205,7 @@ class ExamQueryServiceTest extends TestCase
     {
         $teacher = $this->createTeacher();
 
-        collect()->times(3, fn() => $this->createExamWithQuestions($teacher, questionCount: 0, examAttributes: ['teacher_id' => $teacher->id]));
+        collect()->times(3, fn () => $this->createExamWithQuestions($teacher, questionCount: 0, examAttributes: ['teacher_id' => $teacher->id]));
 
         request()->merge(['custom_param' => 'test']);
 

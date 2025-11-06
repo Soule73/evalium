@@ -2,16 +2,16 @@
 
 namespace Tests\Unit\Services\Exam;
 
-use Tests\TestCase;
 use App\Models\ExamAssignment;
 use App\Services\Exam\ExamAssignmentService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 class ExamAssignmentServiceTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private ExamAssignmentService $service;
 
@@ -20,7 +20,7 @@ class ExamAssignmentServiceTest extends TestCase
         parent::setUp();
 
         $this->seedRolesAndPermissions();
-        $this->service = new ExamAssignmentService();
+        $this->service = new ExamAssignmentService;
     }
 
     public function test_get_exam_assignments_returns_paginated_results(): void

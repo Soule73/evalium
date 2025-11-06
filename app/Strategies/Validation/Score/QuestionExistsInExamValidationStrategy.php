@@ -2,7 +2,6 @@
 
 namespace App\Strategies\Validation\Score;
 
-use App\Models\Question;
 use Illuminate\Validation\Validator;
 
 class QuestionExistsInExamValidationStrategy implements ScoreValidationStrategy
@@ -12,12 +11,12 @@ class QuestionExistsInExamValidationStrategy implements ScoreValidationStrategy
         $exam = $context['exam'] ?? null;
         $scores = $data['scores'] ?? [];
 
-        if (!$exam || empty($scores)) {
+        if (! $exam || empty($scores)) {
             return;
         }
 
         foreach ($scores as $index => $scoreData) {
-            if (!isset($scoreData['question_id'])) {
+            if (! isset($scoreData['question_id'])) {
                 continue;
             }
 
@@ -25,7 +24,7 @@ class QuestionExistsInExamValidationStrategy implements ScoreValidationStrategy
                 ->where('id', $scoreData['question_id'])
                 ->first();
 
-            if (!$question) {
+            if (! $question) {
                 $validator->errors()->add(
                     "scores.{$index}.question_id",
                     __('validation.custom.question_id.not_in_exam')

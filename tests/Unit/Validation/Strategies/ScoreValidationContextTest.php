@@ -8,7 +8,6 @@ use App\Models\Answer;
 use App\Models\Exam;
 use App\Models\ExamAssignment;
 use App\Models\Question;
-use App\Models\User;
 use App\Strategies\Validation\Score\ScoreValidationContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
@@ -17,7 +16,7 @@ use Tests\Traits\InteractsWithTestData;
 
 class ScoreValidationContextTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private ScoreValidationContext $context;
 
@@ -26,7 +25,7 @@ class ScoreValidationContextTest extends TestCase
         parent::setUp();
 
         $this->seedRolesAndPermissions();
-        $this->context = new ScoreValidationContext();
+        $this->context = new ScoreValidationContext;
     }
 
     public function test_question_exists_in_exam_validation_strategy_passes(): void
@@ -39,9 +38,9 @@ class ScoreValidationContextTest extends TestCase
             'scores' => [
                 [
                     'question_id' => $question->id,
-                    'score' => 5
-                ]
-            ]
+                    'score' => 5,
+                ],
+            ],
         ];
 
         $validator = Validator::make($data, []);
@@ -64,9 +63,9 @@ class ScoreValidationContextTest extends TestCase
             'scores' => [
                 [
                     'question_id' => 99999,
-                    'score' => 5
-                ]
-            ]
+                    'score' => 5,
+                ],
+            ],
         ];
 
         $validator = Validator::make($data, []);
@@ -90,9 +89,9 @@ class ScoreValidationContextTest extends TestCase
             'scores' => [
                 [
                     'question_id' => $question->id,
-                    'score' => 8
-                ]
-            ]
+                    'score' => 8,
+                ],
+            ],
         ];
 
         $validator = Validator::make($data, []);
@@ -116,9 +115,9 @@ class ScoreValidationContextTest extends TestCase
             'scores' => [
                 [
                     'question_id' => $question->id,
-                    'score' => 15
-                ]
-            ]
+                    'score' => 15,
+                ],
+            ],
         ];
 
         $validator = Validator::make($data, []);
@@ -141,7 +140,7 @@ class ScoreValidationContextTest extends TestCase
         $data = [
             'exam_id' => $exam->id,
             'question_id' => $question->id,
-            'score' => 8
+            'score' => 8,
         ];
 
         $validator = Validator::make($data, []);
@@ -159,7 +158,7 @@ class ScoreValidationContextTest extends TestCase
         $data = [
             'exam_id' => $exam->id,
             'question_id' => 99999,
-            'score' => 8
+            'score' => 8,
         ];
 
         $validator = Validator::make($data, []);
@@ -177,7 +176,7 @@ class ScoreValidationContextTest extends TestCase
         $data = [
             'exam_id' => $exam->id,
             'question_id' => $question->id,
-            'score' => 15
+            'score' => 15,
         ];
 
         $validator = Validator::make($data, []);
@@ -195,18 +194,18 @@ class ScoreValidationContextTest extends TestCase
 
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
-            'student_id' => $student->id
+            'student_id' => $student->id,
         ]);
 
         Answer::factory()->create([
             'assignment_id' => $assignment->id,
-            'question_id' => $question->id
+            'question_id' => $question->id,
         ]);
 
         $data = [
             'exam_id' => $exam->id,
             'student_id' => $student->id,
-            'question_id' => $question->id
+            'question_id' => $question->id,
         ];
 
         $validator = Validator::make($data, []);
@@ -224,7 +223,7 @@ class ScoreValidationContextTest extends TestCase
         $data = [
             'exam_id' => $exam->id,
             'student_id' => $teacher->id,
-            'question_id' => $question->id
+            'question_id' => $question->id,
         ];
 
         $validator = Validator::make($data, []);
@@ -243,7 +242,7 @@ class ScoreValidationContextTest extends TestCase
         $data = [
             'exam_id' => $exam->id,
             'student_id' => $student->id,
-            'question_id' => $question->id
+            'question_id' => $question->id,
         ];
 
         $validator = Validator::make($data, []);
@@ -261,13 +260,13 @@ class ScoreValidationContextTest extends TestCase
 
         ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
-            'student_id' => $student->id
+            'student_id' => $student->id,
         ]);
 
         $data = [
             'exam_id' => $exam->id,
             'student_id' => $student->id,
-            'question_id' => $question->id
+            'question_id' => $question->id,
         ];
 
         $validator = Validator::make($data, []);
@@ -286,9 +285,9 @@ class ScoreValidationContextTest extends TestCase
             'scores' => [
                 [
                     'question_id' => $question->id,
-                    'score' => 8
-                ]
-            ]
+                    'score' => 8,
+                ],
+            ],
         ];
 
         $validator = Validator::make($data, []);

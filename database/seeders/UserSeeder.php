@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -115,10 +114,10 @@ class UserSeeder extends Seeder
         }
 
         $this->command->info('✅ Utilisateurs créés avec succès !');
-        $this->command->info("   - 1 super administrateur (superadmin@examena.com)");
-        $this->command->info("   - 1 administrateur (admin@examena.com)");
-        $this->command->info("   - " . count($teachers) . " enseignants");
-        $this->command->info("   - " . count($students) . " étudiants");
+        $this->command->info('   - 1 super administrateur (superadmin@examena.com)');
+        $this->command->info('   - 1 administrateur (admin@examena.com)');
+        $this->command->info('   - '.count($teachers).' enseignants');
+        $this->command->info('   - '.count($students).' étudiants');
         $this->command->info('   - Mot de passe pour tous: password');
     }
 }

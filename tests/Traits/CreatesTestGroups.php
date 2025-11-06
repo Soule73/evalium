@@ -4,7 +4,6 @@ namespace Tests\Traits;
 
 use App\Models\Group;
 use App\Models\Level;
-use App\Models\User;
 
 trait CreatesTestGroups
 {

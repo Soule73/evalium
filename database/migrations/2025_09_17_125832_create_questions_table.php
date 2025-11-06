@@ -19,7 +19,6 @@ return new class extends Migration
             $table->integer('points')->default(1);
             $table->integer('order_index')->default(1);
 
-
             $table->timestamps();
 
             $table->index(['exam_id', 'order_index']);

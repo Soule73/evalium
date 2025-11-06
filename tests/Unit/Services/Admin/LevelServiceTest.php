@@ -2,16 +2,16 @@
 
 namespace Tests\Unit\Services\Admin;
 
-use Tests\TestCase;
-use Tests\Traits\InteractsWithTestData;
 use App\Services\Admin\LevelService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use Tests\Traits\InteractsWithTestData;
 
 class LevelServiceTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private LevelService $levelService;
 
@@ -53,7 +53,7 @@ class LevelServiceTest extends TestCase
 
         $items = collect($result->items());
         $this->assertTrue($items->every(
-            fn($level) => str_contains($level->name, 'Licence')
+            fn ($level) => str_contains($level->name, 'Licence')
         ));
     }
 
@@ -71,7 +71,7 @@ class LevelServiceTest extends TestCase
 
         $this->assertCount(2, $activeResult->items());
         $activeItems = collect($activeResult->items());
-        $this->assertTrue($activeItems->every(fn($level) => $level->is_active));
+        $this->assertTrue($activeItems->every(fn ($level) => $level->is_active));
 
         $inactiveResult = $this->levelService->getLevelsWithPagination([
             'status' => '0',
@@ -220,13 +220,13 @@ class LevelServiceTest extends TestCase
         for ($i = 0; $i < 3; $i++) {
             $this->createGroupWithStudents(studentCount: 0, groupAttributes: [
                 'level_id' => $level->id,
-                'is_active' => true
+                'is_active' => true,
             ]);
         }
 
         $this->createGroupWithStudents(studentCount: 0, groupAttributes: [
             'level_id' => $level->id,
-            'is_active' => false
+            'is_active' => false,
         ]);
 
         $result = $this->levelService->getLevelsWithPagination(['per_page' => 10]);

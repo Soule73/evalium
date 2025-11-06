@@ -3,16 +3,16 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Cache;
 
 /**
  * Modèle représentant un groupe (classe) d'étudiants
- * 
+ *
  * @property int $id
  * @property string $name
  * @property string|null $description
@@ -72,9 +72,9 @@ class Group extends Model
     protected static function booted(): void
     {
         // Invalider le cache des groupes quand un groupe change
-        static::created(fn() => Cache::forget('groups_active_with_levels'));
-        static::updated(fn() => Cache::forget('groups_active_with_levels'));
-        static::deleted(fn() => Cache::forget('groups_active_with_levels'));
+        static::created(fn () => Cache::forget('groups_active_with_levels'));
+        static::updated(fn () => Cache::forget('groups_active_with_levels'));
+        static::deleted(fn () => Cache::forget('groups_active_with_levels'));
     }
 
     public function level(): BelongsTo
@@ -113,6 +113,7 @@ class Group extends Model
     public function isCurrentlyActive(): bool
     {
         $now = Carbon::now();
+
         return $this->is_active
             && $this->start_date <= $now
             && $this->end_date >= $now;
@@ -153,8 +154,8 @@ class Group extends Model
     {
         $currentYear = Carbon::now()->year;
         $academicYear = Carbon::now()->month >= 9
-            ? "{$currentYear}-" . ($currentYear + 1)
-            : ($currentYear - 1) . "-{$currentYear}";
+            ? "{$currentYear}-".($currentYear + 1)
+            : ($currentYear - 1)."-{$currentYear}";
 
         return $query->where('academic_year', $academicYear);
     }
@@ -162,7 +163,7 @@ class Group extends Model
     protected function levelName(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->level?->name ?? 'Non défini'
+            get: fn () => $this->level?->name ?? 'Non défini'
         );
     }
 
@@ -172,7 +173,7 @@ class Group extends Model
     protected function displayName(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->level?->name . ' - ' . $this->academic_year
+            get: fn () => $this->level?->name.' - '.$this->academic_year
         );
     }
 
@@ -182,7 +183,7 @@ class Group extends Model
     protected function description(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->level?->description
+            get: fn () => $this->level?->description
         );
     }
 }

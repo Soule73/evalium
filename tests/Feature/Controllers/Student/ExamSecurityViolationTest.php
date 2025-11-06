@@ -2,19 +2,18 @@
 
 namespace Tests\Feature\Controllers\Student;
 
-use Tests\TestCase;
 use App\Models\Exam;
-use App\Models\User;
-use App\Models\Question;
 use App\Models\ExamAssignment;
-use PHPUnit\Framework\Attributes\Test;
+use App\Models\Question;
 use Database\Seeders\RoleAndPermissionSeeder;
-use Tests\Traits\InteractsWithTestData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
+use Tests\Traits\InteractsWithTestData;
 
 class ExamSecurityViolationTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -60,7 +59,7 @@ class ExamSecurityViolationTest extends TestCase
             [
                 'violation_type' => 'tab_switch',
                 'violation_details' => 'Student switched tabs',
-                'answers' => []
+                'answers' => [],
             ]
         );
 
@@ -95,7 +94,7 @@ class ExamSecurityViolationTest extends TestCase
             [
                 'violation_type' => 'fullscreen_exit',
                 'violation_details' => 'Student exited fullscreen',
-                'answers' => []
+                'answers' => [],
             ]
         );
 
@@ -134,7 +133,7 @@ class ExamSecurityViolationTest extends TestCase
                 [
                     'violation_type' => $type,
                     'violation_details' => "Test $type",
-                    'answers' => []
+                    'answers' => [],
                 ]
             );
 
@@ -175,7 +174,7 @@ class ExamSecurityViolationTest extends TestCase
             [
                 'violation_type' => 'tab_switch',
                 'violation_details' => 'Test',
-                'answers' => []
+                'answers' => [],
             ]
         );
 
@@ -213,8 +212,8 @@ class ExamSecurityViolationTest extends TestCase
                 'violation_type' => 'tab_switch',
                 'violation_details' => 'Student switched tabs',
                 'answers' => [
-                    $question->id => 'My answer before violation'
-                ]
+                    $question->id => 'My answer before violation',
+                ],
             ]
         );
 

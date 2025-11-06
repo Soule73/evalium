@@ -2,18 +2,15 @@
 
 namespace App\Services\Exam;
 
-use App\Models\User;
 use App\Models\Exam;
-use App\Models\Question;
 use App\Models\ExamAssignment;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
 /**
  * Teacher Dashboard Service
- * 
+ *
  * Handles teacher dashboard statistics, recent exams, and pending reviews.
- * 
- * @package App\Services\Exam
  */
 class TeacherDashboardService
 {
@@ -26,7 +23,7 @@ class TeacherDashboardService
      * - Number of unique students evaluated
      * - Average score percentage across all submitted assignments
      *
-     * @param User $teacher The teacher user
+     * @param  User  $teacher  The teacher user
      * @return array{total_exams: int, total_questions: int, students_evaluated: int, average_score: float}
      */
     public function getDashboardStats(User $teacher): array
@@ -48,6 +45,7 @@ class TeacherDashboardService
         $totalScore = $assignments->sum('score');
         $totalPossible = $assignments->sum(function ($assignment) use ($exams) {
             $exam = $exams->firstWhere('id', $assignment->exam_id);
+
             return $exam?->total_points ?? 0;
         });
 
@@ -64,10 +62,10 @@ class TeacherDashboardService
     /**
      * Get recent exams for a teacher with pagination and filters
      *
-     * @param User $teacher The teacher user
-     * @param int $perPage Number of items per page
-     * @param string|null $status Filter by active status ('1' for active)
-     * @param string|null $search Search term for title or description
+     * @param  User  $teacher  The teacher user
+     * @param  int  $perPage  Number of items per page
+     * @param  string|null  $status  Filter by active status ('1' for active)
+     * @param  string|null  $search  Search term for title or description
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function getRecentExams(User $teacher, int $perPage = 10, ?string $status = null, ?string $search = null)
@@ -96,8 +94,8 @@ class TeacherDashboardService
      *
      * Returns submitted assignments without scores that need teacher attention.
      *
-     * @param User $teacher The teacher user
-     * @param int $limit Maximum number of pending reviews to return
+     * @param  User  $teacher  The teacher user
+     * @param  int  $limit  Maximum number of pending reviews to return
      * @return Collection Collection of pending review data
      */
     public function getPendingReviews(User $teacher, int $limit = 5): Collection
@@ -127,10 +125,10 @@ class TeacherDashboardService
      *
      * Aggregates statistics, recent exams, and pending reviews.
      *
-     * @param User $teacher The teacher user
-     * @param int $perPage Number of exams per page
-     * @param string|null $status Filter by exam status
-     * @param string|null $search Search term for exams
+     * @param  User  $teacher  The teacher user
+     * @param  int  $perPage  Number of exams per page
+     * @param  string|null  $status  Filter by exam status
+     * @param  string|null  $search  Search term for exams
      * @return array{stats: array, recent_exams: \Illuminate\Contracts\Pagination\LengthAwarePaginator, pending_reviews: Collection}
      */
     public function getDashboardData(User $teacher, int $perPage = 10, ?string $status = null, ?string $search = null): array
@@ -151,12 +149,12 @@ class TeacherDashboardService
     /**
      * Format duration in seconds to human-readable time format
      *
-     * @param int|null $seconds Duration in seconds
+     * @param  int|null  $seconds  Duration in seconds
      * @return string Formatted duration (HH:MM:SS or MM:SS) or 'N/A'
      */
     private function formatDuration(?int $seconds): string
     {
-        if (!$seconds) {
+        if (! $seconds) {
             return 'N/A';
         }
 

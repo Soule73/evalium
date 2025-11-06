@@ -2,12 +2,12 @@
 
 namespace Tests\Traits;
 
+use App\Models\Answer;
 use App\Models\Exam;
 use App\Models\ExamAssignment;
-use App\Models\User;
 use App\Models\Group;
-use App\Models\Answer;
 use App\Models\Question;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 trait CreatesTestAssignments

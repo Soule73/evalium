@@ -27,8 +27,8 @@ class LevelFactory extends Factory
         $uniqueSuffix = $this->faker->unique()->randomNumber(3);
 
         return [
-            'name' => $level['name'] . ' - ' . $uniqueSuffix,
-            'code' => $level['code'] . '_' . $uniqueSuffix,
+            'name' => $level['name'].' - '.$uniqueSuffix,
+            'code' => $level['code'].'_'.$uniqueSuffix,
             'description' => $this->faker->optional()->sentence(),
             'order' => $order++,
             'is_active' => $this->faker->boolean(90),
@@ -37,14 +37,14 @@ class LevelFactory extends Factory
 
     public function active(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'is_active' => true,
         ]);
     }
 
     public function inactive(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'is_active' => false,
         ]);
     }

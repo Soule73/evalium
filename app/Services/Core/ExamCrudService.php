@@ -4,12 +4,12 @@ namespace App\Services\Core;
 
 use App\Models\Exam;
 use App\Repositories\AssignmentRepository;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Exam CRUD Service - Handle exam creation, update, and deletion
- * 
+ *
  * Single Responsibility: Manage exam lifecycle (CRUD operations)
  * Dependencies: QuestionManagementService for question-related operations
  */
@@ -22,9 +22,6 @@ class ExamCrudService
 
     /**
      * Create a new exam with its questions
-     *
-     * @param array $data
-     * @return Exam
      */
     public function create(array $data): Exam
     {
@@ -49,10 +46,6 @@ class ExamCrudService
 
     /**
      * Update an existing exam
-     *
-     * @param Exam $exam
-     * @param array $data
-     * @return Exam
      */
     public function update(Exam $exam, array $data): Exam
     {
@@ -66,11 +59,11 @@ class ExamCrudService
                 'is_active' => $data['is_active'] ?? false,
             ]);
 
-            if (isset($data['deletedQuestionIds']) && !empty($data['deletedQuestionIds'])) {
+            if (isset($data['deletedQuestionIds']) && ! empty($data['deletedQuestionIds'])) {
                 $this->questionService->deleteQuestionsById($exam, $data['deletedQuestionIds']);
             }
 
-            if (isset($data['deletedChoiceIds']) && !empty($data['deletedChoiceIds'])) {
+            if (isset($data['deletedChoiceIds']) && ! empty($data['deletedChoiceIds'])) {
                 $this->questionService->deleteChoicesById($exam, $data['deletedChoiceIds']);
             }
 
@@ -84,9 +77,6 @@ class ExamCrudService
 
     /**
      * Delete an exam and all its related data using bulk operations
-     *
-     * @param Exam $exam
-     * @return bool
      */
     public function delete(Exam $exam): bool
     {
@@ -105,16 +95,13 @@ class ExamCrudService
 
     /**
      * Duplicate an exam with all its questions and choices
-     *
-     * @param Exam $originalExam
-     * @return Exam
      */
     public function duplicate(Exam $originalExam): Exam
     {
         return DB::transaction(function () use ($originalExam) {
             $examData = $originalExam->toArray();
             unset($examData['id'], $examData['created_at'], $examData['updated_at']);
-            $examData['title'] = $examData['title'] . ' (Copie)';
+            $examData['title'] = $examData['title'].' (Copie)';
             $examData['is_active'] = false;
 
             $newExam = Exam::create($examData);
@@ -129,13 +116,10 @@ class ExamCrudService
 
     /**
      * Toggle exam active status
-     *
-     * @param Exam $exam
-     * @return Exam
      */
     public function toggleStatus(Exam $exam): Exam
     {
-        $exam->update(['is_active' => !$exam->is_active]);
+        $exam->update(['is_active' => ! $exam->is_active]);
 
         return $exam->fresh();
     }

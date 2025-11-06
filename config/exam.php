@@ -11,7 +11,7 @@ return [
     |
     */
 
-    'security_enabled' => env('EXAM_SECURITY_ENABLED', env('APP_ENV') !== 'local' || !env('APP_DEBUG', false)),
+    'security_enabled' => env('EXAM_SECURITY_ENABLED', env('APP_ENV') !== 'local' || ! env('APP_DEBUG', false)),
 
     /*
     |--------------------------------------------------------------------------
@@ -36,12 +36,12 @@ return [
     */
 
     'features' => [
-        'fullscreen_required' => env('EXAM_FULLSCREEN_REQUIRED', env('APP_ENV') !== 'local' || !env('APP_DEBUG', false)),
-        'tab_switch_detection' => env('EXAM_TAB_SWITCH_DETECTION', env('APP_ENV') !== 'local' || !env('APP_DEBUG', false)),
-        'dev_tools_detection' => env('EXAM_DEV_TOOLS_DETECTION', env('APP_ENV') !== 'local' || !env('APP_DEBUG', false)),
-        'copy_paste_prevention' => env('EXAM_COPY_PASTE_PREVENTION', env('APP_ENV') !== 'local' || !env('APP_DEBUG', false)),
-        'context_menu_disabled' => env('EXAM_CONTEXT_MENU_DISABLED', env('APP_ENV') !== 'local' || !env('APP_DEBUG', false)),
-        'print_prevention' => env('EXAM_PRINT_PREVENTION', env('APP_ENV') !== 'local' || !env('APP_DEBUG', false)),
+        'fullscreen_required' => env('EXAM_FULLSCREEN_REQUIRED', env('APP_ENV') !== 'local' || ! env('APP_DEBUG', false)),
+        'tab_switch_detection' => env('EXAM_TAB_SWITCH_DETECTION', env('APP_ENV') !== 'local' || ! env('APP_DEBUG', false)),
+        'dev_tools_detection' => env('EXAM_DEV_TOOLS_DETECTION', env('APP_ENV') !== 'local' || ! env('APP_DEBUG', false)),
+        'copy_paste_prevention' => env('EXAM_COPY_PASTE_PREVENTION', env('APP_ENV') !== 'local' || ! env('APP_DEBUG', false)),
+        'context_menu_disabled' => env('EXAM_CONTEXT_MENU_DISABLED', env('APP_ENV') !== 'local' || ! env('APP_DEBUG', false)),
+        'print_prevention' => env('EXAM_PRINT_PREVENTION', env('APP_ENV') !== 'local' || ! env('APP_DEBUG', false)),
     ],
 
     /*

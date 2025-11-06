@@ -16,6 +16,7 @@ trait CreatesTestUsers
     {
         $user = User::factory()->create($attributes);
         $user->assignRole('admin');
+
         return $user;
     }
 
@@ -23,6 +24,7 @@ trait CreatesTestUsers
     {
         $user = User::factory()->create($attributes);
         $user->assignRole('teacher');
+
         return $user;
     }
 
@@ -30,6 +32,7 @@ trait CreatesTestUsers
     {
         $user = User::factory()->create($attributes);
         $user->assignRole('student');
+
         return $user;
     }
 
@@ -37,6 +40,7 @@ trait CreatesTestUsers
     {
         $user = User::factory()->create($attributes);
         $user->assignRole($role);
+
         return $user;
     }
 

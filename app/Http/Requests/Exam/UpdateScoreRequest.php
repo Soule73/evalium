@@ -4,7 +4,6 @@ namespace App\Http\Requests\Exam;
 
 use App\Models\User;
 use App\Strategies\Validation\Score\ScoreValidationContext;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -12,8 +11,6 @@ use Illuminate\Foundation\Http\FormRequest;
  *
  * This request class is responsible for authorizing the user and validating
  * the input data when a teacher attempts to update a score.
- *
- * @package App\Http\Requests\Exam
  */
 class UpdateScoreRequest extends FormRequest
 {
@@ -24,7 +21,6 @@ class UpdateScoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-
 
         $exam = $this->route('exam');
 
@@ -41,46 +37,45 @@ class UpdateScoreRequest extends FormRequest
         return [
             'exam_id' => [
                 'required',
-                'exists:exams,id'
+                'exists:exams,id',
             ],
             'student_id' => [
                 'required',
-                'exists:users,id'
+                'exists:users,id',
             ],
             'question_id' => [
                 'required',
-                'exists:questions,id'
+                'exists:questions,id',
             ],
             'score' => [
                 'required',
                 'numeric',
-                'min:0'
+                'min:0',
             ],
             'feedback' => [
                 'nullable',
                 'string',
-                'max:1000'
+                'max:1000',
             ],
             'teacher_notes' => [
                 'nullable',
                 'string',
-                'max:1000'
-            ]
+                'max:1000',
+            ],
         ];
     }
 
     /**
      * Configure additional validation logic after the initial validation rules have been applied.
      *
-     * @param \Illuminate\Validation\Validator $validator The validator instance to use for custom validation.
-     * @return void
+     * @param  \Illuminate\Validation\Validator  $validator  The validator instance to use for custom validation.
      */
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
             $data = $validator->getData();
 
-            $validationContext = new ScoreValidationContext();
+            $validationContext = new ScoreValidationContext;
             $validationContext->validate(
                 $validator,
                 $data,
@@ -95,12 +90,10 @@ class UpdateScoreRequest extends FormRequest
      * This method can be used to modify or sanitize the input data,
      * such as merging additional fields or transforming values,
      * before the validation rules are applied.
-     *
-     * @return void
      */
     protected function prepareForValidation(): void
     {
-        if (request()->route('exam') && !request()->has('exam_id')) {
+        if (request()->route('exam') && ! request()->has('exam_id')) {
             request()->merge(['exam_id' => request()->route('exam')]);
         }
     }

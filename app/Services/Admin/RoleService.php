@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Services\Admin;
 
 use Illuminate\Support\Collection;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 /**
  * Role and Permission Management Service
- * 
+ *
  * Responsibilities:
  * - CRUD operations for roles (create, read, update, delete)
  * - CRUD operations for permissions (create, read, delete)
@@ -30,12 +30,8 @@ class RoleService
         'category_roles_permissions' => ['role', 'permission'],
     ];
 
-
     /**
      * Load a role with its permissions
-     *
-     * @param Role $role
-     * @return Role
      */
     public function loadRolesWithPermissions(Role $role): Role
     {
@@ -44,8 +40,6 @@ class RoleService
 
     /**
      * Retrieve all roles with their permissions
-     *
-     * @return Collection
      */
     public function getRolesWithPermissions(): Collection
     {
@@ -58,8 +52,6 @@ class RoleService
 
     /**
      * Retrieve all permissions
-     *
-     * @return Collection
      */
     public function getAllPermissions(): Collection
     {
@@ -69,7 +61,6 @@ class RoleService
     /**
      * Group permissions by business category
      *
-     * @param Collection $permissions
      * @return array<string, array<Permission>>
      */
     public function groupPermissionsByCategory(Collection $permissions): array
@@ -90,14 +81,13 @@ class RoleService
             }
         }
 
-        return array_filter($grouped, fn($items) => !empty($items));
+        return array_filter($grouped, fn ($items) => ! empty($items));
     }
 
     /**
      * Create a new role with optional permissions
      *
-     * @param array<string, mixed> $data
-     * @return Role
+     * @param  array<string, mixed>  $data
      */
     public function createRole(array $data): Role
     {
@@ -113,9 +103,8 @@ class RoleService
     /**
      * Update an existing role
      *
-     * @param Role $role
-     * @param array<string, mixed> $data
-     * @return Role
+     * @param  array<string, mixed>  $data
+     *
      * @throws \Exception If attempting to rename a system role
      */
     public function updateRole(Role $role, array $data): Role
@@ -138,9 +127,7 @@ class RoleService
     /**
      * Synchronize role permissions
      *
-     * @param Role $role
-     * @param array<int> $permissionIds
-     * @return Role
+     * @param  array<int>  $permissionIds
      */
     public function syncRolePermissions(Role $role, array $permissionIds): Role
     {
@@ -152,8 +139,6 @@ class RoleService
     /**
      * Delete a role
      *
-     * @param Role $role
-     * @return bool
      * @throws \Exception If system role or assigned to users
      */
     public function deleteRole(Role $role): bool
@@ -172,8 +157,7 @@ class RoleService
     /**
      * Create a new permission
      *
-     * @param array<string, mixed> $data
-     * @return Permission
+     * @param  array<string, mixed>  $data
      */
     public function createPermission(array $data): Permission
     {
@@ -183,8 +167,6 @@ class RoleService
     /**
      * Delete a permission
      *
-     * @param Permission $permission
-     * @return bool
      * @throws \Exception If permission is assigned to roles
      */
     public function deletePermission(Permission $permission): bool
@@ -198,9 +180,6 @@ class RoleService
 
     /**
      * Determine the category of a permission based on its name
-     *
-     * @param string $permissionName
-     * @return string|null
      */
     private function determineCategoryForPermission(string $permissionName): ?string
     {
@@ -217,9 +196,6 @@ class RoleService
 
     /**
      * Check if a role is a protected system role
-     *
-     * @param Role $role
-     * @return bool
      */
     private function isSystemRole(Role $role): bool
     {

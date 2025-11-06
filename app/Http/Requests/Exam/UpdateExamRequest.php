@@ -2,17 +2,15 @@
 
 namespace App\Http\Requests\Exam;
 
-use Illuminate\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
 use App\Strategies\Validation\QuestionValidationContext;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 /**
  * Handles validation logic for updating an exam by a teacher.
  *
  * This request class is responsible for authorizing the user and validating
  * the input data when a teacher attempts to update an existing exam.
- *
- * @package App\Http\Requests\Exam
  */
 class UpdateExamRequest extends FormRequest
 {
@@ -72,8 +70,7 @@ class UpdateExamRequest extends FormRequest
      * before the request is considered valid. It is called automatically by Laravel during
      * the request validation process.
      *
-     * @param \Illuminate\Validation\Validator $validator The validator instance to be configured.
-     * @return void
+     * @param  \Illuminate\Validation\Validator  $validator  The validator instance to be configured.
      */
     public function withValidator(Validator $validator): void
     {
@@ -82,7 +79,7 @@ class UpdateExamRequest extends FormRequest
             $questions = $data['questions'] ?? [];
 
             // Use the Strategy Pattern to validate questions
-            $validationContext = new QuestionValidationContext();
+            $validationContext = new QuestionValidationContext;
             $validationContext->validateQuestions($validator, $questions);
         });
     }
@@ -102,9 +99,9 @@ class UpdateExamRequest extends FormRequest
                     'index' => $index,
                     'type' => $q['type'] ?? 'unknown',
                     'choices_count' => is_array($q['choices'] ?? null) ? count($q['choices']) : 'null/invalid',
-                    'has_content' => !empty($q['content'] ?? ''),
+                    'has_content' => ! empty($q['content'] ?? ''),
                 ];
-            })->toArray()
+            })->toArray(),
         ]);
 
         parent::failedValidation($validator);

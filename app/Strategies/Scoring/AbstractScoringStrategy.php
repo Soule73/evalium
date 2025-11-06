@@ -2,13 +2,13 @@
 
 namespace App\Strategies\Scoring;
 
-use App\Models\Question;
 use App\Contracts\Scoring\ScoringStrategyInterface;
+use App\Models\Question;
 use Illuminate\Support\Collection;
 
 /**
  * Abstract base class for scoring strategies.
- * 
+ *
  * Provides common utility methods shared across all concrete scoring strategies.
  */
 abstract class AbstractScoringStrategy implements ScoringStrategyInterface
@@ -44,9 +44,6 @@ abstract class AbstractScoringStrategy implements ScoringStrategyInterface
 
     /**
      * Check if answers contain a valid choice.
-     *
-     * @param Collection $answers
-     * @return bool
      */
     protected function hasValidChoice(Collection $answers): bool
     {
@@ -56,7 +53,6 @@ abstract class AbstractScoringStrategy implements ScoringStrategyInterface
     /**
      * Get all selected choice IDs from answers.
      *
-     * @param Collection $answers
      * @return array<int>
      */
     protected function getSelectedChoiceIds(Collection $answers): array
@@ -66,9 +62,6 @@ abstract class AbstractScoringStrategy implements ScoringStrategyInterface
 
     /**
      * Get all correct choices for a question.
-     *
-     * @param Question $question
-     * @return Collection
      */
     protected function getCorrectChoices(Question $question): Collection
     {
@@ -77,10 +70,6 @@ abstract class AbstractScoringStrategy implements ScoringStrategyInterface
 
     /**
      * Check if a specific choice is correct.
-     *
-     * @param Question $question
-     * @param int $choiceId
-     * @return bool
      */
     protected function isChoiceCorrect(Question $question, int $choiceId): bool
     {

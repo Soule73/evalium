@@ -9,8 +9,6 @@ use Illuminate\Foundation\Http\FormRequest;
  *
  * This request class is responsible for authorizing and validating
  * incoming data related to security violations in the student context.
- *
- * @package App\Http\Requests\Student
  */
 class SecurityViolationRequest extends FormRequest
 {

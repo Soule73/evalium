@@ -2,25 +2,23 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Inertia\Inertia;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\EditUserRequest;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Traits\HasFlashMessages;
+use App\Services\Admin\UserManagementService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use App\Http\Traits\HasFlashMessages;
-use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Support\Facades\RateLimiter;
-use App\Http\Requests\Admin\EditUserRequest;
-use App\Services\Admin\UserManagementService;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 /**
  * Class LoginController
  *
  * Handles user authentication logic, including login and logout functionality.
- *
- * @package App\Http\Controllers\Auth
  */
 class LoginController extends Controller
 {
@@ -48,7 +46,7 @@ class LoginController extends Controller
      * On failure, redirects back with input and error messages.
      *
      * @param  \App\Http\Requests\Auth\LoginRequest  $request  The validated login request instance containing user credentials.
-     * @return \Illuminate\Http\RedirectResponse  Redirect response to the intended location or back to the login form with errors.
+     * @return \Illuminate\Http\RedirectResponse Redirect response to the intended location or back to the login form with errors.
      */
     public function login(LoginRequest $request): \Illuminate\Http\RedirectResponse
     {
@@ -83,7 +81,7 @@ class LoginController extends Controller
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, __('messages.unauthenticated'));
         }
 
@@ -104,8 +102,9 @@ class LoginController extends Controller
         } catch (\Exception $e) {
             Log::error('Error updating user profile', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return $this->flashError('error', __('messages.error_updating_profile'));
         }
     }
@@ -117,7 +116,7 @@ class LoginController extends Controller
      * to prevent session fixation. It also performs any additional logout logic
      * required by the application.
      *
-     * @param \Illuminate\Http\Request $request The current HTTP request instance.
+     * @param  \Illuminate\Http\Request  $request  The current HTTP request instance.
      * @return \Illuminate\Http\RedirectResponse Redirect response after logout.
      *
      * @throws \Illuminate\Validation\ValidationException
@@ -138,11 +137,10 @@ class LoginController extends Controller
      * This method checks if the incoming authentication request has exceeded the allowed number of attempts.
      * If the request is rate limited, it throws a validation exception with an appropriate error message.
      *
-     * @param \Illuminate\Http\Request $request The current HTTP request instance.
+     * @param  \Illuminate\Http\Request  $request  The current HTTP request instance.
+     * @return void
      *
      * @throws \Illuminate\Validation\ValidationException If the request is rate limited.
-     *
-     * @return void
      */
     public function ensureIsNotRateLimited(Request $request)
     {
@@ -163,14 +161,13 @@ class LoginController extends Controller
      * This key is typically used to rate limit login attempts based on the user's
      * credentials and request information, such as IP address or email.
      *
-     * @param \Illuminate\Http\Request $request The current HTTP request instance.
+     * @param  \Illuminate\Http\Request  $request  The current HTTP request instance.
      * @return string The generated throttle key for the request.
      */
     public function throttleKey(Request $request)
     {
-        return Str::transliterate(Str::lower($request->input('email')) . '|' . $request->ip());
+        return Str::transliterate(Str::lower($request->input('email')).'|'.$request->ip());
     }
-
 
     public static function getDashboardRoute(): string
     {
@@ -186,7 +183,7 @@ class LoginController extends Controller
 
     public static function getUserDashboardType(): ?string
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return null;
         }
 

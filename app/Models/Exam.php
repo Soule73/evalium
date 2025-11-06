@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
 /**
  * Class Exam
  *
@@ -30,14 +29,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|Question newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Question newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Question query()
- * 
+ *
  * @property-read \App\Models\User $teacher The teacher who created the exam.
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Question> $questions The questions associated with the exam.
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExamAssignment> $assignments The assignments associated with the exam.
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Answer> $answers The answers associated with the exam (via questions).
  * @property-read int $unique_participants_count The count of unique participants who have taken the exam.
  * @property-read int $total_points The total points possible for the exam.
- * 
+ *
  * @mixin \Eloquent
  */
 class Exam extends Model
@@ -128,7 +127,7 @@ class Exam extends Model
 
     /**
      * Get the count of unique participants for the exam.
-     * 
+     *
      * This is an accessor for the `unique_participants_count` attribute.
      *
      * @return int The number of unique participants.

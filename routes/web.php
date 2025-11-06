@@ -1,19 +1,19 @@
 <?php
 
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Exam\ExamController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\LocaleController;
-use App\Http\Controllers\Group\GroupController;
-use App\Http\Controllers\Exam\ResultsController;
-use App\Http\Controllers\Exam\CorrectionController;
 use App\Http\Controllers\Auth\RoleController;
 use App\Http\Controllers\Auth\UserController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Exam\AssignmentController;
+use App\Http\Controllers\Exam\CorrectionController;
+use App\Http\Controllers\Exam\ExamController;
+use App\Http\Controllers\Exam\ResultsController;
+use App\Http\Controllers\Group\GroupController;
 use App\Http\Controllers\Group\LevelController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\StudentController;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 /**
  * Public Routes

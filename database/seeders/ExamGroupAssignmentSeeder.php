@@ -33,7 +33,7 @@ class ExamGroupAssignmentSeeder extends Seeder
                 // Vérifier si l'assignation existe déjà
                 $exists = $exam->groups()->where('group_id', $group->id)->exists();
 
-                if (!$exists) {
+                if (! $exists) {
                     $exam->groups()->attach($group->id, [
                         'assigned_by' => $exam->teacher_id,
                         'assigned_at' => now()->subDays(rand(1, 10)),

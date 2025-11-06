@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ExamSeeder extends Seeder
@@ -16,6 +15,7 @@ class ExamSeeder extends Seeder
 
         if ($teachers->isEmpty()) {
             echo "Aucun enseignant trouvé. Veuillez d'abord créer des enseignants.\n";
+
             return;
         }
 
@@ -104,8 +104,7 @@ Quelles sont les propriétés vraies pour le nombre **12** ?
         // Question 3: Vrai/Faux (boolean)
         $question3 = \App\Models\Question::create([
             'exam_id' => $mathExam->id,
-            'content' =>
-            '
+            'content' => '
 ## Géométrie
 
 ### Affirmation :
@@ -132,8 +131,7 @@ Dans un triangle rectangle, le carré de l\'hypoténuse est égal à la somme de
         // Question 4: Question ouverte (text)
         \App\Models\Question::create([
             'exam_id' => $mathExam->id,
-            'content' =>
-            '
+            'content' => '
 ## Démonstration
 
 ### Exercice :

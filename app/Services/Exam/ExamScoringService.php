@@ -4,12 +4,12 @@ namespace App\Services\Exam;
 
 use App\Models\Exam;
 use App\Models\ExamAssignment;
-use Illuminate\Support\Facades\DB;
 use App\Services\Core\Scoring\ScoringService;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Service for managing exam scoring and teacher corrections.
- * 
+ *
  * Handles manual grading, score recalculation, and assignment status updates.
  */
 class ExamScoringService
@@ -20,18 +20,18 @@ class ExamScoringService
 
     /**
      * Save manual corrections from a teacher (unified method).
-     * 
+     *
      * Supports multiple input formats:
      * - Array of scores: [questionId => ['score' => X, 'feedback' => Y]]
      * - Array of scores: [questionId => scoreValue]
      * - Batch format: ['scores' => [['question_id' => X, 'score' => Y, 'feedback' => Z]]]
      * - Single format: ['question_id' => X, 'score' => Y, 'feedback' => Z]
-     * 
+     *
      * Automatically updates assignment status to 'graded' after corrections.
      *
-     * @param ExamAssignment $assignment Assignment to correct
-     * @param array $data Question scores and feedback
-     * @param string|null $teacherNotes Optional teacher notes for the assignment
+     * @param  ExamAssignment  $assignment  Assignment to correct
+     * @param  array  $data  Question scores and feedback
+     * @param  string|null  $teacherNotes  Optional teacher notes for the assignment
      * @return array Summary with total score and updated count
      */
     public function saveCorrections(ExamAssignment $assignment, array $data, ?string $teacherNotes = null): array
@@ -75,17 +75,18 @@ class ExamScoringService
                 'assignment_id' => $assignment->id,
                 'updated_count' => $updatedAnswers,
                 'total_score' => $totalScore,
-                'status' => 'graded'
+                'status' => 'graded',
             ];
         });
     }
 
     /**
      * Save manual corrections from a teacher (legacy method - deprecated).
-     * 
+     *
      * @deprecated Use saveCorrections() instead
-     * @param ExamAssignment $assignment Assignment to correct
-     * @param array $scores Question scores and feedback
+     *
+     * @param  ExamAssignment  $assignment  Assignment to correct
+     * @param  array  $scores  Question scores and feedback
      * @return array Summary with total score and updated count
      */
     public function saveTeacherCorrections(ExamAssignment $assignment, array $scores): array
@@ -95,11 +96,11 @@ class ExamScoringService
 
     /**
      * Recalculate all automatic scores for an exam.
-     * 
+     *
      * Useful after exam questions or scoring rules are modified.
      * Only processes submitted assignments.
      *
-     * @param Exam $exam The exam to recalculate scores for
+     * @param  Exam  $exam  The exam to recalculate scores for
      * @return array Statistics with total and updated assignment counts
      */
     public function recalculateExamScores(Exam $exam): array
@@ -121,17 +122,18 @@ class ExamScoringService
 
         return [
             'total_assignments' => $assignments->count(),
-            'updated_count' => $updated
+            'updated_count' => $updated,
         ];
     }
 
     /**
      * Save manual correction from a teacher (legacy method - deprecated).
-     * 
+     *
      * @deprecated Use saveCorrections() instead
-     * @param Exam $exam Exam being corrected
-     * @param \App\Models\User $student Student whose work is corrected
-     * @param array $validatedData Scores and feedback data
+     *
+     * @param  Exam  $exam  Exam being corrected
+     * @param  \App\Models\User  $student  Student whose work is corrected
+     * @param  array  $validatedData  Scores and feedback data
      * @return array Summary with updated count and scores
      */
     public function saveManualCorrection($exam, $student, array $validatedData): array
@@ -148,14 +150,14 @@ class ExamScoringService
 
     /**
      * Normalize various score input formats into a consistent structure.
-     * 
+     *
      * Handles multiple input formats:
      * - [questionId => ['score' => X, 'feedback' => Y]]
      * - [questionId => scoreValue]
      * - ['scores' => [['question_id' => X, 'score' => Y, 'feedback' => Z]]]
      * - ['question_id' => X, 'score' => Y, 'feedback' => Z]
-     * 
-     * @param array $data Raw input data
+     *
+     * @param  array  $data  Raw input data
      * @return array Normalized format [questionId => ['score' => X, 'feedback' => Y]]
      */
     private function normalizeScoresInput(array $data): array

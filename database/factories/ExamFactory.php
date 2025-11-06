@@ -21,12 +21,12 @@ class ExamFactory extends Factory
     public function definition(): array
     {
         $startTime = $this->faker->dateTimeBetween('+1 hour', '+1 week');
-        $endTime = (clone $startTime)->modify('+' . $this->faker->numberBetween(1, 5) . ' hours');
+        $endTime = (clone $startTime)->modify('+'.$this->faker->numberBetween(1, 5).' hours');
 
         return [
             'title' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph(),
-            'duration' => $this->faker->numberBetween(30, 180), 
+            'duration' => $this->faker->numberBetween(30, 180),
             'start_time' => $startTime,
             'end_time' => $endTime,
             'is_active' => $this->faker->boolean(80),

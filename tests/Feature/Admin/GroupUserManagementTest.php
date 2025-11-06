@@ -2,18 +2,18 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Models\User;
 use App\Models\Group;
 use App\Models\Level;
-use Tests\TestCase;
-use App\Services\Admin\UserManagementService;
+use App\Models\User;
 use App\Services\Admin\GroupService;
-use Tests\Traits\InteractsWithTestData;
+use App\Services\Admin\UserManagementService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use Tests\Traits\InteractsWithTestData;
 
 class GroupUserManagementTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -27,7 +27,7 @@ class GroupUserManagementTest extends TestCase
         $level = Level::where('code', 'bts_1')->first();
         $group = Group::factory()->create(['max_students' => 30, 'level_id' => $level->id]);
 
-        $groupService = new GroupService();
+        $groupService = new GroupService;
         $service = new UserManagementService($groupService);
 
         $data = [
@@ -35,7 +35,7 @@ class GroupUserManagementTest extends TestCase
             'email' => 'teststudent@example.com',
             'password' => 'password123',
             'role' => 'student',
-            'group_id' => $group->id
+            'group_id' => $group->id,
         ];
 
         $service->store($data);
@@ -61,7 +61,7 @@ class GroupUserManagementTest extends TestCase
             'is_active' => true,
         ]);
 
-        $groupService = new GroupService();
+        $groupService = new GroupService;
         $service = new UserManagementService($groupService);
         $service->changeStudentGroup($student, $newGroup->id);
 
@@ -90,7 +90,7 @@ class GroupUserManagementTest extends TestCase
             'is_active' => true,
         ]);
 
-        $groupService = new GroupService();
+        $groupService = new GroupService;
         $service = new UserManagementService($groupService);
 
         $data = [
@@ -98,7 +98,7 @@ class GroupUserManagementTest extends TestCase
             'email' => 'teststudent@example.com',
             'password' => 'password123',
             'role' => 'student',
-            'group_id' => $group->id
+            'group_id' => $group->id,
         ];
 
         try {

@@ -2,22 +2,20 @@
 
 namespace Tests\Feature\Workflow;
 
-use Tests\TestCase;
 use App\Models\Exam;
-use App\Models\User;
+use App\Models\ExamAssignment;
 use App\Models\Group;
 use App\Models\Level;
 use App\Models\Question;
-use App\Models\ExamAssignment;
-use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
-use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 /**
  * Test complet du workflow d'assignation par groupes
- * 
+ *
  * Scénario testé :
  * 1. Enseignant crée un examen
  * 2. Enseignant assigne l'examen à un groupe
@@ -27,7 +25,7 @@ use Tests\Traits\InteractsWithTestData;
  */
 class GroupAssignmentWorkflowTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -40,16 +38,16 @@ class GroupAssignmentWorkflowTest extends TestCase
     {
         $level = Level::create([
             'name' => 'Niveau Test',
-            'code' => 'NT1'
+            'code' => 'NT1',
         ]);
 
         $group = Group::create([
             'name' => 'Groupe Test',
             'level_id' => $level->id,
-            'academic_year' => now()->year . '-' . (now()->year + 1),
+            'academic_year' => now()->year.'-'.(now()->year + 1),
             'start_date' => now()->startOfYear(),
             'end_date' => now()->endOfYear(),
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $teacher = $this->createTeacher();
@@ -59,11 +57,11 @@ class GroupAssignmentWorkflowTest extends TestCase
 
         $group->students()->attach($student1->id, [
             'is_active' => true,
-            'enrolled_at' => now()
+            'enrolled_at' => now(),
         ]);
         $group->students()->attach($student2->id, [
             'is_active' => true,
-            'enrolled_at' => now()
+            'enrolled_at' => now(),
         ]);
 
         $exam = Exam::factory()->create([
@@ -73,14 +71,14 @@ class GroupAssignmentWorkflowTest extends TestCase
             'duration' => 60,
             'is_active' => true,
             'start_time' => now()->subHour(),
-            'end_time' => now()->addDay()
+            'end_time' => now()->addDay(),
         ]);
 
         Question::factory()->create([
             'exam_id' => $exam->id,
             'type' => 'text',
             'content' => 'Question 1',
-            'points' => 10
+            'points' => 10,
         ]);
 
         return compact('teacher', 'student1', 'student2', 'studentOutsideGroup', 'exam', 'group', 'level');
@@ -94,7 +92,7 @@ class GroupAssignmentWorkflowTest extends TestCase
         $this->actingAs($teacher);
 
         $response = $this->post(route('exams.assign.groups', $exam), [
-            'group_ids' => [$group->id]
+            'group_ids' => [$group->id],
         ]);
 
         $response->assertRedirect(route('exams.show', $exam));
@@ -102,7 +100,7 @@ class GroupAssignmentWorkflowTest extends TestCase
 
         $this->assertDatabaseHas('exam_group', [
             'exam_id' => $exam->id,
-            'group_id' => $group->id
+            'group_id' => $group->id,
         ]);
     }
 
@@ -115,7 +113,7 @@ class GroupAssignmentWorkflowTest extends TestCase
             'exam_id' => $exam->id,
             'group_id' => $group->id,
             'assigned_by' => $teacher->id,
-            'assigned_at' => now()
+            'assigned_at' => now(),
         ]);
 
         $this->actingAs($student1);
@@ -136,7 +134,7 @@ class GroupAssignmentWorkflowTest extends TestCase
             'exam_id' => $exam->id,
             'group_id' => $group->id,
             'assigned_by' => $teacher->id,
-            'assigned_at' => now()
+            'assigned_at' => now(),
         ]);
 
         $this->actingAs($studentOutsideGroup);
@@ -153,12 +151,12 @@ class GroupAssignmentWorkflowTest extends TestCase
             'exam_id' => $exam->id,
             'group_id' => $group->id,
             'assigned_by' => $teacher->id,
-            'assigned_at' => now()
+            'assigned_at' => now(),
         ]);
 
         $this->assertDatabaseMissing('exam_assignments', [
             'exam_id' => $exam->id,
-            'student_id' => $student1->id
+            'student_id' => $student1->id,
         ]);
 
         $this->actingAs($student1);
@@ -175,7 +173,7 @@ class GroupAssignmentWorkflowTest extends TestCase
             'exam_id' => $exam->id,
             'group_id' => $group->id,
             'assigned_by' => $teacher->id,
-            'assigned_at' => now()
+            'assigned_at' => now(),
         ]);
 
         $this->actingAs($student1);
@@ -207,7 +205,7 @@ class GroupAssignmentWorkflowTest extends TestCase
             'exam_id' => $exam->id,
             'group_id' => $group->id,
             'assigned_by' => $teacher->id,
-            'assigned_at' => now()
+            'assigned_at' => now(),
         ]);
 
         $this->actingAs($teacher);
@@ -215,8 +213,7 @@ class GroupAssignmentWorkflowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) =>
-            $page->component('Exam/Assignments', false)
+            fn ($page) => $page->component('Exam/Assignments', false)
                 ->has('assignedGroups', 1)
                 ->where('assignedGroups.0.id', $group->id)
         );
@@ -231,14 +228,14 @@ class GroupAssignmentWorkflowTest extends TestCase
             'exam_id' => $exam->id,
             'group_id' => $group->id,
             'assigned_by' => $teacher->id,
-            'assigned_at' => now()
+            'assigned_at' => now(),
         ]);
 
         ExamAssignment::create([
             'exam_id' => $exam->id,
             'student_id' => $student1->id,
             'status' => null,
-            'started_at' => now()
+            'started_at' => now(),
         ]);
 
         $this->actingAs($teacher);
@@ -246,8 +243,7 @@ class GroupAssignmentWorkflowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) =>
-            $page->component('Exam/Assignments', false)
+            fn ($page) => $page->component('Exam/Assignments', false)
                 ->where('stats.total_assigned', 2)
                 ->where('stats.in_progress', 1)
                 ->where('stats.not_started', 1)
@@ -263,20 +259,20 @@ class GroupAssignmentWorkflowTest extends TestCase
             'exam_id' => $exam->id,
             'group_id' => $group->id,
             'assigned_by' => $teacher->id,
-            'assigned_at' => now()
+            'assigned_at' => now(),
         ]);
 
         $this->actingAs($teacher);
         $response = $this->delete(route('exams.groups.remove', [
             'exam' => $exam,
-            'group' => $group
+            'group' => $group,
         ]));
 
         $response->assertSessionHas('success');
 
         $this->assertDatabaseMissing('exam_group', [
             'exam_id' => $exam->id,
-            'group_id' => $group->id
+            'group_id' => $group->id,
         ]);
     }
 
@@ -289,13 +285,13 @@ class GroupAssignmentWorkflowTest extends TestCase
             'exam_id' => $exam->id,
             'group_id' => $group->id,
             'assigned_by' => $teacher->id,
-            'assigned_at' => now()
+            'assigned_at' => now(),
         ]);
 
         $this->actingAs($teacher);
         $this->delete(route('exams.groups.remove', [
             'exam' => $exam,
-            'group' => $group
+            'group' => $group,
         ]));
 
         $this->actingAs($student1);
@@ -312,11 +308,11 @@ class GroupAssignmentWorkflowTest extends TestCase
             'exam_id' => $exam->id,
             'group_id' => $group->id,
             'assigned_by' => $teacher->id,
-            'assigned_at' => now()
+            'assigned_at' => now(),
         ]);
 
         $student1->groups()->updateExistingPivot($group->id, [
-            'is_active' => false
+            'is_active' => false,
         ]);
 
         $student1->refresh();

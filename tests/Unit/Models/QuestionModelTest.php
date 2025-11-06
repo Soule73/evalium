@@ -2,19 +2,18 @@
 
 namespace Tests\Unit\Models;
 
-use Tests\TestCase;
-use App\Models\Exam;
-use App\Models\User;
 use App\Models\Answer;
 use App\Models\Choice;
+use App\Models\Exam;
 use App\Models\Question;
-use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 class QuestionModelTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -29,7 +28,7 @@ class QuestionModelTest extends TestCase
         $exam = Exam::factory()->create();
 
         $question = Question::factory()->create([
-            'exam_id' => $exam->id
+            'exam_id' => $exam->id,
         ]);
 
         $this->assertInstanceOf(Exam::class, $question->exam);
@@ -43,11 +42,11 @@ class QuestionModelTest extends TestCase
 
         $question = Question::factory()->create([
             'exam_id' => $exam->id,
-            'type' => 'multiple'
+            'type' => 'multiple',
         ]);
 
         $choices = Choice::factory()->count(4)->create([
-            'question_id' => $question->id
+            'question_id' => $question->id,
         ]);
 
         $this->assertCount(4, $question->choices);
@@ -60,11 +59,11 @@ class QuestionModelTest extends TestCase
         $exam = Exam::factory()->create();
 
         $question = Question::factory()->create([
-            'exam_id' => $exam->id
+            'exam_id' => $exam->id,
         ]);
 
         $answers = Answer::factory()->count(3)->create([
-            'question_id' => $question->id
+            'question_id' => $question->id,
         ]);
 
         $this->assertCount(3, $question->answers);
@@ -74,7 +73,7 @@ class QuestionModelTest extends TestCase
     #[Test]
     public function question_has_correct_fillable_attributes()
     {
-        $fillable = (new Question())->getFillable();
+        $fillable = (new Question)->getFillable();
 
         $expectedFillable = [
             'exam_id',
@@ -97,7 +96,7 @@ class QuestionModelTest extends TestCase
         foreach ($validTypes as $type) {
             $question = Question::factory()->create([
                 'exam_id' => $exam->id,
-                'type' => $type
+                'type' => $type,
             ]);
 
             $this->assertEquals($type, $question->type);
@@ -111,7 +110,7 @@ class QuestionModelTest extends TestCase
 
         $question = Question::factory()->create([
             'exam_id' => $exam->id,
-            'type' => 'text'
+            'type' => 'text',
         ]);
 
         $this->assertCount(0, $question->choices);
@@ -125,11 +124,11 @@ class QuestionModelTest extends TestCase
 
         $question = Question::factory()->create([
             'exam_id' => $exam->id,
-            'type' => 'multiple'
+            'type' => 'multiple',
         ]);
 
         Choice::factory()->count(5)->create([
-            'question_id' => $question->id
+            'question_id' => $question->id,
         ]);
 
         $this->assertCount(5, $question->choices);
@@ -142,19 +141,19 @@ class QuestionModelTest extends TestCase
 
         $question = Question::factory()->create([
             'exam_id' => $exam->id,
-            'type' => 'boolean'
+            'type' => 'boolean',
         ]);
 
         Choice::factory()->create([
             'question_id' => $question->id,
             'content' => 'Vrai',
-            'is_correct' => true
+            'is_correct' => true,
         ]);
 
         Choice::factory()->create([
             'question_id' => $question->id,
             'content' => 'Faux',
-            'is_correct' => false
+            'is_correct' => false,
         ]);
 
         $this->assertCount(2, $question->choices);
@@ -168,7 +167,7 @@ class QuestionModelTest extends TestCase
         $question = new Question([
             'exam_id' => $exam->id,
             'content' => 'Test question?',
-            'type' => 'text'
+            'type' => 'text',
         ]);
         $question->save();
 
@@ -183,7 +182,7 @@ class QuestionModelTest extends TestCase
         $question = new Question([
             'exam_id' => $exam->id,
             'content' => 'Test question?',
-            'type' => 'text'
+            'type' => 'text',
         ]);
         $question->save();
 
@@ -197,17 +196,17 @@ class QuestionModelTest extends TestCase
 
         $question = Question::factory()->create([
             'exam_id' => $exam->id,
-            'type' => 'multiple'
+            'type' => 'multiple',
         ]);
 
         Choice::factory()->create([
             'question_id' => $question->id,
-            'is_correct' => false
+            'is_correct' => false,
         ]);
 
         $correctChoice = Choice::factory()->create([
             'question_id' => $question->id,
-            'is_correct' => true
+            'is_correct' => true,
         ]);
 
         $correctChoices = $question->choices->where('is_correct', true);
@@ -222,7 +221,7 @@ class QuestionModelTest extends TestCase
 
         $question = Question::factory()->create([
             'exam_id' => $exam->id,
-            'content' => 'What is the capital of France?'
+            'content' => 'What is the capital of France?',
         ]);
 
         $this->assertNotEmpty($question->content);

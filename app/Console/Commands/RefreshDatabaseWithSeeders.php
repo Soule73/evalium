@@ -27,16 +27,18 @@ class RefreshDatabaseWithSeeders extends Command
     public function handle()
     {
         // Vérifier si en production
-        if ($this->laravel->environment('production') && !$this->option('force')) {
+        if ($this->laravel->environment('production') && ! $this->option('force')) {
             $this->error('Application is in production!');
             $this->error('Use --force to run this command in production.');
+
             return Command::FAILURE;
         }
 
         $this->warn('This will DROP ALL TABLES and re-create them!');
 
-        if (!$this->confirm('Do you really wish to continue?', false)) {
+        if (! $this->confirm('Do you really wish to continue?', false)) {
             $this->info('Operation cancelled.');
+
             return Command::SUCCESS;
         }
 

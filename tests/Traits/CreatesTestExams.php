@@ -2,9 +2,9 @@
 
 namespace Tests\Traits;
 
+use App\Models\Choice;
 use App\Models\Exam;
 use App\Models\Question;
-use App\Models\Choice;
 use App\Models\User;
 
 trait CreatesTestExams

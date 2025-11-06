@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder|Question newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Question newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Question query()
- * 
+ *
  * @property-read \App\Models\Exam $exam The exam to which the question belongs.
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Choice> $choices The choices associated with the question (for multiple choice questions).
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Answer> $answers The answers provided by students for this question.

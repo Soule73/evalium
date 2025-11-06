@@ -2,19 +2,18 @@
 
 namespace Tests\Feature\Controllers;
 
-use Tests\TestCase;
 use App\Models\Exam;
-use App\Models\User;
 use App\Models\Question;
-use Inertia\Testing\AssertableInertia;
-use PHPUnit\Framework\Attributes\Test;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 /**
  * Tests pour Exam/ExamController (CRUD uniquement)
- * 
+ *
  * Les tests pour les fonctionnalités spécialisées ont été migrés vers :
  * - ExamAssignmentControllerTest.php (assignations étudiants)
  * - ExamGroupAssignmentControllerTest.php (assignations groupes)
@@ -23,7 +22,7 @@ use Tests\Traits\InteractsWithTestData;
  */
 class TeacherExamControllerTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -44,7 +43,7 @@ class TeacherExamControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn(AssertableInertia $page) => $page
+            fn (AssertableInertia $page) => $page
                 ->component('Exam/Index', false)
                 ->has('exams')
         );
@@ -62,7 +61,7 @@ class TeacherExamControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn(AssertableInertia $page) => $page
+            fn (AssertableInertia $page) => $page
                 ->component('Exam/Create', false)
         );
     }
@@ -86,9 +85,9 @@ class TeacherExamControllerTest extends TestCase
                     'content' => 'Question 1?',
                     'type' => 'text',
                     'points' => 10,
-                    'order_index' => 1
-                ]
-            ]
+                    'order_index' => 1,
+                ],
+            ],
         ];
 
         $response = $this->actingAs($teacher)
@@ -99,7 +98,7 @@ class TeacherExamControllerTest extends TestCase
 
         $this->assertDatabaseHas('exams', [
             'title' => 'New Exam',
-            'teacher_id' => $teacher->id
+            'teacher_id' => $teacher->id,
         ]);
     }
 
@@ -111,7 +110,7 @@ class TeacherExamControllerTest extends TestCase
         $response = $this->actingAs($teacher)
             ->post(route('exams.store'), [
                 'title' => '',
-                'duration' => -10
+                'duration' => -10,
             ]);
 
         $response->assertSessionHasErrors(['title', 'duration']);
@@ -126,11 +125,11 @@ class TeacherExamControllerTest extends TestCase
         $exam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
             'title' => 'Test Exam',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         Question::factory()->count(3)->create([
-            'exam_id' => $exam->id
+            'exam_id' => $exam->id,
         ]);
 
         $response = $this->actingAs($teacher)
@@ -138,7 +137,7 @@ class TeacherExamControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn(AssertableInertia $page) => $page
+            fn (AssertableInertia $page) => $page
                 ->component('Exam/Show', false)
                 ->has('exam')
                 ->has('exam.questions', 3)
@@ -152,7 +151,7 @@ class TeacherExamControllerTest extends TestCase
         $otherTeacher = $this->createTeacher(['email' => 'other@test.com']);
 
         $otherExam = Exam::factory()->create([
-            'teacher_id' => $otherTeacher->id
+            'teacher_id' => $otherTeacher->id,
         ]);
 
         $response = $this->actingAs($teacher)
@@ -170,7 +169,7 @@ class TeacherExamControllerTest extends TestCase
         $exam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
             'title' => 'Test Exam',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->actingAs($teacher)
@@ -178,7 +177,7 @@ class TeacherExamControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn(AssertableInertia $page) => $page
+            fn (AssertableInertia $page) => $page
                 ->component('Exam/Edit', false)
                 ->has('exam')
         );
@@ -191,7 +190,7 @@ class TeacherExamControllerTest extends TestCase
         $otherTeacher = $this->createTeacher(['email' => 'other@test.com']);
 
         $otherExam = Exam::factory()->create([
-            'teacher_id' => $otherTeacher->id
+            'teacher_id' => $otherTeacher->id,
         ]);
 
         $response = $this->actingAs($teacher)
@@ -209,7 +208,7 @@ class TeacherExamControllerTest extends TestCase
         $exam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
             'title' => 'Test Exam',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $updateData = [
@@ -224,9 +223,9 @@ class TeacherExamControllerTest extends TestCase
                     'content' => 'Updated Question?',
                     'type' => 'text',
                     'points' => 15,
-                    'order_index' => 1
-                ]
-            ]
+                    'order_index' => 1,
+                ],
+            ],
         ];
 
         $response = $this->actingAs($teacher)
@@ -238,7 +237,7 @@ class TeacherExamControllerTest extends TestCase
         $this->assertDatabaseHas('exams', [
             'id' => $exam->id,
             'title' => 'Updated Title',
-            'duration' => 90
+            'duration' => 90,
         ]);
     }
 
@@ -249,11 +248,11 @@ class TeacherExamControllerTest extends TestCase
         $otherTeacher = $this->createTeacher(['email' => 'other@test.com']);
 
         $otherExam = Exam::factory()->create([
-            'teacher_id' => $otherTeacher->id
+            'teacher_id' => $otherTeacher->id,
         ]);
 
         Question::factory()->create([
-            'exam_id' => $otherExam->id
+            'exam_id' => $otherExam->id,
         ]);
 
         $response = $this->actingAs($teacher)
@@ -265,9 +264,9 @@ class TeacherExamControllerTest extends TestCase
                         'content' => 'Question 1',
                         'type' => 'text',
                         'points' => 10,
-                        'order_index' => 1
-                    ]
-                ]
+                        'order_index' => 1,
+                    ],
+                ],
             ]);
 
         $response->assertForbidden();
@@ -282,7 +281,7 @@ class TeacherExamControllerTest extends TestCase
         $exam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
             'title' => 'Test Exam',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->actingAs($teacher)
@@ -292,7 +291,7 @@ class TeacherExamControllerTest extends TestCase
         $response->assertSessionHas('success');
 
         $this->assertSoftDeleted('exams', [
-            'id' => $exam->id
+            'id' => $exam->id,
         ]);
     }
 
@@ -303,7 +302,7 @@ class TeacherExamControllerTest extends TestCase
         $otherTeacher = $this->createTeacher(['email' => 'other@test.com']);
 
         $otherExam = Exam::factory()->create([
-            'teacher_id' => $otherTeacher->id
+            'teacher_id' => $otherTeacher->id,
         ]);
 
         $response = $this->actingAs($teacher)
@@ -312,7 +311,7 @@ class TeacherExamControllerTest extends TestCase
         $response->assertForbidden();
 
         $this->assertNotSoftDeleted('exams', [
-            'id' => $otherExam->id
+            'id' => $otherExam->id,
         ]);
     }
 
@@ -325,11 +324,11 @@ class TeacherExamControllerTest extends TestCase
         $exam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
             'title' => 'Test Exam',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         Question::factory()->count(3)->create([
-            'exam_id' => $exam->id
+            'exam_id' => $exam->id,
         ]);
 
         $response = $this->actingAs($teacher)
@@ -349,7 +348,7 @@ class TeacherExamControllerTest extends TestCase
         $otherTeacher = $this->createTeacher(['email' => 'other@test.com']);
 
         $otherExam = Exam::factory()->create([
-            'teacher_id' => $otherTeacher->id
+            'teacher_id' => $otherTeacher->id,
         ]);
 
         $response = $this->actingAs($teacher)
@@ -367,7 +366,7 @@ class TeacherExamControllerTest extends TestCase
         $exam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
             'title' => 'Test Exam',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $this->assertTrue($exam->is_active);
@@ -390,7 +389,7 @@ class TeacherExamControllerTest extends TestCase
 
         $otherExam = Exam::factory()->create([
             'teacher_id' => $otherTeacher->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->actingAs($teacher)

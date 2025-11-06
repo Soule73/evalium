@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Question;
 use App\Models\Exam;
+use App\Models\Question;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,7 +22,7 @@ class QuestionFactory extends Factory
     {
         return [
             'exam_id' => Exam::factory(),
-            'content' => $this->faker->sentence() . '?',
+            'content' => $this->faker->sentence().'?',
             'type' => $this->faker->randomElement(['multiple', 'one_choice', 'boolean', 'text']),
             'points' => $this->faker->numberBetween(1, 20),
             'order_index' => $this->faker->numberBetween(1, 10),

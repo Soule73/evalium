@@ -2,20 +2,22 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
 use App\Models\Exam;
 use App\Models\ExamAssignment;
-use PHPUnit\Framework\Attributes\Test;
 use App\Services\Exam\ExamScoringService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 class ExamScoringServiceTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private ExamScoringService $service;
+
     private Exam $exam;
+
     private ExamAssignment $assignment;
 
     protected function setUp(): void
@@ -41,8 +43,8 @@ class ExamScoringServiceTest extends TestCase
         $scores = [
             $question->id => [
                 'score' => 8.5,
-                'teacher_notes' => 'Good answer but missing detail'
-            ]
+                'teacher_notes' => 'Good answer but missing detail',
+            ],
         ];
 
         $result = $this->service->saveCorrections($this->assignment, $scores);
@@ -60,8 +62,8 @@ class ExamScoringServiceTest extends TestCase
         $scores = [
             $question->id => [
                 'score' => 15,
-                'teacher_notes' => 'Test'
-            ]
+                'teacher_notes' => 'Test',
+            ],
         ];
 
         $result = $this->service->saveCorrections($this->assignment, $scores);
@@ -105,14 +107,14 @@ class ExamScoringServiceTest extends TestCase
     {
         // Mettre à jour l'assignation pour avoir submitted_at
         $this->assignment->update([
-            'submitted_at' => now()
+            'submitted_at' => now(),
         ]);
 
         $validatedData = [
             'scores' => [
-                ['question_id' => 1, 'score' => 8.5]
+                ['question_id' => 1, 'score' => 8.5],
             ],
-            'teacher_notes' => 'Good work'
+            'teacher_notes' => 'Good work',
         ];
 
         $result = $this->service->saveCorrections($this->assignment, $validatedData);
@@ -130,8 +132,8 @@ class ExamScoringServiceTest extends TestCase
         $scores = [
             $question->id => [
                 'score' => 8.5,
-                'teacher_notes' => 'Good'
-            ]
+                'teacher_notes' => 'Good',
+            ],
         ];
 
         $result = $this->service->saveCorrections($this->assignment, $scores);
@@ -151,8 +153,8 @@ class ExamScoringServiceTest extends TestCase
         $scores = [
             $question->id => [
                 'score' => 9.0,
-                'feedback' => 'Excellent answer'
-            ]
+                'feedback' => 'Excellent answer',
+            ],
         ];
 
         $result = $this->service->saveCorrections($this->assignment, $scores, teacherNotes: 'Overall good work');
@@ -173,7 +175,7 @@ class ExamScoringServiceTest extends TestCase
         $this->createAnswerForQuestion($this->assignment, $question, ['answer_text' => 'Student answer']);
 
         $scores = [
-            $question->id => 7.5
+            $question->id => 7.5,
         ];
 
         $result = $this->service->saveCorrections($this->assignment, $scores);
@@ -195,8 +197,8 @@ class ExamScoringServiceTest extends TestCase
         $data = [
             'scores' => [
                 ['question_id' => $question1->id, 'score' => 8.5, 'feedback' => 'Good'],
-                ['question_id' => $question2->id, 'score' => 4.0, 'feedback' => 'Nice']
-            ]
+                ['question_id' => $question2->id, 'score' => 4.0, 'feedback' => 'Nice'],
+            ],
         ];
 
         $result = $this->service->saveCorrections($this->assignment, $data);
@@ -215,7 +217,7 @@ class ExamScoringServiceTest extends TestCase
         $data = [
             'question_id' => $question->id,
             'score' => 6.5,
-            'feedback' => 'Needs improvement'
+            'feedback' => 'Needs improvement',
         ];
 
         $result = $this->service->saveCorrections($this->assignment, $data);
@@ -237,7 +239,7 @@ class ExamScoringServiceTest extends TestCase
         $data = [
             'question_id' => $question->id,
             'score' => 5.0,
-            'teacher_notes' => 'Used as feedback'
+            'teacher_notes' => 'Used as feedback',
         ];
 
         $result = $this->service->saveCorrections($this->assignment, $data);
@@ -257,8 +259,8 @@ class ExamScoringServiceTest extends TestCase
         $scores = [
             $question->id => [
                 'score' => 8.0,
-                'feedback' => 'Good work'
-            ]
+                'feedback' => 'Good work',
+            ],
         ];
 
         $result1 = $this->service->saveCorrections($this->assignment, $scores);
@@ -268,8 +270,8 @@ class ExamScoringServiceTest extends TestCase
 
         $data = [
             'scores' => [
-                ['question_id' => $question->id, 'score' => 7.0]
-            ]
+                ['question_id' => $question->id, 'score' => 7.0],
+            ],
         ];
 
         $result2 = $this->service->saveCorrections($this->assignment, $data);

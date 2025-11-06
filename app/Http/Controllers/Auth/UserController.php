@@ -2,36 +2,38 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
-use Inertia\Inertia;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ChangeStudentGroupRequest;
+use App\Http\Requests\Admin\CreateUserRequest;
+use App\Http\Requests\Admin\EditUserRequest;
+use App\Http\Traits\HasFlashMessages;
+use App\Models\User;
+use App\Services\Admin\UserManagementService;
+use App\Services\Core\ExamQueryService;
+use App\Services\Student\StudentAssignmentQueryService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use App\Http\Traits\HasFlashMessages;
-use App\Http\Requests\Admin\EditUserRequest;
-use App\Services\Admin\UserManagementService;
-use App\Http\Requests\Admin\CreateUserRequest;
-use App\Http\Requests\Admin\ChangeStudentGroupRequest;
-use App\Services\Core\ExamQueryService;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    use HasFlashMessages, AuthorizesRequests;
+    use AuthorizesRequests, HasFlashMessages;
 
     public function __construct(
         public readonly UserManagementService $userService,
-        public readonly ExamQueryService $examQueryService
+        public readonly ExamQueryService $examQueryService,
+        public readonly StudentAssignmentQueryService $studentAssignmentQueryService
     ) {}
 
     /**
      * Display a listing of the users.
-     * 
+     *
      * Delegates to UserManagementService to load paginated users with filtering.
      * Restricts admin visibility based on user role (super_admin can see all).
      *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request instance.
+     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request instance.
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
@@ -43,7 +45,7 @@ class UserController extends Controller
 
         $filters = $request->only(['search', 'role', 'per_page', 'status', 'include_deleted']);
 
-        if (!$currentUser->hasRole('super_admin')) {
+        if (! $currentUser->hasRole('super_admin')) {
             $filters['exclude_roles'] = ['admin', 'super_admin'];
         }
 
@@ -63,7 +65,7 @@ class UserController extends Controller
 
     /**
      * Store a newly created user in storage.
-     * 
+     *
      * Delegates to UserManagementService to create user with role assignment.
      *
      * @param  \App\Http\Requests\CreateUserRequest  $request  The validated request containing user data.
@@ -81,25 +83,26 @@ class UserController extends Controller
             return $this->redirectWithSuccess('users.index', __('messages.user_created'));
         } catch (\Exception $e) {
             Log::error('Error creating user', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+
             return $this->flashError(__('messages.operation_failed'));
         }
     }
 
     /**
      * Display the specified teacher's details with exams.
-     * 
+     *
      * Delegates to ExamQueryService to load paginated exams for teacher.
      * Uses eager loading for optimization.
      *
-     * @param \Illuminate\Http\Request $request The current HTTP request instance.
-     * @param \App\Models\User $user The user instance representing the teacher.
+     * @param  \Illuminate\Http\Request  $request  The current HTTP request instance.
+     * @param  \App\Models\User  $user  The user instance representing the teacher.
      * @return \Illuminate\Http\Response
      */
     public function showTeacher(Request $request, User $user)
     {
         $this->authorize('view', $user);
 
-        if (!$this->userService->isTeacher($user)) {
+        if (! $this->userService->isTeacher($user)) {
             return $this->flashError(__('messages.unauthorized'));
         }
 
@@ -129,19 +132,19 @@ class UserController extends Controller
 
     /**
      * Display the specified student details with groups and exam assignments.
-     * 
+     *
      * Delegates to ExamQueryService to load paginated assignments.
      * Uses eager loading for groups, levels, and exams optimization.
      *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request instance.
-     * @param \App\Models\User $user The user instance representing the student.
+     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request instance.
+     * @param  \App\Models\User  $user  The user instance representing the student.
      * @return \Illuminate\Http\Response
      */
     public function showStudent(Request $request, User $user)
     {
         $this->authorize('view', $user);
 
-        if (!$this->userService->isStudent($user)) {
+        if (! $this->userService->isStudent($user)) {
             return $this->flashError(__('messages.unauthorized'));
         }
 
@@ -151,7 +154,7 @@ class UserController extends Controller
 
         $this->userService->loadStudentGroupsWithExams($user);
 
-        $assignments = $this->examQueryService->getAssignedExamsForStudent($user, $perPage, $status, $search);
+        $assignments = $this->studentAssignmentQueryService->getAssignmentsForStudent($user, $perPage, $status, $search);
 
         $availableGroups = $this->userService->getActiveGroupsWithLevels();
 
@@ -169,7 +172,7 @@ class UserController extends Controller
 
     /**
      * Update the specified user's information.
-     * 
+     *
      * Validates permissions (only super_admin can edit admins).
      * Delegates to UserManagementService to update user data.
      *
@@ -184,27 +187,26 @@ class UserController extends Controller
         /** @var \App\Models\User $auth */
         $auth = Auth::user();
 
-        if ($user->hasRole(['admin', 'super_admin']) && !$auth->hasRole('super_admin')) {
+        if ($user->hasRole(['admin', 'super_admin']) && ! $auth->hasRole('super_admin')) {
             return $this->flashError(__('messages.unauthorized'));
         }
 
         try {
             $validated = $request->validated();
 
-
             $this->userService->update($user, $validated);
 
             return $this->flashSuccess(__('messages.user_updated'));
         } catch (\Exception $e) {
             Log::error('Error updating user', ['user_id' => $user->id, 'error' => $e->getMessage()]);
+
             return $this->flashError(__('messages.operation_failed'));
         }
     }
 
-
     /**
      * Remove the specified user from storage (soft delete).
-     * 
+     *
      * Validates permissions and prevents self-deletion.
      * Only super_admin can delete admin users.
      *
@@ -222,7 +224,7 @@ class UserController extends Controller
             return $this->flashError(__('messages.unauthorized'));
         }
 
-        if ($user->hasRole(['admin', 'super_admin']) && !$auth->hasRole('super_admin')) {
+        if ($user->hasRole(['admin', 'super_admin']) && ! $auth->hasRole('super_admin')) {
             return $this->flashError(__('messages.unauthorized'));
         }
 
@@ -231,10 +233,9 @@ class UserController extends Controller
         return $this->redirectWithSuccess('users.index', __('messages.user_deleted'));
     }
 
-
     /**
      * Toggle the status (active/inactive) of the specified user.
-     * 
+     *
      * Validates permissions and prevents self-modification.
      * Only super_admin can modify admin status.
      *
@@ -252,38 +253,39 @@ class UserController extends Controller
             return $this->flashError(__('messages.unauthorized'));
         }
 
-        if ($user->hasRole(['admin', 'super_admin']) && !$auth->hasRole('super_admin')) {
+        if ($user->hasRole(['admin', 'super_admin']) && ! $auth->hasRole('super_admin')) {
             return $this->flashError(__('messages.unauthorized'));
         }
 
         $this->userService->toggleStatus($user);
 
         $messageKey = $user->is_active ? 'messages.user_activated' : 'messages.user_deactivated';
+
         return $this->redirectWithSuccess('users.index', __($messageKey));
     }
 
     /**
      * Change the group of a student.
-     * 
+     *
      * Delegates to UserManagementService to reassign student to new group.
      *
-     * @param ChangeStudentGroupRequest $request
-     * @param User $user
      * @return \Illuminate\Http\Response
      */
     public function changeStudentGroup(ChangeStudentGroupRequest $request, User $user)
     {
         $this->authorize('update', $user);
 
-        if (!$this->userService->isStudent($user)) {
+        if (! $this->userService->isStudent($user)) {
             return $this->flashError(__('messages.unauthorized'));
         }
 
         try {
             $this->userService->changeStudentGroup($user, $request->validated()['group_id']);
+
             return $this->redirectWithSuccess('users.show.student', __('messages.group_changed'), ['user' => $user->id]);
         } catch (\Exception $e) {
             Log::error('Error changing group', ['user_id' => $user->id, 'error' => $e->getMessage()]);
+
             return $this->flashError(__('messages.operation_failed'));
         }
     }
@@ -291,7 +293,6 @@ class UserController extends Controller
     /**
      * Restore a soft-deleted user.
      *
-     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function restore(int $id)
@@ -305,6 +306,7 @@ class UserController extends Controller
             return $this->redirectWithSuccess('users.index', __('messages.user_restored'));
         } catch (\Exception $e) {
             Log::error('Error restoring user', ['user_id' => $id, 'error' => $e->getMessage()]);
+
             return $this->flashError(__('messages.operation_failed'));
         }
     }
@@ -312,7 +314,6 @@ class UserController extends Controller
     /**
      * Permanently delete a user (force delete).
      *
-     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function forceDelete(int $id)
@@ -334,6 +335,7 @@ class UserController extends Controller
             return $this->redirectWithSuccess('users.index', __('messages.user_deleted'));
         } catch (\Exception $e) {
             Log::error('Error permanently deleting user', ['user_id' => $id, 'error' => $e->getMessage()]);
+
             return $this->flashError(__('messages.operation_failed'));
         }
     }

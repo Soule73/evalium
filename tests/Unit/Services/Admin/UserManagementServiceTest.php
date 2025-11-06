@@ -2,20 +2,19 @@
 
 namespace Tests\Unit\Services\Admin;
 
-use Tests\TestCase;
 use App\Models\User;
-use App\Models\Group;
-use Illuminate\Support\Facades\Cache;
-use PHPUnit\Framework\Attributes\Test;
-use Illuminate\Support\Facades\Notification;
-use App\Services\Admin\UserManagementService;
 use App\Notifications\UserCredentialsNotification;
+use App\Services\Admin\UserManagementService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 class UserManagementServiceTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private UserManagementService $service;
 
@@ -70,7 +69,7 @@ class UserManagementServiceTest extends TestCase
         $this->assertInstanceOf(User::class, $restoredUser);
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
-            'deleted_at' => null
+            'deleted_at' => null,
         ]);
         $this->assertEquals('Deleted User', $restoredUser->name);
     }
@@ -122,7 +121,7 @@ class UserManagementServiceTest extends TestCase
     public function it_can_get_paginated_users()
     {
         $currentUser = $this->createTeacher();
-        collect()->times(15, fn() => $this->createStudent());
+        collect()->times(15, fn () => $this->createStudent());
 
         $result = $this->service->getUserWithPagination(
             ['per_page' => 10],
@@ -138,7 +137,7 @@ class UserManagementServiceTest extends TestCase
     public function it_excludes_current_user_from_pagination()
     {
         $currentUser = $this->createTeacher();
-        collect()->times(5, fn() => $this->createStudent());
+        collect()->times(5, fn () => $this->createStudent());
 
         $result = $this->service->getUserWithPagination([], 10, $currentUser);
 
@@ -150,8 +149,8 @@ class UserManagementServiceTest extends TestCase
     public function it_can_filter_users_by_role()
     {
         $currentUser = $this->createTeacher();
-        collect()->times(3, fn() => $this->createStudent());
-        collect()->times(2, fn() => $this->createTeacher());
+        collect()->times(3, fn () => $this->createStudent());
+        collect()->times(2, fn () => $this->createTeacher());
 
         $result = $this->service->getUserWithPagination(
             ['role' => 'student'],
@@ -166,8 +165,8 @@ class UserManagementServiceTest extends TestCase
     public function it_can_filter_users_by_status()
     {
         $currentUser = $this->createTeacher();
-        collect()->times(3, fn() => $this->createStudent(['is_active' => true]));
-        collect()->times(2, fn() => $this->createStudent(['is_active' => false]));
+        collect()->times(3, fn () => $this->createStudent(['is_active' => true]));
+        collect()->times(2, fn () => $this->createStudent(['is_active' => false]));
 
         $result = $this->service->getUserWithPagination(
             ['status' => 'active'],
@@ -176,7 +175,7 @@ class UserManagementServiceTest extends TestCase
         );
 
         $this->assertEquals(3, $result->total());
-        $allActive = collect($result->items())->every(fn($u) => $u->is_active);
+        $allActive = collect($result->items())->every(fn ($u) => $u->is_active);
         $this->assertTrue($allActive);
     }
 
@@ -209,7 +208,7 @@ class UserManagementServiceTest extends TestCase
             'name' => 'Test Student',
             'email' => 'student@test.com',
             'role' => 'student',
-            'group_id' => $group->id
+            'group_id' => $group->id,
         ];
 
         $user = $this->service->store($userData);
@@ -230,7 +229,7 @@ class UserManagementServiceTest extends TestCase
         $updateData = [
             'name' => 'New Name',
             'email' => 'newemail@test.com',
-            'role' => 'teacher'
+            'role' => 'teacher',
         ];
 
         $this->service->update($user, $updateData);
@@ -277,7 +276,7 @@ class UserManagementServiceTest extends TestCase
         $this->assertDatabaseHas('group_student', [
             'student_id' => $student->id,
             'group_id' => $newGroup->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
     }
 
@@ -287,7 +286,7 @@ class UserManagementServiceTest extends TestCase
         $user = $this->createTeacher();
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("User must be a student.");
+        $this->expectExceptionMessage('User must be a student.');
 
         $this->service->changeStudentGroup($user, 1);
     }

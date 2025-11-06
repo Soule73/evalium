@@ -8,15 +8,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Middleware to eager load user permissions and roles to prevent N+1 queries.
- * 
+ *
  * This middleware loads all permissions and roles for the authenticated user
  * in a single query, preventing multiple duplicate queries throughout the request lifecycle.
- * 
+ *
  * This is particularly useful because:
  * - HandleInertiaRequests needs permissions for frontend
  * - Role/Permission middlewares need to check permissions
  * - Policies may need to check permissions
- * 
+ *
  * By loading them once here, all subsequent checks use cached data.
  */
 class EagerLoadPermissions

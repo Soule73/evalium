@@ -2,24 +2,23 @@
 
 namespace Tests\Feature\Controllers;
 
-use Carbon\Carbon;
-use Tests\TestCase;
-use App\Models\Exam;
-use App\Models\User;
-use App\Models\Group;
-use App\Models\Level;
 use App\Models\Answer;
 use App\Models\Choice;
-use App\Models\Question;
+use App\Models\Exam;
 use App\Models\ExamAssignment;
-use PHPUnit\Framework\Attributes\Test;
+use App\Models\Group;
+use App\Models\Level;
+use App\Models\Question;
+use Carbon\Carbon;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 class StudentExamControllerTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -48,7 +47,7 @@ class StudentExamControllerTest extends TestCase
             'teacher_id' => $teacher->id,
             'title' => 'Test Exam',
             'is_active' => true,
-            'duration' => 90
+            'duration' => 90,
         ]);
 
         $exam->groups()->attach($group->id, [
@@ -80,7 +79,7 @@ class StudentExamControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Groups/Index', false)
                 ->has('groups')
         );
@@ -96,7 +95,7 @@ class StudentExamControllerTest extends TestCase
 
         $this->assertTrue(
             $response->getStatusCode() === 200 || $response->getStatusCode() === 302,
-            'Expected status 200 or 302, got ' . $response->getStatusCode()
+            'Expected status 200 or 302, got '.$response->getStatusCode()
         );
 
         if ($response->getStatusCode() === 200) {
@@ -113,7 +112,7 @@ class StudentExamControllerTest extends TestCase
 
         $assignment->update([
             'status' => null,
-            'started_at' => Carbon::now()
+            'started_at' => Carbon::now(),
         ]);
 
         $response = $this->actingAs($student)
@@ -121,7 +120,7 @@ class StudentExamControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Exams/Show', false)
         );
     }
@@ -140,26 +139,26 @@ class StudentExamControllerTest extends TestCase
             'exam_id' => $exam->id,
             'type' => 'text',
             'content' => 'What is 2 + 2?',
-            'points' => 5
+            'points' => 5,
         ]);
 
         $response = $this->actingAs($student)
             ->post(route('student.exams.save-answers', $exam), [
                 'answers' => [
-                    $question->id => 'Ma réponse à la question'
-                ]
+                    $question->id => 'Ma réponse à la question',
+                ],
             ]);
 
         $response->assertOk();
         $response->assertJson([
             'success' => true,
-            'message' => 'Réponses enregistrées'
+            'message' => 'Réponses enregistrées',
         ]);
 
         $this->assertDatabaseHas('answers', [
             'assignment_id' => $assignment->id,
             'question_id' => $question->id,
-            'answer_text' => 'Ma réponse à la question'
+            'answer_text' => 'Ma réponse à la question',
         ]);
     }
 
@@ -172,19 +171,19 @@ class StudentExamControllerTest extends TestCase
             'exam_id' => $exam->id,
             'type' => 'multiple',
             'content' => 'Which are prime numbers?',
-            'points' => 3
+            'points' => 3,
         ]);
 
         $choice1 = Choice::factory()->create([
             'question_id' => $question->id,
             'content' => '2',
-            'is_correct' => true
+            'is_correct' => true,
         ]);
 
         $choice2 = Choice::factory()->create([
             'question_id' => $question->id,
             'content' => '4',
-            'is_correct' => false
+            'is_correct' => false,
         ]);
 
         $assignment->update([
@@ -195,20 +194,20 @@ class StudentExamControllerTest extends TestCase
         $response = $this->actingAs($student)
             ->post(route('student.exams.save-answers', $exam), [
                 'answers' => [
-                    $question->id => $choice1->id
-                ]
+                    $question->id => $choice1->id,
+                ],
             ]);
 
         $response->assertOk();
         $response->assertJson([
             'success' => true,
-            'message' => 'Réponses enregistrées'
+            'message' => 'Réponses enregistrées',
         ]);
 
         $this->assertDatabaseHas('answers', [
             'assignment_id' => $assignment->id,
             'question_id' => $question->id,
-            'choice_id' => $choice1->id
+            'choice_id' => $choice1->id,
         ]);
     }
 
@@ -257,7 +256,7 @@ class StudentExamControllerTest extends TestCase
 
         $assignment->update([
             'status' => 'graded',
-            'score' => 85.5
+            'score' => 85.5,
         ]);
 
         $response = $this->actingAs($student)
@@ -281,7 +280,7 @@ class StudentExamControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Exams/Results', false)
                 ->where('assignment.status', 'submitted')
         );
@@ -294,12 +293,12 @@ class StudentExamControllerTest extends TestCase
         $otherStudent = $this->createStudent(['email' => 'other@test.com']);
 
         $otherExam = Exam::factory()->create([
-            'teacher_id' => $teacher->id
+            'teacher_id' => $teacher->id,
         ]);
 
         $otherAssignment = ExamAssignment::factory()->create([
             'exam_id' => $otherExam->id,
-            'student_id' => $otherStudent->id
+            'student_id' => $otherStudent->id,
         ]);
 
         $response = $this->actingAs($student)
@@ -327,13 +326,13 @@ class StudentExamControllerTest extends TestCase
         $question = Question::factory()->create([
             'exam_id' => $exam->id,
             'type' => 'text',
-            'content' => 'Test question'
+            'content' => 'Test question',
         ]);
 
         $existingAnswer = Answer::create([
             'assignment_id' => $assignment->id,
             'question_id' => $question->id,
-            'answer_text' => 'Old answer'
+            'answer_text' => 'Old answer',
         ]);
 
         $assignment->update([
@@ -344,20 +343,20 @@ class StudentExamControllerTest extends TestCase
         $response = $this->actingAs($student)
             ->post(route('student.exams.save-answers', $exam), [
                 'answers' => [
-                    $question->id => 'Updated answer'
-                ]
+                    $question->id => 'Updated answer',
+                ],
             ]);
 
         $response->assertOk();
         $response->assertJson([
             'success' => true,
-            'message' => 'Réponses enregistrées'
+            'message' => 'Réponses enregistrées',
         ]);
 
         $this->assertDatabaseHas('answers', [
             'assignment_id' => $assignment->id,
             'question_id' => $question->id,
-            'answer_text' => 'Updated answer'
+            'answer_text' => 'Updated answer',
         ]);
     }
 }

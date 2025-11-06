@@ -6,7 +6,7 @@ use Illuminate\Validation\Validator;
 
 /**
  * Validation strategy for text questions.
- * 
+ *
  * Text questions don't require choices, so this is a no-op strategy.
  * It's included for completeness and to make the system extensible.
  */

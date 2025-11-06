@@ -3,14 +3,14 @@
 namespace App\Repositories;
 
 use App\Models\Exam;
-use App\Models\User;
 use App\Models\ExamAssignment;
-use Illuminate\Database\Eloquent\Collection;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Assignment Repository - Data access layer for exam assignments
- * 
+ *
  * Responsibilities:
  * - Query building for assignments
  * - No business logic (belongs in services)
@@ -21,9 +21,7 @@ class AssignmentRepository
     /**
      * Get assignment by exam and student (including virtual assignments via groups)
      *
-     * @param Exam $exam
-     * @param User $studentId
-     * @return ExamAssignment|null
+     * @param  User  $studentId
      */
     public function findByExamAndStudent(Exam $exam, User $student): ?ExamAssignment
     {
@@ -38,7 +36,7 @@ class AssignmentRepository
         }
 
         if ($this->studentHasAccessViaGroup($exam, $student)) {
-            $assignment = new ExamAssignment();
+            $assignment = new ExamAssignment;
             $assignment->exam_id = $exam->id;
             $assignment->student_id = $student->id;
             $assignment->status = null;
@@ -55,10 +53,6 @@ class AssignmentRepository
 
     /**
      * Check if a student has access to an exam via their active group
-     *
-     * @param Exam $exam
-     * @param User $student
-     * @return bool
      */
     private function studentHasAccessViaGroup(Exam $exam, User $student): bool
     {
@@ -76,10 +70,6 @@ class AssignmentRepository
 
     /**
      * Get started assignment (not submitted)
-     *
-     * @param Exam $exam
-     * @param int $studentId
-     * @return ExamAssignment|null
      */
     public function findStartedAssignment(Exam $exam, int $studentId): ?ExamAssignment
     {
@@ -92,11 +82,6 @@ class AssignmentRepository
 
     /**
      * Get completed assignment
-     *
-     * @param Exam $exam
-     * @param int $studentId
-     * @param array $statuses
-     * @return ExamAssignment|null
      */
     public function findCompletedAssignment(Exam $exam, int $studentId, array $statuses = ['submitted', 'graded']): ?ExamAssignment
     {
@@ -108,17 +93,12 @@ class AssignmentRepository
 
     /**
      * Get assignment with relationships
-     *
-     * @param Exam $exam
-     * @param int $studentId
-     * @param array $relations
-     * @return ExamAssignment
      */
     public function getAssignmentWithRelations(Exam $exam, int $studentId, array $relations = []): ExamAssignment
     {
         $query = $exam->assignments()->where('student_id', $studentId);
 
-        if (!empty($relations)) {
+        if (! empty($relations)) {
             $query->with($relations);
         }
 
@@ -127,12 +107,6 @@ class AssignmentRepository
 
     /**
      * Get all assignments for an exam with pagination
-     *
-     * @param Exam $exam
-     * @param int $perPage
-     * @param string|null $search
-     * @param string|null $status
-     * @return LengthAwarePaginator
      */
     public function getPaginatedAssignments(
         Exam $exam,
@@ -161,15 +135,13 @@ class AssignmentRepository
     /**
      * Get all assignments for an exam
      *
-     * @param Exam $exam
-     * @param array $relations
      * @return Collection<int, ExamAssignment>
      */
     public function getAllAssignments(Exam $exam, array $relations = []): Collection
     {
         $query = $exam->assignments();
 
-        if (!empty($relations)) {
+        if (! empty($relations)) {
             $query->with($relations);
         }
 
@@ -179,8 +151,6 @@ class AssignmentRepository
     /**
      * Get assignments for a student
      *
-     * @param int $studentId
-     * @param array $relations
      * @return Collection<int, ExamAssignment>
      */
     public function getStudentAssignments(int $studentId, array $relations = []): Collection
@@ -188,7 +158,7 @@ class AssignmentRepository
         $query = ExamAssignment::where('student_id', $studentId)
             ->orderBy('assigned_at', 'desc');
 
-        if (!empty($relations)) {
+        if (! empty($relations)) {
             $query->with($relations);
         }
 
@@ -198,8 +168,6 @@ class AssignmentRepository
     /**
      * Create or get existing assignment
      *
-     * @param Exam $exam
-     * @param int $studentId
      * @return array{assignment: ExamAssignment, was_created: bool}
      */
     public function firstOrCreate(Exam $exam, int $studentId): array
@@ -213,15 +181,12 @@ class AssignmentRepository
 
         return [
             'assignment' => $assignment,
-            'was_created' => $assignment->wasRecentlyCreated
+            'was_created' => $assignment->wasRecentlyCreated,
         ];
     }
 
     /**
      * Delete assignment
-     *
-     * @param ExamAssignment $assignment
-     * @return bool
      */
     public function delete(ExamAssignment $assignment): bool
     {

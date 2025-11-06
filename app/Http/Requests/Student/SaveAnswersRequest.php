@@ -9,8 +9,6 @@ use Illuminate\Foundation\Http\FormRequest;
  *
  * This request class is responsible for authorizing and validating
  * the input data when a student submits their answers.
- *
- * @package App\Http\Requests\Student
  */
 class SaveAnswersRequest extends FormRequest
 {

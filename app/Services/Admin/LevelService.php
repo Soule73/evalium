@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Level Service - Handle level CRUD operations and cache management
- * 
+ *
  * Single Responsibility: Manage academic level lifecycle and related cache
  * Dependencies: Level Model
  */
@@ -24,8 +24,7 @@ class LevelService
     /**
      * Get paginated list of levels with filtering
      *
-     * @param array $params Filter criteria (search, status, per_page)
-     * @return LengthAwarePaginator
+     * @param  array  $params  Filter criteria (search, status, per_page)
      */
     public function getLevelsWithPagination(array $params): LengthAwarePaginator
     {
@@ -41,8 +40,7 @@ class LevelService
     /**
      * Create a new level
      *
-     * @param array $data Level data (name, code, description, ordre, is_active)
-     * @return Level
+     * @param  array  $data  Level data (name, code, description, ordre, is_active)
      */
     public function createLevel(array $data): Level
     {
@@ -65,9 +63,8 @@ class LevelService
     /**
      * Update an existing level
      *
-     * @param Level $level Level to update
-     * @param array $data Updated level data
-     * @return Level
+     * @param  Level  $level  Level to update
+     * @param  array  $data  Updated level data
      */
     public function updateLevel(Level $level, array $data): Level
     {
@@ -75,7 +72,6 @@ class LevelService
             $level->update($data);
 
             $this->invalidateGroupsCache();
-
 
             return $level->fresh();
         } catch (\Exception $e) {
@@ -92,8 +88,8 @@ class LevelService
     /**
      * Delete a level (if no groups are associated)
      *
-     * @param Level $level Level to delete
-     * @return bool
+     * @param  Level  $level  Level to delete
+     *
      * @throws \Exception If level has associated groups
      */
     public function deleteLevel(Level $level): bool
@@ -121,14 +117,13 @@ class LevelService
     /**
      * Toggle the active status of a level
      *
-     * @param Level $level Level to toggle
-     * @return Level
+     * @param  Level  $level  Level to toggle
      */
     public function toggleStatus(Level $level): Level
     {
         try {
             $level->update([
-                'is_active' => !$level->is_active
+                'is_active' => ! $level->is_active,
             ]);
 
             $this->invalidateGroupsCache();
@@ -146,8 +141,6 @@ class LevelService
 
     /**
      * Invalidate groups cache when levels are modified
-     *
-     * @return void
      */
     private function invalidateGroupsCache(): void
     {
@@ -157,9 +150,8 @@ class LevelService
     /**
      * Build query for levels with filters
      *
-     * @param string|null $search Search term
-     * @param string|null $status Status filter (null, '0', '1')
-     * @return Builder
+     * @param  string|null  $search  Search term
+     * @param  string|null  $status  Status filter (null, '0', '1')
      */
     private function buildLevelQuery(?string $search, ?string $status): Builder
     {

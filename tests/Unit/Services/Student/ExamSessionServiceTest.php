@@ -2,21 +2,23 @@
 
 namespace Tests\Unit\Services\Student;
 
-use Tests\TestCase;
 use App\Models\Exam;
 use App\Models\ExamAssignment;
-use Illuminate\Support\Carbon;
-use PHPUnit\Framework\Attributes\Test;
 use App\Services\Student\ExamSessionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 class ExamSessionServiceTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private ExamSessionService $sessionService;
+
     private Exam $exam;
+
     private ExamAssignment $assignment;
 
     protected function setUp(): void

@@ -2,17 +2,18 @@
 
 namespace Tests\Unit\Services\Core;
 
-use Tests\TestCase;
 use App\Models\Exam;
 use App\Services\Core\ExamStatsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 class ExamStatsServiceTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private ExamStatsService $service;
+
     private Exam $exam;
 
     protected function setUp(): void
@@ -20,7 +21,7 @@ class ExamStatsServiceTest extends TestCase
         parent::setUp();
 
         $this->seedRolesAndPermissions();
-        $this->service = new ExamStatsService();
+        $this->service = new ExamStatsService;
         $this->exam = $this->createExamWithQuestions($this->createTeacher(), questionCount: 5);
     }
 
@@ -79,6 +80,7 @@ class ExamStatsServiceTest extends TestCase
         $this->assertEquals(1, $stats['not_started']);
         $this->assertEquals(45, $stats['average_score']);
     }
+
     public function test_calculate_student_progress(): void
     {
         $student = $this->createStudent();
@@ -101,9 +103,9 @@ class ExamStatsServiceTest extends TestCase
     public function test_calculate_completion_rate(): void
     {
         $assignments = collect([
-            (object)['status' => 'submitted'],
-            (object)['status' => 'graded'],
-            (object)['status' => null],
+            (object) ['status' => 'submitted'],
+            (object) ['status' => 'graded'],
+            (object) ['status' => null],
         ]);
 
         $rate = $this->service->calculateCompletionRate($assignments, 4);
@@ -123,9 +125,9 @@ class ExamStatsServiceTest extends TestCase
     public function test_calculate_average_score(): void
     {
         $assignments = collect([
-            (object)['score' => 80],
-            (object)['score' => 90],
-            (object)['score' => null],
+            (object) ['score' => 80],
+            (object) ['score' => 90],
+            (object) ['score' => null],
         ]);
 
         $average = $this->service->calculateAverageScore($assignments);
@@ -136,8 +138,8 @@ class ExamStatsServiceTest extends TestCase
     public function test_calculate_average_score_with_no_scores(): void
     {
         $assignments = collect([
-            (object)['score' => null],
-            (object)['score' => null],
+            (object) ['score' => null],
+            (object) ['score' => null],
         ]);
 
         $average = $this->service->calculateAverageScore($assignments);
@@ -148,10 +150,10 @@ class ExamStatsServiceTest extends TestCase
     public function test_count_by_status(): void
     {
         $assignments = collect([
-            (object)['started_at' => null, 'submitted_at' => null, 'status' => null],
-            (object)['started_at' => now(), 'submitted_at' => null, 'status' => null],
-            (object)['started_at' => now(), 'submitted_at' => now(), 'status' => 'submitted'],
-            (object)['started_at' => now(), 'submitted_at' => now(), 'status' => 'graded'],
+            (object) ['started_at' => null, 'submitted_at' => null, 'status' => null],
+            (object) ['started_at' => now(), 'submitted_at' => null, 'status' => null],
+            (object) ['started_at' => now(), 'submitted_at' => now(), 'status' => 'submitted'],
+            (object) ['started_at' => now(), 'submitted_at' => now(), 'status' => 'graded'],
         ]);
 
         $counts = $this->service->countByStatus($assignments);

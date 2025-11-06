@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers\Exam;
 
-use App\Models\Exam;
-use Inertia\Inertia;
-use Inertia\Response;
-use Illuminate\Http\Request;
-use App\Services\Core\ExamCrudService;
-use App\Services\Core\ExamQueryService;
 use App\Http\Controllers\Controller;
-use App\Http\Traits\HasFlashMessages;
-use Illuminate\Http\RedirectResponse;
-use App\Services\Exam\ExamGroupService;
 use App\Http\Requests\Exam\StoreExamRequest;
 use App\Http\Requests\Exam\UpdateExamRequest;
+use App\Http\Traits\HasFlashMessages;
+use App\Models\Exam;
+use App\Services\Core\ExamCrudService;
+use App\Services\Core\ExamQueryService;
+use App\Services\Exam\ExamGroupService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ExamController extends Controller
 {
@@ -31,7 +30,7 @@ class ExamController extends Controller
     /**
      * Display list of exams - Adapted based on user permissions
      *
-     * @param Request $request The HTTP request
+     * @param  Request  $request  The HTTP request
      * @return Response Inertia response with paginated exams
      */
     public function index(Request $request): Response
@@ -53,7 +52,7 @@ class ExamController extends Controller
         $exams = $this->examQueryService->getExams(null, $perPage, $status, $search);
 
         return Inertia::render('Exam/Index', [
-            'exams' => $exams
+            'exams' => $exams,
         ]);
     }
 
@@ -72,7 +71,7 @@ class ExamController extends Controller
     /**
      * Store a newly created exam in storage
      *
-     * @param StoreExamRequest $request Validated request with exam data
+     * @param  StoreExamRequest  $request  Validated request with exam data
      * @return RedirectResponse Redirects to exam show page on success
      */
     public function store(StoreExamRequest $request): RedirectResponse
@@ -100,7 +99,7 @@ class ExamController extends Controller
     /**
      * Display the specified exam details
      *
-     * @param Exam $exam The exam instance to display
+     * @param  Exam  $exam  The exam instance to display
      * @return Response Inertia response with exam details
      */
     public function show(Exam $exam): Response
@@ -114,7 +113,7 @@ class ExamController extends Controller
 
         return Inertia::render('Exam/Show', [
             'exam' => $exam,
-            'assignedGroups' => $assignedGroups
+            'assignedGroups' => $assignedGroups,
         ]);
     }
 
@@ -123,7 +122,7 @@ class ExamController extends Controller
      *
      * Loads exam with questions and choices for editing.
      *
-     * @param Exam $exam The exam instance to edit
+     * @param  Exam  $exam  The exam instance to edit
      * @return Response Inertia response with edit form
      */
     public function edit(Exam $exam): Response
@@ -133,15 +132,15 @@ class ExamController extends Controller
         $exam->loadMissing(['questions.choices']);
 
         return Inertia::render('Exam/Edit', [
-            'exam' => $exam
+            'exam' => $exam,
         ]);
     }
 
     /**
      * Update the specified exam in storage
      *
-     * @param UpdateExamRequest $request Validated request with update data
-     * @param Exam $exam The exam instance to update
+     * @param  UpdateExamRequest  $request  Validated request with update data
+     * @param  Exam  $exam  The exam instance to update
      * @return RedirectResponse Redirects to exam show page on success
      */
     public function update(UpdateExamRequest $request, Exam $exam): RedirectResponse
@@ -170,7 +169,7 @@ class ExamController extends Controller
     /**
      * Remove the specified exam from storage
      *
-     * @param Exam $exam The exam instance to be deleted
+     * @param  Exam  $exam  The exam instance to be deleted
      * @return RedirectResponse Redirects to exams index on success
      */
     public function destroy(Exam $exam): RedirectResponse
@@ -198,7 +197,7 @@ class ExamController extends Controller
     /**
      * Duplicate the specified exam
      *
-     * @param Exam $exam The exam to be duplicated
+     * @param  Exam  $exam  The exam to be duplicated
      * @return RedirectResponse Redirects to edit page of new exam
      */
     public function duplicate(Exam $exam): RedirectResponse
@@ -230,7 +229,7 @@ class ExamController extends Controller
      * Switches between active and inactive states.
      * Used to quickly enable/disable exams without editing.
      *
-     * @param Exam $exam The exam instance whose status will be toggled
+     * @param  Exam  $exam  The exam instance whose status will be toggled
      * @return RedirectResponse Redirects back with flash message
      */
     public function toggleActive(Exam $exam): RedirectResponse

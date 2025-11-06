@@ -3,17 +3,15 @@
 namespace App\Http\Requests\Exam;
 
 use App\Models\Exam;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
 use App\Strategies\Validation\QuestionValidationContext;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 /**
  * Handles validation logic for storing a new exam by a teacher.
  *
  * This request class is responsible for authorizing the user and validating
  * the incoming data when creating a new exam resource.
- * @package App\Http\Requests\Exam
  */
 class StoreExamRequest extends FormRequest
 {
@@ -61,8 +59,7 @@ class StoreExamRequest extends FormRequest
      * This method allows you to add custom validation rules or modify the validator instance
      * before the request is considered valid.
      *
-     * @param \Illuminate\Contracts\Validation\Validator $validator The validator instance to be configured.
-     * @return void
+     * @param  \Illuminate\Contracts\Validation\Validator  $validator  The validator instance to be configured.
      */
     public function withValidator(Validator $validator): void
     {
@@ -70,7 +67,7 @@ class StoreExamRequest extends FormRequest
             $data = $validator->getData();
             $questions = $data['questions'] ?? [];
 
-            $validationContext = new QuestionValidationContext();
+            $validationContext = new QuestionValidationContext;
             $validationContext->validateQuestions($validator, $questions);
         });
     }

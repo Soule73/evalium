@@ -18,15 +18,16 @@ class ScoreValidationContext
 
     private function registerDefaultStrategies(): void
     {
-        $this->registerStrategy(new QuestionExistsInExamValidationStrategy());
-        $this->registerStrategy(new ScoreNotExceedsMaxValidationStrategy());
-        $this->registerStrategy(new SingleQuestionExistsValidationStrategy());
-        $this->registerStrategy(new StudentAssignmentValidationStrategy());
+        $this->registerStrategy(new QuestionExistsInExamValidationStrategy);
+        $this->registerStrategy(new ScoreNotExceedsMaxValidationStrategy);
+        $this->registerStrategy(new SingleQuestionExistsValidationStrategy);
+        $this->registerStrategy(new StudentAssignmentValidationStrategy);
     }
 
     public function registerStrategy(ScoreValidationStrategy $strategy): self
     {
         $this->strategies[] = $strategy;
+
         return $this;
     }
 

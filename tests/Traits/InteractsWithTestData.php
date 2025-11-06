@@ -4,10 +4,10 @@ namespace Tests\Traits;
 
 trait InteractsWithTestData
 {
-    use CreatesTestUsers;
+    use CreatesTestAssignments;
     use CreatesTestExams;
     use CreatesTestGroups;
-    use CreatesTestAssignments;
+    use CreatesTestUsers;
 
     protected function setupBasicTestData(): object
     {

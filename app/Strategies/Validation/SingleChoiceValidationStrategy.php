@@ -6,7 +6,7 @@ use Illuminate\Validation\Validator;
 
 /**
  * Validation strategy for single choice and boolean questions.
- * 
+ *
  * Ensures that:
  * - At least 2 choices are provided
  * - Exactly 1 choice is marked as correct
@@ -19,11 +19,12 @@ class SingleChoiceValidationStrategy implements QuestionValidationStrategy
     public function validate(Validator $validator, array $question, int $index): void
     {
         // Check if choices exist and have at least 2 items
-        if (!$this->hasMinimumChoices($question)) {
+        if (! $this->hasMinimumChoices($question)) {
             $validator->errors()->add(
                 "questions.{$index}.choices",
                 __('validation.custom.questions.min_choices')
             );
+
             return;
         }
 
@@ -51,9 +52,6 @@ class SingleChoiceValidationStrategy implements QuestionValidationStrategy
 
     /**
      * Check if the question has at least 2 choices.
-     *
-     * @param array $question
-     * @return bool
      */
     private function hasMinimumChoices(array $question): bool
     {
@@ -64,9 +62,6 @@ class SingleChoiceValidationStrategy implements QuestionValidationStrategy
 
     /**
      * Count the number of correct choices.
-     *
-     * @param array $question
-     * @return int
      */
     private function countCorrectChoices(array $question): int
     {
@@ -83,9 +78,6 @@ class SingleChoiceValidationStrategy implements QuestionValidationStrategy
 
     /**
      * Get the translated label for the question type.
-     *
-     * @param string $questionType
-     * @return string
      */
     private function getQuestionTypeLabel(string $questionType): string
     {

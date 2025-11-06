@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 
 /**
  * Scoring strategy for boolean questions (true/false).
- * 
+ *
  * Supports two possible choices: True or False.
  * Awards full points if the correct choice is selected, zero otherwise.
  */
@@ -17,14 +17,14 @@ class BooleanScoringStrategy extends AbstractScoringStrategy
 
     /**
      * Determine if the student's answer is correct.
-     * 
-     * @param Question $question The question being evaluated
-     * @param Collection $answers Student's answer(s)
+     *
+     * @param  Question  $question  The question being evaluated
+     * @param  Collection  $answers  Student's answer(s)
      * @return bool True if the selected choice is correct
      */
     public function isCorrect(Question $question, Collection $answers): bool
     {
-        if ($answers->isEmpty() || !$this->hasValidChoice($answers)) {
+        if ($answers->isEmpty() || ! $this->hasValidChoice($answers)) {
             return false;
         }
 
@@ -35,7 +35,7 @@ class BooleanScoringStrategy extends AbstractScoringStrategy
 
     /**
      * Get a human-readable description of this scoring strategy.
-     * 
+     *
      * @return string Strategy description
      */
     public function getDescription(): string

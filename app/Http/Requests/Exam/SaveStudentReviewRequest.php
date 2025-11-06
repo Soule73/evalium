@@ -10,7 +10,6 @@ use Illuminate\Foundation\Http\FormRequest;
  *
  * This request class is responsible for authorizing the user and validating
  * the input data when a teacher attempts to save reviews for students.
- * @package App\Http\Requests\Exam
  */
 class SaveStudentReviewRequest extends FormRequest
 {
@@ -37,36 +36,35 @@ class SaveStudentReviewRequest extends FormRequest
             'scores' => [
                 'required',
                 'array',
-                'min:1'
+                'min:1',
             ],
             'scores.*.question_id' => [
                 'required',
                 'integer',
-                'exists:questions,id'
+                'exists:questions,id',
             ],
             'scores.*.score' => [
                 'required',
                 'numeric',
-                'min:0'
+                'min:0',
             ],
             'scores.*.feedback' => [
                 'nullable',
                 'string',
-                'max:1000'
+                'max:1000',
             ],
             'teacher_notes' => [
                 'nullable',
                 'string',
-                'max:2000'
-            ]
+                'max:2000',
+            ],
         ];
     }
 
     /**
      * Configure additional validation logic after the initial validation rules.
      *
-     * @param \Illuminate\Validation\Validator $validator The validator instance.
-     * @return void
+     * @param  \Illuminate\Validation\Validator  $validator  The validator instance.
      */
     public function withValidator($validator): void
     {
@@ -74,11 +72,11 @@ class SaveStudentReviewRequest extends FormRequest
             $data = $validator->getData();
             $exam = request()->route()->parameter('exam');
 
-            if (!$exam || !isset($data['scores'])) {
+            if (! $exam || ! isset($data['scores'])) {
                 return;
             }
 
-            $validationContext = new ScoreValidationContext();
+            $validationContext = new ScoreValidationContext;
             $validationContext->validate(
                 $validator,
                 $data,

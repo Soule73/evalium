@@ -8,8 +8,6 @@ class EditUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     * 
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -27,7 +25,7 @@ class EditUserRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . request()->user()->id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.request()->user()->id],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'role' => ['required', 'string', 'in:admin,teacher,student,super_admin'],
         ];

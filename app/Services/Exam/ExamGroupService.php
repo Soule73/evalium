@@ -4,19 +4,17 @@ namespace App\Services\Exam;
 
 use App\Models\Exam;
 use App\Models\Group;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Exam Group Service
- * 
+ *
  * Manages the exam_group pivot table relationships.
  * Handles CRUD operations for exam-group assignments only.
- * 
+ *
  * Single Responsibility: Manage exam-group pivot relationships
  * Statistics and detailed queries delegated to ExamStatsService
- * 
- * @package App\Services\Exam
  */
 class ExamGroupService
 {
@@ -26,9 +24,9 @@ class ExamGroupService
      * Optimized to avoid N+1 queries by using bulk operations.
      * Validates group existence and prevents duplicate assignments.
      *
-     * @param Exam $exam The exam to assign
-     * @param array<int> $groupIds Array of group IDs to assign the exam to
-     * @param int|null $teacherId ID of the teacher making the assignment (defaults to authenticated user)
+     * @param  Exam  $exam  The exam to assign
+     * @param  array<int>  $groupIds  Array of group IDs to assign the exam to
+     * @param  int|null  $teacherId  ID of the teacher making the assignment (defaults to authenticated user)
      * @return array{assigned_count: int, already_assigned_count: int} Assignment results
      */
     public function assignExamToGroups(Exam $exam, array $groupIds, ?int $teacherId = null): array
@@ -41,6 +39,7 @@ class ExamGroupService
 
             if (empty($validGroupIds)) {
                 DB::commit();
+
                 return [
                     'assigned_count' => 0,
                     'already_assigned_count' => 0,
@@ -57,13 +56,13 @@ class ExamGroupService
             $assignedCount = 0;
             $alreadyAssignedCount = count($alreadyAssignedIds);
 
-            if (!empty($newGroupIds)) {
+            if (! empty($newGroupIds)) {
                 $attachData = collect($newGroupIds)->mapWithKeys(function ($groupId) use ($teacherId) {
                     return [
                         $groupId => [
                             'assigned_by' => $teacherId,
                             'assigned_at' => now(),
-                        ]
+                        ],
                     ];
                 })->toArray();
 
@@ -86,8 +85,8 @@ class ExamGroupService
     /**
      * Remove an exam from a specific group
      *
-     * @param Exam $exam The exam to remove
-     * @param Group $group The group to remove the exam from
+     * @param  Exam  $exam  The exam to remove
+     * @param  Group  $group  The group to remove the exam from
      * @return bool True if the exam was successfully removed, false otherwise
      */
     public function removeExamFromGroup(Exam $exam, Group $group): bool
@@ -98,8 +97,8 @@ class ExamGroupService
     /**
      * Remove an exam from multiple groups
      *
-     * @param Exam $exam The exam to remove
-     * @param array<int> $groupIds Array of group IDs to remove the exam from
+     * @param  Exam  $exam  The exam to remove
+     * @param  array<int>  $groupIds  Array of group IDs to remove the exam from
      * @return int Number of groups the exam was removed from
      */
     public function removeExamFromGroups(Exam $exam, array $groupIds): int
@@ -112,7 +111,7 @@ class ExamGroupService
      *
      * Includes level information and active student counts.
      *
-     * @param Exam $exam The exam
+     * @param  Exam  $exam  The exam
      * @return \Illuminate\Database\Eloquent\Collection Collection of groups with relationships
      */
     public function getGroupsForExam(Exam $exam)
@@ -128,7 +127,7 @@ class ExamGroupService
      *
      * Includes teacher information and question counts.
      *
-     * @param Group $group The group
+     * @param  Group  $group  The group
      * @return \Illuminate\Database\Eloquent\Collection Collection of exams with relationships
      */
     public function getExamsForGroup(Group $group)
@@ -142,8 +141,8 @@ class ExamGroupService
     /**
      * Check if an exam is assigned to a specific group
      *
-     * @param Exam $exam The exam
-     * @param Group $group The group
+     * @param  Exam  $exam  The exam
+     * @param  Group  $group  The group
      * @return bool True if the exam is assigned to the group
      */
     public function isExamAssignedToGroup(Exam $exam, Group $group): bool
@@ -156,7 +155,7 @@ class ExamGroupService
      *
      * Returns only active groups that are not already assigned to the exam.
      *
-     * @param Exam $exam The exam
+     * @param  Exam  $exam  The exam
      * @return \Illuminate\Database\Eloquent\Collection Collection of available groups
      */
     public function getAvailableGroupsForExam(Exam $exam)
@@ -177,7 +176,7 @@ class ExamGroupService
      *
      * Calculates the sum of active students across all assigned groups.
      *
-     * @param Exam $exam The exam
+     * @param  Exam  $exam  The exam
      * @return int Total number of students with exam access
      */
     public function getTotalStudentsForExam(Exam $exam): int

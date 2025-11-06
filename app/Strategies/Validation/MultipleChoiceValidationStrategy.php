@@ -6,7 +6,7 @@ use Illuminate\Validation\Validator;
 
 /**
  * Validation strategy for multiple choice questions.
- * 
+ *
  * Ensures that:
  * - At least 2 choices are provided
  * - At least 2 choices are marked as correct
@@ -19,11 +19,12 @@ class MultipleChoiceValidationStrategy implements QuestionValidationStrategy
     public function validate(Validator $validator, array $question, int $index): void
     {
         // Check if choices exist and have at least 2 items
-        if (!$this->hasMinimumChoices($question)) {
+        if (! $this->hasMinimumChoices($question)) {
             $validator->errors()->add(
                 "questions.{$index}.choices",
                 __('validation.custom.questions.min_choices')
             );
+
             return;
         }
 
@@ -48,9 +49,6 @@ class MultipleChoiceValidationStrategy implements QuestionValidationStrategy
 
     /**
      * Check if the question has at least 2 choices.
-     *
-     * @param array $question
-     * @return bool
      */
     private function hasMinimumChoices(array $question): bool
     {
@@ -61,9 +59,6 @@ class MultipleChoiceValidationStrategy implements QuestionValidationStrategy
 
     /**
      * Count the number of correct choices.
-     *
-     * @param array $question
-     * @return int
      */
     private function countCorrectChoices(array $question): int
     {

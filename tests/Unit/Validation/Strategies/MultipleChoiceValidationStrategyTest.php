@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Validation\Strategies;
 
-use Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
-use Illuminate\Support\Facades\Validator;
 use App\Strategies\Validation\MultipleChoiceValidationStrategy;
+use Illuminate\Support\Facades\Validator;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class MultipleChoiceValidationStrategyTest extends TestCase
 {
@@ -14,7 +14,7 @@ class MultipleChoiceValidationStrategyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->strategy = new MultipleChoiceValidationStrategy();
+        $this->strategy = new MultipleChoiceValidationStrategy;
     }
 
     #[Test]
@@ -34,8 +34,8 @@ class MultipleChoiceValidationStrategyTest extends TestCase
         $question = [
             'type' => 'multiple',
             'choices' => [
-                ['content' => 'Choice 1', 'is_correct' => false]
-            ]
+                ['content' => 'Choice 1', 'is_correct' => false],
+            ],
         ];
 
         $this->strategy->validate($validator, $question, 0);
@@ -53,8 +53,8 @@ class MultipleChoiceValidationStrategyTest extends TestCase
             'type' => 'multiple',
             'choices' => [
                 ['content' => 'Choice 1', 'is_correct' => true],
-                ['content' => 'Choice 2', 'is_correct' => false]
-            ]
+                ['content' => 'Choice 2', 'is_correct' => false],
+            ],
         ];
 
         $this->strategy->validate($validator, $question, 0);
@@ -73,8 +73,8 @@ class MultipleChoiceValidationStrategyTest extends TestCase
             'choices' => [
                 ['content' => 'Choice 1', 'is_correct' => true],
                 ['content' => 'Choice 2', 'is_correct' => true],
-                ['content' => 'Choice 3', 'is_correct' => false]
-            ]
+                ['content' => 'Choice 3', 'is_correct' => false],
+            ],
         ];
 
         $this->strategy->validate($validator, $question, 0);
@@ -89,7 +89,7 @@ class MultipleChoiceValidationStrategyTest extends TestCase
 
         $question = [
             'type' => 'multiple',
-            'choices' => 'not an array'
+            'choices' => 'not an array',
         ];
 
         $this->strategy->validate($validator, $question, 0);

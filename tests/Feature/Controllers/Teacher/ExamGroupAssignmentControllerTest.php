@@ -2,18 +2,18 @@
 
 namespace Tests\Feature\Controllers\Exam;
 
-use Tests\TestCase;
 use App\Models\Exam;
-use App\Models\User;
 use App\Models\Group;
-use PHPUnit\Framework\Attributes\Test;
+use App\Models\User;
 use Database\Seeders\RoleAndPermissionSeeder;
-use Tests\Traits\InteractsWithTestData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
+use Tests\Traits\InteractsWithTestData;
 
 class ExamGroupAssignmentControllerTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -29,13 +29,13 @@ class ExamGroupAssignmentControllerTest extends TestCase
         $group = Group::factory()->active()->create();
         $group->students()->attach($student->id, [
             'enrolled_at' => now(),
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $exam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
             'title' => 'Test Exam',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         return compact('teacher', 'student', 'exam', 'group');
@@ -48,7 +48,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
 
         $response = $this->actingAs($teacher)
             ->post(route('exams.assign.groups', $exam), [
-                'group_ids' => [$group->id]
+                'group_ids' => [$group->id],
             ]);
 
         $response->assertRedirect(route('exams.show', $exam));
@@ -56,7 +56,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
 
         $this->assertDatabaseHas('exam_group', [
             'exam_id' => $exam->id,
-            'group_id' => $group->id
+            'group_id' => $group->id,
         ]);
     }
 
@@ -70,7 +70,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
 
         $response = $this->actingAs($teacher)
             ->post(route('exams.assign.groups', $exam), [
-                'group_ids' => [$group->id, $group2->id, $group3->id]
+                'group_ids' => [$group->id, $group2->id, $group3->id],
             ]);
 
         $response->assertRedirect();
@@ -86,7 +86,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
 
         $response = $this->actingAs($teacher)
             ->post(route('exams.assign.groups', $exam), [
-                'group_ids' => [999]
+                'group_ids' => [999],
             ]);
 
         $response->assertSessionHasErrors('group_ids.0');
@@ -99,12 +99,12 @@ class ExamGroupAssignmentControllerTest extends TestCase
 
         $this->actingAs($teacher)
             ->post(route('exams.assign.groups', $exam), [
-                'group_ids' => [$group->id]
+                'group_ids' => [$group->id],
             ]);
 
         $response = $this->actingAs($teacher)
             ->post(route('exams.assign.groups', $exam), [
-                'group_ids' => [$group->id]
+                'group_ids' => [$group->id],
             ]);
 
         $response->assertRedirect();
@@ -130,7 +130,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
 
         $this->assertDatabaseMissing('exam_group', [
             'exam_id' => $exam->id,
-            'group_id' => $group->id
+            'group_id' => $group->id,
         ]);
     }
 
@@ -154,12 +154,12 @@ class ExamGroupAssignmentControllerTest extends TestCase
         $otherTeacher->assignRole('teacher');
 
         $otherExam = Exam::factory()->create([
-            'teacher_id' => $otherTeacher->id
+            'teacher_id' => $otherTeacher->id,
         ]);
 
         $response = $this->actingAs($teacher)
             ->post(route('exams.assign.groups', $otherExam), [
-                'group_ids' => [$group->id]
+                'group_ids' => [$group->id],
             ]);
 
         $response->assertForbidden();
@@ -172,7 +172,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
 
         $response = $this->actingAs($student)
             ->post(route('exams.assign.groups', $exam), [
-                'group_ids' => [$group->id]
+                'group_ids' => [$group->id],
             ]);
 
         $response->assertForbidden();
@@ -185,7 +185,7 @@ class ExamGroupAssignmentControllerTest extends TestCase
 
         $this->actingAs($teacher)
             ->post(route('exams.assign.groups', $exam), [
-                'group_ids' => [$group->id]
+                'group_ids' => [$group->id],
             ]);
 
         $this->assertDatabaseCount('exam_assignments', 0);

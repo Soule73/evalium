@@ -9,7 +9,7 @@ class StoreGroupRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     * 
+     *
      * @return bool Returns true if the user is authorized, false otherwise.
      */
     public function authorize(): bool

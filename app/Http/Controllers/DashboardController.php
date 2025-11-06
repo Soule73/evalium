@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Inertia\Inertia;
-use Inertia\Response;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use App\Services\Core\ExamQueryService;
 use App\Services\Admin\AdminDashboardService;
+use App\Services\Core\ExamQueryService;
 use App\Services\Exam\TeacherDashboardService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class DashboardController extends Controller
 {
@@ -21,7 +21,6 @@ class DashboardController extends Controller
         private readonly TeacherDashboardService $teacherDashboardService,
         private readonly AdminDashboardService $adminDashboardService
     ) {}
-
 
     /**
      * Display the dashboard index page.
@@ -35,16 +34,16 @@ class DashboardController extends Controller
             /** @var \App\Models\User $user */
             $user = $request->user();
 
-            if (!$user) {
+            if (! $user) {
                 abort(401, __('messages.unauthenticated'));
             }
 
             if ($user->hasRole('admin') || $user->hasRole('super_admin')) {
                 return $this->admin($request, $user);
-            } else if ($user->hasRole('teacher')) {
+            } elseif ($user->hasRole('teacher')) {
 
                 return $this->teacher($request, $user);
-            } else if ($user->hasRole('student')) {
+            } elseif ($user->hasRole('student')) {
 
                 return $this->student($request, $user);
             } else {
@@ -69,7 +68,7 @@ class DashboardController extends Controller
     /**
      * Handles the request to display the student dashboard.
      *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request.
+     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request.
      * @return \Inertia\Response The response containing the student dashboard view.
      */
     public function student(Request $request, User $user): Response
@@ -97,14 +96,14 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard/Student', [
             'user' => $user,
             'stats' => $stats,
-            'examAssignments' => $examAssignments
+            'examAssignments' => $examAssignments,
         ]);
     }
 
     /**
      * Handle the request for the teacher dashboard.
      *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request.
+     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request.
      * @return \Inertia\Response The response containing the teacher dashboard data.
      */
     public function teacher(Request $request, User $user): Response
@@ -122,14 +121,14 @@ class DashboardController extends Controller
             'user' => $user,
             'stats' => $dashboardData['stats'],
             'recent_exams' => $dashboardData['recent_exams'],
-            'pending_reviews' => $dashboardData['pending_reviews']
+            'pending_reviews' => $dashboardData['pending_reviews'],
         ]);
     }
 
     /**
      * Handle the admin dashboard request.
      *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request.
+     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request.
      * @return \Inertia\Response The response to be sent back to the client.
      */
     public function admin(Request $request, User $user): Response

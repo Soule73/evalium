@@ -2,15 +2,15 @@
 
 namespace Tests\Unit\Services\Student;
 
-use Tests\TestCase;
 use App\Services\Student\StudentAssignmentQueryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
 
 class StudentAssignmentQueryServiceTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     private StudentAssignmentQueryService $service;
 
@@ -19,7 +19,7 @@ class StudentAssignmentQueryServiceTest extends TestCase
         parent::setUp();
 
         $this->seedRolesAndPermissions();
-        $this->service = new StudentAssignmentQueryService();
+        $this->service = new StudentAssignmentQueryService;
     }
 
     public function test_get_assignments_for_student_returns_paginated_results(): void

@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers\Group;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\LevelRequest;
+use App\Http\Traits\HasFlashMessages;
 use App\Models\Level;
-use Inertia\Inertia;
-use Inertia\Response;
+use App\Services\Admin\LevelService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Http\Requests\LevelRequest;
-use App\Services\Admin\LevelService;
-use App\Http\Controllers\Controller;
-use App\Http\Traits\HasFlashMessages;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class LevelController extends Controller
 {
-    use HasFlashMessages, AuthorizesRequests;
+    use AuthorizesRequests, HasFlashMessages;
 
     public function __construct(
         private readonly LevelService $levelService
@@ -25,7 +25,7 @@ class LevelController extends Controller
     /**
      * Display a listing of levels with filters.
      *
-     * @param Request $request The incoming HTTP request.
+     * @param  Request  $request  The incoming HTTP request.
      * @return Response The response containing the levels list view.
      */
     public function index(Request $request): Response
@@ -56,10 +56,10 @@ class LevelController extends Controller
 
     /**
      * Store a newly created level.
-     * 
+     *
      * Delegates to LevelService to create level with validated data.
      *
-     * @param LevelRequest $request The validated request containing level data.
+     * @param  LevelRequest  $request  The validated request containing level data.
      * @return RedirectResponse Redirects to levels index on success.
      */
     public function store(LevelRequest $request): RedirectResponse
@@ -73,6 +73,7 @@ class LevelController extends Controller
             );
         } catch (\Exception $e) {
             Log::error('Error creating level', ['error' => $e->getMessage()]);
+
             return $this->flashError(__('messages.operation_failed'));
         }
     }
@@ -80,7 +81,7 @@ class LevelController extends Controller
     /**
      * Show the form for editing the specified level.
      *
-     * @param Level $level The level to edit.
+     * @param  Level  $level  The level to edit.
      * @return Response The response containing the level edit form view.
      */
     public function edit(Level $level): Response
@@ -94,11 +95,11 @@ class LevelController extends Controller
 
     /**
      * Update the specified level.
-     * 
+     *
      * Delegates to LevelService to update level with validated data.
      *
-     * @param LevelRequest $request The validated request containing updated level data.
-     * @param Level $level The level to update.
+     * @param  LevelRequest  $request  The validated request containing updated level data.
+     * @param  Level  $level  The level to update.
      * @return RedirectResponse Redirects to levels index on success.
      */
     public function update(LevelRequest $request, Level $level): RedirectResponse
@@ -112,16 +113,17 @@ class LevelController extends Controller
             );
         } catch (\Exception $e) {
             Log::error('Error updating level', ['level_id' => $level->id, 'error' => $e->getMessage()]);
+
             return $this->flashError(__('messages.operation_failed'));
         }
     }
 
     /**
      * Remove the specified level from storage.
-     * 
+     *
      * Delegates to LevelService to delete level (validates no groups are associated).
      *
-     * @param Level $level The level to delete.
+     * @param  Level  $level  The level to delete.
      * @return RedirectResponse Redirects to levels index on success.
      */
     public function destroy(Level $level): RedirectResponse
@@ -142,10 +144,10 @@ class LevelController extends Controller
 
     /**
      * Toggle the active status of the specified level.
-     * 
+     *
      * Delegates to LevelService to toggle level status.
      *
-     * @param Level $level The level to toggle.
+     * @param  Level  $level  The level to toggle.
      * @return RedirectResponse Redirects back with success message.
      */
     public function toggleStatus(Level $level): RedirectResponse
@@ -160,6 +162,7 @@ class LevelController extends Controller
             return $this->flashSuccess(__($messageKey));
         } catch (\Exception $e) {
             Log::error('Error toggling level status', ['level_id' => $level->id, 'error' => $e->getMessage()]);
+
             return $this->flashError(__('messages.operation_failed'));
         }
     }

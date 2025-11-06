@@ -2,20 +2,19 @@
 
 namespace Tests\Unit\Models;
 
+use App\Models\Answer;
+use App\Models\Exam;
+use App\Models\ExamAssignment;
+use App\Models\Question;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Exam;
-use App\Models\Question;
-use App\Models\Choice;
-use App\Models\Answer;
-use App\Models\ExamAssignment;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Traits\InteractsWithTestData;
 
 class ExamModelTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithTestData;
+    use InteractsWithTestData, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -30,7 +29,7 @@ class ExamModelTest extends TestCase
         $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
 
         $exam = Exam::factory()->create([
-            'teacher_id' => $teacher->id
+            'teacher_id' => $teacher->id,
         ]);
 
         $this->assertInstanceOf(User::class, $exam->teacher);
@@ -43,11 +42,11 @@ class ExamModelTest extends TestCase
         $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
 
         $exam = Exam::factory()->create([
-            'teacher_id' => $teacher->id
+            'teacher_id' => $teacher->id,
         ]);
 
         $questions = Question::factory()->count(3)->create([
-            'exam_id' => $exam->id
+            'exam_id' => $exam->id,
         ]);
 
         $this->assertCount(3, $exam->questions);
@@ -60,11 +59,11 @@ class ExamModelTest extends TestCase
         $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
 
         $exam = Exam::factory()->create([
-            'teacher_id' => $teacher->id
+            'teacher_id' => $teacher->id,
         ]);
 
         $assignments = ExamAssignment::factory()->count(2)->create([
-            'exam_id' => $exam->id
+            'exam_id' => $exam->id,
         ]);
 
         $this->assertCount(2, $exam->assignments);
@@ -77,17 +76,17 @@ class ExamModelTest extends TestCase
         $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
 
         $exam = Exam::factory()->create([
-            'teacher_id' => $teacher->id
+            'teacher_id' => $teacher->id,
         ]);
 
         Question::factory()->create([
             'exam_id' => $exam->id,
-            'points' => 5
+            'points' => 5,
         ]);
 
         Question::factory()->create([
             'exam_id' => $exam->id,
-            'points' => 10
+            'points' => 10,
         ]);
 
         $exam->refresh();
@@ -100,7 +99,7 @@ class ExamModelTest extends TestCase
         $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
 
         $exam = Exam::factory()->create([
-            'teacher_id' => $teacher->id
+            'teacher_id' => $teacher->id,
         ]);
 
         $student1 = User::factory()->create();
@@ -108,12 +107,12 @@ class ExamModelTest extends TestCase
 
         ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
-            'student_id' => $student1->id
+            'student_id' => $student1->id,
         ]);
 
         ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
-            'student_id' => $student2->id
+            'student_id' => $student2->id,
         ]);
 
         $this->assertEquals(2, $exam->unique_participants_count);
@@ -122,7 +121,7 @@ class ExamModelTest extends TestCase
     #[Test]
     public function exam_has_correct_fillable_attributes()
     {
-        $fillable = (new Exam())->getFillable();
+        $fillable = (new Exam)->getFillable();
 
         $expectedFillable = [
             'title',
@@ -146,7 +145,7 @@ class ExamModelTest extends TestCase
             'teacher_id' => $teacher->id,
             'start_time' => '2025-01-01 10:00:00',
             'end_time' => '2025-01-01 12:00:00',
-            'is_active' => 1
+            'is_active' => 1,
         ]);
 
         $this->assertInstanceOf(\Carbon\Carbon::class, $exam->start_time);
@@ -162,12 +161,12 @@ class ExamModelTest extends TestCase
 
         $activeExam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $inactiveExam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
-            'is_active' => false
+            'is_active' => false,
         ]);
 
         $this->assertTrue($activeExam->is_active);
@@ -180,21 +179,21 @@ class ExamModelTest extends TestCase
         $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
 
         $exam = Exam::factory()->create([
-            'teacher_id' => $teacher->id
+            'teacher_id' => $teacher->id,
         ]);
 
         $question = Question::factory()->create([
-            'exam_id' => $exam->id
+            'exam_id' => $exam->id,
         ]);
 
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
-            'student_id' => User::factory()->create()->id
+            'student_id' => User::factory()->create()->id,
         ]);
 
         $answer = Answer::factory()->create([
             'question_id' => $question->id,
-            'assignment_id' => $assignment->id
+            'assignment_id' => $assignment->id,
         ]);
 
         $this->assertCount(1, $exam->answers);
@@ -207,25 +206,25 @@ class ExamModelTest extends TestCase
         $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
 
         $exam = Exam::factory()->create([
-            'teacher_id' => $teacher->id
+            'teacher_id' => $teacher->id,
         ]);
 
         $question3 = Question::factory()->create([
             'exam_id' => $exam->id,
             'order_index' => 3,
-            'content' => 'Third question'
+            'content' => 'Third question',
         ]);
 
         $question1 = Question::factory()->create([
             'exam_id' => $exam->id,
             'order_index' => 1,
-            'content' => 'First question'
+            'content' => 'First question',
         ]);
 
         $question2 = Question::factory()->create([
             'exam_id' => $exam->id,
             'order_index' => 2,
-            'content' => 'Second question'
+            'content' => 'Second question',
         ]);
 
         $orderedQuestions = $exam->questions;

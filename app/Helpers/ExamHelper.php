@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Exam Helper - Pure utility functions for exam-related operations
- * 
+ *
  * Following SOLID principles:
  * - Single Responsibility: Only utility functions, no state
  * - No dependencies injection needed (static methods)
@@ -26,7 +26,7 @@ class ExamHelper
     /**
      * Filter assignments to include only active ones (in progress)
      *
-     * @param Collection<int, ExamAssignment> $assignments
+     * @param  Collection<int, ExamAssignment>  $assignments
      * @return Collection<int, ExamAssignment>
      */
     public static function filterActiveAssignments(Collection $assignments): Collection
@@ -39,7 +39,7 @@ class ExamHelper
     /**
      * Filter assignments to return only completed ones
      *
-     * @param Collection<int, ExamAssignment> $assignments
+     * @param  Collection<int, ExamAssignment>  $assignments
      * @return Collection<int, ExamAssignment>
      */
     public static function filterCompletedAssignments(Collection $assignments): Collection
@@ -50,7 +50,7 @@ class ExamHelper
     /**
      * Filter assignments to return only not started ones
      *
-     * @param Collection<int, ExamAssignment> $assignments
+     * @param  Collection<int, ExamAssignment>  $assignments
      * @return Collection<int, ExamAssignment>
      */
     public static function filterNotStartedAssignments(Collection $assignments): Collection
