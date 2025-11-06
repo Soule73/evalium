@@ -7,67 +7,21 @@ use App\Models\Exam;
 use App\Models\User;
 use App\Models\Question;
 use App\Models\ExamAssignment;
-use Spatie\Permission\Models\Role;
 use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\Exam\UpdateScoreRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\InteractsWithTestData;
 
 class UpdateScoreRequestTest extends TestCase
 {
-    use RefreshDatabase;
-
-    private User $teacher;
-    private User $student;
-    private Exam $exam;
-    private Question $question;
-    private \App\Models\ExamAssignment $assignment;
+    use RefreshDatabase, InteractsWithTestData;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Créer les rôles
-        Role::create(['name' => 'teacher']);
-        Role::create(['name' => 'student']);
-
-        // Créer un enseignant
-        $this->teacher = User::factory()->create([
-            'email' => 'teacher@test.com',
-        ]);
-        $this->teacher->assignRole('teacher');
-
-        // Créer un étudiant
-        $this->student = User::factory()->create([
-            'email' => 'student@test.com',
-        ]);
-        $this->student->assignRole('student');
-
-        // Créer un examen
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id,
-            'title' => 'Test Exam'
-        ]);
-
-        $this->exam = $exam;
-
-        // Créer une question
-        /** @var Question $question */
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
-
-        $this->question = $question;
-
-        // Créer une assignation
-        $this->assignment = \App\Models\ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'status' => 'submitted'
-        ]);
+        $this->seedRolesAndPermissions();
     }
 
     #[Test]
@@ -88,13 +42,18 @@ class UpdateScoreRequestTest extends TestCase
     #[Test]
     public function it_validates_score_is_numeric()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'type' => 'text', 'points' => 10]);
+
         $request = new UpdateScoreRequest();
         $rules = $request->rules();
 
         $validator = Validator::make([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'question_id' => $this->question->id,
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'question_id' => $question->id,
             'score' => 'not-a-number'
         ], $rules);
 
@@ -105,13 +64,18 @@ class UpdateScoreRequestTest extends TestCase
     #[Test]
     public function it_validates_score_minimum()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'type' => 'text', 'points' => 10]);
+
         $request = new UpdateScoreRequest();
         $rules = $request->rules();
 
         $validator = Validator::make([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'question_id' => $this->question->id,
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'question_id' => $question->id,
             'score' => -1
         ], $rules);
 
@@ -122,13 +86,17 @@ class UpdateScoreRequestTest extends TestCase
     #[Test]
     public function it_validates_question_exists()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+
         $request = new UpdateScoreRequest();
         $rules = $request->rules();
 
         $validator = Validator::make([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'question_id' => 999, // ID qui n'existe pas
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'question_id' => 999,
             'score' => 8.5
         ], $rules);
 
@@ -139,13 +107,18 @@ class UpdateScoreRequestTest extends TestCase
     #[Test]
     public function it_validates_teacher_notes_string()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'type' => 'text', 'points' => 10]);
+
         $request = new UpdateScoreRequest();
         $rules = $request->rules();
 
         $validator = Validator::make([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'question_id' => $this->question->id,
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'question_id' => $question->id,
             'score' => 8.5,
             'feedback' => ['not', 'a', 'string']
         ], $rules);
@@ -157,10 +130,19 @@ class UpdateScoreRequestTest extends TestCase
     #[Test]
     public function it_passes_validation_with_valid_data()
     {
-        // Créer une réponse pour que l'étudiant ait bien répondu à la question
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'type' => 'text', 'points' => 10]);
+        $assignment = ExamAssignment::factory()->create([
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'status' => 'submitted'
+        ]);
+
         \App\Models\Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $this->question->id,
+            'assignment_id' => $assignment->id,
+            'question_id' => $question->id,
             'answer_text' => 'Some answer'
         ]);
 
@@ -168,14 +150,13 @@ class UpdateScoreRequestTest extends TestCase
         $rules = $request->rules();
 
         $validator = Validator::make([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'question_id' => $this->question->id,
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'question_id' => $question->id,
             'score' => 8.5,
             'feedback' => 'Good answer but could be improved'
         ], $rules);
 
-        // Appliquer le withValidator pour les validations customisées
         $request->withValidator($validator);
 
         $this->assertFalse($validator->fails());
@@ -184,10 +165,19 @@ class UpdateScoreRequestTest extends TestCase
     #[Test]
     public function it_passes_validation_without_optional_teacher_notes()
     {
-        // Créer une réponse pour que l'étudiant ait bien répondu à la question
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'type' => 'text', 'points' => 10]);
+        $assignment = ExamAssignment::factory()->create([
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'status' => 'submitted'
+        ]);
+
         \App\Models\Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $this->question->id,
+            'assignment_id' => $assignment->id,
+            'question_id' => $question->id,
             'answer_text' => 'Some answer'
         ]);
 
@@ -195,13 +185,12 @@ class UpdateScoreRequestTest extends TestCase
         $rules = $request->rules();
 
         $validator = Validator::make([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'question_id' => $this->question->id,
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'question_id' => $question->id,
             'score' => 8.5
         ], $rules);
 
-        // Appliquer le withValidator pour les validations customisées
         $request->withValidator($validator);
 
         $this->assertFalse($validator->fails());
@@ -210,16 +199,22 @@ class UpdateScoreRequestTest extends TestCase
     #[Test]
     public function it_validates_score_against_question_points()
     {
-        // Créer une question avec 5 points maximum
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
         $questionWith5Points = Question::factory()->create([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'type' => 'text',
             'points' => 5
         ]);
+        $assignment = ExamAssignment::factory()->create([
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'status' => 'submitted'
+        ]);
 
-        // Créer une réponse pour que l'étudiant ait bien répondu à la question
         \App\Models\Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
+            'assignment_id' => $assignment->id,
             'question_id' => $questionWith5Points->id,
             'answer_text' => 'Some answer'
         ]);
@@ -227,18 +222,15 @@ class UpdateScoreRequestTest extends TestCase
         $request = new UpdateScoreRequest();
         $rules = $request->rules();
 
-        // Tenter de donner un score de 10 (plus que les 5 points maximum)
         $validator = Validator::make([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
             'question_id' => $questionWith5Points->id,
             'score' => 10
         ], $rules);
 
-        // Appliquer le withValidator pour les validations customisées
         $request->withValidator($validator);
 
-        // Maintenant cette validation devrait échouer grâce au withValidator
         $this->assertTrue($validator->fails());
         $this->assertTrue($validator->errors()->has('score'));
     }
