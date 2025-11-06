@@ -9,6 +9,7 @@ use App\Notifications\UserCredentialsNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
@@ -179,5 +180,160 @@ class UserManagementService
 
         $newGroup = Group::findOrFail($newGroupId);
         $this->groupService->assignStudentToGroup($newGroup, $student->id);
+    }
+
+    /**
+     * Get active groups with their levels (cached for 1 hour)
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getActiveGroupsWithLevels()
+    {
+        return Cache::remember('groups_active_with_levels', 3600, function () {
+            return Group::with('level')
+                ->where('is_active', true)
+                ->orderBy('id')
+                ->get();
+        });
+    }
+
+    /**
+     * Restore a soft-deleted user
+     *
+     * @param int $userId User ID to restore
+     * @return User
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
+    public function restoreUser(int $userId): User
+    {
+        $user = User::withTrashed()->findOrFail($userId);
+        $user->restore();
+
+        return $user;
+    }
+
+    /**
+     * Permanently delete a user from database
+     *
+     * @param int $userId User ID to force delete
+     * @return bool
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
+    public function forceDeleteUser(int $userId): bool
+    {
+        $user = User::withTrashed()->findOrFail($userId);
+        return $user->forceDelete();
+    }
+
+    /**
+     * Get available roles for current user based on permissions
+     *
+     * @param User $currentUser Current authenticated user
+     * @return \Illuminate\Support\Collection
+     */
+    public function getAvailableRoles(User $currentUser)
+    {
+        return $currentUser->hasRole('super_admin')
+            ? Role::pluck('name')
+            : Role::whereNotIn('name', ['admin', 'super_admin'])->pluck('name');
+    }
+
+    /**
+     * Check if user can modify target user (admin permission check)
+     *
+     * @param User $currentUser Current authenticated user
+     * @param User $targetUser Target user to check
+     * @return bool
+     */
+    public function canModifyUser(User $currentUser, User $targetUser): bool
+    {
+        if ($targetUser->hasRole(['admin', 'super_admin'])) {
+            return $currentUser->hasRole('super_admin');
+        }
+        return true;
+    }
+
+    /**
+     * Check if user is super admin
+     *
+     * @param User $currentUser Current authenticated user
+     * @return bool
+     */
+    public function isSuperAdmin(User $currentUser): bool
+    {
+        return $currentUser->hasRole('super_admin');
+    }
+
+    /**
+     * Check if user can force delete users and if target is not self
+     *
+     * @param User $currentUser Current authenticated user
+     * @param int $targetUserId Target user ID to check
+     * @return bool
+     */
+    public function canForceDeleteUser(User $currentUser, int $targetUserId): bool
+    {
+        if ($targetUserId === $currentUser->id) {
+            return false;
+        }
+
+        return $currentUser->can('force delete users');
+    }
+
+    /**
+     * Check if user is a teacher
+     *
+     * @param User $user User to check
+     * @return bool
+     */
+    public function isTeacher(User $user): bool
+    {
+        return $user->hasRole('teacher');
+    }
+
+    /**
+     * Check if user is a student
+     *
+     * @param User $user User to check
+     * @return bool
+     */
+    public function isStudent(User $user): bool
+    {
+        return $user->hasRole('student');
+    }
+
+    /**
+     * Load student groups with levels and active exams
+     *
+     * @param User $student Student to load groups for
+     * @return void
+     */
+    public function loadStudentGroupsWithExams(User $student): void
+    {
+        $student->load([
+            'groups' => function ($query) {
+                $query->with([
+                    'level',
+                    'exams' => function ($q) {
+                        $q->where('is_active', true);
+                    }
+                ])
+                    ->withPivot(['enrolled_at', 'left_at', 'is_active'])
+                    ->orderBy('group_student.enrolled_at', 'desc');
+            }
+        ]);
+    }
+
+    /**
+     * Load user roles if not already loaded
+     *
+     * @param User $user User to load roles for
+     * @return void
+     */
+    public function ensureRolesLoaded(User $user): void
+    {
+        if (!$user->relationLoaded('roles')) {
+            $user->load('roles');
+        }
     }
 }

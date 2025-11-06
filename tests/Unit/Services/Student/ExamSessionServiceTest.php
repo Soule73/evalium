@@ -52,75 +52,6 @@ class ExamSessionServiceTest extends TestCase
     }
 
     // ============================================================================
-    // VALIDATE EXAM TIMING TESTS
-    // ============================================================================
-
-    #[Test]
-    public function exam_is_accessible_between_start_and_end_time()
-    {
-        $result = $this->sessionService->validateExamTiming($this->exam);
-
-        $this->assertTrue($result);
-    }
-
-    #[Test]
-    public function exam_is_not_accessible_before_start_time()
-    {
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create([
-            'start_time' => Carbon::now()->addHour(),
-            'end_time' => Carbon::now()->addHours(2),
-        ]);
-
-        $result = $this->sessionService->validateExamTiming($exam);
-
-        $this->assertFalse($result);
-    }
-
-    #[Test]
-    public function exam_is_not_accessible_after_end_time()
-    {
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create([
-            'start_time' => Carbon::now()->subHours(2),
-            'end_time' => Carbon::now()->subHour(),
-        ]);
-
-        $result = $this->sessionService->validateExamTiming($exam);
-
-        $this->assertFalse($result);
-    }
-
-    #[Test]
-    public function exam_without_timing_constraints_is_always_accessible()
-    {
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create([
-            'start_time' => null,
-            'end_time' => null,
-        ]);
-
-        $result = $this->sessionService->validateExamTiming($exam);
-
-        $this->assertTrue($result);
-    }
-
-    #[Test]
-    public function can_check_accessibility_with_custom_time()
-    {
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create([
-            'start_time' => Carbon::parse('2025-10-23 10:00:00'),
-            'end_time' => Carbon::parse('2025-10-23 12:00:00'),
-        ]);
-
-        $testTime = Carbon::parse('2025-10-23 11:00:00');
-        $result = $this->sessionService->validateExamTiming($exam, $testTime);
-
-        $this->assertTrue($result);
-    }
-
-    // ============================================================================
     // FIND OR CREATE ASSIGNMENT TESTS
     // ============================================================================
 
@@ -229,7 +160,7 @@ class ExamSessionServiceTest extends TestCase
         $this->assignment->refresh();
         $this->assertEquals('submitted', $this->assignment->status);
         $this->assertNotNull($this->assignment->submitted_at);
-        $this->assertNull($this->assignment->score); // Pas de score final car violation
+        $this->assertNull($this->assignment->score);
         $this->assertEquals($autoScore, $this->assignment->auto_score);
         $this->assertTrue($this->assignment->forced_submission);
     }

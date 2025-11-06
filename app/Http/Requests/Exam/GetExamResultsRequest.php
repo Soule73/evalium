@@ -22,28 +22,16 @@ class GetExamResultsRequest extends FormRequest
      */
     public function authorize()
     {
-        $user = Auth::user();
-        if (!$user || !$user->hasRole('teacher')) {
-            return false;
-        }
 
-        $examParam = request()->route()->parameter('exam');
+        $exam = $this->route('exam');
 
-        if ($examParam) {
-            if (is_object($examParam)) {
-                return $examParam->teacher_id === $user->id;
-            }
-            $exam = \App\Models\Exam::find($examParam);
-            return $exam && $exam->teacher_id === $user->id;
-        }
-
-        return false;
+        return  $this->user()->can('view', $exam);
     }
 
     /**
      * Règles de validation pour la demande.
      *
-     * @return array
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules()
     {
@@ -79,27 +67,6 @@ class GetExamResultsRequest extends FormRequest
                 'string',
                 'max:255'
             ]
-        ];
-    }
-
-    /**
-     * Messages d'erreur personnalisés.
-     *
-     * @return array
-     */
-    public function messages()
-    {
-        return [
-            'per_page.integer' => "Le nombre d'éléments par page doit être un entier.",
-            'per_page.min' => "Le nombre d'éléments par page doit être au moins 1.",
-            'per_page.max' => "Le nombre d'éléments par page ne peut pas dépasser 100.",
-            'page.integer' => "Le numéro de page doit être un entier.",
-            'page.min' => "Le numéro de page doit être au moins 1.",
-            'sort_by.in' => "Le tri doit être l'un des suivants : user_name, total_score, completed_at, status.",
-            'sort_direction.in' => "La direction du tri doit être asc ou desc.",
-            'filter_status.in' => "Le filtre de statut doit être l'un des suivants : submitted, graded.",
-            'search.string' => "La recherche doit être du texte.",
-            'search.max' => "La recherche ne peut pas dépasser 255 caractères."
         ];
     }
 

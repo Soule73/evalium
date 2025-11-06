@@ -65,6 +65,7 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ position }) => {
                                         autoClose={toast.autoClose}
                                         duration={toast.duration}
                                         onClose={removeToast}
+                                        closeLabel={toast.closeLabel}
                                     />
                                 </div>
                             ))}

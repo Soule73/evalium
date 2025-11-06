@@ -24,10 +24,11 @@ class LevelFactory extends Factory
         ];
 
         $level = $this->faker->randomElement($levelTypes);
+        $uniqueSuffix = $this->faker->unique()->randomNumber(3);
 
         return [
-            'name' => $level['name'],
-            'code' => $level['code'] . '_' . $this->faker->unique()->randomNumber(3),
+            'name' => $level['name'] . ' - ' . $uniqueSuffix,
+            'code' => $level['code'] . '_' . $uniqueSuffix,
             'description' => $this->faker->optional()->sentence(),
             'order' => $order++,
             'is_active' => $this->faker->boolean(90),

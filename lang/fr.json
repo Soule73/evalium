@@ -225,5 +225,17 @@
     "Web Server is Down": "Le serveur Web est en panne",
     "Whoops!": "Oups !",
     "Yes": "Oui",
-    "You are receiving this email because we received a password reset request for your account.": "Vous recevez cet e-mail car nous avons reçu une demande de réinitialisation de mot de passe pour votre compte."
+    "You are receiving this email because we received a password reset request for your account.": "Vous recevez cet e-mail car nous avons reçu une demande de réinitialisation de mot de passe pour votre compte.",
+    "Your Login Credentials - Examena": "Vos identifiants de connexion - Examena",
+    "Hello :name,": "Bonjour :name,",
+    "Your :role account has been successfully created on the Examena platform.": "Votre compte :role a été créé avec succès sur la plateforme Examena.",
+    "Here are your login credentials:": "Voici vos identifiants de connexion :",
+    "Email:": "Email :",
+    "Temporary Password:": "Mot de passe temporaire :",
+    "For security reasons, we recommend changing your password after your first login.": "Pour des raisons de sécurité, nous vous recommandons de changer votre mot de passe après votre première connexion.",
+    "If you did not request this account, please contact the administrator.": "Si vous n'avez pas demandé la création de ce compte, veuillez contacter l'administrateur.",
+    "student": "étudiant",
+    "teacher": "enseignant",
+    "admin": "administrateur",
+    "super_admin": "super administrateur"
 }

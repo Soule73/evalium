@@ -35,7 +35,7 @@ export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('admin.users.store'), {
+        post(route('users.store'), {
             onSuccess: () => {
                 onClose();
             },

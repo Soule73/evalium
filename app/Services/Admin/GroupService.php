@@ -568,4 +568,30 @@ class GroupService
             ];
         });
     }
+
+    public function loadGroupWithStudents(Group $group): Group
+    {
+        return $group->load([
+            'level',
+            'students' => function ($query) {
+                $query->withPivot([
+                    'enrolled_at',
+                    'left_at',
+                    'is_active'
+                ])
+                    ->orderBy('group_student.enrolled_at', 'desc');
+            }
+        ]);
+    }
+
+    /**
+     * Load group with its level
+     *
+     * @param Group $group Group instance
+     * @return Group Loaded group with level
+     */
+    public function loadGroupWithLevel(Group $group): Group
+    {
+        return $group->load('level');
+    }
 }

@@ -22,13 +22,14 @@ class AssignmentRepository
      * Get assignment by exam and student (including virtual assignments via groups)
      *
      * @param Exam $exam
-     * @param int $studentId
+     * @param User $studentId
      * @return ExamAssignment|null
      */
-    public function findByExamAndStudent(Exam $exam, int $studentId): ?ExamAssignment
+    public function findByExamAndStudent(Exam $exam, User $student): ?ExamAssignment
     {
+
         $assignment = $exam->assignments()
-            ->where('student_id', $studentId)
+            ->where('student_id', $student->id)
             ->orderBy('assigned_at', 'desc')
             ->first();
 
@@ -36,13 +37,14 @@ class AssignmentRepository
             return $assignment;
         }
 
-        if ($this->studentHasAccessViaGroup($exam, $studentId)) {
+        if ($this->studentHasAccessViaGroup($exam, $student)) {
             $assignment = new ExamAssignment();
             $assignment->exam_id = $exam->id;
-            $assignment->student_id = $studentId;
+            $assignment->student_id = $student->id;
             $assignment->status = null;
             $assignment->assigned_at = now();
             $assignment->setRelation('exam', $exam);
+            $assignment->setRelation('student', $student);
             $assignment->exists = false;
 
             return $assignment;
@@ -55,16 +57,11 @@ class AssignmentRepository
      * Check if a student has access to an exam via their active group
      *
      * @param Exam $exam
-     * @param int $studentId
+     * @param User $student
      * @return bool
      */
-    private function studentHasAccessViaGroup(Exam $exam, int $studentId): bool
+    private function studentHasAccessViaGroup(Exam $exam, User $student): bool
     {
-        $student = User::find($studentId);
-
-        if (!$student) {
-            return false;
-        }
 
         $activeGroupIds = $student->activeGroups()->pluck('groups.id')->toArray();
 

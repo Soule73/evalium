@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Student;
+namespace App\Http\Controllers;
 
 use App\Models\Exam;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use App\Helpers\ExamHelper;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +24,7 @@ use App\Http\Requests\Student\SaveAnswersRequest;
 use App\Http\Requests\Student\SecurityViolationRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
-class ExamController extends Controller
+class StudentController extends Controller
 {
     use AuthorizesRequests, HasFlashMessages;
 
@@ -44,18 +43,15 @@ class ExamController extends Controller
      * Delegates to ExamQueryService to load groups with exam counts,
      * completion stats, and pending exams.
      *
-     * @param Request $request
-     * @return InertiaResponse
+     * @param Request $request The HTTP request instance.
+     * @return InertiaResponse The HTTP response containing the groups data.
      */
     public function index(Request $request): InertiaResponse
     {
         $student = $request->user();
 
-        if (!$student) {
-            abort(401);
-        }
-
         $perPage = $request->input('per_page', 15);
+
         $groups = $this->examQueryService->getStudentGroupsWithStats($student, $perPage);
 
         return Inertia::render('Student/Groups/Index', [
@@ -70,18 +66,14 @@ class ExamController extends Controller
      * ExamQueryService to load paginated exams with filtering.
      *
      * @param \App\Models\Group $group
-     * @param Request $request
-     * @return InertiaResponse
+     * @param Request $request The HTTP request instance.
+     * @return InertiaResponse The HTTP response containing the group exams data.
      */
     public function showGroup(\App\Models\Group $group, Request $request): InertiaResponse
     {
         $student = $request->user();
 
-        if (!$student) {
-            abort(401);
-        }
-
-        $group->load('level');
+        $this->accessService->loadGroupLevel($group);
 
         $studentPivot = $this->accessService->getStudentGroupMembership($group, $student);
 
@@ -118,25 +110,28 @@ class ExamController extends Controller
      * - If can take: Show exam overview with start button
      * - If completed: Show results with answers and score
      *
-     * @param Exam $exam
-     * @param Request $request
-     * @return InertiaResponse
+     * @param Exam $exam The exam instance to be displayed.
+     * @param Request $request The HTTP request instance.
+     * @return InertiaResponse The HTTP response containing the exam details.
      */
     public function show(Exam $exam, Request $request): InertiaResponse
     {
         $student = $request->user();
-        $assignment = $this->assignmentRepository->findByExamAndStudent($exam, $student->id);
+
+        $assignment = $this->assignmentRepository->findByExamAndStudent($exam, $student);
 
         if (!$assignment) {
             abort(403, __('messages.exam_not_assigned'));
         }
 
-        $canTake = ExamHelper::canTakeExam($exam, $assignment);
-        $exam->load('teacher');
+        $canTake = $assignment->submitted_at === null;
+
+        $this->accessService->loadExamTeacher($exam);
+
         $group = $this->accessService->getStudentGroupForExam($exam, $student);
 
         if ($canTake) {
-            $questionsCount = $exam->questions()->count();
+            $questionsCount = $this->accessService->getQuestionsCount($exam);
 
             return Inertia::render('Student/Exams/Show', [
                 'exam' => $exam,
@@ -148,8 +143,8 @@ class ExamController extends Controller
             ]);
         }
 
-        $exam->load(['questions.choices']);
-        $assignment->load(['answers.choice']);
+        $this->accessService->loadExamQuestionsWithChoices($exam);
+        $this->accessService->loadAssignmentAnswers($assignment);
         $userAnswers = $this->answerFormatter->formatForFrontend($assignment);
 
         return Inertia::render('Student/Exams/Results', [
@@ -168,27 +163,17 @@ class ExamController extends Controller
      * Validates exam availability, timing, and assignment status.
      * Delegates to ExamSessionService to start the exam session.
      *
-     * @param Exam $exam
-     * @param Request $request
-     * @return InertiaResponse|RedirectResponse
+     * @param Exam $exam The exam instance to be taken.
+     * @param Request $request The HTTP request instance.
+     * @return InertiaResponse|RedirectResponse The HTTP response containing the exam interface or a redirect on error.
      */
     public function take(Exam $exam, Request $request): InertiaResponse|RedirectResponse
     {
+        $this->authorize('view', $exam);
+
         $student = $request->user();
 
-        if (!$student) {
-            abort(401);
-        }
-
-        if (!$exam->is_active) {
-            return $this->redirectWithError('student.exams.show', __('messages.exam_not_available'), ['exam' => $exam->id]);
-        }
-
-        if (!$this->examSessionService->validateExamTiming($exam)) {
-            return $this->redirectWithError('student.exams.show', __('messages.exam_not_accessible'), ['exam' => $exam->id]);
-        }
-
-        $existingAssignment = $this->assignmentRepository->findByExamAndStudent($exam, $student->id);
+        $existingAssignment = $this->assignmentRepository->findByExamAndStudent($exam, $student);
 
         if (!$existingAssignment) {
             return $this->redirectWithError('student.exams.index', __('messages.exam_not_assigned'), []);
@@ -198,13 +183,14 @@ class ExamController extends Controller
             ? $existingAssignment
             : $this->examSessionService->findOrCreateAssignment($exam, $student);
 
-        if (!ExamHelper::canTakeExam($exam, $assignment)) {
-            return $this->redirectWithInfo('student.exams.show', __('messages.exam_already_completed'), ['exam' => $exam->id]);
-        }
+        $this->authorize('canTake', $assignment);
 
         $this->examSessionService->startExam($assignment);
-        $exam->load(['questions.choices']);
+
+        $this->accessService->loadExamQuestionsWithChoices($exam);
+
         $userAnswers = $this->answerFormatter->formatForFrontend($assignment);
+
         $group = $this->accessService->getStudentGroupForExam($exam, $student);
 
         return Inertia::render('Student/Exams/Take', [
@@ -222,14 +208,14 @@ class ExamController extends Controller
      * Delegates to ExamSessionService to persist answers without
      * submitting the exam. Used for auto-save functionality.
      *
-     * @param SaveAnswersRequest $request
-     * @param Exam $exam
-     * @return JsonResponse
+     * @param SaveAnswersRequest $request The validated request containing answers.
+     * @param Exam $exam The exam instance.
+     * @return JsonResponse The JSON response indicating success or failure.
      */
     public function saveAnswers(SaveAnswersRequest $request, Exam $exam): JsonResponse
     {
+
         $student = Auth::user();
-        $this->authorize('take', $exam);
 
         $assignment = $this->assignmentRepository->findStartedAssignment($exam, $student->id);
 
@@ -241,12 +227,7 @@ class ExamController extends Controller
                 'message' => __('messages.answers_saved')
             ]);
         } catch (\Exception $e) {
-            Log::error('Error saving student answers', [
-                'exam_id' => $exam->id,
-                'student_id' => $student->id,
-                'assignment_id' => $assignment->id,
-                'error' => $e->getMessage()
-            ]);
+            Log::error('Error saving student answers', $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -269,6 +250,7 @@ class ExamController extends Controller
     public function handleSecurityViolation(SecurityViolationRequest $request, Exam $exam): JsonResponse
     {
         $student = Auth::user();
+
         $assignment = $this->assignmentRepository->findStartedAssignment($exam, $student->id);
 
         if (!$assignment) {
@@ -319,7 +301,8 @@ class ExamController extends Controller
     public function abandon(Exam $exam): Response
     {
         $student = Auth::user();
-        $this->authorize('take', $exam);
+
+        $this->authorize('view', $exam);
 
         $assignment = $this->assignmentRepository->findStartedAssignment($exam, $student->id);
 
@@ -346,8 +329,9 @@ class ExamController extends Controller
      */
     public function submit(SubmitExamRequest $request, Exam $exam): RedirectResponse
     {
+        $this->authorize('view', $exam);
+
         $student = Auth::user();
-        $this->authorize('take', $exam);
 
         $assignment = $this->assignmentRepository->findStartedAssignment($exam, $student->id);
 
@@ -362,7 +346,9 @@ class ExamController extends Controller
         }
 
         $autoScore = $this->scoringService->calculateAutoCorrectableScore($assignment);
-        $hasTextQuestions = $exam->questions()->where('type', 'text')->exists();
+
+        $hasTextQuestions = $this->accessService->hasTextQuestions($exam);
+
         $isSecurityViolation = $validated['security_violation'] ?? false;
 
         $this->examSessionService->submitExam($assignment, $autoScore, $hasTextQuestions, $isSecurityViolation);

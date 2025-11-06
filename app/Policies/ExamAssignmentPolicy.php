@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Exam;
 use App\Models\User;
 use App\Models\ExamAssignment;
 // use Illuminate\Auth\Access\Response;
@@ -32,7 +33,7 @@ class ExamAssignmentPolicy
             return true;
         }
 
-        return $user->can('view assignments');
+        return $user->can('view any exams');
     }
 
     /**
@@ -52,7 +53,8 @@ class ExamAssignmentPolicy
             return $assignment->student_id === $user->id;
         }
 
-        return $user->can('view assignments');
+        $exam = $assignment->exam;
+        return $user->can('view any exams') || $exam->teacher_id === $user->id;
     }
 
     /**
@@ -66,7 +68,7 @@ class ExamAssignmentPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create assignments');
+        return $user->can('assign exams');
     }
 
     /**
@@ -86,7 +88,8 @@ class ExamAssignmentPolicy
             return $assignment->student_id === $user->id;
         }
 
-        return $user->can('update assignments');
+        $exam = $assignment->exam;
+        return $user->can('view any exams') || $exam->teacher_id === $user->id;
     }
 
     /**
@@ -106,7 +109,8 @@ class ExamAssignmentPolicy
             return $assignment->student_id === $user->id;
         }
 
-        return $user->can('delete assignments');
+        $exam = $assignment->exam;
+        return $user->can('view any exams') || $exam->teacher_id === $user->id;
     }
 
     /**
@@ -147,6 +151,21 @@ class ExamAssignmentPolicy
             return false;
         }
 
-        return $user->can('grade assignments');
+        return $user->can('correct exams');
+    }
+
+
+    /**
+     * Determine if a student can take an exam
+     *
+     * @param User $user The user attempting to take the exam.
+     * @param ExamAssignment $assignment The exam assignment instance.
+     * @return bool
+     */
+    public function canTake(User $user, ExamAssignment $assignment): bool
+    {
+        return $assignment->student_id === $user->id &&
+            $assignment->submitted_at === null &&
+            !$assignment->forced_submission;
     }
 }

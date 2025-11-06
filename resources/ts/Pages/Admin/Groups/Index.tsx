@@ -29,11 +29,10 @@ interface Props extends PageProps {
 export default function GroupIndex({ groups, levels }: Props) {
     const { auth } = usePage<PageProps>().props;
 
-    // Vérifications des permissions
     const canCreateGroups = hasPermission(auth.permissions, 'create groups');
     const canViewGroups = hasPermission(auth.permissions, 'view groups');
     const canUpdateGroups = hasPermission(auth.permissions, 'update groups');
-    const canToggleStatus = hasPermission(auth.permissions, 'toggle group status');
+    const canToggleStatus = hasPermission(auth.permissions, 'update groups');
 
     const [confirmModal, setConfirmModal] = useState<{
         isOpen: boolean;

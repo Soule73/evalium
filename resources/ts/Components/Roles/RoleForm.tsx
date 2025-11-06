@@ -54,14 +54,14 @@ export default function RoleForm({
             )}
 
             <Input
-                label="Nom du rôle"
+                label={trans('components.role_form.role_name_label')}
                 type="text"
                 value={formData.name}
                 onChange={(e) => onFieldChange('name', e.target.value)}
                 error={errors.name}
                 required
                 disabled={isSystemRole}
-                placeholder="Ex: moderator, editor..."
+                placeholder={trans('components.role_form.role_name_placeholder')}
             />
 
             <PermissionSelector

@@ -32,10 +32,9 @@ interface Props {
 export default function ShowGroup({ group }: Props) {
     const { auth } = usePage<PageProps>().props;
 
-    // Vérifications des permissions
     const canUpdateGroups = hasPermission(auth.permissions, 'update groups');
     const canDeleteGroups = hasPermission(auth.permissions, 'delete groups');
-    const canManageGroupStudents = hasPermission(auth.permissions, 'manage group students');
+    const canManageGroupStudents = hasPermission(auth.permissions, 'manage students');
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [studentToRemove, setStudentToRemove] = useState<User | null>(null);

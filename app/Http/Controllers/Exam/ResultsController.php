@@ -38,7 +38,7 @@ class ResultsController extends Controller
      */
     public function showStudentSubmission(Exam $exam, Group $group, User $student): Response
     {
-        $this->authorize('view', $exam);
+        $this->authorize('review', $exam);
 
         $data = $this->answerFormatter->getStudentResultsDataInGroup($exam, $group, $student);
 
@@ -52,7 +52,7 @@ class ResultsController extends Controller
      * average, median, and question-level analytics.
      *
      * @param Exam $exam The exam instance for which statistics are to be shown.
-     * @return RedirectResponse Redirects back with a message.
+     * @return RedirectResponse Redirects back with a message.(temporary)
      */
     public function stats(Exam $exam): RedirectResponse
     {

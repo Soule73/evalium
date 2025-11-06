@@ -12,10 +12,7 @@ class ChangeStudentGroupRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Seuls les admins peuvent changer le groupe d'un étudiant
-        /** @var \App\Models\User|null $user */
-        $user = Auth::user();
-        return $user && $user->hasRole(['admin', 'super_admin']);
+        return $this->user()->can('manageStudents');
     }
 
     /**
@@ -27,19 +24,6 @@ class ChangeStudentGroupRequest extends FormRequest
     {
         return [
             'group_id' => ['required', 'exists:groups,id'],
-        ];
-    }
-
-    /**
-     * Get custom messages for validator errors.
-     *
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'group_id.required' => 'Le groupe est requis.',
-            'group_id.exists' => 'Le groupe sélectionné n\'existe pas.',
         ];
     }
 }

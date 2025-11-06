@@ -1,15 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
-use App\Models\Group;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use App\Http\Traits\HasFlashMessages;
 use App\Http\Requests\Admin\EditUserRequest;
@@ -17,10 +14,11 @@ use App\Services\Admin\UserManagementService;
 use App\Http\Requests\Admin\CreateUserRequest;
 use App\Http\Requests\Admin\ChangeStudentGroupRequest;
 use App\Services\Core\ExamQueryService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
-class UserManagementController extends Controller
+class UserController extends Controller
 {
-    use HasFlashMessages;
+    use HasFlashMessages, AuthorizesRequests;
 
     public function __construct(
         public readonly UserManagementService $userService,
@@ -38,27 +36,21 @@ class UserManagementController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', User::class);
+
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
         $filters = $request->only(['search', 'role', 'per_page', 'status', 'include_deleted']);
 
-        // Regular admins cannot see other admins
         if (!$currentUser->hasRole('super_admin')) {
             $filters['exclude_roles'] = ['admin', 'super_admin'];
         }
 
         $users = $this->userService->getUserWithPagination($filters, 10, $currentUser);
 
-        // Filter roles based on permissions
-        $availableRoles = $currentUser->hasRole('super_admin')
-            ? Role::pluck('name')
-            : Role::whereNotIn('name', ['admin', 'super_admin'])->pluck('name');
-
-
-        $groups = Cache::remember('groups_active_with_levels', 3600, function () {
-            return Group::active()->with('level')->orderBy('academic_year', 'desc')->get();
-        });
+        $availableRoles = $this->userService->getAvailableRoles($currentUser);
+        $groups = $this->userService->getActiveGroupsWithLevels();
 
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
@@ -79,6 +71,8 @@ class UserManagementController extends Controller
      */
     public function store(CreateUserRequest $request)
     {
+        $this->authorize('create', User::class);
+
         try {
             $validated = $request->validated();
 
@@ -103,7 +97,9 @@ class UserManagementController extends Controller
      */
     public function showTeacher(Request $request, User $user)
     {
-        if (!$user->hasRole('teacher')) {
+        $this->authorize('view', $user);
+
+        if (!$this->userService->isTeacher($user)) {
             return $this->flashError(__('messages.unauthorized'));
         }
 
@@ -116,11 +112,9 @@ class UserManagementController extends Controller
 
         $search = $request->input('search');
 
-        if (!$user->relationLoaded('roles')) {
-            $user->load('roles');
-        }
+        $this->userService->ensureRolesLoaded($user);
 
-        $exams = $this->examQueryService->getExamsForTeacher($user->id, $perPage, $status, $search);
+        $exams = $this->examQueryService->getExams($user->id, $perPage, $status, $search);
 
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
@@ -145,7 +139,9 @@ class UserManagementController extends Controller
      */
     public function showStudent(Request $request, User $user)
     {
-        if (!$user->hasRole('student')) {
+        $this->authorize('view', $user);
+
+        if (!$this->userService->isStudent($user)) {
             return $this->flashError(__('messages.unauthorized'));
         }
 
@@ -153,26 +149,11 @@ class UserManagementController extends Controller
         $status = $request->input('status') ? $request->input('status') : null;
         $search = $request->input('search');
 
-        // Load ALL groups (active and inactive) with their active exams once with eager loading
-        // Active filtering is handled in ExamQueryService
-        $user->load([
-            'groups' => function ($query) {
-                $query->with([
-                    'level',
-                    'exams' => function ($q) {
-                        $q->where('is_active', true);
-                    }
-                ])
-                    ->withPivot(['enrolled_at', 'left_at', 'is_active'])
-                    ->orderBy('group_student.enrolled_at', 'desc');
-            }
-        ]);
+        $this->userService->loadStudentGroupsWithExams($user);
 
         $assignments = $this->examQueryService->getAssignedExamsForStudent($user, $perPage, $status, $search);
 
-        $availableGroups = Cache::remember('groups_active_with_levels', 3600, function () {
-            return Group::active()->with('level')->orderBy('academic_year', 'desc')->get();
-        });
+        $availableGroups = $this->userService->getActiveGroupsWithLevels();
 
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
@@ -198,6 +179,8 @@ class UserManagementController extends Controller
      */
     public function update(EditUserRequest $request, User $user)
     {
+        $this->authorize('update', $user);
+
         /** @var \App\Models\User $auth */
         $auth = Auth::user();
 
@@ -230,6 +213,8 @@ class UserManagementController extends Controller
      */
     public function destroy(User $user)
     {
+        $this->authorize('delete', $user);
+
         /** @var \App\Models\User $auth */
         $auth = Auth::user();
 
@@ -237,12 +222,6 @@ class UserManagementController extends Controller
             return $this->flashError(__('messages.unauthorized'));
         }
 
-        // Only super_admin can delete accounts
-        if (!$auth->can('delete users')) {
-            return $this->flashError(__('messages.unauthorized'));
-        }
-
-        // Only super_admin can delete admins
         if ($user->hasRole(['admin', 'super_admin']) && !$auth->hasRole('super_admin')) {
             return $this->flashError(__('messages.unauthorized'));
         }
@@ -264,6 +243,8 @@ class UserManagementController extends Controller
      */
     public function toggleStatus(User $user)
     {
+        $this->authorize('toggleStatus', $user);
+
         /** @var \App\Models\User $auth */
         $auth = Auth::user();
 
@@ -271,11 +252,6 @@ class UserManagementController extends Controller
             return $this->flashError(__('messages.unauthorized'));
         }
 
-        if (!$auth->can('toggle user status')) {
-            return $this->flashError(__('messages.unauthorized'));
-        }
-
-        // Only super_admin can modify admin status
         if ($user->hasRole(['admin', 'super_admin']) && !$auth->hasRole('super_admin')) {
             return $this->flashError(__('messages.unauthorized'));
         }
@@ -297,7 +273,9 @@ class UserManagementController extends Controller
      */
     public function changeStudentGroup(ChangeStudentGroupRequest $request, User $user)
     {
-        if (!$user->hasRole('student')) {
+        $this->authorize('update', $user);
+
+        if (!$this->userService->isStudent($user)) {
             return $this->flashError(__('messages.unauthorized'));
         }
 
@@ -318,12 +296,7 @@ class UserManagementController extends Controller
      */
     public function restore(int $id)
     {
-        /** @var \App\Models\User $auth */
-        $auth = Auth::user();
-
-        if (!$auth->can('restore users')) {
-            return $this->flashError(__('messages.unauthorized'));
-        }
+        $this->authorize('restore', User::class);
 
         try {
             $user = User::withTrashed()->findOrFail($id);
@@ -344,15 +317,13 @@ class UserManagementController extends Controller
      */
     public function forceDelete(int $id)
     {
-        /** @var \App\Models\User $auth */
-        $auth = Auth::user();
-
-        if (!$auth->can('force delete users')) {
-            return $this->flashError(__('messages.unauthorized'));
-        }
+        $this->authorize('forceDelete', User::class);
 
         try {
             $user = User::withTrashed()->findOrFail($id);
+
+            /** @var \App\Models\User $auth */
+            $auth = Auth::user();
 
             if ($user->id === $auth->id) {
                 return $this->flashError(__('messages.unauthorized'));

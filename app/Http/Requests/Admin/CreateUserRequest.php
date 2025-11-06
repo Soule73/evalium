@@ -2,16 +2,19 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     * 
+     * @return bool
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create', User::class);
     }
 
     /**
@@ -26,29 +29,6 @@ class CreateUserRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'role' => ['required', 'string', 'in:admin,teacher,student,super_admin'],
             'group_id' => ['nullable', 'integer', 'exists:groups,id', 'required_if:role,student'],
-        ];
-    }
-
-    /**
-     * Get custom messages for validator errors.
-     *
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'name.required' => 'Le nom est obligatoire.',
-            'name.string' => 'Le nom doit être une chaîne de caractères.',
-            'name.max' => 'Le nom ne doit pas dépasser 255 caractères.',
-            'email.required' => "L'adresse email est obligatoire.",
-            'email.string' => "L'adresse email doit être une chaîne de caractères.",
-            'email.email' => "L'adresse email doit être une adresse email valide.",
-            'email.max' => "L'adresse email ne doit pas dépasser 255 caractères.",
-            'email.unique' => "L'adresse email est déjà utilisée.",
-            'role.required' => 'Le rôle est obligatoire.',
-            'role.in' => 'Le rôle sélectionné est invalide.',
-            'group_id.required_if' => 'Le groupe est obligatoire pour les étudiants.',
-            'group_id.exists' => 'Le groupe sélectionné n\'existe pas.',
         ];
     }
 }

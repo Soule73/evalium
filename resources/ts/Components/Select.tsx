@@ -29,7 +29,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
         error,
         helperText,
         options,
-        placeholder = trans('components.select.placeholder'),
+        placeholder,
         value,
         onChange,
         onBlur,
@@ -38,6 +38,10 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
         className = '',
         name
     }, ref) => {
+        const defaultPlaceholder = trans('components.select.placeholder');
+        const searchPlaceholder = trans('components.select.search_placeholder');
+        const noOptionFound = trans('components.select.no_option_found');
+
         const [isOpen, setIsOpen] = useState(false);
         const [searchTerm, setSearchTerm] = useState('');
         const [filteredOptions, setFilteredOptions] = useState(options);
@@ -186,7 +190,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                         aria-label={label || 'Select option'}
                     >
                         <span className={`block truncate ${!selectedOption ? 'text-gray-500' : 'text-gray-900'}`}>
-                            {selectedOption ? selectedOption.label : placeholder}
+                            {selectedOption ? selectedOption.label : (placeholder || defaultPlaceholder)}
                         </span>
                         <ChevronDownIcon
                             className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''
@@ -206,7 +210,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                                             ref={searchInputRef}
                                             type="text"
                                             className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder={trans('components.select.search_placeholder')}
+                                            placeholder={searchPlaceholder}
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                             onKeyDown={handleKeyDown}
@@ -223,7 +227,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                             >
                                 {filteredOptions.length === 0 ? (
                                     <li className="px-3 py-2 text-sm text-gray-500 text-center">
-                                        {trans('components.select.no_option_found')}
+                                        {noOptionFound}
                                     </li>
                                 ) : (
                                     filteredOptions.map((option, index) => (

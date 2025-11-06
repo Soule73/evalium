@@ -281,5 +281,61 @@ return [
         'winner'                   => 'winner',
         'work'                     => 'work',
         'year'                     => 'year',
+
+        // Exam specific
+        'duration'                 => 'duration',
+        'questions'                => 'questions',
+        'question_id'              => 'question ID',
+        'exam_id'                  => 'exam ID',
+        'student_id'               => 'student ID',
+        'score'                    => 'score',
+        'feedback'                 => 'feedback',
+        'teacher_notes'            => 'teacher notes',
+        'per_page'                 => 'items per page',
+        'answers'                  => 'answers',
+        'one_choice'               => 'single choice',
+        'boolean'                  => 'true/false',
+
+        // Group and Level specific
+        'name'                     => 'name',
+        'code'                     => 'code',
+        'ordre'                    => 'order',
+        'academic_year'            => 'academic year',
+        'start_date'               => 'start date',
+        'end_date'                 => 'end date',
+        'max_students'             => 'maximum number of students',
+        'level_id'                 => 'academic level',
+        'group_id'                 => 'group',
+        'scores'                   => 'scores',
+        'student_ids'              => 'students',
+        'is_active'                => 'active',
+
+        // Role and Permission specific
+        'permissions'              => 'permissions',
+        'permissions.*'            => 'permission',
+        'role_name'                => 'role name',
+        'permission_name'          => 'permission name',
+
+        'order'                    => 'order',
+    ],
+
+    // Custom validation messages
+    'custom' => [
+        'questions' => [
+            'min_choices' => 'At least 2 choices are required for this question type.',
+            'min_correct_multiple' => 'At least 2 correct answers must be selected for a multiple choice question.',
+            'exactly_one_correct' => 'Exactly 1 correct answer must be selected for a :type question.',
+        ],
+        'question_id' => [
+            'not_in_exam' => 'This question does not belong to the specified exam.',
+        ],
+        'score' => [
+            'exceeds_max' => 'The score cannot exceed :max points for this question.',
+        ],
+        'student_id' => [
+            'not_assigned' => 'This student is not assigned to this exam.',
+            'no_answer' => 'This student did not answer this question.',
+            'not_student' => 'The specified user is not a student.',
+        ],
     ],
 ];

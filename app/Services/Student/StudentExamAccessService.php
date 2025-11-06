@@ -55,4 +55,86 @@ class StudentExamAccessService
 
         return (bool) $studentPivot->pivot->is_active;
     }
+
+    /**
+     * Load group with level relation
+     *
+     * @param Group $group
+     * @return void
+     */
+    public function loadGroupLevel(Group $group): void
+    {
+        if (!$group->relationLoaded('level')) {
+            $group->load('level');
+        }
+    }
+
+    /**
+     * Load exam with teacher relation
+     *
+     * @param Exam $exam
+     * @return void
+     */
+    public function loadExamTeacher(Exam $exam): void
+    {
+        if (!$exam->relationLoaded('teacher')) {
+            $exam->load('teacher');
+        }
+    }
+
+    /**
+     * Load exam with questions and choices
+     *
+     * @param Exam $exam
+     * @return void
+     */
+    public function loadExamQuestionsWithChoices(Exam $exam): void
+    {
+        if (!$exam->relationLoaded('questions')) {
+            $exam->load(['questions.choices']);
+        }
+    }
+
+    /**
+     * Get questions count for an exam
+     *
+     * @param Exam $exam
+     * @return int
+     */
+    public function getQuestionsCount(Exam $exam): int
+    {
+        if ($exam->relationLoaded('questions')) {
+            return $exam->questions->count();
+        }
+
+        return $exam->questions()->count();
+    }
+
+    /**
+     * Check if exam has text questions
+     *
+     * @param Exam $exam
+     * @return bool
+     */
+    public function hasTextQuestions(Exam $exam): bool
+    {
+        if ($exam->relationLoaded('questions')) {
+            return $exam->questions->contains('type', 'text');
+        }
+
+        return $exam->questions()->where('type', 'text')->exists();
+    }
+
+    /**
+     * Load assignment with answers and choices
+     *
+     * @param \App\Models\ExamAssignment $assignment
+     * @return void
+     */
+    public function loadAssignmentAnswers($assignment): void
+    {
+        if (!$assignment->relationLoaded('answers')) {
+            $assignment->load(['answers.choice']);
+        }
+    }
 }

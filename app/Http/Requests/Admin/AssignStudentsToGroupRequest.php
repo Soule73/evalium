@@ -7,27 +7,28 @@ use Illuminate\Support\Facades\Auth;
 
 class AssignStudentsToGroupRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     * 
+     * @return bool
+     */
     public function authorize(): bool
     {
-        return Auth::user()->hasRole(['admin', 'super_admin']);
+        $group = $this->route('group');
+
+        return $this->user()->can('manageStudents', $group);
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
         return [
             'student_ids' => ['required', 'array', 'min:1'],
             'student_ids.*' => ['integer', 'exists:users,id'],
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'student_ids.required' => 'Au moins un étudiant doit être sélectionné.',
-            'student_ids.array' => 'Les données des étudiants doivent être un tableau.',
-            'student_ids.min' => 'Au moins un étudiant doit être sélectionné.',
-            'student_ids.*.integer' => 'L\'identifiant de l\'étudiant doit être un nombre entier.',
-            'student_ids.*.exists' => 'Un ou plusieurs étudiants sélectionnés n\'existent pas.',
         ];
     }
 }

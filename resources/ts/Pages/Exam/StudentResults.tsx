@@ -28,8 +28,7 @@ const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment,
     const { isPendingReview, assignmentStatus, examIsActive } = useExamResults({ exam, assignment, userAnswers });
     const { totalPoints, finalPercentage, getQuestionResult } = useExamScoring({ exam, assignment, userAnswers });
 
-    // Vérification de la permission de correction
-    const canGradeExams = hasPermission(auth.permissions, 'grade exams');
+    const canGradeExams = hasPermission(auth.permissions, 'correct exams');
 
 
     return (

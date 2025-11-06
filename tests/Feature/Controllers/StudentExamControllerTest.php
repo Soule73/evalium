@@ -162,7 +162,7 @@ class StudentExamControllerTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'success' => true,
-            'message' => 'Réponses sauvegardées'
+            'message' => 'Réponses enregistrées'
         ]);
 
         // Vérifier que la réponse a été sauvegardée
@@ -212,7 +212,7 @@ class StudentExamControllerTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'success' => true,
-            'message' => 'Réponses sauvegardées'
+            'message' => 'Réponses enregistrées'
         ]);
 
         // Vérifier que la réponse a été sauvegardée avec le bon choix
@@ -353,7 +353,7 @@ class StudentExamControllerTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'success' => true,
-            'message' => 'Réponses sauvegardées'
+            'message' => 'Réponses enregistrées'
         ]);
 
         // Vérifier que la réponse a été mise à jour

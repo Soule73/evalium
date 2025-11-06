@@ -34,25 +34,18 @@ class UserCredentialsNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $roleNames = [
-            'student' => 'étudiant',
-            'teacher' => 'enseignant',
-            'admin' => 'administrateur',
-            'super_admin' => 'super administrateur',
-        ];
-
-        $roleName = $roleNames[$this->role] ?? $this->role;
+        $roleName = __($this->role);
 
         return (new MailMessage)
-            ->subject('Vos identifiants de connexion - Examena')
-            ->greeting("Bonjour {$notifiable->name},")
-            ->line("Votre compte {$roleName} a été créé avec succès sur la plateforme Examena.")
-            ->line('Voici vos identifiants de connexion :')
-            ->line("**Email :** {$notifiable->email}")
-            ->line("**Mot de passe temporaire :** {$this->password}")
-            ->action('Se connecter', url('/login'))
-            ->line('Pour des raisons de sécurité, nous vous recommandons de changer votre mot de passe après votre première connexion.')
-            ->line('Si vous n\'avez pas demandé la création de ce compte, veuillez contacter l\'administrateur.');
+            ->subject(__('Your Login Credentials - Examena'))
+            ->greeting(__('Hello :name,', ['name' => $notifiable->name]))
+            ->line(__('Your :role account has been successfully created on the Examena platform.', ['role' => $roleName]))
+            ->line(__('Here are your login credentials:'))
+            ->line("**" . __('Email:') . "** {$notifiable->email}")
+            ->line("**" . __('Temporary Password:') . "** {$this->password}")
+            ->action(__('Log In'), url('/login'))
+            ->line(__('For security reasons, we recommend changing your password after your first login.'))
+            ->line(__('If you did not request this account, please contact the administrator.'));
     }
 
     /**

@@ -81,10 +81,13 @@ export default function Toggle({
     color = 'blue',
     label,
     showLabel = false,
-    activeLabel = trans('components.toggle.active'),
-    inactiveLabel = trans('components.toggle.inactive'),
+    activeLabel,
+    inactiveLabel,
     className = '',
 }: ToggleProps) {
+    const defaultActiveLabel = trans('components.toggle.active');
+    const defaultInactiveLabel = trans('components.toggle.inactive');
+
     const [isChecked, setIsChecked] = useState(checked);
 
     useEffect(() => {
@@ -123,7 +126,7 @@ export default function Toggle({
                     ${colorClass.focus}
                     ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                 `}
-                title={isChecked ? activeLabel : inactiveLabel}
+                title={isChecked ? (activeLabel || defaultActiveLabel) : (inactiveLabel || defaultInactiveLabel)}
             >
                 <span
                     className={`
@@ -141,7 +144,7 @@ export default function Toggle({
                         ${isChecked ? colorClass.labelActive : colorClass.labelInactive}
                     `}
                 >
-                    {isChecked ? activeLabel : inactiveLabel}
+                    {isChecked ? (activeLabel || defaultActiveLabel) : (inactiveLabel || defaultInactiveLabel)}
                 </span>
             )}
         </div>

@@ -40,10 +40,13 @@ class ScoringServiceTest extends TestCase
         ]);
 
         // Créer un examen
-        $this->exam = Exam::factory()->create([
+        /** @var Exam $exam */
+        $exam = Exam::factory()->create([
             'title' => 'Test Exam for Scoring',
             'duration' => 60,
         ]);
+
+        $this->exam = $exam;
 
         // Créer une assignation
         $this->assignment = ExamAssignment::factory()->create([
@@ -58,6 +61,7 @@ class ScoringServiceTest extends TestCase
     public function it_calculates_score_for_correct_one_choice_question(): void
     {
         // Créer une question à choix unique
+        /** @var Question $question */
         $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'one_choice',
@@ -91,6 +95,7 @@ class ScoringServiceTest extends TestCase
     #[Test]
     public function it_calculates_zero_for_incorrect_one_choice_question(): void
     {
+        /** @var Question $question */
         $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'one_choice',
@@ -121,6 +126,7 @@ class ScoringServiceTest extends TestCase
     #[Test]
     public function it_calculates_score_for_correct_multiple_choice_question(): void
     {
+        /** @var Question $question */
         $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'multiple',
@@ -169,6 +175,7 @@ class ScoringServiceTest extends TestCase
     #[Test]
     public function it_calculates_zero_for_incomplete_multiple_choice(): void
     {
+        /** @var Question $question */
         $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'multiple',
@@ -200,6 +207,7 @@ class ScoringServiceTest extends TestCase
     #[Test]
     public function it_calculates_zero_for_multiple_choice_with_incorrect_selection(): void
     {
+        /** @var Question $question */
         $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'multiple',
@@ -237,6 +245,7 @@ class ScoringServiceTest extends TestCase
     #[Test]
     public function it_calculates_score_for_correct_boolean_question(): void
     {
+        /** @var Question $question */
         $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'boolean',
@@ -269,6 +278,7 @@ class ScoringServiceTest extends TestCase
     #[Test]
     public function it_returns_zero_for_text_questions_without_manual_score(): void
     {
+        /** @var Question $question */
         $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'text',
@@ -290,6 +300,7 @@ class ScoringServiceTest extends TestCase
     #[Test]
     public function it_returns_manual_score_for_corrected_text_questions(): void
     {
+        /** @var Question $question */
         $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'text',
@@ -422,6 +433,7 @@ class ScoringServiceTest extends TestCase
     #[Test]
     public function it_returns_zero_for_unanswered_questions(): void
     {
+        /** @var Question $question */
         $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'one_choice',
@@ -442,6 +454,7 @@ class ScoringServiceTest extends TestCase
     #[Test]
     public function it_verifies_answer_correctness_for_one_choice(): void
     {
+        /** @var Question $question */
         $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'one_choice',
@@ -467,6 +480,7 @@ class ScoringServiceTest extends TestCase
     #[Test]
     public function it_verifies_answer_incorrectness_for_one_choice(): void
     {
+        /** @var Question $question */
         $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'one_choice',

@@ -102,7 +102,7 @@ class GroupPolicy
      */
     public function manageStudents(User $user, Group $group): bool
     {
-        return $user->can('manage group students');
+        return $user->can('manage students');
     }
 
     /**
@@ -117,7 +117,7 @@ class GroupPolicy
      */
     public function assignExams(User $user, Group $group): bool
     {
-        return $user->can('assign group exams');
+        return $user->can('assign exams');
     }
 
     /**
@@ -132,6 +132,6 @@ class GroupPolicy
      */
     public function toggleStatus(User $user, Group $group): bool
     {
-        return $user->can('toggle group status');
+        return $user->can('update groups');
     }
 }

@@ -36,9 +36,7 @@ const ExamList: React.FC<ExamListProps> = ({
 }) => {
     const { auth } = usePage<PageProps>().props;
     const canViewExams = hasPermission(auth.permissions, 'view exams') || hasPermission(auth.permissions, 'view any exams');
-    // const canUpdateExams = hasPermission(auth.permissions, 'update exams');
-    const canPublishExams = hasPermission(auth.permissions, 'publish exams');
-    // const canAssignExams = hasPermission(auth.permissions, 'assign exams');
+    const canPublishExams = hasPermission(auth.permissions, 'update exams');
 
     const [togglingExams, setTogglingExams] = useState<Set<number>>(new Set());
 

@@ -26,8 +26,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     onConfirm,
     title,
     message,
-    confirmText = trans('components.confirmation_modal.confirm'),
-    cancelText = trans('components.confirmation_modal.cancel'),
+    confirmText,
+    cancelText,
     type = 'warning',
     icon = ExclamationTriangleIcon,
     loading = false,
@@ -35,6 +35,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     size = "md",
     children
 }) => {
+    const defaultConfirmText = trans('components.confirmation_modal.confirm');
+    const defaultCancelText = trans('components.confirmation_modal.cancel');
+
     const getTypeStyles = () => {
         switch (type) {
             case 'danger':
@@ -84,7 +87,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                         onClick={onClose}
                         disabled={loading}
                     >
-                        {cancelText}
+                        {cancelText || defaultCancelText}
                     </Button>
                     <Button
                         size="md"
@@ -93,7 +96,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                         loading={loading}
                         disabled={loading}
                     >
-                        {confirmText}
+                        {confirmText || defaultConfirmText}
                     </Button>
                 </div>
             </div>

@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Exam;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Strategies\Validation\QuestionValidationContext;
 
 /**
  * Handles validation logic for updating an exam by a teacher.
@@ -23,17 +23,9 @@ class UpdateExamRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // $user = Auth::user();
-        // if (!$user || !$user->hasRole('teacher')) {
-        //     return false;
-        // }
+        $exam = $this->route('exam');
 
-        // $exam = request()->route()->parameter('exam');
-        // if ($exam) {
-        //     return $exam->teacher_id === $user->id;
-        // }
-
-        return true;
+        return $this->user()->can('update', $exam);
     }
 
     /**
@@ -89,51 +81,9 @@ class UpdateExamRequest extends FormRequest
             $data = $validator->getData();
             $questions = $data['questions'] ?? [];
 
-            foreach ($questions as $index => $question) {
-                $questionType = $question['type'] ?? '';
-
-                if (in_array($questionType, ['multiple', 'one_choice', 'boolean'])) {
-
-                    if (!isset($question['choices']) || !is_array($question['choices']) || count($question['choices']) < 2) {
-                        $validator->errors()->add(
-                            "questions.{$index}.choices",
-                            'Au moins 2 choix sont requis pour ce type de question.'
-                        );
-                        continue;
-                    }
-
-                    if ($questionType === 'multiple') {
-                        $correctCount = 0;
-                        foreach ($question['choices'] as $choice) {
-                            if (isset($choice['is_correct']) && $choice['is_correct']) {
-                                $correctCount++;
-                            }
-                        }
-
-                        if ($correctCount < 2) {
-                            $validator->errors()->add(
-                                "questions.{$index}.choices",
-                                'Au moins 2 réponses correctes doivent être sélectionnées pour une question à choix multiples.'
-                            );
-                        }
-                    } elseif ($questionType === 'one_choice' || $questionType === 'boolean') {
-                        $correctCount = 0;
-                        foreach ($question['choices'] as $choice) {
-                            if (isset($choice['is_correct']) && $choice['is_correct']) {
-                                $correctCount++;
-                            }
-                        }
-
-                        if ($correctCount !== 1) {
-                            $questionTypeLabel = $questionType === 'one_choice' ? 'choix unique' : 'vrai/faux';
-                            $validator->errors()->add(
-                                "questions.{$index}.choices",
-                                "Exactement 1 réponse correcte doit être sélectionnée pour une question à {$questionTypeLabel}."
-                            );
-                        }
-                    }
-                }
-            }
+            // Use the Strategy Pattern to validate questions
+            $validationContext = new QuestionValidationContext();
+            $validationContext->validateQuestions($validator, $questions);
         });
     }
 
@@ -158,30 +108,5 @@ class UpdateExamRequest extends FormRequest
         ]);
 
         parent::failedValidation($validator);
-    }
-
-    /**
-     * Get custom messages for validator errors.
-     */
-    /**
-     * Get the custom validation messages for the request.
-     *
-     * @return array An associative array of custom validation messages.
-     */
-    public function messages(): array
-    {
-        return [
-            'title.required' => "Le titre de l'examen est obligatoire.",
-            'duration.required' => "La durée de l'examen est obligatoire.",
-            'end_time.after' => "La date de fin doit être postérieure à la date de début.",
-            'questions.required' => "Au moins une question est requise.",
-            'questions.*.content.required' => "Le contenu de la question est obligatoire.",
-            'questions.*.type.required' => "Le type de question est obligatoire.",
-            'questions.*.type.in' => "Le type de question doit être : texte, choix multiples, choix unique ou vrai/faux.",
-            'questions.*.points.required' => "Le nombre de points est obligatoire.",
-            'questions.*.choices.required_if' => "Les choix sont obligatoires pour les questions à choix multiples et choix unique.",
-            'questions.*.choices.*.content.required_if' => "Le contenu de chaque choix est obligatoire.",
-            'questions.*.correct_answer.required_if' => "Vous devez indiquer si la réponse est vraie ou fausse.",
-        ];
     }
 }

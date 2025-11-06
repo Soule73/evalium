@@ -44,17 +44,23 @@ class UpdateScoreRequestTest extends TestCase
         $this->student->assignRole('student');
 
         // Créer un examen
-        $this->exam = Exam::factory()->create([
+        /** @var Exam $exam */
+        $exam = Exam::factory()->create([
             'teacher_id' => $this->teacher->id,
             'title' => 'Test Exam'
         ]);
 
+        $this->exam = $exam;
+
         // Créer une question
-        $this->question = Question::factory()->create([
+        /** @var Question $question */
+        $question = Question::factory()->create([
             'exam_id' => $this->exam->id,
             'type' => 'text',
             'points' => 10
         ]);
+
+        $this->question = $question;
 
         // Créer une assignation
         $this->assignment = \App\Models\ExamAssignment::factory()->create([
@@ -199,23 +205,6 @@ class UpdateScoreRequestTest extends TestCase
         $request->withValidator($validator);
 
         $this->assertFalse($validator->fails());
-    }
-
-    #[Test]
-    public function it_has_correct_error_messages()
-    {
-        $request = new UpdateScoreRequest();
-        $messages = $request->messages();
-
-        $this->assertArrayHasKey('exam_id.required', $messages);
-        $this->assertArrayHasKey('exam_id.exists', $messages);
-        $this->assertArrayHasKey('student_id.required', $messages);
-        $this->assertArrayHasKey('student_id.exists', $messages);
-        $this->assertArrayHasKey('question_id.required', $messages);
-        $this->assertArrayHasKey('question_id.exists', $messages);
-        $this->assertArrayHasKey('score.required', $messages);
-        $this->assertArrayHasKey('score.numeric', $messages);
-        $this->assertArrayHasKey('score.min', $messages);
     }
 
     #[Test]

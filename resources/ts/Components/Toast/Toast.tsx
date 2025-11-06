@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircleIcon, ExclamationCircleIcon, InformationCircleIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { trans } from '@/utils/translations';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -12,6 +11,7 @@ export interface ToastProps {
     autoClose?: boolean;
     duration?: number;
     onClose: (id: string) => void;
+    closeLabel?: string;
 }
 
 const toastConfig = {
@@ -60,7 +60,8 @@ const Toast: React.FC<ToastProps> = ({
     message,
     autoClose = true,
     duration = 5000,
-    onClose
+    onClose,
+    closeLabel = 'Close'
 }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [isLeaving, setIsLeaving] = useState(false);
@@ -130,7 +131,7 @@ const Toast: React.FC<ToastProps> = ({
                             `}
                             onClick={handleClose}
                         >
-                            <span className="sr-only">{trans('components.toast.close')}</span>
+                            <span className="sr-only">{closeLabel}</span>
                             <XMarkIcon className="h-5 w-5" aria-hidden="true" />
                         </button>
                     </div>

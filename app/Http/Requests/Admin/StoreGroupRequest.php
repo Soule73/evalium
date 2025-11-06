@@ -4,16 +4,24 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\Level;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
 class StoreGroupRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     * 
+     * @return bool Returns true if the user is authorized, false otherwise.
+     */
     public function authorize(): bool
     {
-        return Auth::user()->hasRole(['admin', 'super_admin']);
+        return $this->user()->can('create', Level::class);
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
         return [
@@ -23,22 +31,6 @@ class StoreGroupRequest extends FormRequest
             'max_students' => ['required', 'integer', 'min:1', 'max:100'],
             'academic_year' => ['required', 'string', 'max:20'],
             'is_active' => ['boolean'],
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'level_id.required' => 'Le niveau académique est obligatoire.',
-            'level_id.exists' => 'Le niveau académique sélectionné n\'existe pas.',
-            'start_date.required' => 'La date de début est obligatoire.',
-            'start_date.after_or_equal' => 'La date de début ne peut pas être antérieure à aujourd\'hui.',
-            'end_date.required' => 'La date de fin est obligatoire.',
-            'end_date.after' => 'La date de fin doit être postérieure à la date de début.',
-            'max_students.required' => 'Le nombre maximum d\'étudiants est obligatoire.',
-            'max_students.min' => 'Le nombre maximum d\'étudiants doit être d\'au moins 1.',
-            'max_students.max' => 'Le nombre maximum d\'étudiants ne peut pas dépasser 100.',
-            'academic_year.required' => 'L\'année académique est obligatoire.',
         ];
     }
 }

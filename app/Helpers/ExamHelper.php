@@ -59,29 +59,4 @@ class ExamHelper
             return $assignment->started_at === null;
         });
     }
-
-    /**
-     * Determine if a student can take an exam
-     *
-     * @param Exam $exam
-     * @param ExamAssignment|null $assignment
-     * @return bool
-     */
-    public static function canTakeExam(Exam $exam, ?ExamAssignment $assignment): bool
-    {
-        return $assignment &&
-            $assignment->submitted_at === null &&
-            self::isExamActive($exam);
-    }
-
-    /**
-     * Check if exam is currently active (private helper)
-     *
-     * @param Exam $exam
-     * @return bool
-     */
-    private static function isExamActive(Exam $exam): bool
-    {
-        return $exam->is_active;
-    }
 }

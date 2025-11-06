@@ -281,5 +281,60 @@ return [
         'winner'                   => 'gagnant',
         'work'                     => 'travail',
         'year'                     => 'année',
+
+        // Exam specific
+        'duration'                 => 'durée',
+        'questions'                => 'questions',
+        'question_id'              => 'ID de la question',
+        'exam_id'                  => 'ID de l\'examen',
+        'student_id'               => 'ID de l\'étudiant',
+        'score'                    => 'note',
+        'feedback'                 => 'commentaire',
+        'teacher_notes'            => 'notes du professeur',
+        'per_page'                 => 'éléments par page',
+        'answers'                  => 'réponses',
+        'one_choice'               => 'choix unique',
+        'boolean'                  => 'vrai/faux',
+
+        // Group and Level specific
+        'code'                     => 'code',
+        'ordre'                    => 'ordre',
+        'academic_year'            => 'année académique',
+        'start_date'               => 'date de début',
+        'end_date'                 => 'date de fin',
+        'max_students'             => 'nombre maximum d\'étudiants',
+        'level_id'                 => 'niveau académique',
+        'group_id'                 => 'groupe',
+        'scores'                   => 'notes',
+        'student_ids'              => 'étudiants',
+        'is_active'                => 'actif',
+
+        // Role and Permission specific
+        'permissions'              => 'permissions',
+        'permissions.*'            => 'permission',
+        'role_name'                => 'nom du rôle',
+        'permission_name'          => 'nom de la permission',
+
+        'order' => 'ordre',
+    ],
+
+    // Custom validation messages
+    'custom' => [
+        'questions' => [
+            'min_choices' => 'Au moins 2 choix sont requis pour ce type de question.',
+            'min_correct_multiple' => 'Au moins 2 réponses correctes doivent être sélectionnées pour une question à choix multiples.',
+            'exactly_one_correct' => 'Exactement 1 réponse correcte doit être sélectionnée pour une question à :type.',
+        ],
+        'question_id' => [
+            'not_in_exam' => 'Cette question n\'appartient pas à l\'examen spécifié.',
+        ],
+        'score' => [
+            'exceeds_max' => 'Le score ne peut pas dépasser :max points pour cette question.',
+        ],
+        'student_id' => [
+            'not_assigned' => 'Cet étudiant n\'est pas assigné à cet examen.',
+            'no_answer' => 'Cet étudiant n\'a pas répondu à cette question.',
+            'not_student' => 'L\'utilisateur spécifié n\'est pas un étudiant.',
+        ],
     ],
 ];

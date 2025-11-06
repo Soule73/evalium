@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\PermissionHelper;
 use App\Models\User;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -32,8 +31,6 @@ class DashboardController extends Controller
     public function index(Request $request): Response
     {
         try {
-            // $route = $this->dashboardService->getDashboardRoute();
-            // return redirect()->route($route);
 
             /** @var \App\Models\User $user */
             $user = $request->user();
@@ -42,20 +39,21 @@ class DashboardController extends Controller
                 abort(401, __('messages.unauthenticated'));
             }
 
-            if (PermissionHelper::canViewAdminDashboard()) {
+            if ($user->hasRole('admin') || $user->hasRole('super_admin')) {
                 return $this->admin($request, $user);
-            } else if (PermissionHelper::canViewTeacherDashboard()) {
+            } else if ($user->hasRole('teacher')) {
+
                 return $this->teacher($request, $user);
-            } else if (PermissionHelper::canViewStudentDashboard()) {
+            } else if ($user->hasRole('student')) {
+
                 return $this->student($request, $user);
             } else {
+
                 return $this->unified($request, $user);
             }
         } catch (\Exception $e) {
-            Log::error('Error accessing dashboard', [
-                'user_id' => $user?->id,
-                'error' => $e->getMessage()
-            ]);
+            Log::error('Error accessing dashboard', $e->getMessage());
+
             abort(403, __('messages.unauthorized'));
         }
     }
@@ -65,7 +63,6 @@ class DashboardController extends Controller
      */
     public function unified(Request $request, User $user): Response
     {
-
         return Inertia::render('Dashboard/Unified', ['user' => $user]);
     }
 
@@ -86,6 +83,7 @@ class DashboardController extends Controller
         $offset = ($page - 1) * $perPage;
 
         $items = $allAssignments->slice($offset, $perPage)->values();
+
         $total = $allAssignments->count();
 
         $examAssignments = new \Illuminate\Pagination\LengthAwarePaginator(
@@ -113,7 +111,9 @@ class DashboardController extends Controller
     {
 
         $perPage = $request->input('per_page', 10);
+
         $status = $request->input('status');
+
         $search = $request->input('search');
 
         $dashboardData = $this->teacherDashboardService->getDashboardData($user, $perPage, $status, $search);

@@ -33,6 +33,8 @@ return [
     'role_form' => [
         'system_role_badge' => 'System Role',
         'system_role_notice' => 'This is a system role. You can only modify its permissions.',
+        'role_name_label' => 'Role Name',
+        'role_name_placeholder' => 'E.g.: moderator, editor...',
         'create_button' => 'Create Role',
         'creating' => 'Creating...',
         'cancel' => 'Cancel',

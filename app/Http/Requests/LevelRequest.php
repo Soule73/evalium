@@ -2,26 +2,22 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Level;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class LevelRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     * 
+     * @return bool
      */
     public function authorize(): bool
     {
-        $user = Auth::user();
+        $level = $this->route('level');
 
-        // Pour la création (pas de paramètre level dans la route)
-        if (!request()->route('level')) {
-            return $user->can('create levels');
-        }
-
-        // Pour la modification (paramètre level présent dans la route)
-        return $user->can('update levels');
+        return $this->user()->can($level ? 'update' : 'create', $level ?? Level::class);
     }
 
     /**
@@ -49,40 +45,6 @@ class LevelRequest extends FormRequest
             'description' => 'nullable|string|max:1000',
             'order' => 'required|integer|min:0',
             'is_active' => 'boolean',
-        ];
-    }
-
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array<string, string>
-     */
-    public function attributes(): array
-    {
-        return [
-            'name' => 'nom',
-            'code' => 'code',
-            'description' => 'description',
-            'order' => 'ordre',
-            'is_active' => 'statut',
-        ];
-    }
-
-    /**
-     * Get custom messages for validator errors.
-     *
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'name.required' => 'Le nom du niveau est obligatoire.',
-            'name.unique' => 'Ce nom de niveau existe déjà.',
-            'code.required' => 'Le code du niveau est obligatoire.',
-            'code.unique' => 'Ce code de niveau existe déjà.',
-            'order.required' => "L'ordre est obligatoire.",
-            'order.integer' => "L'ordre doit être un nombre entier.",
-            'order.min' => "L'ordre doit être supérieur ou égal à 0.",
         ];
     }
 }

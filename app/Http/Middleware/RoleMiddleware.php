@@ -26,14 +26,14 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         if (!Auth::check()) {
-            abort(401, 'Non autorisé');
+            abort(401, __('messages.unauthenticated'));
         }
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if (!$user->hasAnyRole($roles)) {
-            abort(403, "Accès refusé. Vous n'avez pas les permissions nécessaires.");
+            abort(403, __('messages.operation_failed'));
         }
 
         return $next($request);

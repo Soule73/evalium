@@ -78,7 +78,7 @@ export default function PermissionSelector({
                                     className="p-2 hover:bg-gray-50 rounded transition-colors"
                                 >
                                     <Checkbox
-                                        label={permission.name}
+                                        label={trans(`permissions.${permission.name}`)}
                                         checked={selectedPermissions.includes(permission.id)}
                                         onChange={() => onPermissionToggle(permission.id)}
                                     />

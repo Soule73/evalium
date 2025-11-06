@@ -29,16 +29,15 @@ interface Props extends PageProps {
     roles: string[];
     groups: Group[];
     canManageAdmins: boolean;
-    canDeleteUsers: boolean;
 }
 
-export default function UserIndex({ users, roles, groups, canDeleteUsers }: Props) {
+export default function UserIndex({ users, roles, groups }: Props) {
     const { auth } = usePage<PageProps>().props;
 
-    // Vérifications des permissions
     const canCreateUsers = hasPermission(auth.permissions, 'create users');
     const canUpdateUsers = hasPermission(auth.permissions, 'update users');
-    const canToggleUserStatus = hasPermission(auth.permissions, 'toggle user status');
+    const canToggleUserStatus = hasPermission(auth.permissions, 'update users');
+    const canDeleteUsers = hasPermission(auth.permissions, 'delete users');
 
     const [isShowCreateModal, setIsShowCreateModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; userId: number | null; userName: string }>({

@@ -27,8 +27,8 @@ class ExamQueryService
      * @param string|null $search
      * @return LengthAwarePaginator
      */
-    public function getExamsForTeacher(
-        int $teacherId,
+    public function getExams(
+        ?int $teacherId,
         int $perPage = 10,
         ?bool $status = null,
         ?string $search = null
@@ -36,10 +36,10 @@ class ExamQueryService
         $query = Exam::query();
 
         /** @var \App\Models\User $currentUser */
-        $currentUser = Auth::user();
+        // $currentUser = Auth::user();
 
         // If user can view any exams (admin), don't filter by teacher
-        if (!$currentUser?->can('view any exams')) {
+        if ($teacherId) {
             $query->where('teacher_id', $teacherId);
         }
 

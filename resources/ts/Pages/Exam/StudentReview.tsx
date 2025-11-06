@@ -28,7 +28,7 @@ interface Props {
 
 const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAnswers, group }) => {
     const { auth } = usePage<PageProps>().props;
-    const canGradeExams = hasPermission(auth.permissions, 'grade exams');
+    const canGradeExams = hasPermission(auth.permissions, 'correct exams');
 
     const {
         assignmentStatus,

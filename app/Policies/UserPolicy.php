@@ -72,11 +72,8 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        if ($user->id === $model->id) {
-            return true;
-        }
 
-        return $user->can('update users');
+        return $user->can('update users') || $user->id === $model->id;
     }
 
     /**
@@ -157,7 +154,7 @@ class UserPolicy
      */
     public function manageTeachers(User $user): bool
     {
-        return $user->can('manage teachers');
+        return $user->can('update users');
     }
 
     /**
@@ -171,7 +168,7 @@ class UserPolicy
      */
     public function manageAdmins(User $user): bool
     {
-        return $user->can('manage admins');
+        return $user->can('update users');
     }
 
     /**
@@ -190,6 +187,50 @@ class UserPolicy
             return false;
         }
 
-        return $user->can('toggle user status');
+        return $user->can('update users');
+    }
+
+    /**
+     * Determine whether the given user is a student.
+     *
+     * @param User $user The user instance to check.
+     * @return bool True if the user is a student, false otherwise.
+     */
+    public function isStudent(User $user): bool
+    {
+        return $user->hasRole('student');
+    }
+
+    /**
+     * Determine whether the given user is a teacher.
+     *
+     * @param User $user The user instance to check.
+     * @return bool True if the user is a teacher, false otherwise.
+     */
+    public function isTeacher(User $user): bool
+    {
+        return $user->hasRole('teacher');
+    }
+
+    /**
+     * Determine whether the given user is an admin.
+     *
+     * @param User $user The user instance to check.
+     * @return bool True if the user is an admin, false otherwise.
+     */
+    public function isAdmin(User $user): bool
+    {
+        return $user->hasRole('admin');
+    }
+
+    /**
+     * Determine whether the given user is a super admin.
+     *
+     * @param User $user The user instance to check.
+     * @return bool True if the user is a super admin, false otherwise.
+     */
+    public function isSuperAdmin(User $user): bool
+    {
+        return $user->hasRole('super_admin');
     }
 }

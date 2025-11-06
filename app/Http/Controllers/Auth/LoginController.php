@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Helpers\PermissionHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -70,7 +69,7 @@ class LoginController extends Controller
 
             RateLimiter::clear($this->throttleKey($request));
 
-            return redirect()->intended(PermissionHelper::getDashboardRoute());
+            return redirect()->intended($this->getDashboardRoute());
         }
 
         RateLimiter::hit($this->throttleKey($request));
@@ -170,5 +169,37 @@ class LoginController extends Controller
     public function throttleKey(Request $request)
     {
         return Str::transliterate(Str::lower($request->input('email')) . '|' . $request->ip());
+    }
+
+
+    public static function getDashboardRoute(): string
+    {
+        $type = self::getUserDashboardType();
+
+        return match ($type) {
+            'admin' => route('dashboard'),
+            'teacher' => route('dashboard'),
+            'student' => route('dashboard'),
+            default => route('dashboard')
+        };
+    }
+
+    public static function getUserDashboardType(): ?string
+    {
+        if (!Auth::check()) {
+            return null;
+        }
+
+        $user = Auth::user();
+
+        if ($user->hasRole('admin') || $user->hasRole('super_admin')) {
+            return 'admin';
+        } elseif ($user->hasRole('teacher')) {
+            return 'teacher';
+        } elseif ($user->hasRole('student')) {
+            return 'student';
+        }
+
+        return null;
     }
 }

@@ -17,24 +17,7 @@ use App\Http\Requests\Exam\UpdateExamRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Log;
 
-/**
- * Exam Controller - Unified controller for exam management (NON-STUDENTS)
- * 
- * ARCHITECTURE:
- * - Student/ExamController: Strict student-only actions (take, submit, abandon)
- * - ExamController (this file): All other permission-based actions
- * 
- * Permissions are verified by MIDDLEWARE in routes/web.php
- * No need to re-verify in controller (no duplication)
- * 
- * POLICIES verify access at model level (ownership, etc.)
- * 
- * Responsibilities:
- * - Delegate all business logic to services (ExamCrudService, ExamQueryService)
- * - Handle HTTP request/response cycle
- * - Authorize actions via policies
- * - Return Inertia responses with proper data structure
- */
+
 class ExamController extends Controller
 {
     use AuthorizesRequests, HasFlashMessages;
@@ -47,20 +30,18 @@ class ExamController extends Controller
 
     /**
      * Display list of exams - Adapted based on user permissions
-     * 
-     * Middleware already verifies 'view exams' permission.
-     * Policy verifies model-level access.
      *
      * @param Request $request The HTTP request
      * @return Response Inertia response with paginated exams
      */
     public function index(Request $request): Response
     {
-        /** @var \App\Models\User $user */
-        $user = $request->user();
+        $this->authorize('viewAny', Exam::class);
+
         $perPage = $request->input('per_page', 10);
 
         $status = null;
+
         if ($request->has('status') && $request->input('status') !== '') {
             $status = $request->input('status') === '1' ? true : false;
         }
@@ -69,7 +50,7 @@ class ExamController extends Controller
 
         $this->authorize('viewAny', Exam::class);
 
-        $exams = $this->examQueryService->getExamsForTeacher($user->id, $perPage, $status, $search);
+        $exams = $this->examQueryService->getExams(null, $perPage, $status, $search);
 
         return Inertia::render('Exam/Index', [
             'exams' => $exams
@@ -91,17 +72,11 @@ class ExamController extends Controller
     /**
      * Store a newly created exam in storage
      *
-     * Delegates exam creation to ExamCrudService which handles:
-     * - Exam model creation
-     * - Questions creation with choices
-     * - Database transaction management
-     *
      * @param StoreExamRequest $request Validated request with exam data
      * @return RedirectResponse Redirects to exam show page on success
      */
     public function store(StoreExamRequest $request): RedirectResponse
     {
-        $this->authorize('create', Exam::class);
 
         try {
             $exam = $this->examCrudService->create($request->validated());
@@ -112,7 +87,9 @@ class ExamController extends Controller
                 ['exam' => $exam->id]
             );
         } catch (\Exception $e) {
-            Log::error('Error creating exam', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+
+            Log::error('Error creating exam', $e->getMessage());
+
             return $this->redirectWithError(
                 null,
                 __('messages.operation_failed')
@@ -122,9 +99,6 @@ class ExamController extends Controller
 
     /**
      * Display the specified exam details
-     *
-     * Loads exam with assigned groups for display.
-     * Uses ExamQueryService to prepare data structure.
      *
      * @param Exam $exam The exam instance to display
      * @return Response Inertia response with exam details
@@ -160,20 +134,15 @@ class ExamController extends Controller
     /**
      * Update the specified exam in storage
      *
-     * Delegates update logic to ExamCrudService which handles:
-     * - Exam model update
-     * - Questions and choices update/creation/deletion
-     * - Database transaction management
-     *
      * @param UpdateExamRequest $request Validated request with update data
      * @param Exam $exam The exam instance to update
      * @return RedirectResponse Redirects to exam show page on success
      */
     public function update(UpdateExamRequest $request, Exam $exam): RedirectResponse
     {
-        $this->authorize('update', $exam);
 
         try {
+
             $exam = $this->examCrudService->update($exam, $request->validated());
 
             return $this->redirectWithSuccess(
@@ -182,7 +151,9 @@ class ExamController extends Controller
                 ['exam' => $exam->id]
             );
         } catch (\Exception $e) {
-            Log::error('Error updating exam', ['exam_id' => $exam->id, 'error' => $e->getMessage()]);
+
+            Log::error('Error updating exam', $e->getMessage());
+
             return $this->redirectWithError(
                 null,
                 __('messages.operation_failed')
@@ -192,11 +163,6 @@ class ExamController extends Controller
 
     /**
      * Remove the specified exam from storage
-     *
-     * Delegates deletion to ExamCrudService which handles:
-     * - Cascade deletion of questions, choices, answers
-     * - Deletion of exam assignments
-     * - Database transaction management
      *
      * @param Exam $exam The exam instance to be deleted
      * @return RedirectResponse Redirects to exams index on success
@@ -213,7 +179,9 @@ class ExamController extends Controller
                 __('messages.exam_deleted')
             );
         } catch (\Exception $e) {
-            Log::error('Error deleting exam', ['exam_id' => $exam->id, 'error' => $e->getMessage()]);
+
+            Log::error('Error deleting exam', $e->getMessage());
+
             return $this->redirectWithError(
                 null,
                 __('messages.operation_failed')
@@ -224,17 +192,12 @@ class ExamController extends Controller
     /**
      * Duplicate the specified exam
      *
-     * Creates a complete copy of the exam including:
-     * - All questions with their choices
-     * - Marks new exam as inactive by default
-     * - Appends " (Copy)" to title
-     *
      * @param Exam $exam The exam to be duplicated
      * @return RedirectResponse Redirects to edit page of new exam
      */
     public function duplicate(Exam $exam): RedirectResponse
     {
-        $this->authorize('view', $exam);
+        $this->authorize('duplicate', $exam);
 
         try {
             $newExam = $this->examCrudService->duplicate($exam);
@@ -245,7 +208,9 @@ class ExamController extends Controller
                 ['exam' => $newExam->id]
             );
         } catch (\Exception $e) {
-            Log::error('Error duplicating exam', ['exam_id' => $exam->id, 'error' => $e->getMessage()]);
+
+            Log::error('Error duplicating exam', $e->getMessage());
+
             return $this->redirectWithError(
                 null,
                 __('messages.operation_failed')
@@ -273,7 +238,9 @@ class ExamController extends Controller
 
             return $this->flashSuccess(__($messageKey));
         } catch (\Exception $e) {
-            Log::error('Error changing exam status', ['exam_id' => $exam->id, 'error' => $e->getMessage()]);
+
+            Log::error('Error changing exam status', $e->getMessage());
+
             return $this->flashError(__('messages.operation_failed'));
         }
     }

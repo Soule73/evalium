@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Exam;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Handles validation logic for saving student reviews by a teacher.
@@ -21,23 +20,15 @@ class SaveStudentReviewRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $user = Auth::user();
-        if (!$user || !$user->hasRole('teacher')) {
-            return false;
-        }
+        $exam = $this->route('exam');
 
-        $exam = request()->route()->parameter('exam');
-        if ($exam) {
-            return $exam->teacher_id === $user->id;
-        }
-
-        return true;
+        return $this->user()->can('review', $exam);
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array The array of validation rules.
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -71,30 +62,6 @@ class SaveStudentReviewRequest extends FormRequest
     }
 
     /**
-     * Get the custom validation messages for the request.
-     *
-     * @return array An associative array of custom error messages.
-     */
-    public function messages(): array
-    {
-        return [
-            'scores.required' => 'Les notes sont requis.',
-            'scores.array' => 'Les notes doivent être fournis sous forme de tableau.',
-            'scores.min' => 'Au moins une note doit être fournie.',
-            'scores.*.question_id.required' => 'L\'ID de la question est requis.',
-            'scores.*.question_id.integer' => 'L\'ID de la question doit être un entier.',
-            'scores.*.question_id.exists' => 'La question spécifiée n\'existe pas.',
-            'scores.*.score.required' => 'La note est requise.',
-            'scores.*.score.numeric' => 'La note doit être un nombre.',
-            'scores.*.score.min' => 'La note ne peut pas être négatif.',
-            'scores.*.feedback.string' => 'Le commentaire doit être du texte.',
-            'scores.*.feedback.max' => 'Le commentaire ne peut pas dépasser 1000 caractères.',
-            'teacher_notes.string' => 'Les notes du professeur doivent être du texte.',
-            'teacher_notes.max' => 'Les notes du professeur ne peuvent pas dépasser 2000 caractères.'
-        ];
-    }
-
-    /**
      * Configure additional validation logic after the initial validation rules.
      *
      * This method allows you to add custom validation logic or modify the validator instance
@@ -123,13 +90,13 @@ class SaveStudentReviewRequest extends FormRequest
                 if (!$question) {
                     $validator->errors()->add(
                         "scores.{$index}.question_id",
-                        "Cette question n'appartient pas à l'examen spécifié."
+                        __('validation.custom.question_id.not_in_exam')
                     );
                 } else {
                     if ($scoreData['score'] > $question->points) {
                         $validator->errors()->add(
                             "scores.{$index}.score",
-                            "La note ne peut pas dépasser {$question->points} points pour cette question."
+                            __('validation.custom.score.exceeds_max', ['max' => $question->points])
                         );
                     }
                 }

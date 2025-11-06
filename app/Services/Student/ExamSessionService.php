@@ -23,6 +23,7 @@ class ExamSessionService
         private readonly AnswerFormatterService $answerFormatter
     ) {}
 
+
     /**
      * Find existing or create new exam assignment for a student.
      *
@@ -225,27 +226,5 @@ class ExamSessionService
 
             $this->saveSingleAnswer($assignment, $question, $answer);
         }
-    }
-
-    /**
-     * Validate if exam is accessible based on timing constraints.
-     * 
-     * Returns true if:
-     * - Exam has no time constraints, OR
-     * - Current time is between start_time and end_time
-     *
-     * @param Exam $exam The exam to validate
-     * @param Carbon|null $now Reference datetime (null = now)
-     * @return bool True if exam is currently accessible
-     */
-    public function validateExamTiming(Exam $exam, ?Carbon $now = null): bool
-    {
-        $now = $now ?? Carbon::now();
-
-        if (!$exam->start_time || !$exam->end_time) {
-            return true;
-        }
-
-        return $now->between($exam->start_time, $exam->end_time);
     }
 }

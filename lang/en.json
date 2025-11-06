@@ -225,5 +225,17 @@
     "Web Server is Down": "Web Server is Down",
     "Whoops!": "Whoops!",
     "Yes": "Yes",
-    "You are receiving this email because we received a password reset request for your account.": "You are receiving this email because we received a password reset request for your account."
+    "You are receiving this email because we received a password reset request for your account.": "You are receiving this email because we received a password reset request for your account.",
+    "Your Login Credentials - Examena": "Your Login Credentials - Examena",
+    "Hello :name,": "Hello :name,",
+    "Your :role account has been successfully created on the Examena platform.": "Your :role account has been successfully created on the Examena platform.",
+    "Here are your login credentials:": "Here are your login credentials:",
+    "Email:": "Email:",
+    "Temporary Password:": "Temporary Password:",
+    "For security reasons, we recommend changing your password after your first login.": "For security reasons, we recommend changing your password after your first login.",
+    "If you did not request this account, please contact the administrator.": "If you did not request this account, please contact the administrator.",
+    "student": "student",
+    "teacher": "teacher",
+    "admin": "administrator",
+    "super_admin": "super administrator"
 }

@@ -21,8 +21,7 @@ interface Props {
 export default function AssignStudents({ group, availableStudents }: Props) {
     const { auth } = usePage<PageProps>().props;
 
-    // Vérification des permissions
-    const canManageGroupStudents = hasPermission(auth.permissions, 'manage group students');
+    const canManageGroupStudents = hasPermission(auth.permissions, 'manage students');
 
     const [selectedStudents, setSelectedStudents] = useState<(number | string)[]>([]);
     const [confirmModal, setConfirmModal] = useState(false);

@@ -38,22 +38,4 @@ class LoginRequest extends FormRequest
             'remember' => ['sometimes', 'boolean'],
         ];
     }
-
-    /**
-     * Get the custom validation messages for the login request.
-     *
-     * This method returns an associative array where the keys are the validation rule names
-     * and the values are the corresponding custom error messages. These messages will be used
-     * by the validator when validation fails for the login request.
-     *
-     * @return array<string, string> The array of custom validation messages.
-     */
-    public function messages(): array
-    {
-        return [
-            'email.required' => "L'adresse e-mail est obligatoire.",
-            'email.email' => "L'adresse e-mail n'est pas valide.",
-            'password.required' => "Le mot de passe est obligatoire.",
-        ];
-    }
 }

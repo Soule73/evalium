@@ -23,23 +23,17 @@ class UpdateScoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $user = Auth::user();
-        if (!$user || !$user->hasRole('teacher')) {
-            return false;
-        }
 
-        $exam = request()->route()->parameter('exam');
-        if ($exam) {
-            return $exam->teacher_id === $user->id;
-        }
 
-        return true;
+        $exam = $this->route('exam');
+
+        return $this->user()->can('review', $exam);
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array The array of validation rules for updating a teacher's score.
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -75,28 +69,6 @@ class UpdateScoreRequest extends FormRequest
     }
 
     /**
-     * Get the custom validation messages for the request.
-     *
-     * @return array An associative array of custom error messages.
-     */
-    public function messages(): array
-    {
-        return [
-            'exam_id.required' => "L'ID de l'examen est requis.",
-            'exam_id.exists' => "L'examen spécifié n'existe pas.",
-            'student_id.required' => "L'ID de l'étudiant est requis.",
-            'student_id.exists' => "L'étudiant spécifié n'existe pas.",
-            'question_id.required' => "L'ID de la question est requis.",
-            'question_id.exists' => "La question spécifiée n'existe pas.",
-            'score.required' => "La note est requise.",
-            'score.numeric' => "La note doit être un nombre.",
-            'score.min' => "La note ne peut pas être négatif.",
-            'feedback.string' => "Le commentaire doit être du texte.",
-            'feedback.max' => "Le commentaire ne peut pas dépasser 1000 caractères."
-        ];
-    }
-
-    /**
      * Configure additional validation logic after the initial validation rules have been applied.
      *
      * This method allows for custom validation to be performed using the provided validator instance.
@@ -117,13 +89,13 @@ class UpdateScoreRequest extends FormRequest
                 if (!$question) {
                     $validator->errors()->add(
                         'question_id',
-                        "Cette question n'appartient pas à l'examen spécifié."
+                        __('validation.custom.question_id.not_in_exam')
                     );
                 } else {
                     if (isset($data['score']) && $data['score'] > $question->points) {
                         $validator->errors()->add(
                             'score',
-                            "Le score ne peut pas dépasser {$question->points} points pour cette question."
+                            __('validation.custom.score.exceeds_max', ['max' => $question->points])
                         );
                     }
                 }
@@ -137,7 +109,7 @@ class UpdateScoreRequest extends FormRequest
                 if (!$assignment) {
                     $validator->errors()->add(
                         'student_id',
-                        "Cet étudiant n'est pas assigné à cet examen."
+                        __('validation.custom.student_id.not_assigned')
                     );
                 } else {
                     $answer = \App\Models\Answer::where('assignment_id', $assignment->id)
@@ -147,7 +119,7 @@ class UpdateScoreRequest extends FormRequest
                     if (!$answer) {
                         $validator->errors()->add(
                             'student_id',
-                            "Cet étudiant n'a pas répondu à cette question."
+                            __('validation.custom.student_id.no_answer')
                         );
                     }
                 }
@@ -158,7 +130,7 @@ class UpdateScoreRequest extends FormRequest
                 if (!$student || !$student->hasRole('student')) {
                     $validator->errors()->add(
                         'student_id',
-                        "L'utilisateur spécifié n'est pas un étudiant."
+                        __('validation.custom.student_id.not_student')
                     );
                 }
             }

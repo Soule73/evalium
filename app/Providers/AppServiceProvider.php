@@ -27,8 +27,6 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Exam::class => \App\Policies\ExamPolicy::class,
         \App\Models\Group::class => \App\Policies\GroupPolicy::class,
         \App\Models\Level::class => \App\Policies\LevelPolicy::class,
-        \App\Models\Question::class => \App\Policies\QuestionPolicy::class,
-        \App\Models\Answer::class => \App\Policies\AnswerPolicy::class,
         \App\Models\ExamAssignment::class => \App\Policies\ExamAssignmentPolicy::class,
     ];
 
@@ -83,8 +81,6 @@ class AppServiceProvider extends ServiceProvider
                         'canManageUsers' => false,
                         'canManageGroups' => false,
                         'canManageExams' => false,
-                        'canViewReports' => false,
-                        'canExportReports' => false,
                     ];
                 }
 
@@ -97,38 +93,31 @@ class AppServiceProvider extends ServiceProvider
                     'canManageGroups' => $user->can('view groups'),
                     'canManageExams' => $user->can('view exams'),
 
-                    // Feature permissions
-                    'canViewReports' => $user->can('view reports'),
-                    'canExportReports' => $user->can('export reports'),
+                    // Feature permissions - Exams
                     'canCreateExams' => $user->can('create exams'),
-                    'canPublishExams' => $user->can('publish exams'),
                     'canAssignExams' => $user->can('assign exams'),
                     'canCorrectExams' => $user->can('correct exams'),
-                    'canGradeAnswers' => $user->can('grade answers'),
 
-                    // User management
+                    // Feature permissions - Users
                     'canCreateUsers' => $user->can('create users'),
                     'canUpdateUsers' => $user->can('update users'),
                     'canDeleteUsers' => $user->can('delete users'),
                     'canManageStudents' => $user->can('manage students'),
-                    'canManageTeachers' => $user->can('manage teachers'),
 
-                    // Group management
+                    // Feature permissions - Groups
                     'canCreateGroups' => $user->can('create groups'),
                     'canUpdateGroups' => $user->can('update groups'),
                     'canDeleteGroups' => $user->can('delete groups'),
-                    'canManageGroupStudents' => $user->can('manage group students'),
 
-                    // Level management
+                    // Feature permissions - Levels
                     'canCreateLevels' => $user->can('create levels'),
                     'canUpdateLevels' => $user->can('update levels'),
                     'canDeleteLevels' => $user->can('delete levels'),
 
-                    // Role management
+                    // Feature permissions - Roles
                     'canCreateRoles' => $user->can('create roles'),
                     'canUpdateRoles' => $user->can('update roles'),
                     'canDeleteRoles' => $user->can('delete roles'),
-                    'canAssignPermissions' => $user->can('assign permissions'),
                 ];
             }
         ]);

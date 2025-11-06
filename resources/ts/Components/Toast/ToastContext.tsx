@@ -17,6 +17,7 @@ export interface ToastData {
     autoClose?: boolean;
     duration?: number;
     position?: ToastPosition;
+    closeLabel?: string;
 }
 
 interface ToastState {

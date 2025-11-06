@@ -16,9 +16,9 @@ class RoleAndPermissionSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Créer toutes les permissions pour tous les models
+        // Core permissions - Clean and organized
         $permissions = [
-            // User permissions
+            // User Management
             'view users',
             'create users',
             'update users',
@@ -26,11 +26,8 @@ class RoleAndPermissionSeeder extends Seeder
             'restore users',
             'force delete users',
             'manage students',
-            'manage teachers',
-            'manage admins',
-            'toggle user status',
 
-            // Exam permissions
+            // Exam Management
             'view exams',
             'view any exams',
             'create exams',
@@ -38,77 +35,40 @@ class RoleAndPermissionSeeder extends Seeder
             'delete exams',
             'restore exams',
             'force delete exams',
-            'publish exams',
             'assign exams',
             'correct exams',
-            'grade exams',
             'view exam results',
 
-            // Question permissions
-            'view questions',
-            'create questions',
-            'update questions',
-            'delete questions',
-
-            // Answer permissions
-            'view answers',
-            'create answers',
-            'update answers',
-            'delete answers',
-            'grade answers',
-
-            // ExamAssignment permissions
-            'view assignments',
-            'create assignments',
-            'update assignments',
-            'delete assignments',
-            'submit assignments',
-            'grade assignments',
-
-            // Group permissions
+            // Group Management
             'view groups',
             'create groups',
             'update groups',
             'delete groups',
-            'manage group students',
-            'assign group exams',
-            'toggle group status',
 
-            // Level permissions
+            // Level Management
             'view levels',
             'create levels',
             'update levels',
             'delete levels',
 
-            // Role & Permission management
+            // Role & Permission Management
             'view roles',
             'create roles',
             'update roles',
             'delete roles',
-            'assign permissions',
-            'view permissions',
-            'create permissions',
-            'delete permissions',
-
-            // Dashboard & Reports
-            'view admin dashboard',
-            'view teacher dashboard',
-            'view student dashboard',
-            'view reports',
-            'export reports',
         ];
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Créer les rôles et assigner les permissions
+        // Create roles and assign permissions
 
-        // Rôle Super Admin - Toutes les permissions
+        // Super Admin Role - All permissions
         $superAdminRole = Role::firstOrCreate(['name' => 'super_admin']);
         $superAdminRole->syncPermissions(Permission::all());
 
-        // Rôle Admin - Gestion des utilisateurs, groupes, niveaux
+        // Admin Role - User, Group, Level, and Role management
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $adminRole->syncPermissions([
             // Users
@@ -117,8 +77,6 @@ class RoleAndPermissionSeeder extends Seeder
             'update users',
             'delete users',
             'manage students',
-            'manage teachers',
-            'toggle user status',
 
             // Exams (view only)
             'view exams',
@@ -130,9 +88,6 @@ class RoleAndPermissionSeeder extends Seeder
             'create groups',
             'update groups',
             'delete groups',
-            'manage group students',
-            'assign group exams',
-            'toggle group status',
 
             // Levels
             'view levels',
@@ -145,72 +100,28 @@ class RoleAndPermissionSeeder extends Seeder
             'create roles',
             'update roles',
             'delete roles',
-
-            // Assignments
-            'view assignments',
-
-            // Dashboard
-            'view admin dashboard',
-            'view reports',
         ]);
 
-        // Rôle Teacher - Gestion des examens et corrections
+        // Teacher Role - Exam creation, assignment and correction
         $teacherRole = Role::firstOrCreate(['name' => 'teacher']);
         $teacherRole->syncPermissions([
-            // Exams (own exams only - NOT 'view any exams')
+            // Exams (own exams only)
             'view exams',
             'create exams',
             'update exams',
             'delete exams',
-            'publish exams',
             'assign exams',
-            'assign group exams', // Permission pour assigner aux groupes
             'correct exams',
-            'grade exams',
             'view exam results',
-
-            // Questions
-            'view questions',
-            'create questions',
-            'update questions',
-            'delete questions',
-
-            // Assignments
-            'view assignments',
-            'create assignments',
-            'update assignments',
-            'grade assignments',
-
-            // Answers
-            'view answers',
-            'grade answers',
 
             // Groups (view only)
             'view groups',
-
-            // Dashboard
-            'view teacher dashboard',
-            'view reports',
-            'export reports',
         ]);
 
-        // Rôle Student - Passage d'examens uniquement
+        // Student Role - Exam taking only
         $studentRole = Role::firstOrCreate(['name' => 'student']);
         $studentRole->syncPermissions([
-            // Exams (assigned only)
             'view exams',
-
-            // Assignments
-            'view assignments',
-            'submit assignments',
-
-            // Answers
-            'view answers',
-            'create answers',
-            'update answers',
-
-            // Dashboard
-            'view student dashboard',
         ]);
 
         $this->command->info('All roles and permissions created successfully!');

@@ -2,13 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
 class LocaleController extends Controller
 {
+    use HasFlashMessages;
+
     /**
      * Update the user's locale preference.
+     * 
+     * - Store locale in session
+     * - If user is authenticated, we could also store it in the database
+     * 
+     * @param Request $request The HTTP request containing the locale data.
+     * @return \Illuminate\Http\RedirectResponse Redirects back with a success message.
      */
     public function update(Request $request)
     {
@@ -18,16 +27,14 @@ class LocaleController extends Controller
 
         $locale = $request->input('locale');
 
-        // Store locale in session
         Session::put('locale', $locale);
 
-        // If user is authenticated, we could also store it in the database
         if ($request->user()) {
             $request->user()->update([
                 'locale' => $locale
             ]);
         }
 
-        return back()->with('success', __('messages.locale_updated'));
+        return $this->flashInfo(__('messages.locale_updated'));
     }
 }
