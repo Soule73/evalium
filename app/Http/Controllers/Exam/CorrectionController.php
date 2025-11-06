@@ -61,7 +61,7 @@ class CorrectionController extends Controller
             $result = $this->examScoringService->saveManualCorrection($exam, $student, $request->validated());
 
             $message = __('messages.scores_saved', [
-                'updated_answers' => $result['updated_answers'],
+                'updated_answers' => $result['updated_count'],
                 'total_score' => $result['total_score']
             ]);
 
@@ -72,7 +72,12 @@ class CorrectionController extends Controller
             );
         } catch (\Exception $e) {
 
-            Log::error('Error saving correction', $e->getMessage());
+            Log::error('Error saving correction', [
+                'message' => $e->getMessage(),
+                'exam' => $exam->id,
+                'student' => $student->id,
+                'group' => $group->id
+            ]);
 
             return $this->redirectWithError(
                 'exams.review',
@@ -115,7 +120,11 @@ class CorrectionController extends Controller
                 'message' => __('messages.score_updated')
             ]);
         } catch (\Exception $e) {
-            Log::error('Error updating score', $e->getMessage());
+            Log::error('Error updating score', [
+                'message' => $e->getMessage(),
+                'exam' => $request->input('exam_id'),
+                'question' => $request->input('question_id')
+            ]);
 
             return response()->json([
                 'success' => false,

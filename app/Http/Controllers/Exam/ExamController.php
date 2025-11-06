@@ -107,9 +107,15 @@ class ExamController extends Controller
     {
         $this->authorize('view', $exam);
 
-        $data = $this->examQueryService->getExamForDisplay($exam, $this->examGroupService);
+        $exam->loadMissing(['questions.choices']);
+        $exam->setAttribute('questions_count', $exam->questions->count());
 
-        return Inertia::render('Exam/Show', $data);
+        $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
+
+        return Inertia::render('Exam/Show', [
+            'exam' => $exam,
+            'assignedGroups' => $assignedGroups
+        ]);
     }
 
     /**
@@ -124,7 +130,7 @@ class ExamController extends Controller
     {
         $this->authorize('update', $exam);
 
-        $exam = $this->examQueryService->getExamForEdit($exam);
+        $exam->loadMissing(['questions.choices']);
 
         return Inertia::render('Exam/Edit', [
             'exam' => $exam

@@ -12,6 +12,8 @@ use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\RedirectResponse;
 use App\Services\Exam\ExamGroupService;
 use App\Services\Exam\ExamAssignmentService;
+use App\Services\Core\ExamStatsService;
+use App\Repositories\AssignmentRepository;
 use App\Http\Requests\Exam\AssignToGroupsRequest;
 use App\Http\Requests\Exam\GetExamResultsRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -23,7 +25,9 @@ class AssignmentController extends Controller
 
     public function __construct(
         private ExamGroupService $examGroupService,
-        private ExamAssignmentService $examAssignmentService
+        private ExamAssignmentService $examAssignmentService,
+        private ExamStatsService $examStatsService,
+        private AssignmentRepository $assignmentRepository
     ) {}
 
     /**
@@ -59,9 +63,22 @@ class AssignmentController extends Controller
 
         $params = $request->validatedWithDefaults();
 
-        $data = $this->examAssignmentService->getPaginatedAssignments($exam, $params);
+        $assignments = $this->assignmentRepository->getPaginatedAssignments(
+            $exam,
+            $params['per_page'] ?? 10,
+            $params['search'] ?? null,
+            $params['status'] ?? null
+        );
 
-        return Inertia::render('Exam/Assignments', $data);
+        $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
+
+        $stats = $this->examStatsService->calculateExamStatsWithGroups($exam, $assignedGroups);
+
+        return Inertia::render('Exam/Assignments', [
+            'assignments' => $assignments,
+            'stats' => $stats,
+            'assignedGroups' => $assignedGroups
+        ]);
     }
 
     /**
@@ -121,22 +138,37 @@ class AssignmentController extends Controller
     {
         $this->authorize('view', $exam);
 
-        $exam->load('questions');
+        $exam->loadMissing('questions');
+        $group->loadMissing('level');
 
-        $params = [
-            'per_page' => $request->input('per_page', 10),
-            'filter_status' => $request->input('filter_status'),
-            'search' => $request->input('search'),
-            'page' => $request->input('page', 1),
-        ];
+        $perPage = $request->input('per_page', 10);
+        $filterStatus = $request->input('filter_status');
+        $search = $request->input('search');
 
-        $data = $this->examGroupService->getGroupDetailsWithAssignments($exam, $group, $params);
+        $assignmentsQuery = $exam->assignments()
+            ->whereHas('student.groups', fn($q) => $q->where('groups.id', $group->id))
+            ->with('student');
+
+        if ($search) {
+            $assignmentsQuery->whereHas('student', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($filterStatus) {
+            $assignmentsQuery->where('status', $filterStatus);
+        }
+
+        $assignments = $assignmentsQuery->paginate($perPage)->withQueryString();
+
+        $stats = $this->examStatsService->calculateGroupStats($exam, $group);
 
         return Inertia::render('Exam/GroupDetails', [
             'exam' => $exam,
             'group' => $group,
-            'assignments' => $data['assignments'],
-            'stats' => $data['stats']
+            'assignments' => $assignments,
+            'stats' => $stats
         ]);
     }
 }
