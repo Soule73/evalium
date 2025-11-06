@@ -8,13 +8,13 @@ use Tests\TestCase;
 use App\Services\Admin\RoleService;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Traits\InteractsWithTestData;
 
 class RolePermissionServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, InteractsWithTestData;
 
     private RoleService $service;
 
@@ -198,14 +198,16 @@ class RolePermissionServiceTest extends TestCase
     #[Test]
     public function it_cannot_delete_role_assigned_to_users(): void
     {
-        $role = Role::create(['name' => 'assigned_role']);
-        $user = User::factory()->create();
-        $user->assignRole($role);
+        $assignedRole = Role::create(['name' => 'assigned_role']);
+        $studentRole = Role::create(['name' => 'student']);
+
+        $user = $this->createStudent();
+        $user->assignRole($assignedRole);
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage(__('messages.role_cannot_delete_assigned'));
 
-        $this->service->deleteRole($role);
+        $this->service->deleteRole($assignedRole);
 
         $this->assertDatabaseHas('roles', ['name' => 'assigned_role']);
     }
