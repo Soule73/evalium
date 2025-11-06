@@ -19,65 +19,78 @@ class ExamScoringService
     ) {}
 
     /**
-     * Save manual corrections from a teacher.
+     * Save manual corrections from a teacher (unified method).
      * 
-     * Updates answer scores and feedback for multiple questions in a transaction.
+     * Supports multiple input formats:
+     * - Array of scores: [questionId => ['score' => X, 'feedback' => Y]]
+     * - Array of scores: [questionId => scoreValue]
+     * - Batch format: ['scores' => [['question_id' => X, 'score' => Y, 'feedback' => Z]]]
+     * - Single format: ['question_id' => X, 'score' => Y, 'feedback' => Z]
+     * 
      * Automatically updates assignment status to 'graded' after corrections.
      *
      * @param ExamAssignment $assignment Assignment to correct
-     * @param array $scores Question scores and feedback [questionId => ['score' => float, 'feedback' => ?string]]
+     * @param array $data Question scores and feedback
+     * @param string|null $teacherNotes Optional teacher notes for the assignment
+     * @return array Summary with total score and updated count
+     */
+    public function saveCorrections(ExamAssignment $assignment, array $data, ?string $teacherNotes = null): array
+    {
+        return DB::transaction(function () use ($assignment, $data, $teacherNotes) {
+            $normalizedScores = $this->normalizeScoresInput($data);
+
+            $answers = $assignment->answers()->get()->keyBy('question_id');
+            $updatedAnswers = 0;
+
+            foreach ($normalizedScores as $questionId => $scoreData) {
+                $answer = $answers->get($questionId);
+
+                if ($answer) {
+                    $updateData = ['score' => $scoreData['score']];
+
+                    if (isset($scoreData['feedback']) && $scoreData['feedback'] !== null) {
+                        $updateData['feedback'] = $scoreData['feedback'];
+                    }
+
+                    $answer->update($updateData);
+                    $updatedAnswers++;
+                }
+            }
+
+            $totalScore = $assignment->answers()->sum('score');
+
+            $assignmentUpdateData = [
+                'score' => $totalScore,
+                'status' => 'graded',
+            ];
+
+            if ($teacherNotes !== null) {
+                $assignmentUpdateData['teacher_notes'] = $teacherNotes;
+            }
+
+            $assignment->update($assignmentUpdateData);
+
+            return [
+                'success' => true,
+                'assignment_id' => $assignment->id,
+                'updated_count' => $updatedAnswers,
+                'total_score' => $totalScore,
+                'status' => 'graded'
+            ];
+        });
+    }
+
+    /**
+     * Save manual corrections from a teacher (legacy method - deprecated).
+     * 
+     * @deprecated Use saveCorrections() instead
+     * @param ExamAssignment $assignment Assignment to correct
+     * @param array $scores Question scores and feedback
      * @return array Summary with total score and updated count
      */
     public function saveTeacherCorrections(ExamAssignment $assignment, array $scores): array
     {
-        return DB::transaction(function () use ($assignment, $scores) {
-            $totalScore = 0;
-            $updatedAnswers = 0;
-
-            foreach ($scores as $questionId => $scoreData) {
-                $newScore = is_array($scoreData) ? $scoreData['score'] : $scoreData;
-                $feedback = is_array($scoreData) ? ($scoreData['feedback'] ?? $scoreData['teacher_notes'] ?? null) : null;
-
-                $answer = $assignment->answers()
-                    ->where('question_id', $questionId)
-                    ->first();
-
-                if ($answer) {
-                    $updateData = ['score' => $newScore];
-
-                    if ($feedback !== null) {
-                        $updateData['feedback'] = $feedback;
-                    }
-
-                    $updatedCount = $assignment->answers()
-                        ->where('question_id', $questionId)
-                        ->update($updateData);
-
-                    if ($updatedCount > 0) {
-                        $totalScore += $newScore;
-                        $updatedAnswers++;
-                    }
-                }
-            }
-
-            $hasTextQuestions = $assignment->exam->questions()
-                ->where('type', 'text')
-                ->exists();
-
-            $finalStatus = $hasTextQuestions ? 'graded' : 'graded';
-
-            $assignment->update([
-                'score' => $totalScore,
-                'status' => $finalStatus,
-            ]);
-
-            return [
-                'success' => true,
-                'updated_count' => $updatedAnswers,
-                'total_score' => $totalScore,
-                'final_status' => $finalStatus
-            ];
-        });
+        return $this->saveCorrections($assignment, $scores);
     }
 
     /**
@@ -113,13 +126,9 @@ class ExamScoringService
     }
 
     /**
-     * Save manual correction from a teacher.
+     * Save manual correction from a teacher (legacy method - deprecated).
      * 
-     * Optimized to use bulk operations instead of N+1 queries.
-     * Supports two input formats:
-     * - Batch: ['scores' => [['question_id' => X, 'score' => Y, 'feedback' => Z]]]
-     * - Single: ['question_id' => X, 'score' => Y, 'feedback' => Z]
-     *
+     * @deprecated Use saveCorrections() instead
      * @param Exam $exam Exam being corrected
      * @param \App\Models\User $student Student whose work is corrected
      * @param array $validatedData Scores and feedback data
@@ -132,51 +141,59 @@ class ExamScoringService
             ->whereNotNull('submitted_at')
             ->firstOrFail();
 
-        $updatedAnswers = 0;
+        $teacherNotes = $validatedData['teacher_notes'] ?? null;
 
-        if (isset($validatedData['scores'])) {
-            $answers = $assignment->answers()->get()->keyBy('question_id');
+        return $this->saveCorrections($assignment, $validatedData, $teacherNotes);
+    }
 
-            foreach ($validatedData['scores'] as $scoreData) {
-                $answer = $answers->get($scoreData['question_id']);
+    /**
+     * Normalize various score input formats into a consistent structure.
+     * 
+     * Handles multiple input formats:
+     * - [questionId => ['score' => X, 'feedback' => Y]]
+     * - [questionId => scoreValue]
+     * - ['scores' => [['question_id' => X, 'score' => Y, 'feedback' => Z]]]
+     * - ['question_id' => X, 'score' => Y, 'feedback' => Z]
+     * 
+     * @param array $data Raw input data
+     * @return array Normalized format [questionId => ['score' => X, 'feedback' => Y]]
+     */
+    private function normalizeScoresInput(array $data): array
+    {
+        $normalized = [];
 
-                if ($answer) {
-                    $answer->update([
+        if (isset($data['scores']) && is_array($data['scores'])) {
+            foreach ($data['scores'] as $scoreData) {
+                if (isset($scoreData['question_id']) && isset($scoreData['score'])) {
+                    $normalized[$scoreData['question_id']] = [
                         'score' => $scoreData['score'],
-                        'feedback' => $scoreData['feedback'] ?? null
-                    ]);
-                    $updatedAnswers++;
+                        'feedback' => $scoreData['feedback'] ?? null,
+                    ];
+                }
+            }
+        } elseif (isset($data['question_id']) && isset($data['score'])) {
+            $normalized[$data['question_id']] = [
+                'score' => $data['score'],
+                'feedback' => $data['feedback'] ?? $data['teacher_notes'] ?? null,
+            ];
+        } else {
+            foreach ($data as $questionId => $scoreData) {
+                if (is_numeric($questionId)) {
+                    if (is_array($scoreData)) {
+                        $normalized[$questionId] = [
+                            'score' => $scoreData['score'] ?? $scoreData,
+                            'feedback' => $scoreData['feedback'] ?? $scoreData['teacher_notes'] ?? null,
+                        ];
+                    } else {
+                        $normalized[$questionId] = [
+                            'score' => $scoreData,
+                            'feedback' => null,
+                        ];
+                    }
                 }
             }
         }
 
-        if (isset($validatedData['question_id']) && isset($validatedData['score'])) {
-            $answer = $assignment->answers()
-                ->where('question_id', $validatedData['question_id'])
-                ->first();
-
-            if ($answer) {
-                $answer->update([
-                    'score' => $validatedData['score'],
-                    'feedback' => $validatedData['feedback'] ?? $validatedData['teacher_notes'] ?? null
-                ]);
-                $updatedAnswers++;
-            }
-        }
-
-        $totalScore = $assignment->answers()->sum('score');
-        $assignment->update([
-            'score' => $totalScore,
-            'status' => 'graded',
-            'teacher_notes' => $validatedData['teacher_notes'] ?? null
-        ]);
-
-        return [
-            'success' => true,
-            'assignment_id' => $assignment->id,
-            'total_score' => $totalScore,
-            'updated_answers' => $updatedAnswers,
-            'status' => 'graded'
-        ];
+        return $normalized;
     }
 }
