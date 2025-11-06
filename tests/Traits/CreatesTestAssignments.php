@@ -67,7 +67,7 @@ trait CreatesTestAssignments
     protected function createAnswerForQuestion(ExamAssignment $assignment, Question $question, array $attributes = [])
     {
         $defaultAttributes = [
-            'exam_assignment_id' => $assignment->id,
+            'assignment_id' => $assignment->id,
             'question_id' => $question->id,
         ];
 

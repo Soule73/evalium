@@ -9,10 +9,11 @@ use Illuminate\Support\Carbon;
 use PHPUnit\Framework\Attributes\Test;
 use App\Services\Student\ExamSessionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\InteractsWithTestData;
 
 class ExamSessionServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, InteractsWithTestData;
 
     private ExamSessionService $sessionService;
     private Exam $exam;
@@ -22,22 +23,23 @@ class ExamSessionServiceTest extends TestCase
     {
         parent::setUp();
 
+        $this->seedRolesAndPermissions();
+
         $now = Carbon::now();
         Carbon::setTestNow($now);
 
         $this->sessionService = app(ExamSessionService::class);
 
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create([
+        $teacher = $this->createTeacher();
+        $student = $this->createStudent();
+
+        $this->exam = $this->createExamWithQuestions($teacher, [
             'duration' => 60,
             'start_time' => $now->copy()->subHour(),
             'end_time' => $now->copy()->addHours(3),
-        ]);
+        ], questionCount: 0);
 
-        $this->exam = $exam;
-
-        $this->assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
+        $this->assignment = $this->createStartedAssignment($this->exam, $student, [
             'started_at' => $now->copy()->subMinutes(30),
             'status' => null,
         ]);
@@ -68,7 +70,7 @@ class ExamSessionServiceTest extends TestCase
     #[Test]
     public function creates_new_assignment_if_not_exists()
     {
-        $student = \App\Models\User::factory()->create();
+        $student = $this->createStudent();
 
         $result = $this->sessionService->findOrCreateAssignment($this->exam, $student);
 
@@ -88,10 +90,8 @@ class ExamSessionServiceTest extends TestCase
     #[Test]
     public function starts_exam_successfully()
     {
-        $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'started_at' => null,
-        ]);
+        $student = $this->createStudent();
+        $assignment = $this->createAssignmentForStudent($this->exam, $student);
 
         $this->sessionService->startExam($assignment);
 
@@ -104,8 +104,8 @@ class ExamSessionServiceTest extends TestCase
     public function does_not_override_started_at_if_already_started()
     {
         $originalStartTime = Carbon::now()->subMinutes(10);
-        $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
+        $student = $this->createStudent();
+        $assignment = $this->createStartedAssignment($this->exam, $student, [
             'started_at' => $originalStartTime,
         ]);
 
@@ -145,7 +145,7 @@ class ExamSessionServiceTest extends TestCase
         $this->assignment->refresh();
         $this->assertEquals('submitted', $this->assignment->status);
         $this->assertNotNull($this->assignment->submitted_at);
-        $this->assertNull($this->assignment->score); // Pas de score final car questions texte
+        $this->assertNull($this->assignment->score);
         $this->assertEquals($autoScore, $this->assignment->auto_score);
         $this->assertFalse($this->assignment->forced_submission);
     }
@@ -202,7 +202,7 @@ class ExamSessionServiceTest extends TestCase
             $this->assignment,
             $autoScore,
             false,
-            true, // isSecurityViolation
+            true,
             $violationType
         );
 
@@ -245,9 +245,10 @@ class ExamSessionServiceTest extends TestCase
             'suspicious_activity',
         ];
 
-        foreach ($violationTypes as $type) {
-            $assignment = ExamAssignment::factory()->create([
-                'exam_id' => $this->exam->id,
+        $students = $this->createMultipleStudents(count($violationTypes));
+
+        foreach ($violationTypes as $index => $type) {
+            $assignment = $this->createStartedAssignment($this->exam, $students[$index], [
                 'started_at' => Carbon::now()->subMinutes(10),
             ]);
 
@@ -289,8 +290,8 @@ class ExamSessionServiceTest extends TestCase
         $this->sessionService->submitExam(
             $this->assignment,
             8.0,
-            true, // questions texte
-            true, // violation
+            true,
+            true,
             $violationType
         );
 
@@ -298,7 +299,7 @@ class ExamSessionServiceTest extends TestCase
         $this->assertEquals('submitted', $this->assignment->status);
         $this->assertTrue($this->assignment->forced_submission);
         $this->assertEquals($violationType, $this->assignment->security_violation);
-        $this->assertNull($this->assignment->score); // Pas de score final (texte + violation)
+        $this->assertNull($this->assignment->score);
         $this->assertEquals(8.0, $this->assignment->auto_score);
     }
 
@@ -309,14 +310,8 @@ class ExamSessionServiceTest extends TestCase
     #[Test]
     public function saves_single_choice_answer()
     {
-        $question = \App\Models\Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'one_choice',
-        ]);
-
-        $choice = \App\Models\Choice::factory()->create([
-            'question_id' => $question->id,
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'one_choice');
+        $choice = $question->choices->first();
 
         $answers = [$question->id => $choice->id];
 
@@ -333,45 +328,36 @@ class ExamSessionServiceTest extends TestCase
     #[Test]
     public function saves_multiple_choice_answers()
     {
-        $question = \App\Models\Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'multiple',
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'multiple');
+        $choices = $question->choices;
 
-        $choice1 = \App\Models\Choice::factory()->create(['question_id' => $question->id]);
-        $choice2 = \App\Models\Choice::factory()->create(['question_id' => $question->id]);
-        $choice3 = \App\Models\Choice::factory()->create(['question_id' => $question->id]);
-
-        $answers = [$question->id => [$choice1->id, $choice3->id]];
+        $answers = [$question->id => [$choices[0]->id, $choices[2]->id]];
 
         $this->sessionService->saveMultipleAnswers($this->assignment, $this->exam, $answers);
 
         $this->assertDatabaseHas('answers', [
             'assignment_id' => $this->assignment->id,
             'question_id' => $question->id,
-            'choice_id' => $choice1->id,
+            'choice_id' => $choices[0]->id,
         ]);
 
         $this->assertDatabaseHas('answers', [
             'assignment_id' => $this->assignment->id,
             'question_id' => $question->id,
-            'choice_id' => $choice3->id,
+            'choice_id' => $choices[2]->id,
         ]);
 
         $this->assertDatabaseMissing('answers', [
             'assignment_id' => $this->assignment->id,
             'question_id' => $question->id,
-            'choice_id' => $choice2->id,
+            'choice_id' => $choices[1]->id,
         ]);
     }
 
     #[Test]
     public function saves_text_answer()
     {
-        $question = \App\Models\Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'text');
 
         $answerText = 'Ceci est ma réponse textuelle détaillée.';
         $answers = [$question->id => $answerText];
@@ -389,121 +375,86 @@ class ExamSessionServiceTest extends TestCase
     #[Test]
     public function clears_previous_answers_before_saving_new_ones()
     {
-        $question = \App\Models\Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'one_choice',
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'one_choice');
+        $choices = $question->choices;
 
-        $oldChoice = \App\Models\Choice::factory()->create(['question_id' => $question->id]);
-        $newChoice = \App\Models\Choice::factory()->create(['question_id' => $question->id]);
+        $this->createAnswerForQuestion($this->assignment, $question, ['choice_id' => $choices[0]->id]);
 
-        // Créer une ancienne réponse
-        \App\Models\Answer::create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
-            'choice_id' => $oldChoice->id,
-        ]);
-
-        // Sauvegarder nouvelle réponse
-        $answers = [$question->id => $newChoice->id];
+        $answers = [$question->id => $choices[1]->id];
         $this->sessionService->saveMultipleAnswers($this->assignment, $this->exam, $answers);
 
-        // L'ancienne réponse doit être supprimée
         $this->assertDatabaseMissing('answers', [
             'assignment_id' => $this->assignment->id,
             'question_id' => $question->id,
-            'choice_id' => $oldChoice->id,
+            'choice_id' => $choices[0]->id,
         ]);
 
-        // La nouvelle réponse doit exister
         $this->assertDatabaseHas('answers', [
             'assignment_id' => $this->assignment->id,
             'question_id' => $question->id,
-            'choice_id' => $newChoice->id,
+            'choice_id' => $choices[1]->id,
         ]);
     }
 
     #[Test]
     public function saves_multiple_questions_answers_in_batch()
     {
-        $question1 = \App\Models\Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'one_choice',
-        ]);
-        $choice1 = \App\Models\Choice::factory()->create(['question_id' => $question1->id]);
-
-        $question2 = \App\Models\Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-        ]);
-
-        $question3 = \App\Models\Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'multiple',
-        ]);
-        $choice3a = \App\Models\Choice::factory()->create(['question_id' => $question3->id]);
-        $choice3b = \App\Models\Choice::factory()->create(['question_id' => $question3->id]);
+        $question1 = $this->createQuestionForExam($this->exam, 'one_choice');
+        $question2 = $this->createQuestionForExam($this->exam, 'text');
+        $question3 = $this->createQuestionForExam($this->exam, 'multiple');
 
         $answers = [
-            $question1->id => $choice1->id,
+            $question1->id => $question1->choices->first()->id,
             $question2->id => 'Réponse textuelle',
-            $question3->id => [$choice3a->id, $choice3b->id],
+            $question3->id => [$question3->choices[0]->id, $question3->choices[1]->id],
         ];
 
         $this->sessionService->saveMultipleAnswers($this->assignment, $this->exam, $answers);
 
-        // Vérifier question 1
         $this->assertDatabaseHas('answers', [
             'assignment_id' => $this->assignment->id,
             'question_id' => $question1->id,
-            'choice_id' => $choice1->id,
+            'choice_id' => $question1->choices->first()->id,
         ]);
 
-        // Vérifier question 2
         $this->assertDatabaseHas('answers', [
             'assignment_id' => $this->assignment->id,
             'question_id' => $question2->id,
             'answer_text' => 'Réponse textuelle',
         ]);
 
-        // Vérifier question 3
         $this->assertDatabaseHas('answers', [
             'assignment_id' => $this->assignment->id,
             'question_id' => $question3->id,
-            'choice_id' => $choice3a->id,
+            'choice_id' => $question3->choices[0]->id,
         ]);
         $this->assertDatabaseHas('answers', [
             'assignment_id' => $this->assignment->id,
             'question_id' => $question3->id,
-            'choice_id' => $choice3b->id,
+            'choice_id' => $question3->choices[1]->id,
         ]);
     }
 
     #[Test]
     public function skips_invalid_question_ids()
     {
-        $question = \App\Models\Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'one_choice',
-        ]);
-        $choice = \App\Models\Choice::factory()->create(['question_id' => $question->id]);
+        $question = $this->createQuestionForExam($this->exam, 'one_choice');
+        $choice = $question->choices->first();
 
         $invalidQuestionId = 99999;
         $answers = [
             $question->id => $choice->id,
-            $invalidQuestionId => 123, // Question inexistante
+            $invalidQuestionId => 123,
         ];
 
         $this->sessionService->saveMultipleAnswers($this->assignment, $this->exam, $answers);
 
-        // Vérifier que la réponse valide est sauvegardée
         $this->assertDatabaseHas('answers', [
             'assignment_id' => $this->assignment->id,
             'question_id' => $question->id,
             'choice_id' => $choice->id,
         ]);
 
-        // Vérifier qu'aucune réponse n'est créée pour l'ID invalide
         $this->assertDatabaseMissing('answers', [
             'assignment_id' => $this->assignment->id,
             'question_id' => $invalidQuestionId,
@@ -517,7 +468,6 @@ class ExamSessionServiceTest extends TestCase
 
         $this->sessionService->saveMultipleAnswers($this->assignment, $this->exam, $answers);
 
-        // Vérifier qu'aucune réponse n'est créée
         $this->assertDatabaseMissing('answers', [
             'assignment_id' => $this->assignment->id,
         ]);
@@ -526,39 +476,21 @@ class ExamSessionServiceTest extends TestCase
     #[Test]
     public function clears_multiple_choice_answers_correctly()
     {
-        $question = \App\Models\Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'multiple',
-        ]);
+        $question = $this->createQuestionForExam($this->exam, 'multiple');
+        $choices = $question->choices;
 
-        $choice1 = \App\Models\Choice::factory()->create(['question_id' => $question->id]);
-        $choice2 = \App\Models\Choice::factory()->create(['question_id' => $question->id]);
-        $choice3 = \App\Models\Choice::factory()->create(['question_id' => $question->id]);
+        $this->createAnswerForQuestion($this->assignment, $question, ['choice_id' => $choices[0]->id]);
+        $this->createAnswerForQuestion($this->assignment, $question, ['choice_id' => $choices[1]->id]);
 
-        // Créer anciennes réponses multiples
-        \App\Models\Answer::create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
-            'choice_id' => $choice1->id,
-        ]);
-        \App\Models\Answer::create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
-            'choice_id' => $choice2->id,
-        ]);
-
-        // Sauvegarder nouvelles réponses différentes
-        $answers = [$question->id => [$choice2->id, $choice3->id]];
+        $answers = [$question->id => [$choices[1]->id, $choices[2]->id]];
         $this->sessionService->saveMultipleAnswers($this->assignment, $this->exam, $answers);
 
-        // Vérifier que choice1 a été supprimée
         $this->assertDatabaseMissing('answers', [
             'assignment_id' => $this->assignment->id,
             'question_id' => $question->id,
-            'choice_id' => $choice1->id,
+            'choice_id' => $choices[0]->id,
         ]);
 
-        // Vérifier que choice2 et choice3 existent (nouvelles)
         $answersCount = \App\Models\Answer::where('assignment_id', $this->assignment->id)
             ->where('question_id', $question->id)
             ->count();
