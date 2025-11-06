@@ -7,11 +7,12 @@ use App\Models\Group;
 use App\Models\User;
 use App\Models\Level;
 use App\Services\Admin\GroupService;
+use Tests\Traits\InteractsWithTestData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class RefactoredGroupTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, InteractsWithTestData;
 
     protected function setUp(): void
     {
@@ -53,7 +54,6 @@ class RefactoredGroupTest extends TestCase
         $this->assertInstanceOf(Group::class, $group);
         $this->assertEquals($bts1->id, $group->level_id);
 
-        // Recharger avec la relation level
         $group->load('level');
         $this->assertNotNull($group->level);
         $this->assertEquals('BTS 1ère année', $group->level->name);
@@ -64,7 +64,6 @@ class RefactoredGroupTest extends TestCase
         $licence1 = Level::where('code', 'licence_1')->first();
         $master1 = Level::where('code', 'master_1')->first();
 
-        // Supprimer les groupes existants pour éviter les conflits
         Group::query()->delete();
 
         Group::factory()->count(5)->create(['level_id' => $licence1->id]);
