@@ -4,49 +4,43 @@ namespace Tests\Unit\Services\Exam;
 
 use Tests\TestCase;
 use App\Models\Exam;
-use App\Models\User;
 use App\Models\Group;
 use App\Services\Exam\ExamGroupService;
+use Tests\Traits\InteractsWithTestData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 
 class ExamGroupServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, InteractsWithTestData;
 
     private ExamGroupService $service;
     private Exam $exam;
     private Group $group;
-    private User $teacher;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->seed(\Database\Seeders\RoleAndPermissionSeeder::class);
+        $this->seedRolesAndPermissions();
 
         $this->service = new ExamGroupService();
 
-        $this->teacher = User::factory()->create();
-        $this->teacher->assignRole('teacher');
+        $teacher = $this->createTeacher();
+        $this->exam = $this->createExamWithQuestions($teacher, questionCount: 1);
+        $this->group = $this->createEmptyGroup();
 
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create(['teacher_id' => $this->teacher->id]);
-
-        $this->exam = $exam;
-        $this->group = Group::factory()->create();
-
-        Auth::login($this->teacher);
+        Auth::login($teacher);
     }
 
     public function test_assign_exam_to_groups_creates_new_assignments(): void
     {
-        $group2 = Group::factory()->create();
+        $group2 = $this->createEmptyGroup();
 
         $result = $this->service->assignExamToGroups(
             $this->exam,
             [$this->group->id, $group2->id],
-            $this->teacher->id
+            $this->exam->teacher->id
         );
 
         $this->assertEquals(2, $result['assigned_count']);
@@ -55,23 +49,20 @@ class ExamGroupServiceTest extends TestCase
         $this->assertDatabaseHas('exam_group', [
             'exam_id' => $this->exam->id,
             'group_id' => $this->group->id,
-            'assigned_by' => $this->teacher->id,
+            'assigned_by' => $this->exam->teacher->id,
         ]);
     }
 
     public function test_assign_exam_to_groups_detects_duplicates(): void
     {
-        $this->exam->groups()->attach($this->group->id, [
-            'assigned_by' => $this->teacher->id,
-            'assigned_at' => now(),
-        ]);
+        $this->assignExamToGroup($this->exam, $this->group);
 
-        $group2 = Group::factory()->create();
+        $group2 = $this->createEmptyGroup();
 
         $result = $this->service->assignExamToGroups(
             $this->exam,
             [$this->group->id, $group2->id],
-            $this->teacher->id
+            $this->exam->teacher->id
         );
 
         $this->assertEquals(1, $result['assigned_count']);
@@ -83,7 +74,7 @@ class ExamGroupServiceTest extends TestCase
         $result = $this->service->assignExamToGroups(
             $this->exam,
             [9999],
-            $this->teacher->id
+            $this->exam->teacher->id
         );
 
         $this->assertEquals(0, $result['assigned_count']);
@@ -99,16 +90,13 @@ class ExamGroupServiceTest extends TestCase
         $this->assertDatabaseHas('exam_group', [
             'exam_id' => $this->exam->id,
             'group_id' => $this->group->id,
-            'assigned_by' => $this->teacher->id,
+            'assigned_by' => $this->exam->teacher->id,
         ]);
     }
 
     public function test_remove_exam_from_group_deletes_relationship(): void
     {
-        $this->exam->groups()->attach($this->group->id, [
-            'assigned_by' => $this->teacher->id,
-            'assigned_at' => now(),
-        ]);
+        $this->assignExamToGroup($this->exam, $this->group);
 
         $result = $this->service->removeExamFromGroup($this->exam, $this->group);
 
@@ -128,12 +116,10 @@ class ExamGroupServiceTest extends TestCase
 
     public function test_remove_exam_from_groups_deletes_multiple_relationships(): void
     {
-        $group2 = Group::factory()->create();
+        $group2 = $this->createEmptyGroup();
 
-        $this->exam->groups()->attach([
-            $this->group->id => ['assigned_by' => $this->teacher->id, 'assigned_at' => now()],
-            $group2->id => ['assigned_by' => $this->teacher->id, 'assigned_at' => now()],
-        ]);
+        $this->assignExamToGroup($this->exam, $this->group);
+        $this->assignExamToGroup($this->exam, $group2);
 
         $count = $this->service->removeExamFromGroups($this->exam, [$this->group->id, $group2->id]);
 
@@ -146,10 +132,7 @@ class ExamGroupServiceTest extends TestCase
 
     public function test_get_groups_for_exam_loads_relationships(): void
     {
-        $this->exam->groups()->attach($this->group->id, [
-            'assigned_by' => $this->teacher->id,
-            'assigned_at' => now(),
-        ]);
+        $this->assignExamToGroup($this->exam, $this->group);
 
         $groups = $this->service->getGroupsForExam($this->exam);
 
@@ -161,10 +144,7 @@ class ExamGroupServiceTest extends TestCase
 
     public function test_get_exams_for_group_loads_relationships(): void
     {
-        $this->group->exams()->attach($this->exam->id, [
-            'assigned_by' => $this->teacher->id,
-            'assigned_at' => now(),
-        ]);
+        $this->assignExamToGroup($this->exam, $this->group);
 
         $exams = $this->service->getExamsForGroup($this->group);
 
@@ -175,10 +155,7 @@ class ExamGroupServiceTest extends TestCase
 
     public function test_is_exam_assigned_to_group_returns_true_when_assigned(): void
     {
-        $this->exam->groups()->attach($this->group->id, [
-            'assigned_by' => $this->teacher->id,
-            'assigned_at' => now(),
-        ]);
+        $this->assignExamToGroup($this->exam, $this->group);
 
         $result = $this->service->isExamAssignedToGroup($this->exam, $this->group);
 
@@ -194,13 +171,10 @@ class ExamGroupServiceTest extends TestCase
 
     public function test_get_available_groups_for_exam_excludes_assigned_groups(): void
     {
-        $group2 = Group::factory()->create(['is_active' => true]);
-        $group3 = Group::factory()->create(['is_active' => true]);
+        $group2 = $this->createEmptyGroup(['is_active' => true]);
+        $group3 = $this->createEmptyGroup(['is_active' => true]);
 
-        $this->exam->groups()->attach($this->group->id, [
-            'assigned_by' => $this->teacher->id,
-            'assigned_at' => now(),
-        ]);
+        $this->assignExamToGroup($this->exam, $this->group);
 
         $availableGroups = $this->service->getAvailableGroupsForExam($this->exam);
 
@@ -210,7 +184,7 @@ class ExamGroupServiceTest extends TestCase
 
     public function test_get_available_groups_for_exam_only_includes_active_groups(): void
     {
-        $inactiveGroup = Group::factory()->create(['is_active' => false]);
+        $inactiveGroup = $this->createEmptyGroup(['is_active' => false]);
 
         $availableGroups = $this->service->getAvailableGroupsForExam($this->exam);
 
@@ -219,20 +193,16 @@ class ExamGroupServiceTest extends TestCase
 
     public function test_get_total_students_for_exam_calculates_correctly(): void
     {
-        $student1 = User::factory()->create();
-        $student1->assignRole('student');
-        $student2 = User::factory()->create();
-        $student2->assignRole('student');
+        $students = $this->createMultipleStudents(2);
 
-        $this->group->students()->attach([
-            $student1->id => ['is_active' => true, 'enrolled_at' => now()],
-            $student2->id => ['is_active' => true, 'enrolled_at' => now()],
-        ]);
+        foreach ($students as $student) {
+            $this->group->students()->attach($student->id, [
+                'is_active' => true,
+                'enrolled_at' => now()
+            ]);
+        }
 
-        $this->exam->groups()->attach($this->group->id, [
-            'assigned_by' => $this->teacher->id,
-            'assigned_at' => now(),
-        ]);
+        $this->assignExamToGroup($this->exam, $this->group);
 
         $total = $this->service->getTotalStudentsForExam($this->exam);
 
