@@ -4,42 +4,24 @@ namespace Tests\Unit\Services\Core;
 
 use Tests\TestCase;
 use App\Models\Exam;
-use App\Models\User;
-use App\Models\Group;
-use App\Models\Question;
-use App\Models\ExamAssignment;
 use App\Services\Core\ExamStatsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\InteractsWithTestData;
 
 class ExamStatsServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, InteractsWithTestData;
 
     private ExamStatsService $service;
-    private User $teacher;
     private Exam $exam;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->seed(\Database\Seeders\RoleAndPermissionSeeder::class);
-
+        $this->seedRolesAndPermissions();
         $this->service = new ExamStatsService();
-        $this->teacher = User::factory()->create();
-        $this->teacher->assignRole('teacher');
-
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id,
-        ]);
-
-        $this->exam = $exam;
-
-        Question::factory()->count(5)->create([
-            'exam_id' => $this->exam->id,
-            'points' => 10,
-        ]);
+        $this->exam = $this->createExamWithQuestions($this->createTeacher(), questionCount: 5);
     }
 
     public function test_calculate_exam_stats_with_no_assignments(): void
@@ -56,35 +38,17 @@ class ExamStatsServiceTest extends TestCase
 
     public function test_calculate_exam_stats_with_mixed_statuses(): void
     {
-        $student1 = User::factory()->create();
-        $student1->assignRole('student');
-        $student2 = User::factory()->create();
-        $student2->assignRole('student');
-        $student3 = User::factory()->create();
-        $student3->assignRole('student');
+        $students = $this->createMultipleStudents(3);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $student1->id,
-            'started_at' => null,
-            'submitted_at' => null,
-            'status' => null,
-        ]);
+        $this->createAssignmentForStudent($this->exam, $students[0]);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $student2->id,
+        $this->createStartedAssignment($this->exam, $students[1], [
             'started_at' => now()->subHour(),
-            'submitted_at' => null,
-            'status' => null,
         ]);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $student3->id,
+        $this->createSubmittedAssignment($this->exam, $students[2], [
             'started_at' => now()->subHours(2),
             'submitted_at' => now()->subHour(),
-            'status' => 'submitted',
             'score' => 40,
         ]);
 
@@ -100,32 +64,11 @@ class ExamStatsServiceTest extends TestCase
 
     public function test_calculate_group_stats(): void
     {
-        $group = Group::factory()->create();
-        $students = User::factory()->count(3)->create();
+        $group = $this->createGroupWithStudents(studentCount: 3);
 
-        foreach ($students as $student) {
-            $student->assignRole('student');
-            $group->students()->attach($student->id, [
-                'enrolled_at' => now(),
-                'is_active' => true,
-            ]);
-        }
+        $this->createGradedAssignment($this->exam, $group->students[0], score: 45);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $students[0]->id,
-            'started_at' => now(),
-            'submitted_at' => now(),
-            'status' => 'graded',
-            'score' => 45,
-        ]);
-
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $students[1]->id,
-            'started_at' => now(),
-            'submitted_at' => null,
-        ]);
+        $this->createStartedAssignment($this->exam, $group->students[1]);
 
         $group->refresh();
         $stats = $this->service->calculateGroupStats($this->exam, $group);
@@ -138,30 +81,14 @@ class ExamStatsServiceTest extends TestCase
     }
     public function test_calculate_student_progress(): void
     {
-        $student = User::factory()->create();
-        $student->assignRole('student');
+        $student = $this->createStudent();
+        $teacher = $this->exam->teacher;
 
-        $exam1 = Exam::factory()->create(['teacher_id' => $this->teacher->id]);
-        Question::factory()->count(10)->create(['exam_id' => $exam1->id, 'points' => 5]);
+        $exam1 = $this->createExamWithQuestions($teacher, questionCount: 10);
+        $exam2 = $this->createExamWithQuestions($teacher, questionCount: 10);
 
-        $exam2 = Exam::factory()->create(['teacher_id' => $this->teacher->id]);
-        Question::factory()->count(10)->create(['exam_id' => $exam2->id, 'points' => 5]);
-
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam1->id,
-            'student_id' => $student->id,
-            'status' => 'graded',
-            'score' => 40,
-            'started_at' => now(),
-            'submitted_at' => now(),
-        ]);
-
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam2->id,
-            'student_id' => $student->id,
-            'started_at' => null,
-            'submitted_at' => null,
-        ]);
+        $this->createGradedAssignment($exam1, $student, score: 40);
+        $this->createAssignmentForStudent($exam2, $student);
 
         $progress = $this->service->calculateStudentProgress($student);
 
@@ -237,35 +164,13 @@ class ExamStatsServiceTest extends TestCase
 
     public function test_calculate_exam_stats_with_groups(): void
     {
-        $group = Group::factory()->create();
-        $students = User::factory()->count(5)->create();
-
-        foreach ($students as $student) {
-            $student->assignRole('student');
-            $group->students()->attach($student->id, [
-                'enrolled_at' => now(),
-                'is_active' => true,
-            ]);
-        }
+        $group = $this->createGroupWithStudents(studentCount: 5);
 
         $group->load('activeStudents');
         $assignedGroups = collect([$group]);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $students[0]->id,
-            'status' => 'submitted',
-            'started_at' => now(),
-            'submitted_at' => now(),
-        ]);
-
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $students[1]->id,
-            'status' => 'submitted',
-            'started_at' => now(),
-            'submitted_at' => now(),
-        ]);
+        $this->createSubmittedAssignment($this->exam, $group->students[0]);
+        $this->createSubmittedAssignment($this->exam, $group->students[1]);
 
         $stats = $this->service->calculateExamStatsWithGroups($this->exam, $assignedGroups);
 

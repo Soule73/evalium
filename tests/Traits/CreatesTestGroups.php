@@ -19,7 +19,10 @@ trait CreatesTestGroups
         $students = $this->createMultipleStudents($studentCount);
 
         foreach ($students as $student) {
-            $group->students()->attach($student->id);
+            $group->students()->attach($student->id, [
+                'enrolled_at' => now(),
+                'is_active' => true,
+            ]);
         }
 
         return $group->load('students', 'level');
@@ -37,7 +40,10 @@ trait CreatesTestGroups
     protected function addStudentsToGroup(Group $group, array $students): void
     {
         foreach ($students as $student) {
-            $group->students()->attach($student->id);
+            $group->students()->attach($student->id, [
+                'enrolled_at' => now(),
+                'is_active' => true,
+            ]);
         }
     }
 
