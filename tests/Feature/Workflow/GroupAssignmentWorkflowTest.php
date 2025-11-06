@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\InteractsWithTestData;
 
 /**
  * Test complet du workflow d'assignation par groupes
@@ -26,163 +27,141 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
  */
 class GroupAssignmentWorkflowTest extends TestCase
 {
-    use RefreshDatabase;
-
-    private User $teacher;
-    private User $student1;
-    private User $student2;
-    private User $studentOutsideGroup;
-    private Exam $exam;
-    private Group $group;
-    private Level $level;
+    use RefreshDatabase, InteractsWithTestData;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Utiliser le seeder pour créer les rôles et permissions
         $this->seed(\Database\Seeders\RoleAndPermissionSeeder::class);
+    }
 
-        // Créer un niveau
-        $this->level = Level::create([
+    private function createGroupWithStudents(): array
+    {
+        $level = Level::create([
             'name' => 'Niveau Test',
             'code' => 'NT1'
         ]);
 
-        // Créer un groupe actif
-        $this->group = Group::create([
+        $group = Group::create([
             'name' => 'Groupe Test',
-            'level_id' => $this->level->id,
+            'level_id' => $level->id,
             'academic_year' => now()->year . '-' . (now()->year + 1),
             'start_date' => now()->startOfYear(),
             'end_date' => now()->endOfYear(),
             'is_active' => true
         ]);
 
-        // Créer un enseignant
-        $this->teacher = User::factory()->create();
-        $this->teacher->assignRole('teacher');
+        $teacher = $this->createTeacher();
+        $student1 = $this->createStudent(['name' => 'Étudiant 1']);
+        $student2 = $this->createStudent(['name' => 'Étudiant 2']);
+        $studentOutsideGroup = $this->createStudent(['name' => 'Étudiant Hors Groupe']);
 
-        // Créer des étudiants
-        $this->student1 = User::factory()->create(['name' => 'Étudiant 1']);
-        $this->student1->assignRole('student');
-
-        $this->student2 = User::factory()->create(['name' => 'Étudiant 2']);
-        $this->student2->assignRole('student');
-
-        $this->studentOutsideGroup = User::factory()->create(['name' => 'Étudiant Hors Groupe']);
-        $this->studentOutsideGroup->assignRole('student');
-
-        // Assigner les étudiants au groupe
-        $this->group->students()->attach($this->student1->id, [
+        $group->students()->attach($student1->id, [
             'is_active' => true,
             'enrolled_at' => now()
         ]);
-        $this->group->students()->attach($this->student2->id, [
+        $group->students()->attach($student2->id, [
             'is_active' => true,
             'enrolled_at' => now()
         ]);
 
-        // Créer un examen avec questions
-        /** @var Exam $exam */
         $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id,
+            'teacher_id' => $teacher->id,
             'title' => 'Examen de Test',
             'description' => 'Description test',
             'duration' => 60,
             'is_active' => true,
-            'start_time' => now()->subHour(), // Disponible depuis 1h
-            'end_time' => now()->addDay() // Disponible jusqu'à demain
+            'start_time' => now()->subHour(),
+            'end_time' => now()->addDay()
         ]);
 
-        $this->exam = $exam;
-
-        // Ajouter des questions
         Question::factory()->create([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'type' => 'text',
             'content' => 'Question 1',
             'points' => 10
         ]);
+
+        return compact('teacher', 'student1', 'student2', 'studentOutsideGroup', 'exam', 'group', 'level');
     }
 
     #[Test]
     public function teacher_can_assign_exam_to_group()
     {
-        $this->actingAs($this->teacher);
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group] = $this->createGroupWithStudents();
 
-        $response = $this->post(route('exams.assign.groups', $this->exam), [
-            'group_ids' => [$this->group->id]
+        $this->actingAs($teacher);
+
+        $response = $this->post(route('exams.assign.groups', $exam), [
+            'group_ids' => [$group->id]
         ]);
 
-        $response->assertRedirect(route('exams.show', $this->exam));
+        $response->assertRedirect(route('exams.show', $exam));
         $response->assertSessionHas('success');
 
-        // Vérifier que l'assignation existe dans exam_group
         $this->assertDatabaseHas('exam_group', [
-            'exam_id' => $this->exam->id,
-            'group_id' => $this->group->id
+            'exam_id' => $exam->id,
+            'group_id' => $group->id
         ]);
     }
 
     #[Test]
     public function students_in_assigned_group_can_access_exam()
     {
-        // Assigner l'examen au groupe
+        ['teacher' => $teacher, 'student1' => $student1, 'student2' => $student2, 'exam' => $exam, 'group' => $group] = $this->createGroupWithStudents();
+
         DB::table('exam_group')->insert([
-            'exam_id' => $this->exam->id,
-            'group_id' => $this->group->id,
-            'assigned_by' => $this->teacher->id,
+            'exam_id' => $exam->id,
+            'group_id' => $group->id,
+            'assigned_by' => $teacher->id,
             'assigned_at' => now()
         ]);
 
-        // Étudiant 1 doit pouvoir accéder
-        $this->actingAs($this->student1);
-        $response = $this->get(route('student.exams.show', $this->exam));
+        $this->actingAs($student1);
+        $response = $this->get(route('student.exams.show', $exam));
         $response->assertOk();
 
-        // Étudiant 2 doit pouvoir accéder
-        $this->actingAs($this->student2);
-        $response = $this->get(route('student.exams.show', $this->exam));
+        $this->actingAs($student2);
+        $response = $this->get(route('student.exams.show', $exam));
         $response->assertOk();
     }
 
     #[Test]
     public function student_outside_group_cannot_access_exam()
     {
-        // Assigner l'examen au groupe
+        ['teacher' => $teacher, 'studentOutsideGroup' => $studentOutsideGroup, 'exam' => $exam, 'group' => $group] = $this->createGroupWithStudents();
+
         DB::table('exam_group')->insert([
-            'exam_id' => $this->exam->id,
-            'group_id' => $this->group->id,
-            'assigned_by' => $this->teacher->id,
+            'exam_id' => $exam->id,
+            'group_id' => $group->id,
+            'assigned_by' => $teacher->id,
             'assigned_at' => now()
         ]);
 
-        // Étudiant hors groupe ne doit PAS pouvoir accéder
-        $this->actingAs($this->studentOutsideGroup);
-        $response = $this->get(route('student.exams.show', $this->exam));
-        $response->assertStatus(403); // Forbidden
+        $this->actingAs($studentOutsideGroup);
+        $response = $this->get(route('student.exams.show', $exam));
+        $response->assertStatus(403);
     }
 
     #[Test]
     public function virtual_assignment_is_created_for_student_in_group()
     {
-        // Assigner l'examen au groupe
+        ['teacher' => $teacher, 'student1' => $student1, 'exam' => $exam, 'group' => $group] = $this->createGroupWithStudents();
+
         DB::table('exam_group')->insert([
-            'exam_id' => $this->exam->id,
-            'group_id' => $this->group->id,
-            'assigned_by' => $this->teacher->id,
+            'exam_id' => $exam->id,
+            'group_id' => $group->id,
+            'assigned_by' => $teacher->id,
             'assigned_at' => now()
         ]);
 
-        // Vérifier qu'il n'y a PAS encore d'ExamAssignment en DB
         $this->assertDatabaseMissing('exam_assignments', [
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student1->id
+            'exam_id' => $exam->id,
+            'student_id' => $student1->id
         ]);
 
-        // L'étudiant peut quand même voir l'examen dans sa liste
-        $this->actingAs($this->student1);
+        $this->actingAs($student1);
         $response = $this->get(route('student.exams.index'));
         $response->assertOk();
     }
@@ -190,17 +169,17 @@ class GroupAssignmentWorkflowTest extends TestCase
     #[Test]
     public function real_assignment_is_created_when_student_starts_exam()
     {
-        // Assigner l'examen au groupe
+        ['teacher' => $teacher, 'student1' => $student1, 'exam' => $exam, 'group' => $group] = $this->createGroupWithStudents();
+
         DB::table('exam_group')->insert([
-            'exam_id' => $this->exam->id,
-            'group_id' => $this->group->id,
-            'assigned_by' => $this->teacher->id,
+            'exam_id' => $exam->id,
+            'group_id' => $group->id,
+            'assigned_by' => $teacher->id,
             'assigned_at' => now()
         ]);
 
-        // L'étudiant démarre l'examen
-        $this->actingAs($this->student1);
-        $response = $this->get(route('student.exams.take', $this->exam));
+        $this->actingAs($student1);
+        $response = $this->get(route('student.exams.take', $exam));
 
         $this->assertTrue(
             in_array($response->status(), [200, 302]),
@@ -208,12 +187,12 @@ class GroupAssignmentWorkflowTest extends TestCase
         );
 
         $this->assertDatabaseHas('exam_assignments', [
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student1->id,
+            'exam_id' => $exam->id,
+            'student_id' => $student1->id,
         ]);
 
-        $assignment = ExamAssignment::where('exam_id', $this->exam->id)
-            ->where('student_id', $this->student1->id)
+        $assignment = ExamAssignment::where('exam_id', $exam->id)
+            ->where('student_id', $student1->id)
             ->first();
 
         $this->assertNotNull($assignment->started_at);
@@ -222,46 +201,48 @@ class GroupAssignmentWorkflowTest extends TestCase
     #[Test]
     public function teacher_can_view_group_assignments()
     {
-        // Assigner l'examen au groupe
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group] = $this->createGroupWithStudents();
+
         DB::table('exam_group')->insert([
-            'exam_id' => $this->exam->id,
-            'group_id' => $this->group->id,
-            'assigned_by' => $this->teacher->id,
+            'exam_id' => $exam->id,
+            'group_id' => $group->id,
+            'assigned_by' => $teacher->id,
             'assigned_at' => now()
         ]);
 
-        $this->actingAs($this->teacher);
-        $response = $this->get(route('exams.groups', $this->exam));
+        $this->actingAs($teacher);
+        $response = $this->get(route('exams.groups', $exam));
 
         $response->assertOk();
         $response->assertInertia(
             fn($page) =>
-            $page->component('Exam/Assignments', false) // false = ne pas vérifier l'existence du fichier
+            $page->component('Exam/Assignments', false)
                 ->has('assignedGroups', 1)
-                ->where('assignedGroups.0.id', $this->group->id)
+                ->where('assignedGroups.0.id', $group->id)
         );
     }
 
     #[Test]
     public function statistics_reflect_group_based_assignments()
     {
-        // Assigner l'examen au groupe (2 étudiants)
+        ['teacher' => $teacher, 'student1' => $student1, 'exam' => $exam, 'group' => $group] = $this->createGroupWithStudents();
+
         DB::table('exam_group')->insert([
-            'exam_id' => $this->exam->id,
-            'group_id' => $this->group->id,
-            'assigned_by' => $this->teacher->id,
+            'exam_id' => $exam->id,
+            'group_id' => $group->id,
+            'assigned_by' => $teacher->id,
             'assigned_at' => now()
         ]);
 
         ExamAssignment::create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student1->id,
+            'exam_id' => $exam->id,
+            'student_id' => $student1->id,
             'status' => null,
             'started_at' => now()
         ]);
 
-        $this->actingAs($this->teacher);
-        $response = $this->get(route('exams.groups', $this->exam));
+        $this->actingAs($teacher);
+        $response = $this->get(route('exams.groups', $exam));
 
         $response->assertOk();
         $response->assertInertia(
@@ -276,80 +257,76 @@ class GroupAssignmentWorkflowTest extends TestCase
     #[Test]
     public function teacher_can_remove_group_from_exam()
     {
-        // Assigner l'examen au groupe
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group] = $this->createGroupWithStudents();
+
         DB::table('exam_group')->insert([
-            'exam_id' => $this->exam->id,
-            'group_id' => $this->group->id,
-            'assigned_by' => $this->teacher->id,
+            'exam_id' => $exam->id,
+            'group_id' => $group->id,
+            'assigned_by' => $teacher->id,
             'assigned_at' => now()
         ]);
 
-        $this->actingAs($this->teacher);
+        $this->actingAs($teacher);
         $response = $this->delete(route('exams.groups.remove', [
-            'exam' => $this->exam,
-            'group' => $this->group
+            'exam' => $exam,
+            'group' => $group
         ]));
 
         $response->assertSessionHas('success');
 
-        // Vérifier que l'assignation a été supprimée
         $this->assertDatabaseMissing('exam_group', [
-            'exam_id' => $this->exam->id,
-            'group_id' => $this->group->id
+            'exam_id' => $exam->id,
+            'group_id' => $group->id
         ]);
     }
 
     #[Test]
     public function after_group_removal_students_lose_access()
     {
-        // Assigner puis retirer
+        ['teacher' => $teacher, 'student1' => $student1, 'exam' => $exam, 'group' => $group] = $this->createGroupWithStudents();
+
         DB::table('exam_group')->insert([
-            'exam_id' => $this->exam->id,
-            'group_id' => $this->group->id,
-            'assigned_by' => $this->teacher->id,
+            'exam_id' => $exam->id,
+            'group_id' => $group->id,
+            'assigned_by' => $teacher->id,
             'assigned_at' => now()
         ]);
 
-        // Retirer le groupe
-        $this->actingAs($this->teacher);
+        $this->actingAs($teacher);
         $this->delete(route('exams.groups.remove', [
-            'exam' => $this->exam,
-            'group' => $this->group
+            'exam' => $exam,
+            'group' => $group
         ]));
 
-        // L'étudiant ne doit plus pouvoir accéder
-        $this->actingAs($this->student1);
-        $response = $this->get(route('student.exams.show', $this->exam));
+        $this->actingAs($student1);
+        $response = $this->get(route('student.exams.show', $exam));
         $response->assertStatus(403);
     }
 
     #[Test]
     public function inactive_students_in_group_cannot_access()
     {
-        // Assigner l'examen au groupe
+        ['teacher' => $teacher, 'student1' => $student1, 'student2' => $student2, 'exam' => $exam, 'group' => $group] = $this->createGroupWithStudents();
+
         DB::table('exam_group')->insert([
-            'exam_id' => $this->exam->id,
-            'group_id' => $this->group->id,
-            'assigned_by' => $this->teacher->id,
+            'exam_id' => $exam->id,
+            'group_id' => $group->id,
+            'assigned_by' => $teacher->id,
             'assigned_at' => now()
         ]);
 
-        // Désactiver l'étudiant 1 dans le groupe
-        $this->student1->groups()->updateExistingPivot($this->group->id, [
+        $student1->groups()->updateExistingPivot($group->id, [
             'is_active' => false
         ]);
 
-        // Rafraîchir le modèle pour s'assurer que les changements sont pris en compte
-        $this->student1->refresh();
+        $student1->refresh();
 
-        // L'étudiant 1 ne doit plus pouvoir accéder
-        $this->actingAs($this->student1);
-        $response = $this->get(route('student.exams.show', $this->exam));
+        $this->actingAs($student1);
+        $response = $this->get(route('student.exams.show', $exam));
         $response->assertStatus(403);
 
-        // L'étudiant 2 (toujours actif) peut toujours accéder
-        $this->actingAs($this->student2);
-        $response = $this->get(route('student.exams.show', $this->exam));
+        $this->actingAs($student2);
+        $response = $this->get(route('student.exams.show', $exam));
         $response->assertOk();
     }
 }
