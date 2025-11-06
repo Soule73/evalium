@@ -3,62 +3,46 @@
 namespace Tests\Unit\Services\Student;
 
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Exam;
-use App\Models\Group;
-use App\Models\ExamAssignment;
+use Tests\Traits\InteractsWithTestData;
 use App\Services\Student\StudentDashboardService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class StudentDashboardServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, InteractsWithTestData;
 
     private StudentDashboardService $service;
-    private User $student;
-    private User $teacher;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->seed(\Database\Seeders\RoleAndPermissionSeeder::class);
-
+        $this->seedRolesAndPermissions();
         $this->service = app(StudentDashboardService::class);
-        $this->student = User::factory()->create();
-        $this->student->assignRole('student');
-        $this->teacher = User::factory()->create();
-        $this->teacher->assignRole('teacher');
     }
 
     public function test_get_dashboard_stats_returns_comprehensive_data(): void
     {
-        $exam1 = Exam::factory()->create(['is_active' => true]);
-        $exam2 = Exam::factory()->create(['is_active' => true]);
-        $exam3 = Exam::factory()->create(['is_active' => true]);
+        $student = $this->createStudent();
+        $exam1 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
+        $exam2 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
+        $exam3 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam1->id,
-            'student_id' => $this->student->id,
+        $this->createAssignmentForStudent($exam1, $student, [
             'status' => 'graded',
             'submitted_at' => now(),
             'score' => 85.5,
         ]);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam2->id,
-            'student_id' => $this->student->id,
+        $this->createAssignmentForStudent($exam2, $student, [
             'started_at' => now()->subHour(),
             'submitted_at' => null,
         ]);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam3->id,
-            'student_id' => $this->student->id,
+        $this->createAssignmentForStudent($exam3, $student, [
             'started_at' => null,
         ]);
 
-        $result = $this->service->getDashboardStats($this->student);
+        $result = $this->service->getDashboardStats($student);
 
         $this->assertGreaterThanOrEqual(3, $result['total_assignments']);
         $this->assertGreaterThanOrEqual(1, $result['completed_assignments']);
@@ -70,29 +54,16 @@ class StudentDashboardServiceTest extends TestCase
 
     public function test_get_performance_summary_calculates_correctly(): void
     {
-        $exam1 = Exam::factory()->create(['is_active' => true]);
-        $exam2 = Exam::factory()->create(['is_active' => true]);
-        $exam3 = Exam::factory()->create(['is_active' => true]);
+        $student = $this->createStudent();
+        $exam1 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
+        $exam2 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
+        $exam3 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam1->id,
-            'student_id' => $this->student->id,
-            'score' => 75.0,
-        ]);
+        $this->createAssignmentForStudent($exam1, $student, ['score' => 75.0]);
+        $this->createAssignmentForStudent($exam2, $student, ['score' => 90.0]);
+        $this->createAssignmentForStudent($exam3, $student, ['score' => 45.0]);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam2->id,
-            'student_id' => $this->student->id,
-            'score' => 90.0,
-        ]);
-
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam3->id,
-            'student_id' => $this->student->id,
-            'score' => 45.0,
-        ]);
-
-        $result = $this->service->getPerformanceSummary($this->student);
+        $result = $this->service->getPerformanceSummary($student);
 
         $this->assertEquals(3, $result['total_graded']);
         $this->assertEquals(70.0, $result['average_score']);
@@ -103,14 +74,12 @@ class StudentDashboardServiceTest extends TestCase
 
     public function test_get_performance_summary_handles_no_graded_assignments(): void
     {
-        $exam = Exam::factory()->create(['is_active' => true]);
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam->id,
-            'student_id' => $this->student->id,
-            'score' => null,
-        ]);
+        $student = $this->createStudent();
+        $exam = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
+        
+        $this->createAssignmentForStudent($exam, $student, ['score' => null]);
 
-        $result = $this->service->getPerformanceSummary($this->student);
+        $result = $this->service->getPerformanceSummary($student);
 
         $this->assertEquals(0, $result['total_graded']);
         $this->assertNull($result['average_score']);
@@ -121,25 +90,28 @@ class StudentDashboardServiceTest extends TestCase
 
     public function test_get_recent_activity_returns_sorted_activities(): void
     {
-        $exam1 = Exam::factory()->create(['title' => 'Math Exam', 'is_active' => true]);
-        $exam2 = Exam::factory()->create(['title' => 'Science Exam', 'is_active' => true]);
+        $student = $this->createStudent();
+        $exam1 = $this->createExamWithQuestions(examAttributes: [
+            'title' => 'Math Exam',
+            'is_active' => true
+        ], questionCount: 0);
+        $exam2 = $this->createExamWithQuestions(examAttributes: [
+            'title' => 'Science Exam',
+            'is_active' => true
+        ], questionCount: 0);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam1->id,
-            'student_id' => $this->student->id,
+        $this->createAssignmentForStudent($exam1, $student, [
             'submitted_at' => now()->subDays(2),
             'score' => 80.0,
             'status' => 'graded',
         ]);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam2->id,
-            'student_id' => $this->student->id,
+        $this->createAssignmentForStudent($exam2, $student, [
             'started_at' => now()->subHour(),
             'submitted_at' => null,
         ]);
 
-        $result = $this->service->getRecentActivity($this->student, 10);
+        $result = $this->service->getRecentActivity($student, 10);
 
         $this->assertCount(2, $result);
         $this->assertEquals('started', $result[0]['type']);
@@ -150,22 +122,20 @@ class StudentDashboardServiceTest extends TestCase
 
     public function test_get_subject_performance_groups_by_subject(): void
     {
-        $mathExam = Exam::factory()->create(['title' => 'Math Test', 'is_active' => true]);
-        $scienceExam = Exam::factory()->create(['title' => 'Science Test', 'is_active' => true]);
+        $student = $this->createStudent();
+        $mathExam = $this->createExamWithQuestions(examAttributes: [
+            'title' => 'Math Test',
+            'is_active' => true
+        ], questionCount: 0);
+        $scienceExam = $this->createExamWithQuestions(examAttributes: [
+            'title' => 'Science Test',
+            'is_active' => true
+        ], questionCount: 0);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $mathExam->id,
-            'student_id' => $this->student->id,
-            'score' => 85.0,
-        ]);
+        $this->createAssignmentForStudent($mathExam, $student, ['score' => 85.0]);
+        $this->createAssignmentForStudent($scienceExam, $student, ['score' => 75.0]);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $scienceExam->id,
-            'student_id' => $this->student->id,
-            'score' => 75.0,
-        ]);
-
-        $result = $this->service->getSubjectPerformance($this->student);
+        $result = $this->service->getSubjectPerformance($student);
 
         $this->assertCount(1, $result);
         $this->assertEquals('General', $result[0]['subject']);
@@ -174,24 +144,21 @@ class StudentDashboardServiceTest extends TestCase
 
     public function test_get_monthly_progress_groups_by_month(): void
     {
-        $exam1 = Exam::factory()->create(['is_active' => true]);
-        $exam2 = Exam::factory()->create(['is_active' => true]);
+        $student = $this->createStudent();
+        $exam1 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
+        $exam2 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam1->id,
-            'student_id' => $this->student->id,
+        $this->createAssignmentForStudent($exam1, $student, [
             'submitted_at' => now()->subMonth(),
             'score' => 80.0,
         ]);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam2->id,
-            'student_id' => $this->student->id,
+        $this->createAssignmentForStudent($exam2, $student, [
             'submitted_at' => now(),
             'score' => 90.0,
         ]);
 
-        $result = $this->service->getMonthlyProgress($this->student, 6);
+        $result = $this->service->getMonthlyProgress($student, 6);
 
         $this->assertGreaterThanOrEqual(1, count($result));
         $this->assertArrayHasKey('month', $result[0]);
@@ -201,24 +168,24 @@ class StudentDashboardServiceTest extends TestCase
 
     public function test_get_group_performance_calculates_per_group(): void
     {
-        $group = Group::factory()->create();
-        $exam1 = Exam::factory()->create(['is_active' => true]);
-        $exam2 = Exam::factory()->create(['is_active' => true]);
+        $teacher = $this->createTeacher();
+        $student = $this->createStudent();
+        $group = $this->createGroupWithStudents(studentCount: 0);
+        $exam1 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
+        $exam2 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
 
-        $group->exams()->attach([$exam1->id, $exam2->id], ['assigned_by' => $this->teacher->id]);
-        $this->student->groups()->attach($group->id, [
+        $group->exams()->attach([$exam1->id, $exam2->id], ['assigned_by' => $teacher->id]);
+        $student->groups()->attach($group->id, [
             'is_active' => true,
             'enrolled_at' => now(),
         ]);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam1->id,
-            'student_id' => $this->student->id,
+        $this->createAssignmentForStudent($exam1, $student, [
             'submitted_at' => now(),
             'score' => 85.0,
         ]);
 
-        $result = $this->service->getGroupPerformance($this->student);
+        $result = $this->service->getGroupPerformance($student);
 
         $this->assertCount(1, $result);
         $this->assertEquals($group->id, $result[0]['group_id']);
@@ -230,41 +197,32 @@ class StudentDashboardServiceTest extends TestCase
 
     public function test_get_exam_status_breakdown_counts_correctly(): void
     {
-        $exam1 = Exam::factory()->create(['is_active' => true]);
-        $exam2 = Exam::factory()->create(['is_active' => true]);
-        $exam3 = Exam::factory()->create(['is_active' => true]);
-        $exam4 = Exam::factory()->create(['is_active' => true]);
+        $student = $this->createStudent();
+        $exam1 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
+        $exam2 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
+        $exam3 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
+        $exam4 = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam1->id,
-            'student_id' => $this->student->id,
-            'started_at' => null,
-        ]);
+        $this->createAssignmentForStudent($exam1, $student, ['started_at' => null]);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam2->id,
-            'student_id' => $this->student->id,
+        $this->createAssignmentForStudent($exam2, $student, [
             'started_at' => now(),
             'submitted_at' => null,
         ]);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam3->id,
-            'student_id' => $this->student->id,
+        $this->createAssignmentForStudent($exam3, $student, [
             'started_at' => now()->subHour(),
             'submitted_at' => now(),
             'status' => 'submitted',
         ]);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam4->id,
-            'student_id' => $this->student->id,
+        $this->createAssignmentForStudent($exam4, $student, [
             'started_at' => now()->subHours(2),
             'submitted_at' => now(),
             'status' => 'graded',
         ]);
 
-        $result = $this->service->getExamStatusBreakdown($this->student);
+        $result = $this->service->getExamStatusBreakdown($student);
 
         $this->assertGreaterThanOrEqual(1, $result['not_started']);
         $this->assertGreaterThanOrEqual(1, $result['in_progress']);
@@ -277,13 +235,12 @@ class StudentDashboardServiceTest extends TestCase
 
     public function test_get_dashboard_stats_handles_no_active_groups(): void
     {
-        $exam = Exam::factory()->create(['is_active' => true]);
-        ExamAssignment::factory()->create([
-            'exam_id' => $exam->id,
-            'student_id' => $this->student->id,
-        ]);
+        $student = $this->createStudent();
+        $exam = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
+        
+        $this->createAssignmentForStudent($exam, $student);
 
-        $result = $this->service->getDashboardStats($this->student);
+        $result = $this->service->getDashboardStats($student);
 
         $this->assertEquals(0, $result['active_groups']);
         $this->assertIsArray($result['upcoming_exams']);
