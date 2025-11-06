@@ -8,97 +8,85 @@ use App\Models\User;
 use App\Models\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Database\Seeders\RoleAndPermissionSeeder;
+use Tests\Traits\InteractsWithTestData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExamGroupAssignmentControllerTest extends TestCase
 {
-    use RefreshDatabase;
-
-    private User $teacher;
-    private User $student;
-    private Exam $exam;
-    private Group $group;
+    use RefreshDatabase, InteractsWithTestData;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        // Utiliser le seeder pour créer les rôles et permissions
         $this->seed(RoleAndPermissionSeeder::class);
+    }
 
-        // Créer un enseignant
-        $this->teacher = User::factory()->create([
-            'email' => 'teacher@test.com',
-        ]);
-        $this->teacher->assignRole('teacher');
+    private function createExamWithGroup(): array
+    {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $student = $this->createStudent(['email' => 'student@test.com']);
 
-        // Créer un étudiant
-        $this->student = User::factory()->create([
-            'email' => 'student@test.com',
-        ]);
-        $this->student->assignRole('student');
-
-        // Créer un groupe
-        $this->group = Group::factory()->active()->create();
-
-        // Ajouter l'étudiant au groupe avec enrolled_at
-        $this->group->students()->attach($this->student->id, [
+        $group = Group::factory()->active()->create();
+        $group->students()->attach($student->id, [
             'enrolled_at' => now(),
             'is_active' => true
         ]);
 
-        // Créer un examen
-        /** @var Exam $exam */
         $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id,
+            'teacher_id' => $teacher->id,
             'title' => 'Test Exam',
             'is_active' => true
         ]);
-        $this->exam = $exam;
+
+        return compact('teacher', 'student', 'exam', 'group');
     }
 
     #[Test]
     public function teacher_can_assign_exam_to_group()
     {
-        $response = $this->actingAs($this->teacher)
-            ->post(route('exams.assign.groups', $this->exam), [
-                'group_ids' => [$this->group->id]
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group] = $this->createExamWithGroup();
+
+        $response = $this->actingAs($teacher)
+            ->post(route('exams.assign.groups', $exam), [
+                'group_ids' => [$group->id]
             ]);
 
-        $response->assertRedirect(route('exams.show', $this->exam));
+        $response->assertRedirect(route('exams.show', $exam));
         $response->assertSessionHas('success');
 
-        // Vérifier que l'assignation de groupe a été créée
         $this->assertDatabaseHas('exam_group', [
-            'exam_id' => $this->exam->id,
-            'group_id' => $this->group->id
+            'exam_id' => $exam->id,
+            'group_id' => $group->id
         ]);
     }
 
     #[Test]
     public function teacher_can_assign_exam_to_multiple_groups()
     {
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group] = $this->createExamWithGroup();
+
         $group2 = Group::factory()->active()->create();
         $group3 = Group::factory()->active()->create();
 
-        $response = $this->actingAs($this->teacher)
-            ->post(route('exams.assign.groups', $this->exam), [
-                'group_ids' => [$this->group->id, $group2->id, $group3->id]
+        $response = $this->actingAs($teacher)
+            ->post(route('exams.assign.groups', $exam), [
+                'group_ids' => [$group->id, $group2->id, $group3->id]
             ]);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        // Vérifier que les 3 assignations ont été créées
         $this->assertDatabaseCount('exam_group', 3);
     }
 
     #[Test]
     public function teacher_cannot_assign_exam_to_invalid_group()
     {
-        $response = $this->actingAs($this->teacher)
-            ->post(route('exams.assign.groups', $this->exam), [
-                'group_ids' => [999] // ID qui n'existe pas
+        ['teacher' => $teacher, 'exam' => $exam] = $this->createExamWithGroup();
+
+        $response = $this->actingAs($teacher)
+            ->post(route('exams.assign.groups', $exam), [
+                'group_ids' => [999]
             ]);
 
         $response->assertSessionHasErrors('group_ids.0');
@@ -107,51 +95,52 @@ class ExamGroupAssignmentControllerTest extends TestCase
     #[Test]
     public function teacher_cannot_assign_exam_twice_to_same_group()
     {
-        // Première assignation
-        $this->actingAs($this->teacher)
-            ->post(route('exams.assign.groups', $this->exam), [
-                'group_ids' => [$this->group->id]
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group] = $this->createExamWithGroup();
+
+        $this->actingAs($teacher)
+            ->post(route('exams.assign.groups', $exam), [
+                'group_ids' => [$group->id]
             ]);
 
-        // Tentative de réassignation
-        $response = $this->actingAs($this->teacher)
-            ->post(route('exams.assign.groups', $this->exam), [
-                'group_ids' => [$this->group->id]
+        $response = $this->actingAs($teacher)
+            ->post(route('exams.assign.groups', $exam), [
+                'group_ids' => [$group->id]
             ]);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        // Vérifier qu'il n'y a toujours qu'une seule assignation
         $this->assertDatabaseCount('exam_group', 1);
     }
 
     #[Test]
     public function teacher_can_remove_exam_from_group()
     {
-        // Assigner l'examen au groupe
-        $this->exam->groups()->attach($this->group->id, [
-            'assigned_by' => $this->teacher->id,
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group] = $this->createExamWithGroup();
+
+        $exam->groups()->attach($group->id, [
+            'assigned_by' => $teacher->id,
             'assigned_at' => now(),
         ]);
 
-        $response = $this->actingAs($this->teacher)
-            ->delete(route('exams.groups.remove', [$this->exam, $this->group->id]));
+        $response = $this->actingAs($teacher)
+            ->delete(route('exams.groups.remove', [$exam, $group->id]));
 
         $response->assertSessionHas('success');
 
-        // Vérifier que l'assignation a été supprimée
         $this->assertDatabaseMissing('exam_group', [
-            'exam_id' => $this->exam->id,
-            'group_id' => $this->group->id
+            'exam_id' => $exam->id,
+            'group_id' => $group->id
         ]);
     }
 
     #[Test]
     public function teacher_cannot_remove_exam_from_non_assigned_group()
     {
-        $response = $this->actingAs($this->teacher)
-            ->delete(route('exams.groups.remove', [$this->exam, $this->group->id]));
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group] = $this->createExamWithGroup();
+
+        $response = $this->actingAs($teacher)
+            ->delete(route('exams.groups.remove', [$exam, $group->id]));
 
         $response->assertSessionHas('error');
     }
@@ -159,7 +148,8 @@ class ExamGroupAssignmentControllerTest extends TestCase
     #[Test]
     public function teacher_cannot_access_other_teacher_exam_group_assignments()
     {
-        // Créer un autre enseignant et son examen
+        ['teacher' => $teacher, 'group' => $group] = $this->createExamWithGroup();
+
         $otherTeacher = User::factory()->create();
         $otherTeacher->assignRole('teacher');
 
@@ -167,9 +157,9 @@ class ExamGroupAssignmentControllerTest extends TestCase
             'teacher_id' => $otherTeacher->id
         ]);
 
-        $response = $this->actingAs($this->teacher)
+        $response = $this->actingAs($teacher)
             ->post(route('exams.assign.groups', $otherExam), [
-                'group_ids' => [$this->group->id]
+                'group_ids' => [$group->id]
             ]);
 
         $response->assertForbidden();
@@ -178,9 +168,11 @@ class ExamGroupAssignmentControllerTest extends TestCase
     #[Test]
     public function student_cannot_access_group_assignment_routes()
     {
-        $response = $this->actingAs($this->student)
-            ->post(route('exams.assign.groups', $this->exam), [
-                'group_ids' => [$this->group->id]
+        ['student' => $student, 'exam' => $exam, 'group' => $group] = $this->createExamWithGroup();
+
+        $response = $this->actingAs($student)
+            ->post(route('exams.assign.groups', $exam), [
+                'group_ids' => [$group->id]
             ]);
 
         $response->assertForbidden();
@@ -189,13 +181,13 @@ class ExamGroupAssignmentControllerTest extends TestCase
     #[Test]
     public function assigning_exam_to_group_does_not_create_individual_assignments()
     {
-        // Assigner l'examen au groupe
-        $this->actingAs($this->teacher)
-            ->post(route('exams.assign.groups', $this->exam), [
-                'group_ids' => [$this->group->id]
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group] = $this->createExamWithGroup();
+
+        $this->actingAs($teacher)
+            ->post(route('exams.assign.groups', $exam), [
+                'group_ids' => [$group->id]
             ]);
 
-        // Vérifier qu'aucune assignation individuelle n'est créée automatiquement
         $this->assertDatabaseCount('exam_assignments', 0);
     }
 }
