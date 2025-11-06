@@ -10,6 +10,7 @@ use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\Test;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\InteractsWithTestData;
 
 /**
  * Tests pour Exam/ExamController (CRUD uniquement)
@@ -22,39 +23,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
  */
 class TeacherExamControllerTest extends TestCase
 {
-    use RefreshDatabase;
-
-    private User $teacher;
-    private User $student;
-    private Exam $exam;
+    use RefreshDatabase, InteractsWithTestData;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Utiliser le seeder pour créer les rôles et permissions
         $this->seed(RoleAndPermissionSeeder::class);
-
-        // Créer un enseignant
-        $this->teacher = User::factory()->create([
-            'email' => 'teacher@test.com',
-        ]);
-        $this->teacher->assignRole('teacher');
-
-        // Créer un étudiant
-        $this->student = User::factory()->create([
-            'email' => 'student@test.com',
-        ]);
-        $this->student->assignRole('student');
-
-        // Créer un examen
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id,
-            'title' => 'Test Exam',
-            'is_active' => true
-        ]);
-        $this->exam = $exam;
     }
 
     // ==================== INDEX ====================
@@ -62,7 +37,9 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function teacher_can_access_exam_index()
     {
-        $response = $this->actingAs($this->teacher)
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+
+        $response = $this->actingAs($teacher)
             ->get(route('exams.index'));
 
         $response->assertOk();
@@ -78,7 +55,9 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function teacher_can_view_create_form()
     {
-        $response = $this->actingAs($this->teacher)
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+
+        $response = $this->actingAs($teacher)
             ->get(route('exams.create'));
 
         $response->assertOk();
@@ -93,6 +72,8 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function teacher_can_create_exam()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+
         $examData = [
             'title' => 'New Exam',
             'description' => 'Test Description',
@@ -110,7 +91,7 @@ class TeacherExamControllerTest extends TestCase
             ]
         ];
 
-        $response = $this->actingAs($this->teacher)
+        $response = $this->actingAs($teacher)
             ->post(route('exams.store'), $examData);
 
         $response->assertRedirect();
@@ -118,17 +99,19 @@ class TeacherExamControllerTest extends TestCase
 
         $this->assertDatabaseHas('exams', [
             'title' => 'New Exam',
-            'teacher_id' => $this->teacher->id
+            'teacher_id' => $teacher->id
         ]);
     }
 
     #[Test]
     public function teacher_cannot_create_exam_with_invalid_data()
     {
-        $response = $this->actingAs($this->teacher)
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+
+        $response = $this->actingAs($teacher)
             ->post(route('exams.store'), [
-                'title' => '', // Titre vide
-                'duration' => -10 // Duration négative
+                'title' => '',
+                'duration' => -10
             ]);
 
         $response->assertSessionHasErrors(['title', 'duration']);
@@ -139,13 +122,19 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function teacher_can_view_exam_details()
     {
-        // Créer des questions pour l'examen
-        Question::factory()->count(3)->create([
-            'exam_id' => $this->exam->id
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create([
+            'teacher_id' => $teacher->id,
+            'title' => 'Test Exam',
+            'is_active' => true
         ]);
 
-        $response = $this->actingAs($this->teacher)
-            ->get(route('exams.show', $this->exam));
+        Question::factory()->count(3)->create([
+            'exam_id' => $exam->id
+        ]);
+
+        $response = $this->actingAs($teacher)
+            ->get(route('exams.show', $exam));
 
         $response->assertOk();
         $response->assertInertia(
@@ -159,15 +148,14 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function teacher_cannot_view_other_teacher_exam()
     {
-        // Créer un autre enseignant et son examen
-        $otherTeacher = User::factory()->create();
-        $otherTeacher->assignRole('teacher');
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $otherTeacher = $this->createTeacher(['email' => 'other@test.com']);
 
         $otherExam = Exam::factory()->create([
             'teacher_id' => $otherTeacher->id
         ]);
 
-        $response = $this->actingAs($this->teacher)
+        $response = $this->actingAs($teacher)
             ->get(route('exams.show', $otherExam));
 
         $response->assertForbidden();
@@ -178,8 +166,15 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function teacher_can_view_edit_form()
     {
-        $response = $this->actingAs($this->teacher)
-            ->get(route('exams.edit', $this->exam));
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create([
+            'teacher_id' => $teacher->id,
+            'title' => 'Test Exam',
+            'is_active' => true
+        ]);
+
+        $response = $this->actingAs($teacher)
+            ->get(route('exams.edit', $exam));
 
         $response->assertOk();
         $response->assertInertia(
@@ -192,14 +187,14 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function teacher_cannot_edit_other_teacher_exam()
     {
-        $otherTeacher = User::factory()->create();
-        $otherTeacher->assignRole('teacher');
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $otherTeacher = $this->createTeacher(['email' => 'other@test.com']);
 
         $otherExam = Exam::factory()->create([
             'teacher_id' => $otherTeacher->id
         ]);
 
-        $response = $this->actingAs($this->teacher)
+        $response = $this->actingAs($teacher)
             ->get(route('exams.edit', $otherExam));
 
         $response->assertForbidden();
@@ -210,12 +205,19 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function teacher_can_update_exam()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create([
+            'teacher_id' => $teacher->id,
+            'title' => 'Test Exam',
+            'is_active' => true
+        ]);
+
         $updateData = [
             'title' => 'Updated Title',
             'description' => 'Updated Description',
             'duration' => 90,
-            'start_date' => $this->exam->start_date,
-            'end_date' => $this->exam->end_date,
+            'start_date' => $exam->start_date,
+            'end_date' => $exam->end_date,
             'is_active' => false,
             'questions' => [
                 [
@@ -227,14 +229,14 @@ class TeacherExamControllerTest extends TestCase
             ]
         ];
 
-        $response = $this->actingAs($this->teacher)
-            ->put(route('exams.update', $this->exam), $updateData);
+        $response = $this->actingAs($teacher)
+            ->put(route('exams.update', $exam), $updateData);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('exams', [
-            'id' => $this->exam->id,
+            'id' => $exam->id,
             'title' => 'Updated Title',
             'duration' => 90
         ]);
@@ -243,19 +245,18 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function teacher_cannot_update_other_teacher_exam()
     {
-        $otherTeacher = User::factory()->create();
-        $otherTeacher->assignRole('teacher');
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $otherTeacher = $this->createTeacher(['email' => 'other@test.com']);
 
         $otherExam = Exam::factory()->create([
             'teacher_id' => $otherTeacher->id
         ]);
 
-        // Ajouter une question pour satisfaire la validation
         Question::factory()->create([
             'exam_id' => $otherExam->id
         ]);
 
-        $response = $this->actingAs($this->teacher)
+        $response = $this->actingAs($teacher)
             ->put(route('exams.update', $otherExam), [
                 'title' => 'Hacked Title',
                 'duration' => 60,
@@ -277,33 +278,39 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function teacher_can_delete_exam()
     {
-        $response = $this->actingAs($this->teacher)
-            ->delete(route('exams.destroy', $this->exam));
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create([
+            'teacher_id' => $teacher->id,
+            'title' => 'Test Exam',
+            'is_active' => true
+        ]);
+
+        $response = $this->actingAs($teacher)
+            ->delete(route('exams.destroy', $exam));
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
         $this->assertSoftDeleted('exams', [
-            'id' => $this->exam->id
+            'id' => $exam->id
         ]);
     }
 
     #[Test]
     public function teacher_cannot_delete_other_teacher_exam()
     {
-        $otherTeacher = User::factory()->create();
-        $otherTeacher->assignRole('teacher');
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $otherTeacher = $this->createTeacher(['email' => 'other@test.com']);
 
         $otherExam = Exam::factory()->create([
             'teacher_id' => $otherTeacher->id
         ]);
 
-        $response = $this->actingAs($this->teacher)
+        $response = $this->actingAs($teacher)
             ->delete(route('exams.destroy', $otherExam));
 
         $response->assertForbidden();
 
-        // Vérifier que l'examen n'a PAS été supprimé (il doit toujours exister)
         $this->assertNotSoftDeleted('exams', [
             'id' => $otherExam->id
         ]);
@@ -314,35 +321,38 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function teacher_can_duplicate_exam()
     {
-        // Créer des questions pour l'examen original
-        Question::factory()->count(3)->create([
-            'exam_id' => $this->exam->id
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create([
+            'teacher_id' => $teacher->id,
+            'title' => 'Test Exam',
+            'is_active' => true
         ]);
 
-        $response = $this->actingAs($this->teacher)
-            ->post(route('exams.duplicate', $this->exam));
+        Question::factory()->count(3)->create([
+            'exam_id' => $exam->id
+        ]);
+
+        $response = $this->actingAs($teacher)
+            ->post(route('exams.duplicate', $exam));
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        // Vérifier qu'un nouvel examen a été créé
         $this->assertDatabaseCount('exams', 2);
-
-        // Vérifier que les questions ont été dupliquées
         $this->assertDatabaseCount('questions', 6);
     }
 
     #[Test]
     public function teacher_cannot_duplicate_other_teacher_exam()
     {
-        $otherTeacher = User::factory()->create();
-        $otherTeacher->assignRole('teacher');
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $otherTeacher = $this->createTeacher(['email' => 'other@test.com']);
 
         $otherExam = Exam::factory()->create([
             'teacher_id' => $otherTeacher->id
         ]);
 
-        $response = $this->actingAs($this->teacher)
+        $response = $this->actingAs($teacher)
             ->post(route('exams.duplicate', $otherExam));
 
         $response->assertForbidden();
@@ -353,30 +363,37 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function teacher_can_toggle_exam_active_status()
     {
-        $this->assertTrue($this->exam->is_active);
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create([
+            'teacher_id' => $teacher->id,
+            'title' => 'Test Exam',
+            'is_active' => true
+        ]);
 
-        $response = $this->actingAs($this->teacher)
-            ->patch(route('exams.toggle-active', $this->exam));
+        $this->assertTrue($exam->is_active);
+
+        $response = $this->actingAs($teacher)
+            ->patch(route('exams.toggle-active', $exam));
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        $this->exam->refresh();
-        $this->assertFalse($this->exam->is_active);
+        $exam->refresh();
+        $this->assertFalse($exam->is_active);
     }
 
     #[Test]
     public function teacher_cannot_toggle_other_teacher_exam()
     {
-        $otherTeacher = User::factory()->create();
-        $otherTeacher->assignRole('teacher');
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $otherTeacher = $this->createTeacher(['email' => 'other@test.com']);
 
         $otherExam = Exam::factory()->create([
             'teacher_id' => $otherTeacher->id,
             'is_active' => true
         ]);
 
-        $response = $this->actingAs($this->teacher)
+        $response = $this->actingAs($teacher)
             ->patch(route('exams.toggle-active', $otherExam));
 
         $response->assertForbidden();
@@ -390,7 +407,9 @@ class TeacherExamControllerTest extends TestCase
     #[Test]
     public function student_cannot_access_teacher_exam_routes()
     {
-        $response = $this->actingAs($this->student)
+        $student = $this->createStudent(['email' => 'student@test.com']);
+
+        $response = $this->actingAs($student)
             ->get(route('exams.index'));
 
         $response->assertForbidden();
