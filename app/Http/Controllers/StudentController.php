@@ -16,7 +16,7 @@ use Inertia\Response as InertiaResponse;
 use App\Repositories\AssignmentRepository;
 use App\Services\Core\ExamQueryService;
 use App\Services\Student\ExamSessionService;
-use App\Services\Student\StudentExamAccessService;
+use App\Services\Student\StudentAssignmentQueryService;
 use App\Services\Core\Answer\AnswerFormatterService;
 use App\Services\Core\Scoring\ScoringService;
 use App\Http\Requests\Student\SubmitExamRequest;
@@ -34,7 +34,7 @@ class StudentController extends Controller
         private readonly ExamSessionService $examSessionService,
         private readonly ScoringService $scoringService,
         private readonly AnswerFormatterService $answerFormatter,
-        private readonly StudentExamAccessService $accessService
+        private readonly StudentAssignmentQueryService $studentAssignmentService
     ) {}
 
     /**
@@ -52,7 +52,7 @@ class StudentController extends Controller
 
         $perPage = $request->input('per_page', 15);
 
-        $groups = $this->examQueryService->getStudentGroupsWithStats($student, $perPage);
+        $groups = $this->studentAssignmentService->getStudentGroupsWithStats($student, $perPage);
 
         return Inertia::render('Student/Groups/Index', [
             'groups' => $groups,
@@ -73,27 +73,28 @@ class StudentController extends Controller
     {
         $student = $request->user();
 
-        $this->accessService->loadGroupLevel($group);
+        $group->loadMissing('level');
 
-        $studentPivot = $this->accessService->getStudentGroupMembership($group, $student);
+        $studentPivot = $group->students()
+            ->wherePivot('student_id', $student->id)
+            ->first(['group_student.is_active']);
 
         if (!$studentPivot) {
             abort(403, __('messages.not_member_of_group'));
         }
 
-        $isActiveGroup = $this->accessService->isActiveGroupMembership($studentPivot);
+        $isActiveGroup = $studentPivot && (bool) $studentPivot->pivot->is_active;
 
         $perPage = $request->input('per_page', 10);
         $status = $request->input('status') ?: null;
         $search = $request->input('search');
 
-        $pagination = $this->examQueryService->getExamsForStudentInGroup(
+        $pagination = $this->studentAssignmentService->getAssignmentsForStudentInGroup(
             $group,
             $student,
             $perPage,
             $status,
-            $search,
-            $isActiveGroup
+            $search
         );
 
         return Inertia::render('Student/Groups/Show', [
@@ -126,12 +127,20 @@ class StudentController extends Controller
 
         $canTake = $assignment->submitted_at === null;
 
-        $this->accessService->loadExamTeacher($exam);
+        $exam->loadMissing('teacher');
 
-        $group = $this->accessService->getStudentGroupForExam($exam, $student);
+        $group = $student->groups()
+            ->select('groups.id', 'groups.level_id')
+            ->whereHas('exams', function ($query) use ($exam) {
+                $query->where('exams.id', $exam->id);
+            })
+            ->with('level:id,name')
+            ->first();
 
         if ($canTake) {
-            $questionsCount = $this->accessService->getQuestionsCount($exam);
+            $questionsCount = $exam->relationLoaded('questions')
+                ? $exam->questions->count()
+                : $exam->questions()->count();
 
             return Inertia::render('Student/Exams/Show', [
                 'exam' => $exam,
@@ -143,8 +152,8 @@ class StudentController extends Controller
             ]);
         }
 
-        $this->accessService->loadExamQuestionsWithChoices($exam);
-        $this->accessService->loadAssignmentAnswers($assignment);
+        $exam->loadMissing('questions.choices');
+        $assignment->loadMissing('answers.choice');
         $userAnswers = $this->answerFormatter->formatForFrontend($assignment);
 
         return Inertia::render('Student/Exams/Results', [
@@ -187,11 +196,17 @@ class StudentController extends Controller
 
         $this->examSessionService->startExam($assignment);
 
-        $this->accessService->loadExamQuestionsWithChoices($exam);
+        $exam->loadMissing('questions.choices');
 
         $userAnswers = $this->answerFormatter->formatForFrontend($assignment);
 
-        $group = $this->accessService->getStudentGroupForExam($exam, $student);
+        $group = $student->groups()
+            ->select('groups.id', 'groups.level_id')
+            ->whereHas('exams', function ($query) use ($exam) {
+                $query->where('exams.id', $exam->id);
+            })
+            ->with('level:id,name')
+            ->first();
 
         return Inertia::render('Student/Exams/Take', [
             'exam' => $exam,
@@ -347,7 +362,9 @@ class StudentController extends Controller
 
         $autoScore = $this->scoringService->calculateAutoCorrectableScore($assignment);
 
-        $hasTextQuestions = $this->accessService->hasTextQuestions($exam);
+        $hasTextQuestions = $exam->relationLoaded('questions')
+            ? $exam->questions->contains('type', 'text')
+            : $exam->questions()->where('type', 'text')->exists();
 
         $isSecurityViolation = $validated['security_violation'] ?? false;
 
