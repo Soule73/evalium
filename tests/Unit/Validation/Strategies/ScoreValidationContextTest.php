@@ -12,53 +12,33 @@ use App\Models\User;
 use App\Strategies\Validation\Score\ScoreValidationContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
+use Tests\Traits\InteractsWithTestData;
 
 class ScoreValidationContextTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, InteractsWithTestData;
 
     private ScoreValidationContext $context;
-    private Exam $exam;
-    private User $teacher;
-    private User $student;
-    private Question $question;
 
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->seedRolesAndPermissions();
         $this->context = new ScoreValidationContext();
-
-        Role::create(['name' => 'teacher']);
-        Role::create(['name' => 'student']);
-
-        $this->teacher = User::factory()->create();
-        $this->teacher->assignRole('teacher');
-
-        $this->student = User::factory()->create();
-        $this->student->assignRole('student');
-
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create(['teacher_id' => $this->teacher->id]);
-
-        $this->exam = $exam;
-
-        /** @var Question $question */
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'points' => 10
-        ]);
-        $this->question = $question;
     }
 
     public function test_question_exists_in_exam_validation_strategy_passes(): void
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'points' => 10]);
+
         $data = [
             'scores' => [
                 [
-                    'question_id' => $this->question->id,
+                    'question_id' => $question->id,
                     'score' => 5
                 ]
             ]
@@ -69,7 +49,7 @@ class ScoreValidationContextTest extends TestCase
             $validator,
             $data,
             ['question_exists_in_exam'],
-            ['exam' => $this->exam]
+            ['exam' => $exam]
         );
 
         $this->assertFalse($validator->errors()->has('scores.0.question_id'));
@@ -77,6 +57,9 @@ class ScoreValidationContextTest extends TestCase
 
     public function test_question_exists_in_exam_validation_strategy_fails(): void
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+
         $data = [
             'scores' => [
                 [
@@ -91,7 +74,7 @@ class ScoreValidationContextTest extends TestCase
             $validator,
             $data,
             ['question_exists_in_exam'],
-            ['exam' => $this->exam]
+            ['exam' => $exam]
         );
 
         $this->assertTrue($validator->errors()->has('scores.0.question_id'));
@@ -99,10 +82,14 @@ class ScoreValidationContextTest extends TestCase
 
     public function test_score_not_exceeds_max_validation_strategy_passes(): void
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'points' => 10]);
+
         $data = [
             'scores' => [
                 [
-                    'question_id' => $this->question->id,
+                    'question_id' => $question->id,
                     'score' => 8
                 ]
             ]
@@ -113,7 +100,7 @@ class ScoreValidationContextTest extends TestCase
             $validator,
             $data,
             ['score_not_exceeds_max'],
-            ['exam' => $this->exam]
+            ['exam' => $exam]
         );
 
         $this->assertFalse($validator->errors()->has('scores.0.score'));
@@ -121,10 +108,14 @@ class ScoreValidationContextTest extends TestCase
 
     public function test_score_not_exceeds_max_validation_strategy_fails(): void
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'points' => 10]);
+
         $data = [
             'scores' => [
                 [
-                    'question_id' => $this->question->id,
+                    'question_id' => $question->id,
                     'score' => 15
                 ]
             ]
@@ -135,7 +126,7 @@ class ScoreValidationContextTest extends TestCase
             $validator,
             $data,
             ['score_not_exceeds_max'],
-            ['exam' => $this->exam]
+            ['exam' => $exam]
         );
 
         $this->assertTrue($validator->errors()->has('scores.0.score'));
@@ -143,9 +134,13 @@ class ScoreValidationContextTest extends TestCase
 
     public function test_single_question_exists_validation_strategy_passes(): void
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'points' => 10]);
+
         $data = [
-            'exam_id' => $this->exam->id,
-            'question_id' => $this->question->id,
+            'exam_id' => $exam->id,
+            'question_id' => $question->id,
             'score' => 8
         ];
 
@@ -158,8 +153,11 @@ class ScoreValidationContextTest extends TestCase
 
     public function test_single_question_exists_validation_strategy_fails_for_nonexistent_question(): void
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+
         $data = [
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'question_id' => 99999,
             'score' => 8
         ];
@@ -172,9 +170,13 @@ class ScoreValidationContextTest extends TestCase
 
     public function test_single_question_exists_validation_strategy_fails_for_exceeded_score(): void
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'points' => 10]);
+
         $data = [
-            'exam_id' => $this->exam->id,
-            'question_id' => $this->question->id,
+            'exam_id' => $exam->id,
+            'question_id' => $question->id,
             'score' => 15
         ];
 
@@ -186,20 +188,25 @@ class ScoreValidationContextTest extends TestCase
 
     public function test_student_assignment_validation_strategy_passes(): void
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'points' => 10]);
+
         $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id
+            'exam_id' => $exam->id,
+            'student_id' => $student->id
         ]);
 
         Answer::factory()->create([
             'assignment_id' => $assignment->id,
-            'question_id' => $this->question->id
+            'question_id' => $question->id
         ]);
 
         $data = [
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'question_id' => $this->question->id
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'question_id' => $question->id
         ];
 
         $validator = Validator::make($data, []);
@@ -210,10 +217,14 @@ class ScoreValidationContextTest extends TestCase
 
     public function test_student_assignment_validation_strategy_fails_for_non_student(): void
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'points' => 10]);
+
         $data = [
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->teacher->id,
-            'question_id' => $this->question->id
+            'exam_id' => $exam->id,
+            'student_id' => $teacher->id,
+            'question_id' => $question->id
         ];
 
         $validator = Validator::make($data, []);
@@ -224,10 +235,15 @@ class ScoreValidationContextTest extends TestCase
 
     public function test_student_assignment_validation_strategy_fails_when_not_assigned(): void
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'points' => 10]);
+
         $data = [
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'question_id' => $this->question->id
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'question_id' => $question->id
         ];
 
         $validator = Validator::make($data, []);
@@ -238,15 +254,20 @@ class ScoreValidationContextTest extends TestCase
 
     public function test_student_assignment_validation_strategy_fails_when_no_answer(): void
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'points' => 10]);
+
         ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id
+            'exam_id' => $exam->id,
+            'student_id' => $student->id
         ]);
 
         $data = [
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'question_id' => $this->question->id
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'question_id' => $question->id
         ];
 
         $validator = Validator::make($data, []);
@@ -257,10 +278,14 @@ class ScoreValidationContextTest extends TestCase
 
     public function test_multiple_validation_strategies_at_once(): void
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+        $question = Question::factory()->create(['exam_id' => $exam->id, 'points' => 10]);
+
         $data = [
             'scores' => [
                 [
-                    'question_id' => $this->question->id,
+                    'question_id' => $question->id,
                     'score' => 8
                 ]
             ]
@@ -271,7 +296,7 @@ class ScoreValidationContextTest extends TestCase
             $validator,
             $data,
             ['question_exists_in_exam', 'score_not_exceeds_max'],
-            ['exam' => $this->exam]
+            ['exam' => $exam]
         );
 
         $this->assertFalse($validator->errors()->has('scores.0.question_id'));
@@ -280,6 +305,9 @@ class ScoreValidationContextTest extends TestCase
 
     public function test_handles_empty_scores_array_gracefully(): void
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $exam = Exam::factory()->create(['teacher_id' => $teacher->id]);
+
         $data = ['scores' => []];
 
         $validator = Validator::make($data, []);
@@ -287,7 +315,7 @@ class ScoreValidationContextTest extends TestCase
             $validator,
             $data,
             ['question_exists_in_exam', 'score_not_exceeds_max'],
-            ['exam' => $this->exam]
+            ['exam' => $exam]
         );
 
         $this->assertFalse($validator->errors()->any());
