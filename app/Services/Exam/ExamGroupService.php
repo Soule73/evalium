@@ -10,8 +10,11 @@ use Illuminate\Support\Facades\Auth;
 /**
  * Exam Group Service
  * 
- * Manages the assignment of exams to groups with optimized bulk operations.
- * Handles group-exam relationships and student assignment tracking.
+ * Manages the exam_group pivot table relationships.
+ * Handles CRUD operations for exam-group assignments only.
+ * 
+ * Single Responsibility: Manage exam-group pivot relationships
+ * Statistics and detailed queries delegated to ExamStatsService
  * 
  * @package App\Services\Exam
  */
@@ -183,110 +186,5 @@ class ExamGroupService
             ->withCount('activeStudents')
             ->get()
             ->sum('active_students_count');
-    }
-
-    /**
-     * Get detailed group information with student assignments for an exam
-     *
-     * Returns paginated student data with assignment status, scores, and statistics.
-     * Supports filtering and searching.
-     *
-     * @param Exam $exam The exam
-     * @param Group $group The group
-     * @param array $params Query parameters (per_page, filter_status, search, page)
-     * @return array{assignments: \Illuminate\Pagination\LengthAwarePaginator, stats: array}
-     */
-    public function getGroupDetailsWithAssignments(Exam $exam, Group $group, array $params = []): array
-    {
-        $perPage = $params['per_page'] ?? 10;
-        $status = $params['filter_status'] ?? null;
-        $search = $params['search'] ?? null;
-        $page = $params['page'] ?? 1;
-
-        $group->load(['level']);
-
-        $allStudents = $group->activeStudents()->get();
-        $totalStudents = $allStudents->count();
-        $allStudentIds = $allStudents->pluck('id')->toArray();
-
-        $allAssignments = $exam->assignments()
-            ->whereIn('student_id', $allStudentIds)
-            ->get()
-            ->keyBy('student_id');
-
-        $filteredStudents = $allStudents;
-
-        if ($search) {
-            $filteredStudents = $allStudents->filter(function ($student) use ($search) {
-                return stripos($student->name, $search) !== false ||
-                    stripos($student->email, $search) !== false;
-            });
-        }
-
-        $students = new \Illuminate\Pagination\LengthAwarePaginator(
-            $filteredStudents->forPage($page, $perPage)->values(),
-            $filteredStudents->count(),
-            $perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-
-        $combinedData = $students->map(function ($student) use ($allAssignments, $exam) {
-            $assignment = $allAssignments->get($student->id);
-
-            if (!$assignment) {
-                return (object)[
-                    'id' => null,
-                    'student_id' => $student->id,
-                    'student' => $student,
-                    'exam_id' => $exam->id,
-                    'status' => 'not_started',
-                    'started_at' => null,
-                    'submitted_at' => null,
-                    'score' => null,
-                ];
-            }
-
-            $assignment->student = $student;
-            return $assignment;
-        });
-
-        if ($status) {
-            $combinedData = $combinedData->filter(function ($item) use ($status) {
-                if ($status === 'not_started') {
-                    return $item->started_at === null;
-                }
-                return $item->status === $status;
-            });
-        }
-
-        $paginatedData = new \Illuminate\Pagination\LengthAwarePaginator(
-            $combinedData->values(),
-            $students->total(),
-            $perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-
-        $inProgressCount = $allAssignments->filter(function ($assignment) {
-            return $assignment->started_at !== null && $assignment->submitted_at === null;
-        })->count();
-
-        $submittedCount = $allAssignments->filter(function ($assignment) {
-            return $assignment->submitted_at !== null;
-        })->count();
-
-        $stats = [
-            'total_students' => $totalStudents,
-            'completed' => $submittedCount,
-            'in_progress' => $inProgressCount,
-            'not_started' => $totalStudents - $inProgressCount - $submittedCount,
-            'average_score' => $allAssignments->whereNotNull('score')->avg('score')
-        ];
-
-        return [
-            'assignments' => $paginatedData->withQueryString(),
-            'stats' => $stats,
-        ];
     }
 }
