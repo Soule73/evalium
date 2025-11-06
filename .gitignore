@@ -34,3 +34,6 @@ CAHIER_DES_CHARGES_TECHNIQUE.md
 
 /docs
 package.json.ci-scripts
+
+.github/instructions
+.github/copilot-instructions.md
