@@ -76,7 +76,7 @@ class StudentDashboardServiceTest extends TestCase
     {
         $student = $this->createStudent();
         $exam = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
-        
+
         $this->createAssignmentForStudent($exam, $student, ['score' => null]);
 
         $result = $this->service->getPerformanceSummary($student);
@@ -237,7 +237,7 @@ class StudentDashboardServiceTest extends TestCase
     {
         $student = $this->createStudent();
         $exam = $this->createExamWithQuestions(examAttributes: ['is_active' => true], questionCount: 0);
-        
+
         $this->createAssignmentForStudent($exam, $student);
 
         $result = $this->service->getDashboardStats($student);

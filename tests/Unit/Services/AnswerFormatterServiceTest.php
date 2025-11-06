@@ -3,84 +3,45 @@
 namespace Tests\Unit\Services;
 
 use Tests\TestCase;
-use App\Models\Exam;
-use App\Models\User;
-use App\Models\Answer;
 use App\Models\Choice;
-use App\Models\Question;
-use App\Models\ExamAssignment;
-use Illuminate\Support\Collection;
-use Tests\Traits\CreatesTestRoles;
+use Tests\Traits\InteractsWithTestData;
 use PHPUnit\Framework\Attributes\Test;
 use App\Services\Core\Answer\AnswerFormatterService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class AnswerFormatterServiceTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestRoles;
+    use RefreshDatabase, InteractsWithTestData;
 
     private AnswerFormatterService $service;
-    private User $student;
-    private Exam $exam;
-    private ExamAssignment $assignment;
-    private $group;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->createTestRoles();
+        $this->seedRolesAndPermissions();
         $this->service = app(AnswerFormatterService::class);
-
-        // Créer un étudiant
-        $this->student = $this->createUserWithRole('student', [
-            'email' => 'student@test.com',
-        ]);
-
-        // Créer un groupe
-        $this->group = \App\Models\Group::factory()->create();
-
-        // Attacher l'étudiant au groupe
-        $this->group->students()->attach($this->student->id, [
-            'enrolled_at' => now(),
-            'is_active' => true,
-        ]);
-
-        // Créer un examen
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create([
-            'title' => 'Test Exam'
-        ]);
-        $this->exam = $exam;
-
-        // Créer une assignation
-        $this->assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'status' => 'submitted',
-            'score' => 85.5
-        ]);
     }
 
     #[Test]
     public function it_can_format_user_answers_for_frontend()
     {
-        // Créer différents types de questions
-        $textQuestion = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
+        $student = $this->createStudent();
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $assignment = $this->createAssignmentForStudent($exam, $student, [
+            'status' => 'submitted',
+            'score' => 85.5
+        ]);
+
+        $textQuestion = $this->createQuestionForExam($exam, 'text', [
             'content' => 'Text question',
             'points' => 5
         ]);
 
-        $multipleQuestion = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'multiple',
+        $multipleQuestion = $this->createQuestionForExam($exam, 'multiple', [
             'content' => 'Multiple choice question',
             'points' => 3
         ]);
 
-        // Créer des choix pour la question multiple
         $choice1 = Choice::factory()->create([
             'question_id' => $multipleQuestion->id,
             'content' => 'Choice 1',
@@ -93,40 +54,29 @@ class AnswerFormatterServiceTest extends TestCase
             'is_correct' => false
         ]);
 
-        // Utiliser l'assignment existant créé dans setUp()
-
-        // Créer des réponses
-        $textAnswer = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $textQuestion->id,
+        $this->createAnswerForQuestion($assignment, $textQuestion, [
             'answer_text' => 'Text answer',
             'score' => 4.5
         ]);
 
-        $multipleAnswer = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $multipleQuestion->id,
+        $this->createAnswerForQuestion($assignment, $multipleQuestion, [
             'choice_id' => $choice1->id,
             'score' => 3.0
         ]);
 
-        // Recharger l'assignment avec ses relations
-        $this->assignment->load(['answers.choice', 'exam.questions.choices']);
+        $assignment->load(['answers.choice', 'exam.questions.choices']);
 
-        $result = $this->service->formatForFrontend($this->assignment);
+        $result = $this->service->formatForFrontend($assignment);
 
         $this->assertIsArray($result);
         $this->assertNotEmpty($result);
 
-        // Le résultat est maintenant un tableau associatif avec question_id comme clés
         $this->assertArrayHasKey($textQuestion->id, $result);
         $this->assertArrayHasKey($multipleQuestion->id, $result);
 
-        // Vérifier la structure de la réponse text
         $this->assertEquals('Text answer', $result[$textQuestion->id]['answer_text']);
         $this->assertEquals(4.5, $result[$textQuestion->id]['score']);
 
-        // Vérifier la structure de la réponse multiple
         $this->assertEquals($choice1->id, $result[$multipleQuestion->id]['choice_id']);
         $this->assertEquals(3.0, $result[$multipleQuestion->id]['score']);
     }
@@ -134,30 +84,17 @@ class AnswerFormatterServiceTest extends TestCase
     #[Test]
     public function it_handles_answers_without_choices()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text'
-        ]);
+        $student = $this->createStudent(['email' => 'student2@test.com']);
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $assignment = $this->createAssignmentForStudent($exam, $student);
 
-        // Utiliser l'assignment existant créé dans setUp() avec un nouvel étudiant
-        $newStudent = User::factory()->create([
-            'email' => 'student2@test.com',
-        ]);
-        $newStudent->assignRole('student');
+        $question = $this->createQuestionForExam($exam, 'text');
 
-        $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $newStudent->id
-        ]);
-
-        $answer = Answer::factory()->create([
-            'assignment_id' => $assignment->id,
-            'question_id' => $question->id,
+        $this->createAnswerForQuestion($assignment, $question, [
             'answer_text' => 'Simple text answer',
             'choice_id' => null
         ]);
 
-        // Recharger l'assignment avec ses relations
         $assignment->load(['answers.choice', 'exam.questions.choices']);
 
         $result = $this->service->formatForFrontend($assignment);
@@ -171,16 +108,9 @@ class AnswerFormatterServiceTest extends TestCase
     #[Test]
     public function it_handles_empty_answers_collection()
     {
-        // Utiliser l'assignment existant créé dans setUp() avec un autre étudiant
-        $newStudent = User::factory()->create([
-            'email' => 'student3@test.com',
-        ]);
-        $newStudent->assignRole('student');
-
-        $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $newStudent->id
-        ]);
+        $student = $this->createStudent(['email' => 'student3@test.com']);
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $assignment = $this->createAssignmentForStudent($exam, $student);
 
         $result = $this->service->formatForFrontend($assignment);
 
@@ -191,11 +121,11 @@ class AnswerFormatterServiceTest extends TestCase
     #[Test]
     public function it_can_format_single_answer()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'one_choice',
-            'points' => 5
-        ]);
+        $student = $this->createStudent();
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $assignment = $this->createAssignmentForStudent($exam, $student);
+
+        $question = $this->createQuestionForExam($exam, 'one_choice', ['points' => 5]);
 
         $choice = Choice::factory()->create([
             'question_id' => $question->id,
@@ -203,9 +133,7 @@ class AnswerFormatterServiceTest extends TestCase
             'is_correct' => true
         ]);
 
-        $answer = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
+        $answer = $this->createAnswerForQuestion($assignment, $question, [
             'choice_id' => $choice->id,
             'score' => 5.0,
             'feedback' => 'Good job!'
@@ -224,11 +152,11 @@ class AnswerFormatterServiceTest extends TestCase
     #[Test]
     public function it_can_format_multiple_answers()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'multiple',
-            'points' => 10
-        ]);
+        $student = $this->createStudent();
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $assignment = $this->createAssignmentForStudent($exam, $student);
+
+        $question = $this->createQuestionForExam($exam, 'multiple', ['points' => 10]);
 
         $choice1 = Choice::factory()->create([
             'question_id' => $question->id,
@@ -242,17 +170,13 @@ class AnswerFormatterServiceTest extends TestCase
             'is_correct' => true
         ]);
 
-        $answer1 = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
+        $answer1 = $this->createAnswerForQuestion($assignment, $question, [
             'choice_id' => $choice1->id,
             'score' => 10.0,
             'feedback' => 'Correct!'
         ]);
 
-        $answer2 = Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
+        $answer2 = $this->createAnswerForQuestion($assignment, $question, [
             'choice_id' => $choice2->id,
             'score' => 10.0,
             'feedback' => 'Correct!'
@@ -276,34 +200,20 @@ class AnswerFormatterServiceTest extends TestCase
     #[Test]
     public function it_can_check_if_assignment_has_answers()
     {
-        $newStudent = User::factory()->create(['email' => 'student_has_answers@test.com']);
-        $newStudent->assignRole('student');
+        $student = $this->createStudent(['email' => 'student_has_answers@test.com']);
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $assignment = $this->createAssignmentForStudent($exam, $student);
 
-        $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $newStudent->id
-        ]);
+        $question = $this->createQuestionForExam($exam, 'text');
 
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text'
-        ]);
-
-        Answer::factory()->create([
-            'assignment_id' => $assignment->id,
-            'question_id' => $question->id,
+        $this->createAnswerForQuestion($assignment, $question, [
             'answer_text' => 'Test answer'
         ]);
 
         $this->assertTrue($this->service->hasAnswers($assignment));
 
-        $emptyStudent = User::factory()->create(['email' => 'student_no_answers@test.com']);
-        $emptyStudent->assignRole('student');
-
-        $emptyAssignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $emptyStudent->id
-        ]);
+        $emptyStudent = $this->createStudent(['email' => 'student_no_answers@test.com']);
+        $emptyAssignment = $this->createAssignmentForStudent($exam, $emptyStudent);
 
         $this->assertFalse($this->service->hasAnswers($emptyAssignment));
     }
@@ -311,54 +221,31 @@ class AnswerFormatterServiceTest extends TestCase
     #[Test]
     public function it_can_count_answered_questions()
     {
-        $newStudent = User::factory()->create(['email' => 'student_count@test.com']);
-        $newStudent->assignRole('student');
+        $student = $this->createStudent(['email' => 'student_count@test.com']);
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $assignment = $this->createAssignmentForStudent($exam, $student);
 
-        $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $newStudent->id
-        ]);
-
-        $question1 = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text'
-        ]);
-
-        $question2 = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'one_choice'
-        ]);
-
-        $question3 = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'multiple'
-        ]);
+        $question1 = $this->createQuestionForExam($exam, 'text');
+        $question2 = $this->createQuestionForExam($exam, 'one_choice');
+        $question3 = $this->createQuestionForExam($exam, 'multiple');
 
         $choice1 = Choice::factory()->create(['question_id' => $question2->id]);
         $choice2 = Choice::factory()->create(['question_id' => $question3->id]);
         $choice3 = Choice::factory()->create(['question_id' => $question3->id]);
 
-        Answer::factory()->create([
-            'assignment_id' => $assignment->id,
-            'question_id' => $question1->id,
+        $this->createAnswerForQuestion($assignment, $question1, [
             'answer_text' => 'Answer 1'
         ]);
 
-        Answer::factory()->create([
-            'assignment_id' => $assignment->id,
-            'question_id' => $question2->id,
+        $this->createAnswerForQuestion($assignment, $question2, [
             'choice_id' => $choice1->id
         ]);
 
-        Answer::factory()->create([
-            'assignment_id' => $assignment->id,
-            'question_id' => $question3->id,
+        $this->createAnswerForQuestion($assignment, $question3, [
             'choice_id' => $choice2->id
         ]);
 
-        Answer::factory()->create([
-            'assignment_id' => $assignment->id,
-            'question_id' => $question3->id,
+        $this->createAnswerForQuestion($assignment, $question3, [
             'choice_id' => $choice3->id
         ]);
 
@@ -370,40 +257,21 @@ class AnswerFormatterServiceTest extends TestCase
     #[Test]
     public function it_can_get_completion_stats()
     {
-        $newStudent = User::factory()->create(['email' => 'student_stats@test.com']);
-        $newStudent->assignRole('student');
+        $student = $this->createStudent(['email' => 'student_stats@test.com']);
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $assignment = $this->createAssignmentForStudent($exam, $student);
 
-        $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $newStudent->id
-        ]);
-
-        $question1 = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text'
-        ]);
-
-        $question2 = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'one_choice'
-        ]);
-
-        $question3 = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'multiple'
-        ]);
+        $question1 = $this->createQuestionForExam($exam, 'text');
+        $question2 = $this->createQuestionForExam($exam, 'one_choice');
+        $question3 = $this->createQuestionForExam($exam, 'multiple');
 
         $choice = Choice::factory()->create(['question_id' => $question2->id]);
 
-        Answer::factory()->create([
-            'assignment_id' => $assignment->id,
-            'question_id' => $question1->id,
+        $this->createAnswerForQuestion($assignment, $question1, [
             'answer_text' => 'Answer 1'
         ]);
 
-        Answer::factory()->create([
-            'assignment_id' => $assignment->id,
-            'question_id' => $question2->id,
+        $this->createAnswerForQuestion($assignment, $question2, [
             'choice_id' => $choice->id
         ]);
 
@@ -421,35 +289,20 @@ class AnswerFormatterServiceTest extends TestCase
     #[Test]
     public function it_can_get_completion_stats_for_complete_assignment()
     {
-        $newStudent = User::factory()->create(['email' => 'student_complete@test.com']);
-        $newStudent->assignRole('student');
+        $student = $this->createStudent(['email' => 'student_complete@test.com']);
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $assignment = $this->createAssignmentForStudent($exam, $student);
 
-        $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $newStudent->id
-        ]);
-
-        $question1 = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text'
-        ]);
-
-        $question2 = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'one_choice'
-        ]);
+        $question1 = $this->createQuestionForExam($exam, 'text');
+        $question2 = $this->createQuestionForExam($exam, 'one_choice');
 
         $choice = Choice::factory()->create(['question_id' => $question2->id]);
 
-        Answer::factory()->create([
-            'assignment_id' => $assignment->id,
-            'question_id' => $question1->id,
+        $this->createAnswerForQuestion($assignment, $question1, [
             'answer_text' => 'Answer 1'
         ]);
 
-        Answer::factory()->create([
-            'assignment_id' => $assignment->id,
-            'question_id' => $question2->id,
+        $this->createAnswerForQuestion($assignment, $question2, [
             'choice_id' => $choice->id
         ]);
 
@@ -467,24 +320,20 @@ class AnswerFormatterServiceTest extends TestCase
     #[Test]
     public function it_can_get_student_results_data()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
-        ]);
+        $student = $this->createStudent();
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $assignment = $this->createAssignmentForStudent($exam, $student);
 
-        $choice = Choice::factory()->create([
-            'question_id' => $question->id,
-        ]);
+        $question = $this->createQuestionForExam($exam, 'text', ['points' => 10]);
 
-        Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
+        Choice::factory()->create(['question_id' => $question->id]);
+
+        $this->createAnswerForQuestion($assignment, $question, [
             'answer_text' => 'Test answer',
             'score' => 8.5
         ]);
 
-        $result = $this->service->getStudentResultsData($this->assignment);
+        $result = $this->service->getStudentResultsData($assignment);
 
         $this->assertArrayHasKey('assignment', $result);
         $this->assertArrayHasKey('student', $result);
@@ -492,8 +341,8 @@ class AnswerFormatterServiceTest extends TestCase
         $this->assertArrayHasKey('userAnswers', $result);
         $this->assertArrayHasKey('stats', $result);
 
-        $this->assertEquals($this->assignment->id, $result['assignment']->id);
-        $this->assertEquals($this->student->id, $result['student']->id);
+        $this->assertEquals($assignment->id, $result['assignment']->id);
+        $this->assertEquals($student->id, $result['student']->id);
         $this->assertIsArray($result['userAnswers']);
         $this->assertIsArray($result['stats']);
     }
@@ -501,20 +350,24 @@ class AnswerFormatterServiceTest extends TestCase
     #[Test]
     public function it_can_get_student_results_data_in_group()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
+        $student = $this->createStudent();
+        $group = $this->createGroupWithStudents(studentCount: 0);
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $assignment = $this->createAssignmentForStudent($exam, $student);
+
+        $group->students()->attach($student->id, [
+            'enrolled_at' => now(),
+            'is_active' => true
         ]);
 
-        Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
+        $question = $this->createQuestionForExam($exam, 'text', ['points' => 10]);
+
+        $this->createAnswerForQuestion($assignment, $question, [
             'answer_text' => 'Test answer',
             'score' => 8.5
         ]);
 
-        $result = $this->service->getStudentResultsDataInGroup($this->exam, $this->group, $this->student);
+        $result = $this->service->getStudentResultsDataInGroup($exam, $group, $student);
 
         $this->assertArrayHasKey('assignment', $result);
         $this->assertArrayHasKey('student', $result);
@@ -524,39 +377,45 @@ class AnswerFormatterServiceTest extends TestCase
         $this->assertArrayHasKey('userAnswers', $result);
         $this->assertArrayHasKey('stats', $result);
 
-        $this->assertEquals($this->assignment->id, $result['assignment']->id);
-        $this->assertEquals($this->student->id, $result['student']->id);
-        $this->assertEquals($this->group->id, $result['group']->id);
+        $this->assertEquals($assignment->id, $result['assignment']->id);
+        $this->assertEquals($student->id, $result['student']->id);
+        $this->assertEquals($group->id, $result['group']->id);
     }
 
     #[Test]
     public function it_throws_exception_when_student_not_in_group_for_results()
     {
+        $student = $this->createStudent();
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $otherGroup = $this->createGroupWithStudents(studentCount: 0);
+
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $this->expectExceptionMessage('Student does not belong to this group or is not active.');
 
-        $otherGroup = \App\Models\Group::factory()->create();
-
-        $this->service->getStudentResultsDataInGroup($this->exam, $otherGroup, $this->student);
+        $this->service->getStudentResultsDataInGroup($exam, $otherGroup, $student);
     }
 
     #[Test]
     public function it_can_get_student_review_data()
     {
-        $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
-            'type' => 'text',
-            'points' => 10
+        $student = $this->createStudent();
+        $group = $this->createGroupWithStudents(studentCount: 0);
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $assignment = $this->createAssignmentForStudent($exam, $student);
+
+        $group->students()->attach($student->id, [
+            'enrolled_at' => now(),
+            'is_active' => true
         ]);
 
-        Answer::factory()->create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $question->id,
+        $question = $this->createQuestionForExam($exam, 'text', ['points' => 10]);
+
+        $this->createAnswerForQuestion($assignment, $question, [
             'answer_text' => 'Test answer',
             'score' => 8.5
         ]);
 
-        $result = $this->service->getStudentReviewData($this->exam, $this->group, $this->student);
+        $result = $this->service->getStudentReviewData($exam, $group, $student);
 
         $this->assertArrayHasKey('assignment', $result);
         $this->assertArrayHasKey('student', $result);
@@ -574,12 +433,14 @@ class AnswerFormatterServiceTest extends TestCase
     #[Test]
     public function it_throws_exception_when_student_not_in_group_for_review()
     {
+        $student = $this->createStudent();
+        $exam = $this->createExamWithQuestions(questionCount: 0);
+        $otherGroup = $this->createGroupWithStudents(studentCount: 0);
+
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $this->expectExceptionMessage('Student does not belong to this group.');
 
-        $otherGroup = \App\Models\Group::factory()->create();
-
-        $this->service->getStudentReviewData($this->exam, $otherGroup, $this->student);
+        $this->service->getStudentReviewData($exam, $otherGroup, $student);
     }
 
     #[Test]

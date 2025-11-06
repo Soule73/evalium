@@ -216,14 +216,14 @@ class LevelServiceTest extends TestCase
     public function it_loads_groups_count_when_getting_levels(): void
     {
         $level = $this->createLevel();
-        
+
         for ($i = 0; $i < 3; $i++) {
             $this->createGroupWithStudents(studentCount: 0, groupAttributes: [
                 'level_id' => $level->id,
                 'is_active' => true
             ]);
         }
-        
+
         $this->createGroupWithStudents(studentCount: 0, groupAttributes: [
             'level_id' => $level->id,
             'is_active' => false

@@ -3,50 +3,35 @@
 namespace Tests\Unit\Services\Exam;
 
 use Tests\TestCase;
-use App\Models\Exam;
-use App\Models\User;
-use App\Models\Group;
 use App\Models\ExamAssignment;
 use App\Services\Exam\ExamAssignmentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Tests\Traits\InteractsWithTestData;
 
 class ExamAssignmentServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, InteractsWithTestData;
 
     private ExamAssignmentService $service;
-    private Exam $exam;
-    private User $student;
-    private User $teacher;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->seed(\Database\Seeders\RoleAndPermissionSeeder::class);
-
+        $this->seedRolesAndPermissions();
         $this->service = new ExamAssignmentService();
-
-        $this->teacher = User::factory()->create();
-        $this->teacher->assignRole('teacher');
-
-        $this->student = User::factory()->create();
-        $this->student->assignRole('student');
-
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create(['teacher_id' => $this->teacher->id]);
-
-        $this->exam = $exam;
     }
 
     public function test_get_exam_assignments_returns_paginated_results(): void
     {
-        ExamAssignment::factory()->count(3)->create([
-            'exam_id' => $this->exam->id,
-        ]);
+        $teacher = $this->createTeacher();
+        $exam = $this->createExamWithQuestions($teacher, questionCount: 1);
+        $students = $this->createMultipleStudents(3);
 
-        $result = $this->service->getExamAssignments($this->exam, 10);
+        $this->createMultipleAssignments($exam, $students);
+
+        $result = $this->service->getExamAssignments($exam, perPage: 10);
 
         $this->assertInstanceOf(LengthAwarePaginator::class, $result);
         $this->assertEquals(3, $result->total());
@@ -54,22 +39,16 @@ class ExamAssignmentServiceTest extends TestCase
 
     public function test_get_exam_assignments_filters_by_search(): void
     {
-        $student1 = User::factory()->create(['name' => 'John Doe']);
-        $student1->assignRole('student');
-        $student2 = User::factory()->create(['name' => 'Jane Smith']);
-        $student2->assignRole('student');
+        $teacher = $this->createTeacher();
+        $exam = $this->createExamWithQuestions($teacher, questionCount: 1);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $student1->id,
-        ]);
+        $student1 = $this->createUserWithRole('student', ['name' => 'John Doe']);
+        $student2 = $this->createUserWithRole('student', ['name' => 'Jane Smith']);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $student2->id,
-        ]);
+        $this->createAssignmentForStudent($exam, $student1);
+        $this->createAssignmentForStudent($exam, $student2);
 
-        $result = $this->service->getExamAssignments($this->exam, 10, 'John');
+        $result = $this->service->getExamAssignments($exam, perPage: 10, search: 'John');
 
         $this->assertEquals(1, $result->total());
         $this->assertEquals('John Doe', $result->items()[0]->student->name);
@@ -77,17 +56,14 @@ class ExamAssignmentServiceTest extends TestCase
 
     public function test_get_exam_assignments_filters_by_status(): void
     {
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'status' => 'submitted',
-        ]);
+        $teacher = $this->createTeacher();
+        $exam = $this->createExamWithQuestions($teacher, questionCount: 1);
+        $students = $this->createMultipleStudents(2);
 
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'status' => 'graded',
-        ]);
+        $this->createSubmittedAssignment($exam, $students[0]);
+        $this->createGradedAssignment($exam, $students[1], score: 85);
 
-        $result = $this->service->getExamAssignments($this->exam, 10, null, 'submitted');
+        $result = $this->service->getExamAssignments($exam, perPage: 10, search: null, status: 'submitted');
 
         $this->assertEquals(1, $result->total());
         $this->assertEquals('submitted', $result->items()[0]->status);
@@ -95,41 +71,50 @@ class ExamAssignmentServiceTest extends TestCase
 
     public function test_assign_exam_to_student_creates_new_assignment(): void
     {
-        $result = $this->service->assignExamToStudent($this->exam, $this->student->id);
+        $teacher = $this->createTeacher();
+        $exam = $this->createExamWithQuestions($teacher, questionCount: 1);
+        $student = $this->createStudent();
+
+        $result = $this->service->assignExamToStudent($exam, $student->id);
 
         $this->assertTrue($result['was_created']);
         $this->assertInstanceOf(ExamAssignment::class, $result['assignment']);
-        $this->assertEquals($this->exam->id, $result['assignment']->exam_id);
-        $this->assertEquals($this->student->id, $result['assignment']->student_id);
+        $this->assertEquals($exam->id, $result['assignment']->exam_id);
+        $this->assertEquals($student->id, $result['assignment']->student_id);
     }
 
     public function test_assign_exam_to_student_returns_existing_assignment(): void
     {
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-        ]);
+        $teacher = $this->createTeacher();
+        $exam = $this->createExamWithQuestions($teacher, questionCount: 1);
+        $student = $this->createStudent();
 
-        $result = $this->service->assignExamToStudent($this->exam, $this->student->id);
+        $this->createAssignmentForStudent($exam, $student);
+
+        $result = $this->service->assignExamToStudent($exam, $student->id);
 
         $this->assertFalse($result['was_created']);
     }
 
     public function test_assign_exam_to_student_throws_for_non_student(): void
     {
+        $teacher = $this->createTeacher();
+        $exam = $this->createExamWithQuestions($teacher, questionCount: 1);
+
         $this->expectException(\InvalidArgumentException::class);
 
-        $this->service->assignExamToStudent($this->exam, $this->teacher->id);
+        $this->service->assignExamToStudent($exam, $teacher->id);
     }
 
     public function test_assign_exam_to_students_handles_multiple_students(): void
     {
-        $student2 = User::factory()->create();
-        $student2->assignRole('student');
+        $teacher = $this->createTeacher();
+        $exam = $this->createExamWithQuestions($teacher, questionCount: 1);
+        $students = $this->createMultipleStudents(2);
 
-        $studentIds = [$this->student->id, $student2->id];
+        $studentIds = [$students[0]->id, $students[1]->id];
 
-        $result = $this->service->assignExamToStudents($this->exam, $studentIds);
+        $result = $this->service->assignExamToStudents($exam, $studentIds);
 
         $this->assertTrue($result['success']);
         $this->assertEquals(2, $result['assigned_count']);
@@ -139,17 +124,11 @@ class ExamAssignmentServiceTest extends TestCase
 
     public function test_assign_exam_to_group_assigns_all_active_students(): void
     {
-        $group = Group::factory()->create();
+        $teacher = $this->createTeacher();
+        $exam = $this->createExamWithQuestions($teacher, questionCount: 1);
+        $group = $this->createGroupWithStudents(studentCount: 2);
 
-        $student2 = User::factory()->create();
-        $student2->assignRole('student');
-
-        $group->students()->attach([$this->student->id, $student2->id], [
-            'is_active' => true,
-            'enrolled_at' => now(),
-        ]);
-
-        $result = $this->service->assignExamToGroup($this->exam, $group->id);
+        $result = $this->service->assignExamToGroup($exam, $group->id);
 
         $this->assertTrue($result['success']);
         $this->assertEquals(2, $result['assigned_count']);
@@ -157,35 +136,41 @@ class ExamAssignmentServiceTest extends TestCase
 
     public function test_remove_student_assignment_deletes_assignment(): void
     {
-        ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-        ]);
+        $teacher = $this->createTeacher();
+        $exam = $this->createExamWithQuestions($teacher, questionCount: 1);
+        $student = $this->createStudent();
 
-        $result = $this->service->removeStudentAssignment($this->exam, $this->student);
+        $this->createAssignmentForStudent($exam, $student);
+
+        $result = $this->service->removeStudentAssignment($exam, $student);
 
         $this->assertTrue($result);
         $this->assertDatabaseMissing('exam_assignments', [
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
         ]);
     }
 
     public function test_remove_student_assignment_throws_if_not_assigned(): void
     {
+        $teacher = $this->createTeacher();
+        $exam = $this->createExamWithQuestions($teacher, questionCount: 1);
+        $student = $this->createStudent();
+
         $this->expectException(\InvalidArgumentException::class);
 
-        $this->service->removeStudentAssignment($this->exam, $this->student);
+        $this->service->removeStudentAssignment($exam, $student);
     }
 
     public function test_get_student_assignment_with_answers_loads_relations(): void
     {
-        $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-        ]);
+        $teacher = $this->createTeacher();
+        $exam = $this->createExamWithQuestions($teacher, questionCount: 1);
+        $student = $this->createStudent();
 
-        $result = $this->service->getStudentAssignmentWithAnswers($this->exam, $this->student);
+        $assignment = $this->createAssignmentForStudent($exam, $student);
+
+        $result = $this->service->getStudentAssignmentWithAnswers($exam, $student);
 
         $this->assertEquals($assignment->id, $result->id);
         $this->assertTrue($result->relationLoaded('answers'));
@@ -193,13 +178,13 @@ class ExamAssignmentServiceTest extends TestCase
 
     public function test_get_submitted_student_assignment_only_returns_submitted(): void
     {
-        $assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
-            'submitted_at' => now(),
-        ]);
+        $teacher = $this->createTeacher();
+        $exam = $this->createExamWithQuestions($teacher, questionCount: 1);
+        $student = $this->createStudent();
 
-        $result = $this->service->getSubmittedStudentAssignment($this->exam, $this->student);
+        $assignment = $this->createSubmittedAssignment($exam, $student);
+
+        $result = $this->service->getSubmittedStudentAssignment($exam, $student);
 
         $this->assertEquals($assignment->id, $result->id);
         $this->assertNotNull($result->submitted_at);
@@ -207,9 +192,11 @@ class ExamAssignmentServiceTest extends TestCase
 
     public function test_get_assignment_form_data_includes_necessary_data(): void
     {
-        $group = Group::factory()->create();
+        $teacher = $this->createTeacher();
+        $exam = $this->createExamWithQuestions($teacher, questionCount: 1);
+        $this->createEmptyGroup();
 
-        $result = $this->service->getAssignmentFormData($this->exam);
+        $result = $this->service->getAssignmentFormData($exam);
 
         $this->assertArrayHasKey('exam', $result);
         $this->assertArrayHasKey('students', $result);
