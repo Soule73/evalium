@@ -13,89 +13,70 @@ use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\Test;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\InteractsWithTestData;
 
 class ExamCorrectionControllerTest extends TestCase
 {
-    use RefreshDatabase;
-
-    private User $teacher;
-    private User $student;
-    private Exam $exam;
-    private Group $group;
-    private Question $question;
-    private ExamAssignment $assignment;
+    use RefreshDatabase, InteractsWithTestData;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Utiliser le seeder pour créer les rôles et permissions
         $this->seed(RoleAndPermissionSeeder::class);
+    }
 
-        // Créer un enseignant
-        $this->teacher = User::factory()->create([
-            'email' => 'teacher@test.com',
-        ]);
-        $this->teacher->assignRole('teacher');
+    private function createExamWithQuestionAndSubmission(): array
+    {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $student = $this->createStudent(['email' => 'student@test.com']);
 
-        // Créer un étudiant
-        $this->student = User::factory()->create([
-            'email' => 'student@test.com',
-        ]);
-        $this->student->assignRole('student');
-
-        // Créer un groupe et y ajouter l'étudiant
-        $this->group = Group::factory()->create();
-        $this->group->students()->attach($this->student->id, [
+        $group = Group::factory()->create();
+        $group->students()->attach($student->id, [
             'is_active' => true,
             'enrolled_at' => now(),
         ]);
 
-        // Créer un examen
-        /** @var Exam $exam */
         $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id,
+            'teacher_id' => $teacher->id,
             'title' => 'Test Exam',
             'is_active' => true
         ]);
-        $this->exam = $exam;
 
-        // Assigner l'examen au groupe
-        $this->exam->groups()->attach($this->group->id, [
+        $exam->groups()->attach($group->id, [
             'assigned_at' => now(),
-            'assigned_by' => $this->teacher->id,
+            'assigned_by' => $teacher->id,
         ]);
 
-        // Créer une question
-        /** @var Question $question */
         $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'type' => 'text',
             'points' => 10
         ]);
-        $this->question = $question;
 
-        // Créer une assignation soumise
-        $this->assignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
-            'student_id' => $this->student->id,
+        $assignment = ExamAssignment::factory()->create([
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
             'status' => 'submitted',
             'submitted_at' => now(),
         ]);
 
-        // Créer une réponse
         Answer::create([
-            'assignment_id' => $this->assignment->id,
-            'question_id' => $this->question->id,
+            'assignment_id' => $assignment->id,
+            'question_id' => $question->id,
             'answer_text' => 'Student answer'
         ]);
+
+        return compact('teacher', 'student', 'exam', 'group', 'question', 'assignment');
     }
 
     #[Test]
     public function teacher_can_view_student_review_page()
     {
-        $response = $this->actingAs($this->teacher)
-            ->get(route('exams.review', [$this->exam, $this->group, $this->student]));
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group, 'student' => $student] = $this->createExamWithQuestionAndSubmission();
+
+        $response = $this->actingAs($teacher)
+            ->get(route('exams.review', [$exam, $group, $student]));
 
         $response->assertOk();
         $response->assertInertia(
@@ -109,11 +90,13 @@ class ExamCorrectionControllerTest extends TestCase
     #[Test]
     public function teacher_can_save_student_review()
     {
-        $response = $this->actingAs($this->teacher)
-            ->post(route('exams.review.save', [$this->exam, $this->group, $this->student]), [
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group, 'student' => $student, 'question' => $question, 'assignment' => $assignment] = $this->createExamWithQuestionAndSubmission();
+
+        $response = $this->actingAs($teacher)
+            ->post(route('exams.review.save', [$exam, $group, $student]), [
                 'scores' => [
                     [
-                        'question_id' => $this->question->id,
+                        'question_id' => $question->id,
                         'score' => 8.5,
                         'feedback' => 'Good answer'
                     ]
@@ -121,24 +104,25 @@ class ExamCorrectionControllerTest extends TestCase
                 'teacher_notes' => 'Excellent work overall'
             ]);
 
-        $response->assertRedirect(route('exams.review', [$this->exam, $this->group, $this->student]));
+        $response->assertRedirect(route('exams.review', [$exam, $group, $student]));
         $response->assertSessionHas('success');
 
-        // Vérifier que l'assignment existe toujours
-        $this->assignment->refresh();
-        $this->assertNotNull($this->assignment);
+        $assignment->refresh();
+        $this->assertNotNull($assignment);
     }
 
     #[Test]
     public function teacher_can_update_single_question_score()
     {
-        $response = $this->actingAs($this->teacher)
-            ->postJson(route('exams.score.update', $this->exam), [
-                'exam_id' => $this->exam->id,
-                'student_id' => $this->student->id,
-                'question_id' => $this->question->id,
+        ['teacher' => $teacher, 'exam' => $exam, 'student' => $student, 'question' => $question, 'assignment' => $assignment] = $this->createExamWithQuestionAndSubmission();
+
+        $response = $this->actingAs($teacher)
+            ->postJson(route('exams.score.update', $exam), [
+                'exam_id' => $exam->id,
+                'student_id' => $student->id,
+                'question_id' => $question->id,
                 'score' => 8.5,
-                'teacher_notes' => 'Good answer' // Sera mappé à feedback
+                'teacher_notes' => 'Good answer'
             ]);
 
         $response->assertOk();
@@ -146,9 +130,8 @@ class ExamCorrectionControllerTest extends TestCase
             'success' => true
         ]);
 
-        // Vérifier que le score a été mis à jour
-        $answer = Answer::where('assignment_id', $this->assignment->id)
-            ->where('question_id', $this->question->id)
+        $answer = Answer::where('assignment_id', $assignment->id)
+            ->where('question_id', $question->id)
             ->first();
 
         $this->assertEquals(8.5, $answer->score);
@@ -158,27 +141,30 @@ class ExamCorrectionControllerTest extends TestCase
     #[Test]
     public function teacher_cannot_give_score_higher_than_max_points()
     {
-        $response = $this->actingAs($this->teacher)
-            ->postJson(route('exams.score.update', $this->exam), [
-                'exam_id' => $this->exam->id,
-                'student_id' => $this->student->id,
-                'question_id' => $this->question->id,
-                'score' => 15, // Max est 10
+        ['teacher' => $teacher, 'exam' => $exam, 'student' => $student, 'question' => $question] = $this->createExamWithQuestionAndSubmission();
+
+        $response = $this->actingAs($teacher)
+            ->postJson(route('exams.score.update', $exam), [
+                'exam_id' => $exam->id,
+                'student_id' => $student->id,
+                'question_id' => $question->id,
+                'score' => 15,
                 'teacher_notes' => 'Too much'
             ]);
 
-        // Devrait échouer la validation
         $response->assertStatus(422);
     }
 
     #[Test]
     public function teacher_can_save_review_with_feedback_only()
     {
-        $response = $this->actingAs($this->teacher)
-            ->post(route('exams.review.save', [$this->exam, $this->group, $this->student]), [
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group, 'student' => $student, 'question' => $question] = $this->createExamWithQuestionAndSubmission();
+
+        $response = $this->actingAs($teacher)
+            ->post(route('exams.review.save', [$exam, $group, $student]), [
                 'scores' => [
                     [
-                        'question_id' => $this->question->id,
+                        'question_id' => $question->id,
                         'score' => 0,
                         'feedback' => 'Needs improvement'
                     ]
@@ -192,35 +178,35 @@ class ExamCorrectionControllerTest extends TestCase
     #[Test]
     public function teacher_cannot_review_non_submitted_exam()
     {
-        // Créer une nouvelle assignation non soumise
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group] = $this->createExamWithQuestionAndSubmission();
+
         $newStudent = User::factory()->create();
         $newStudent->assignRole('student');
 
-        // Ajouter le nouvel étudiant au groupe
-        $this->group->students()->attach($newStudent->id, [
+        $group->students()->attach($newStudent->id, [
             'is_active' => true,
             'enrolled_at' => now(),
         ]);
 
         $newAssignment = ExamAssignment::factory()->create([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'student_id' => $newStudent->id,
             'status' => null,
             'started_at' => now(),
             'submitted_at' => null,
         ]);
 
-        $response = $this->actingAs($this->teacher)
-            ->get(route('exams.review', [$this->exam, $this->group, $newStudent]));
+        $response = $this->actingAs($teacher)
+            ->get(route('exams.review', [$exam, $group, $newStudent]));
 
-        // Devrait quand même permettre l'accès (pour préparer la correction)
         $response->assertOk();
     }
 
     #[Test]
     public function teacher_cannot_access_other_teacher_exam_correction()
     {
-        // Créer un autre enseignant et son examen
+        ['teacher' => $teacher] = $this->createExamWithQuestionAndSubmission();
+
         $otherTeacher = User::factory()->create();
         $otherTeacher->assignRole('teacher');
 
@@ -245,7 +231,7 @@ class ExamCorrectionControllerTest extends TestCase
             'submitted_at' => now(),
         ]);
 
-        $response = $this->actingAs($this->teacher)
+        $response = $this->actingAs($teacher)
             ->get(route('exams.review', [$otherExam, $otherGroup, $otherStudent]));
 
         $response->assertForbidden();
@@ -254,8 +240,10 @@ class ExamCorrectionControllerTest extends TestCase
     #[Test]
     public function student_cannot_access_correction_routes()
     {
-        $response = $this->actingAs($this->student)
-            ->get(route('exams.review', [$this->exam, $this->group, $this->student]));
+        ['student' => $student, 'exam' => $exam, 'group' => $group] = $this->createExamWithQuestionAndSubmission();
+
+        $response = $this->actingAs($student)
+            ->get(route('exams.review', [$exam, $group, $student]));
 
         $response->assertForbidden();
     }
@@ -263,37 +251,37 @@ class ExamCorrectionControllerTest extends TestCase
     #[Test]
     public function teacher_can_save_review_with_multiple_questions()
     {
-        // Créer des questions supplémentaires
+        ['teacher' => $teacher, 'exam' => $exam, 'group' => $group, 'student' => $student, 'question' => $question, 'assignment' => $assignment] = $this->createExamWithQuestionAndSubmission();
+
         $question2 = Question::factory()->create([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'type' => 'text',
             'points' => 5
         ]);
 
         $question3 = Question::factory()->create([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'type' => 'multiple',
             'points' => 3
         ]);
 
-        // Créer des réponses pour ces questions
         Answer::create([
-            'assignment_id' => $this->assignment->id,
+            'assignment_id' => $assignment->id,
             'question_id' => $question2->id,
             'answer_text' => 'Answer 2'
         ]);
 
         Answer::create([
-            'assignment_id' => $this->assignment->id,
+            'assignment_id' => $assignment->id,
             'question_id' => $question3->id,
             'answer_text' => 'Answer 3'
         ]);
 
-        $response = $this->actingAs($this->teacher)
-            ->post(route('exams.review.save', [$this->exam, $this->group, $this->student]), [
+        $response = $this->actingAs($teacher)
+            ->post(route('exams.review.save', [$exam, $group, $student]), [
                 'scores' => [
                     [
-                        'question_id' => $this->question->id,
+                        'question_id' => $question->id,
                         'score' => 8.5,
                         'feedback' => 'Good'
                     ],
@@ -318,20 +306,21 @@ class ExamCorrectionControllerTest extends TestCase
     #[Test]
     public function teacher_can_update_score_with_notes()
     {
-        $response = $this->actingAs($this->teacher)
-            ->postJson(route('exams.score.update', $this->exam), [
-                'exam_id' => $this->exam->id,
-                'student_id' => $this->student->id,
-                'question_id' => $this->question->id,
+        ['teacher' => $teacher, 'exam' => $exam, 'student' => $student, 'question' => $question, 'assignment' => $assignment] = $this->createExamWithQuestionAndSubmission();
+
+        $response = $this->actingAs($teacher)
+            ->postJson(route('exams.score.update', $exam), [
+                'exam_id' => $exam->id,
+                'student_id' => $student->id,
+                'question_id' => $question->id,
                 'score' => 7.5,
                 'teacher_notes' => 'Could be better, work on...'
             ]);
 
         $response->assertOk();
 
-        // Vérifier le feedback (teacher_notes est mappé à feedback)
-        $answer = Answer::where('assignment_id', $this->assignment->id)
-            ->where('question_id', $this->question->id)
+        $answer = Answer::where('assignment_id', $assignment->id)
+            ->where('question_id', $question->id)
             ->first();
 
         $this->assertEquals('Could be better, work on...', $answer->feedback);
