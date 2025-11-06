@@ -21,8 +21,10 @@ class QuestionModelTest extends TestCase
     {
         parent::setUp();
 
-        // Créer un examen
-        $this->exam = Exam::factory()->create();
+        /** @var Exam $exam */
+        $exam = Exam::factory()->create();
+
+        $this->exam = $exam;
     }
 
     #[Test]

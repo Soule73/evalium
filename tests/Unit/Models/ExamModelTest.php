@@ -11,44 +11,39 @@ use App\Models\Choice;
 use App\Models\Answer;
 use App\Models\ExamAssignment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Role;
+use Tests\Traits\InteractsWithTestData;
 
 class ExamModelTest extends TestCase
 {
-    use RefreshDatabase;
-
-    private User $teacher;
+    use RefreshDatabase, InteractsWithTestData;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Créer le rôle enseignant
-        Role::create(['name' => 'teacher']);
-
-        // Créer un enseignant
-        $this->teacher = User::factory()->create([
-            'email' => 'teacher@test.com',
-        ]);
-        $this->teacher->assignRole('teacher');
+        $this->seedRolesAndPermissions();
     }
 
     #[Test]
     public function exam_belongs_to_teacher()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+
         $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id
+            'teacher_id' => $teacher->id
         ]);
 
         $this->assertInstanceOf(User::class, $exam->teacher);
-        $this->assertEquals($this->teacher->id, $exam->teacher->id);
+        $this->assertEquals($teacher->id, $exam->teacher->id);
     }
 
     #[Test]
     public function exam_has_many_questions()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+
         $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id
+            'teacher_id' => $teacher->id
         ]);
 
         $questions = Question::factory()->count(3)->create([
@@ -62,8 +57,10 @@ class ExamModelTest extends TestCase
     #[Test]
     public function exam_has_many_assignments()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+
         $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id
+            'teacher_id' => $teacher->id
         ]);
 
         $assignments = ExamAssignment::factory()->count(2)->create([
@@ -77,8 +74,10 @@ class ExamModelTest extends TestCase
     #[Test]
     public function exam_calculates_total_points()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+
         $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id
+            'teacher_id' => $teacher->id
         ]);
 
         Question::factory()->create([
@@ -91,7 +90,6 @@ class ExamModelTest extends TestCase
             'points' => 10
         ]);
 
-        // Refresh the exam to load the questions relationship
         $exam->refresh();
         $this->assertEquals(15, $exam->total_points);
     }
@@ -99,14 +97,15 @@ class ExamModelTest extends TestCase
     #[Test]
     public function exam_counts_unique_participants()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+
         $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id
+            'teacher_id' => $teacher->id
         ]);
 
         $student1 = User::factory()->create();
         $student2 = User::factory()->create();
 
-        // Créer des assignations pour les étudiants
         ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
             'student_id' => $student1->id
@@ -141,8 +140,10 @@ class ExamModelTest extends TestCase
     #[Test]
     public function exam_casts_attributes_correctly()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+
         $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id,
+            'teacher_id' => $teacher->id,
             'start_time' => '2025-01-01 10:00:00',
             'end_time' => '2025-01-01 12:00:00',
             'is_active' => 1
@@ -157,13 +158,15 @@ class ExamModelTest extends TestCase
     #[Test]
     public function exam_can_determine_if_active()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+
         $activeExam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id,
+            'teacher_id' => $teacher->id,
             'is_active' => true
         ]);
 
         $inactiveExam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id,
+            'teacher_id' => $teacher->id,
             'is_active' => false
         ]);
 
@@ -174,15 +177,16 @@ class ExamModelTest extends TestCase
     #[Test]
     public function exam_has_answers_through_questions()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+
         $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id
+            'teacher_id' => $teacher->id
         ]);
 
         $question = Question::factory()->create([
             'exam_id' => $exam->id
         ]);
 
-        // Créer un assignment
         $assignment = ExamAssignment::factory()->create([
             'exam_id' => $exam->id,
             'student_id' => User::factory()->create()->id
@@ -200,11 +204,12 @@ class ExamModelTest extends TestCase
     #[Test]
     public function exam_questions_are_ordered_by_order_index()
     {
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+
         $exam = Exam::factory()->create([
-            'teacher_id' => $this->teacher->id
+            'teacher_id' => $teacher->id
         ]);
 
-        // Créer des questions dans un ordre différent
         $question3 = Question::factory()->create([
             'exam_id' => $exam->id,
             'order_index' => 3,
