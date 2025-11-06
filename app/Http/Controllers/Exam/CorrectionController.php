@@ -58,7 +58,13 @@ class CorrectionController extends Controller
         $this->authorize('review', $exam);
 
         try {
-            $result = $this->examScoringService->saveManualCorrection($exam, $student, $request->validated());
+            $assignment = $exam->assignments()
+                ->where('student_id', $student->id)
+                ->whereNotNull('submitted_at')
+                ->firstOrFail();
+
+            $teacherNotes = $request->validated()['teacher_notes'] ?? null;
+            $result = $this->examScoringService->saveCorrections($assignment, $request->validated(), $teacherNotes);
 
             $message = __('messages.scores_saved', [
                 'updated_answers' => $result['updated_count'],
@@ -113,7 +119,7 @@ class CorrectionController extends Controller
                 ]
             ];
 
-            $this->examScoringService->saveTeacherCorrections($assignment, $scores);
+            $this->examScoringService->saveCorrections($assignment, $scores);
 
             return response()->json([
                 'success' => true,

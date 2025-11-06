@@ -9,7 +9,7 @@ use App\Models\User;
 
 trait CreatesTestExams
 {
-    protected function createExamWithQuestions(User $teacher = null, array $examAttributes = [], int $questionCount = 3): Exam
+    protected function createExamWithQuestions(?User $teacher = null, array $examAttributes = [], int $questionCount = 3): Exam
     {
         $teacher = $teacher ?? $this->createTeacher();
 
@@ -40,7 +40,7 @@ trait CreatesTestExams
         return $exam->load('questions.choices');
     }
 
-    protected function createTextQuestionExam(User $teacher = null, array $examAttributes = []): Exam
+    protected function createTextQuestionExam(?User $teacher = null, array $examAttributes = []): Exam
     {
         $teacher = $teacher ?? $this->createTeacher();
 
@@ -59,7 +59,7 @@ trait CreatesTestExams
         return $exam->load('questions');
     }
 
-    protected function createMultipleChoiceQuestionExam(User $teacher = null, array $examAttributes = []): Exam
+    protected function createMultipleChoiceQuestionExam(?User $teacher = null, array $examAttributes = []): Exam
     {
         $teacher = $teacher ?? $this->createTeacher();
 

@@ -52,7 +52,7 @@ trait CreatesTestAssignments
         ], $attributes));
     }
 
-    protected function assignExamToGroup(Exam $exam, Group $group, User $assignedBy = null): void
+    protected function assignExamToGroup(Exam $exam, Group $group, ?User $assignedBy = null): void
     {
         $assignedBy = $assignedBy ?? $exam->teacher;
 
@@ -89,7 +89,7 @@ trait CreatesTestAssignments
         return $answers;
     }
 
-    protected function createMultipleAssignments(Exam $exam, array $students, string $status = null): array
+    protected function createMultipleAssignments(Exam $exam, array $students, ?string $status = null): array
     {
         $assignments = [];
 
