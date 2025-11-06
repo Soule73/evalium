@@ -373,7 +373,7 @@ class ExamScoringServiceTest extends TestCase
             ]
         ];
 
-        $result1 = $this->service->saveTeacherCorrections($this->assignment, $scores);
+        $result1 = $this->service->saveCorrections($this->assignment, $scores);
         $this->assertTrue($result1['success']);
 
         $this->assignment->update(['submitted_at' => now()]);
@@ -384,7 +384,7 @@ class ExamScoringServiceTest extends TestCase
             ]
         ];
 
-        $result2 = $this->service->saveManualCorrection($this->exam, $this->student, $data);
+        $result2 = $this->service->saveCorrections($this->assignment, $data);
         $this->assertTrue($result2['success']);
     }
 }

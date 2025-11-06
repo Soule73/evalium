@@ -11,24 +11,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 /**
  * Exam Assignment Service - Manage exam assignments to students
  * 
- * Single Responsibility: Handle exam-student assignments and statistics
- * Dependencies: ExamGroupService for group-based assignments
+ * Single Responsibility: Handle exam-student assignments CRUD only
+ * Statistics calculations delegated to ExamStatsService
  */
 class ExamAssignmentService
 {
-    public function __construct(
-        private ExamGroupService $examGroupService
-    ) {}
-
-    /**
-     * Get paginated exam assignments with filters
-     *
-     * @param Exam $exam Target exam
-     * @param int $perPage Number of items per page
-     * @param string|null $search Search term for student name/email
-     * @param string|null $status Filter by assignment status
-     * @return LengthAwarePaginator
-     */
     /**
      * Get paginated exam assignments with filters
      *
@@ -60,54 +47,6 @@ class ExamAssignmentService
         }
 
         return $query->paginate($perPage)->withQueryString();
-    }
-
-    /**
-     * Calculate exam assignment statistics
-     *
-     * @param Exam $exam Target exam
-     * @return array Statistics with counts and rates
-     */
-    /**
-     * Calculate exam assignment statistics
-     *
-     * @param Exam $exam Target exam
-     * @return array Statistics with counts and rates
-     */
-    public function getExamAssignmentStats(Exam $exam): array
-    {
-        $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
-
-        $totalStudentsInGroups = $assignedGroups->sum(function ($group) {
-            return $group->activeStudents->count();
-        });
-
-        $allAssignments = $exam->assignments()->get();
-
-        $assignedStudentsCount = $allAssignments->count();
-
-        $notAssignedYet = $totalStudentsInGroups - $assignedStudentsCount;
-
-        $inProgressCount = $allAssignments->filter(function ($assignment) {
-            return $assignment->started_at !== null && $assignment->submitted_at === null;
-        })->count();
-
-        $notStartedCount = $allAssignments->filter(function ($assignment) {
-            return $assignment->started_at === null;
-        })->count();
-
-        $completedCount = $allAssignments->whereIn('status', ['submitted', 'graded'])->count();
-
-        return [
-            'total_assigned' => $totalStudentsInGroups,
-            'total_submitted' => $completedCount,
-            'completed' => $completedCount,
-            'in_progress' => $inProgressCount,
-            'not_started' => $notStartedCount + $notAssignedYet,
-            'completion_rate' => $totalStudentsInGroups > 0 ?
-                ($completedCount / $totalStudentsInGroups) * 100 : 0,
-            'average_score' => $allAssignments->whereNotNull('score')->avg('score')
-        ];
     }
 
     /**
@@ -255,12 +194,6 @@ class ExamAssignmentService
      * @param Exam $exam Target exam
      * @return array Form data with students, groups, and assigned IDs
      */
-    /**
-     * Get form data for assignment creation
-     *
-     * @param Exam $exam Target exam
-     * @return array Form data with students, groups, and assigned IDs
-     */
     public function getAssignmentFormData(Exam $exam): array
     {
         $exam->load(['questions', 'assignments.student']);
@@ -286,78 +219,6 @@ class ExamAssignmentService
             'groups' => $groups,
             'alreadyAssigned' => $assignedStudentIds,
             'assignedStudentIds' => $assignedStudentIds
-        ];
-    }
-
-    /**
-     * Get paginated assignments with filters and statistics
-     *
-     * @param Exam $exam Target exam
-     * @param array $params Filter and pagination parameters
-     * @return array Assignments, statistics, and assigned groups
-     */
-    public function getPaginatedAssignments(Exam $exam, array $params): array
-    {
-        $allAssignments = $exam->assignments()->with('student')->get();
-
-        $filtered = $allAssignments;
-
-        if ($params['search']) {
-            $searchTerm = strtolower($params['search']);
-            $filtered = $filtered->filter(function ($assignment) use ($searchTerm) {
-                return str_contains(strtolower($assignment->student->name ?? ''), $searchTerm) ||
-                    str_contains(strtolower($assignment->student->email ?? ''), $searchTerm);
-            });
-        }
-
-        if ($params['filter_status']) {
-            $filtered = $filtered->where('status', $params['filter_status']);
-        }
-
-        $sortBy = $params['sort_by'] === 'user_name' ? 'assigned_at' : $params['sort_by'];
-        $sortDirection = $params['sort_direction'] === 'desc';
-        $sorted = $filtered->sortBy($sortBy, SORT_REGULAR, $sortDirection)->values();
-
-        $currentPage = request()->input('page', 1);
-        $perPage = $params['per_page'];
-        $paginated = $sorted->forPage($currentPage, $perPage);
-
-        $assignments = new \Illuminate\Pagination\LengthAwarePaginator(
-            $paginated,
-            $sorted->count(),
-            $perPage,
-            $currentPage,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-
-        $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
-        $totalStudentsInGroups = $assignedGroups->sum('active_students_count');
-
-        $assignedStudentsCount = $allAssignments->count();
-
-        $notAssignedYet = $totalStudentsInGroups - $assignedStudentsCount;
-
-        $inProgressCount = $allAssignments->filter(function ($assignment) {
-            return $assignment->started_at !== null && $assignment->submitted_at === null;
-        })->count();
-
-        $notStartedCount = $allAssignments->filter(function ($assignment) {
-            return $assignment->started_at === null;
-        })->count();
-
-        $stats = [
-            'total_assigned' => $totalStudentsInGroups,
-            'completed' => $allAssignments->whereIn('status', ['submitted', 'graded'])->count(),
-            'in_progress' => $inProgressCount,
-            'not_started' => $notStartedCount + $notAssignedYet,
-            'average_score' => $allAssignments->whereNotNull('score')->avg('score')
-        ];
-
-        return [
-            'exam' => $exam,
-            'assignments' => $assignments,
-            'stats' => $stats,
-            'assignedGroups' => $assignedGroups
         ];
     }
 }
