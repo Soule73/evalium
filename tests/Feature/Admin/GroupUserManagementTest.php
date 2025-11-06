@@ -8,11 +8,12 @@ use App\Models\Level;
 use Tests\TestCase;
 use App\Services\Admin\UserManagementService;
 use App\Services\Admin\GroupService;
+use Tests\Traits\InteractsWithTestData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class GroupUserManagementTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, InteractsWithTestData;
 
     protected function setUp(): void
     {
@@ -55,7 +56,6 @@ class GroupUserManagementTest extends TestCase
         $oldGroup = Group::factory()->create();
         $newGroup = Group::factory()->create();
 
-        // Assigner initialement au premier groupe
         $student->groups()->attach($oldGroup->id, [
             'enrolled_at' => now()->subDays(10),
             'is_active' => true,
@@ -67,14 +67,12 @@ class GroupUserManagementTest extends TestCase
 
         $student->refresh();
 
-        // Vérifier que l'ancien groupe est inactif
         $oldMembership = $student->groups()
             ->where('group_id', $oldGroup->id)
             ->wherePivot('is_active', false)
             ->first();
         $this->assertNotNull($oldMembership);
 
-        // Vérifier que le nouveau groupe est actif
         $newMembership = $student->groups()
             ->where('group_id', $newGroup->id)
             ->wherePivot('is_active', true)
@@ -86,7 +84,6 @@ class GroupUserManagementTest extends TestCase
     {
         $group = Group::factory()->create(['max_students' => 1]);
 
-        // Remplir le groupe
         $existingStudent = User::factory()->create()->assignRole('student');
         $existingStudent->groups()->attach($group->id, [
             'enrolled_at' => now(),
