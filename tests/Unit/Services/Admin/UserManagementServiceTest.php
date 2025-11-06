@@ -5,18 +5,17 @@ namespace Tests\Unit\Services\Admin;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Group;
-use App\Models\Level;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Support\Facades\Notification;
 use App\Services\Admin\UserManagementService;
 use App\Notifications\UserCredentialsNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\InteractsWithTestData;
 
 class UserManagementServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, InteractsWithTestData;
 
     private UserManagementService $service;
 
@@ -24,11 +23,8 @@ class UserManagementServiceTest extends TestCase
     {
         parent::setUp();
 
+        $this->seedRolesAndPermissions();
         $this->service = app(UserManagementService::class);
-
-        Role::create(['name' => 'admin', 'guard_name' => 'web']);
-        Role::create(['name' => 'teacher', 'guard_name' => 'web']);
-        Role::create(['name' => 'student', 'guard_name' => 'web']);
     }
 
     #[Test]
@@ -36,15 +32,9 @@ class UserManagementServiceTest extends TestCase
     {
         Cache::flush();
 
-        $level = Level::factory()->create(['name' => 'Level 1']);
-        $activeGroup = Group::factory()->create([
-            'is_active' => true,
-            'level_id' => $level->id
-        ]);
-        Group::factory()->create([
-            'is_active' => false,
-            'level_id' => $level->id
-        ]);
+        $level = $this->createLevel(['name' => 'Level 1']);
+        $activeGroup = $this->createGroupWithStudents(0, ['is_active' => true, 'level_id' => $level->id]);
+        $this->createGroupWithStudents(0, ['is_active' => false, 'level_id' => $level->id]);
 
         $groups = $this->service->getActiveGroupsWithLevels();
 
@@ -59,8 +49,8 @@ class UserManagementServiceTest extends TestCase
     {
         Cache::flush();
 
-        $level = Level::factory()->create();
-        Group::factory()->create(['is_active' => true, 'level_id' => $level->id]);
+        $level = $this->createLevel();
+        $this->createGroupWithStudents(0, ['is_active' => true, 'level_id' => $level->id]);
 
         $this->service->getActiveGroupsWithLevels();
 
@@ -70,7 +60,7 @@ class UserManagementServiceTest extends TestCase
     #[Test]
     public function it_can_restore_a_soft_deleted_user()
     {
-        $user = User::factory()->create(['name' => 'Deleted User']);
+        $user = $this->createStudent(['name' => 'Deleted User']);
         $user->delete();
 
         $this->assertSoftDeleted('users', ['id' => $user->id]);
@@ -96,7 +86,7 @@ class UserManagementServiceTest extends TestCase
     #[Test]
     public function it_can_force_delete_a_user()
     {
-        $user = User::factory()->create(['name' => 'To Be Deleted']);
+        $user = $this->createStudent(['name' => 'To Be Deleted']);
         $userId = $user->id;
 
         $result = $this->service->forceDeleteUser($userId);
@@ -108,7 +98,7 @@ class UserManagementServiceTest extends TestCase
     #[Test]
     public function it_can_force_delete_a_soft_deleted_user()
     {
-        $user = User::factory()->create();
+        $user = $this->createStudent();
         $userId = $user->id;
         $user->delete();
 
@@ -131,10 +121,8 @@ class UserManagementServiceTest extends TestCase
     #[Test]
     public function it_can_get_paginated_users()
     {
-        $currentUser = User::factory()->create();
-        User::factory()->count(15)->create()->each(function ($user) {
-            $user->assignRole('student');
-        });
+        $currentUser = $this->createTeacher();
+        collect()->times(15, fn() => $this->createStudent());
 
         $result = $this->service->getUserWithPagination(
             ['per_page' => 10],
@@ -149,8 +137,8 @@ class UserManagementServiceTest extends TestCase
     #[Test]
     public function it_excludes_current_user_from_pagination()
     {
-        $currentUser = User::factory()->create();
-        User::factory()->count(5)->create();
+        $currentUser = $this->createTeacher();
+        collect()->times(5, fn() => $this->createStudent());
 
         $result = $this->service->getUserWithPagination([], 10, $currentUser);
 
@@ -161,9 +149,9 @@ class UserManagementServiceTest extends TestCase
     #[Test]
     public function it_can_filter_users_by_role()
     {
-        $currentUser = User::factory()->create();
-        User::factory()->count(3)->create()->each(fn($u) => $u->assignRole('student'));
-        User::factory()->count(2)->create()->each(fn($u) => $u->assignRole('teacher'));
+        $currentUser = $this->createTeacher();
+        collect()->times(3, fn() => $this->createStudent());
+        collect()->times(2, fn() => $this->createTeacher());
 
         $result = $this->service->getUserWithPagination(
             ['role' => 'student'],
@@ -177,9 +165,9 @@ class UserManagementServiceTest extends TestCase
     #[Test]
     public function it_can_filter_users_by_status()
     {
-        $currentUser = User::factory()->create();
-        User::factory()->count(3)->create(['is_active' => true]);
-        User::factory()->count(2)->create(['is_active' => false]);
+        $currentUser = $this->createTeacher();
+        collect()->times(3, fn() => $this->createStudent(['is_active' => true]));
+        collect()->times(2, fn() => $this->createStudent(['is_active' => false]));
 
         $result = $this->service->getUserWithPagination(
             ['status' => 'active'],
@@ -195,9 +183,9 @@ class UserManagementServiceTest extends TestCase
     #[Test]
     public function it_can_search_users_by_name_or_email()
     {
-        $currentUser = User::factory()->create();
-        User::factory()->create(['name' => 'John Doe', 'email' => 'john@example.com']);
-        User::factory()->create(['name' => 'Jane Smith', 'email' => 'jane@example.com']);
+        $currentUser = $this->createTeacher();
+        $this->createStudent(['name' => 'John Doe', 'email' => 'john@example.com']);
+        $this->createStudent(['name' => 'Jane Smith', 'email' => 'jane@example.com']);
 
         $result = $this->service->getUserWithPagination(
             ['search' => 'John'],
@@ -214,8 +202,8 @@ class UserManagementServiceTest extends TestCase
     {
         Notification::fake();
 
-        $level = Level::factory()->create();
-        $group = Group::factory()->create(['level_id' => $level->id]);
+        $level = $this->createLevel();
+        $group = $this->createGroupWithStudents(0, ['level_id' => $level->id]);
 
         $userData = [
             'name' => 'Test Student',
@@ -237,8 +225,7 @@ class UserManagementServiceTest extends TestCase
     #[Test]
     public function it_can_update_user()
     {
-        $user = User::factory()->create(['name' => 'Old Name']);
-        $user->assignRole('student');
+        $user = $this->createStudent(['name' => 'Old Name']);
 
         $updateData = [
             'name' => 'New Name',
@@ -258,7 +245,7 @@ class UserManagementServiceTest extends TestCase
     #[Test]
     public function it_can_soft_delete_user()
     {
-        $user = User::factory()->create();
+        $user = $this->createStudent();
 
         $this->service->delete($user);
 
@@ -268,7 +255,7 @@ class UserManagementServiceTest extends TestCase
     #[Test]
     public function it_can_toggle_user_status()
     {
-        $user = User::factory()->create(['is_active' => true]);
+        $user = $this->createStudent(['is_active' => true]);
 
         $this->service->toggleStatus($user);
         $this->assertFalse($user->is_active);
@@ -280,11 +267,10 @@ class UserManagementServiceTest extends TestCase
     #[Test]
     public function it_can_change_student_group()
     {
-        $level = Level::factory()->create();
-        $newGroup = Group::factory()->create(['level_id' => $level->id]);
+        $level = $this->createLevel();
+        $newGroup = $this->createGroupWithStudents(0, ['level_id' => $level->id]);
 
-        $student = User::factory()->create();
-        $student->assignRole('student');
+        $student = $this->createStudent();
 
         $this->service->changeStudentGroup($student, $newGroup->id);
 
@@ -298,8 +284,7 @@ class UserManagementServiceTest extends TestCase
     #[Test]
     public function it_throws_exception_when_changing_group_for_non_student()
     {
-        $user = User::factory()->create();
-        $user->assignRole('teacher');
+        $user = $this->createTeacher();
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("User must be a student.");
