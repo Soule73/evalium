@@ -9,29 +9,23 @@ use App\Models\Question;
 use App\Models\ExamAssignment;
 use PHPUnit\Framework\Attributes\Test;
 use Database\Seeders\RoleAndPermissionSeeder;
+use Tests\Traits\InteractsWithTestData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExamSecurityViolationTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, InteractsWithTestData;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        // Utiliser le seeder pour créer les rôles et permissions
         $this->seed(RoleAndPermissionSeeder::class);
     }
 
-    #[Test]
-    public function security_violation_changes_status_to_submitted()
+    private function createExamWithAssignment(): array
     {
-        // Arrange: Create teacher, student, exam with questions
-        $teacher = User::factory()->create();
-        $teacher->assignRole('teacher');
-
-        $student = User::factory()->create();
-        $student->assignRole('student');
+        $teacher = $this->createTeacher(['email' => 'teacher@test.com']);
+        $student = $this->createStudent(['email' => 'student@test.com']);
 
         $exam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
@@ -39,10 +33,9 @@ class ExamSecurityViolationTest extends TestCase
             'duration' => 60,
         ]);
 
-        // Create a question so we can calculate auto_score
         Question::factory()->create([
             'exam_id' => $exam->id,
-            'type' => 'multiple', // Correction: utiliser 'multiple' au lieu de 'multiple'
+            'type' => 'multiple',
             'points' => 10,
         ]);
 
@@ -54,7 +47,14 @@ class ExamSecurityViolationTest extends TestCase
             'started_at' => now(),
         ]);
 
-        // Act: Report a security violation
+        return compact('teacher', 'student', 'exam', 'assignment');
+    }
+
+    #[Test]
+    public function security_violation_changes_status_to_submitted()
+    {
+        ['student' => $student, 'exam' => $exam, 'assignment' => $assignment] = $this->createExamWithAssignment();
+
         $response = $this->actingAs($student)->postJson(
             route('student.exams.security-violation', $exam->id),
             [
@@ -64,7 +64,6 @@ class ExamSecurityViolationTest extends TestCase
             ]
         );
 
-        // Assert: Check response
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
@@ -72,7 +71,6 @@ class ExamSecurityViolationTest extends TestCase
             'violation_type' => 'tab_switch',
         ]);
 
-        // Assert: Check database - status should be submitted
         $this->assertDatabaseHas('exam_assignments', [
             'id' => $assignment->id,
             'status' => 'submitted',
@@ -80,7 +78,6 @@ class ExamSecurityViolationTest extends TestCase
             'forced_submission' => true,
         ]);
 
-        // Verify the assignment was updated
         $assignment->refresh();
         $this->assertEquals('submitted', $assignment->status);
         $this->assertEquals('tab_switch', $assignment->security_violation);
@@ -91,33 +88,7 @@ class ExamSecurityViolationTest extends TestCase
     #[Test]
     public function security_violation_saves_auto_score()
     {
-        // Arrange
-        $teacher = User::factory()->create();
-        $teacher->assignRole('teacher');
-
-        $student = User::factory()->create();
-        $student->assignRole('student');
-
-        $exam = Exam::factory()->create([
-            'teacher_id' => $teacher->id,
-            'is_active' => true,
-            'duration' => 60,
-        ]);
-
-        // Create questions with auto-correctable answers
-        $question = Question::factory()->create([
-            'exam_id' => $exam->id,
-            'type' => 'multiple', // Utiliser 'multiple' au lieu de 'multiple'
-            'points' => 10,
-        ]);
-
-        $assignment = ExamAssignment::create([
-            'exam_id' => $exam->id,
-            'student_id' => $student->id,
-            'status' => null,
-            'assigned_at' => now(),
-            'started_at' => now(),
-        ]);
+        ['student' => $student, 'exam' => $exam, 'assignment' => $assignment] = $this->createExamWithAssignment();
 
         $response = $this->actingAs($student)->postJson(
             route('student.exams.security-violation', $exam->id),
@@ -128,7 +99,6 @@ class ExamSecurityViolationTest extends TestCase
             ]
         );
 
-        // Assert
         $response->assertStatus(200);
 
         $assignment->refresh();
@@ -140,16 +110,11 @@ class ExamSecurityViolationTest extends TestCase
     #[Test]
     public function security_violation_records_violation_type()
     {
-        // Test différents types de violations
         $violationTypes = ['tab_switch', 'fullscreen_exit', 'browser_change', 'copy_paste'];
 
         foreach ($violationTypes as $type) {
-            // Arrange - créer un nouvel exam pour chaque test pour éviter les contraintes UNIQUE
-            $teacher = User::factory()->create();
-            $teacher->assignRole('teacher');
-
-            $student = User::factory()->create();
-            $student->assignRole('student');
+            $teacher = $this->createTeacher();
+            $student = $this->createStudent();
 
             $exam = Exam::factory()->create([
                 'teacher_id' => $teacher->id,
@@ -164,7 +129,6 @@ class ExamSecurityViolationTest extends TestCase
                 'started_at' => now(),
             ]);
 
-            // Act
             $response = $this->actingAs($student)->postJson(
                 route('student.exams.security-violation', $exam->id),
                 [
@@ -174,7 +138,6 @@ class ExamSecurityViolationTest extends TestCase
                 ]
             );
 
-            // Assert
             $response->assertStatus(200);
             $response->assertJson([
                 'success' => true,
@@ -192,12 +155,8 @@ class ExamSecurityViolationTest extends TestCase
     #[Test]
     public function cannot_report_violation_for_exam_not_started()
     {
-        // Arrange
-        $teacher = User::factory()->create();
-        $teacher->assignRole('teacher');
-
-        $student = User::factory()->create();
-        $student->assignRole('student');
+        $teacher = $this->createTeacher();
+        $student = $this->createStudent();
 
         $exam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
@@ -211,7 +170,6 @@ class ExamSecurityViolationTest extends TestCase
             'assigned_at' => now(),
         ]);
 
-        // Act: Try to report violation
         $response = $this->actingAs($student)->postJson(
             route('student.exams.security-violation', $exam->id),
             [
@@ -221,19 +179,14 @@ class ExamSecurityViolationTest extends TestCase
             ]
         );
 
-        // Assert: Should fail because exam is not started
         $response->assertStatus(404);
     }
 
     #[Test]
     public function security_violation_saves_student_answers()
     {
-        // Arrange
-        $teacher = User::factory()->create();
-        $teacher->assignRole('teacher');
-
-        $student = User::factory()->create();
-        $student->assignRole('student');
+        $teacher = $this->createTeacher();
+        $student = $this->createStudent();
 
         $exam = Exam::factory()->create([
             'teacher_id' => $teacher->id,
@@ -265,10 +218,8 @@ class ExamSecurityViolationTest extends TestCase
             ]
         );
 
-        // Assert
         $response->assertStatus(200);
 
-        // Check that answer was saved
         $this->assertDatabaseHas('answers', [
             'assignment_id' => $assignment->id,
             'question_id' => $question->id,
