@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Exam;
 
+use App\Strategies\Validation\Score\ScoreValidationContext;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -64,9 +65,6 @@ class SaveStudentReviewRequest extends FormRequest
     /**
      * Configure additional validation logic after the initial validation rules.
      *
-     * This method allows you to add custom validation logic or modify the validator instance
-     * before the validation process is completed.
-     *
      * @param \Illuminate\Validation\Validator $validator The validator instance.
      * @return void
      */
@@ -80,27 +78,13 @@ class SaveStudentReviewRequest extends FormRequest
                 return;
             }
 
-            foreach ($data['scores'] as $index => $scoreData) {
-                if (!isset($scoreData['question_id']) || !isset($scoreData['score'])) {
-                    continue;
-                }
-
-                $question = $exam->questions()->where('id', $scoreData['question_id'])->first();
-
-                if (!$question) {
-                    $validator->errors()->add(
-                        "scores.{$index}.question_id",
-                        __('validation.custom.question_id.not_in_exam')
-                    );
-                } else {
-                    if ($scoreData['score'] > $question->points) {
-                        $validator->errors()->add(
-                            "scores.{$index}.score",
-                            __('validation.custom.score.exceeds_max', ['max' => $question->points])
-                        );
-                    }
-                }
-            }
+            $validationContext = new ScoreValidationContext();
+            $validationContext->validate(
+                $validator,
+                $data,
+                ['question_exists_in_exam', 'score_not_exceeds_max'],
+                ['exam' => $exam]
+            );
         });
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Exam;
 
 use App\Models\User;
+use App\Strategies\Validation\Score\ScoreValidationContext;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -71,8 +72,6 @@ class UpdateScoreRequest extends FormRequest
     /**
      * Configure additional validation logic after the initial validation rules have been applied.
      *
-     * This method allows for custom validation to be performed using the provided validator instance.
-     *
      * @param \Illuminate\Validation\Validator $validator The validator instance to use for custom validation.
      * @return void
      */
@@ -81,59 +80,12 @@ class UpdateScoreRequest extends FormRequest
         $validator->after(function ($validator) {
             $data = $validator->getData();
 
-            if (isset($data['exam_id']) && isset($data['question_id'])) {
-                $question = \App\Models\Question::where('id', $data['question_id'])
-                    ->where('exam_id', $data['exam_id'])
-                    ->first();
-
-                if (!$question) {
-                    $validator->errors()->add(
-                        'question_id',
-                        __('validation.custom.question_id.not_in_exam')
-                    );
-                } else {
-                    if (isset($data['score']) && $data['score'] > $question->points) {
-                        $validator->errors()->add(
-                            'score',
-                            __('validation.custom.score.exceeds_max', ['max' => $question->points])
-                        );
-                    }
-                }
-            }
-
-            if (isset($data['student_id']) && isset($data['question_id']) && isset($data['exam_id'])) {
-                $assignment = \App\Models\ExamAssignment::where('student_id', $data['student_id'])
-                    ->where('exam_id', $data['exam_id'])
-                    ->first();
-
-                if (!$assignment) {
-                    $validator->errors()->add(
-                        'student_id',
-                        __('validation.custom.student_id.not_assigned')
-                    );
-                } else {
-                    $answer = \App\Models\Answer::where('assignment_id', $assignment->id)
-                        ->where('question_id', $data['question_id'])
-                        ->first();
-
-                    if (!$answer) {
-                        $validator->errors()->add(
-                            'student_id',
-                            __('validation.custom.student_id.no_answer')
-                        );
-                    }
-                }
-            }
-
-            if (isset($data['student_id'])) {
-                $student = User::find($data['student_id']);
-                if (!$student || !$student->hasRole('student')) {
-                    $validator->errors()->add(
-                        'student_id',
-                        __('validation.custom.student_id.not_student')
-                    );
-                }
-            }
+            $validationContext = new ScoreValidationContext();
+            $validationContext->validate(
+                $validator,
+                $data,
+                ['single_question_exists', 'student_assignment']
+            );
         });
     }
 
