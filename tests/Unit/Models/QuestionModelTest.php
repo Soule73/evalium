@@ -10,39 +10,39 @@ use App\Models\Choice;
 use App\Models\Question;
 use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\InteractsWithTestData;
 
 class QuestionModelTest extends TestCase
 {
-    use RefreshDatabase;
-
-    private Exam $exam;
+    use RefreshDatabase, InteractsWithTestData;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        /** @var Exam $exam */
-        $exam = Exam::factory()->create();
-
-        $this->exam = $exam;
+        $this->seedRolesAndPermissions();
     }
 
     #[Test]
     public function question_belongs_to_exam()
     {
+        $exam = Exam::factory()->create();
+
         $question = Question::factory()->create([
-            'exam_id' => $this->exam->id
+            'exam_id' => $exam->id
         ]);
 
         $this->assertInstanceOf(Exam::class, $question->exam);
-        $this->assertEquals($this->exam->id, $question->exam->id);
+        $this->assertEquals($exam->id, $question->exam->id);
     }
 
     #[Test]
     public function question_has_many_choices()
     {
+        $exam = Exam::factory()->create();
+
         $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'type' => 'multiple'
         ]);
 
@@ -57,8 +57,10 @@ class QuestionModelTest extends TestCase
     #[Test]
     public function question_has_many_answers()
     {
+        $exam = Exam::factory()->create();
+
         $question = Question::factory()->create([
-            'exam_id' => $this->exam->id
+            'exam_id' => $exam->id
         ]);
 
         $answers = Answer::factory()->count(3)->create([
@@ -88,11 +90,13 @@ class QuestionModelTest extends TestCase
     #[Test]
     public function question_validates_type_enum()
     {
+        $exam = Exam::factory()->create();
+
         $validTypes = ['text', 'multiple', 'one_choice', 'boolean'];
 
         foreach ($validTypes as $type) {
             $question = Question::factory()->create([
-                'exam_id' => $this->exam->id,
+                'exam_id' => $exam->id,
                 'type' => $type
             ]);
 
@@ -103,8 +107,10 @@ class QuestionModelTest extends TestCase
     #[Test]
     public function text_question_does_not_require_choices()
     {
+        $exam = Exam::factory()->create();
+
         $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'type' => 'text'
         ]);
 
@@ -115,8 +121,10 @@ class QuestionModelTest extends TestCase
     #[Test]
     public function multiple_choice_question_can_have_many_choices()
     {
+        $exam = Exam::factory()->create();
+
         $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'type' => 'multiple'
         ]);
 
@@ -130,8 +138,10 @@ class QuestionModelTest extends TestCase
     #[Test]
     public function boolean_question_should_have_two_choices()
     {
+        $exam = Exam::factory()->create();
+
         $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'type' => 'boolean'
         ]);
 
@@ -153,40 +163,43 @@ class QuestionModelTest extends TestCase
     #[Test]
     public function question_has_default_points_value()
     {
+        $exam = Exam::factory()->create();
+
         $question = new Question([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'content' => 'Test question?',
             'type' => 'text'
         ]);
         $question->save();
 
-        // En raison de la migration, la valeur par défaut devrait être 1
         $this->assertEquals(1, $question->points);
     }
 
     #[Test]
     public function question_has_default_order_index()
     {
+        $exam = Exam::factory()->create();
+
         $question = new Question([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'content' => 'Test question?',
             'type' => 'text'
         ]);
         $question->save();
 
-        // En raison de la migration, la valeur par défaut devrait être 1
         $this->assertEquals(1, $question->order_index);
     }
 
     #[Test]
     public function question_can_determine_if_has_correct_answer()
     {
+        $exam = Exam::factory()->create();
+
         $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'type' => 'multiple'
         ]);
 
-        // Créer des choix avec une réponse correcte
         Choice::factory()->create([
             'question_id' => $question->id,
             'is_correct' => false
@@ -205,8 +218,10 @@ class QuestionModelTest extends TestCase
     #[Test]
     public function question_content_is_required()
     {
+        $exam = Exam::factory()->create();
+
         $question = Question::factory()->create([
-            'exam_id' => $this->exam->id,
+            'exam_id' => $exam->id,
             'content' => 'What is the capital of France?'
         ]);
 
