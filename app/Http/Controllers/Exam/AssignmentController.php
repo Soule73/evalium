@@ -99,7 +99,7 @@ class AssignmentController extends Controller
         $message = __('messages.groups_assigned_to_exam', ['count' => $result['assigned_count']]);
 
         if ($result['already_assigned_count'] > 0) {
-            $message .= ' '.__('messages.groups_already_assigned', ['already_assigned' => $result['already_assigned_count']]);
+            $message .= ' ' . __('messages.groups_already_assigned', ['already_assigned' => $result['already_assigned_count']]);
         }
 
         return $this->redirectWithSuccess('exams.show', $message, ['exam' => $exam->id]);
@@ -145,7 +145,7 @@ class AssignmentController extends Controller
         $search = $request->input('search');
 
         $assignmentsQuery = $exam->assignments()
-            ->whereHas('student.groups', fn ($q) => $q->where('groups.id', $group->id))
+            ->whereHas('student.groups', fn($q) => $q->where('groups.id', $group->id))
             ->with('student');
 
         if ($search) {
