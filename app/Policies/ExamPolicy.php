@@ -28,7 +28,7 @@ class ExamPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view any exams') || $user->can('create exams');
+        return $user->can('view any exams') || $user->hasRole('teacher');
     }
 
     /**
@@ -45,12 +45,12 @@ class ExamPolicy
      */
     public function view(User $user, Exam $exam): bool
     {
-        if ($user->hasRole('student')) {
-            return $exam->assignments()->where('student_id', $user->id)->exists()
-                || $exam->groups()->whereIn('groups.id', $user->activeGroups()->pluck('groups.id'))->exists();
-        }
+        // if ($user->hasRole('student')) {
+        //     return $exam->assignments()->where('student_id', $user->id)->exists()
+        //         || $exam->groups()->whereIn('groups.id', $user->activeGroups()->pluck('groups.id'))->exists();
+        // }
 
-        return $user->can('view any exams') || $exam->teacher_id === $user->id;
+        return $user->can('view any exams') || ($user->can('view exams') && $exam->teacher_id === $user->id);
     }
 
     /**

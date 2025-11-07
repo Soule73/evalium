@@ -74,6 +74,7 @@ class AssignmentController extends Controller
         $stats = $this->examStatsService->calculateExamStatsWithGroups($exam, $assignedGroups);
 
         return Inertia::render('Exam/Assignments', [
+            'exam' => $exam,
             'assignments' => $assignments,
             'stats' => $stats,
             'assignedGroups' => $assignedGroups,

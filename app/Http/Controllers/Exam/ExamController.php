@@ -35,7 +35,16 @@ class ExamController extends Controller
      */
     public function index(Request $request): Response
     {
+
         $this->authorize('viewAny', Exam::class);
+
+        $teacherId = null;
+
+        $user = $request->user();
+
+        if (!$user->can('view any exams') && $user->can('view exams')) {
+            $teacherId = $user->id;
+        }
 
         $perPage = $request->input('per_page', 10);
 
@@ -47,9 +56,7 @@ class ExamController extends Controller
 
         $search = $request->input('search');
 
-        $this->authorize('viewAny', Exam::class);
-
-        $exams = $this->examQueryService->getExams(null, $perPage, $status, $search);
+        $exams = $this->examQueryService->getExams($teacherId, $perPage, $status, $search);
 
         return Inertia::render('Exam/Index', [
             'exams' => $exams,
@@ -128,6 +135,7 @@ class ExamController extends Controller
     public function edit(Exam $exam): Response
     {
         $this->authorize('update', $exam);
+
 
         $exam->loadMissing(['questions.choices']);
 
