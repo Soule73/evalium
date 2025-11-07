@@ -13,16 +13,13 @@ interface GroupTableConfigOptions {
     showDetailsButton?: boolean;
 }
 
-/**
- * Configuration réutilisable pour afficher la liste des groupes assignés à un examen
- */
 export const getGroupTableConfig = ({
     exam,
     onRemove,
     showActions = true,
     showDetailsButton = false
 }: GroupTableConfigOptions): Omit<DataTableConfig<Group>, 'data'> => {
-    const columns: any[] = [
+    const columns: DataTableConfig<Group>['columns'] = [
         {
             key: 'display_name',
             label: trans('components.group_table_config.group_label'),

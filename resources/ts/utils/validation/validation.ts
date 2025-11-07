@@ -11,7 +11,7 @@ export interface ValidationRule {
     pattern?: RegExp;
     min?: number;
     max?: number;
-    custom?: (value: any) => string | null;
+    custom?: (value: unknown) => string | null;
 }
 
 export interface ValidationSchema {
@@ -22,18 +22,15 @@ export interface ValidationErrors {
     [key: string]: string;
 }
 
-export function validateField(value: any, rules: ValidationRule): string | null {
-    // Required validation
+export function validateField(value: unknown, rules: ValidationRule): string | null {
     if (rules.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
         return trans('formatters.validation_required');
     }
 
-    // Skip other validations if value is empty and not required
     if (!value && !rules.required) {
         return null;
     }
 
-    // String validations
     if (typeof value === 'string') {
         if (rules.minLength && value.length < rules.minLength) {
             return trans('formatters.validation_min_length', { min: rules.minLength });
@@ -67,7 +64,7 @@ export function validateField(value: any, rules: ValidationRule): string | null 
     return null;
 }
 
-export function validateForm<T extends Record<string, any>>(
+export function validateForm<T extends Record<string, unknown>>(
     data: T,
     schema: ValidationSchema
 ): ValidationErrors {

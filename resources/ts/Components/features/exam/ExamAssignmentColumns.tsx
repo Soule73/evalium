@@ -1,5 +1,6 @@
 import { formatDate, formatExamAssignmentStatus } from '@/utils';
 import { ExamAssignment, Exam, Group } from '@/types';
+import { DataTableConfig } from '@/types/datatable';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { trans } from '@/utils';
@@ -8,15 +9,11 @@ import { Badge, Button } from '@/Components/ui';
 interface ExamAssignmentColumnsOptions {
     exam: Exam;
     group?: Group;
-    // onRemove?: (assignment: ExamAssignment) => void;
     showActions?: boolean;
 }
 
-/**
- * Configuration des colonnes réutilisables pour afficher les assignations d'examens
- */
-export const getExamAssignmentColumns = ({ exam, group, showActions = true }: ExamAssignmentColumnsOptions) => {
-    const columns = [
+export const getExamAssignmentColumns = ({ exam, group, showActions = true }: ExamAssignmentColumnsOptions): DataTableConfig<ExamAssignment>['columns'] => {
+    const columns: DataTableConfig<ExamAssignment>['columns'] = [
         {
             key: 'student',
             label: trans('components.exam_assignment_columns.student_label'),
@@ -99,7 +96,7 @@ export const getExamAssignmentColumns = ({ exam, group, showActions = true }: Ex
                     )}
                 </div>
             ),
-        } as any);
+        });
     }
 
     return columns;

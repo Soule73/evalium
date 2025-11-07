@@ -10,9 +10,9 @@ interface RequestOptions extends RequestInit {
 
 class ApiError extends Error {
     public status: number;
-    public data?: any;
+    public data?: unknown;
 
-    constructor(message: string, status: number, data?: any) {
+    constructor(message: string, status: number, data?: unknown) {
         super(message);
         this.name = 'ApiError';
         this.status = status;
@@ -49,7 +49,7 @@ function buildUrl(url: string, params?: Record<string, string | number | boolean
 /**
  * Make HTTP request with proper error handling
  */
-async function makeRequest<T = any>(
+async function makeRequest<T>(
     url: string,
     options: RequestOptions = {}
 ): Promise<T> {
@@ -70,8 +70,7 @@ async function makeRequest<T = any>(
             headers: defaultHeaders,
         });
 
-        // Handle different response types
-        let data: any;
+        let data: unknown;
         const contentType = response.headers.get('Content-Type');
 
         if (contentType?.includes('application/json')) {
@@ -89,20 +88,22 @@ async function makeRequest<T = any>(
                 throw new ApiError('Session expired', 401, data);
             }
 
-            // Handle validation errors
             if (response.status === 422) {
                 throw new ApiError('Validation error', 422, data);
             }
 
-            // Handle other HTTP errors
+            const errorMessage = typeof data === 'object' && data !== null && 'message' in data
+                ? String((data as { message: unknown }).message)
+                : `HTTP ${response.status}: ${response.statusText}`;
+
             throw new ApiError(
-                data?.message || `HTTP ${response.status}: ${response.statusText}`,
+                errorMessage,
                 response.status,
                 data
             );
         }
 
-        return data;
+        return data as T;
     } catch (error) {
         if (error instanceof ApiError) {
             throw error;
@@ -121,36 +122,35 @@ async function makeRequest<T = any>(
  * HTTP client API
  */
 export const api = {
-    get: <T = any>(url: string, options: Omit<RequestOptions, 'method' | 'body'> = {}) =>
+    get: <T>(url: string, options: Omit<RequestOptions, 'method' | 'body'> = {}) =>
         makeRequest<T>(url, { ...options, method: 'GET' }),
 
-    post: <T = any>(url: string, data?: any, options: Omit<RequestOptions, 'method'> = {}) =>
+    post: <T>(url: string, data?: unknown, options: Omit<RequestOptions, 'method'> = {}) =>
         makeRequest<T>(url, {
             ...options,
             method: 'POST',
             body: data ? JSON.stringify(data) : undefined,
         }),
 
-    put: <T = any>(url: string, data?: any, options: Omit<RequestOptions, 'method'> = {}) =>
+    put: <T>(url: string, data?: unknown, options: Omit<RequestOptions, 'method'> = {}) =>
         makeRequest<T>(url, {
             ...options,
             method: 'PUT',
             body: data ? JSON.stringify(data) : undefined,
         }),
 
-    patch: <T = any>(url: string, data?: any, options: Omit<RequestOptions, 'method'> = {}) =>
+    patch: <T>(url: string, data?: unknown, options: Omit<RequestOptions, 'method'> = {}) =>
         makeRequest<T>(url, {
             ...options,
             method: 'PATCH',
             body: data ? JSON.stringify(data) : undefined,
         }),
 
-    delete: <T = any>(url: string, options: Omit<RequestOptions, 'method' | 'body'> = {}) =>
+    delete: <T>(url: string, options: Omit<RequestOptions, 'method' | 'body'> = {}) =>
         makeRequest<T>(url, { ...options, method: 'DELETE' }),
 
-    upload: <T = any>(url: string, formData: FormData, options: Omit<RequestOptions, 'method' | 'body'> = {}) => {
+    upload: <T>(url: string, formData: FormData, options: Omit<RequestOptions, 'method' | 'body'> = {}) => {
         const { headers = {}, ...restOptions } = options;
-        // Don't set Content-Type for FormData, let browser set it with boundary
         return makeRequest<T>(url, {
             ...restOptions,
             method: 'POST',
@@ -169,14 +169,11 @@ export const api = {
  */
 export { ApiError };
 
-/**
- * Utility function to handle API errors in components
- */
 export function handleApiError(error: unknown): string {
     if (error instanceof ApiError) {
-        if (error.status === 422 && error.data?.errors) {
-            // Validation errors
-            const firstError = Object.values(error.data.errors)[0];
+        if (error.status === 422 && error.data && typeof error.data === 'object' && 'errors' in error.data) {
+            const errors = (error.data as { errors: Record<string, string | string[]> }).errors;
+            const firstError = Object.values(errors)[0];
             return Array.isArray(firstError) ? firstError[0] : String(firstError);
         }
         return error.message;

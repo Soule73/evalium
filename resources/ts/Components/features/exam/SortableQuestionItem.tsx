@@ -21,10 +21,10 @@ interface SortableQuestionItemProps {
     isCollapsed: boolean;
     onToggleCollapse: (index: number) => void;
     onRemoveQuestion: (index: number) => void;
-    onUpdateQuestion: (index: number, field: keyof QuestionFormData, value: any) => void;
+    onUpdateQuestion: (index: number, field: keyof QuestionFormData, value: QuestionFormData[keyof QuestionFormData]) => void;
     onAddChoice: (index: number) => void;
     onRemoveChoice: (questionIndex: number, choiceIndex: number) => void;
-    onUpdateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: any) => void;
+    onUpdateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: ChoiceFormData[keyof ChoiceFormData]) => void;
     getQuestionTypeLabel: (type: string) => string;
     getQuestionTypeIcon: (type: string) => { icon: React.ComponentType<{ className?: string }>; bgColor: string; textColor: string; } | null;
     errors?: Record<string, string>;
@@ -255,7 +255,7 @@ interface QuestionMultipleItemProps {
     showPreview?: boolean;
     onToggleMarkdownMode?: () => void;
     onTogglePreview?: () => void;
-    onUpdateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: any) => void;
+    onUpdateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: ChoiceFormData[keyof ChoiceFormData]) => void;
     onRemoveChoice: (questionIndex: number, choiceIndex: number) => void;
 }
 
@@ -320,7 +320,7 @@ interface QuestionSingleItemProps {
     showPreview?: boolean;
     onToggleMarkdownMode?: () => void;
     onTogglePreview?: () => void;
-    onUpdateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: any) => void;
+    onUpdateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: ChoiceFormData[keyof ChoiceFormData]) => void;
     onRemoveChoice: (questionIndex: number, choiceIndex: number) => void;
 }
 
@@ -380,7 +380,7 @@ interface QuestionBooleanItemProps {
     index: number;
     choiceIndex: number;
     error?: string;
-    onUpdateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: any) => void;
+    onUpdateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: ChoiceFormData[keyof ChoiceFormData]) => void;
 }
 
 const QuestionBooleanItem: React.FC<QuestionBooleanItemProps> = ({

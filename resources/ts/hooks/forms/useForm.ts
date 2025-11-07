@@ -8,47 +8,43 @@ interface UseFormProps<T> {
 
 interface UseFormReturn<T> {
     values: T;
-    data: T; // Alias pour compatibilité
+    data: T;
     errors: Partial<Record<keyof T, string>>;
     isSubmitting: boolean;
-    processing: boolean; // Alias pour compatibilité
-    handleChange: (field: keyof T) => (value: any) => void;
+    processing: boolean;
+    handleChange: (field: keyof T) => (value: T[keyof T]) => void;
     handleSubmit: (e: React.FormEvent) => void;
-    setFieldValue: (field: keyof T, value: any) => void;
-    setData: (values: T | ((prev: T) => T)) => void; // Alias pour compatibilité
+    setFieldValue: (field: keyof T, value: T[keyof T]) => void;
+    setData: (values: T | ((prev: T) => T)) => void;
     setFieldError: (field: keyof T, error: string) => void;
     reset: () => void;
 }
 
-// Version simple pour les données simples
-export function useForm<T extends Record<string, any>>(
+export function useForm<T extends Record<string, unknown>>(
     initialValues: T
 ): UseFormReturn<T>;
 
-// Version complète avec configuration
-export function useForm<T extends Record<string, any>>(
+export function useForm<T extends Record<string, unknown>>(
     config: UseFormProps<T>
 ): UseFormReturn<T>;
 
-export function useForm<T extends Record<string, any>>(
+export function useForm<T extends Record<string, unknown>>(
     configOrValues: UseFormProps<T> | T
 ): UseFormReturn<T> {
-    // Déterminer si c'est un objet de configuration ou des valeurs directes
     const isConfig = configOrValues && typeof configOrValues === 'object' && 'initialValues' in configOrValues;
-    const initialValues = isConfig ? configOrValues.initialValues : configOrValues;
-    const onSubmit = isConfig ? configOrValues.onSubmit : undefined;
-    const validate = isConfig ? configOrValues.validate : undefined;
+    const initialValues = (isConfig ? (configOrValues as UseFormProps<T>).initialValues : configOrValues) as T;
+    const onSubmit = isConfig ? (configOrValues as UseFormProps<T>).onSubmit : undefined;
+    const validate = isConfig ? (configOrValues as UseFormProps<T>).validate : undefined;
     const [values, setValues] = useState<T>(initialValues);
     const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleChange = useCallback((field: keyof T) => (value: any) => {
+    const handleChange = useCallback((field: keyof T) => (value: T[keyof T]) => {
         setValues(prev => ({
             ...prev,
             [field]: value,
         }));
 
-        // Clear error when user starts typing
         if (errors[field]) {
             setErrors(prev => ({
                 ...prev,
@@ -57,7 +53,7 @@ export function useForm<T extends Record<string, any>>(
         }
     }, [errors]);
 
-    const setFieldValue = useCallback((field: keyof T, value: any) => {
+    const setFieldValue = useCallback((field: keyof T, value: T[keyof T]) => {
         setValues(prev => ({
             ...prev,
             [field]: value,
@@ -76,7 +72,6 @@ export function useForm<T extends Record<string, any>>(
 
         if (isSubmitting) return;
 
-        // Validate form
         if (validate) {
             const validationErrors = validate(values);
             setErrors(validationErrors);
@@ -89,7 +84,9 @@ export function useForm<T extends Record<string, any>>(
         setIsSubmitting(true);
 
         try {
-            await onSubmit(values);
+            if (onSubmit) {
+                await onSubmit(values);
+            }
         } catch (error) {
             console.error('Form submission error:', error);
         } finally {

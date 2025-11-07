@@ -118,12 +118,9 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
     const isInternalChangeRef = useRef(false);
     const isInitializedRef = useRef(false);
 
-    /**
-     * Debounce pour optimiser les performances lors de la saisie
-     */
     const debounce = (func: Function, delay: number) => {
         let timeoutId: NodeJS.Timeout;
-        return (...args: any[]) => {
+        return (...args: unknown[]) => {
             clearTimeout(timeoutId);
             timeoutId = setTimeout(() => func.apply(null, args), delay);
         };
@@ -138,14 +135,11 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
         [onChange]
     );
 
-    /**
-     * Crée les actions personnalisées pour les formules mathématiques
-     */
     const createMathActions = () => {
         return {
             mathInline: {
                 name: "math-inline",
-                action: (editor: any) => {
+                action: (editor: EasyMDE) => {
                     const cm = editor.codemirror;
                     const selectedText = cm.getSelection();
                     const replaceText = selectedText ? `$${selectedText}$` : '$formule$';
@@ -160,7 +154,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
             },
             mathDisplay: {
                 name: "math-display",
-                action: (editor: any) => {
+                action: (editor: EasyMDE) => {
                     const cm = editor.codemirror;
                     const selectedText = cm.getSelection();
                     const replaceText = selectedText ? `$$\n${selectedText}\n$$` : '$$\nformule\n$$';
@@ -295,8 +289,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
         const toolbar = disabled ? false : buildToolbar();
         const mathActions = createMathActions();
 
-        // Configuration personnalisée de la toolbar avec les actions mathématiques
-        let toolbarConfig: any = toolbar;
+        let toolbarConfig: false | (string | '|' | import('easymde').ToolbarButton)[] = toolbar;
         if (toolbar && !disabled) {
             toolbarConfig = (toolbar as string[]).map(item => {
                 if (item === 'math-inline') return mathActions.mathInline;
@@ -323,7 +316,6 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
             imageUploadFunction: imageUploadFunction,
             imageUploadEndpoint: imageUploadEndpoint,
             imageMaxSize: imageMaxSize,
-            // Utiliser le même rendu que MarkdownRenderer
             previewRender: renderPreview,
             shortcuts: {
                 "toggleBold": enableBold ? "Ctrl-B" : null,
@@ -332,7 +324,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
                 "toggleSideBySide": enableSideBySide ? "F9" : null,
                 "toggleFullScreen": enableFullscreen ? "F11" : null,
             },
-        } as any);
+        });
 
         editorRef.current = editor;
         setIsReady(true);
@@ -405,25 +397,19 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
         isInternalChangeRef.current = false;
     }, [value, isReady]);
 
-    /**
-     * Gérer l'état disabled
-     */
     useEffect(() => {
         if (editorRef.current && isReady) {
-            const codemirror = (editorRef.current as any).codemirror;
+            const codemirror = editorRef.current.codemirror;
             if (codemirror) {
                 codemirror.setOption('readOnly', disabled);
             }
         }
     }, [disabled, isReady]);
 
-    /**
-     * Méthodes exposées pour contrôler l'éditeur
-     */
     const editorMethods: MarkdownEditorHandle = {
         focus: () => {
             if (editorRef.current) {
-                const codemirror = (editorRef.current as any).codemirror;
+                const codemirror = editorRef.current.codemirror;
                 if (codemirror) {
                     codemirror.focus();
                 }

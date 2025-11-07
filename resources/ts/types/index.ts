@@ -241,3 +241,14 @@ export interface ExamFormData {
     deletedQuestionIds?: number[];
     deletedChoiceIds?: number[];
 }
+
+export interface QuestionResult {
+    isCorrect: boolean | null;
+    userChoices: Choice[];
+    hasMultipleAnswers: boolean;
+    userText?: string;
+    feedback: string | null;
+    score?: number;
+}
+
+export * from './api';

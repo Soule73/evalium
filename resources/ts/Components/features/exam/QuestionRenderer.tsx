@@ -1,5 +1,5 @@
 import React from 'react';
-import { Question } from '@/types';
+import { Question, QuestionResult, ExamAssignment } from '@/types';
 import { hasUserResponse } from '@/utils';
 import { trans } from '@/utils';
 import { AlertEntry } from '@/Components/ui';
@@ -8,12 +8,12 @@ import { QuestionResultReadOnlyText, QuestionResultReadOnlyChoices } from './Que
 
 interface QuestionRendererProps {
     questions: Question[];
-    getQuestionResult: (question: Question) => any;
+    getQuestionResult: (question: Question) => QuestionResult;
     scores?: Record<number, number>;
     isTeacherView?: boolean;
     renderScoreInput?: (question: Question) => React.ReactNode;
     showCorrectAnswers?: boolean;
-    assignment?: any;
+    assignment?: ExamAssignment;
 }
 
 /**
