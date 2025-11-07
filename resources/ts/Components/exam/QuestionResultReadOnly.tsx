@@ -9,10 +9,12 @@ interface QuestionResultReadOnlyTextProps {
     label?: string;
 }
 
-const QuestionResultReadOnlyText: React.FC<QuestionResultReadOnlyTextProps> = ({ userText, label = trans('components.question_result_readonly.your_answer_default') }) => {
+const QuestionResultReadOnlyText: React.FC<QuestionResultReadOnlyTextProps> = ({ userText, label }) => {
+    const defaultLabel = trans('components.question_result_readonly.your_answer_default');
+
     return (
         <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">{label}</p>
+            <p className="text-sm text-gray-600 mb-1">{label || defaultLabel}</p>
             <MarkdownRenderer>
                 {userText || trans('components.question_renderer.no_answer')}
             </MarkdownRenderer>

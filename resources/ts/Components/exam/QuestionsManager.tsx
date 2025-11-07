@@ -26,7 +26,7 @@ import { Button } from '../Button';
 import { QuestionFormData, QuestionType } from '@/types';
 import { useQuestionsManager } from '@/hooks';
 import { getQuestionTypeLabel } from '@/utils';
-import { questionOptions } from './questionOptions';
+import { useQuestionOptions } from './questionOptions';
 import SortableQuestionItem from './SortableQuestionItem';
 
 interface QuestionsManagerProps {
@@ -44,6 +44,8 @@ interface Props {
 }
 
 function QuestionMenu({ addQuestion }: Props) {
+    const questionOptions = useQuestionOptions();
+
     return (
         <div className="absolute right-0 mt-2 w-64 rounded-xl shadow-lg bg-white ring-1 ring-gray-100 z-10">
             <div className="py-2">

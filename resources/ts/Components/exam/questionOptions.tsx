@@ -1,7 +1,7 @@
 import { QuestionType } from "@/types";
 import { trans } from '@/utils/translations';
 
-export const questionOptions: {
+export interface QuestionOption {
     key: QuestionType;
     title: string;
     subtitle: string;
@@ -9,7 +9,10 @@ export const questionOptions: {
     text: string;
     hoverBg: string;
     svg: React.ReactNode;
-}[] = [
+}
+
+export const useQuestionOptions = (): QuestionOption[] => {
+    return [
         {
             key: 'multiple',
             title: trans('components.question_options.multiple_title'),
@@ -67,3 +70,4 @@ export const questionOptions: {
             ),
         },
     ];
+};
