@@ -6,7 +6,7 @@ import { EmptyState } from './EmptyState';
 import { BulkActions } from './BulkActions';
 import { trans } from '@/utils/translations';
 import { Checkbox } from '../forms';
-import { useDataTable } from '@/hooks/useDataTable';
+import { useDataTable } from '@/hooks';
 
 export function DataTable<T extends { id: number | string }>({
     data,

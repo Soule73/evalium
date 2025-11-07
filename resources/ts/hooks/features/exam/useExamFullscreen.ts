@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useExamConfig, isFeatureEnabled } from '@/hooks/exam/useExamConfig';
+import { useExamConfig, isFeatureEnabled } from './useExamConfig';
 
 interface UseExamFullscreenOptions {
     security: {

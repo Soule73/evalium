@@ -4,7 +4,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { Permission, GroupedPermissions } from '@/types/role';
-import { useRoleForm } from '@/hooks/useRoleForm';
+import { useRoleForm } from '@/hooks';
 import { trans } from '@/utils/translations';
 import { Button, RoleForm, Section } from '@/Components';
 

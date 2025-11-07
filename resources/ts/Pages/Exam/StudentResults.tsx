@@ -1,8 +1,8 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Exam, ExamAssignment, Answer, User, PageProps, Group } from '@/types';
-import useExamResults from '@/hooks/exam/useExamResults';
-import useExamScoring from '@/hooks/exam/useExamScoring';
+import { useExamResults } from '@/hooks';
+import { useExamScoring } from '@/hooks';
 import { route } from 'ziggy-js';
 import { router, usePage } from '@inertiajs/react';
 import { Badge, Button, ExamInfoSection, QuestionRenderer, Section } from '@/Components';

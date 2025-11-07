@@ -15,8 +15,8 @@ export default defineConfig({
     workers: process.env.CI ? 1 : undefined,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: [
-        // Ouvre automatiquement le rapport HTML
-        ['html', { open: 'always' }],
+        ['list'],
+        ['html', { open: 'on-failure' }],
         ['json', { outputFile: 'playwright-report/results.json' }],
         ['junit', { outputFile: 'playwright-report/results.xml' }]
     ],

@@ -5,7 +5,7 @@ import { requiresManualGrading, getCorrectionStatus } from '@/utils/examUtils';
 import { route } from 'ziggy-js';
 import { router, usePage } from '@inertiajs/react';
 import { AlertEntry, Badge, Button, ExamInfoSection, Modal, QuestionRenderer, Section, Textarea, TextEntry } from '@/Components';
-import useExamStudentReview from '@/hooks/exam/useExamStudentReview';
+import { useExamStudentReview } from '@/hooks';
 import { hasPermission } from '@/utils/permissions';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { trans } from '@/utils/translations';

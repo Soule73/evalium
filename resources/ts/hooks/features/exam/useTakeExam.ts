@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import { Answer, Exam, Question } from "@/types";
-import { useExamSecurity } from '@/hooks/exam/useExamSecurity';
-import { useAutoSave } from '@/hooks/exam/useAutoSave';
-import { useExamTimer } from '@/hooks/exam/useExamTimer';
-import { useExamAnswers } from '@/hooks/exam/useExamAnswers';
-import { useExamFullscreen } from '@/hooks/exam/useExamFullscreen';
-import { useExamSecurityViolation } from '@/hooks/exam/useExamSecurityViolation';
-import { useExamAnswerSave } from '@/hooks/exam/useExamAnswerSave';
-import { useExamSubmission } from '@/hooks/exam/useExamSubmission';
+import { useExamSecurity } from './useExamSecurity';
+import { useAutoSave } from './useAutoSave';
+import { useExamTimer } from './useExamTimer';
+import { useExamAnswers } from './useExamAnswers';
+import { useExamFullscreen } from './useExamFullscreen';
+import { useExamSecurityViolation } from './useExamSecurityViolation';
+import { useExamAnswerSave } from './useExamAnswerSave';
+import { useExamSubmission } from './useExamSubmission';
 
 interface UseTakeExam {
     exam: Exam
