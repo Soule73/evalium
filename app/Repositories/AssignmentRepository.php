@@ -192,4 +192,73 @@ class AssignmentRepository
     {
         return $assignment->delete();
     }
+
+    /**
+     * Get all students in a group with their exam assignments (real or virtual)
+     *
+     * @param  Exam  $exam  The exam instance
+     * @param  \App\Models\Group  $group  The group instance
+     * @param  int  $perPage  Number of items per page
+     * @param  string|null  $search  Search term for student name/email
+     * @param  string|null  $filterStatus  Filter by assignment status
+     * @return LengthAwarePaginator
+     */
+    public function getGroupStudentsWithAssignments(
+        Exam $exam,
+        \App\Models\Group $group,
+        int $perPage = 10,
+        ?string $search = null,
+        ?string $filterStatus = null
+    ): LengthAwarePaginator {
+        $studentsQuery = $group->students()
+            ->wherePivot('is_active', true);
+
+        if ($search) {
+            $studentsQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($filterStatus) {
+            if ($filterStatus === 'assigned') {
+                $studentsQuery->whereDoesntHave('examAssignments', function ($q) use ($exam) {
+                    $q->where('exam_id', $exam->id);
+                });
+            } else {
+                $studentsQuery->whereHas('examAssignments', function ($q) use ($exam, $filterStatus) {
+                    $q->where('exam_id', $exam->id)
+                        ->where('status', $filterStatus);
+                });
+            }
+        }
+
+        $students = $studentsQuery->paginate($perPage)->withQueryString();
+
+        $studentIds = $students->pluck('id')->toArray();
+        $existingAssignments = $exam->assignments()
+            ->whereIn('student_id', $studentIds)
+            ->get()
+            ->keyBy('student_id');
+
+        $students->getCollection()->transform(function ($student) use ($exam, $existingAssignments) {
+            if (isset($existingAssignments[$student->id])) {
+                $assignment = $existingAssignments[$student->id];
+            } else {
+                $assignment = new ExamAssignment;
+                $assignment->exam_id = $exam->id;
+                $assignment->student_id = $student->id;
+                $assignment->status = 'assigned';
+                $assignment->assigned_at = now();
+                $assignment->exists = false;
+            }
+
+            $assignment->setRelation('student', $student);
+            $assignment->setRelation('exam', $exam);
+
+            return $assignment;
+        });
+
+        return $students;
+    }
 }

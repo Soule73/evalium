@@ -145,22 +145,13 @@ class AssignmentController extends Controller
         $filterStatus = $request->input('filter_status');
         $search = $request->input('search');
 
-        $assignmentsQuery = $exam->assignments()
-            ->whereHas('student.groups', fn($q) => $q->where('groups.id', $group->id))
-            ->with('student');
-
-        if ($search) {
-            $assignmentsQuery->whereHas('student', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        if ($filterStatus) {
-            $assignmentsQuery->where('status', $filterStatus);
-        }
-
-        $assignments = $assignmentsQuery->paginate($perPage)->withQueryString();
+        $assignments = $this->assignmentRepository->getGroupStudentsWithAssignments(
+            $exam,
+            $group,
+            $perPage,
+            $search,
+            $filterStatus
+        );
 
         $stats = $this->examStatsService->calculateGroupStats($exam, $group);
 
