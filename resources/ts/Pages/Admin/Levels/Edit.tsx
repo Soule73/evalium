@@ -1,13 +1,10 @@
 import { FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import Section from '@/Components/Section';
-import { Button } from '@/Components/Button';
-import Input from '@/Components/form/Input';
-import Toggle from '@/Components/form/Toggle';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { trans } from '@/utils/translations';
+import { Button, Input, Section, Toggle } from '@/Components';
 
 interface Level {
     id: number;

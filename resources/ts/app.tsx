@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { setupZiggy } from './utils/ziggy';
-import { ToastContainer, ToastProvider } from './Components/Toast';
+import { ToastContainer, ToastProvider } from './Components';
 
 const appName = import.meta.env.VITE_APP_NAME || 'ExamENA';
 

@@ -1,22 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { Link, router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { formatDuration } from '@/utils/formatters';
-import { Button } from '@/Components';
+import { Button, ConfirmationModal, DataTable, ExamHeader, getGroupTableConfig, QuestionReadOnlySection, Section, StatCard, Toggle } from '@/Components';
 import { Exam, Group } from '@/types';
-import StatCard from '@/Components/StatCard';
 import { ClockIcon, QuestionMarkCircleIcon, StarIcon, DocumentDuplicateIcon, UserGroupIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
-import Section from '@/Components/Section';
 import { route } from 'ziggy-js';
-import QuestionReadOnlySection from '@/Components/exam/QuestionReadOnlySection';
-import { QuestionResultReadOnlyText, QuestionTeacherReadOnlyChoices } from '@/Components/exam/QuestionResultReadOnly';
 import { breadcrumbs } from '@/utils/breadcrumbs';
-import { DataTable } from '@/Components/DataTable';
-import { getGroupTableConfig, ExamHeader } from '@/Components/exam';
 import { groupsToPaginationType } from '@/utils';
-import Toggle from '@/Components/form/Toggle';
-import ConfirmationModal from '@/Components/ConfirmationModal';
 import { trans } from '@/utils/translations';
+import { QuestionResultReadOnlyText, QuestionTeacherReadOnlyChoices } from '@/Components/features/exam/QuestionResultReadOnly';
 
 
 interface Props {

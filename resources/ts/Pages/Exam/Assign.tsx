@@ -1,17 +1,13 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button } from '@/Components/Button';
-import Section from '@/Components/Section';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Exam, Group } from '@/types';
 import { route } from 'ziggy-js';
 import { UserGroupIcon, UserPlusIcon } from '@heroicons/react/24/outline';
-import { DataTable } from '@/Components/DataTable';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
-import ConfirmationModal from '@/Components/ConfirmationModal';
-import MarkdownRenderer from '@/Components/form/MarkdownRenderer';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { trans } from '@/utils/translations';
+import { Button, ConfirmationModal, DataTable, MarkdownRenderer, Section } from '@/Components';
 
 interface Props {
     exam: Exam;

@@ -1,15 +1,11 @@
-import Section from "@/Components/Section";
-import TextEntry from "@/Components/TextEntry";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import AuthenticatedLayout from "@/Components/layout/AuthenticatedLayout";
 import { User } from "@/types";
 import { formatDate, getRoleLabel } from "@/utils";
 import EditUser from "../Admin/Users/Edit";
 import { useMemo, useState } from "react";
-import { Button } from "@/Components";
+import { Button, LanguageSelector, Section, TextEntry, UserAvatar } from "@/Components";
 import { route } from "ziggy-js";
-import { UserAvatar } from "@/Components/Navigation";
 import { trans } from "@/utils/translations";
-import LanguageSelector from "@/Components/LanguageSelector";
 import { usePage } from "@inertiajs/react";
 
 interface Props {

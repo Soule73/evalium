@@ -1,14 +1,12 @@
 import { Exam, PageProps, User } from '@/types';
 import { PaginationType } from '@/types/datatable';
 import ShowUser from './ShowUser';
-import Section from '@/Components/Section';
-import ExamList from '@/Components/exam/ExamList';
-import StatCard from '@/Components/StatCard';
 import { DocumentTextIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { trans } from '@/utils/translations';
 import { hasPermission } from '@/utils/permissions';
 import { usePage } from '@inertiajs/react';
+import { Section, StatCard, ExamList } from '@/Components';
 
 
 interface Props {

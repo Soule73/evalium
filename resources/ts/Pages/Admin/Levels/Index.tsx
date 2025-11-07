@@ -1,18 +1,13 @@
 import { router, usePage } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button } from '@/Components/Button';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
-import Section from '@/Components/Section';
-import { DataTable } from '@/Components/DataTable';
 import { route } from 'ziggy-js';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import Toggle from '@/Components/form/Toggle';
-import Badge from '@/Components/Badge';
 import { useState } from 'react';
-import ConfirmationModal from '@/Components/ConfirmationModal';
 import { hasPermission } from '@/utils/permissions';
 import { PageProps } from '@/types';
 import { trans } from '@/utils/translations';
+import { Badge, Button, ConfirmationModal, DataTable, Section, Toggle } from '@/Components';
 
 interface Level {
     id: number;

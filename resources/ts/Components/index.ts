@@ -1,13 +1,8 @@
-import { Button } from './Button';
-import Input from './form/Input';
-import Textarea from './Textarea';
-import Select from './Select';
-import LanguageSelector from './LanguageSelector';
-
-export {
-    Button,
-    Input,
-    Textarea,
-    Select,
-    LanguageSelector,
-};
+export * from './ui';
+export * from './forms';
+export * from './features/exam';
+export * from './features/admin';
+export * from './features/dashboard';
+export * from './features/roles';
+export * from './layout';
+export * from './shared';

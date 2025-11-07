@@ -1,9 +1,6 @@
 import React from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button } from '@/Components';
-import Section from '@/Components/Section';
-import QuestionsManager from '@/Components/exam/QuestionsManager';
-import ExamGeneralConfig from '@/Components/ExamGeneralConfig';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
+import { Button, ExamGeneralConfig, QuestionsManager, Section } from '@/Components';
 import { useCreateExam } from '@/hooks';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { trans } from '@/utils/translations';

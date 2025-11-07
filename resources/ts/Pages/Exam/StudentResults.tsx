@@ -1,15 +1,11 @@
 import React from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import Section from '@/Components/Section';
-import Badge from '@/Components/Badge';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Exam, ExamAssignment, Answer, User, PageProps, Group } from '@/types';
 import useExamResults from '@/hooks/exam/useExamResults';
 import useExamScoring from '@/hooks/exam/useExamScoring';
-import ExamInfoSection from '@/Components/exam/ExamInfoSection';
-import QuestionRenderer from '@/Components/exam/QuestionRenderer';
 import { route } from 'ziggy-js';
 import { router, usePage } from '@inertiajs/react';
-import { Button } from '@/Components';
+import { Badge, Button, ExamInfoSection, QuestionRenderer, Section } from '@/Components';
 import { hasPermission } from '@/utils/permissions';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { trans } from '@/utils/translations';

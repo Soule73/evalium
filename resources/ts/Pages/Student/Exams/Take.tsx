@@ -1,17 +1,11 @@
 import { Head } from '@inertiajs/react';
-import { Button } from '@/Components';
-import TextEntry from '@/Components/TextEntry';
+import { AlertEntry, AlertSecurityViolation, Button, ConfirmationModal, FullscreenModal, Section, TakeQuestion, TextEntry } from '@/Components';
 import { Answer, Exam, ExamAssignment, Question } from '@/types';
 import { ExclamationCircleIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
-import TakeQuestion from '@/Components/exam/TakeQuestion';
 import useTakeExam from '@/hooks/exam/useTakeExam';
-import AlertSecurityViolation, { CanNotTakeExam } from '@/Components/exam/AlertSecurityViolation';
-import AlertEntry from '@/Components/AlertEntry';
-import Section from '@/Components/Section';
 import { formatTime } from '@/utils';
-import ConfirmationModal from '@/Components/ConfirmationModal';
-import FullscreenModal from '@/Components/exam/FullscreenModal';
 import { trans } from '@/utils/translations';
+import { CanNotTakeExam } from '@/Components/features/exam/AlertSecurityViolation';
 
 interface TakeExamProps {
     exam: Exam;

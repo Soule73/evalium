@@ -1,14 +1,11 @@
 import { router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button } from '@/Components/Button';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Exam, Group } from '@/types';
-import Section from '@/Components/Section';
-import { DataTable } from '@/Components/DataTable';
 import { route } from 'ziggy-js';
 import { breadcrumbs } from '@/utils/breadcrumbs';
-import { getGroupTableConfig, ExamStatsCards, ExamHeader } from '@/Components/exam';
 import { groupsToPaginationType } from '@/utils';
 import { trans } from '@/utils/translations';
+import { Button, DataTable, ExamHeader, ExamStatsCards, getGroupTableConfig, Section } from '@/Components';
 
 interface Props {
     exam: Exam;

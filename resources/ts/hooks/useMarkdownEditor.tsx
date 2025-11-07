@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
 import EasyMDE from 'easymde';
-import MarkdownRenderer from '@/Components/form/MarkdownRenderer';
+import { MarkdownRenderer } from '@/Components/forms';
 
 interface UseMarkdownEditorOptions {
     value?: string;

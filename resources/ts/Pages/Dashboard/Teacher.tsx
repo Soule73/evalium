@@ -1,15 +1,12 @@
 import { router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button } from '@/Components/Button';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Exam, User } from '@/types';
 import { route } from 'ziggy-js';
-import Section from '@/Components/Section';
-import StatCard from '@/Components/StatCard';
 import { ArrowTrendingUpIcon, DocumentTextIcon, QuestionMarkCircleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { PaginationType } from '@/types/datatable';
-import ExamList from '@/Components/exam/ExamList';
 import { trans } from '@/utils/translations';
+import { Button, ExamList, Section, StatCard } from '@/Components';
 
 interface Stats {
     total_exams: number;

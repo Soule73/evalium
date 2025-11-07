@@ -1,10 +1,7 @@
 import { useForm } from '@inertiajs/react';
-import { Button } from '@/Components/Button';
-import Input from '@/Components/form/Input';
-import Select from '@/Components/Select';
 import { route } from 'ziggy-js';
-import Modal from '@/Components/Modal';
 import { trans } from '@/utils/translations';
+import { Button, Input, Modal, Select } from '@/Components';
 
 interface Group {
     id: number;

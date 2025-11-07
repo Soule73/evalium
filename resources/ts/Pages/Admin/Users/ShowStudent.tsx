@@ -1,13 +1,11 @@
-import Section from '@/Components/Section';
 import { ExamAssignment, User, Group, PageProps } from '@/types';
 import { PaginationType } from '@/types/datatable';
-import StudentExamAssignmentList from '@/Components/exam/StudentExamAssignmentList';
 import ShowUser from './ShowUser';
-import StudentGroupsManagement from '@/Components/admin/StudentGroupsManagement';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { trans } from '@/utils/translations';
 import { hasPermission } from '@/utils/permissions';
 import { usePage } from '@inertiajs/react';
+import { Section, StudentGroupsManagement, StudentExamAssignmentList } from '@/Components';
 
 
 interface Props {

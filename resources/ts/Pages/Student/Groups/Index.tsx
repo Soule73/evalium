@@ -1,14 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { PageProps, GroupWithPivot } from '@/types';
-import { DataTable } from '@/Components/DataTable';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
-import Section from '@/Components/Section';
 import { BookOpenIcon, CalendarIcon, UserGroupIcon } from '@heroicons/react/24/outline';
-import Badge from '@/Components/Badge';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { route } from 'ziggy-js';
 import { trans } from '@/utils/translations';
+import { Badge, DataTable, Section } from '@/Components';
 
 interface StudentGroup extends GroupWithPivot {
     is_current: boolean;

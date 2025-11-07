@@ -1,14 +1,12 @@
 import { FormEvent } from 'react';
 import { router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import Section from '@/Components/Section';
-import { Button } from '@/Components/Button';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { Permission, Role, GroupedPermissions } from '@/types/role';
 import { useRoleForm } from '@/hooks/useRoleForm';
-import RoleForm from '@/Components/Roles/RoleForm';
 import { trans } from '@/utils/translations';
+import { Button, RoleForm, Section } from '@/Components';
 
 interface Props {
     role: Role;

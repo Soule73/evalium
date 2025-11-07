@@ -1,18 +1,15 @@
 import { router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button } from '@/Components/Button';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Exam, Group, ExamAssignment } from '@/types';
-import Section from '@/Components/Section';
-import { DataTable } from '@/Components/DataTable';
 import {
     ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
 import { PaginationType } from '@/types/datatable';
 import { breadcrumbs } from '@/utils/breadcrumbs';
-import { getExamAssignmentColumns, ExamStatsCards } from '@/Components/exam';
+import { getExamAssignmentColumns, ExamStatsCards, Section, Button, DataTable } from '@/Components';
 import { trans } from '@/utils/translations';
-import TextEntry from '@/Components/TextEntry';
+import { TextEntry } from '@/Components';
 
 interface Props {
     exam: Exam;

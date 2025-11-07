@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import React from 'react';
 
 // Extend global types
 declare global {
@@ -31,6 +32,11 @@ jest.mock('@inertiajs/react', () => ({
                     confirmation_modal: {
                         confirm: 'Confirmer',
                         cancel: 'Annuler',
+                    },
+                    select: {
+                        placeholder: 'Sélectionner une option',
+                        search_placeholder: 'Rechercher...',
+                        no_option_found: 'Aucune option trouvée',
                     },
                 },
             },
@@ -89,6 +95,13 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
 
 // Mock pour scrollIntoView
 Element.prototype.scrollIntoView = jest.fn();
+
+// Mock MarkdownRenderer pour éviter problèmes ESM
+jest.mock('@/Components/forms/MarkdownRenderer', () => ({
+    __esModule: true,
+    default: ({ children }: { children: string }) => React.createElement('div', null, children),
+    MarkdownRenderer: ({ children }: { children: string }) => React.createElement('div', null, children),
+}));
 
 // Configuration par défaut pour les tests
 beforeEach(() => {

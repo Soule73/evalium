@@ -1,9 +1,9 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { User } from '@/types';
-import StatCard from '@/Components/StatCard';
 import { BookOpenIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { trans } from '@/utils/translations';
+import { StatCard } from '@/Components';
 
 
 interface Stats {

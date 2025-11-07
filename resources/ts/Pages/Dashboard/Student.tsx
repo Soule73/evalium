@@ -1,11 +1,8 @@
 import { router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { ChartBarIcon, CheckIcon, ClockIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
-import StatCard from '@/Components/StatCard';
-import Section from '@/Components/Section';
-import { Button } from '@/Components';
-import StudentExamAssignmentList from '@/Components/exam/StudentExamAssignmentList';
+import { Button, Section, StatCard, StudentExamAssignmentList } from '@/Components';
 import { ExamAssignment, User } from '@/types';
 import { PaginationType } from '@/types/datatable';
 import { breadcrumbs } from '@/utils/breadcrumbs';

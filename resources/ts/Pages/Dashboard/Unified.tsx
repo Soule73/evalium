@@ -1,8 +1,8 @@
 import React from 'react';
 import { usePage } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { PageProps, User } from '@/types';
-import Section from '@/Components/Section';
+import { Section } from '@/Components';
 import { trans } from '@/utils/translations';
 
 interface UnifiedDashboardProps extends PageProps {

@@ -1,11 +1,8 @@
 import { useForm } from '@inertiajs/react';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Button } from '@/Components/Button';
-import Input from '@/Components/form/Input';
-import Checkbox from '@/Components/form/Checkbox';
-import { Logo } from '@/Components/Navigation';
+import GuestLayout from '@/Components/layout/GuestLayout';
 import { route } from 'ziggy-js';
 import { trans } from '@/utils/translations';
+import { Button, Checkbox, Input, Logo } from '@/Components';
 
 interface LoginProps {
     canResetPassword?: boolean;

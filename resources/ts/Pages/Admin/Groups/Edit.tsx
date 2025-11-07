@@ -1,16 +1,12 @@
 import { router } from '@inertiajs/react';
 import { useForm } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button } from '@/Components/Button';
-import Section from '@/Components/Section';
-import Input from '@/Components/form/Input';
-import Checkbox from '@/Components/form/Checkbox';
-import LevelSelect from '@/Components/form/LevelSelect';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { Group } from '@/types';
 import { formatDateForInput } from '@/utils';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { trans } from '@/utils/translations';
+import { Button, Checkbox, Input, LevelSelect, Section } from '@/Components';
 
 interface Props {
     group: Group;

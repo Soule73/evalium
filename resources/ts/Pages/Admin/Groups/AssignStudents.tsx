@@ -1,17 +1,14 @@
 import { router, usePage } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button } from '@/Components/Button';
-import Section from '@/Components/Section';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { Group, User, PageProps } from '@/types';
 import { useState } from 'react';
 import { UserPlusIcon } from '@heroicons/react/24/outline';
-import { DataTable } from '@/Components/DataTable';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
-import ConfirmationModal from '@/Components/ConfirmationModal';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { hasPermission } from '@/utils/permissions';
 import { trans } from '@/utils/translations';
+import { Button, ConfirmationModal, DataTable, Section } from '@/Components';
 
 interface Props {
     group: Group & { active_students_count?: number };

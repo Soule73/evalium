@@ -1,12 +1,8 @@
 import { FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import Section from '@/Components/Section';
-import { Button } from '@/Components/Button';
-import Input from '@/Components/form/Input';
-import Toggle from '@/Components/form/Toggle';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
-import { Textarea } from '@/Components';
+import { Button, Input, Section, Textarea, Toggle } from '@/Components';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { trans } from '@/utils/translations';
 

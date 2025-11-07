@@ -1,21 +1,15 @@
 import { router, usePage } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button } from '@/Components/Button';
-import Section from '@/Components/Section';
-import StatCard from '@/Components/StatCard';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { UserGroupIcon, UsersIcon, UserMinusIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
 import { Group, User, PageProps } from '@/types';
-import Badge from '@/Components/Badge';
 import { formatDate } from '@/utils/formatters';
 import { DataTableConfig } from '@/types/datatable';
-import { DataTable } from '@/Components/DataTable';
-import ConfirmationModal from '@/Components/ConfirmationModal';
 import { useState } from 'react';
-import TextEntry from '@/Components/TextEntry';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { hasPermission } from '@/utils/permissions';
 import { trans } from '@/utils/translations';
+import { Badge, Button, ConfirmationModal, DataTable, Section, StatCard, TextEntry } from '@/Components';
 
 interface Props {
     group: Group & {

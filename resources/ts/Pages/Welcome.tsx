@@ -1,7 +1,6 @@
 import { PageProps } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import LogoExamena from '@/Components/LogoExamena';
 import {
     AcademicCapIcon,
     ClipboardDocumentCheckIcon,
@@ -15,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import { trans } from '@/utils/translations';
+import { LogoExamena } from '@/Components';
 
 const Welcome = () => {
     const { auth } = usePage<PageProps>().props;

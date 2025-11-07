@@ -1,21 +1,16 @@
 import { router, usePage } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button } from '@/Components/Button';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { formatDate, getRoleColor, getRoleLabel } from '@/utils/formatters';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
-import Section from '@/Components/Section';
-import StatCard from '@/Components/StatCard';
 import { UserGroupIcon, TrashIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
-import { DataTable } from '@/Components/DataTable';
 import { route } from 'ziggy-js';
 import { useState } from 'react';
 import CreateUser from './Create';
 import { User, PageProps } from '@/types';
-import Toggle from '@/Components/form/Toggle';
 import { breadcrumbs } from '@/utils/breadcrumbs';
-import ConfirmationModal from '@/Components/ConfirmationModal';
 import { hasPermission } from '@/utils/permissions';
 import { trans } from '@/utils/translations';
+import { Toggle, Button, StatCard, Section, DataTable, ConfirmationModal } from '@/Components';
 
 interface Group {
     id: number;

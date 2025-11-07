@@ -1,12 +1,10 @@
 import React from 'react';
 import { router, usePage } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { PaginationType } from '@/types/datatable';
-import { Button } from '@/Components';
+import { Button, ExamList, Section } from '@/Components';
 import { Exam, PageProps } from '@/types';
-import Section from '@/Components/Section';
 import { route } from 'ziggy-js';
-import ExamList from '@/Components/exam/ExamList';
 import { hasPermission } from '@/utils/permissions';
 import { trans } from '@/utils/translations';
 import { breadcrumbs } from '@/utils/breadcrumbs';

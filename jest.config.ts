@@ -20,8 +20,7 @@ const config: Config = {
 
     // Pattern des fichiers de test
     testMatch: [
-        '<rootDir>/resources/ts/**/__tests__/**/*.{js,jsx,ts,tsx}',
-        '<rootDir>/resources/ts/**/*.{test,spec}.{js,jsx,ts,tsx}',
+        '<rootDir>/resources/ts/tests/unit/**/*.{test,spec}.{js,jsx,ts,tsx}',
         '<rootDir>/tests/frontend/**/*.{test,spec}.{js,jsx,ts,tsx}',
     ],
 
@@ -31,11 +30,12 @@ const config: Config = {
         '<rootDir>/vendor/',
         '<rootDir>/storage/',
         '<rootDir>/bootstrap/cache/',
+        '<rootDir>/resources/ts/tests/e2e/',
     ],
 
     // Transformer les modules ESM de node_modules
     transformIgnorePatterns: [
-        'node_modules/(?!(lodash-es|@inertiajs)/)',
+        'node_modules/(?!(lodash-es|@inertiajs|react-markdown|remark-.*|rehype-.*|unified|bail|is-plain-obj|trough|vfile|vfile-message|unist-.*|micromark.*|decode-named-character-reference|character-entities|mdast-util-.*|ccount|escape-string-regexp|markdown-table|devlop|hast-.*|hastscript|property-information|space-separated-tokens|comma-separated-tokens|web-namespaces|ziggy-js|qs-esm)/)',
     ],
 
     // Configuration de la couverture de code
@@ -44,6 +44,7 @@ const config: Config = {
         '!resources/ts/**/*.d.ts',
         '!resources/ts/app.tsx',
         '!resources/ts/bootstrap.ts',
+        '!resources/ts/tests/**',
     ],
 
     // Seuils de couverture

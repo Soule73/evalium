@@ -1,14 +1,9 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { PageProps, ExamAssignment, Group, Level } from '@/types';
-import Section from '@/Components/Section';
-import StudentExamAssignmentList from '@/Components/exam/StudentExamAssignmentList';
 import { PaginationType } from '@/types/datatable';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { route } from 'ziggy-js';
-import { Button } from '@/Components';
-import Badge from '@/Components/Badge';
-import TextEntry from '@/Components/TextEntry';
-import AlertEntry from '@/Components/AlertEntry';
+import { AlertEntry, Badge, Button, Section, StudentExamAssignmentList, TextEntry } from '@/Components';
 import { trans } from '@/utils/translations';
 
 interface Props extends PageProps {
