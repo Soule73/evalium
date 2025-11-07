@@ -139,10 +139,11 @@ class AssignmentController extends Controller
         $this->authorize('view', $exam);
 
         $exam->loadMissing('questions');
-        $group->loadMissing('level')
-            ->loadCount(['students as active_students_count' => function ($query) {
-                $query->wherePivot('is_active', true);
-            }]);
+        $group->loadMissing('level');
+
+        $group->loadCount(['students as active_students_count' => function ($query) {
+            $query->where('group_student.is_active', true);
+        }]);
 
         $perPage = $request->input('per_page', 10);
         $filterStatus = $request->input('filter_status');
