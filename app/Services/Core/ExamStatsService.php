@@ -92,8 +92,8 @@ class ExamStatsService
         return [
             'total_students' => $totalStudents,
             'completed' => $submitted,
-            'in_progress' => $inProgress,
-            'not_started' => max(0, $notStarted),
+            'started' => $inProgress,
+            'assigned' => max(0, $notStarted),
             'average_score' => $averageScore ? round($averageScore, 2) : null,
         ];
     }
@@ -229,9 +229,9 @@ class ExamStatsService
     public function countByStatus(Collection $assignments): array
     {
         return [
-            'not_started' => $assignments->filter(fn ($a) => $a->started_at === null)->count(),
+            'not_started' => $assignments->filter(fn($a) => $a->started_at === null)->count(),
             'in_progress' => $assignments->filter(
-                fn ($a) => $a->started_at !== null && $a->submitted_at === null
+                fn($a) => $a->started_at !== null && $a->submitted_at === null
             )->count(),
             'submitted' => $assignments->where('status', 'submitted')->count(),
             'graded' => $assignments->where('status', 'graded')->count(),

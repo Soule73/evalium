@@ -5,7 +5,6 @@ import { Exam, Group, ExamAssignment } from '@/types';
 import Section from '@/Components/Section';
 import { DataTable } from '@/Components/DataTable';
 import {
-    UserGroupIcon,
     ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
@@ -13,6 +12,7 @@ import { PaginationType } from '@/types/datatable';
 import { breadcrumbs } from '@/utils/breadcrumbs';
 import { getExamAssignmentColumns, ExamStatsCards } from '@/Components/exam';
 import { trans } from '@/utils/translations';
+import TextEntry from '@/Components/TextEntry';
 
 interface Props {
     exam: Exam;
@@ -50,15 +50,8 @@ export default function ExamGroupDetails({ exam, group, assignments, stats }: Pr
         >
             <div className="space-y-6">
                 <Section
-                    title={
-                        <div className="flex items-center space-x-3">
-                            <UserGroupIcon className="h-8 w-8 text-blue-600" />
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">{group.display_name}</h2>
-                                <p className="text-sm text-gray-500">{trans('exam_pages.group_details.subtitle', { exam: exam.title })}</p>
-                            </div>
-                        </div>
-                    }
+                    title={group.display_name}
+                    subtitle={trans('exam_pages.group_details.subtitle', { exam: exam.title })}
                     actions={
                         <Button
                             onClick={() => router.visit(route('exams.assign', exam.id))}
@@ -71,25 +64,23 @@ export default function ExamGroupDetails({ exam, group, assignments, stats }: Pr
                         </Button>
                     }
                 >
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <p className="text-sm font-medium text-gray-700">{trans('exam_pages.group_details.level')}</p>
-                                <p className="text-base text-gray-900">{group.level?.name || trans('exam_pages.group_details.not_defined')}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-gray-700">{trans('exam_pages.group_details.active_students')}</p>
-                                <p className="text-base text-gray-900">{group.active_students_count || 0}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-gray-700">{trans('exam_pages.group_details.exam_duration')}</p>
-                                <p className="text-base text-gray-900">{exam.duration} {trans('exam_pages.group_details.minutes')}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-gray-700">{trans('exam_pages.group_details.questions_count')}</p>
-                                <p className="text-base text-gray-900">{exam.questions?.length || 0}</p>
-                            </div>
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <TextEntry
+                            label={trans('exam_pages.group_details.level')}
+                            value={group.level?.name || trans('exam_pages.group_details.not_defined')}
+                        />
+                        <TextEntry
+                            label={trans('exam_pages.group_details.active_students')}
+                            value={group.active_students_count || 0}
+                        />
+                        <TextEntry
+                            label={trans('exam_pages.group_details.exam_duration')}
+                            value={`${exam.duration} ${trans('exam_pages.group_details.minutes')}`}
+                        />
+                        <TextEntry
+                            label={trans('exam_pages.group_details.questions_count')}
+                            value={exam.questions?.length || 0}
+                        />
                     </div>
                 </Section>
 

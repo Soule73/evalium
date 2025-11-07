@@ -20,6 +20,8 @@ return [
         'no' => 'Non',
         'confirm' => 'Confirmer',
         'loading' => 'Chargement...',
+        'modify' => 'Modifier',
+        'status' => 'Statut',
     ],
 
     // Users Management
