@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Services\Admin\AdminDashboardService;
 use App\Services\Core\ExamQueryService;
 use App\Services\Exam\TeacherDashboardService;
+use App\Services\Student\StudentAssignmentQueryService;
+use App\Services\Student\StudentDashboardService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -19,7 +21,9 @@ class DashboardController extends Controller
     public function __construct(
         private readonly ExamQueryService $examQueryService,
         private readonly TeacherDashboardService $teacherDashboardService,
-        private readonly AdminDashboardService $adminDashboardService
+        private readonly AdminDashboardService $adminDashboardService,
+        private readonly StudentAssignmentQueryService $studentAssignmentQueryService,
+        private readonly StudentDashboardService $studentDashboardService
     ) {}
 
     /**
@@ -73,9 +77,9 @@ class DashboardController extends Controller
      */
     public function student(Request $request, User $user): Response
     {
-        $allAssignments = $this->examQueryService->getAssignedExamsForStudentLight($user);
+        $allAssignments = $this->studentAssignmentQueryService->getAssignmentsForStudentLight($user);
 
-        $stats = $this->examQueryService->getStudentDashboardStats($allAssignments);
+        $stats = $this->studentDashboardService->getDashboardStats($user);
 
         $page = $request->input('page', 1);
         $perPage = 10;
