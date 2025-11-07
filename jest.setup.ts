@@ -5,7 +5,59 @@ declare global {
     var route: jest.Mock;
 }
 
-// Mock pour Inertia.js
+// Mock pour Inertia.js usePage
+jest.mock('@inertiajs/react', () => ({
+    ...jest.requireActual('@inertiajs/react'),
+    usePage: jest.fn().mockReturnValue({
+        props: {
+            auth: {
+                user: {
+                    id: 1,
+                    name: 'Test User',
+                    email: 'test@example.com',
+                    roles: [],
+                },
+                permissions: [],
+            },
+            locale: 'fr',
+            language: {
+                common: {
+                    cancel: 'Annuler',
+                    confirm: 'Confirmer',
+                    delete: 'Supprimer',
+                    save: 'Enregistrer',
+                },
+                components: {
+                    confirmation_modal: {
+                        confirm: 'Confirmer',
+                        cancel: 'Annuler',
+                    },
+                },
+            },
+        },
+        url: '/test',
+        component: 'Test',
+        version: '1',
+        errors: {},
+        rememberedState: {},
+        resolvedErrors: {},
+        scrollRegions: [],
+        clearHistory: jest.fn(),
+        setScrollRegions: jest.fn(),
+    }),
+    router: {
+        visit: jest.fn(),
+        get: jest.fn(),
+        post: jest.fn(),
+        put: jest.fn(),
+        patch: jest.fn(),
+        delete: jest.fn(),
+        reload: jest.fn(),
+        on: jest.fn(),
+    },
+}));
+
+// Mock pour route helper
 (global as any).route = jest.fn().mockImplementation((name?: string, params?: Record<string, any>) => {
     if (params) {
         return `/${name}/${Object.values(params).join('/')}`;

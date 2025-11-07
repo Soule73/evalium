@@ -1,20 +1,64 @@
 {
-    "extends": "./tsconfig.json",
     "compilerOptions": {
+        "target": "ES2020",
+        "useDefineForClassFields": true,
+        "lib": [
+            "ES2020",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "module": "ESNext",
+        "skipLibCheck": true,
+        "allowJs": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
+        "jsxImportSource": "react",
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "./resources/ts/*"
+            ],
+            "@/Types/*": [
+                "./resources/ts/types/*"
+            ],
+            "@/Components/*": [
+                "./resources/ts/Components/*"
+            ],
+            "@/Pages/*": [
+                "./resources/ts/Pages/*"
+            ],
+            "@/Layouts/*": [
+                "./resources/ts/Layouts/*"
+            ],
+            "@/Hooks/*": [
+                "./resources/ts/hooks/*"
+            ],
+            "@/Utils/*": [
+                "./resources/ts/utils/*"
+            ]
+        },
         "types": [
             "jest",
             "@testing-library/jest-dom",
             "@playwright/test"
-        ],
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true
+        ]
     },
     "include": [
         "resources/ts/**/*",
         "tests/frontend/**/*",
         "tests/e2e/**/*",
-        "jest.setup.js",
-        "jest.config.js",
+        "jest.setup.ts",
+        "jest.config.ts",
         "playwright.config.ts"
     ]
 }
