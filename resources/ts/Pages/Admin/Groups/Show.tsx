@@ -3,12 +3,12 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { UserGroupIcon, UsersIcon, UserMinusIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
 import { Group, User, PageProps } from '@/types';
-import { formatDate } from '@/utils/formatters';
+import { formatDate } from '@/utils';
 import { DataTableConfig } from '@/types/datatable';
 import { useState } from 'react';
-import { breadcrumbs } from '@/utils/breadcrumbs';
-import { hasPermission } from '@/utils/permissions';
-import { trans } from '@/utils/translations';
+import { breadcrumbs } from '@/utils';
+import { hasPermission } from '@/utils';
+import { trans } from '@/utils';
 import { Badge, Button, ConfirmationModal, DataTable, Section, StatCard, TextEntry } from '@/Components';
 
 interface Props {

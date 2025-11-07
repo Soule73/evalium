@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { LockClosedIcon } from '@heroicons/react/24/outline';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 
 interface AlertSecurityViolationProps {
     exam: {

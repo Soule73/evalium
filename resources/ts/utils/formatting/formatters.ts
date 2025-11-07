@@ -1,5 +1,5 @@
 
-import { trans } from './translations';
+import { trans } from '../helpers/translations';
 
 
 /**

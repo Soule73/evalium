@@ -2,10 +2,10 @@ import { FormEvent } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
-import { breadcrumbs } from '@/utils/breadcrumbs';
+import { breadcrumbs } from '@/utils';
 import { Permission, Role, GroupedPermissions } from '@/types/role';
 import { useRoleForm } from '@/hooks';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Button, RoleForm, Section } from '@/Components';
 
 interface Props {

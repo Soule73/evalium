@@ -2,8 +2,8 @@ import React from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, ExamGeneralConfig, QuestionsManager, Section } from '@/Components';
 import { useCreateExam } from '@/hooks';
-import { breadcrumbs } from '@/utils/breadcrumbs';
-import { trans } from '@/utils/translations';
+import { breadcrumbs } from '@/utils';
+import { trans } from '@/utils';
 
 const ExamCreate: React.FC = () => {
     const {

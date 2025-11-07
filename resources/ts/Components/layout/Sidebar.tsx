@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { User, PageProps } from '@/types';
-import { hasPermission } from '@/utils/permissions';
-import { navRoutes } from '@/utils/breadcrumbs';
-import { trans } from '@/utils/translations';
+import { hasPermission } from '@/utils';
+import { navRoutes } from '@/utils';
+import { trans } from '@/utils';
 import { LogoExamena } from '../ui';
 import { NavIcon } from './NavIcon';
 import { RoleBadge } from './RoleBadge';

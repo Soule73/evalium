@@ -7,7 +7,7 @@ import {
     attachConfigurableEventListeners,
     detachConfigurableEventListeners,
     removeSecurityMeasures
-} from '@/utils/examSecurity';
+} from '@/utils';
 import { useExamConfig, isSecurityEnabled, isFeatureEnabled } from './useExamConfig';
 import { securityViolationLabel } from '@/utils';
 

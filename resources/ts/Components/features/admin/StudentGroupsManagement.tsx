@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { GroupWithPivot, Group } from '@/types';
-import { formatDate } from '@/utils/formatters';
+import { formatDate } from '@/utils';
 import { route } from 'ziggy-js';
 import { UserGroupIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { DataTableConfig } from '@/types/datatable';

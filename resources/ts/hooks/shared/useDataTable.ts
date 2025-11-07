@@ -8,7 +8,7 @@ import {
     toggleAllPageSelection,
     toggleItemSelection,
     selectAllItems
-} from '@/utils/dataTableUtils';
+} from '@/utils';
 
 interface UseDataTableOptions {
     initialState?: Partial<DataTableState>;

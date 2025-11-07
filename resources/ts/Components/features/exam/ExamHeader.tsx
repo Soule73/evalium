@@ -1,8 +1,8 @@
 import { Exam } from '@/types';
-import { formatDuration } from '@/utils/formatters';
+import { formatDuration } from '@/utils';
 import { ClockIcon, QuestionMarkCircleIcon, CalendarIcon } from '@heroicons/react/24/outline';
-import { formatDate } from '@/utils/formatters';
-import { trans } from '@/utils/translations';
+import { formatDate } from '@/utils';
+import { trans } from '@/utils';
 import { MarkdownRenderer } from '@/Components/forms';
 
 interface ExamHeaderProps {

@@ -1,0 +1,41 @@
+export {
+    formatExamScore,
+    calculatePercentage,
+    validateScore,
+    requiresManualGrading,
+    formatScoresForSave,
+    getCorrectionStatus,
+    hasUserResponse,
+    calculateScoreDisplay,
+} from './utils';
+
+export {
+    VIOLATION_TYPES,
+    createBeforeUnloadHandler,
+    isDeveloperToolsShortcut,
+    isReloadShortcut,
+    isCopyPasteShortcut,
+    isPrintShortcut,
+    isZoomShortcut,
+    isNewWindowShortcut,
+    isEscapeKey,
+    createKeyDownHandler,
+    createSelectStartHandler,
+    createContextMenuHandler,
+    createDragHandler,
+    createPrintHandler,
+    createImageActionsHandler,
+    disableTextSelection,
+    enableTextSelection,
+    showScrollbars,
+    applySecurityMeasures,
+    removeSecurityMeasures,
+    attachSecurityEventListeners,
+    detachSecurityEventListeners,
+    createConfigurableSecurityHandlers,
+    applyConfigurableSecurityMeasures,
+    attachConfigurableEventListeners,
+    detachConfigurableEventListeners,
+} from './security';
+
+export type { SecurityEventHandlers } from './security';

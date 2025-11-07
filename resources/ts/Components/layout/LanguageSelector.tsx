@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { route } from 'ziggy-js';
 import { Select } from '../ui';
 

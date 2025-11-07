@@ -5,7 +5,7 @@ import EditUser from "../Admin/Users/Edit";
 import { useMemo, useState } from "react";
 import { Button, LanguageSelector, Section, TextEntry, UserAvatar } from "@/Components";
 import { route } from "ziggy-js";
-import { trans } from "@/utils/translations";
+import { trans } from '@/utils';
 import { usePage } from "@inertiajs/react";
 
 interface Props {

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, forwardRef } from 'react';
 import { ChevronDownIcon, CheckIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 
 interface Option {
     value: string | number;

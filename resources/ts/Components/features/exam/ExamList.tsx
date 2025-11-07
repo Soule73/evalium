@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { formatDate, formatDuration } from '@/utils/formatters';
+import { formatDate, formatDuration } from '@/utils';
 import { Exam, PageProps } from '@/types';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
 import type { FilterConfig } from '@/types/datatable';
-import { hasPermission } from '@/utils/permissions';
-import { trans } from '@/utils/translations';
+import { hasPermission } from '@/utils';
+import { trans } from '@/utils';
 import { MarkdownRenderer, Toggle } from '@/Components/forms';
 import { DataTable } from '@/Components/shared';
 import { Button } from '@/Components/ui';

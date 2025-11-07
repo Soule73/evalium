@@ -5,9 +5,9 @@ import { PaginationType } from '@/types/datatable';
 import { Button, ExamList, Section } from '@/Components';
 import { Exam, PageProps } from '@/types';
 import { route } from 'ziggy-js';
-import { hasPermission } from '@/utils/permissions';
-import { trans } from '@/utils/translations';
-import { breadcrumbs } from '@/utils/breadcrumbs';
+import { hasPermission } from '@/utils';
+import { trans } from '@/utils';
+import { breadcrumbs } from '@/utils';
 
 interface Props extends PageProps {
     exams: PaginationType<Exam>;

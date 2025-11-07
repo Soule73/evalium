@@ -3,9 +3,9 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { PageProps, GroupWithPivot } from '@/types';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
 import { BookOpenIcon, CalendarIcon, UserGroupIcon } from '@heroicons/react/24/outline';
-import { breadcrumbs } from '@/utils/breadcrumbs';
+import { breadcrumbs } from '@/utils';
 import { route } from 'ziggy-js';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Badge, DataTable, Section } from '@/Components';
 
 interface StudentGroup extends GroupWithPivot {

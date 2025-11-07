@@ -4,9 +4,9 @@ import { DataTableConfig, PaginationType } from '@/types/datatable';
 import { route } from 'ziggy-js';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
-import { hasPermission } from '@/utils/permissions';
+import { hasPermission } from '@/utils';
 import { PageProps } from '@/types';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Badge, Button, ConfirmationModal, DataTable, Section, Toggle } from '@/Components';
 
 interface Level {

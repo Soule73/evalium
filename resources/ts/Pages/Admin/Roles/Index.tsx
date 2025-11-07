@@ -3,11 +3,11 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
 import { route } from 'ziggy-js';
 import { ShieldCheckIcon } from '@heroicons/react/24/outline';
-import { breadcrumbs } from '@/utils/breadcrumbs';
+import { breadcrumbs } from '@/utils';
 import { useState } from 'react';
-import { hasPermission } from '@/utils/permissions';
+import { hasPermission } from '@/utils';
 import { PageProps } from '@/types';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Badge, Button, ConfirmationModal, DataTable, Section } from '@/Components';
 
 interface Permission {

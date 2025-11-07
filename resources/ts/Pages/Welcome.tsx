@@ -13,7 +13,7 @@ import {
     ArrowRightIcon
 } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { LogoExamena } from '@/Components';
 
 const Welcome = () => {

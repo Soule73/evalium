@@ -1,7 +1,7 @@
 import React from 'react';
 import { Question } from '@/types';
-import { hasUserResponse } from '@/utils/examUtils';
-import { trans } from '@/utils/translations';
+import { hasUserResponse } from '@/utils';
+import { trans } from '@/utils';
 import { AlertEntry } from '@/Components/ui';
 import QuestionReadOnlySection from './QuestionReadOnlySection';
 import { QuestionResultReadOnlyText, QuestionResultReadOnlyChoices } from './QuestionResultReadOnly';

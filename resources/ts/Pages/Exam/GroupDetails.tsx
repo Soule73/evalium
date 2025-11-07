@@ -6,9 +6,9 @@ import {
 } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
 import { PaginationType } from '@/types/datatable';
-import { breadcrumbs } from '@/utils/breadcrumbs';
+import { breadcrumbs } from '@/utils';
 import { getExamAssignmentColumns, ExamStatsCards, Section, Button, DataTable } from '@/Components';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { TextEntry } from '@/Components';
 
 interface Props {

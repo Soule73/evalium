@@ -2,7 +2,7 @@ import React from 'react';
 import Modal, { ModalSize } from './Modal';
 import { Button } from './Button';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 
 interface ConfirmationModalProps {
     isOpen: boolean;

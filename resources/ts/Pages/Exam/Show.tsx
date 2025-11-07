@@ -1,14 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { formatDuration } from '@/utils/formatters';
+import { formatDuration } from '@/utils';
 import { Button, ConfirmationModal, DataTable, ExamHeader, getGroupTableConfig, QuestionReadOnlySection, Section, StatCard, Toggle } from '@/Components';
 import { Exam, Group } from '@/types';
 import { ClockIcon, QuestionMarkCircleIcon, StarIcon, DocumentDuplicateIcon, UserGroupIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
-import { breadcrumbs } from '@/utils/breadcrumbs';
+import { breadcrumbs } from '@/utils';
 import { groupsToPaginationType } from '@/utils';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { QuestionResultReadOnlyText, QuestionTeacherReadOnlyChoices } from '@/Components/features/exam/QuestionResultReadOnly';
 
 

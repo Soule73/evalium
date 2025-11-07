@@ -1,7 +1,7 @@
 import { Choice } from "@/types";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import { questionIndexLabel } from "./TakeQuestion";
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { MarkdownRenderer } from "@/Components/forms";
 
 interface QuestionResultReadOnlyTextProps {

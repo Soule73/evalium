@@ -3,7 +3,7 @@ import { UserGroupIcon } from '@heroicons/react/24/outline';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { DataTableConfig } from '@/types/datatable';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Button } from '@/Components/ui';
 
 interface GroupTableConfigOptions {

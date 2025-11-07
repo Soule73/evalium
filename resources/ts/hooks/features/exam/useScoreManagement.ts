@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Question } from '@/types';
-import { validateScore, calculatePercentage, formatScoresForSave, getCorrectionStatus } from '@/utils/examUtils';
+import { validateScore, calculatePercentage, formatScoresForSave, getCorrectionStatus } from '@/utils';
 
 interface UseScoreManagementParams {
     questions: Question[];

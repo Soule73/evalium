@@ -1,14 +1,14 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Exam, ExamAssignment, Answer, User, Question, PageProps, Group } from '@/types';
-import { requiresManualGrading, getCorrectionStatus } from '@/utils/examUtils';
+import { requiresManualGrading, getCorrectionStatus } from '@/utils';
 import { route } from 'ziggy-js';
 import { router, usePage } from '@inertiajs/react';
 import { AlertEntry, Badge, Button, ExamInfoSection, Modal, QuestionRenderer, Section, Textarea, TextEntry } from '@/Components';
 import { useExamStudentReview } from '@/hooks';
-import { hasPermission } from '@/utils/permissions';
-import { breadcrumbs } from '@/utils/breadcrumbs';
-import { trans } from '@/utils/translations';
+import { hasPermission } from '@/utils';
+import { breadcrumbs } from '@/utils';
+import { trans } from '@/utils';
 
 interface Props {
     exam: Exam;

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { FlashMessageObject, FlashMessages } from '@/types';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { useToast } from './ToastContext';
 
 interface FlashToastHandlerProps {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { PaginationType } from '@/types/datatable';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 
 interface DataTablePaginationProps<T> {
     data: PaginationType<T>;

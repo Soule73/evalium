@@ -1,5 +1,5 @@
 import { Question, ExamAssignment } from '@/types';
-import { trans } from "./translations";
+import { trans } from '../helpers/translations';
 
 
 /**

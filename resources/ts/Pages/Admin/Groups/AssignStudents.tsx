@@ -5,9 +5,9 @@ import { Group, User, PageProps } from '@/types';
 import { useState } from 'react';
 import { UserPlusIcon } from '@heroicons/react/24/outline';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
-import { breadcrumbs } from '@/utils/breadcrumbs';
-import { hasPermission } from '@/utils/permissions';
-import { trans } from '@/utils/translations';
+import { breadcrumbs } from '@/utils';
+import { hasPermission } from '@/utils';
+import { trans } from '@/utils';
 import { Button, ConfirmationModal, DataTable, Section } from '@/Components';
 
 interface Props {

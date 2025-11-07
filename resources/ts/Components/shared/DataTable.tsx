@@ -4,7 +4,7 @@ import { DataTableFilters } from './DataTableFilters';
 import { DataTablePagination } from './DataTablePagination';
 import { EmptyState } from './EmptyState';
 import { BulkActions } from './BulkActions';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Checkbox } from '../forms';
 import { useDataTable } from '@/hooks';
 

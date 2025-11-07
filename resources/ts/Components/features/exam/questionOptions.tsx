@@ -1,5 +1,5 @@
 import { QuestionType } from "@/types";
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 
 export interface QuestionOption {
     key: QuestionType;

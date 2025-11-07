@@ -1,5 +1,5 @@
 import React from 'react';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Checkbox, Input, MarkdownEditor } from '../forms';
 
 interface ExamGeneralConfigProps {

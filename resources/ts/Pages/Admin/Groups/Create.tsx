@@ -2,8 +2,8 @@ import { router } from '@inertiajs/react';
 import { useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
-import { breadcrumbs } from '@/utils/breadcrumbs';
-import { trans } from '@/utils/translations';
+import { breadcrumbs } from '@/utils';
+import { trans } from '@/utils';
 import { Button, Checkbox, Input, LevelSelect, Section } from '@/Components';
 
 interface Props {

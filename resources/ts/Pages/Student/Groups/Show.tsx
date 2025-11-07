@@ -1,10 +1,10 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { PageProps, ExamAssignment, Group, Level } from '@/types';
 import { PaginationType } from '@/types/datatable';
-import { breadcrumbs } from '@/utils/breadcrumbs';
+import { breadcrumbs } from '@/utils';
 import { route } from 'ziggy-js';
 import { AlertEntry, Badge, Button, Section, StudentExamAssignmentList, TextEntry } from '@/Components';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 
 interface Props extends PageProps {
     group: Group & { level: Level };

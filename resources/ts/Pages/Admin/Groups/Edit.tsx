@@ -4,8 +4,8 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { Group } from '@/types';
 import { formatDateForInput } from '@/utils';
-import { breadcrumbs } from '@/utils/breadcrumbs';
-import { trans } from '@/utils/translations';
+import { breadcrumbs } from '@/utils';
+import { trans } from '@/utils';
 import { Button, Checkbox, Input, LevelSelect, Section } from '@/Components';
 
 interface Props {

@@ -4,7 +4,7 @@ import {
     ClockIcon,
     MinusCircleIcon
 } from '@heroicons/react/24/outline';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { StatCard } from '@/Components/shared';
 
 interface ExamStats {

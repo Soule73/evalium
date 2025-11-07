@@ -3,8 +3,8 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, ExamGeneralConfig, QuestionsManager, Section } from '@/Components';
 import { useEditExam, useDeleteHistory } from '@/hooks';
 import { Exam } from '@/types';
-import { breadcrumbs } from '@/utils/breadcrumbs';
-import { trans } from '@/utils/translations';
+import { breadcrumbs } from '@/utils';
+import { trans } from '@/utils';
 
 interface Props {
     exam: Exam;

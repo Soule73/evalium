@@ -3,9 +3,9 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Exam, User } from '@/types';
 import { route } from 'ziggy-js';
 import { ArrowTrendingUpIcon, DocumentTextIcon, QuestionMarkCircleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
-import { breadcrumbs } from '@/utils/breadcrumbs';
+import { breadcrumbs } from '@/utils';
 import { PaginationType } from '@/types/datatable';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Button, ExamList, Section, StatCard } from '@/Components';
 
 interface Stats {

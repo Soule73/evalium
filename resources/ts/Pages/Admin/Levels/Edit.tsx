@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Button, Input, Section, Toggle } from '@/Components';
 
 interface Level {

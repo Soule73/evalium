@@ -1,9 +1,9 @@
 import { ExamAssignment, User, Group, PageProps } from '@/types';
 import { PaginationType } from '@/types/datatable';
 import ShowUser from './ShowUser';
-import { breadcrumbs } from '@/utils/breadcrumbs';
-import { trans } from '@/utils/translations';
-import { hasPermission } from '@/utils/permissions';
+import { breadcrumbs } from '@/utils';
+import { trans } from '@/utils';
+import { hasPermission } from '@/utils';
 import { usePage } from '@inertiajs/react';
 import { Section, StudentGroupsManagement, StudentExamAssignmentList } from '@/Components';
 

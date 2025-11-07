@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 
 interface ToggleProps {
     checked?: boolean;

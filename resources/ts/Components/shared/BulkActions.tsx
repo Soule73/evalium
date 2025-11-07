@@ -1,6 +1,6 @@
 import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 
 interface BulkActionsProps {
     selectedCount: number;

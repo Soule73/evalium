@@ -5,8 +5,8 @@ import { ChartBarIcon, CheckIcon, ClockIcon, DocumentTextIcon } from '@heroicons
 import { Button, Section, StatCard, StudentExamAssignmentList } from '@/Components';
 import { ExamAssignment, User } from '@/types';
 import { PaginationType } from '@/types/datatable';
-import { breadcrumbs } from '@/utils/breadcrumbs';
-import { trans } from '@/utils/translations';
+import { breadcrumbs } from '@/utils';
+import { trans } from '@/utils';
 
 interface Stats {
     totalExams: number;

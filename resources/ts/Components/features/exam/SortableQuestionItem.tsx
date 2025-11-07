@@ -12,7 +12,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { QuestionFormData, ChoiceFormData } from '@/types';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Input, MarkdownEditor, Checkbox, ChoiceEditor } from '@/Components/forms';
 
 interface SortableQuestionItemProps {

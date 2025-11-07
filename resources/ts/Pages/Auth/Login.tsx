@@ -1,7 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import GuestLayout from '@/Components/layout/GuestLayout';
 import { route } from 'ziggy-js';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Button, Checkbox, Input, Logo } from '@/Components';
 
 interface LoginProps {

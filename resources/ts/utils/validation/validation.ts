@@ -2,7 +2,7 @@
  * Validation utilities for forms and data
  */
 
-import { trans } from './translations';
+import { trans } from '../helpers/translations';
 
 export interface ValidationRule {
     required?: boolean;

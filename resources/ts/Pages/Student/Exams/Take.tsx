@@ -4,7 +4,7 @@ import { Answer, Exam, ExamAssignment, Question } from '@/types';
 import { ExclamationCircleIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { useTakeExam } from '@/hooks';
 import { formatTime } from '@/utils';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { CanNotTakeExam } from '@/Components/features/exam/AlertSecurityViolation';
 
 interface TakeExamProps {

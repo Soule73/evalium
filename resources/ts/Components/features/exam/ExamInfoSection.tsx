@@ -1,8 +1,8 @@
 import React from 'react';
-import { formatDate, formatDuration, getAssignmentBadgeLabel, securityViolationLabel } from '@/utils/formatters';
+import { formatDate, formatDuration, getAssignmentBadgeLabel, securityViolationLabel } from '@/utils';
 import { Exam, ExamAssignment, User } from '@/types';
-import { formatExamScore } from '@/utils/examUtils';
-import { trans } from '@/utils/translations';
+import { formatExamScore } from '@/utils';
+import { trans } from '@/utils';
 import { TextEntry, AlertEntry } from '@/Components/ui';
 
 interface ExamInfoSectionProps {

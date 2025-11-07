@@ -3,11 +3,11 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Exam, ExamAssignment, Answer, User, Level, Group } from '@/types';
 import { useExamResults } from '@/hooks';
 import { useExamScoring } from '@/hooks';
-import { breadcrumbs } from '@/utils/breadcrumbs';
+import { breadcrumbs } from '@/utils';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { Badge, Button, ExamInfoSection, QuestionRenderer, Section } from '@/Components';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 
 interface Props {
     exam: Exam;

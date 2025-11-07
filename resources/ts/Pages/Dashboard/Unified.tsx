@@ -3,7 +3,7 @@ import { usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { PageProps, User } from '@/types';
 import { Section } from '@/Components';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 
 interface UnifiedDashboardProps extends PageProps {
     user: User;

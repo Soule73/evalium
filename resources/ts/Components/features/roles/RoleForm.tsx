@@ -2,7 +2,7 @@ import { FormEvent } from 'react';
 import PermissionSelector from './PermissionSelector';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { GroupedPermissions, RoleFormData } from '@/types/role';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Input } from '@/Components/forms';
 import { Badge, Button } from '@/Components/ui';
 

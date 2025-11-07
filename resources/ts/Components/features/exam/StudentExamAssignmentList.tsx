@@ -3,12 +3,12 @@ import { Link } from '@inertiajs/react';
 import { EyeIcon } from '@heroicons/react/24/outline';
 import { Badge, Button, DataTable } from '@/Components';
 import { route } from 'ziggy-js';
-import { formatDate, formatDuration, getAssignmentStatusWithLabel, getAssignmentBadgeLabel, getAssignmentBadgeType, assignmentStatusColors, getAssignmentStatusLabels } from '@/utils/formatters';
-import { calculateScoreDisplay } from '@/utils/examUtils';
+import { formatDate, formatDuration, getAssignmentStatusWithLabel, getAssignmentBadgeLabel, getAssignmentBadgeType, assignmentStatusColors, getAssignmentStatusLabels } from '@/utils';
+import { calculateScoreDisplay } from '@/utils';
 import { ExamAssignment } from '@/types';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
 import type { FilterConfig } from '@/types/datatable';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 
 interface StudentExamAssignmentListProps {
     data: PaginationType<ExamAssignment>;

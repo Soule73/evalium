@@ -6,9 +6,9 @@ import { useExamScoring } from '@/hooks';
 import { route } from 'ziggy-js';
 import { router, usePage } from '@inertiajs/react';
 import { Badge, Button, ExamInfoSection, QuestionRenderer, Section } from '@/Components';
-import { hasPermission } from '@/utils/permissions';
-import { breadcrumbs } from '@/utils/breadcrumbs';
-import { trans } from '@/utils/translations';
+import { hasPermission } from '@/utils';
+import { breadcrumbs } from '@/utils';
+import { trans } from '@/utils';
 
 interface Props {
     exam: Exam;

@@ -1,12 +1,12 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { formatDate, getRoleLabel } from '@/utils/formatters';
+import { formatDate, getRoleLabel } from '@/utils';
 import { User } from '@/types';
 import { useState } from 'react';
 import EditUser from './Edit';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/16/solid';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { ConfirmationModal, Section, Button, TextEntry, Toggle } from '@/Components';
 import { BreadcrumbItem } from '@/Components/layout/Breadcrumb';
 

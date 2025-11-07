@@ -3,8 +3,8 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { Button, Input, Section, Textarea, Toggle } from '@/Components';
-import { breadcrumbs } from '@/utils/breadcrumbs';
-import { trans } from '@/utils/translations';
+import { breadcrumbs } from '@/utils';
+import { trans } from '@/utils';
 
 export default function CreateLevel() {
     const [formData, setFormData] = useState({

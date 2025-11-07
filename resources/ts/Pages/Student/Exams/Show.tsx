@@ -1,13 +1,13 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { PageProps, Exam, ExamAssignment, User } from '@/types';
-import { formatDate, formatDuration, formatDeadlineWarning } from '@/utils/formatters';
+import { formatDate, formatDuration, formatDeadlineWarning } from '@/utils';
 import { AlertEntry, Button, ExamHeader, Modal, Section, StatCard, TextEntry } from '@/Components';
-import { breadcrumbs } from '@/utils/breadcrumbs';
+import { breadcrumbs } from '@/utils';
 import { route } from 'ziggy-js';
 import { ClockIcon, DocumentTextIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 
 interface StudentExamShowProps extends PageProps {
     exam: Exam;

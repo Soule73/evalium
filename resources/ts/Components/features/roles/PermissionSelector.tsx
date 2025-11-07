@@ -1,7 +1,7 @@
 import { Checkbox } from '@/Components/forms';
 import { Button } from '@/Components/ui';
 import { GroupedPermissions } from '@/types/role';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 
 interface Props {
     groupedPermissions: GroupedPermissions;

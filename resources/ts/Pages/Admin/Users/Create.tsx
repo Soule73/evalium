@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Button, Input, Modal, Select } from '@/Components';
 
 interface Group {

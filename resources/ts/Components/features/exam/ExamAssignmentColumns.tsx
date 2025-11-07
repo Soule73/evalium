@@ -1,8 +1,8 @@
-import { formatDate, formatExamAssignmentStatus } from '@/utils/formatters';
+import { formatDate, formatExamAssignmentStatus } from '@/utils';
 import { ExamAssignment, Exam, Group } from '@/types';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Badge, Button } from '@/Components/ui';
 
 interface ExamAssignmentColumnsOptions {

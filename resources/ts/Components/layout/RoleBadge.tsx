@@ -1,4 +1,4 @@
-import { trans } from '@/utils/translations';
+import { trans } from '@/utils';
 import { Badge } from '../ui';
 import { BadgeType } from '../ui/Badge';
 
