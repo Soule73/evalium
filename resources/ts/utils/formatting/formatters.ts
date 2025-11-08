@@ -1,4 +1,5 @@
 
+import { BadgeType } from '@/Components/ui/Badge';
 import { trans } from '../helpers/translations';
 
 
@@ -392,4 +393,23 @@ export const getAssignmentStatusWithLabel = (): Array<{ value: string; label: st
         { value: 'submitted', label: trans('formatters.assignment_submitted') },
         { value: 'graded', label: trans('formatters.assignment_graded') },
     ];
+};
+
+/**
+ * Returns the status information for a student based on their active status.
+ * @param isActive - A boolean indicating whether the student is currently active (enrolled) or not.
+ * @returns An object containing a `label` and a `type` for the student's status.
+ *          If the student is active, the label will indicate they are enrolled and the type will be 'success'.
+ *          If the student is not active, the label will indicate they have left and the type will be 'gray'.
+ */
+export const getStudentStatusInfo = (isActive: boolean): { label: string; type: BadgeType } => {
+    return isActive
+        ? { label: trans('formatters.student_status_enrolled'), type: 'success' }
+        : { label: trans('formatters.student_status_left'), type: 'gray' };
+};
+
+export const getBooleanStatusInfo = (isActive: boolean): { label: string; type: BadgeType } => {
+    return isActive
+        ? { label: trans('formatters.active'), type: 'success' }
+        : { label: trans('formatters.inactive'), type: 'gray' };
 };

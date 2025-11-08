@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { router } from '@inertiajs/react';
-import { DataTableState, PaginationType } from '@/types/datatable';
+import { DataTableState, PaginationType, FilterConfig } from '@/types/datatable';
 import {
     buildDataTableUrl,
     areAllSelectableItemsSelected,
@@ -17,6 +17,9 @@ interface UseDataTableOptions {
     enableSelection?: boolean;
     maxSelectable?: number;
     isSelectable?: (item: any) => boolean;
+    filters?: FilterConfig[];
+    onStateChange?: (state: DataTableState) => void;
+    onSelectionChange?: (selectedIds: (number | string)[]) => void;
 }
 
 /**
@@ -32,9 +35,13 @@ export function useDataTable<T extends { id: number | string }>(
         debounceMs = 300,
         enableSelection = false,
         maxSelectable,
-        isSelectable
+        isSelectable,
+        filters,
+        onStateChange,
+        onSelectionChange
     } = options;
 
+    const [initialized, setInitialized] = useState(false);
     const [state, setState] = useState<DataTableState>({
         search: initialState.search || '',
         filters: initialState.filters || {},
@@ -45,6 +52,46 @@ export function useDataTable<T extends { id: number | string }>(
 
     const [isNavigating, setIsNavigating] = useState(false);
     const [selectedItems, setSelectedItems] = useState<Set<number | string>>(new Set());
+
+    useEffect(() => {
+        if (!initialized) {
+            const params = new URLSearchParams(window.location.search);
+            let hasInit = false;
+
+            const search = params.get('search');
+            if (search) {
+                setState(prev => ({ ...prev, search }));
+                hasInit = true;
+            }
+
+            if (filters) {
+                filters.forEach((filter) => {
+                    const value = params.get(filter.key);
+                    if (value !== null) {
+                        setState(prev => ({
+                            ...prev,
+                            filters: { ...prev.filters, [filter.key]: value }
+                        }));
+                        hasInit = true;
+                    }
+                });
+            }
+
+            const page = params.get('page');
+            if (page && !isNaN(Number(page))) {
+                setState(prev => ({ ...prev, page: Number(page) }));
+                hasInit = true;
+            }
+
+            const perPage = params.get('per_page');
+            if (perPage && !isNaN(Number(perPage))) {
+                setState(prev => ({ ...prev, perPage: Number(perPage) }));
+                hasInit = true;
+            }
+
+            if (hasInit) setInitialized(true);
+        }
+    }, [initialized, filters]);
 
     useEffect(() => {
         if (enableSelection) {
@@ -60,9 +107,20 @@ export function useDataTable<T extends { id: number | string }>(
         }));
     }, [data.current_page, data.per_page]);
 
-    /**
-     * Builds a URL with the current or new state parameters
-     */
+    useEffect(() => {
+        if (onStateChange) {
+            onStateChange(state);
+        }
+    }, [state, onStateChange]);
+
+    useEffect(() => {
+        if (onSelectionChange) {
+            onSelectionChange(Array.from(selectedItems));
+        }
+    }, [selectedItems, onSelectionChange]);
+
+    const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+
     const buildUrl = useCallback((
         newState: Partial<DataTableState> = {},
         basePath?: string
@@ -72,9 +130,6 @@ export function useDataTable<T extends { id: number | string }>(
         return buildDataTableUrl(finalState, path);
     }, [state, data.path]);
 
-    /**
-     * Navigates to a new state by updating the URL and triggering Inertia navigation
-     */
     const navigate = useCallback((
         newState: Partial<DataTableState> = {},
         options: { replace?: boolean; preserveState?: boolean } = {}
@@ -89,27 +144,6 @@ export function useDataTable<T extends { id: number | string }>(
         });
     }, [buildUrl, preserveState]);
 
-    const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
-
-    /**
-     * Returns true if all selectable items on the current page are selected
-     */
-    const allItemsOnPageSelected = useMemo(() => {
-        if (!enableSelection || data.data.length === 0) return false;
-        return areAllSelectableItemsSelected(data.data, selectedItems, isSelectable);
-    }, [selectedItems, data.data, enableSelection, isSelectable]);
-
-    /**
-     * Returns true if some but not all selectable items on the current page are selected
-     */
-    const someItemsOnPageSelected = useMemo(() => {
-        if (!enableSelection || data.data.length === 0) return false;
-        return areSomeSelectableItemsSelected(data.data, selectedItems, isSelectable);
-    }, [selectedItems, data.data, enableSelection, isSelectable]);
-
-    /**
-     * Debounces navigation to avoid excessive API calls during rapid state changes
-     */
     const debouncedNavigate = useCallback((
         newState: Partial<DataTableState>,
         immediate = false
@@ -130,79 +164,128 @@ export function useDataTable<T extends { id: number | string }>(
         setDebounceTimer(timer);
     }, [navigate, debounceTimer, debounceMs]);
 
+    /**
+     * Returns true if all selectable items on the current page are selected
+     */
+    const allItemsOnPageSelected = useMemo(() => {
+        if (!enableSelection || data.data.length === 0) return false;
+        return areAllSelectableItemsSelected(data.data, selectedItems, isSelectable);
+    }, [selectedItems, data.data, enableSelection, isSelectable]);
+
+    const someItemsOnPageSelected = useMemo(() => {
+        if (!enableSelection || data.data.length === 0) return false;
+        return areSomeSelectableItemsSelected(data.data, selectedItems, isSelectable);
+    }, [selectedItems, data.data, enableSelection, isSelectable]);
+
+    const toggleItem = useCallback((id: number | string) => {
+        setSelectedItems(prev =>
+            toggleItemSelection(id, data.data, prev, maxSelectable, isSelectable)
+        );
+    }, [data.data, maxSelectable, isSelectable]);
+
+    const toggleAllOnPage = useCallback(() => {
+        setSelectedItems(prev =>
+            toggleAllPageSelection(data.data, prev, maxSelectable, isSelectable)
+        );
+    }, [data.data, maxSelectable, isSelectable]);
+
+    const selectAll = useCallback(() => {
+        setSelectedItems(selectAllItems(data.data, maxSelectable, isSelectable));
+    }, [data.data, maxSelectable, isSelectable]);
+
+    const deselectAll = useCallback(() => {
+        setSelectedItems(new Set());
+    }, []);
+
+    const isItemSelected = useCallback((id: number | string) => {
+        return selectedItems.has(id);
+    }, [selectedItems]);
+
+    const getSelectedItems = useCallback(() => {
+        return Array.from(selectedItems);
+    }, [selectedItems]);
+
+    const getSelectedCount = useCallback(() => {
+        return selectedItems.size;
+    }, [selectedItems]);
+
+    const setSearch = useCallback((search: string) => {
+        setState(prev => ({ ...prev, search }));
+        debouncedNavigate({ search, page: 1 });
+    }, [debouncedNavigate]);
+
+    const setFilter = useCallback((key: string, value: string) => {
+        setState(prev => ({
+            ...prev,
+            filters: { ...prev.filters, [key]: value }
+        }));
+        debouncedNavigate({
+            filters: { ...state.filters, [key]: value },
+            page: 1
+        });
+    }, [state.filters, debouncedNavigate]);
+
+    const setFilters = useCallback((filters: Record<string, string>) => {
+        setState(prev => ({ ...prev, filters }));
+        debouncedNavigate({ filters, page: 1 });
+    }, [debouncedNavigate]);
+
+    const resetFilters = useCallback(() => {
+        const newState = { search: '', filters: {}, page: 1 };
+        setState(prev => ({ ...prev, ...newState }));
+        navigate(newState, { replace: true });
+    }, [navigate]);
+
+    const goToPage = useCallback((page: number) => {
+        setState(prev => ({ ...prev, page }));
+        navigate({ page });
+    }, [navigate]);
+
+    const setPerPage = useCallback((perPage: number) => {
+        setState(prev => ({ ...prev, perPage, page: 1 }));
+        navigate({ perPage, page: 1 });
+    }, [navigate]);
+
+    const navigateToState = useCallback((newState: Partial<DataTableState>, immediate = false) => {
+        setState(prev => ({ ...prev, ...newState }));
+        if (immediate) {
+            navigate(newState);
+        } else {
+            debouncedNavigate(newState);
+        }
+    }, [navigate, debouncedNavigate]);
+
     const actions = useMemo(() => ({
-        setSearch: (search: string) => {
-            setState(prev => ({ ...prev, search }));
-            debouncedNavigate({ search, page: 1 });
-        },
-
-        setFilter: (key: string, value: string) => {
-            setState(prev => ({
-                ...prev,
-                filters: { ...prev.filters, [key]: value }
-            }));
-            debouncedNavigate({
-                filters: { ...state.filters, [key]: value },
-                page: 1
-            });
-        },
-
-        setFilters: (filters: Record<string, string>) => {
-            setState(prev => ({ ...prev, filters }));
-            debouncedNavigate({ filters, page: 1 });
-        },
-
-        resetFilters: () => {
-            const newState = { search: '', filters: {}, page: 1 };
-            setState(prev => ({ ...prev, ...newState }));
-            navigate(newState, { replace: true });
-        },
-
-        goToPage: (page: number) => {
-            setState(prev => ({ ...prev, page }));
-            navigate({ page });
-        },
-
-        setPerPage: (perPage: number) => {
-            setState(prev => ({ ...prev, perPage, page: 1 }));
-            navigate({ perPage, page: 1 });
-        },
-
-        navigateToState: (newState: Partial<DataTableState>, immediate = false) => {
-            setState(prev => ({ ...prev, ...newState }));
-            if (immediate) {
-                navigate(newState);
-            } else {
-                debouncedNavigate(newState);
-            }
-        },
-
-        toggleItem: (id: number | string) => {
-            setSelectedItems(prev =>
-                toggleItemSelection(id, data.data, prev, maxSelectable, isSelectable)
-            );
-        },
-
-        toggleAllOnPage: () => {
-            setSelectedItems(prev =>
-                toggleAllPageSelection(data.data, prev, maxSelectable, isSelectable)
-            );
-        },
-
-        selectAll: () => {
-            setSelectedItems(selectAllItems(data.data, maxSelectable, isSelectable));
-        },
-
-        deselectAll: () => {
-            setSelectedItems(new Set());
-        },
-
-        isItemSelected: (id: number | string) => selectedItems.has(id),
-
-        getSelectedItems: () => Array.from(selectedItems),
-
-        getSelectedCount: () => selectedItems.size
-    }), [state, navigate, debouncedNavigate, selectedItems, data.data, maxSelectable, isSelectable]);
+        setSearch,
+        setFilter,
+        setFilters,
+        resetFilters,
+        goToPage,
+        setPerPage,
+        navigateToState,
+        toggleItem,
+        toggleAllOnPage,
+        selectAll,
+        deselectAll,
+        isItemSelected,
+        getSelectedItems,
+        getSelectedCount
+    }), [
+        setSearch,
+        setFilter,
+        setFilters,
+        resetFilters,
+        goToPage,
+        setPerPage,
+        navigateToState,
+        toggleItem,
+        toggleAllOnPage,
+        selectAll,
+        deselectAll,
+        isItemSelected,
+        getSelectedItems,
+        getSelectedCount
+    ]);
 
     useEffect(() => {
         return () => {

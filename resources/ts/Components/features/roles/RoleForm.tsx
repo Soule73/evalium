@@ -13,7 +13,7 @@ interface Props {
     groupedPermissions: GroupedPermissions;
     onSubmit: (e: FormEvent) => void;
     onCancel: () => void;
-    onFieldChange: (field: keyof RoleFormData, value: any) => void;
+    onFieldChange: (field: keyof RoleFormData, value: string | number[]) => void;
     onPermissionToggle: (permissionId: number) => void;
     onSelectAll: () => void;
     onDeselectAll: () => void;

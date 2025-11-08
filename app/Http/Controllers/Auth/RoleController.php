@@ -39,7 +39,7 @@ class RoleController extends Controller
 
         $groupedPermissions = $this->roleService->groupPermissionsByCategory($allPermissions);
 
-        return Inertia::render('Admin/Roles/Index', [
+        return Inertia::render('Roles/Index', [
             'roles' => $roles,
             'allPermissions' => $allPermissions,
             'groupedPermissions' => $groupedPermissions,
@@ -59,7 +59,7 @@ class RoleController extends Controller
 
         $groupedPermissions = $this->roleService->groupPermissionsByCategory($permissions);
 
-        return Inertia::render('Admin/Roles/Create', [
+        return Inertia::render('Roles/Create', [
             'permissions' => $permissions,
             'groupedPermissions' => $groupedPermissions,
         ]);
@@ -94,7 +94,7 @@ class RoleController extends Controller
 
         $groupedPermissions = $this->roleService->groupPermissionsByCategory($allPermissions);
 
-        return Inertia::render('Admin/Roles/Edit', [
+        return Inertia::render('Roles/Edit', [
             'role' => $roleWithPermissions,
             'allPermissions' => $allPermissions,
             'groupedPermissions' => $groupedPermissions,

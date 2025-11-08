@@ -19,6 +19,8 @@ import {
     canShowExamResults,
     getAssignmentStatus,
     getAssignmentStatusWithLabel,
+    getStudentStatusInfo,
+    getBooleanStatusInfo,
 } from '@/utils/formatting/formatters';
 
 jest.mock('@/utils/helpers/translations', () => ({
@@ -399,4 +401,29 @@ describe('formatters', () => {
             expect(statuses.some(s => s.value === 'graded')).toBe(true);
         });
     });
+
+    describe('getStudentStatusInfo', () => {
+        it('should return enrolled status for active students', () => {
+            const result = getStudentStatusInfo(true);
+            expect(result).toEqual({ label: 'formatters.student_status_enrolled', type: 'success' });
+        });
+
+        it('should return left status for inactive students', () => {
+            const result = getStudentStatusInfo(false);
+            expect(result).toEqual({ label: 'formatters.student_status_left', type: 'gray' });
+        });
+    });
+
+    describe('getBooleanStatusInfo', () => {
+        it('should return active status for true', () => {
+            const result = getBooleanStatusInfo(true);
+            expect(result).toEqual({ label: 'formatters.active', type: 'success' });
+        });
+
+        it('should return inactive status for false', () => {
+            const result = getBooleanStatusInfo(false);
+            expect(result).toEqual({ label: 'formatters.inactive', type: 'gray' });
+        });
+    });
+
 });

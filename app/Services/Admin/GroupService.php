@@ -285,7 +285,7 @@ class GroupService
 
         $newStudents = array_diff($studentsToAssign, $oldInactiveAssignments);
         if (! empty($newStudents)) {
-            $insertData = array_map(fn ($studentId) => [
+            $insertData = array_map(fn($studentId) => [
                 'group_id' => $group->id,
                 'student_id' => $studentId,
                 'enrolled_at' => now(),
@@ -423,6 +423,32 @@ class GroupService
     }
 
     /**
+     * Get students not assigned to any active group with pagination
+     *
+     * @param  array  $filters  Filter criteria (search)
+     * @param  int  $perPage  Number of items per page
+     */
+    public function getAvailableStudentsWithPagination(array $filters = [], int $perPage = 10): LengthAwarePaginator
+    {
+        $query = User::role('student')
+            ->whereDoesntHave('groups', function ($query) {
+                $query->where('group_student.is_active', true);
+            });
+
+        if (! empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->orderBy('name')
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    /**
      * Get students not assigned to any active group
      */
     public function getAvailableStudents(): \Illuminate\Database\Eloquent\Collection
@@ -556,6 +582,68 @@ class GroupService
                 'not_in_group_count' => $notInGroupCount,
             ];
         });
+    }
+
+    /**
+     * Get paginated students for a group with filters
+     *
+     * @param  Group  $group  Group instance
+     * @param  array  $filters  Filter criteria (search, status)
+     * @param  int  $perPage  Number of items per page
+     */
+    public function getGroupStudentsWithPagination(Group $group, array $filters = [], int $perPage = 10): LengthAwarePaginator
+    {
+        $query = $group->students()
+            ->withPivot(['enrolled_at', 'left_at', 'is_active']);
+
+        if (! empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if (isset($filters['status'])) {
+            if ($filters['status'] === 'active') {
+                $query->wherePivot('is_active', true);
+            } elseif ($filters['status'] === 'inactive') {
+                $query->wherePivot('is_active', false);
+            }
+        }
+
+        return $query->orderBy('name')
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    /**
+     * Get group statistics for display
+     *
+     * @param  Group  $group  Group instance
+     * @return array Statistics array
+     */
+    public function getGroupStatistics(Group $group): array
+    {
+        $totalStudents = DB::table('group_student')
+            ->where('group_id', $group->id)
+            ->count();
+
+        $activeStudents = DB::table('group_student')
+            ->where('group_id', $group->id)
+            ->where('is_active', true)
+            ->count();
+
+        $inactiveStudents = $totalStudents - $activeStudents;
+
+        $availableSlots = max(0, $group->max_students - $activeStudents);
+
+        return [
+            'total_students' => $totalStudents,
+            'active_students' => $activeStudents,
+            'inactive_students' => $inactiveStudents,
+            'available_slots' => $availableSlots,
+        ];
     }
 
     public function loadGroupWithStudents(Group $group): Group

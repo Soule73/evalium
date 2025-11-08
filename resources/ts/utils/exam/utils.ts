@@ -97,7 +97,7 @@ export const getCorrectionStatus = (calculatedScore: number): string => {
  * @param result - The object to check for user responses. Expected to have `userChoices` (array) and/or `userText` (string) properties.
  * @returns `true` if the user has provided a response; otherwise, `false`.
  */
-export const hasUserResponse = (result: any): boolean => {
+export const hasUserResponse = (result: { userChoices?: unknown[]; userText?: string }): boolean => {
     if (result.userChoices && result.userChoices.length > 0) {
         return true;
     }
@@ -130,7 +130,7 @@ export const calculateScoreDisplay = (assignment: ExamAssignment): { text: strin
 
     const finalScore = assignment.score ?? assignment.auto_score;
 
-    const totalPoints = assignment.exam?.questions?.reduce((sum: number, q: any) => sum + (q.points || 0), 0) || 20;
+    const totalPoints = assignment.exam?.questions?.reduce((sum: number, q: { points: number }) => sum + (q.points || 0), 0) || 20;
 
     if (finalScore !== null && finalScore !== undefined && totalPoints > 0) {
 

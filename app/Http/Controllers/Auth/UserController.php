@@ -54,7 +54,7 @@ class UserController extends Controller
         $availableRoles = $this->userService->getAvailableRoles($currentUser);
         $groups = $this->userService->getActiveGroupsWithLevels();
 
-        return Inertia::render('Admin/Users/Index', [
+        return Inertia::render('Users/Index', [
             'users' => $users,
             'roles' => $availableRoles,
             'groups' => $groups,
@@ -122,7 +122,7 @@ class UserController extends Controller
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
-        return Inertia::render('Admin/Users/ShowTeacher', [
+        return Inertia::render('Users/ShowTeacher', [
             'user' => $user,
             'exams' => $exams,
             'canDelete' => $currentUser->hasRole('super_admin'),
@@ -161,7 +161,7 @@ class UserController extends Controller
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
-        return Inertia::render('Admin/Users/ShowStudent', [
+        return Inertia::render('Users/ShowStudent', [
             'user' => $user,
             'examsAssignments' => $assignments,
             'availableGroups' => $availableGroups,

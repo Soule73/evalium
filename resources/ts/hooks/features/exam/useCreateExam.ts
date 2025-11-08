@@ -39,15 +39,14 @@ export const useCreateExam = () => {
         // setData('questions', newQuestions);
     };
 
-    const handleFieldChange = (field: string, value: any) => {
+    const handleFieldChange = (field: string, value: string | number | boolean) => {
         setData(field as keyof ExamCreateData, value);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validation côté client
-        const validationErrors: any = {};
+        const validationErrors: Record<string, string> = {};
 
         // Validation du titre
         if (!data.title.trim()) {

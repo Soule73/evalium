@@ -19,7 +19,7 @@ export function useRoleForm({ initialData, allPermissions, onSuccessRoute }: Use
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleFieldChange = (field: keyof RoleFormData, value: any) => {
+    const handleFieldChange = (field: keyof RoleFormData, value: string | number[]) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 

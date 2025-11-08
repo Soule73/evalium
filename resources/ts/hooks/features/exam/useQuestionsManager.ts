@@ -1,26 +1,15 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import {
-    CheckIcon,
-    CheckCircleIcon,
-    QuestionMarkCircleIcon,
-    PencilIcon
-} from '@heroicons/react/24/outline';
 import { QuestionFormData, ChoiceFormData, QuestionType } from '@/types';
 import { useDeleteHistory } from './useDeleteHistory';
+import { getQuestionTypeIcon as getIcon, createDefaultQuestion } from '@/utils/exam';
 
 interface UseQuestionsManagerProps {
     questions: QuestionFormData[];
     onQuestionsChange: (questions: QuestionFormData[]) => void;
     onQuestionDelete?: (questionId: number) => void;
     onChoiceDelete?: (choiceId: number, questionIndex: number) => void;
-}
-
-interface IconConfig {
-    icon: React.ComponentType<{ className?: string }>;
-    bgColor: string;
-    textColor: string;
 }
 
 export const useQuestionsManager = ({
@@ -130,80 +119,10 @@ export const useQuestionsManager = ({
         setShowAddDropdown(!showAddDropdown);
     };
 
-    const getQuestionTypeIconConfig = (type: string): IconConfig | null => {
-        switch (type) {
-            case 'multiple':
-                return {
-                    icon: CheckIcon,
-                    bgColor: 'bg-blue-100',
-                    textColor: 'text-blue-600'
-                };
-            case 'one_choice':
-                return {
-                    icon: CheckCircleIcon,
-                    bgColor: 'bg-green-100',
-                    textColor: 'text-green-600'
-                };
-            case 'boolean':
-                return {
-                    icon: QuestionMarkCircleIcon,
-                    bgColor: 'bg-purple-100',
-                    textColor: 'text-purple-600'
-                };
-            case 'text':
-                return {
-                    icon: PencilIcon,
-                    bgColor: 'bg-yellow-100',
-                    textColor: 'text-yellow-600'
-                };
-            default:
-                return null;
-        }
-    };
-
-    const getQuestionTypeIcon = (type: string): IconConfig | null => {
-        return getQuestionTypeIconConfig(type);
-    };
+    const getQuestionTypeIcon = getIcon;
 
     const addQuestion = (type: QuestionType) => {
-        const newQuestion: QuestionFormData = {
-            // Créer un ID temporaire unique pour les nouvelles questions
-            id: -Date.now(), // ID négatif temporaire
-            content: '',
-            type,
-            points: 1,
-            order_index: questions.length + 1,
-            choices: []
-        };
-
-        if (type === 'multiple' || type === 'one_choice') {
-            newQuestion.choices = [
-                {
-                    content: '',
-                    is_correct: true,
-                    order_index: 1
-                },
-                {
-                    content: '',
-                    is_correct: false,
-                    order_index: 2
-                }
-            ];
-        } else if (type === 'boolean') {
-            newQuestion.choices = [
-                {
-                    content: 'true',
-                    is_correct: true,
-                    order_index: 1
-                },
-                {
-                    content: 'false',
-                    is_correct: false,
-                    order_index: 2
-                }
-            ];
-        }
-
+        const newQuestion = createDefaultQuestion(type, questions.length + 1);
         onQuestionsChange([...questions, newQuestion]);
         setShowAddDropdown(false);
     };
@@ -336,7 +255,6 @@ export const useQuestionsManager = ({
         handleDragEnd,
         toggleAddDropdown,
         getQuestionTypeIcon,
-        getQuestionTypeIconConfig,
         addQuestion,
         removeQuestion,
         updateQuestion,

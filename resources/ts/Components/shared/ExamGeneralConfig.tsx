@@ -19,7 +19,7 @@ interface ExamGeneralConfigProps {
         end_time?: string;
         is_active?: string;
     };
-    onFieldChange: (field: string, value: any) => void;
+    onFieldChange: (field: string, value: string | number | boolean) => void;
 }
 
 const ExamGeneralConfig: React.FC<ExamGeneralConfigProps> = ({

@@ -112,14 +112,14 @@ export const useEditExam = (exam: Exam, onClearHistory?: () => void) => {
         // setData('questions', updatedQuestions);
     };
 
-    const handleFieldChange = (field: string, value: any) => {
+    const handleFieldChange = (field: string, value: string | number | boolean) => {
         setData(field as keyof ExamEditData, value);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        const validationErrors: any = {};
+        const validationErrors: Record<string, string> = {};
 
         if (!data.title.trim()) {
             validationErrors.title = 'Le titre est requis';

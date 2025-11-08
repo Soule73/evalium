@@ -42,7 +42,7 @@ class GroupController extends Controller
 
         $levels = $this->groupService->getLevelsForFilters();
 
-        return Inertia::render('Admin/Groups/Index', [
+        return Inertia::render('Groups/Index', [
             'groups' => $groups,
             'filters' => $filters,
             'levels' => $levels,
@@ -60,7 +60,7 @@ class GroupController extends Controller
 
         $formData = $this->groupService->getFormData();
 
-        return Inertia::render('Admin/Groups/Create', $formData);
+        return Inertia::render('Groups/Create', $formData);
     }
 
     /**
@@ -92,17 +92,29 @@ class GroupController extends Controller
     /**
      * Display the specified group with students.
      *
+     * @param  Request  $request  The incoming HTTP request.
      * @param  Group  $group  The group instance to be displayed.
      */
-    public function show(Group $group): Response
+    public function show(Request $request, Group $group): Response
     {
         $this->authorize('view', $group);
 
-        $this->groupService->loadGroupWithStudents($group);
+        $group->load('level');
+
+        $filters = $request->only(['search', 'status']);
+
+        $students = $this->groupService->getGroupStudentsWithPagination($group, $filters, 10);
+
+        $statistics = $this->groupService->getGroupStatistics($group);
 
         return Inertia::render(
-            'Admin/Groups/Show',
-            ['group' => $group]
+            'Groups/Show',
+            [
+                'group' => $group,
+                'students' => $students,
+                'filters' => $filters,
+                'statistics' => $statistics,
+            ]
         );
     }
 
@@ -120,7 +132,7 @@ class GroupController extends Controller
         $formData = $this->groupService->getFormData();
 
         return Inertia::render(
-            'Admin/Groups/Edit',
+            'Groups/Edit',
             array_merge($formData, [
                 'group' => $group,
             ])
@@ -181,15 +193,18 @@ class GroupController extends Controller
      *
      * @param  Group  $group  The group instance to assign students to.
      */
-    public function assignStudents(Group $group): Response
+    public function assignStudents(Request $request, Group $group): Response
     {
         $this->authorize('manageStudents', $group);
 
-        $availableStudents = $this->groupService->getAvailableStudents();
+        $filters = $request->only(['search']);
 
-        return Inertia::render('Admin/Groups/AssignStudents', [
+        $availableStudents = $this->groupService->getAvailableStudentsWithPagination($filters, 10);
+
+        return Inertia::render('Groups/AddStudentsToGroup', [
             'group' => $group,
             'availableStudents' => $availableStudents,
+            'filters' => $filters,
         ]);
     }
 

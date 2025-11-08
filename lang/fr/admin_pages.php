@@ -196,7 +196,7 @@ return [
         'bulk_remove_button' => 'Retirer (:count)',
         'assign_students_action' => 'Assigner des étudiants',
 
-        // AssignStudents page
+        // AddStudentsToGroup page
         'assign_students_page_title' => 'Assigner des étudiants - :group',
         'assign_students_page_subtitle' => 'Assigner des étudiants au groupe ":group"',
         'available_slots_label' => 'Places disponibles: :available / :max',

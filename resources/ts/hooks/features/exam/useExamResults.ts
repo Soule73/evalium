@@ -76,10 +76,10 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
 
             if (question.type === "multiple") {
                 if (userAnswer.type === 'multiple' && userAnswer.choices) {
-                    const selectedChoices = userAnswer.choices.map((c: any) => c.choice);
+                    const selectedChoices = userAnswer.choices.map((c: { choice: { id: number } }) => c.choice);
                     const correctChoices = (question.choices ?? []).filter(c => c.is_correct);
 
-                    const selectedChoiceIds = new Set(selectedChoices.map((choice: any) => choice.id));
+                    const selectedChoiceIds = new Set(selectedChoices.map((choice: { id: number }) => choice.id));
                     const correctChoiceIds = new Set(correctChoices.map(choice => choice.id));
 
                     const hasAllCorrectChoices = correctChoiceIds.size === selectedChoiceIds.size &&

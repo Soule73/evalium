@@ -36,7 +36,7 @@ class LevelController extends Controller
 
         $levels = $this->levelService->getLevelsWithPagination($filters);
 
-        return Inertia::render('Admin/Levels/Index', [
+        return Inertia::render('Levels/Index', [
             'levels' => $levels,
             'filters' => $filters,
         ]);
@@ -51,7 +51,7 @@ class LevelController extends Controller
     {
         $this->authorize('create', Level::class);
 
-        return Inertia::render('Admin/Levels/Create');
+        return Inertia::render('Levels/Create');
     }
 
     /**
@@ -88,7 +88,7 @@ class LevelController extends Controller
     {
         $this->authorize('update', $level);
 
-        return Inertia::render('Admin/Levels/Edit', [
+        return Inertia::render('Levels/Edit', [
             'level' => $level,
         ]);
     }

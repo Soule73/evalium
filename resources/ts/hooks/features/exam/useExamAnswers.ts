@@ -24,8 +24,7 @@ export function useExamAnswers({ questions, userAnswers }: UseExamAnswersOptions
                 const questionId = parseInt(questionIdStr);
 
                 if (answerData.type === 'multiple' && answerData.choices) {
-                    // Question multiple : extraire les choice_id
-                    const choiceIds = answerData.choices.map((choice: any) => choice.choice_id);
+                    const choiceIds = answerData.choices.map((choice: { choice_id: number }) => choice.choice_id);
                     initialAnswers[questionId] = choiceIds;
                 } else if (answerData.type === 'single') {
                     // Question simple

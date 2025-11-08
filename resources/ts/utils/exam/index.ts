@@ -10,6 +10,20 @@ export {
 } from './utils';
 
 export {
+    QUESTION_TYPE_CONFIG,
+    getQuestionTypeIcon
+} from './questionTypes';
+
+export type { IconConfig } from './questionTypes';
+
+export {
+    createDefaultQuestion,
+    createDefaultChoices,
+    createBooleanChoices,
+    createChoice
+} from './questionFactory';
+
+export {
     VIOLATION_TYPES,
     createBeforeUnloadHandler,
     isDeveloperToolsShortcut,

@@ -64,4 +64,11 @@ return [
     'validation_no_file_selected' => 'Aucun fichier sélectionné',
     'validation_file_type_not_allowed' => 'Type de fichier non autorisé. Types acceptés: :types',
     'validation_file_too_large' => 'Fichier trop volumineux. Taille maximale: :maxMB MB',
+
+
+    'student_status_enrolled' => 'Inscrit',
+    'student_status_left' => 'Parti',
+
+    'active' => 'Actif',
+    'inactive' => 'Inactif',
 ];
