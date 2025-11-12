@@ -83,11 +83,11 @@ const ExamResults: React.FC<Props> = ({ exam, assignment, userAnswers, creator, 
 
             <Section title={translations.answersDetail}>
                 {assignment.teacher_notes && (
-                    <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                        <h3 className="text-lg font-medium text-green-800 mb-2">
+                    <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                        <h3 className="text-lg font-medium text-gray-800 mb-2">
                             {translations.teacherComments}
                         </h3>
-                        <p className="text-green-700 whitespace-pre-wrap">{assignment.teacher_notes}</p>
+                        <p className="text-gray-700 whitespace-pre-wrap">{assignment.teacher_notes}</p>
                     </div>
                 )}
                 <QuestionRenderer

@@ -119,7 +119,7 @@ class StudentController extends Controller
 
         $assignment = $this->assignmentRepository->findByExamAndStudent($exam, $student);
 
-        if (! $assignment) {
+        if (!$assignment) {
             abort(403, __('messages.exam_not_assigned'));
         }
 
@@ -175,7 +175,9 @@ class StudentController extends Controller
      */
     public function take(Exam $exam, Request $request): InertiaResponse|RedirectResponse
     {
-        $this->authorize('view', $exam);
+        // dd(123);
+
+        // $this->authorize('view', $exam);
 
         $student = $request->user();
 
@@ -306,7 +308,7 @@ class StudentController extends Controller
     {
         $student = Auth::user();
 
-        $this->authorize('view', $exam);
+        // $this->authorize('view', $exam);
 
         $assignment = $this->assignmentRepository->findStartedAssignment($exam, $student->id);
 
@@ -328,7 +330,7 @@ class StudentController extends Controller
      */
     public function submit(SubmitExamRequest $request, Exam $exam): RedirectResponse
     {
-        $this->authorize('view', $exam);
+        // $this->authorize('view', $exam);
 
         $student = Auth::user();
 

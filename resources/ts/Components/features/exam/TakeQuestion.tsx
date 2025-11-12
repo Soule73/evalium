@@ -3,6 +3,15 @@ import { Choice, Question } from '@/types';
 import { trans } from '@/utils';
 import { Checkbox, MarkdownRenderer, MarkdownEditor } from '@/Components/forms';
 import { Section } from '@/Components/ui';
+import {
+    getTypeColor,
+    getTypeLabel,
+    getBooleanDisplay,
+    getBooleanLabel,
+    getBooleanShortLabel,
+    getBooleanBadgeClass,
+    questionIndexLabel,
+} from '@/utils/exam/components';
 
 type AnswerValue = string | number | number[];
 
@@ -18,28 +27,6 @@ interface BaseChoiceProps {
     answers: Record<number, AnswerValue>;
     onAnswerChange: (questionId: number, value: AnswerValue) => void;
 }
-
-/* ---------- Utilities ---------- */
-
-export const getTypeLabels = (): Record<string, string> => ({
-    multiple: trans('components.take_question.multiple_choice'),
-    one_choice: trans('components.take_question.one_choice'),
-    boolean: trans('components.take_question.boolean'),
-    text: trans('components.take_question.text'),
-});
-
-export const TYPE_COLORS: Record<string, string> = {
-    multiple: 'bg-blue-100 text-blue-800',
-    one_choice: 'bg-green-100 text-green-800',
-    boolean: 'bg-yellow-100 text-yellow-800',
-    text: 'bg-purple-100 text-purple-800',
-};
-
-export const questionIndexLabel = (idx: number, bgClass = 'bg-gray-100 text-gray-800') => (
-    <span className={`inline-flex items-center justify-center h-6 w-6 rounded-full ${bgClass} text-xs font-medium mr-2`}>
-        {String.fromCharCode(65 + idx)}
-    </span>
-);
 
 /* ---------- Subcomponents ---------- */
 
@@ -101,10 +88,10 @@ const TakeQuestionBoolean: React.FC<BaseChoiceProps> = ({ questionId, choices, a
     return (
         <div className="space-y-3 flex flex-col w-full">
             {choices.map((choice) => {
-                const normalized = choice.content?.toString().toLowerCase() ?? '';
-                const isTrue = ['true', 'vrai'].includes(normalized);
-                const badgeClass = isTrue ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-                const labelText = isTrue ? trans('components.take_question.true') : trans('components.take_question.false');
+                const isTrue = getBooleanDisplay(choice.content || '');
+                const badgeClass = getBooleanBadgeClass(isTrue);
+                const labelText = getBooleanLabel(isTrue);
+                const shortLabel = getBooleanShortLabel(isTrue);
 
                 return (
                     <Checkbox
@@ -117,7 +104,7 @@ const TakeQuestionBoolean: React.FC<BaseChoiceProps> = ({ questionId, choices, a
                         labelClassName="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors w-full"
                         label={<>
                             <span className={`inline-flex items-center justify-center h-6 w-6 rounded-full ${badgeClass} text-xs font-medium mr-2`}>
-                                {isTrue ? 'V' : 'F'}
+                                {shortLabel}
                             </span>
                             <span className="text-gray-900">{labelText}</span>
                         </>}
@@ -151,8 +138,6 @@ const TakeQuestionText: React.FC<{
 /* ---------- Main Component ---------- */
 
 const TakeQuestion: React.FC<TakeQuestionProps> = ({ question, answers, onAnswerChange }) => {
-    const typeLabels = getTypeLabels();
-
     return (
         <Section
             key={question.id}
@@ -165,8 +150,8 @@ const TakeQuestion: React.FC<TakeQuestionProps> = ({ question, answers, onAnswer
                         {trans('components.take_question.points', { points: question.points })}
                     </div>
 
-                    <span className={`text-xs px-2 py-1 min-w-fit h-max rounded-full ${TYPE_COLORS[question.type] ?? 'bg-gray-100 text-gray-800'}`}>
-                        {typeLabels[question.type] ?? question.type}
+                    <span className={`text-xs px-2 py-1 min-w-fit h-max rounded-full ${getTypeColor(question.type)}`}>
+                        {getTypeLabel(question.type)}
                     </span>
                 </div>
             }

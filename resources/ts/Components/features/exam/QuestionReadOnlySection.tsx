@@ -1,8 +1,8 @@
 import { CheckCircleIcon, XMarkIcon } from "@heroicons/react/16/solid";
 import { Question } from "@/types";
-import { TYPE_COLORS, getTypeLabels } from "./TakeQuestion";
 import { trans } from '@/utils';
 import { MarkdownRenderer } from "@/Components/forms";
+import { getTypeColor, getTypeLabel } from '@/utils/exam/components';
 
 interface QuestionReadOnlySection {
     question: Question;
@@ -13,8 +13,6 @@ interface QuestionReadOnlySection {
 }
 
 const QuestionReadOnlySection: React.FC<QuestionReadOnlySection> = ({ question, children, isCorrect, score, questionIndex }) => {
-    const typeLabels = getTypeLabels();
-
     return (
         <div key={question.id} className="border-b border-gray-200 pb-6 last:border-b-0">
             <div className="flex items-center  justify-between my-3">
@@ -37,8 +35,8 @@ const QuestionReadOnlySection: React.FC<QuestionReadOnlySection> = ({ question, 
                     <span className="text-sm text-gray-500 ml-2">
                         {score && `${score}/`}{question.points} pts
                     </span>
-                    <span className={`text-xs ml-2 px-2 py-1 min-w-fit h-max rounded-full ${TYPE_COLORS[question.type] ?? 'bg-gray-100 text-gray-800'}`}>
-                        {typeLabels[question.type] ?? question.type}
+                    <span className={`text-xs ml-2 px-2 py-1 min-w-fit h-max rounded-full ${getTypeColor(question.type)}`}>
+                        {getTypeLabel(question.type)}
                     </span>
                 </div>
             </div>

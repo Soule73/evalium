@@ -55,4 +55,4 @@ export {
 export type { SecurityEventHandlers } from './security';
 
 export * from './take';
-
+export * from './components';

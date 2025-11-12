@@ -1,8 +1,18 @@
 import { Choice } from "@/types";
 import { CheckIcon } from "@heroicons/react/16/solid";
-import { questionIndexLabel } from "./TakeQuestion";
 import { trans } from '@/utils';
 import { MarkdownRenderer } from "@/Components/forms";
+import {
+    getBooleanDisplay,
+    getBooleanLabel,
+    getBooleanShortLabel,
+    getBooleanBadgeClass,
+    getChoiceStyles,
+    getStatusLabelText,
+    getChoiceBorder,
+    questionIndexLabel,
+    getIndexBgClass,
+} from '@/utils/exam/components';
 
 interface QuestionResultReadOnlyTextProps {
     userText?: string;
@@ -22,71 +32,6 @@ const QuestionResultReadOnlyText: React.FC<QuestionResultReadOnlyTextProps> = ({
     );
 };
 
-const getBooleanDisplay = (content: string) => {
-    const normalized = content?.toString().toLowerCase() ?? '';
-    return ['true', 'vrai'].includes(normalized);
-};
-
-const getChoiceStyles = (isSelected: boolean, isCorrect: boolean, shouldShowCorrect: boolean) => {
-    if (!shouldShowCorrect) {
-        return {
-            bg: isSelected ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200',
-            text: isSelected ? 'text-blue-800 font-medium' : 'text-gray-700',
-            borderColor: isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
-        };
-    }
-
-    if (isSelected) {
-        return {
-            bg: isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200',
-            text: isCorrect ? 'text-green-800 font-medium' : 'text-red-800 font-medium',
-            borderColor: isCorrect ? 'border-green-500 bg-green-500' : 'border-red-500 bg-red-500'
-        };
-    }
-
-    return {
-        bg: isCorrect ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200',
-        text: isCorrect ? 'text-green-800 font-medium' : 'text-gray-700',
-        borderColor: isCorrect ? 'border-green-500 bg-green-500' : 'border-gray-300'
-    };
-};
-
-const getStatusLabel = (isSelected: boolean, isCorrect: boolean, shouldShowCorrect: boolean, isTeacherView: boolean) => {
-    if (!shouldShowCorrect) {
-        return isSelected ? (
-            <span className="ml-2 text-xs text-blue-600 font-medium">
-                {isTeacherView ? trans('components.question_result_readonly.student_answer') : trans('components.question_result_readonly.your_answer')}
-            </span>
-        ) : null;
-    }
-
-    if (isSelected && !isCorrect) {
-        return (
-            <span className="ml-2 text-xs text-red-600 font-medium">
-                {isTeacherView ? trans('components.question_result_readonly.student_answer_incorrect') : trans('components.question_result_readonly.your_answer_incorrect')}
-            </span>
-        );
-    }
-
-    if (isSelected && isCorrect) {
-        return (
-            <span className="ml-2 text-xs text-green-600 font-medium">
-                {isTeacherView ? trans('components.question_result_readonly.student_answer_correct') : trans('components.question_result_readonly.your_answer_correct')}
-            </span>
-        );
-    }
-
-    if (!isSelected && isCorrect) {
-        return (
-            <span className="ml-2 text-xs text-green-600 font-medium">
-                {trans('components.question_result_readonly.correct_answer')}
-            </span>
-        );
-    }
-
-    return null;
-};
-
 interface ChoiceItemProps {
     choice: Choice;
     index: number;
@@ -99,21 +44,22 @@ interface ChoiceItemProps {
 const ChoiceItem: React.FC<ChoiceItemProps> = ({ choice, index, type, isSelected, shouldShowCorrect, isTeacherView }) => {
     const isCorrect = choice.is_correct;
     const styles = getChoiceStyles(isSelected, isCorrect, shouldShowCorrect);
-    const border = type === 'multiple' ? 'rounded border-2' : 'rounded-full border-2';
+    const border = getChoiceBorder(type);
 
     const indexLabel = type === "boolean" ? (
         (() => {
             const isTrue = getBooleanDisplay(choice.content || '');
-            const badgeClass = (shouldShowCorrect && isCorrect)
-                ? 'bg-green-100 text-green-800'
-                : (isTrue ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800');
+            const badgeClass = getBooleanBadgeClass(isTrue, shouldShowCorrect && isCorrect);
+            const shortLabel = getBooleanShortLabel(isTrue);
             return (
                 <span className={`inline-flex items-center justify-center h-6 w-6 rounded-full ${badgeClass} text-xs font-medium mr-2`}>
-                    {isTrue ? trans('components.question_result_readonly.boolean_true_short') : trans('components.question_result_readonly.boolean_false_short')}
+                    {shortLabel}
                 </span>
             );
         })()
-    ) : questionIndexLabel(index, (shouldShowCorrect && isCorrect) ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800');
+    ) : questionIndexLabel(index, getIndexBgClass(isCorrect, isSelected, shouldShowCorrect));
+
+    const statusLabelText = getStatusLabelText(isSelected, isCorrect, shouldShowCorrect, isTeacherView);
 
     return (
         <div className={`p-3 rounded-lg border ${styles.bg}`}>
@@ -125,11 +71,18 @@ const ChoiceItem: React.FC<ChoiceItemProps> = ({ choice, index, type, isSelected
                 </div>
                 {indexLabel}
                 <span className={styles.text}>
-                    {type === 'boolean' ? (
-                        getBooleanDisplay(choice.content || '') ? trans('components.question_result_readonly.boolean_true') : trans('components.question_result_readonly.boolean_false')
-                    ) : choice.content}
+                    {type === 'boolean' ? getBooleanLabel(getBooleanDisplay(choice.content || '')) : choice.content}
                 </span>
-                {getStatusLabel(isSelected, isCorrect, shouldShowCorrect, isTeacherView)}
+                {statusLabelText && (
+                    <span className={`ml-2 text-xs font-medium ${isSelected && !isCorrect
+                            ? 'text-red-600'
+                            : isCorrect
+                                ? 'text-green-600'
+                                : 'text-blue-600'
+                        }`}>
+                        {statusLabelText}
+                    </span>
+                )}
             </div>
         </div>
     );
