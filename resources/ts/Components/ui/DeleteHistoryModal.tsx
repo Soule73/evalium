@@ -7,9 +7,10 @@ import {
     QuestionMarkCircleIcon,
     CheckCircleIcon
 } from '@heroicons/react/24/outline';
-import { formatDate, getQuestionTypeLabel } from '@/utils';
+import { formatDate } from '@/utils';
 import { MarkdownRenderer } from '../forms';
 import { DeletedChoice, DeletedQuestion } from '@/hooks/features/exam/useDeleteHistory';
+import { trans } from '@/utils';
 
 interface DeleteHistoryModalProps {
     isOpen: boolean;
@@ -32,6 +33,33 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
 }) => {
     const [activeTab, setActiveTab] = useState<'questions' | 'choices'>('questions');
 
+    const translations = {
+        historyTitle: trans('components.delete_history_modal.title'),
+        clearHistory: trans('components.delete_history_modal.clear_history'),
+        noItems: trans('components.delete_history_modal.no_items'),
+        questionsTab: trans('components.delete_history_modal.questions_tab'),
+        choicesTab: trans('components.delete_history_modal.choices_tab'),
+        noQuestions: trans('components.delete_history_modal.no_questions'),
+        noChoices: trans('components.delete_history_modal.no_choices'),
+        restore: trans('components.delete_history_modal.restore'),
+        close: trans('components.delete_history_modal.close'),
+        deletedOn: trans('components.delete_history_modal.deleted_on'),
+        point: trans('components.delete_history_modal.point'),
+        points: trans('components.delete_history_modal.points'),
+        correctChoice: trans('components.delete_history_modal.correct_choice'),
+        incorrectChoice: trans('components.delete_history_modal.incorrect_choice'),
+        questionTypes: {
+            multiple: trans('formatters.question_type_multiple'),
+            one_choice: trans('formatters.question_type_one_choice'),
+            boolean: trans('formatters.question_type_boolean'),
+            text: trans('formatters.question_type_text'),
+        }
+    };
+
+    const getQuestionTypeLabelFromCache = (type: string) => {
+        return translations.questionTypes[type as keyof typeof translations.questionTypes] || type;
+    };
+
 
     const truncateText = (text: string, maxLength: number = 60) => {
         if (text.length <= maxLength) return text;
@@ -50,7 +78,7 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                 <div className="flex items-center justify-between">
                     <h3 className="text-lg font-medium text-gray-900 flex items-center">
                         <ClockIcon className="w-5 h-5 mr-2 text-gray-500" />
-                        Historique des suppressions
+                        {translations.historyTitle}
                     </h3>
                     {hasItems && (
                         <Button
@@ -61,7 +89,7 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                             onClick={onClearHistory}
                         >
                             <TrashIcon className="w-4 h-4 mr-1" />
-                            Vider l'historique
+                            {translations.clearHistory}
                         </Button>
                     )}
                 </div>
@@ -69,7 +97,7 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                 {!hasItems ? (
                     <div className="text-center py-8">
                         <ClockIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500">Aucun élément supprimé</p>
+                        <p className="text-gray-500">{translations.noItems}</p>
                     </div>
                 ) : (
                     <>
@@ -84,7 +112,7 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                         }`}
                                 >
-                                    Questions ({deletedQuestions.length})
+                                    {translations.questionsTab} ({deletedQuestions.length})
                                 </button>
                                 <button
                                     type="button"
@@ -94,7 +122,7 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                         }`}
                                 >
-                                    Choix ({deletedChoices.length})
+                                    {translations.choicesTab} ({deletedChoices.length})
                                 </button>
                             </nav>
                         </div>
@@ -103,7 +131,7 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                         {activeTab === 'questions' && (
                             <div className="space-y-3 max-h-96 overflow-y-auto">
                                 {deletedQuestions.length === 0 ? (
-                                    <p className="text-gray-500 text-center py-4">Aucune question supprimée</p>
+                                    <p className="text-gray-500 text-center py-4">{translations.noQuestions}</p>
                                 ) : (
                                     deletedQuestions.map((deletedQuestion) => (
                                         <div
@@ -115,17 +143,17 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                                                     <div className="flex items-center space-x-2 mb-2">
                                                         <QuestionMarkCircleIcon className="w-4 h-4 text-blue-500" />
                                                         <span className="text-sm font-medium text-blue-600">
-                                                            {getQuestionTypeLabel(deletedQuestion.question.type)}
+                                                            {getQuestionTypeLabelFromCache(deletedQuestion.question.type)}
                                                         </span>
                                                         <span className="text-xs text-gray-500">
-                                                            {deletedQuestion.question.points} point{deletedQuestion.question.points !== 1 ? 's' : ''}
+                                                            {deletedQuestion.question.points} {deletedQuestion.question.points !== 1 ? translations.points : translations.point}
                                                         </span>
                                                     </div>
                                                     <MarkdownRenderer>
                                                         {truncateText(deletedQuestion.question.content)}
                                                     </MarkdownRenderer>
                                                     <p className="text-xs text-gray-500">
-                                                        Supprimé le {formatDate(deletedQuestion.deletedAt)}
+                                                        {translations.deletedOn} {formatDate(deletedQuestion.deletedAt)}
                                                     </p>
                                                 </div>
                                                 <Button
@@ -136,7 +164,7 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                                                     onClick={() => onRestoreQuestion(deletedQuestion)}
                                                 >
                                                     <ArrowUturnLeftIcon className="w-4 h-4 mr-1" />
-                                                    Restaurer
+                                                    {translations.restore}
                                                 </Button>
                                             </div>
                                         </div>
@@ -148,7 +176,7 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                         {activeTab === 'choices' && (
                             <div className="space-y-3 max-h-96 overflow-y-auto">
                                 {deletedChoices.length === 0 ? (
-                                    <p className="text-gray-500 text-center py-4">Aucun choix supprimé</p>
+                                    <p className="text-gray-500 text-center py-4">{translations.noChoices}</p>
                                 ) : (
                                     deletedChoices.map((deletedChoice) => (
                                         <div
@@ -162,14 +190,14 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                                                             className={`w-4 h-4 ${deletedChoice.choice.is_correct ? 'text-green-500' : 'text-gray-400'}`}
                                                         />
                                                         <span className="text-sm font-medium">
-                                                            Choix {deletedChoice.choice.is_correct ? 'correct' : 'incorrect'}
+                                                            {deletedChoice.choice.is_correct ? translations.correctChoice : translations.incorrectChoice}
                                                         </span>
                                                     </div>
                                                     <p className="text-sm text-gray-900 mb-2">
                                                         {truncateText(deletedChoice.choice.content)}
                                                     </p>
                                                     <p className="text-xs text-gray-500">
-                                                        Supprimé le {formatDate(deletedChoice.deletedAt)}
+                                                        {translations.deletedOn} {formatDate(deletedChoice.deletedAt)}
                                                     </p>
                                                 </div>
                                                 <Button
@@ -180,7 +208,7 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                                                     onClick={() => onRestoreChoice(deletedChoice)}
                                                 >
                                                     <ArrowUturnLeftIcon className="w-4 h-4 mr-1" />
-                                                    Restaurer
+                                                    {translations.restore}
                                                 </Button>
                                             </div>
                                         </div>
@@ -198,7 +226,7 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                         color="secondary"
                         onClick={onClose}
                     >
-                        Fermer
+                        {translations.close}
                     </Button>
                 </div>
             </div>

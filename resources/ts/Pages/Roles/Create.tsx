@@ -1,5 +1,3 @@
-import { FormEvent } from 'react';
-import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { breadcrumbs } from '@/utils';
@@ -18,28 +16,18 @@ export default function CreateRole({ permissions, groupedPermissions }: Props) {
         formData,
         errors,
         isSubmitting,
-        setIsSubmitting,
         handleFieldChange,
         handlePermissionToggle,
         selectAll,
         deselectAll,
         handleCancel,
-        handleError,
-        handleSuccess,
+        handleSubmit
     } = useRoleForm({
         allPermissions: permissions,
         onSuccessRoute: route('roles.index'),
     });
 
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
 
-        router.post(route('roles.store'), formData as any, {
-            onError: handleError,
-            onSuccess: handleSuccess,
-        });
-    };
 
     return (
         <AuthenticatedLayout title={trans('admin_pages.roles.create')} breadcrumb={breadcrumbs.roleCreate()}>

@@ -123,6 +123,30 @@ class ExamGroupService
     }
 
     /**
+     * Get paginated groups assigned to an exam with search
+     *
+     * @param  Exam  $exam  The exam
+     * @param  int  $perPage  Number of items per page
+     * @param  string|null  $search  Search term for group name
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getGroupsForExamPaginated(Exam $exam, int $perPage = 10, ?string $search = null)
+    {
+        $query = $exam->groups()
+            ->with(['level', 'activeStudents'])
+            ->withCount('activeStudents');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('groups.name', 'like', "%{$search}%")
+                    ->orWhere('groups.code', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->paginate($perPage)->withQueryString();
+    }
+
+    /**
      * Get all exams assigned to a group
      *
      * Includes teacher information and question counts.
@@ -169,6 +193,35 @@ class ExamGroupService
             ->withCount('activeStudents')
             ->orderBy('academic_year', 'desc')
             ->get();
+    }
+
+    /**
+     * Get paginated active groups available for exam assignment with search
+     *
+     * @param  Exam  $exam  The exam
+     * @param  int  $perPage  Number of items per page
+     * @param  string|null  $search  Search term for group name
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getAvailableGroupsForExamPaginated(Exam $exam, int $perPage = 10, ?string $search = null)
+    {
+        $assignedGroupIds = $exam->groups()->pluck('group_id')->toArray();
+
+        $query = Group::query()
+            ->where('is_active', true)
+            ->whereNotIn('id', $assignedGroupIds)
+            ->with(['level'])
+            ->withCount('activeStudents')
+            ->orderBy('academic_year', 'desc');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('groups.name', 'like', "%{$search}%")
+                    ->orWhere('groups.code', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->paginate($perPage)->withQueryString();
     }
 
     /**

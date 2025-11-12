@@ -2,16 +2,17 @@ import React from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, ExamGeneralConfig, QuestionsManager, Section } from '@/Components';
 import { useCreateExam } from '@/hooks';
+import { useExamFormStore } from '@/stores';
 import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
 
 const ExamCreate: React.FC = () => {
+    const hasQuestions = useExamFormStore((state) => state.questions.length > 0);
+
     const {
         data,
         errors,
         processing,
-        questions,
-        handleQuestionsChange,
         handleFieldChange,
         handleSubmit
     } = useCreateExam();
@@ -42,7 +43,7 @@ const ExamCreate: React.FC = () => {
                                 variant="solid"
                                 size="sm"
                                 loading={processing}
-                                disabled={questions.length === 0}
+                                disabled={!hasQuestions}
                             >
                                 {trans('exam_pages.create.submit')}
                             </Button>
@@ -56,11 +57,7 @@ const ExamCreate: React.FC = () => {
                     />
                 </Section>
 
-                <QuestionsManager
-                    questions={questions}
-                    onQuestionsChange={handleQuestionsChange}
-                    errors={errors}
-                />
+                <QuestionsManager errors={errors} />
             </form>
         </AuthenticatedLayout>
     );

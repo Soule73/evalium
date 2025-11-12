@@ -1,4 +1,8 @@
 export { default as AlertSecurityViolation } from './AlertSecurityViolation';
+export { AssignedGroupsSection } from './assignements/AssignedGroupsSection';
+export { AssignmentModals } from './assignements/AssignmentModals';
+export { AvailableGroupsSection } from './assignements/AvailableGroupsSection';
+export { ExamAssignInfoSection } from './assignements/ExamAssignInfoSection';
 export { getExamAssignmentColumns, getExamAssignmentFilters } from './ExamAssignmentColumns';
 export { default as ExamHeader } from './ExamHeader';
 export { default as ExamInfoSection } from './ExamInfoSection';

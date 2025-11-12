@@ -1,15 +1,15 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Exam, Group } from '@/types';
+import { PaginationType } from '@/types/datatable';
 import { route } from 'ziggy-js';
 import { breadcrumbs } from '@/utils';
-import { groupsToPaginationType } from '@/utils';
 import { trans } from '@/utils';
 import { Button, DataTable, ExamHeader, ExamStatsCards, getGroupTableConfig, Section } from '@/Components';
 
 interface Props {
     exam: Exam;
-    assignedGroups?: Group[];
+    assignedGroups: PaginationType<Group>;
     stats: {
         total_assigned: number;
         completed: number;
@@ -46,13 +46,13 @@ export default function ExamAssignments({ exam, stats, assignedGroups }: Props) 
                 <ExamStatsCards stats={stats} className="mb-6" />
             </Section>
 
-            {assignedGroups && assignedGroups.length > 0 ? (
+            {assignedGroups && assignedGroups.data.length > 0 ? (
                 <Section
-                    title={trans('exam_pages.assignments.groups_list_title', { count: assignedGroups.length })}
+                    title={trans('exam_pages.assignments.groups_list_title', { count: assignedGroups.total })}
                     subtitle={trans('exam_pages.assignments.groups_list_subtitle')}
                 >
                     <DataTable
-                        data={groupsToPaginationType(assignedGroups)}
+                        data={assignedGroups}
                         config={groupsTableConfig}
                     />
                 </Section>

@@ -284,7 +284,16 @@ return [
 
         // Exam specific
         'duration' => 'durée',
+        'start_time' => 'date de début',
+        'end_time' => 'date de fin',
         'questions' => 'questions',
+        'questions.*.content' => 'contenu de la question',
+        'questions.*.type' => 'type de question',
+        'questions.*.points' => 'points',
+        'questions.*.choices' => 'choix',
+        'questions.*.choices.*.content' => 'contenu du choix',
+        'questions.*.choices.*.is_correct' => 'réponse correcte',
+        'questions.*.choices.*.order_index' => 'ordre',
         'question_id' => 'ID de la question',
         'exam_id' => 'ID de l\'examen',
         'student_id' => 'ID de l\'étudiant',
@@ -316,10 +325,17 @@ return [
         'permission_name' => 'nom de la permission',
 
         'order' => 'ordre',
+        'now' => 'maintenant',
     ],
 
     // Custom validation messages
     'custom' => [
+        'start_time' => [
+            'after' => 'Le champ :attribute doit être une date postérieure à maintenant.',
+        ],
+        'end_time' => [
+            'after' => 'Le champ :attribute doit être une date postérieure à la date de début.',
+        ],
         'questions' => [
             'min_choices' => 'Au moins 2 choix sont requis pour ce type de question.',
             'min_correct_multiple' => 'Au moins 2 réponses correctes doivent être sélectionnées pour une question à choix multiples.',

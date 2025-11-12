@@ -19,22 +19,17 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { QuestionFormData, QuestionType } from '@/types';
+import { QuestionType } from '@/types';
 import { useQuestionsManager } from '@/hooks';
+import { useExamFormStore } from '@/stores';
 import { getQuestionTypeLabel } from '@/utils';
 import { useQuestionOptions } from './questionOptions';
 import SortableQuestionItem from './SortableQuestionItem';
 import { Section, Button, ConfirmationModal, DeleteHistoryModal } from '@/Components/ui';
 
 interface QuestionsManagerProps {
-    questions: QuestionFormData[];
-    onQuestionsChange: (questions: QuestionFormData[]) => void;
-    onQuestionDelete?: (questionId: number) => void;
-    onChoiceDelete?: (choiceId: number, questionIndex: number) => void;
     errors?: Record<string, string>;
 }
-
-
 
 interface Props {
     addQuestion: (kind: QuestionType) => void;
@@ -69,12 +64,10 @@ function QuestionMenu({ addQuestion }: Props) {
 }
 
 const QuestionsManager: React.FC<QuestionsManagerProps> = ({
-    questions,
-    onQuestionsChange,
-    onQuestionDelete,
-    onChoiceDelete,
     errors = {}
 }) => {
+    const questions = useExamFormStore((state) => state.questions);
+
     const {
         collapsedQuestions,
         showAddDropdown,
@@ -93,12 +86,19 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
         setHistoryModalOpen,
         deleteHistory,
         setConfirmationModal
-    } = useQuestionsManager({
-        questions,
-        onQuestionsChange,
-        onQuestionDelete,
-        onChoiceDelete,
-    });
+    } = useQuestionsManager();
+
+    const translations = {
+        title: trans('components.questions_manager.title'),
+        subtitle: trans('components.questions_manager.subtitle'),
+        historyButton: trans('components.questions_manager.history_button', { count: deleteHistory.getDeletedQuestionsCount() + deleteHistory.getDeletedChoicesCount() }),
+        addQuestion: trans('components.questions_manager.add_question'),
+        noQuestionsTitle: trans('components.questions_manager.no_questions_title'),
+        noQuestionsSubtitle: trans('components.questions_manager.no_questions_subtitle'),
+        deleteConfirm: trans('components.questions_manager.delete_confirm'),
+        deleteCancel: trans('components.questions_manager.delete_cancel'),
+        deleteNotice: trans('components.questions_manager.delete_notice'),
+    };
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -113,7 +113,7 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
         >
-            <Section title={trans('components.questions_manager.title')} subtitle={trans('components.questions_manager.subtitle')}
+            <Section title={translations.title} subtitle={translations.subtitle}
                 className=' relative'
                 actions={
                     <div className="flex items-center space-x-2">
@@ -126,7 +126,7 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
                                 color='secondary'
                             >
                                 <ClockIcon className="-ml-1 mr-2 h-4 w-4" />
-                                {trans('components.questions_manager.history_button', { count: deleteHistory.getDeletedQuestionsCount() + deleteHistory.getDeletedChoicesCount() })}
+                                {translations.historyButton}
                             </Button>
                         )}
                         <Button
@@ -137,7 +137,7 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
                             color='secondary'
                         >
                             <PlusIcon className="-ml-1 mr-2 h-4 w-4" />
-                            {trans('components.questions_manager.add_question')}
+                            {translations.addQuestion}
                             <ChevronDownIcon className="-mr-1 ml-2 h-4 w-4" />
                         </Button>
                         <div className="flex justify-end">
@@ -156,8 +156,8 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
                 {questions.length === 0 && (
                     <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
                         <InformationCircleIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                        <h3 className="text-sm font-medium text-gray-900 mb-2">{trans('components.questions_manager.no_questions_title')}</h3>
-                        <p className="text-sm text-gray-500">{trans('components.questions_manager.no_questions_subtitle')}</p>
+                        <h3 className="text-sm font-medium text-gray-900 mb-2">{translations.noQuestionsTitle}</h3>
+                        <p className="text-sm text-gray-500">{translations.noQuestionsSubtitle}</p>
                     </div>
                 )}
 
@@ -189,13 +189,13 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
                     onConfirm={confirmationModal.onConfirm}
                     title={confirmationModal.title}
                     message={confirmationModal.message}
-                    confirmText={trans('components.questions_manager.delete_confirm')}
-                    cancelText={trans('components.questions_manager.delete_cancel')}
+                    confirmText={translations.deleteConfirm}
+                    cancelText={translations.deleteCancel}
                     type="warning"
                 >
 
                     <p className="text-gray-600 text-sm mb-6 text-center ">
-                        {trans('components.questions_manager.delete_notice')}
+                        {translations.deleteNotice}
                     </p>
                 </ConfirmationModal>
 

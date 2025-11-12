@@ -1,28 +1,47 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { DragEndEvent } from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
+import { useShallow } from 'zustand/react/shallow';
 import { QuestionFormData, ChoiceFormData, QuestionType } from '@/types';
-import { useDeleteHistory } from './useDeleteHistory';
-import { getQuestionTypeIcon as getIcon, createDefaultQuestion } from '@/utils/exam';
+import { useExamFormStore } from '@/stores';
+import { getQuestionTypeIcon as getIcon } from '@/utils/exam';
 
-interface UseQuestionsManagerProps {
-    questions: QuestionFormData[];
-    onQuestionsChange: (questions: QuestionFormData[]) => void;
-    onQuestionDelete?: (questionId: number) => void;
-    onChoiceDelete?: (choiceId: number, questionIndex: number) => void;
-}
-
-export const useQuestionsManager = ({
-    questions,
-    onQuestionsChange,
-    onQuestionDelete,
-    onChoiceDelete,
-
-}: UseQuestionsManagerProps) => {
+export const useQuestionsManager = () => {
     const [showAddDropdown, setShowAddDropdown] = useState(false);
     const [collapsedQuestions, setCollapsedQuestions] = useState<Set<string>>(new Set());
 
-    const deleteHistory = useDeleteHistory({ questions, onQuestionsChange });
+    const {
+        questions,
+        addQuestion: storeAddQuestion,
+        removeQuestion,
+        updateQuestion,
+        reorderQuestions,
+        addChoice,
+        removeChoice,
+        updateChoice,
+        addDeletedQuestionToHistory,
+        addDeletedChoiceToHistory,
+        deletedQuestionsHistory,
+        deletedChoicesHistory,
+        restoreQuestion,
+        restoreChoice,
+        clearDeletedHistory,
+    } = useExamFormStore(useShallow((state) => ({
+        questions: state.questions,
+        addQuestion: state.addQuestion,
+        removeQuestion: state.removeQuestion,
+        updateQuestion: state.updateQuestion,
+        reorderQuestions: state.reorderQuestions,
+        addChoice: state.addChoice,
+        removeChoice: state.removeChoice,
+        updateChoice: state.updateChoice,
+        addDeletedQuestionToHistory: state.addDeletedQuestionToHistory,
+        addDeletedChoiceToHistory: state.addDeletedChoiceToHistory,
+        deletedQuestionsHistory: state.deletedQuestionsHistory,
+        deletedChoicesHistory: state.deletedChoicesHistory,
+        restoreQuestion: state.restoreQuestion,
+        restoreChoice: state.restoreChoice,
+        clearDeletedHistory: state.clearDeletedHistory,
+    })));
 
     const [confirmationModal, setConfirmationModal] = useState<{
         isOpen: boolean;
@@ -40,8 +59,7 @@ export const useQuestionsManager = ({
 
     const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
-
-    const handleRequestQuestionDeletion = (index: number, question: QuestionFormData) => {
+    const handleRequestQuestionDeletion = useCallback((index: number, question: QuestionFormData) => {
         setConfirmationModal({
             isOpen: true,
             type: 'question',
@@ -52,202 +70,100 @@ export const useQuestionsManager = ({
                 setConfirmationModal(prev => ({ ...prev, isOpen: false }));
             }
         });
-    };
+    }, []);
 
-    const handleRequestChoiceDeletion = (questionIndex: number, choiceIndex: number, question: QuestionFormData, choice: ChoiceFormData) => {
+    const confirmQuestionDeletion = useCallback((index: number, question: QuestionFormData) => {
+        if (question.id) {
+            addDeletedQuestionToHistory(question.id, index, question);
+        }
+        removeQuestion(index);
+    }, [removeQuestion, addDeletedQuestionToHistory]);
+
+    const handleRequestChoiceDeletion = useCallback((questionIndex: number, choiceIndex: number, question: QuestionFormData, choice: ChoiceFormData) => {
         setConfirmationModal({
             isOpen: true,
             type: 'choice',
             title: 'Confirmer la suppression',
-            message: `Êtes-vous sûr de vouloir supprimer ce choix ? `,
+            message: `Êtes-vous sûr de vouloir supprimer ce choix ?`,
             onConfirm: () => {
                 confirmChoiceDeletion(questionIndex, choiceIndex, question, choice);
                 setConfirmationModal(prev => ({ ...prev, isOpen: false }));
             }
         });
-    };
+    }, []);
 
-    const confirmQuestionDeletion = (index: number, question: QuestionFormData) => {
-        if (question.id) {
-            deleteHistory.addDeletedQuestion(question.id, index);
-            if (onQuestionDelete) {
-                onQuestionDelete(question.id);
-            }
-        }
-        onQuestionsChange(questions.filter((_, i) => i !== index));
-    };
-
-    const confirmChoiceDeletion = (questionIndex: number, choiceIndex: number, _question: QuestionFormData, choice: ChoiceFormData) => {
+    const confirmChoiceDeletion = useCallback((questionIndex: number, choiceIndex: number, question: QuestionFormData, choice: ChoiceFormData) => {
         if (choice.id) {
-            deleteHistory.addDeletedChoice(choice.id, questionIndex, choiceIndex);
-            if (onChoiceDelete) {
-                onChoiceDelete(choice.id, questionIndex);
-            }
+            addDeletedChoiceToHistory(choice.id, questionIndex, choiceIndex, choice, question.id || 0);
         }
-        onQuestionsChange(questions.map((q, i) => {
-            if (i === questionIndex && q.choices.length > 2) {
-                const filteredChoices = q.choices.filter((_, ci) => ci !== choiceIndex);
-                const reorderedChoices = filteredChoices.map((choice, index) => ({
-                    ...choice,
-                    order_index: index + 1
-                }));
-                return { ...q, choices: reorderedChoices };
-            }
-            return q;
-        }));
-    };
+        removeChoice(questionIndex, choiceIndex);
+    }, [removeChoice, addDeletedChoiceToHistory]);
 
-    const handleDragEnd = (event: DragEndEvent) => {
+    const handleDragEnd = useCallback((event: DragEndEvent) => {
         const { active, over } = event;
 
         if (over && active.id !== over.id) {
             const oldIndex = questions.findIndex((_, index) => index.toString() === active.id);
             const newIndex = questions.findIndex((_, index) => index.toString() === over.id);
-
-            const reorderedQuestions = arrayMove(questions, oldIndex, newIndex);
-
-            const questionsWithUpdatedOrder = reorderedQuestions.map((question, index) => ({
-                ...question,
-                order_index: index + 1
-            }));
-
-            onQuestionsChange(questionsWithUpdatedOrder);
+            reorderQuestions(oldIndex, newIndex);
         }
-    };
+    }, [questions, reorderQuestions]);
 
-    const toggleAddDropdown = () => {
+    const toggleAddDropdown = useCallback(() => {
         setShowAddDropdown(!showAddDropdown);
-    };
+    }, [showAddDropdown]);
 
     const getQuestionTypeIcon = getIcon;
 
-    const addQuestion = (type: QuestionType) => {
-        const newQuestion = createDefaultQuestion(type, questions.length + 1);
-        onQuestionsChange([...questions, newQuestion]);
+    const handleAddQuestion = useCallback((type: QuestionType) => {
+        storeAddQuestion(type);
         setShowAddDropdown(false);
-    };
+    }, [storeAddQuestion]);
 
-    const removeQuestion = (index: number) => {
+    const handleRemoveQuestion = useCallback((index: number) => {
         const question = questions[index];
-
-        if (question.id && handleRequestQuestionDeletion) {
+        if (question.id) {
             handleRequestQuestionDeletion(index, question);
         } else {
-            onQuestionsChange(questions.filter((_, i) => i !== index));
+            removeQuestion(index);
         }
-    };
+    }, [questions, removeQuestion, handleRequestQuestionDeletion]);
 
-    const updateQuestion = (index: number, field: keyof QuestionFormData, value: any) => {
-        onQuestionsChange(questions.map((q, i) => {
-            if (i === index) {
-                const updatedQuestion = { ...q, [field]: value };
-
-                if (field === 'type' && value === 'boolean') {
-                    updatedQuestion.choices = [
-                        {
-                            content: 'true',
-                            is_correct: true,
-                            order_index: 1
-                        },
-                        {
-                            content: 'false',
-                            is_correct: false,
-                            order_index: 2
-                        }
-                    ];
-                }
-                else if (field === 'type' && q.type === 'boolean' && value !== 'boolean') {
-                    if (value === 'multiple' || value === 'one_choice') {
-                        updatedQuestion.choices = [
-                            {
-                                content: '',
-                                is_correct: true,
-                                order_index: 1
-                            },
-                            {
-                                content: '',
-                                is_correct: false,
-                                order_index: 2
-                            }
-                        ];
-                    } else if (value === 'text') {
-                        updatedQuestion.choices = [];
-                    }
-                }
-
-                return updatedQuestion;
-            }
-            return q;
-        }));
-    };
-
-    const addChoice = (questionIndex: number) => {
-        onQuestionsChange(questions.map((q, i) => {
-            if (i === questionIndex) {
-                const newChoice: ChoiceFormData = {
-                    content: '',
-                    is_correct: false,
-                    order_index: q.choices.length + 1
-                };
-                return { ...q, choices: [...q.choices, newChoice] };
-            }
-            return q;
-        }));
-    };
-
-    const removeChoice = (questionIndex: number, choiceIndex: number) => {
+    const handleRemoveChoice = useCallback((questionIndex: number, choiceIndex: number) => {
         const question = questions[questionIndex];
-        const choice = question.choices[choiceIndex];
+        const choice = question?.choices[choiceIndex];
 
-        if (choice.id && handleRequestChoiceDeletion) {
+        if (choice?.id) {
             handleRequestChoiceDeletion(questionIndex, choiceIndex, question, choice);
         } else {
-            onQuestionsChange(questions.map((q, i) => {
-                if (i === questionIndex && q.choices.length > 2) {
-                    const filteredChoices = q.choices.filter((_, ci) => ci !== choiceIndex);
-                    const reorderedChoices = filteredChoices.map((choice, index) => ({
-                        ...choice,
-                        order_index: index + 1
-                    }));
-                    return { ...q, choices: reorderedChoices };
-                }
-                return q;
-            }));
+            removeChoice(questionIndex, choiceIndex);
         }
-    };
+    }, [questions, removeChoice, handleRequestChoiceDeletion]);
 
-    const updateChoice = (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: any) => {
-        onQuestionsChange(questions.map((q, i) => {
-            if (i === questionIndex) {
-                return {
-                    ...q,
-                    choices: q.choices.map((c, ci) => {
-                        if (ci === choiceIndex) {
-                            if (field === 'is_correct' && value && q.type === 'one_choice') {
-                                return { ...c, [field]: value };
-                            }
-                            return { ...c, [field]: value };
-                        } else if (field === 'is_correct' && value && q.type === 'one_choice') {
-                            return { ...c, is_correct: false };
-                        }
-                        return c;
-                    })
-                };
+    const toggleCollapse = useCallback((index: number) => {
+        setCollapsedQuestions(prev => {
+            const newCollapsed = new Set(prev);
+            const questionKey = `question-${index}`;
+            if (newCollapsed.has(questionKey)) {
+                newCollapsed.delete(questionKey);
+            } else {
+                newCollapsed.add(questionKey);
             }
-            return q;
-        }));
-    };
+            return newCollapsed;
+        });
+    }, []);
 
-    const toggleCollapse = (index: number) => {
-        const newCollapsed = new Set(collapsedQuestions);
-        const questionKey = `question-${index}`;
-        if (newCollapsed.has(questionKey)) {
-            newCollapsed.delete(questionKey);
-        } else {
-            newCollapsed.add(questionKey);
-        }
-        setCollapsedQuestions(newCollapsed);
-    };
+    const hasDeletedItems = useCallback(() => {
+        return deletedQuestionsHistory.length > 0 || deletedChoicesHistory.length > 0;
+    }, [deletedQuestionsHistory, deletedChoicesHistory]);
+
+    const getDeletedQuestionsCount = useCallback(() => {
+        return deletedQuestionsHistory.length;
+    }, [deletedQuestionsHistory]);
+
+    const getDeletedChoicesCount = useCallback(() => {
+        return deletedChoicesHistory.length;
+    }, [deletedChoicesHistory]);
 
     return {
         showAddDropdown,
@@ -255,14 +171,23 @@ export const useQuestionsManager = ({
         handleDragEnd,
         toggleAddDropdown,
         getQuestionTypeIcon,
-        addQuestion,
-        removeQuestion,
+        addQuestion: handleAddQuestion,
+        removeQuestion: handleRemoveQuestion,
         updateQuestion,
         addChoice,
-        removeChoice,
+        removeChoice: handleRemoveChoice,
         updateChoice,
         toggleCollapse,
-        deleteHistory,
+        deleteHistory: {
+            deletedQuestions: deletedQuestionsHistory,
+            deletedChoices: deletedChoicesHistory,
+            restoreQuestion,
+            restoreChoice,
+            clearHistory: clearDeletedHistory,
+            hasDeletedItems,
+            getDeletedQuestionsCount,
+            getDeletedChoicesCount,
+        },
         confirmationModal,
         historyModalOpen,
         setHistoryModalOpen,

@@ -32,6 +32,8 @@ export interface Role {
     guard_name: string;
     created_at: string;
     updated_at: string;
+    permissions?: Array<{ id: number; name: string }>;
+    permissions_count?: number;
 }
 
 export interface Level {

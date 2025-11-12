@@ -50,12 +50,33 @@ return [
 
     // QuestionsManager
     'questions_manager' => [
+        'title' => 'Exam Questions',
+        'subtitle' => 'Add and configure your exam questions.',
         'add_question' => 'Add Question',
         'no_questions_title' => 'No questions added',
         'no_questions_subtitle' => 'Start by adding your first question to create the exam',
         'delete_confirm' => 'Delete',
         'delete_cancel' => 'Cancel',
         'delete_notice' => 'This action can be undone via the deletion history.',
+        'history_button' => 'History (:count)',
+    ],
+
+    // DeleteHistoryModal
+    'delete_history_modal' => [
+        'title' => 'Deletion History',
+        'clear_history' => 'Clear History',
+        'no_items' => 'No deleted items',
+        'questions_tab' => 'Questions',
+        'choices_tab' => 'Choices',
+        'no_questions' => 'No deleted questions',
+        'no_choices' => 'No deleted choices',
+        'restore' => 'Restore',
+        'close' => 'Close',
+        'deleted_on' => 'Deleted on',
+        'point' => 'point',
+        'points' => 'points',
+        'correct_choice' => 'Correct choice',
+        'incorrect_choice' => 'Incorrect choice',
     ],
 
     // SortableQuestionItem

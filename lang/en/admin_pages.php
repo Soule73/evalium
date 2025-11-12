@@ -252,6 +252,7 @@ return [
     'roles' => [
         'title' => 'Role Management',
         'subtitle' => 'Configure roles and their permissions',
+        'search_placeholder' => 'Search for a role...',
         'create' => 'New Role',
         'create_title' => 'New Role',
         'create_subtitle' => 'Create a new role and assign permissions',
@@ -261,6 +262,7 @@ return [
         'name' => 'Role Name',
         'permissions' => 'Permissions',
         'permissions_count' => ':count permission(s)',
+        'no_permissions' => 'No permissions',
         'system_role' => 'System Role',
         'custom_role' => 'Custom Role',
         'delete_title' => 'Delete Role',

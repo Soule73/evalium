@@ -3,37 +3,25 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
 import { route } from 'ziggy-js';
 import { ShieldCheckIcon } from '@heroicons/react/24/outline';
-import { breadcrumbs } from '@/utils';
+import { breadcrumbs, getRoleLabel } from '@/utils';
 import { useState } from 'react';
 import { hasPermission } from '@/utils';
-import { PageProps } from '@/types';
+import { PageProps, Role } from '@/types';
 import { trans } from '@/utils';
 import { Badge, Button, ConfirmationModal, DataTable, Section } from '@/Components';
 
-interface Permission {
-    id: number;
-    name: string;
-}
-
-interface Role {
-    id: number;
-    name: string;
-    guard_name: string;
-    permissions_count: number;
-    permissions: Permission[];
-    created_at: string;
-    updated_at: string;
-}
-
 interface Props {
-    roles: Role[];
-    allPermissions: Permission[];
+    roles: PaginationType<Role>;
+    allPermissions: Array<{ id: number; name: string }>;
+    filters: {
+        search: string;
+        per_page: number;
+    };
 }
 
 export default function RoleIndex({ roles }: Props) {
     const { auth } = usePage<PageProps>().props;
 
-    // Vérification des permissions
     const canCreateRoles = hasPermission(auth.permissions, 'create roles');
     const canUpdateRoles = hasPermission(auth.permissions, 'update roles');
     const canDeleteRoles = hasPermission(auth.permissions, 'delete roles');
@@ -63,33 +51,24 @@ export default function RoleIndex({ roles }: Props) {
         return ['super_admin', 'admin', 'teacher', 'student'].includes(roleName);
     };
 
-    const getRoleLabel = (name: string) => {
-        const labels: Record<string, string> = {
-            'super_admin': trans('admin_pages.roles.role_labels.super_admin'),
-            'admin': trans('admin_pages.roles.role_labels.admin'),
-            'teacher': trans('admin_pages.roles.role_labels.teacher'),
-            'student': trans('admin_pages.roles.role_labels.student'),
-        };
-        return labels[name] || name;
-    };
-
-    const rolesData: PaginationType<Role> = {
-        data: roles,
-        current_page: 1,
-        last_page: 1,
-        per_page: roles.length,
-        total: roles.length,
-        from: 1,
-        to: roles.length,
-        first_page_url: '',
-        last_page_url: '',
-        next_page_url: null,
-        prev_page_url: null,
-        path: '',
-        links: [],
-    };
-
     const dataTableConfig: DataTableConfig<Role> = {
+        searchPlaceholder: trans('admin_pages.roles.search_placeholder'),
+        perPageOptions: [10, 15, 25, 50],
+        emptyState: {
+            title: trans('admin_pages.roles.empty_title'),
+            subtitle: trans('admin_pages.roles.empty_subtitle'),
+            icon: <ShieldCheckIcon className="w-12 h-12 text-gray-400" />,
+            actions: canCreateRoles ? (
+                <Button onClick={handleCreate} color="primary">
+                    {trans('admin_pages.roles.create_button')}
+                </Button>
+            ) : undefined,
+        },
+        emptySearchState: {
+            title: trans('admin_pages.common.no_results'),
+            subtitle: trans('admin_pages.common.no_results_subtitle'),
+            resetLabel: trans('admin_pages.common.clear_search'),
+        },
         columns: [
             {
                 key: 'name',
@@ -113,10 +92,16 @@ export default function RoleIndex({ roles }: Props) {
                 label: trans('admin_pages.roles.permissions'),
                 render: (role) => (
                     <div>
-                        <div className="text-sm font-medium text-gray-900">{trans('admin_pages.roles.permissions_count', { count: role.permissions_count })}</div>
+                        <div className="text-sm font-medium text-gray-900">{trans('admin_pages.roles.permissions_count', { count: role.permissions_count || 0 })}</div>
                         <div className="text-xs text-gray-500 truncate max-w-md">
-                            {role.permissions.slice(0, 3).map(p => p.name).join(', ')}
-                            {role.permissions.length > 3 && ` +${role.permissions.length - 3}`}
+                            {role.permissions && role.permissions.length > 0 ? (
+                                <>
+                                    {role.permissions.slice(0, 3).map((p) => p.name).join(', ')}
+                                    {role.permissions.length > 3 && ` +${role.permissions.length - 3}`}
+                                </>
+                            ) : (
+                                trans('admin_pages.roles.no_permissions')
+                            )}
                         </div>
                     </div>
                 ),
@@ -170,7 +155,17 @@ export default function RoleIndex({ roles }: Props) {
             >
                 <DataTable
                     config={dataTableConfig}
-                    data={rolesData}
+                    data={roles}
+                    onStateChange={(state) => {
+                        router.get(route('roles.index'),
+                            {
+                                search: state.search,
+                                per_page: state.perPage,
+                                page: state.page
+                            },
+                            { preserveState: true, preserveScroll: true }
+                        );
+                    }}
                 />
             </Section>
 

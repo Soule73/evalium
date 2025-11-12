@@ -1,5 +1,3 @@
-import { FormEvent } from 'react';
-import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { breadcrumbs } from '@/utils';
@@ -21,14 +19,13 @@ export default function EditRole({ role, allPermissions, groupedPermissions }: P
         formData,
         errors,
         isSubmitting,
-        setIsSubmitting,
         handleFieldChange,
         handlePermissionToggle,
         selectAll,
         deselectAll,
         handleCancel,
-        handleError,
-        handleSuccess,
+        handleSubmit,
+        handleSyncPermissions,
     } = useRoleForm({
         initialData: {
             name: role.name,
@@ -38,29 +35,6 @@ export default function EditRole({ role, allPermissions, groupedPermissions }: P
         onSuccessRoute: route('roles.index'),
     });
 
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-
-        router.put(route('roles.update', { role: role.id }), formData as any, {
-            onError: handleError,
-            onSuccess: handleSuccess,
-        });
-    };
-
-    const handleSyncPermissions = () => {
-        setIsSubmitting(true);
-
-        router.post(
-            route('roles.sync-permissions', { role: role.id }),
-            { permissions: formData.permissions } as any,
-            {
-                onError: handleError,
-                onSuccess: handleSuccess,
-                preserveScroll: true,
-            }
-        );
-    };
 
     return (
         <AuthenticatedLayout title={trans('admin_pages.roles.edit')} breadcrumb={breadcrumbs.roleEdit(role.name)}>

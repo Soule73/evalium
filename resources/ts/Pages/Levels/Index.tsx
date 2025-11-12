@@ -1,62 +1,29 @@
-import { router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
-import { route } from 'ziggy-js';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import { hasPermission } from '@/utils';
-import { PageProps } from '@/types';
 import { trans } from '@/utils';
 import { Badge, Button, ConfirmationModal, DataTable, Section, Toggle } from '@/Components';
-import { useConfirmationModal } from '@/hooks';
-
-interface Level {
-    id: number;
-    name: string;
-    code: string;
-    description: string | null;
-    order: number;
-    is_active: boolean;
-    groups_count: number;
-    active_groups_count: number;
-    created_at: string;
-    updated_at: string;
-}
+import { useListLevels } from '@/hooks';
+import { Level } from '@/types';
 
 interface Props {
-    levels: PaginationType<Level>;
+    levels: PaginationType<Level & { groups_count: number; active_groups_count: number }>;
 }
 
 export default function LevelIndex({ levels }: Props) {
-    const { auth } = usePage<PageProps>().props;
 
-    const canCreateLevels = hasPermission(auth.permissions, 'create levels');
-    const canUpdateLevels = hasPermission(auth.permissions, 'update levels');
-    const canDeleteLevels = hasPermission(auth.permissions, 'delete levels');
+    const {
+        canCreateLevels,
+        canUpdateLevels,
+        canDeleteLevels,
+        deleteModal,
+        handleCreate,
+        handleEdit,
+        handleToggleStatus,
+        handleDelete
+    } = useListLevels();
 
-    const deleteModal = useConfirmationModal<{ id: number; name: string }>();
-
-    const handleCreate = () => {
-        router.visit(route('levels.create'));
-    };
-
-    const handleEdit = (levelId: number) => {
-        router.visit(route('levels.edit', { level: levelId }));
-    };
-
-    const handleToggleStatus = (levelId: number) => {
-        router.patch(route('levels.toggle-status', { level: levelId }), {}, {
-            preserveScroll: true,
-        });
-    };
-
-    const handleDelete = (levelId: number) => {
-        if (!deleteModal.data) return;
-        router.delete(route('levels.destroy', { level: levelId }), {
-            onFinish: () => deleteModal.closeModal()
-        });
-    };
-
-    const dataTableConfig: DataTableConfig<Level> = {
+    const dataTableConfig: DataTableConfig<Level & { groups_count: number; active_groups_count: number }> = {
         columns: [
             {
                 key: 'name',

@@ -1,8 +1,7 @@
-import { useForm } from '@inertiajs/react';
 import GuestLayout from '@/Components/layout/GuestLayout';
-import { route } from 'ziggy-js';
 import { trans } from '@/utils';
 import { Button, Checkbox, Input, Logo } from '@/Components';
+import { useLogin } from '@/hooks/shared';
 
 interface LoginProps {
     canResetPassword?: boolean;
@@ -10,16 +9,7 @@ interface LoginProps {
 }
 
 const Login = ({ canResetPassword = true, status }: LoginProps) => {
-    const { data, setData, post, processing, errors } = useForm({
-        email: '',
-        password: '',
-        remember: false,
-    });
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        post(route('login.attempt'));
-    };
+    const { data, setData, errors, processing, handleSubmit } = useLogin();
 
     return (
         <GuestLayout title={trans('auth_pages.login.title')}>

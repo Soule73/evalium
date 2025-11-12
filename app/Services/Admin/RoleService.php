@@ -51,6 +51,27 @@ class RoleService
     }
 
     /**
+     * Retrieve paginated roles with their permissions
+     *
+     * @param int $perPage Number of items per page
+     * @param string|null $search Search term for role name
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getRolesWithPermissionsPaginated(int $perPage = 15, ?string $search = null)
+    {
+        $query = Role::query()
+            ->with('permissions')
+            ->withCount('permissions')
+            ->orderBy('name');
+
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        return $query->paginate($perPage);
+    }
+
+    /**
      * Retrieve all permissions
      */
     public function getAllPermissions(): Collection
@@ -81,7 +102,7 @@ class RoleService
             }
         }
 
-        return array_filter($grouped, fn ($items) => ! empty($items));
+        return array_filter($grouped, fn($items) => ! empty($items));
     }
 
     /**

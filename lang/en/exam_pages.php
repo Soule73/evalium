@@ -30,6 +30,9 @@ return [
         'subtitle' => 'Configure your exam settings and add your questions.',
         'cancel' => 'Cancel',
         'submit' => 'Create Exam',
+        'at_least_one_question' => 'You must add at least one question',
+        'question_content_required' => 'Question :number must have content',
+        'validation_errors' => 'Validation errors',
     ],
 
     // Edit page
@@ -78,6 +81,8 @@ return [
         'duration_label' => 'Duration: :duration minutes',
         'assigned_groups_title' => 'Assigned Groups',
         'assigned_groups_subtitle' => ':count group(s) have access to this exam',
+        'no_assigned_groups_title' => 'No Assigned Groups',
+        'no_assigned_groups_subtitle' => 'No group has access to this exam yet',
         'select_groups_title' => 'Assign Exam to Groups',
         'select_groups_subtitle' => 'Select the groups you want to give access to this exam',
         'assign_to_groups' => 'Assign to :count group:plural',

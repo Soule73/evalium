@@ -13,13 +13,6 @@ interface Props extends PageProps {
     exams: PaginationType<Exam>;
 }
 
-/**
- * Page Index des examens - Interface UNIFIÉE basée sur permissions
- * 
- * STRATÉGIE HYBRIDE :
- * - Students : Utilisent /student/exams (Student/ExamIndex.tsx)
- * - Autres rôles : Cette page avec affichage conditionnel selon permissions
- */
 const ExamIndex: React.FC<Props> = ({ exams }) => {
     const { auth } = usePage<PageProps>().props;
     const canCreateExams = hasPermission(auth.permissions, 'create exams');

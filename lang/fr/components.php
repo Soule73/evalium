@@ -61,6 +61,24 @@ return [
         'history_button' => 'Historique (:count)',
     ],
 
+    // DeleteHistoryModal
+    'delete_history_modal' => [
+        'title' => 'Historique des suppressions',
+        'clear_history' => 'Vider l\'historique',
+        'no_items' => 'Aucun élément supprimé',
+        'questions_tab' => 'Questions',
+        'choices_tab' => 'Choix',
+        'no_questions' => 'Aucune question supprimée',
+        'no_choices' => 'Aucun choix supprimé',
+        'restore' => 'Restaurer',
+        'close' => 'Fermer',
+        'deleted_on' => 'Supprimé le',
+        'point' => 'point',
+        'points' => 'points',
+        'correct_choice' => 'Choix correct',
+        'incorrect_choice' => 'Choix incorrect',
+    ],
+
     // SortableQuestionItem
     'question_item' => [
         'question_statement' => 'Énoncé de la question',

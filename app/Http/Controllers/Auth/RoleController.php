@@ -31,9 +31,14 @@ class RoleController extends Controller
      */
     public function index(): Response
     {
-        Auth::user()->can('view roles');
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $user->can('view roles');
 
-        $roles = $this->roleService->getRolesWithPermissions();
+        $perPage = request()->integer('per_page', 15);
+        $search = request()->string('search')->toString();
+
+        $roles = $this->roleService->getRolesWithPermissionsPaginated($perPage, $search ?: null);
 
         $allPermissions = $this->roleService->getAllPermissions();
 
@@ -43,6 +48,10 @@ class RoleController extends Controller
             'roles' => $roles,
             'allPermissions' => $allPermissions,
             'groupedPermissions' => $groupedPermissions,
+            'filters' => [
+                'search' => $search,
+                'per_page' => $perPage,
+            ],
         ]);
     }
 
@@ -53,7 +62,9 @@ class RoleController extends Controller
      */
     public function create(): Response
     {
-        Auth::user()->can('create roles');
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $user->can('create roles');
 
         $permissions = $this->roleService->getAllPermissions();
 
@@ -86,7 +97,9 @@ class RoleController extends Controller
      */
     public function edit(Role $role): Response
     {
-        Auth::user()->can('update roles');
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $user->can('update roles');
 
         $roleWithPermissions = $this->roleService->loadRolesWithPermissions($role);
 
@@ -147,7 +160,9 @@ class RoleController extends Controller
      */
     public function destroy(Role $role): RedirectResponse
     {
-        Auth::user()->can('delete roles');
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $user->can('delete roles');
 
         try {
             $this->roleService->deleteRole($role);

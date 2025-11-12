@@ -39,11 +39,11 @@ class StudentDashboardService
             ->count();
 
         $upcomingExams = $assignments
-            ->filter(fn ($assignment) => $assignment->started_at === null)
+            ->filter(fn($assignment) => $assignment->started_at === null)
             ->take(5);
 
         $recentExams = $assignments
-            ->filter(fn ($assignment) => $assignment->submitted_at !== null)
+            ->filter(fn($assignment) => $assignment->submitted_at !== null)
             ->sortByDesc('submitted_at')
             ->take(5);
 
@@ -96,7 +96,7 @@ class StudentDashboardService
 
         $scores = $gradedAssignments->pluck('score');
         $passingThreshold = 50;
-        $passingCount = $scores->filter(fn ($score) => $score >= $passingThreshold)->count();
+        $passingCount = $scores->filter(fn($score) => $score >= $passingThreshold)->count();
 
         return [
             'total_graded' => $gradedAssignments->count(),
@@ -118,6 +118,7 @@ class StudentDashboardService
      */
     public function getRecentActivity(User $student, int $limit = 10): Collection
     {
+        /** @var \App\Models\ExamAssignment $assignments */
         $assignments = $this->studentAssignmentQueryService->getAssignmentsForStudentLight($student);
 
         $activities = collect();

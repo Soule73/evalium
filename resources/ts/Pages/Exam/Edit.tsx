@@ -1,7 +1,7 @@
-import React from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, ExamGeneralConfig, QuestionsManager, Section } from '@/Components';
-import { useEditExam, useDeleteHistory } from '@/hooks';
+import { useEditExam } from '@/hooks';
+import { useExamFormStore } from '@/stores';
 import { Exam } from '@/types';
 import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
@@ -11,34 +11,18 @@ interface Props {
 }
 
 export default function ExamEdit({ exam }: Props) {
-    const clearHistoryRef = React.useRef<() => void>(() => { });
+    const totalPoints = useExamFormStore((state) =>
+        state.questions.reduce((sum, q) => sum + q.points, 0)
+    );
 
     const {
         data,
         errors,
         processing,
-        questions,
-        handleQuestionsChange,
-        handleQuestionDelete,
-        handleChoiceDelete,
         handleFieldChange,
         handleSubmit
-    } = useEditExam(exam, () => {
-        if (clearHistoryRef.current) {
-            clearHistoryRef.current();
-        }
-    });
+    } = useEditExam(exam);
 
-    const { clearHistory } = useDeleteHistory({
-        questions,
-        onQuestionsChange: handleQuestionsChange
-    });
-
-    React.useEffect(() => {
-        clearHistoryRef.current = clearHistory;
-    }, [clearHistory]);
-
-    const totalPoints = questions.reduce((sum, question) => sum + question.points, 0);
     const pointsLabel = totalPoints !== 1 ? trans('exam_pages.common.s') : '';
 
     return (
@@ -80,13 +64,7 @@ export default function ExamEdit({ exam }: Props) {
                     />
                 </Section>
 
-                <QuestionsManager
-                    questions={questions}
-                    onQuestionsChange={handleQuestionsChange}
-                    onQuestionDelete={handleQuestionDelete}
-                    onChoiceDelete={handleChoiceDelete}
-                    errors={errors}
-                />
+                <QuestionsManager errors={errors} />
             </form>
         </AuthenticatedLayout>
     );

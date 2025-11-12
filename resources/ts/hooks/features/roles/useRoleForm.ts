@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { Permission, RoleFormData } from '@/types/role';
+import { route } from 'ziggy-js';
+import { Role } from '@/types';
 
 interface UseRoleFormOptions {
+    role?: Role;
     initialData?: RoleFormData;
     allPermissions: Permission[];
     onSuccessRoute: string;
 }
 
-export function useRoleForm({ initialData, allPermissions, onSuccessRoute }: UseRoleFormOptions) {
+export function useRoleForm({ role, initialData, allPermissions, onSuccessRoute }: UseRoleFormOptions) {
     const [formData, setFormData] = useState<RoleFormData>(
         initialData || {
             name: '',
@@ -59,17 +62,52 @@ export function useRoleForm({ initialData, allPermissions, onSuccessRoute }: Use
         setIsSubmitting(false);
     };
 
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        const method = role ? 'put' : 'post';
+        const url = role
+            ? route('roles.update', { role: role.id })
+            : route('roles.store');
+        setIsSubmitting(true);
+
+        if (method === 'put') {
+            router.put(url, formData as any, {
+                onError: handleError,
+                onSuccess: handleSuccess,
+            });
+        } else {
+            router.post(url, formData as any, {
+                onError: handleError,
+                onSuccess: handleSuccess,
+            });
+        }
+    };
+
+    const handleSyncPermissions = () => {
+        setIsSubmitting(true);
+
+        router.post(
+            route('roles.sync-permissions', { role: role?.id }),
+            { permissions: formData.permissions } as any,
+            {
+                onError: handleError,
+                onSuccess: handleSuccess,
+                preserveScroll: true,
+            }
+        );
+    };
+
+
     return {
+        handleSyncPermissions,
+        handleSubmit,
         formData,
         errors,
         isSubmitting,
-        setIsSubmitting,
         handleFieldChange,
         handlePermissionToggle,
         selectAll,
         deselectAll,
         handleCancel,
-        handleError,
-        handleSuccess,
     };
 }

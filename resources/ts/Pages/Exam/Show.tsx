@@ -17,7 +17,7 @@ interface Props {
     assignedGroups: Group[];
 }
 
-const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
+const ExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
     const [isToggling, setIsToggling] = useState(false);
     const [isDuplicating, setIsDuplicating] = useState(false);
     const [showDuplicateModal, setShowDuplicateModal] = useState(false);
@@ -265,4 +265,4 @@ const TeacherExamShow: React.FC<Props> = ({ exam, assignedGroups }) => {
     );
 };
 
-export default TeacherExamShow;
+export default ExamShow;

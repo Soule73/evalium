@@ -33,15 +33,29 @@ class AssignmentController extends Controller
      * Display the form to assign an exam to groups.
      *
      * @param  Exam  $exam  The exam instance to be assigned.
+     * @param  Request  $request  The request instance.
      * @return Response The response containing the assignment form view.
      */
-    public function showAssignForm(Exam $exam): Response
+    public function showAssignForm(Exam $exam, Request $request): Response
     {
         $this->authorize('assign', $exam);
 
-        $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
+        $perPageAssigned = $request->input('per_page_assigned', 10);
+        $perPageAvailable = $request->input('per_page_available', 10);
+        $searchAssigned = $request->input('search_assigned');
+        $searchAvailable = $request->input('search_available');
 
-        $availableGroups = $this->examGroupService->getAvailableGroupsForExam($exam);
+        $assignedGroups = $this->examGroupService->getGroupsForExamPaginated(
+            $exam,
+            $perPageAssigned,
+            $searchAssigned
+        );
+
+        $availableGroups = $this->examGroupService->getAvailableGroupsForExamPaginated(
+            $exam,
+            $perPageAvailable,
+            $searchAvailable
+        );
 
         return Inertia::render('Exam/Assign', [
             'exam' => $exam,
@@ -62,22 +76,18 @@ class AssignmentController extends Controller
 
         $params = $request->validatedWithDefaults();
 
-        $assignments = $this->assignmentRepository->getPaginatedAssignments(
+        $assignedGroups = $this->examGroupService->getGroupsForExamPaginated(
             $exam,
             $params['per_page'] ?? 10,
-            $params['search'] ?? null,
-            $params['status'] ?? null
+            $params['search'] ?? null
         );
 
-        $assignedGroups = $this->examGroupService->getGroupsForExam($exam);
-
-        $stats = $this->examStatsService->calculateExamStatsWithGroups($exam, $assignedGroups);
+        $stats = $this->examStatsService->calculateExamStatsWithGroups($exam, $this->examGroupService->getGroupsForExam($exam));
 
         return Inertia::render('Exam/Assignments', [
             'exam' => $exam,
-            'assignments' => $assignments,
-            'stats' => $stats,
             'assignedGroups' => $assignedGroups,
+            'stats' => $stats,
         ]);
     }
 

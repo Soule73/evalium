@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useForm, router } from '@inertiajs/react';
+import { useEffect, useCallback } from 'react';
+import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
+import { useShallow } from 'zustand/react/shallow';
 import { QuestionFormData, Exam } from '@/types';
+import { useExamFormStore } from '@/stores';
 
 interface ExamEditData {
     title: string;
@@ -15,12 +17,32 @@ interface ExamEditData {
     deletedChoiceIds: number[];
 }
 
-export const useEditExam = (exam: Exam, onClearHistory?: () => void) => {
-    const [questions, setQuestions] = useState<QuestionFormData[]>([]);
-    const [deletedQuestionIds, setDeletedQuestionIds] = useState<number[]>([]);
-    const [deletedChoiceIds, setDeletedChoiceIds] = useState<number[]>([]);
+interface UseEditExamReturn {
+    data: ExamEditData;
+    errors: Record<string, string>;
+    processing: boolean;
+    handleFieldChange: (field: string, value: string | number | boolean) => void;
+    handleSubmit: (e: React.FormEvent) => void;
+}
 
-    const { data, setData, processing, errors } = useForm<ExamEditData>({
+export const useEditExam = (exam: Exam): UseEditExamReturn => {
+    const {
+        questions,
+        setQuestions,
+        deletedQuestionIds,
+        deletedChoiceIds,
+        clearDeletedHistory,
+        resetStore,
+    } = useExamFormStore(useShallow((state) => ({
+        questions: state.questions,
+        setQuestions: state.setQuestions,
+        deletedQuestionIds: state.deletedQuestionIds,
+        deletedChoiceIds: state.deletedChoiceIds,
+        clearDeletedHistory: state.clearDeletedHistory,
+        resetStore: state.reset,
+    })));
+
+    const { data, setData, put, processing, errors, transform, clearErrors } = useForm<ExamEditData>({
         title: exam.title || '',
         description: exam.description || '',
         duration: exam.duration || 60,
@@ -32,7 +54,6 @@ export const useEditExam = (exam: Exam, onClearHistory?: () => void) => {
         deletedChoiceIds: []
     });
 
-    // Initialiser les questions depuis l'examen (une seule fois au montage)
     useEffect(() => {
         if (exam.questions && questions.length === 0) {
             const formattedQuestions: QuestionFormData[] = exam.questions.map((q, index) => ({
@@ -42,16 +63,8 @@ export const useEditExam = (exam: Exam, onClearHistory?: () => void) => {
                 points: q.points,
                 order_index: q.order_index || index,
                 choices: q.choices?.map((c, choiceIndex) => {
-                    // Normaliser les valeurs pour les questions boolean
                     let content = c.content;
                     if (q.type === 'boolean') {
-                        // Convertir les anciennes valeurs "Vrai"/"Faux" vers "true"/"false"
-                        if (content === 'Vrai' || content === 'vrai') {
-                            content = 'true';
-                        } else if (content === 'Faux' || content === 'faux') {
-                            content = 'false';
-                        }
-                        // S'assurer que nous avons soit 'true' soit 'false'
                         if (content !== 'true' && content !== 'false') {
                             content = choiceIndex === 0 ? 'true' : 'false';
                         }
@@ -67,120 +80,40 @@ export const useEditExam = (exam: Exam, onClearHistory?: () => void) => {
             setQuestions(formattedQuestions);
             setData('questions', formattedQuestions);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
+        return () => {
+            resetStore();
+        };
     }, []);
 
-    // Log des erreurs pour débogage
-    useEffect(() => {
-        if (Object.keys(errors).length > 0) {
-            console.log('Erreurs de validation détectées:', errors);
-        }
-    }, [errors]);
-
-    const handleQuestionsChange = (newQuestions: QuestionFormData[]) => {
-        setQuestions(newQuestions);
-        // Ne pas appeler setData ici pour éviter les re-renders
-        // setData('questions', newQuestions);
-    };
-
-    const handleQuestionDelete = (questionId: number) => {
-
-        const newDeletedQuestionIds = [...deletedQuestionIds, questionId];
-        setDeletedQuestionIds(newDeletedQuestionIds);
-        // setData('deletedQuestionIds', newDeletedQuestionIds);
-
-        const filteredQuestions = questions.filter(q => q.id !== questionId);
-        setQuestions(filteredQuestions);
-        // setData('questions', filteredQuestions);
-    };
-
-    const handleChoiceDelete = (choiceId: number, questionIndex: number) => {
-        const newDeletedChoiceIds = [...deletedChoiceIds, choiceId];
-        setDeletedChoiceIds(newDeletedChoiceIds);
-        // setData('deletedChoiceIds', newDeletedChoiceIds);
-
-        const updatedQuestions = questions.map((q, i) => {
-            if (i === questionIndex) {
-                return {
-                    ...q,
-                    choices: q.choices.filter(c => c.id !== choiceId)
-                };
-            }
-            return q;
-        });
-        setQuestions(updatedQuestions);
-        // setData('questions', updatedQuestions);
-    };
-
-    const handleFieldChange = (field: string, value: string | number | boolean) => {
+    const handleFieldChange = useCallback((field: string, value: string | number | boolean) => {
         setData(field as keyof ExamEditData, value);
-    };
+    }, [setData]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = useCallback((e: React.FormEvent) => {
         e.preventDefault();
 
-        const validationErrors: Record<string, string> = {};
+        clearErrors();
 
-        if (!data.title.trim()) {
-            validationErrors.title = 'Le titre est requis';
-        }
-
-        if (!data.duration || data.duration < 1) {
-            validationErrors.duration = 'La durée doit être d\'au moins 1 minute';
-        }
-
-        const questionsToValidate = questions.length > 0 ? questions : data.questions;
-        for (let i = 0; i < questionsToValidate.length; i++) {
-            const question = questionsToValidate[i];
-            if (!question.content.trim()) {
-                validationErrors[`question_${i}_content`] = 'Le contenu de la question est requis';
-
-                return;
-            }
-        }
-
-        if (Object.keys(validationErrors).length > 0) {
-            console.error('Erreurs de validation:', validationErrors);
-            return;
-        }
-
-        // Préparer les données complètes à envoyer
-        const submitData = {
-            title: data.title,
-            description: data.description,
-            duration: data.duration,
-            start_time: data.start_time,
-            end_time: data.end_time,
-            is_active: data.is_active,
+        transform((data) => ({
+            ...data,
             questions,
             deletedQuestionIds,
             deletedChoiceIds
-        };
+        }));
 
-        console.log('Données soumises:', submitData);
-
-        // Utiliser la méthode router.put avec les données
-        router.put(route('exams.update', exam.id), submitData as any, {
+        put(route('exams.update', exam.id), {
             onSuccess: () => {
-                if (onClearHistory) {
-                    onClearHistory();
-                }
-            },
-            onError: (errors) => {
-                console.error('Erreurs de soumission:', errors);
+                clearDeletedHistory();
             }
         });
-    };
+    }, [questions, deletedQuestionIds, deletedChoiceIds, exam.id, clearDeletedHistory, clearErrors, transform, put]);
 
     return {
         data,
         errors,
         processing,
-        questions,
-        handleQuestionsChange,
-        handleQuestionDelete,
-        handleChoiceDelete,
         handleFieldChange,
-        handleSubmit
+        handleSubmit,
     };
 };
