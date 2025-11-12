@@ -26,13 +26,24 @@ const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment,
 
     const canGradeExams = hasPermission(auth.permissions, 'correct exams');
 
+    const translations = {
+        title: trans('exam_pages.student_results.title', { student: student.name, exam: exam.title }),
+        copyTitle: trans('exam_pages.student_results.copy_title', { student: student.name }),
+        examActive: trans('exam_pages.student_results.exam_active'),
+        examDisabled: trans('exam_pages.student_results.exam_disabled'),
+        correctExam: trans('exam_pages.student_results.correct_exam'),
+        editCorrection: trans('exam_pages.student_results.edit_correction'),
+        backToAssignments: trans('exam_pages.student_results.back_to_assignments'),
+        answersDetail: trans('exam_pages.student_results.answers_detail'),
+        teacherNotes: trans('exam_pages.student_results.teacher_notes'),
+    };
 
     return (
-        <AuthenticatedLayout title={trans('exam_pages.student_results.title', { student: student.name, exam: exam.title })}
+        <AuthenticatedLayout title={translations.title}
             breadcrumb={breadcrumbs.examGroupSubmission(exam.id, group.id, exam.title, group.display_name, student.name)}
         >
             <Section
-                title={trans('exam_pages.student_results.copy_title', { student: student.name })}
+                title={translations.copyTitle}
                 subtitle={
                     <div className='flex items-center space-x-4'>
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${assignmentStatus.color}`}>
@@ -40,9 +51,9 @@ const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment,
                         </span>
                         <div>
                             {examIsActive ? (
-                                <Badge label={trans('exam_pages.student_results.exam_active')} type="success" />
+                                <Badge label={translations.examActive} type="success" />
                             ) : (
-                                <Badge label={trans('exam_pages.student_results.exam_disabled')} type="gray" />
+                                <Badge label={translations.examDisabled} type="gray" />
                             )}
                         </div>
                     </div>
@@ -55,7 +66,7 @@ const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment,
                                 size="sm"
                                 onClick={() => router.visit(route('exams.review', { exam: exam.id, group: group.id, student: student.id }))}
                             >
-                                {isPendingReview ? trans('exam_pages.student_results.correct_exam') : trans('exam_pages.student_results.edit_correction')}
+                                {isPendingReview ? translations.correctExam : translations.editCorrection}
                             </Button>
                         )}
                         <Button
@@ -64,7 +75,7 @@ const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment,
                             size="sm"
                             onClick={() => router.visit(route('exams.groups', exam.id))}
                         >
-                            {trans('exam_pages.student_results.back_to_assignments')}
+                            {translations.backToAssignments}
                         </Button>
                     </div>
                 }
@@ -80,7 +91,7 @@ const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment,
                 />
             </Section>
 
-            <Section title={trans('exam_pages.student_results.answers_detail')}>
+            <Section title={translations.answersDetail}>
                 <QuestionRenderer
                     questions={exam.questions || []}
                     getQuestionResult={getQuestionResult}
@@ -89,11 +100,10 @@ const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment,
                     assignment={assignment}
                 />
 
-                {/* Notes du professeur */}
                 {assignment.teacher_notes && (
                     <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                         <h3 className="text-lg font-medium text-green-800 mb-2">
-                            {trans('exam_pages.student_results.teacher_notes')}
+                            {translations.teacherNotes}
                         </h3>
                         <p className="text-green-700 whitespace-pre-wrap">{assignment.teacher_notes}</p>
                     </div>
