@@ -23,8 +23,8 @@ import { QuestionType } from '@/types';
 import { useQuestionsManager } from '@/hooks';
 import { useExamFormStore } from '@/stores';
 import { getQuestionTypeLabel } from '@/utils';
-import { useQuestionOptions } from './questionOptions';
-import SortableQuestionItem from './SortableQuestionItem';
+import { useQuestionOptions } from './form/questionOptions';
+import SortableQuestionItem from './form/SortableQuestionItem';
 import { Section, Button, ConfirmationModal, DeleteHistoryModal } from '@/Components/ui';
 
 interface QuestionsManagerProps {

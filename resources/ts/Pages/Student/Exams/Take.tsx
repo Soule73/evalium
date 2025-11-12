@@ -1,11 +1,10 @@
 import { Head } from '@inertiajs/react';
-import { AlertEntry, AlertSecurityViolation, Button, ConfirmationModal, FullscreenModal, Section, TakeQuestion, TextEntry } from '@/Components';
+import { AlertEntry, AlertSecurityViolation, Button, CanNotTakeExam, ConfirmationModal, FullscreenModal, Section, TakeQuestion, TextEntry } from '@/Components';
 import { Answer, Exam, ExamAssignment, Question } from '@/types';
 import { ExclamationCircleIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { useTakeExam } from '@/hooks';
 import { formatTime } from '@/utils';
 import { trans } from '@/utils';
-import { CanNotTakeExam } from '@/Components/features/exam/AlertSecurityViolation';
 import { useMemo } from 'react';
 import { useExamTakeStore } from '@/stores/useExamTakeStore';
 import { useShallow } from 'zustand/react/shallow';

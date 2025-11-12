@@ -4,7 +4,7 @@ import { hasUserResponse } from '@/utils';
 import { trans } from '@/utils';
 import { AlertEntry } from '@/Components/ui';
 import QuestionReadOnlySection from './QuestionReadOnlySection';
-import { QuestionResultReadOnlyText, QuestionResultReadOnlyChoices } from './QuestionResultReadOnly';
+import { QuestionResultReadOnlyText, QuestionResultReadOnlyChoices } from '../QuestionResultReadOnly';
 
 interface QuestionRendererProps {
     questions: Question[];
