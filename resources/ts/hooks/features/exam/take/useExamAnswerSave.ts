@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { route } from 'ziggy-js';
+import { formatAnswersForSubmission } from '@/utils/exam/take';
 
 interface UseExamAnswerSaveOptions {
     examId: number;
@@ -42,21 +43,7 @@ export function useExamAnswerSave({ examId }: UseExamAnswerSaveOptions): {
 
     const saveAllAnswers = useCallback(async (answers: Record<number, string | number | number[]>) => {
         try {
-            // Transformer les données pour le backend
-            const formattedAnswers: Record<number, string | number | number[]> = {};
-
-            Object.entries(answers).forEach(([questionId, value]) => {
-                const qId = parseInt(questionId);
-
-                if (Array.isArray(value)) {
-                    // Question multiple : s'assurer que ce sont des numbers
-                    const choiceIds = value.filter(id => typeof id === 'number');
-                    formattedAnswers[qId] = choiceIds;
-                } else {
-                    // Question simple
-                    formattedAnswers[qId] = value;
-                }
-            });
+            const formattedAnswers = formatAnswersForSubmission(answers);
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 

@@ -1,6 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
+import { useExamTakeStore } from '@/stores/useExamTakeStore';
+import { useShallow } from 'zustand/react/shallow';
 
 interface UseExamSubmissionOptions {
     examId: number;
@@ -9,8 +11,14 @@ interface UseExamSubmissionOptions {
 }
 
 export function useExamSubmission({ examId, onSubmitSuccess, onSubmitError }: UseExamSubmissionOptions) {
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-    const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+    const { isSubmitting, setIsSubmitting, showConfirmModal, setShowConfirmModal } = useExamTakeStore(
+        useShallow((state) => ({
+            isSubmitting: state.isSubmitting,
+            setIsSubmitting: state.setIsSubmitting,
+            showConfirmModal: state.showConfirmModal,
+            setShowConfirmModal: state.setShowConfirmModal,
+        }))
+    );
 
     const submitForm = useForm({
         answers: {} as Record<number, string | number | number[]>

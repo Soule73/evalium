@@ -6,6 +6,9 @@ import { useTakeExam } from '@/hooks';
 import { formatTime } from '@/utils';
 import { trans } from '@/utils';
 import { CanNotTakeExam } from '@/Components/features/exam/AlertSecurityViolation';
+import { useMemo } from 'react';
+import { useExamTakeStore } from '@/stores/useExamTakeStore';
+import { useShallow } from 'zustand/react/shallow';
 
 interface TakeExamProps {
     exam: Exam;
@@ -15,22 +18,51 @@ interface TakeExamProps {
 }
 
 export default function Take({ exam, assignment, questions = [], userAnswers = [] }: TakeExamProps) {
+    const { answers, timeLeft, showConfirmModal, setShowConfirmModal, isSubmitting, examTerminated, terminationReason, showFullscreenModal, examCanStart } = useExamTakeStore(
+        useShallow((state) => ({
+            answers: state.answers,
+            timeLeft: state.timeLeft,
+            showConfirmModal: state.showConfirmModal,
+            setShowConfirmModal: state.setShowConfirmModal,
+            isSubmitting: state.isSubmitting,
+            examTerminated: state.examTerminated,
+            terminationReason: state.terminationReason,
+            showFullscreenModal: state.showFullscreenModal,
+            examCanStart: state.examCanStart,
+        }))
+    );
+
+    const translations = useMemo(() => ({
+        title: trans('student_pages.take.title', { exam: exam.title }),
+        examTerminatedTitle: trans('student_pages.take.exam_terminated_title'),
+        examAlreadySubmitted: trans('student_pages.take.exam_already_submitted'),
+        noQuestionsTitle: trans('student_pages.take.no_questions_title'),
+        noQuestionsSubtitle: trans('student_pages.take.no_questions_subtitle'),
+        noQuestionsMessage: trans('student_pages.take.no_questions_message'),
+        timeRemaining: trans('student_pages.take.time_remaining'),
+        fullscreenRequired: trans('student_pages.take.fullscreen_required'),
+        submitting: trans('student_pages.take.submitting'),
+        finishExam: trans('student_pages.take.finish_exam'),
+        importantInstructions: trans('student_pages.take.important_instructions'),
+        warningTitle: trans('student_pages.take.warning_title'),
+        warningMessage1: trans('student_pages.take.warning_message_1'),
+        warningMessage2: trans('student_pages.take.warning_message_2'),
+        warningMessage3: trans('student_pages.take.warning_message_3'),
+        warningAutoSave: trans('student_pages.take.warning_auto_save'),
+        fullscreenActivationTitle: trans('student_pages.take.fullscreen_activation_title'),
+        attention: trans('student_pages.take.attention'),
+        fullscreenActivationMessage: trans('student_pages.take.fullscreen_activation_message'),
+        confirmSubmitTitle: trans('student_pages.take.confirm_submit_title'),
+        confirmSubmitMessage: trans('student_pages.take.confirm_submit_message'),
+        confirmSubmitCheck: trans('student_pages.take.confirm_submit_check'),
+    }), [exam.title]);
 
     const {
-        answers,
-        isSubmitting,
-        showConfirmModal,
-        setShowConfirmModal,
-        timeLeft,
         security,
         processing,
         handleAnswerChange,
         handleSubmit,
-        examTerminated,
-        terminationReason,
-        showFullscreenModal,
         enterFullscreen,
-        examCanStart
     } = useTakeExam({ exam, questions, userAnswers });
 
     if (examTerminated) {
@@ -45,8 +77,8 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
     if (assignment.submitted_at) {
         return (
             <CanNotTakeExam
-                title={trans('student_pages.take.exam_terminated_title')}
-                message={trans('student_pages.take.exam_already_submitted')}
+                title={translations.examTerminatedTitle}
+                message={translations.examAlreadySubmitted}
                 icon={<ExclamationCircleIcon className="h-12 w-12 text-yellow-500 mx-auto mb-4" />}
             />
         );
@@ -57,9 +89,9 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
     ) {
         return (
             <CanNotTakeExam
-                title={trans('student_pages.take.no_questions_title')}
-                subtitle={trans('student_pages.take.no_questions_subtitle')}
-                message={trans('student_pages.take.no_questions_message')}
+                title={translations.noQuestionsTitle}
+                subtitle={translations.noQuestionsSubtitle}
+                message={translations.noQuestionsMessage}
                 icon={<ExclamationCircleIcon className="h-12 w-12 text-yellow-500 mx-auto mb-4" />}
             />
         );
@@ -68,7 +100,7 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
 
     return (
         <div className="bg-gray-50 min-h-screen">
-            <Head title={trans('student_pages.take.title', { exam: exam.title })} />
+            <Head title={translations.title} />
 
             <div className="bg-white py-4 border-b border-gray-200 fixed w-full z-1 top-0">
                 <div className="container mx-auto flex justify-between items-center">
@@ -80,13 +112,13 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
 
                     <TextEntry
                         className=' text-center'
-                        label={trans('student_pages.take.time_remaining')}
+                        label={translations.timeRemaining}
                         value={formatTime(timeLeft)}
                     />
 
                     {!security.isFullscreen && <TextEntry
                         className=' text-center'
-                        label={trans('student_pages.take.fullscreen_required')}
+                        label={translations.fullscreenRequired}
                         value=""
                     />}
                     <Button
@@ -98,21 +130,21 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
                         loading={isSubmitting || processing}
 
                     >
-                        {isSubmitting || processing ? trans('student_pages.take.submitting') : trans('student_pages.take.finish_exam')}
+                        {isSubmitting || processing ? translations.submitting : translations.finishExam}
                     </Button>
                 </div>
             </div>
 
             <div className="pt-20 max-w-6xl mx-auto">
                 <div className="container mx-auto px-4 py-8">
-                    <Section title={trans('student_pages.take.important_instructions')} collapsible>
-                        <AlertEntry type="warning" title={trans('student_pages.take.warning_title')}>
+                    <Section title={translations.importantInstructions} collapsible>
+                        <AlertEntry type="warning" title={translations.warningTitle}>
                             <p>
-                                {trans('student_pages.take.warning_message_1')}
-                                <strong> {trans('student_pages.take.warning_message_2')}</strong> {trans('student_pages.take.warning_message_3')}
+                                {translations.warningMessage1}
+                                <strong> {translations.warningMessage2}</strong> {translations.warningMessage3}
                             </p>
                             <p>
-                                {trans('student_pages.take.warning_auto_save')}
+                                {translations.warningAutoSave}
                             </p>
                         </AlertEntry>
                     </Section>
@@ -128,10 +160,10 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
                     )}
 
                     {!examCanStart && (
-                        <Section title={trans('student_pages.take.fullscreen_activation_title')} collapsible={false}>
-                            <AlertEntry type="info" title={trans('student_pages.take.attention')}>
+                        <Section title={translations.fullscreenActivationTitle} collapsible={false}>
+                            <AlertEntry type="info" title={translations.attention}>
                                 <p>
-                                    {trans('student_pages.take.fullscreen_activation_message')}
+                                    {translations.fullscreenActivationMessage}
                                 </p>
                             </AlertEntry>
                         </Section>
@@ -140,8 +172,8 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
             </div>
 
             <ConfirmationModal
-                title={trans('student_pages.take.confirm_submit_title')}
-                message={trans('student_pages.take.confirm_submit_message')}
+                title={translations.confirmSubmitTitle}
+                message={translations.confirmSubmitMessage}
                 icon={QuestionMarkCircleIcon}
                 type='info'
                 isOpen={showConfirmModal}
@@ -150,7 +182,7 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
                 loading={isSubmitting || processing}
             >
                 <p className="text-gray-600 mb-6 text-center ">
-                    {trans('student_pages.take.confirm_submit_check')}
+                    {translations.confirmSubmitCheck}
                 </p>
             </ConfirmationModal>
 

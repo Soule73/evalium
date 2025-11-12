@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { route } from 'ziggy-js';
 import axios from 'axios';
 import {
@@ -8,8 +8,11 @@ import {
     detachConfigurableEventListeners,
     removeSecurityMeasures
 } from '@/utils';
-import { useExamConfig, isSecurityEnabled, isFeatureEnabled } from './useExamConfig';
-import { securityViolationLabel } from '@/utils';
+import { getViolationTranslationKey } from '@/utils/exam/take';
+import { useExamConfig, isSecurityEnabled, isFeatureEnabled } from '../useExamConfig';
+import { useExamTakeStore } from '@/stores/useExamTakeStore';
+import { useShallow } from 'zustand/react/shallow';
+import { trans } from '@/utils';
 
 interface UseExamSecurityViolationOptions {
     examId: number;
@@ -45,11 +48,21 @@ interface UseExamSecurityViolationOptions {
  * ```
  */
 export function useExamSecurityViolation({ examId, onViolation }: UseExamSecurityViolationOptions) {
-    const [examTerminated, setExamTerminated] = useState<boolean>(false);
-    const [terminationReason, setTerminationReason] = useState<string>('');
+    const { examTerminated, terminationReason, setExamTerminated } = useExamTakeStore(
+        useShallow((state) => ({
+            examTerminated: state.examTerminated,
+            terminationReason: state.terminationReason,
+            setExamTerminated: state.setExamTerminated,
+        }))
+    );
 
     const examConfig = useExamConfig();
     const securityEnabled = isSecurityEnabled(examConfig);
+
+    const getViolationLabel = useCallback((violationType: string): string => {
+        const translationKey = getViolationTranslationKey(violationType);
+        return trans(translationKey);
+    }, []);
 
     /**
      * Applique les mesures de sécurité en fonction de la configuration
@@ -98,10 +111,9 @@ export function useExamSecurityViolation({ examId, onViolation }: UseExamSecurit
         violationType: string,
         answers: Record<number, string | number | number[]>
     ) => {
-        const reason = securityViolationLabel(violationType);
+        const reason = getViolationLabel(violationType);
 
-        setTerminationReason(reason);
-        setExamTerminated(true);
+        setExamTerminated(true, reason);
 
         try {
             await axios.post(route('student.exams.security-violation', examId), {
@@ -110,13 +122,13 @@ export function useExamSecurityViolation({ examId, onViolation }: UseExamSecurit
                 answers: answers
             });
         } catch (error) {
-            setExamTerminated(true);
+            setExamTerminated(true, reason);
         }
 
         if (onViolation) {
             onViolation(violationType);
         }
-    }, [examId, onViolation]);
+    }, [examId, onViolation, setExamTerminated, getViolationLabel]);
 
     /**
      * Gestionnaire pour les violations critiques de sécurité

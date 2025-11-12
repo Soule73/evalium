@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { Answer, Question, BackendAnswerData } from '@/types';
+import { useExamTakeStore } from '@/stores/useExamTakeStore';
+import { useShallow } from 'zustand/react/shallow';
 
 interface UseExamAnswersOptions {
     questions: Question[];
@@ -7,8 +9,13 @@ interface UseExamAnswersOptions {
 }
 
 export function useExamAnswers({ questions, userAnswers }: UseExamAnswersOptions) {
-    // État local pour les réponses
-    const [answers, setAnswers] = useState<Record<number, string | number | number[]>>({});
+    const { answers, setAnswer, setAnswers } = useExamTakeStore(
+        useShallow((state) => ({
+            answers: state.answers,
+            setAnswer: state.setAnswer,
+            setAnswers: state.setAnswers,
+        }))
+    );
     const [isInitialized, setIsInitialized] = useState(false);
 
     // Initialiser les réponses UNE SEULE FOIS
@@ -69,15 +76,9 @@ export function useExamAnswers({ questions, userAnswers }: UseExamAnswersOptions
         setIsInitialized(true);
     }, [userAnswers, questions, isInitialized]);
 
-    // Fonction pour mettre à jour une réponse
-    const updateAnswer = (questionId: number, value: string | number | number[]) => {
-        console.log('🔄 UPDATE ANSWER:', { questionId, value, type: typeof value });
-        setAnswers(prev => {
-            const newAnswers = { ...prev, [questionId]: value };
-            console.log('📝 AFTER UPDATE:', newAnswers);
-            return newAnswers;
-        });
-    };
+    const updateAnswer = useCallback((questionId: number, value: string | number | number[]) => {
+        setAnswer(questionId, value);
+    }, [setAnswer]);
 
     return {
         answers,

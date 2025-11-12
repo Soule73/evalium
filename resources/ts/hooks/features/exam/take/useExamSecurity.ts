@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useExamConfig, isSecurityEnabled, isFeatureEnabled } from './useExamConfig';
+import { useExamConfig, isSecurityEnabled, isFeatureEnabled } from '../useExamConfig';
+import { isInFullscreen, ExamViolationType } from '@/utils/exam/take';
 
 interface SecurityConfig {
     maxAttempts?: number;
@@ -7,10 +8,8 @@ interface SecurityConfig {
     onBlocked?: () => void;
 }
 
-type SecurityTypes = 'right_click' | 'copy_paste' | 'dev_tools' | 'tab_switch' | 'fullscreen_exit' | 'idle_timeout' | 'suspicious_activity';
-
 interface SecurityEvent {
-    type: SecurityTypes;
+    type: ExamViolationType | string;
     timestamp: Date;
     details?: any;
 }
@@ -77,7 +76,9 @@ export function useExamSecurity(config: SecurityConfig = {}): UseExamSecurityRet
         maxAttempts = 3,
         onViolation,
         onBlocked,
-    } = config; const [isFullscreen, setIsFullscreen] = useState(Boolean(document.fullscreenElement));
+    } = config;
+
+    const [isFullscreen, setIsFullscreen] = useState(isInFullscreen());
 
     const [programmaticExit, setProgrammaticExit] = useState(false);
 

@@ -1,4 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
+import { useExamTakeStore } from '@/stores/useExamTakeStore';
+import { useShallow } from 'zustand/react/shallow';
+import { minutesToSeconds } from '@/utils/exam/take';
 
 interface UseExamTimerOptions {
     duration: number;
@@ -7,10 +10,27 @@ interface UseExamTimerOptions {
 }
 
 export function useExamTimer({ duration, onTimeEnd, isSubmitting }: UseExamTimerOptions) {
-    const [timeLeft, setTimeLeft] = useState<number>(0);
+    const { timeLeft, setTimeLeft } = useExamTakeStore(
+        useShallow((state) => ({
+            timeLeft: state.timeLeft,
+            setTimeLeft: state.setTimeLeft,
+        }))
+    );
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const onTimeEndRef = useRef(onTimeEnd);
     const isSubmittingRef = useRef(isSubmitting);
+
+    const decrementTime = useCallback(() => {
+        setTimeLeft((prev) => {
+            if (prev <= 1) {
+                if (!isSubmittingRef.current) {
+                    onTimeEndRef.current();
+                }
+                return 0;
+            }
+            return prev - 1;
+        });
+    }, [setTimeLeft]);
 
 
     useEffect(() => {
@@ -22,27 +42,17 @@ export function useExamTimer({ duration, onTimeEnd, isSubmitting }: UseExamTimer
     }, [isSubmitting]);
 
     useEffect(() => {
-        const examDurationInSeconds = duration * 60;
+        const examDurationInSeconds = minutesToSeconds(duration);
         setTimeLeft(examDurationInSeconds);
 
-        intervalRef.current = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev <= 1) {
-                    if (!isSubmittingRef.current) {
-                        onTimeEndRef.current();
-                    }
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
+        intervalRef.current = setInterval(decrementTime, 1000);
 
         return () => {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
             }
         };
-    }, [duration]);
+    }, [duration, setTimeLeft, decrementTime]);
 
     useEffect(() => {
         return () => {

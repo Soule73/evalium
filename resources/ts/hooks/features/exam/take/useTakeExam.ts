@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { Answer, Exam, Question } from "@/types";
 import { useExamSecurity } from './useExamSecurity';
 import { useAutoSave } from './useAutoSave';
@@ -8,6 +8,8 @@ import { useExamFullscreen } from './useExamFullscreen';
 import { useExamSecurityViolation } from './useExamSecurityViolation';
 import { useExamAnswerSave } from './useExamAnswerSave';
 import { useExamSubmission } from './useExamSubmission';
+import { useExamTakeStore } from '@/stores/useExamTakeStore';
+import { useShallow } from 'zustand/react/shallow';
 
 interface UseTakeExam {
     exam: Exam
@@ -58,7 +60,13 @@ interface UseTakeExam {
 const useTakeExam = (
     { exam, questions = [], userAnswers = [] }: UseTakeExam
 ) => {
-    const { answers, updateAnswer } = useExamAnswers({ questions, userAnswers });
+    const { answers } = useExamTakeStore(
+        useShallow((state) => ({
+            answers: state.answers,
+        }))
+    );
+
+    const { updateAnswer } = useExamAnswers({ questions, userAnswers });
 
     const {
         isSubmitting,
@@ -86,10 +94,12 @@ const useTakeExam = (
         examId: exam.id
     });
 
+    const handleViolationCallback = useCallback((type: string) => {
+        handleViolation(type, answers);
+    }, [handleViolation, answers]);
+
     const security = useExamSecurity({
-        onViolation: (type: string) => {
-            handleViolation(type, answers);
-        }
+        onViolation: handleViolationCallback
     });
 
     const {
@@ -100,9 +110,11 @@ const useTakeExam = (
         exitFullscreen
     } = useExamFullscreen({ security });
 
+    const handleSubmitCallback = useCallback(() => handleSubmit(), []);
+
     const { timeLeft } = useExamTimer({
         duration: exam.duration,
-        onTimeEnd: () => handleSubmit(),
+        onTimeEnd: handleSubmitCallback,
         isSubmitting
     });
 
@@ -110,9 +122,13 @@ const useTakeExam = (
         examId: exam.id
     });
 
+    const handleAutoSave = useCallback(() => {
+        return saveAllAnswers(answers);
+    }, [saveAllAnswers, answers]);
+
     const autoSave = useAutoSave(answers, {
         interval: 30000,
-        onSave: saveAllAnswers,
+        onSave: handleAutoSave,
         onError: () => {
         }
     });
@@ -127,19 +143,19 @@ const useTakeExam = (
         }
     }, [examTerminated, exitFullscreen]);
 
-    const handleAnswerChange = (questionId: number, value: string | number | number[]) => {
+    const handleAnswerChange = useCallback((questionId: number, value: string | number | number[]) => {
         updateAnswer(questionId, value);
 
         const newAnswers = { ...answers, [questionId]: value };
 
         saveAnswerIndividual(questionId, value, newAnswers);
-    };
+    }, [updateAnswer, answers, saveAnswerIndividual]);
 
-    const handleSubmit = () => {
+    const handleSubmit = useCallback(() => {
         forceSave(answers).then(() => {
             submitExam(answers);
         });
-    };
+    }, [forceSave, answers, submitExam]);
 
     useEffect(() => {
         return cleanup;
