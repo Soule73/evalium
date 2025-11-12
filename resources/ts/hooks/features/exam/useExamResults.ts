@@ -11,54 +11,37 @@ interface UseExamResultParams {
 
 /**
  * Custom React hook to compute and provide exam result-related data and utilities.
- *
- * @param params - The parameters for the hook.
- * @param params.exam - The exam object containing questions and metadata.
- * @param params.assignment - The assignment object containing user-specific exam data such as score and status.
- * @param params.userAnswers - An object mapping question IDs to the user's answers.
- *
- * @returns An object containing:
- * - `totalPoints`: The total possible points for the exam.
- * - `finalScore`: The user's final score for the assignment.
- * - `isPendingReview`: Whether the assignment is pending review.
- * - `getQuestionResult`: A function to get the result for a specific question, including correctness and user choices.
- * - `assignmentStatus`: A formatted string representing the assignment's status.
- * - `examIsActive`: Whether the exam is currently active.
- *
- * @remarks
- * This hook uses `useMemo` to optimize calculations and avoid unnecessary recomputations.
- * The `getQuestionResult` function handles different question types (multiple choice, text, single choice)
- * and returns detailed information about the user's answer and its correctness.
  */
 const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) => {
+    const questions = exam?.questions ?? [];
+    const examIsActive = exam.is_active;
+    const assignmentScore = assignment.score;
+    const assignmentAutoScore = assignment.auto_score;
+    const assignmentStatus = assignment.status;
+
     const totalPoints = useMemo(
-        () => exam?.questions?.reduce((sum, q) => sum + q.points, 0) ?? 0,
-        [exam]
+        () => questions.reduce((sum, q) => sum + (q.points || 0), 0),
+        [questions]
     );
 
     const finalScore = useMemo(
-        () => assignment.score ?? assignment.auto_score,
-        [assignment.score, assignment.auto_score]
+        () => assignmentScore ?? assignmentAutoScore,
+        [assignmentScore, assignmentAutoScore]
     );
 
     const isPendingReview = useMemo(
-        () => assignment.status !== "graded",
-        [assignment.status]
+        () => assignmentStatus !== "graded",
+        [assignmentStatus]
     );
 
-    const assignmentStatus = useMemo(
-        () => formatExamAssignmentStatus(assignment.status),
-        [assignment.status]
+    const formattedAssignmentStatus = useMemo(
+        () => formatExamAssignmentStatus(assignmentStatus),
+        [assignmentStatus]
     );
 
     const showCorrectAnswers = useMemo(
-        () => canShowExamResults(assignment.status),
-        [assignment.status]
-    );
-
-    const examIsActive = useMemo(
-        () => exam.is_active,
-        [exam.is_active]
+        () => canShowExamResults(assignmentStatus),
+        [assignmentStatus]
     );
 
     const getQuestionResult = useMemo(() => {
@@ -154,7 +137,7 @@ const useExamResults = ({ exam, assignment, userAnswers }: UseExamResultParams) 
         finalScore,
         isPendingReview,
         getQuestionResult,
-        assignmentStatus,
+        assignmentStatus: formattedAssignmentStatus,
         showCorrectAnswers,
         examIsActive,
     };

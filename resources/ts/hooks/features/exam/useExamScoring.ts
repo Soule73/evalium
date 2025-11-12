@@ -1,18 +1,22 @@
 import { useMemo } from 'react';
 import { Question, Exam, ExamAssignment } from '@/types';
-import useExamResults from './useExamResults';
 
 interface UseExamScoringParams {
     exam: Exam;
     assignment: ExamAssignment;
     userAnswers: Record<number, any>;
+    totalPoints: number;
+    getQuestionResult: (question: Question) => any;
 }
 
 /**
  * Hook commun pour les calculs de score et pourcentages dans les examens
  */
-const useExamScoring = ({ exam, assignment, userAnswers }: UseExamScoringParams) => {
-    const { totalPoints, finalScore, getQuestionResult } = useExamResults({ exam, assignment, userAnswers });
+const useExamScoring = ({ exam, assignment, userAnswers, totalPoints, getQuestionResult }: UseExamScoringParams) => {
+    const finalScore = useMemo(
+        () => assignment.score ?? assignment.auto_score,
+        [assignment.score, assignment.auto_score]
+    );
 
     const calculateQuestionScore = useMemo(() => {
         return (question: Question): number => {
@@ -74,7 +78,6 @@ const useExamScoring = ({ exam, assignment, userAnswers }: UseExamScoringParams)
         calculatePercentage,
         calculateTotalScore,
         initializeScores,
-        getQuestionResult
     };
 };
 

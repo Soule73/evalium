@@ -1,8 +1,7 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Exam, ExamAssignment, Answer, User, PageProps, Group } from '@/types';
-import { useExamResults } from '@/hooks';
-import { useExamScoring } from '@/hooks';
+import { useExamScoring, useExamResults } from '@/hooks';
 import { route } from 'ziggy-js';
 import { router, usePage } from '@inertiajs/react';
 import { Badge, Button, ExamInfoSection, QuestionRenderer, Section } from '@/Components';
@@ -21,8 +20,14 @@ interface Props {
 
 const ExamStudentResults: React.FC<Props> = ({ exam, group, student, assignment, userAnswers, creator }) => {
     const { auth } = usePage<PageProps>().props;
-    const { isPendingReview, assignmentStatus, examIsActive } = useExamResults({ exam, assignment, userAnswers });
-    const { totalPoints, finalPercentage, getQuestionResult } = useExamScoring({ exam, assignment, userAnswers });
+    const { isPendingReview, assignmentStatus, examIsActive, totalPoints, getQuestionResult } = useExamResults({ exam, assignment, userAnswers });
+    const { finalPercentage } = useExamScoring({
+        exam,
+        assignment,
+        userAnswers,
+        totalPoints,
+        getQuestionResult
+    });
 
     const canGradeExams = hasPermission(auth.permissions, 'correct exams');
 

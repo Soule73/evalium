@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { route } from 'ziggy-js';
 import useExamResults from './useExamResults';
 import useExamScoring from './useExamScoring';
@@ -18,8 +18,14 @@ const useExamStudentReview = (
     { exam, group, assignment, userAnswers, student }: ExamStudentReviewProps
 ) => {
 
-    const { assignmentStatus } = useExamResults({ exam, assignment, userAnswers });
-    const { totalPoints, calculateQuestionScore, getQuestionResult } = useExamScoring({ exam, assignment, userAnswers });
+    const { assignmentStatus, totalPoints, getQuestionResult } = useExamResults({ exam, assignment, userAnswers });
+    const { calculateQuestionScore } = useExamScoring({
+        exam,
+        assignment,
+        userAnswers,
+        totalPoints,
+        getQuestionResult
+    });
 
     const {
         scores,
@@ -37,22 +43,25 @@ const useExamStudentReview = (
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [teacherNotes, setTeacherNotes] = useState(assignment.teacher_notes || '');
-    const [feedbacks, setFeedbacks] = useState<Record<number, string>>(() => {
-        const initialFeedbacks: Record<number, string> = {};
+
+    const initialFeedbacks = useMemo(() => {
+        const feedbacks: Record<number, string> = {};
         (exam.questions || []).forEach(question => {
             const userAnswer = userAnswers[question.id];
-            if (userAnswer && userAnswer.feedback) {
-                initialFeedbacks[question.id] = userAnswer.feedback;
+            if (userAnswer?.feedback) {
+                feedbacks[question.id] = userAnswer.feedback;
             }
         });
-        return initialFeedbacks;
-    });
+        return feedbacks;
+    }, [exam.questions, userAnswers]);
 
-    const handleSubmit = async () => {
+    const [feedbacks, setFeedbacks] = useState<Record<number, string>>(initialFeedbacks);
+
+    const handleSubmit = useCallback(() => {
         setShowConfirmModal(true);
-    };
+    }, []);
 
-    const handleConfirmSubmit = async () => {
+    const handleConfirmSubmit = useCallback(() => {
         setIsSubmitting(true);
         setShowConfirmModal(false);
 
@@ -80,18 +89,18 @@ const useExamStudentReview = (
             console.error('Erreur lors de la sauvegarde:', error);
             setIsSubmitting(false);
         }
-    };
+    }, [getScoresForSave, feedbacks, exam.id, student.id, group?.id, teacherNotes]);
 
-    const handleCancelSubmit = () => {
+    const handleCancelSubmit = useCallback(() => {
         setShowConfirmModal(false);
-    };
+    }, []);
 
-    const handleFeedbackChange = (questionId: number, feedback: string) => {
+    const handleFeedbackChange = useCallback((questionId: number, feedback: string) => {
         setFeedbacks(prev => ({
             ...prev,
             [questionId]: feedback
         }));
-    };
+    }, []);
 
     return {
         assignmentStatus,
