@@ -1,6 +1,7 @@
 import GuestLayout from '@/Components/layout/GuestLayout';
 import { trans } from '@/utils';
-import { Button, Checkbox, Input, Logo } from '@/Components';
+import { Button, Logo } from '@/Components';
+import { Checkbox, Input } from '@examena/ui';
 import { useLogin } from '@/hooks/shared';
 
 interface LoginProps {
@@ -29,7 +30,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                     </div>
 
                     {status && (
-                        <div className="mb-4 font-medium text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg p-3">
+                        <div className="mb-4 font-medium text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg p-3" data-e2e="status-message">
                             {status}
                         </div>
                     )}
@@ -48,6 +49,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                             autoComplete="username"
                             autoFocus
                             error={errors.email}
+                            data-e2e="email-input"
                         />
 
                         <Input
@@ -62,6 +64,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                             required
                             autoComplete="current-password"
                             error={errors.password}
+                            data-e2e="password-input"
                         />
 
                         <Checkbox
@@ -69,6 +72,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                             label={trans('auth_pages.login.remember_me')}
                             checked={data.remember}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('remember', e.target.checked)}
+                            data-e2e="remember-checkbox"
                         />
 
 
@@ -79,7 +83,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                                 className="w-full"
                                 disabled={processing}
                                 loading={processing}
-
+                                data-e2e="login-submit"
                             >
                                 {processing ? trans('auth_pages.login.submitting') : trans('auth_pages.login.submit_button')}
                             </Button>
@@ -88,7 +92,8 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                         <div className="flex items-center justify-between">
                             {canResetPassword && (
                                 <span
-                                    className="text-sm text-gray-500 "
+                                    className="text-sm text-gray-500"
+                                    data-e2e="forgot-password-link"
                                 >
                                     {trans('auth_pages.login.forgot_password')}
                                 </span>

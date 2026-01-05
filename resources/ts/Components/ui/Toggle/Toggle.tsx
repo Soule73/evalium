@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { trans } from '@/utils';
 
 interface ToggleProps {
     checked?: boolean;
@@ -12,6 +11,8 @@ interface ToggleProps {
     activeLabel?: string;
     inactiveLabel?: string;
     className?: string;
+    name?: string;
+    id?: string;
 }
 
 const sizeClasses = {
@@ -37,42 +38,46 @@ const sizeClasses = {
 
 const colorClasses = {
     blue: {
-        active: 'bg-blue-600',
-        inactive: 'bg-gray-200',
-        focus: 'focus:ring-blue-500',
-        labelActive: 'text-blue-700',
-        labelInactive: 'text-gray-500',
+        active: 'bg-blue-600 dark:bg-[--color-dark-primary]',
+        inactive: 'bg-gray-200 dark:bg-[--color-dark-border]',
+        focus: 'focus:ring-blue-500 dark:focus:ring-[--color-dark-primary]',
+        labelActive: 'text-blue-700 dark:text-[--color-dark-primary]',
+        labelInactive: 'text-gray-500 dark:text-[--color-dark-text-muted]',
     },
     green: {
-        active: 'bg-green-600',
-        inactive: 'bg-gray-200',
-        focus: 'focus:ring-green-500',
-        labelActive: 'text-green-700',
-        labelInactive: 'text-gray-500',
+        active: 'bg-green-600 dark:bg-[--color-dark-success]',
+        inactive: 'bg-gray-200 dark:bg-[--color-dark-border]',
+        focus: 'focus:ring-green-500 dark:focus:ring-[--color-dark-success]',
+        labelActive: 'text-green-700 dark:text-[--color-dark-success]',
+        labelInactive: 'text-gray-500 dark:text-[--color-dark-text-muted]',
     },
     purple: {
         active: 'bg-purple-600',
-        inactive: 'bg-gray-200',
+        inactive: 'bg-gray-200 dark:bg-[--color-dark-border]',
         focus: 'focus:ring-purple-500',
         labelActive: 'text-purple-700',
-        labelInactive: 'text-gray-500',
+        labelInactive: 'text-gray-500 dark:text-[--color-dark-text-muted]',
     },
     red: {
-        active: 'bg-red-600',
-        inactive: 'bg-gray-200',
-        focus: 'focus:ring-red-500',
-        labelActive: 'text-red-700',
-        labelInactive: 'text-gray-500',
+        active: 'bg-red-600 dark:bg-[--color-dark-danger]',
+        inactive: 'bg-gray-200 dark:bg-[--color-dark-border]',
+        focus: 'focus:ring-red-500 dark:focus:ring-[--color-dark-danger]',
+        labelActive: 'text-red-700 dark:text-[--color-dark-danger]',
+        labelInactive: 'text-gray-500 dark:text-[--color-dark-text-muted]',
     },
     gray: {
-        active: 'bg-gray-600',
-        inactive: 'bg-gray-200',
-        focus: 'focus:ring-gray-500',
-        labelActive: 'text-gray-700',
-        labelInactive: 'text-gray-500',
+        active: 'bg-gray-600 dark:bg-[--color-dark-secondary]',
+        inactive: 'bg-gray-200 dark:bg-[--color-dark-border]',
+        focus: 'focus:ring-gray-500 dark:focus:ring-[--color-dark-secondary]',
+        labelActive: 'text-gray-700 dark:text-[--color-dark-text]',
+        labelInactive: 'text-gray-500 dark:text-[--color-dark-text-muted]',
     },
 };
 
+/**
+ * Toggle switch component with various sizes and colors
+ * Implements proper accessibility with ARIA switch role
+ */
 export default function Toggle({
     checked = false,
     onChange,
@@ -81,14 +86,14 @@ export default function Toggle({
     color = 'blue',
     label,
     showLabel = false,
-    activeLabel,
-    inactiveLabel,
+    activeLabel = 'Active',
+    inactiveLabel = 'Inactive',
     className = '',
+    name,
+    id,
 }: ToggleProps) {
-    const defaultActiveLabel = trans('components.toggle.active');
-    const defaultInactiveLabel = trans('components.toggle.inactive');
-
     const [isChecked, setIsChecked] = useState(checked);
+    const generatedId = id || `toggle-${Math.random().toString(36).substr(2, 9)}`;
 
     useEffect(() => {
         setIsChecked(checked);
@@ -108,15 +113,20 @@ export default function Toggle({
     return (
         <div className={`flex items-center gap-2 ${className}`}>
             {label && (
-                <span className="text-sm font-medium text-gray-700 mr-2">
+                <label
+                    htmlFor={generatedId}
+                    className="text-sm font-medium text-gray-700 dark:text-[--color-dark-text] mr-2"
+                >
                     {label}
-                </span>
+                </label>
             )}
 
             <button
                 type="button"
                 role="switch"
+                id={generatedId}
                 aria-checked={isChecked}
+                aria-label={label || (isChecked ? activeLabel : inactiveLabel)}
                 onClick={handleToggle}
                 disabled={disabled}
                 className={`
@@ -126,7 +136,7 @@ export default function Toggle({
                     ${colorClass.focus}
                     ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                 `}
-                title={isChecked ? (activeLabel || defaultActiveLabel) : (inactiveLabel || defaultInactiveLabel)}
+                title={isChecked ? activeLabel : inactiveLabel}
             >
                 <span
                     className={`
@@ -137,14 +147,23 @@ export default function Toggle({
                 />
             </button>
 
+            {name && (
+                <input
+                    type="hidden"
+                    name={name}
+                    value={isChecked ? '1' : '0'}
+                />
+            )}
+
             {showLabel && (
                 <span
                     className={`
                         text-xs font-medium 
                         ${isChecked ? colorClass.labelActive : colorClass.labelInactive}
                     `}
+                    aria-live="polite"
                 >
-                    {isChecked ? (activeLabel || defaultActiveLabel) : (inactiveLabel || defaultInactiveLabel)}
+                    {isChecked ? activeLabel : inactiveLabel}
                 </span>
             )}
         </div>

@@ -1,7 +1,8 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { trans } from '@/utils';
-import { Button, Input, Section, Toggle } from '@/Components';
+import { Button, Section } from '@/Components';
+import { Input, Toggle } from '@examena/ui';
 import { useLevelForm } from '@/hooks';
 import { Level } from '@/types';
 

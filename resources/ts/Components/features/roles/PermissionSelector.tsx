@@ -1,4 +1,4 @@
-import { Checkbox } from '@/Components/forms';
+import { Checkbox } from '@examena/ui';
 import { Button } from '@examena/ui';
 import { GroupedPermissions } from '@/types/role';
 import { trans } from '@/utils';

@@ -1,0 +1,63 @@
+import { Meta, Canvas, Controls } from '@storybook/blocks';
+import * as ToggleStories from './Toggle.stories.tsx';
+
+<Meta of={ToggleStories} />
+
+# Toggle
+
+A switch/toggle component for on/off states with multiple sizes, colors, and accessibility features.
+
+## Features
+
+- ✅ Multiple sizes (sm, md, lg)
+- ✅ Multiple colors (blue, green, purple, red, gray)
+- ✅ Optional label
+- ✅ Status label display
+- ✅ Disabled state
+- ✅ Dark mode support
+- ✅ Full accessibility with ARIA switch role
+- ✅ Smooth animations
+
+## Basic Usage
+
+<Canvas of={ToggleStories.Default} />
+
+## With Label
+
+<Canvas of={ToggleStories.WithLabel} />
+
+## With Status Label
+
+<Canvas of={ToggleStories.WithStatusLabel} />
+
+## States
+
+<Canvas of={ToggleStories.Checked} />
+<Canvas of={ToggleStories.Disabled} />
+<Canvas of={ToggleStories.DisabledChecked} />
+
+## Sizes
+
+<Canvas of={ToggleStories.Sizes} />
+
+## Colors
+
+<Canvas of={ToggleStories.Colors} />
+
+## Interactive Example
+
+<Canvas of={ToggleStories.Interactive} />
+
+## Accessibility
+
+- Uses proper `role="switch"` for screen readers
+- `aria-checked` attribute reflects current state
+- `aria-label` for screen reader context
+- Label association with `htmlFor` and `id`
+- Keyboard support (Space/Enter to toggle)
+- Focus indicators
+- Title attribute for hover context
+
+## Props
+
+<Controls />

@@ -7,7 +7,8 @@ import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/16/solid';
 import { trans } from '@/utils';
-import { ConfirmationModal, Section, Button, TextEntry, Toggle } from '@/Components';
+import { ConfirmationModal, Section, Button, TextEntry } from '@/Components';
+import { Toggle } from '@examena/ui';
 import { BreadcrumbItem } from '@/Components/layout/Breadcrumb';
 
 

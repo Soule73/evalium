@@ -1,6 +1,6 @@
 import { route } from 'ziggy-js';
-import { BreadcrumbItem } from '@/Components/Breadcrumb';
 import { trans } from './translations';
+import { BreadcrumbItem } from '@/Components/layout/Breadcrumb';
 
 // Breadcrumb tableau de board
 const dashboardBreadcrumb = (): BreadcrumbItem => ({

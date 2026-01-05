@@ -10,7 +10,8 @@ import { User, PageProps, Group } from '@/types';
 import { breadcrumbs } from '@/utils';
 import { hasPermission } from '@/utils';
 import { trans } from '@/utils';
-import { Toggle, Button, StatCard, Section, DataTable, ConfirmationModal } from '@/Components';
+import { Button, StatCard, Section, DataTable, ConfirmationModal } from '@/Components';
+import { Toggle } from '@examena/ui';
 import { useConfirmationModal } from '@/hooks';
 
 

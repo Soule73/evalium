@@ -3,7 +3,7 @@ import PermissionSelector from './PermissionSelector';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { GroupedPermissions, RoleFormData } from '@/types/role';
 import { trans } from '@/utils';
-import { Input } from '@/Components/forms';
+import { Input } from '@examena/ui';
 import { Badge, Button } from '@examena/ui';
 
 interface Props {

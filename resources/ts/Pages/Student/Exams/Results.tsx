@@ -5,7 +5,7 @@ import { useExamResults, useExamScoring } from '@/hooks';
 import { breadcrumbs } from '@/utils';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
-import { Badge, Button, ExamInfoSection, QuestionRenderer, Section } from '@/Components';
+import { AlertEntry, Badge, Button, ExamInfoSection, QuestionRenderer, Section } from '@/Components';
 import { trans } from '@/utils';
 
 interface Props {
@@ -83,12 +83,15 @@ const ExamResults: React.FC<Props> = ({ exam, assignment, userAnswers, creator, 
 
             <Section title={translations.answersDetail}>
                 {assignment.teacher_notes && (
-                    <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                        <h3 className="text-lg font-medium text-gray-800 mb-2">
-                            {translations.teacherComments}
-                        </h3>
-                        <p className="text-gray-700 whitespace-pre-wrap">{assignment.teacher_notes}</p>
-                    </div>
+                    // <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    //     <h3 className="text-lg font-medium text-gray-800 mb-2">
+                    //         {translations.teacherComments}
+                    //     </h3>
+                    //     <p className="text-gray-700 whitespace-pre-wrap">{assignment.teacher_notes}</p>
+                    // </div>
+                    <AlertEntry title={translations.teacherComments} type="info" className="mb-6">
+                        <p className="text-sm">{assignment.teacher_notes}</p>
+                    </AlertEntry>
                 )}
                 <QuestionRenderer
                     questions={exam.questions || []}

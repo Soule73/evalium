@@ -13,7 +13,8 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { QuestionFormData, ChoiceFormData } from '@/types';
 import { trans } from '@/utils';
-import { Input, MarkdownEditor, Checkbox, ChoiceEditor } from '@/Components/forms';
+import { MarkdownEditor, ChoiceEditor } from '@/Components/forms';
+import { Checkbox, Input } from '@/Components/ui';
 
 interface SortableQuestionItemProps {
     question: QuestionFormData;

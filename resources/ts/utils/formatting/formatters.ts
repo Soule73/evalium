@@ -1,5 +1,5 @@
 
-import { BadgeType } from '@/Components/ui/Badge';
+import { BadgeType } from '@/Components/ui/Badge/Badge';
 import { trans } from '../helpers/translations';
 
 

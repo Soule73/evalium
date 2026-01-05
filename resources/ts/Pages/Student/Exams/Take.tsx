@@ -54,6 +54,9 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
         confirmSubmitTitle: trans('student_pages.take.confirm_submit_title'),
         confirmSubmitMessage: trans('student_pages.take.confirm_submit_message'),
         confirmSubmitCheck: trans('student_pages.take.confirm_submit_check'),
+        modalConfirmText: trans('components.confirmation_modal.confirm'),
+        modaltCancelText: trans('components.confirmation_modal.cancel')
+
     }), [exam.title]);
 
     const {
@@ -179,6 +182,8 @@ export default function Take({ exam, assignment, questions = [], userAnswers = [
                 onClose={() => setShowConfirmModal(false)}
                 onConfirm={handleSubmit}
                 loading={isSubmitting || processing}
+                confirmText={translations.modalConfirmText}
+                cancelText={translations.modaltCancelText}
             >
                 <p className="text-gray-600 mb-6 text-center ">
                     {translations.confirmSubmitCheck}

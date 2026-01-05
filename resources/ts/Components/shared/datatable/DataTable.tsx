@@ -4,7 +4,7 @@ import { DataTablePagination } from './DataTablePagination';
 import { EmptyState } from '../EmptyState';
 import { BulkActions } from './BulkActions';
 import { trans } from '@/utils';
-import { Checkbox } from '../../forms';
+import { Checkbox } from '@examena/ui';
 import { useDataTable } from '@/hooks';
 
 export function DataTable<T extends { id: number | string }>({

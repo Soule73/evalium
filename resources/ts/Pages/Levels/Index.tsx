@@ -2,7 +2,8 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { trans } from '@/utils';
-import { Badge, Button, ConfirmationModal, DataTable, Section, Toggle } from '@/Components';
+import { Badge, Button, ConfirmationModal, DataTable, Section } from '@/Components';
+import { Toggle } from '@examena/ui';
 import { useListLevels } from '@/hooks';
 import { Level } from '@/types';
 

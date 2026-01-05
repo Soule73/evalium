@@ -2,7 +2,8 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Group } from '@/types';
 import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
-import { Button, Checkbox, Input, LevelSelect, Section } from '@/Components';
+import { Button, LevelSelect, Section } from '@/Components';
+import { Checkbox, Input } from '@examena/ui';
 import { useGroupForm } from '@/hooks';
 
 interface Props {

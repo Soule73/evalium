@@ -2,7 +2,8 @@ import { useForm } from '@inertiajs/react';
 import { User } from '@/types';
 import { getRoleLabel } from '@/utils';
 import { trans } from '@/utils';
-import { Button, Input, Modal, Select } from '@/Components';
+import { Button, Modal, Select } from '@/Components';
+import { Input } from '@examena/ui';
 
 interface Props {
     user: User;
@@ -46,6 +47,10 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
         });
     };
 
+    const searchPlaceholder = trans('components.select.search_placeholder');
+    const noOptionFound = trans('components.select.no_option_found');
+
+
     return (
         <Modal isOpen={isOpen} size='2xl' onClose={onClose} isCloseableInside={false}>
             <div className="p-6 md:min-w-lg lg:min-w-xl w-full ">
@@ -81,6 +86,8 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                     {roles && <div>
                         <Select
                             label={trans('admin_pages.users.role')}
+                            noOptionFound={noOptionFound}
+                            searchPlaceholder={searchPlaceholder}
                             options={roles.map(role => ({
                                 value: role,
                                 label: getRoleLabel(role)

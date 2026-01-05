@@ -1,7 +1,8 @@
 import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { getRoleLabel, trans } from '@/utils';
-import { Button, Input, Modal, Select } from '@/Components';
+import { Button, Modal, Select } from '@/Components';
+import { Input } from '@examena/ui';
 import { Group } from '@/types';
 
 interface Props {
@@ -46,6 +47,10 @@ export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
     // Filtrer les groupes actifs uniquement
     const activeGroups = groups.filter(group => group.is_active);
 
+    const searchPlaceholder = trans('components.select.search_placeholder');
+    const noOptionFound = trans('components.select.no_option_found');
+
+
     return (
         <Modal isOpen={isOpen} size='2xl' onClose={onClose} isCloseableInside={false}>
             <div className="p-6">
@@ -80,7 +85,10 @@ export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
                     />
 
                     <Select
+
                         label={trans('admin_pages.users.role')}
+                        noOptionFound={noOptionFound}
+                        searchPlaceholder={searchPlaceholder}
                         options={roles.map(role => ({
                             value: role,
                             label: getRoleLabel(role)
@@ -95,6 +103,8 @@ export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
                     {data.role === 'student' && (
                         <Select
                             label={trans('admin_pages.users.group')}
+                            noOptionFound={noOptionFound}
+                            searchPlaceholder={searchPlaceholder}
                             options={activeGroups.map(group => ({
                                 value: group.id,
                                 label: `${group.display_name} (${group.academic_year})`

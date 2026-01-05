@@ -14,7 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import { trans } from '@/utils';
-import { LogoExamena } from '@/Components';
+import LogoExamena from '@/Components/shared/LogoExamena';
 
 const Welcome = () => {
     const { auth } = usePage<PageProps>().props;

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Input, Select } from '@/Components';
+import { Select } from '@/Components';
+import { Input } from '@examena/ui';
 import { FunnelIcon } from '@heroicons/react/24/outline';
 import { FilterConfig } from '@/types/datatable';
 
@@ -58,7 +59,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = ({
                                 value={values[filter.key] || filter.defaultValue || ''}
                                 onChange={(value) => onFilterChange(filter.key, String(value))}
                                 placeholder={filter.label}
-                                className="min-w-[150px] text-sm"
+                                className="min-w-37.5 text-sm"
                                 searchable={filter.options.length > 5}
                             />
                         ) : (

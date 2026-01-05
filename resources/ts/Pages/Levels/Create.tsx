@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Button, Input, Section, Textarea, Toggle } from '@/Components';
+import { Button, Section, Textarea } from '@/Components';
+import { Input, Toggle } from '@examena/ui';
 import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
 import { useLevelForm } from '@/hooks';

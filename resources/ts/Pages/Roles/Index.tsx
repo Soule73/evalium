@@ -4,7 +4,7 @@ import { DataTableConfig, PaginationType } from '@/types/datatable';
 import { route } from 'ziggy-js';
 import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { breadcrumbs, getRoleLabel } from '@/utils';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { hasPermission } from '@/utils';
 import { PageProps, Role } from '@/types';
 import { trans } from '@/utils';
@@ -19,7 +19,7 @@ interface Props {
     };
 }
 
-export default function RoleIndex({ roles }: Props) {
+export default function RoleIndex({ roles, filters }: Props) {
     const { auth } = usePage<PageProps>().props;
 
     const canCreateRoles = hasPermission(auth.permissions, 'create roles');
@@ -30,6 +30,12 @@ export default function RoleIndex({ roles }: Props) {
         isOpen: false,
         roleId: null,
         roleName: ''
+    });
+
+    const previousFilters = useRef<{ search: string; per_page: number; page: number }>({
+        search: filters?.search || '',
+        per_page: filters?.per_page || 15,
+        page: roles.current_page || 1,
     });
 
     const handleCreate = () => {
@@ -157,14 +163,25 @@ export default function RoleIndex({ roles }: Props) {
                     config={dataTableConfig}
                     data={roles}
                     onStateChange={(state) => {
-                        router.get(route('roles.index'),
-                            {
-                                search: state.search,
-                                per_page: state.perPage,
-                                page: state.page
-                            },
-                            { preserveState: true, preserveScroll: true }
-                        );
+                        const newFilters = {
+                            search: state.search || '',
+                            per_page: state.perPage,
+                            page: state.page
+                        };
+
+                        if (
+                            newFilters.search !== previousFilters.current.search ||
+                            newFilters.per_page !== previousFilters.current.per_page ||
+                            newFilters.page !== previousFilters.current.page
+                        ) {
+                            previousFilters.current = newFilters;
+                            
+                            router.get(route('roles.index'), newFilters, {
+                                preserveState: true,
+                                preserveScroll: true,
+                                only: ['roles']
+                            });
+                        }
                     }}
                 />
             </Section>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { trans } from '@/utils';
-import { Checkbox, Input, MarkdownEditor } from '../forms';
+import { Checkbox, Input } from '@examena/ui';
+import { MarkdownEditor } from '../forms';
 
 interface ExamGeneralConfigProps {
     data: {
