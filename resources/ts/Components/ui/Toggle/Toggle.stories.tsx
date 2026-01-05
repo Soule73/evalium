@@ -8,7 +8,6 @@ const meta: Meta<typeof Toggle> = {
     parameters: {
         layout: 'centered',
     },
-    tags: ['autodocs'],
     argTypes: {
         size: {
             control: 'select',

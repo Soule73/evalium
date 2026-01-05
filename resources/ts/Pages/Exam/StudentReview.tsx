@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Exam, ExamAssignment, Answer, User, Question, PageProps, Group } from '@/types';
 import { requiresManualGrading, getCorrectionStatus } from '@/utils';
@@ -41,7 +41,7 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
         handleCancelSubmit
     } = useExamStudentReview({ exam, group, assignment, userAnswers, student });
 
-    const translations = {
+    const translations = useMemo(() => ({
         title: trans('exam_pages.student_review.title', { student: student.name, exam: exam.title }),
         correctionTitle: trans('exam_pages.student_review.correction_title', { student: student.name }),
         correctionMode: trans('exam_pages.student_review.correction_mode'),
@@ -66,7 +66,7 @@ const ExamStudentReview: React.FC<Props> = ({ exam, student, assignment, userAns
         manualGradingRequired: trans('exam_pages.student_review.manual_grading_required'),
         questionCommentLabel: trans('exam_pages.student_review.question_comment_label'),
         questionCommentPlaceholder: trans('exam_pages.student_review.question_comment_placeholder'),
-    };
+    }), [exam.title, student.name]);
 
     const renderScoreInput = (question: Question) => {
         const questionScore = scores[question.id] || 0;

@@ -22,6 +22,7 @@ interface SelectProps {
     searchable?: boolean;
     className?: string;
     name?: string;
+    required?: boolean;
 }
 
 const Select = forwardRef<HTMLDivElement, SelectProps>(
@@ -39,6 +40,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
         disabled = false,
         searchable = true,
         className = '',
+        required = false,
         name
     }, ref) => {
 
@@ -173,7 +175,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
 
                 {label && (
                     <label className="block text-sm font-medium text-gray-700 dark:text-[--color-dark-text] mb-1">
-                        {label}
+                        {label} {required && <span className="text-red-500 ml-1">*</span>}
                     </label>
                 )}
 

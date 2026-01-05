@@ -1,8 +1,9 @@
 import { forwardRef, useImperativeHandle } from 'react';
-import { useMarkdownEditor } from '@/hooks';
 import 'easymde/dist/easymde.min.css';
 import 'katex/dist/katex.min.css';
-import { MarkdownEditorHandle } from '@/hooks/forms/useMarkdownEditor';
+import { MarkdownEditorHandle, useMarkdownEditor } from './useMarkdownEditor';
+
+export type { MarkdownEditorHandle } from './useMarkdownEditor';
 
 interface MarkdownEditorProps {
     value?: string;
@@ -89,7 +90,9 @@ export const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorPro
     });
 
     // Exposer les méthodes via ref
-    useImperativeHandle(ref, () => editorMethods); return (
+    useImperativeHandle(ref, () => editorMethods);
+
+    return (
         <div className={`markdown-editor-field ${className}`}>
             {label && (
                 <label

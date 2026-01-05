@@ -14,39 +14,7 @@ interface MarkdownRendererProps {
 
 /**
  * Renders Markdown content with custom styling for various elements using ReactMarkdown and remark-gfm.
- * Now supports mathematical formulas with KaTeX and syntax highlighting with Prism.
- *
- * @component
- * @param {MarkdownRendererProps} props - The props for the MarkdownRenderer component.
- * @param {React.ReactNode} props.children - The Markdown content to render.
- * @param {string} [props.className] - Additional CSS classes to apply to the root container.
- *
- * @remarks
- * This component customizes the rendering of Markdown elements such as headings, lists, links, code blocks,
- * tables, blockquotes, images, and more, applying Tailwind CSS classes for consistent styling.
- * It uses the `remark-gfm` plugin to support GitHub Flavored Markdown features.
- * 
- * Mathematical formulas are supported using KaTeX:
- * - Inline formulas: $E = mc^2$
- * - Display formulas: $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$
- * 
- * Code syntax highlighting is provided by Prism:
- * - Supports many languages: ```javascript, ```python, ```php, etc.
- *
- * @example
- * ```tsx
- * <MarkdownRenderer>
- *   {`# Hello World
- * This is **Markdown** with math: $x^2 + y^2 = z^2$
- * 
- * \`\`\`javascript
- * console.log('Hello, World!');
- * \`\`\`
- * 
- * $$\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}$$
- * `}
- * </MarkdownRenderer>
- * ```
+ * Supports mathematical formulas with KaTeX and syntax highlighting with Prism.
  */
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     children,
@@ -122,14 +90,12 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                         </h6>
                     ),
 
-                    // Paragraphes
                     p: ({ children }) => (
                         <p className="text-gray-700 mb-4 leading-relaxed last:mb-0">
                             {children}
                         </p>
                     ),
 
-                    // Listes
                     ul: ({ children }) => (
                         <ul className="list-disc list-inside text-gray-700 mb-4 space-y-1 ml-4">
                             {children}
@@ -146,7 +112,6 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                         </li>
                     ),
 
-                    // Liens
                     a: ({ href, children }) => (
                         <a
                             href={href}
@@ -158,7 +123,6 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                         </a>
                     ),
 
-                    // Code
                     code: ({ className, children }) => {
                         const isInline = !className || !className.includes('language-');
                         if (isInline) {
@@ -168,7 +132,6 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                                 </code>
                             );
                         }
-                        // Prism gère automatiquement la coloration syntaxique via rehype-prism-plus
                         return (
                             <code className={className}>
                                 {children}
@@ -176,21 +139,18 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                         );
                     },
 
-                    // Blocs de code
                     pre: ({ children }) => (
                         <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-sm font-mono overflow-x-auto mb-4 border relative">
                             {children}
                         </pre>
                     ),
 
-                    // Citations
                     blockquote: ({ children }) => (
                         <blockquote className="border-l-4 border-blue-500 pl-4 py-2 mb-4 bg-blue-50 text-gray-700 italic">
                             {children}
                         </blockquote>
                     ),
 
-                    // Tableaux
                     table: ({ children }) => (
                         <div className="overflow-x-auto mb-4">
                             <table className="min-w-full border border-gray-200 rounded-lg">
@@ -224,12 +184,10 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                         </td>
                     ),
 
-                    // Règles horizontales
                     hr: () => (
                         <hr className="my-6 border-gray-300" />
                     ),
 
-                    // Texte en gras et italique
                     strong: ({ children }) => (
                         <strong className="font-semibold text-gray-900">
                             {children}
@@ -241,7 +199,6 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                         </em>
                     ),
 
-                    // Images
                     img: ({ src, alt }) => (
                         <div className="mb-4">
                             <img
