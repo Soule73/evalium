@@ -12,6 +12,23 @@ return [
         'placeholder' => 'Select an option',
         'search_placeholder' => 'Search...',
         'no_option_found' => 'No option found',
+        'select_all' => 'Select All',
+        'select_level' => 'Select Level',
+        'level_placeholder' => 'Select a level',
+    ],
+
+    'choice_editor' => [
+        'placeholders' => 'Enter your answer...',
+        'simple' => 'Simple',
+        'preview' => 'Preview',
+        'markdown' => 'Markdown',
+        'hide' => 'Hide',
+        'preview_label' => 'Preview:',
+        'no_content' => 'No content',
+        'switch_simple' => 'Switch to simple editor',
+        'switch_markdown' => 'Switch to Markdown editor',
+        'hide_preview' => 'Hide preview',
+        'show_preview' => 'Show preview',
     ],
 
     // Toast / FlashToastHandler

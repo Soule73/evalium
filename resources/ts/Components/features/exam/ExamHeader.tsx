@@ -3,7 +3,7 @@ import { formatDuration } from '@/utils';
 import { ClockIcon, QuestionMarkCircleIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { formatDate } from '@/utils';
 import { trans } from '@/utils';
-import { MarkdownRenderer } from '@/Components/forms';
+import { MarkdownRenderer } from '@examena/ui';
 
 interface ExamHeaderProps {
     exam: Exam;

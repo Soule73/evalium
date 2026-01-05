@@ -7,7 +7,7 @@ import { DataTableConfig, PaginationType } from '@/types/datatable';
 import type { FilterConfig } from '@/types/datatable';
 import { hasPermission } from '@/utils';
 import { trans } from '@/utils';
-import { MarkdownRenderer } from '@/Components/forms';
+import { MarkdownRenderer } from '@examena/ui';
 import { Toggle } from '@examena/ui';
 import { DataTable } from '@/Components/shared';
 import { Button } from '@examena/ui';

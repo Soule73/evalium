@@ -7,7 +7,7 @@ import {
     CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import { formatDate } from '@/utils';
-import { MarkdownRenderer } from '../forms';
+import { MarkdownRenderer } from '@examena/ui';
 import { DeletedChoice, DeletedQuestion } from '@/hooks/features/exam/useDeleteHistory';
 import { trans } from '@/utils';
 import { Button } from '../ui';

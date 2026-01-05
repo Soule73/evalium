@@ -1,6 +1,6 @@
 import { Exam } from '@/types';
 import { trans } from '@/utils';
-import { Button, MarkdownRenderer, Section } from '@/Components';
+import { Button, MarkdownRenderer, Section } from '@examena/ui';
 
 interface ExamAssignInfoSectionProps {
     exam: Exam;

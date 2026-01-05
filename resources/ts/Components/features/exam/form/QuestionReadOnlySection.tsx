@@ -1,7 +1,7 @@
 import { CheckCircleIcon, XMarkIcon } from "@heroicons/react/16/solid";
 import { Question } from "@/types";
 import { trans } from '@/utils';
-import { MarkdownRenderer } from "@/Components/forms";
+import { MarkdownRenderer } from "@examena/ui";
 import { getTypeColor, getTypeLabel } from '@/utils/exam/components';
 
 interface QuestionReadOnlySection {

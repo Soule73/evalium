@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
     PlusIcon,
     TrashIcon,
@@ -13,7 +13,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { QuestionFormData, ChoiceFormData } from '@/types';
 import { trans } from '@/utils';
-import { MarkdownEditor, ChoiceEditor } from '@/Components/forms';
+import { MarkdownEditor, ChoiceEditor } from '@examena/ui';
 import { Checkbox, Input } from '@/Components/ui';
 
 interface SortableQuestionItemProps {
@@ -273,6 +273,19 @@ const QuestionMultipleItem: React.FC<QuestionMultipleItemProps> = ({
     error,
     onRemoveChoice
 }) => {
+    const translations = useMemo(() => ({
+        placeholders: trans('components.choice_editor.placeholders'),
+        simple: trans('components.choice_editor.simple'),
+        markdown: trans('components.choice_editor.markdown'),
+        preview: trans('components.choice_editor.preview'),
+        hide: trans('components.choice_editor.hide'),
+        previewLabel: trans('components.choice_editor.preview_label'),
+        noContent: trans('components.choice_editor.no_content'),
+        switchSimple: trans('components.choice_editor.switch_simple'),
+        switchMarkdown: trans('components.choice_editor.switch_markdown'),
+        showPreview: trans('components.choice_editor.show_preview'),
+        hidePreview: trans('components.choice_editor.hide_preview'),
+    }), []);
     return (
         <div
             key={choice.id || `choice-${choiceIndex}`}
@@ -288,7 +301,6 @@ const QuestionMultipleItem: React.FC<QuestionMultipleItemProps> = ({
                 key={`choice-editor-${index}-${choiceIndex}-${choice.id || choiceIndex}`}
                 value={choice.content}
                 onChange={(value) => onUpdateChoice(index, choiceIndex, 'content', value)}
-                placeholder="Saisissez le texte de cette option..."
                 required
                 error={error}
                 className="flex-1"
@@ -296,6 +308,17 @@ const QuestionMultipleItem: React.FC<QuestionMultipleItemProps> = ({
                 showPreview={showPreview || false}
                 onToggleMarkdownMode={onToggleMarkdownMode}
                 onTogglePreview={onTogglePreview}
+                placeholder={translations.placeholders}
+                simpleModeLabel={translations.simple}
+                markdownModeLabel={translations.markdown}
+                previewLabel={translations.preview}
+                hideLabel={translations.hide}
+                previewHeaderLabel={translations.previewLabel}
+                noContentLabel={translations.noContent}
+                switchToSimpleTitle={translations.switchSimple}
+                switchToMarkdownTitle={translations.switchMarkdown}
+                showPreviewTitle={translations.showPreview}
+                hidePreviewTitle={translations.hidePreview}
             />
 
             {showDeleteButton && (
@@ -353,7 +376,6 @@ const QuestionSingleItem: React.FC<QuestionSingleItemProps> = ({
                 key={`choice-editor-${index}-${choiceIndex}-${choice.id || choiceIndex}`}
                 value={choice.content}
                 onChange={(value) => onUpdateChoice(index, choiceIndex, 'content', value)}
-                placeholder="Saisissez le texte de cette option..."
                 required
                 error={error}
                 className="flex-1"
@@ -361,6 +383,17 @@ const QuestionSingleItem: React.FC<QuestionSingleItemProps> = ({
                 showPreview={showPreview || false}
                 onToggleMarkdownMode={onToggleMarkdownMode}
                 onTogglePreview={onTogglePreview}
+                placeholder={trans('components.choice_editor.placeholders')}
+                simpleModeLabel={trans('components.choice_editor.simple')}
+                markdownModeLabel={trans('components.choice_editor.markdown')}
+                previewLabel={trans('components.choice_editor.preview')}
+                hideLabel={trans('components.choice_editor.hide')}
+                previewHeaderLabel={trans('components.choice_editor.preview_label')}
+                noContentLabel={trans('components.choice_editor.no_content')}
+                switchToSimpleTitle={trans('components.choice_editor.switch_simple')}
+                switchToMarkdownTitle={trans('components.choice_editor.switch_markdown')}
+                showPreviewTitle={trans('components.choice_editor.show_preview')}
+                hidePreviewTitle={trans('components.choice_editor.hide_preview')}
             />
 
             {showDeleteButton && (

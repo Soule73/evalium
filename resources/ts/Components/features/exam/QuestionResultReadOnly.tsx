@@ -1,7 +1,7 @@
 import { Choice } from "@/types";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import { trans } from '@/utils';
-import { MarkdownRenderer } from "@/Components/forms";
+import { MarkdownRenderer } from "@examena/ui";
 import {
     getBooleanDisplay,
     getBooleanLabel,
@@ -75,10 +75,10 @@ const ChoiceItem: React.FC<ChoiceItemProps> = ({ choice, index, type, isSelected
                 </span>
                 {statusLabelText && (
                     <span className={`ml-2 text-xs font-medium ${isSelected && !isCorrect
-                            ? 'text-red-600'
-                            : isCorrect
-                                ? 'text-green-600'
-                                : 'text-blue-600'
+                        ? 'text-red-600'
+                        : isCorrect
+                            ? 'text-green-600'
+                            : 'text-blue-600'
                         }`}>
                         {statusLabelText}
                     </span>

@@ -12,6 +12,23 @@ return [
         'placeholder' => 'Sélectionner une option',
         'search_placeholder' => 'Rechercher...',
         'no_option_found' => 'Aucune option trouvée',
+        'select_level' => 'Sélectionner un niveau',
+        'level_placeholder' => 'Sélectionner un niveau académique',
+    ],
+
+    // ChoiceEditor
+    'choice_editor' => [
+        'placeholders' => 'Entrez votre réponse...',
+        'simple' => 'Éditeur simple',
+        'preview' => 'Aperçu',
+        'markdown' => 'Éditeur Markdown',
+        'hide' => 'Masquer',
+        'preview_label' => 'Aperçu :',
+        'no_content' => 'Aucun contenu',
+        'switch_simple' => 'Basculer vers l\'éditeur simple',
+        'switch_markdown' => 'Basculer vers l\'éditeur Markdown',
+        'hide_preview' => 'Masquer l\'aperçu',
+        'show_preview' => 'Afficher l\'aperçu',
     ],
 
     // Toast / FlashToastHandler
