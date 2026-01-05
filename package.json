@@ -3,9 +3,10 @@
     "private": true,
     "type": "module",
     "workspaces": [
-        "resources/ts/tests/e2e",
+        "e2e",
         "resources/ts/Components/ui"
     ],
+    "packageManager": "yarn@1.22.22",
     "scripts": {
         "build": "vite build",
         "dev": "vite",
@@ -16,19 +17,17 @@
         "test:unit:ui": "vitest --ui",
         "test:watch": "vitest --watch",
         "test:coverage": "vitest --coverage",
-        "test:e2e": "playwright test -c resources/ts/tests/e2e/playwright.config.ts",
-        "test:e2e:ui": "playwright test -c resources/ts/tests/e2e/playwright.config.ts --ui",
-        "test:e2e:debug": "playwright test -c resources/ts/tests/e2e/playwright.config.ts --debug",
-        "test:e2e:headed": "playwright test -c resources/ts/tests/e2e/playwright.config.ts --headed",
-        "test:e2e:chrome": "playwright test -c resources/ts/tests/e2e/playwright.config.ts --project=chromium",
-        "test:e2e:auth": "playwright test -c resources/ts/tests/e2e/playwright.config.ts --project=chromium-no-auth",
-        "test:e2e:report": "playwright show-report",
-        "test:e2e:setup": "playwright test -c resources/ts/tests/e2e/playwright.config.ts --project=setup-admin --project=setup-teacher --project=setup-student",
-        "test:e2e:admin": "playwright test -c resources/ts/tests/e2e/playwright.config.ts --project=admin",
-        "test:e2e:teacher": "playwright test -c resources/ts/tests/e2e/playwright.config.ts --project=teacher",
-        "test:e2e:student": "playwright test -c resources/ts/tests/e2e/playwright.config.ts --project=student",
-        "test:all": "npm run test:unit && npm run test:e2e",
-        "playwright:install": "playwright install"
+        "test:e2e": "yarn workspace @examena/e2e-tests test",
+        "test:e2e:ui": "yarn workspace @examena/e2e-tests test:ui",
+        "test:e2e:debug": "yarn workspace @examena/e2e-tests test:debug",
+        "test:e2e:headed": "yarn workspace @examena/e2e-tests test:headed",
+        "test:e2e:chrome": "yarn workspace @examena/e2e-tests test:chrome",
+        "test:e2e:report": "yarn workspace @examena/e2e-tests test:report",
+        "test:e2e:setup": "yarn workspace @examena/e2e-tests test:setup",
+        "test:e2e:admin": "yarn workspace @examena/e2e-tests test:admin",
+        "test:e2e:teacher": "yarn workspace @examena/e2e-tests test:teacher",
+        "test:e2e:student": "yarn workspace @examena/e2e-tests test:student",
+        "test:all": "yarn test:unit && yarn test:e2e"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.1.13",
