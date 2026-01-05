@@ -12,6 +12,7 @@
         "allowJs": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
+        "types": ["vitest/globals", "@testing-library/jest-dom"],
         /* Bundler mode */
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": true,
@@ -26,7 +27,7 @@
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
         /* Path mapping */
-        "ignoreDeprecations": "6.0",
+        // "ignoreDeprecations": "6.0",
         "baseUrl": ".",
         "paths": {
             "@/*": [
@@ -37,6 +38,12 @@
             ],
             "@/Components/*": [
                 "./resources/ts/Components/*"
+            ],
+            "@examena/ui": [
+                "./resources/ts/Components/ui"
+            ],
+            "@examena/ui/*": [
+                "./resources/ts/Components/ui/*"
             ],
             "@/Pages/*": [
                 "./resources/ts/Pages/*"
