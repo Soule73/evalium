@@ -24,7 +24,8 @@ test.describe('Student - Dashboard', () => {
         
         await nav.goto('/users');
         
-        // Should be redirected or show unauthorized
-        await expect(page).not.toHaveURL(/users/);
+        // Should display 403 Forbidden error
+        await expect(page.locator('h1')).toContainText('403');
+        await expect(page.locator('body')).toContainText('Cette action n\'est pas autorisée');
     });
 });

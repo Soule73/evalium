@@ -1,20 +1,20 @@
 import { test as setup, expect } from '@playwright/test';
-import { getTeacherCredentials } from '../Helpers/utils';
+import { getStudentCredentials } from '../Helpers/utils';
 import { LoginPage } from '../Pages/LoginPage';
 
-const authFile = 'playwright/.auth/teacher.json';
+const authFile = '../playwright/.auth/student.json';
 
 /**
- * Setup authentication for teacher user
+ * Setup authentication for student user
  */
-setup('authenticate as teacher', async ({ page }) => {
+setup('authenticate as student', async ({ page }) => {
     const loginPage = new LoginPage(page);
-    const credentials = getTeacherCredentials();
+    const credentials = getStudentCredentials();
     
     // Navigate to login page
     await loginPage.navigate();
     
-    // Login as teacher with credentials from .env
+    // Login as student with credentials from .env
     await loginPage.loginWith(credentials.email, credentials.password, true);
     
     // Wait for successful login and dashboard

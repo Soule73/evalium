@@ -1,64 +1,162 @@
 # E2E Tests for Examena
 
+## Vue d'ensemble
+
+Ce système configure automatiquement l'environnement E2E :
+1. **globalSetup** : Crée la DB de test, exécute les seeders, lance le serveur Laravel
+2. **Tests** : S'exécutent avec la base de données et le serveur prêts
+3. **globalTeardown** : Arrête le serveur, nettoie la base de données
+
 ## Quick Start
 
-### First Time Setup
+### Configuration initiale
 
 ```bash
-# Run the automated setup script
-npm run setup:e2e
+# 1. Installer les dépendances E2E
+cd e2e && yarn install && cd ..
 
-# Or manually:
-# 1. Copy .env.example to .env
-cp resources/ts/tests/e2e/.env.example resources/ts/tests/e2e/.env
+# 2. Créer la variable d'environnement (optionnel)
+echo "DB_E2E_DATABASE=examena_e2e_test" >> .env
 
-# 2. Install E2E workspace dependencies
-cd resources/ts/tests/e2e && yarn install && cd ../../../..
-
-# 3. Setup authentication for all roles
-npm run test:e2e:setup
+# 3. Lancer tous les tests (setup automatique inclus)
+yarn test:e2e
 ```
 
-### Running Tests
+Le `globalSetup` s'exécute automatiquement et :
+- Crée la base de données `examena_e2e_test`
+- Exécute les migrations et seeders
+- Lance le serveur Laravel sur le port 8000
+- Prépare les fichiers d'authentification
+
+### Exécuter les tests
 
 ```bash
-# Run all tests
-npm run test:e2e
+# Tous les tests (avec setup/teardown automatique)
+yarn test:e2e
 
-# Open Playwright UI for interactive testing
-npm run test:e2e:ui
+# Mode UI interactif (⚠️ nécessite setup manuel)
+yarn test:e2e:ui
+# Avant le mode UI, lancez : php artisan e2e:setup
 
-# Run tests for specific roles
-npm run test:e2e:admin
-npm run test:e2e:teacher
-npm run test:e2e:student
+# Tests par rôle
+yarn test:e2e:admin
+yarn test:e2e:teacher
+yarn test:e2e:student
 
-# Debug mode
-npm run test:e2e:debug
+# Debug
+yarn test:e2e:debug
 
-# Generate and view test report
-npm run test:e2e:report
+# Voir le rapport
+yarn test:e2e:report
 ```
 
-## Workspace Configuration
+## Configuration
 
-This E2E testing suite is configured as a **Yarn workspace** to provide environment isolation. For detailed information about the workspace setup, environment variables, and configuration, see:
+### 1. Base de données E2E
 
-📖 **[WORKSPACE.md](WORKSPACE.md)** - Complete workspace and environment setup guide
+Une connexion dédiée `e2e_testing` utilise une base séparée (`examena_e2e_test`) configurée dans [config/database.php](../config/database.php).
 
-Key benefits:
-- ✅ Isolated dependencies (E2E packages don't affect main app)
-- ✅ Environment-based configuration via `.env`
-- ✅ Secure credential management
-- ✅ Easy team collaboration
-- ✅ CI/CD ready
+**Ajoutez dans `.env`** (optionnel, valeur par défaut fournie) :
+```dotenv
+DB_E2E_DATABASE=examena_e2e_test
+```
+
+### 2. Commandes Artisan
+
+**`php artisan e2e:setup`**
+- Supprime et recrée la base `examena_e2e_test`
+- Exécute `migrate:fresh` sur la connexion `e2e_testing`
+- Exécute les seeders (DatabaseSeeder par défaut)
+
+**`php artisan e2e:teardown`**
+- Supprime complètement la base `examena_e2e_test`
+
+### 3. Scripts Playwright
+
+**global-setup.ts**
+- Exécuté UNE FOIS avant tous les tests
+- Lance `php artisan e2e:setup`
+- Démarre le serveur Laravel (port 8000)
+- Crée le dossier `playwright/.auth`
+
+**global-teardown.ts**
+- Exécuté UNE FOIS après tous les tests
+- Arrête le serveur Laravel
+- Lance `php artisan e2e:teardown`
+
+---
+
+## Personnalisation
+
+### Utiliser des seeders spécifiques
+
+Modifiez [E2ESetupCommand.php](../app/Console/Commands/E2ESetupCommand.php) :
+
+```php
+Artisan::call('db:seed', [
+    '--database' => 'e2e_testing',
+    '--class' => 'E2ETestSeeder', // Votre seeder personnalisé
+    '--force' => true,
+]);
+```
+
+### Créer un seeder E2E dédié
+
+```bash
+php artisan make:seeder E2ETestSeeder
+```
+
+```php
+class E2ETestSeeder extends Seeder
+{
+    public function run(): void
+    {
+        // Utilisateurs de test
+        User::factory()->create([
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password123'),
+        ])->assignRole('admin');
+
+        User::factory()->create([
+            'email' => 'teacher@example.com',
+            'password' => Hash::make('password123'),
+        ])->assignRole('teacher');
+
+        User::factory()->create([
+            'email' => 'student@example.com',
+            'password' => Hash::make('password123'),
+        ])->assignRole('student');
+
+        // Groupes, examens, etc.
+        Group::factory(5)->create();
+        Exam::factory(10)->create();
+    }
+}
+```
+
+### Modifier le port du serveur
+
+Le port par défaut pour les tests E2E est **8001** (évite les conflits avec le serveur de développement sur 8000).
+
+Pour utiliser un port différent, définissez la variable `E2E_PORT` :
+
+```bash
+# Dans votre terminal
+E2E_PORT=9000 yarn test:e2e
+
+# Ou créez un fichier .env.e2e
+echo "E2E_PORT=9000" >> .env.e2e
+```
 
 ---
 
 ## Test Structure
 
 ```
-resources/ts/tests/e2e/
+e2e/
+├── global-setup.ts             # Setup global (DB + serveur)
+├── global-teardown.ts          # Nettoyage global
+├── playwright.config.ts        # Configuration Playwright
 ├── setup/                      # Authentication setup files
 │   ├── auth.admin.setup.ts     # Admin authentication
 │   ├── auth.teacher.setup.ts   # Teacher authentication
@@ -75,11 +173,9 @@ resources/ts/tests/e2e/
 │   └── dashboard.spec.ts
 ├── teacher/                    # Teacher role tests
 │   └── dashboard.spec.ts
-├── student/                    # Student role tests
-│   └── dashboard.spec.ts
-└── auth.spec.ts                # Authentication tests (no auth)
+└── student/                    # Student role tests
+    └── dashboard.spec.ts
 ```
-
 ## Test IDs Configuration
 
 All test IDs use `data-e2e` attribute instead of `data-testid`:
@@ -105,15 +201,80 @@ page.getByTestId('email-input') // Uses data-e2e automatically
 - `admin`: Tests for admin role (depends on setup-admin)
 - `teacher`: Tests for teacher role (depends on setup-teacher)
 - `student`: Tests for student role (depends on setup-student)
-- `auth`: Authentication tests (no authentication)
-
-### 3. Optional Projects
-- `admin-firefox`: Admin tests on Firefox
-- `webkit`: Admin tests on Safari
 
 ## Authentication
 
 ### Session Persistence
+
+Authentication state is saved per role:
+- Admin: `playwright/.auth/admin.json`
+- Teacher: `playwright/.auth/teacher.json`
+- Student: `playwright/.auth/student.json`
+
+### Default Credentials
+
+```typescript
+// Admin
+email: 'admin@example.com'
+password: 'password123'
+
+// Teacher
+email: 'teacher@example.com'
+password: 'password123'
+
+// Student
+email: 'student@example.com'
+password: 'password123'
+```
+
+---
+
+## Troubleshooting
+
+### Le serveur ne démarre pas
+- Vérifiez que le port 8000 n'est pas déjà utilisé : `netstat -ano | findstr :8000`
+- Augmentez le délai d'attente dans `global-setup.ts` : `setTimeout(resolve, 5000)`
+
+### La base de données n'est pas créée
+- Vérifiez les credentials MySQL dans `.env`
+- Assurez-vous que l'utilisateur a les droits `CREATE DATABASE`
+- Testez manuellement : `php artisan e2e:setup`
+
+### Les tests échouent en mode headless mais pas en UI
+- Le globalSetup ne s'exécute pas en mode UI
+- Lancez `php artisan e2e:setup` manuellement avant `yarn test:e2e:ui`
+
+### Le serveur reste actif après les tests
+- Vérifiez le fichier `.laravel-server.pid` dans `e2e/`
+- Tuez manuellement : `taskkill /F /IM php.exe` (Windows)
+
+---
+
+## CI/CD Integration
+
+Dans votre workflow GitHub Actions :
+
+```yaml
+- name: Setup MySQL
+  run: |
+    sudo systemctl start mysql
+    mysql -e "CREATE USER 'test'@'localhost' IDENTIFIED BY 'test';"
+    mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'test'@'localhost';"
+
+- name: Run E2E Tests
+  run: yarn test:e2e
+  env:
+    DB_USERNAME: test
+    DB_PASSWORD: test
+    DB_E2E_DATABASE: examena_e2e_test_ci
+
+- name: Upload Playwright Report
+  if: always()
+  uses: actions/upload-artifact@v4
+  with:
+    name: playwright-report
+    path: playwright-report/
+```
 
 Authentication state is saved per role:
 - Admin: `playwright/.auth/admin.json`

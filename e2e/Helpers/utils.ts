@@ -72,7 +72,7 @@ export function getStudentCredentials(): TestCredentials {
  */
 export function getTestConfig(): TestConfig {
     return {
-        baseUrl: process.env.BASE_URL || 'http://localhost:8000',
+        baseUrl: process.env.BASE_URL || 'http://localhost:8001',
         timeout: parseInt(process.env.TEST_TIMEOUT || '30000', 10),
         expectTimeout: parseInt(process.env.EXPECT_TIMEOUT || '10000', 10),
         navigationTimeout: parseInt(process.env.NAVIGATION_TIMEOUT || '15000', 10),
@@ -90,7 +90,7 @@ export function getTestConfig(): TestConfig {
  * Get base URL for the application
  */
 export function getBaseUrl(): string {
-    return process.env.BASE_URL || 'http://localhost:8000';
+    return process.env.BASE_URL || 'http://localhost:8001';
 }
 
 /**

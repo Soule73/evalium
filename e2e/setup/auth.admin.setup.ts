@@ -2,7 +2,7 @@ import { test as setup, expect } from '@playwright/test';
 import { getAdminCredentials } from '../Helpers/utils';
 import { LoginPage } from '../Pages/LoginPage';
 
-const authFile = 'playwright/.auth/admin.json';
+const authFile = '../playwright/.auth/admin.json';
 
 /**
  * Setup authentication for admin user

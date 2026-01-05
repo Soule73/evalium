@@ -1,7 +1,16 @@
 import { defineConfig, devices } from '@playwright/test';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default defineConfig({
+    globalSetup: resolve(__dirname, './global-setup.ts'),
+    globalTeardown: resolve(__dirname, './global-teardown.ts'),
     testDir: './',
+    testMatch: '**/*.{spec,test}.ts',
+    testIgnore: '**/node_modules/**',
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
@@ -17,7 +26,7 @@ export default defineConfig({
         timeout: 10 * 1000,
     },
     use: {
-        baseURL: process.env.BASE_URL || 'http://localhost:8000',
+        baseURL: process.env.BASE_URL || `http://localhost:${process.env.E2E_PORT || '8001'}`,
         testIdAttribute: 'data-e2e',
         trace: 'on',
         screenshot: 'on',
@@ -31,15 +40,15 @@ export default defineConfig({
     projects: [
         {
             name: 'setup-admin',
-            testMatch: '**/auth.admin.setup.ts',
+            testMatch: /.*auth\.admin\.setup\.ts/,
         },
         {
             name: 'setup-teacher',
-            testMatch: '**/auth.teacher.setup.ts',
+            testMatch: /.*auth\.teacher\.setup\.ts/,
         },
         {
             name: 'setup-student',
-            testMatch: '**/auth.student.setup.ts',
+            testMatch: /.*auth\.student\.setup\.ts/,
         },
         {
             name: 'admin',
@@ -96,7 +105,4 @@ export default defineConfig({
     ],
 
     outputDir: '../test-results/',
-
-    globalSetup: './setup/global-setup.ts',
-    globalTeardown: './setup/global-teardown.ts',
 });

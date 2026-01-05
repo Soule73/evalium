@@ -10,7 +10,7 @@
     "test:debug": "playwright test --debug",
     "test:headed": "playwright test --headed",
     "test:chrome": "playwright test --project=chromium",
-    "test:setup": "playwright test --project=setup-admin --project=setup-teacher --project=setup-student",
+    "test:setup": "playwright test --project=setup-*",
     "test:admin": "playwright test --project=admin",
     "test:teacher": "playwright test --project=teacher",
     "test:student": "playwright test --project=student",
