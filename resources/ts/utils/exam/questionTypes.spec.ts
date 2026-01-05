@@ -1,5 +1,5 @@
-import { describe, it, expect } from '@jest/globals';
-import { QUESTION_TYPE_CONFIG, getQuestionTypeIcon } from '@/utils/exam/questionTypes';
+import { describe, it, expect } from 'vitest';
+import { QUESTION_TYPE_CONFIG, getQuestionTypeIcon } from './questionTypes';
 
 describe('questionTypes', () => {
     describe('QUESTION_TYPE_CONFIG', () => {

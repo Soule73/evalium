@@ -1,6 +1,38 @@
 @import 'tailwindcss';
 @import 'easymde/dist/easymde.min.css';
 
+@theme {
+    --color-dark-bg: #0a0a0a;
+    --color-dark-surface: #171717;
+    --color-dark-surface-hover: #262626;
+    --color-dark-border: #404040;
+    --color-dark-text: #fafafa;
+    --color-dark-text-secondary: #a3a3a3;
+    --color-dark-text-muted: #737373;
+    
+    /* Dark mode colors for components */
+    --color-dark-primary: #3b82f6;
+    --color-dark-primary-hover: #2563eb;
+    --color-dark-success: #22c55e;
+    --color-dark-success-hover: #16a34a;
+    --color-dark-warning: #f59e0b;
+    --color-dark-warning-hover: #d97706;
+    --color-dark-danger: #ef4444;
+    --color-dark-danger-hover: #dc2626;
+    --color-dark-secondary: #525252;
+    --color-dark-secondary-hover: #404040;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: dark;
+    }
+}
+
+.dark {
+    color-scheme: dark;
+}
+
 body {
     font-family: 'Inter', sans-serif;
 }

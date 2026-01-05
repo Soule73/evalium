@@ -1,10 +1,11 @@
-import { describe, it, expect } from '@jest/globals';
+
+import { describe, it, expect } from 'vitest';
 import {
     createDefaultQuestion,
     createDefaultChoices,
     createBooleanChoices,
     createChoice
-} from '@/utils/exam/questionFactory';
+} from './questionFactory';
 
 describe('questionFactory', () => {
     describe('createDefaultQuestion', () => {
@@ -94,14 +95,14 @@ describe('questionFactory', () => {
             expect(choices[1].content).toBe('false');
         });
 
-        it('should mark true as correct by default', () => {
+        it('should set true as correct by default', () => {
             const choices = createBooleanChoices();
 
             expect(choices[0].is_correct).toBe(true);
             expect(choices[1].is_correct).toBe(false);
         });
 
-        it('should set correct order indexes', () => {
+        it('should set correct order indices', () => {
             const choices = createBooleanChoices();
 
             expect(choices[0].order_index).toBe(1);
@@ -110,11 +111,11 @@ describe('questionFactory', () => {
     });
 
     describe('createChoice', () => {
-        it('should create a choice with specified order index', () => {
-            const choice = createChoice(5);
+        it('should create a choice with given parameters', () => {
+            const choice = createChoice(3, false);
 
-            expect(choice.order_index).toBe(5);
             expect(choice.content).toBe('');
+            expect(choice.order_index).toBe(3);
             expect(choice.is_correct).toBe(false);
         });
 
@@ -124,16 +125,10 @@ describe('questionFactory', () => {
             expect(choice.is_correct).toBe(true);
         });
 
-        it('should create an incorrect choice by default', () => {
+        it('should default isCorrect to false when not specified', () => {
             const choice = createChoice(2);
 
             expect(choice.is_correct).toBe(false);
-        });
-
-        it('should create choice with empty content', () => {
-            const choice = createChoice(3, false);
-
-            expect(choice.content).toBe('');
         });
     });
 });
