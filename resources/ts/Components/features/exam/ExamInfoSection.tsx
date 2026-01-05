@@ -3,7 +3,7 @@ import { formatDate, formatDuration, getAssignmentBadgeLabel, securityViolationL
 import { Exam, ExamAssignment, User } from '@/types';
 import { formatExamScore } from '@/utils';
 import { trans } from '@/utils';
-import { TextEntry, AlertEntry } from '@/Components/ui';
+import { TextEntry, AlertEntry } from '@examena/ui';
 
 interface ExamInfoSectionProps {
     exam: Exam;

@@ -4,10 +4,10 @@ import { User, PageProps } from '@/types';
 import { hasPermission } from '@/utils';
 import { navRoutes } from '@/utils';
 import { trans } from '@/utils';
-import { LogoExamena } from '../ui';
 import { NavIcon } from './NavIcon';
 import { RoleBadge } from './RoleBadge';
 import { UserAvatar } from './UserAvatar';
+import LogoExamena from '../shared/LogoExamena';
 
 interface SidebarProps {
     currentPath: string;

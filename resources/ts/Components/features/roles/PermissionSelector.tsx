@@ -1,5 +1,5 @@
 import { Checkbox } from '@/Components/forms';
-import { Button } from '@/Components/ui';
+import { Button } from '@examena/ui';
 import { GroupedPermissions } from '@/types/role';
 import { trans } from '@/utils';
 

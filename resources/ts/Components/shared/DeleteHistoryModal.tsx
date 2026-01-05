@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Button } from './Button';
 import {
     TrashIcon,
     ArrowUturnLeftIcon,
@@ -11,6 +10,7 @@ import { formatDate } from '@/utils';
 import { MarkdownRenderer } from '../forms';
 import { DeletedChoice, DeletedQuestion } from '@/hooks/features/exam/useDeleteHistory';
 import { trans } from '@/utils';
+import { Button } from '../ui';
 
 interface DeleteHistoryModalProps {
     isOpen: boolean;

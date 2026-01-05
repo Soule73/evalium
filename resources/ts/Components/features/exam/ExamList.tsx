@@ -9,7 +9,7 @@ import { hasPermission } from '@/utils';
 import { trans } from '@/utils';
 import { MarkdownRenderer, Toggle } from '@/Components/forms';
 import { DataTable } from '@/Components/shared';
-import { Button } from '@/Components/ui';
+import { Button } from '@examena/ui';
 
 interface ExamListProps {
     data: PaginationType<Exam>;

@@ -1,3 +1,4 @@
+import { trans } from "@/utils";
 import { Select } from "../ui";
 
 interface LevelSelectProps {
@@ -27,6 +28,10 @@ export default function LevelSelect({
         }))
     ];
 
+    const searchPlaceholder = trans('components.select.search_placeholder');
+    const noOptionFound = trans('components.select.no_option_found');
+
+
     return (
         <div>
             {label && (
@@ -35,6 +40,8 @@ export default function LevelSelect({
                 </label>
             )}
             <Select
+                noOptionFound={noOptionFound}
+                searchPlaceholder={searchPlaceholder}
                 value={value}
                 onChange={v => onChange({
                     target: { value: v }

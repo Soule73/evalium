@@ -25,7 +25,8 @@ import { useExamFormStore } from '@/stores';
 import { getQuestionTypeLabel } from '@/utils';
 import { useQuestionOptions } from './form/questionOptions';
 import SortableQuestionItem from './form/SortableQuestionItem';
-import { Section, Button, ConfirmationModal, DeleteHistoryModal } from '@/Components/ui';
+import { Section, Button, ConfirmationModal } from '@examena/ui';
+import DeleteHistoryModal from '@/Components/shared/DeleteHistoryModal';
 
 interface QuestionsManagerProps {
     errors?: Record<string, string>;

@@ -1,0 +1,105 @@
+import { Canvas, Meta, Controls } from "@storybook/blocks";
+import * as SelectStories from "./Select.stories.tsx";
+
+<Meta of={SelectStories} />
+
+# Select
+
+A searchable dropdown select component with keyboard navigation support.
+
+## Overview
+
+The Select component provides a user-friendly way to choose from a list of options. It includes built-in search functionality, keyboard navigation, and support for disabled options.
+
+## Usage
+
+```tsx
+import { Select } from "@examena/ui";
+import { useState } from "react";
+
+function MyComponent() {
+    const [value, setValue] = useState("");
+
+    const options = [
+        { value: "1", label: "Option 1" },
+        { value: "2", label: "Option 2" },
+        { value: "3", label: "Option 3" },
+    ];
+
+    return (
+        <Select
+            value={value}
+            onChange={setValue}
+            options={options}
+            placeholder="Select an option"
+        />
+    );
+}
+```
+
+## Features
+
+### Search Functionality
+
+By default, the select includes a search input to filter options. Set `isSearchable={false}` to disable this feature.
+
+### Keyboard Navigation
+
+- `↑` `↓` - Navigate through options
+- `Enter` - Select highlighted option
+- `Escape` - Close dropdown
+- Type to search options
+
+### Disabled Options
+
+Options can be individually disabled using the `disabled` property.
+
+### Validation States
+
+The component supports error states and helper text for form validation.
+
+## Examples
+
+### Default
+
+<Canvas of={SelectStories.Default} />
+
+### With Value
+
+<Canvas of={SelectStories.WithValue} />
+
+### With Error
+
+<Canvas of={SelectStories.WithError} />
+
+### With Helper Text
+
+<Canvas of={SelectStories.WithHelperText} />
+
+### Disabled State
+
+<Canvas of={SelectStories.Disabled} />
+
+### Not Searchable
+
+<Canvas of={SelectStories.NotSearchable} />
+
+### With Disabled Options
+
+<Canvas of={SelectStories.WithDisabledOptions} />
+
+## Props
+
+<Controls of={SelectStories.Default} />
+
+## Best Practices
+
+- Provide clear, descriptive labels for each option
+- Use placeholder text to guide users
+- Show helper text for additional context
+- Display error messages for validation failures
+- Use disabled state for temporarily unavailable options
+- Keep option lists manageable - consider alternative UI for very long lists
+- Enable search for lists with more than 10 options
+- Sort options logically (alphabetically, by frequency, etc.)
+- Consider using optgroups for categorized options

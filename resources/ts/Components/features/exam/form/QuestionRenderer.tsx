@@ -2,7 +2,7 @@ import React from 'react';
 import { Question, QuestionResult, ExamAssignment } from '@/types';
 import { hasUserResponse } from '@/utils';
 import { trans } from '@/utils';
-import { AlertEntry } from '@/Components/ui';
+import { AlertEntry } from '@examena/ui';
 import QuestionReadOnlySection from './QuestionReadOnlySection';
 import { QuestionResultReadOnlyText, QuestionResultReadOnlyChoices } from '../QuestionResultReadOnly';
 
@@ -73,12 +73,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 
                         {/* Affichage du feedback du professeur */}
                         {result.feedback && (
-                            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                <h4 className="text-sm font-medium text-blue-800 mb-2">
-                                    {trans('components.question_renderer.teacher_feedback')}
-                                </h4>
-                                <p className="text-sm text-blue-700">{result.feedback}</p>
-                            </div>
+                            <AlertEntry title={result.feedback} type="info" />
                         )}
 
                         {/* Interface de notation (seulement en mode correction) */}

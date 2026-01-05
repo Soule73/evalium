@@ -1,0 +1,86 @@
+import { Canvas, Meta, Controls } from "@storybook/blocks";
+import * as SectionStories from "./Section.stories.tsx";
+
+<Meta of={SectionStories} />
+
+# Section
+
+A container component for grouping related content with optional titles and actions.
+
+## Overview
+
+The Section component provides a consistent way to organize and structure content on a page. It includes support for titles, subtitles, action buttons, and collapsible content.
+
+## Usage
+
+```tsx
+import { Section } from "@examena/ui";
+
+function MyComponent() {
+    return (
+        <Section title="Section Title">
+            <p>Your content goes here...</p>
+        </Section>
+    );
+}
+```
+
+## Features
+
+### Titles and Subtitles
+
+Add a title and optional subtitle to clearly identify the section's purpose.
+
+### Action Buttons
+
+Include action buttons in the header for quick access to common operations.
+
+### Collapsible Content
+
+Make sections collapsible to save space and improve page organization.
+
+### Flexible Layout
+
+Control title alignment and customize the appearance to match your design.
+
+## Examples
+
+### Basic Section
+
+<Canvas of={SectionStories.Default} />
+
+### With Subtitle
+
+<Canvas of={SectionStories.WithSubtitle} />
+
+### With Actions
+
+<Canvas of={SectionStories.WithActions} />
+
+### Collapsible
+
+<Canvas of={SectionStories.Collapsible} />
+<Canvas of={SectionStories.CollapsibleClosed} />
+
+### Custom Title
+
+<Canvas of={SectionStories.WithCustomTitle} />
+
+### Not Centered
+
+<Canvas of={SectionStories.NotCentered} />
+
+## Props
+
+<Controls of={SectionStories.Default} />
+
+## Best Practices
+
+- Use descriptive titles that clearly indicate the section's content
+- Add subtitles for additional context when needed
+- Place related actions in the section header for easy access
+- Use collapsible sections for optional or advanced content
+- Keep sections focused on a single topic or feature
+- Maintain consistent styling across sections on the same page
+- Don't nest sections too deeply - it creates visual clutter
+- Use appropriate spacing between sections

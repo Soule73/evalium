@@ -1,0 +1,101 @@
+import { Canvas, Meta, Controls } from "@storybook/blocks";
+import * as ButtonStories from "./Button.stories.tsx";
+
+<Meta of={ButtonStories} />
+
+# Button
+
+A versatile button component with multiple variants, colors, and sizes.
+
+## Overview
+
+The Button component is a fundamental UI element used for user interactions. It supports different visual styles, colors, and states to accommodate various use cases throughout the application.
+
+## Usage
+
+```tsx
+import { Button } from "@examena/ui";
+
+function MyComponent() {
+  return (
+    <Button color="primary" variant="solid" onClick={() => console.log("Clicked!")}>
+      Click me
+    </Button>
+  );
+}
+```
+
+## Variants
+
+The button comes in three visual variants:
+
+- **Solid**: A filled button with solid background color (default)
+- **Outline**: A button with transparent background and colored border
+- **Ghost**: A button with no border, only shows background on hover
+
+## Colors
+
+Available color options:
+
+- `primary` - Main action color (blue)
+- `secondary` - Secondary actions (gray)
+- `success` - Positive actions (green)
+- `danger` - Destructive actions (red)
+
+## Sizes
+
+Three size options are available:
+
+- `sm` - Small button for compact spaces
+- `md` - Medium button (default)
+- `lg` - Large button for prominent actions
+
+## States
+
+The button supports several states:
+
+- **Default**: Normal interactive state
+- **Disabled**: Non-interactive state with reduced opacity
+- **Loading**: Shows a spinner and disables interaction
+
+## Examples
+
+### Primary Actions
+
+<Canvas of={ButtonStories.Primary} />
+
+### Secondary Actions
+
+<Canvas of={ButtonStories.Secondary} />
+
+### Variants
+
+<Canvas of={ButtonStories.Outline} />
+<Canvas of={ButtonStories.Ghost} />
+
+### Colors
+
+<Canvas of={ButtonStories.Success} />
+<Canvas of={ButtonStories.Danger} />
+
+### Sizes
+
+<Canvas of={ButtonStories.Small} />
+<Canvas of={ButtonStories.Large} />
+
+### States
+
+<Canvas of={ButtonStories.Disabled} />
+<Canvas of={ButtonStories.Loading} />
+
+## Props
+
+<Controls of={ButtonStories.Primary} />
+
+## Best Practices
+
+- Use `primary` color for the main call-to-action on a page
+- Reserve `danger` color for destructive actions (delete, remove, etc.)
+- Use `disabled` state when an action is temporarily unavailable
+- Show `loading` state during asynchronous operations
+- Use appropriate sizes based on visual hierarchy

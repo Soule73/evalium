@@ -1,0 +1,113 @@
+import { Canvas, Meta, Controls } from "@storybook/blocks";
+import * as TextareaStories from "./Textarea.stories.tsx";
+
+<Meta of={TextareaStories} />
+
+# Textarea
+
+A multi-line text input component with validation and helper text support.
+
+## Overview
+
+The Textarea component provides a flexible way to collect multi-line text input from users. It includes features like row customization, character counting, validation states, and helper text.
+
+## Usage
+
+```tsx
+import { Textarea } from "@examena/ui";
+import { useState } from "react";
+
+function MyComponent() {
+    const [value, setValue] = useState("");
+
+    return (
+        <Textarea
+            label="Description"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Enter description..."
+            rows={4}
+        />
+    );
+}
+```
+
+## Features
+
+### Flexible Height
+
+Control the default height using the `rows` prop (default: 4 rows).
+
+### Auto-resize
+
+The textarea can grow automatically as users type (requires custom implementation).
+
+### Validation States
+
+Display error states with custom error messages.
+
+### Helper Text
+
+Show additional guidance or formatting instructions.
+
+### Character Counting
+
+Display character count for length-limited inputs.
+
+### Required Fields
+
+Mark fields as required with visual indicators.
+
+## Examples
+
+### Default
+
+<Canvas of={TextareaStories.Default} />
+
+### With Value
+
+<Canvas of={TextareaStories.WithValue} />
+
+### With Error
+
+<Canvas of={TextareaStories.WithError} />
+
+### With Helper Text
+
+<Canvas of={TextareaStories.WithHelperText} />
+
+### Disabled
+
+<Canvas of={TextareaStories.Disabled} />
+
+### Custom Rows
+
+<Canvas of={TextareaStories.CustomRows} />
+
+### With Character Count
+
+<Canvas of={TextareaStories.WithCharacterCount} />
+
+### Real-World Examples
+
+<Canvas of={TextareaStories.ExamAnswer} />
+<Canvas of={TextareaStories.FeedbackForm} />
+<Canvas of={TextareaStories.Required} />
+
+## Props
+
+<Controls of={TextareaStories.Default} />
+
+## Best Practices
+
+- Use appropriate number of rows based on expected content length
+- Provide clear labels that describe what users should enter
+- Show helper text for formatting requirements or guidelines
+- Display character count for length-limited fields
+- Mark required fields clearly
+- Show specific error messages that help users fix issues
+- Use placeholder text as examples, not as labels
+- Allow textareas to resize horizontally to fit user preferences
+- Don't use textarea for single-line input - use text input instead
+- Consider minimum and maximum character limits for validation
+- Provide feedback as users approach character limits

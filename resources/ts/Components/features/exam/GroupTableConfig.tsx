@@ -4,7 +4,7 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { DataTableConfig } from '@/types/datatable';
 import { trans } from '@/utils';
-import { Button } from '@/Components/ui';
+import { Button } from '@examena/ui';
 
 interface GroupTableConfigOptions {
     exam: Exam;

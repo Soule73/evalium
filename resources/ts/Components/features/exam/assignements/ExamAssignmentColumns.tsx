@@ -4,7 +4,7 @@ import { DataTableConfig } from '@/types/datatable';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { trans } from '@/utils';
-import { Badge, Button } from '@/Components/ui';
+import { Badge, Button } from '@examena/ui';
 
 interface ExamAssignmentColumnsOptions {
     exam: Exam;

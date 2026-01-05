@@ -1,0 +1,86 @@
+import { Canvas, Meta, Controls } from "@storybook/blocks";
+import * as BadgeStories from "./Badge.stories.tsx";
+
+<Meta of={BadgeStories} />
+
+# Badge
+
+A small status indicator component for displaying labels and states.
+
+## Overview
+
+The Badge component is used to display status information, labels, or counts in a compact, visually distinct format. It supports multiple color variants to convey different meanings.
+
+## Usage
+
+```tsx
+import { Badge } from "@examena/ui";
+
+function MyComponent() {
+    return (
+        <>
+            <Badge color="success">Active</Badge>
+            <Badge color="error">Error</Badge>
+            <Badge color="warning">Pending</Badge>
+        </>
+    );
+}
+```
+
+## Colors
+
+Available color options with their typical use cases:
+
+- `success` - Positive states (green) - completed, active, approved
+- `error` - Negative states (red) - failed, error, rejected
+- `warning` - Cautionary states (yellow) - pending, warning, in review
+- `info` - Informational states (blue) - info, new, updated
+- `gray` - Neutral states (gray) - default, inactive, draft
+
+## Common Use Cases
+
+### Status Indicators
+
+Use badges to show the current state of items, tasks, or processes.
+
+### Counts and Notifications
+
+Display numerical values like unread messages or notification counts.
+
+### Labels and Tags
+
+Categorize or label content with color-coded badges.
+
+## Examples
+
+### Status Colors
+
+<Canvas of={BadgeStories.Success} />
+<Canvas of={BadgeStories.Error} />
+<Canvas of={BadgeStories.Warning} />
+<Canvas of={BadgeStories.Info} />
+
+### Application States
+
+<Canvas of={BadgeStories.Active} />
+<Canvas of={BadgeStories.Inactive} />
+<Canvas of={BadgeStories.Pending} />
+
+### All Types
+
+<Canvas of={BadgeStories.AllTypes} />
+
+## Props
+
+<Controls of={BadgeStories.Success} />
+
+## Best Practices
+
+- Use consistent colors across the application for similar states
+- Keep badge text short and concise (1-2 words)
+- Use `success` for positive outcomes
+- Use `error` for failures or critical issues
+- Use `warning` for items requiring attention
+- Use `info` for neutral information
+- Use `gray` for disabled or inactive states
+- Don't overuse badges - they lose impact when everything is badged

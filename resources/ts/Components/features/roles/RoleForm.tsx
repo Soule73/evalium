@@ -4,7 +4,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { GroupedPermissions, RoleFormData } from '@/types/role';
 import { trans } from '@/utils';
 import { Input } from '@/Components/forms';
-import { Badge, Button } from '@/Components/ui';
+import { Badge, Button } from '@examena/ui';
 
 interface Props {
     formData: RoleFormData;

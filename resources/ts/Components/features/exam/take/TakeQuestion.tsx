@@ -2,7 +2,7 @@ import React from 'react';
 import { Choice, Question } from '@/types';
 import { trans } from '@/utils';
 import { Checkbox, MarkdownRenderer, MarkdownEditor } from '@/Components/forms';
-import { Section } from '@/Components/ui';
+import { Section } from '@examena/ui';
 import {
     getTypeColor,
     getTypeLabel,

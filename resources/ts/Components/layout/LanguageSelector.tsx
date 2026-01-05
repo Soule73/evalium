@@ -32,9 +32,15 @@ export default function LanguageSelector({ currentLocale }: LanguageSelectorProp
         );
     };
 
+    const searchPlaceholder = trans('components.select.search_placeholder');
+    const noOptionFound = trans('components.select.no_option_found');
+
+
     return (
         <div className="w-full sm:w-64">
             <Select
+                noOptionFound={noOptionFound}
+                searchPlaceholder={searchPlaceholder}
                 label={trans('auth_pages.profile.language_label')}
                 value={currentLocale}
                 onChange={handleLanguageChange}

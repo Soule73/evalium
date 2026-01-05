@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { GroupWithPivot, Group } from '@/types';
-import { formatDate } from '@/utils';
+import { formatDate, trans } from '@/utils';
 import { UserGroupIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { DataTableConfig } from '@/types/datatable';
 import { DataTable } from '@/Components/shared';
-import { Badge, Button, Select } from '@/Components/ui';
+import { Badge, Button, Select } from '@examena/ui';
 import { route } from 'ziggy-js';
 
 interface Props {
@@ -36,6 +36,9 @@ export default function StudentGroups({ userId, currentGroups, availableGroups }
             }
         );
     };
+
+    const searchPlaceholder = trans('components.select.search_placeholder');
+    const noOptionFound = trans('components.select.no_option_found');
 
     const activeGroup = currentGroups?.find(g => g.pivot?.is_active);
 
@@ -149,6 +152,8 @@ export default function StudentGroups({ userId, currentGroups, availableGroups }
                                 <div className="flex-1">
                                     <Select
                                         label="Nouveau groupe"
+                                        noOptionFound={noOptionFound}
+                                        searchPlaceholder={searchPlaceholder}
                                         options={availableGroups
                                             .filter(g => g.id !== activeGroup.id)
                                             .map(group => ({
@@ -189,6 +194,8 @@ export default function StudentGroups({ userId, currentGroups, availableGroups }
                             <div className="mt-4">
                                 <Select
                                     label="Assigner à un groupe"
+                                    noOptionFound={noOptionFound}
+                                    searchPlaceholder={searchPlaceholder}
                                     options={availableGroups.map(group => ({
                                         value: group.id,
                                         label: `${group.display_name} (${group.academic_year})`

@@ -1,0 +1,109 @@
+import { Canvas, Meta, Controls } from "@storybook/blocks";
+import * as TextEntryStories from "./TextEntry.stories.tsx";
+
+<Meta of={TextEntryStories} />
+
+# TextEntry
+
+A read-only display component for showing labeled data in a consistent format.
+
+## Overview
+
+The TextEntry component provides a standardized way to display labeled information in read-only mode. It's ideal for detail pages, profile views, and data presentation.
+
+## Usage
+
+```tsx
+import { TextEntry } from "@examena/ui";
+
+function MyComponent() {
+    return (
+        <>
+            <TextEntry label="Name" value="John Doe" />
+            <TextEntry label="Email" value="john@example.com" />
+            <TextEntry label="Status" value="Active" />
+        </>
+    );
+}
+```
+
+## Features
+
+### Flexible Content
+
+Supports both string values and React nodes for rich content display.
+
+### Responsive Labels
+
+Labels can be strings or React nodes for custom styling and icons.
+
+### Consistent Styling
+
+Maintains consistent typography and spacing across all entries.
+
+### Long Content Handling
+
+Automatically wraps long text values for readability.
+
+## Common Use Cases
+
+### Profile Information
+
+Display user profile data in a structured format.
+
+### Data Details
+
+Show detailed information about items, records, or entities.
+
+### Form Review
+
+Display submitted form data for review before final submission.
+
+## Examples
+
+### Basic Entry
+
+<Canvas of={TextEntryStories.Default} />
+
+### With Email
+
+<Canvas of={TextEntryStories.WithEmail} />
+
+### With Long Value
+
+<Canvas of={TextEntryStories.WithLongValue} />
+
+### Custom Styles
+
+<Canvas of={TextEntryStories.WithCustomStyles} />
+
+### React Node Label
+
+<Canvas of={TextEntryStories.WithReactNodeLabel} />
+
+### React Node Value
+
+<Canvas of={TextEntryStories.WithReactNodeValue} />
+
+### Multiple Entries
+
+<Canvas of={TextEntryStories.MultipleEntries} />
+
+### Student Profile
+
+<Canvas of={TextEntryStories.StudentProfile} />
+
+## Props
+
+<Controls of={TextEntryStories.Default} />
+
+## Best Practices
+
+- Use clear, concise labels that describe the data
+- Maintain consistent label formatting across related entries
+- Group related entries together
+- Handle missing values gracefully (show "N/A" or "-")
+- Use appropriate value formatting (dates, numbers, etc.)
+- Consider using React nodes for complex values (badges, links, etc.)
+- Maintain consistent spacing between entries
+- Don't mix editable and read-only fields - it creates confusion
