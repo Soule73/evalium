@@ -38,7 +38,7 @@ class DashboardController extends Controller
             /** @var \App\Models\User $user */
             $user = $request->user();
 
-            if (! $user) {
+            if (!$user) {
                 abort(401, __('messages.unauthenticated'));
             }
 
@@ -55,7 +55,10 @@ class DashboardController extends Controller
                 return $this->unified($request, $user);
             }
         } catch (\Exception $e) {
-            Log::error('Error accessing dashboard', $e->getMessage());
+            Log::error('Error accessing dashboard', [
+                'exception' => $e->getMessage(),
+                'user_id' => $request->user()?->id,
+            ]);
 
             abort(403, __('messages.unauthorized'));
         }
@@ -124,8 +127,8 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard/Teacher', [
             'user' => $user,
             'stats' => $dashboardData['stats'],
-            'recent_exams' => $dashboardData['recent_exams'],
-            'pending_reviews' => $dashboardData['pending_reviews'],
+            'recentExams' => $dashboardData['recentExams'],
+            'pendingReviews' => $dashboardData['pendingReviews'],
         ]);
     }
 

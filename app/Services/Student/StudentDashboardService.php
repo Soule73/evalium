@@ -56,17 +56,17 @@ class StudentDashboardService
         })->count();
 
         return [
-            'total_assignments' => $studentProgress['total_exams'],
-            'completed_assignments' => $studentProgress['completed_exams'],
-            'in_progress_assignments' => $inProgress,
-            'not_started_assignments' => $notStarted,
-            'average_score' => $studentProgress['average_score'],
-            'completion_rate' => $studentProgress['total_exams'] > 0
+            'totalExams' => $studentProgress['total_exams'],
+            'completedExams' => $studentProgress['completed_exams'],
+            'pendingExams' => $notStarted,
+            'inProgressExams' => $inProgress,
+            'averageScore' => $studentProgress['average_score'],
+            'completionRate' => $studentProgress['total_exams'] > 0
                 ? round(($studentProgress['completed_exams'] / $studentProgress['total_exams']) * 100, 2)
                 : 0.0,
-            'active_groups' => $activeGroups,
-            'upcoming_exams' => $upcomingExams->values()->toArray(),
-            'recent_exams' => $recentExams->values()->toArray(),
+            'activeGroups' => $activeGroups,
+            'upcomingExams' => $upcomingExams->values()->toArray(),
+            'recentExams' => $recentExams->values()->toArray(),
         ];
     }
 
@@ -86,11 +86,11 @@ class StudentDashboardService
 
         if ($gradedAssignments->isEmpty()) {
             return [
-                'total_graded' => 0,
-                'average_score' => null,
-                'highest_score' => null,
-                'lowest_score' => null,
-                'passing_rate' => 0,
+                'totalGraded' => 0,
+                'averageScore' => null,
+                'highestScore' => null,
+                'lowestScore' => null,
+                'passingRate' => 0,
             ];
         }
 
@@ -99,11 +99,11 @@ class StudentDashboardService
         $passingCount = $scores->filter(fn($score) => $score >= $passingThreshold)->count();
 
         return [
-            'total_graded' => $gradedAssignments->count(),
-            'average_score' => round($scores->avg(), 2),
-            'highest_score' => round($scores->max(), 2),
-            'lowest_score' => round($scores->min(), 2),
-            'passing_rate' => $gradedAssignments->count() > 0
+            'totalGraded' => $gradedAssignments->count(),
+            'averageScore' => round($scores->avg(), 2),
+            'highestScore' => round($scores->max(), 2),
+            'lowestScore' => round($scores->min(), 2),
+            'passingRate' => $gradedAssignments->count() > 0
                 ? round(($passingCount / $gradedAssignments->count()) * 100, 2)
                 : 0,
         ];
@@ -127,7 +127,7 @@ class StudentDashboardService
             if ($assignment->submitted_at) {
                 $activities->push([
                     'type' => 'submission',
-                    'exam_title' => $assignment->exam->title,
+                    'examTitle' => $assignment->exam->title,
                     'timestamp' => $assignment->submitted_at,
                     'details' => [
                         'score' => $assignment->score,
@@ -139,7 +139,7 @@ class StudentDashboardService
             if ($assignment->started_at && ! $assignment->submitted_at) {
                 $activities->push([
                     'type' => 'started',
-                    'exam_title' => $assignment->exam->title,
+                    'examTitle' => $assignment->exam->title,
                     'timestamp' => $assignment->started_at,
                     'details' => [],
                 ]);
@@ -179,10 +179,10 @@ class StudentDashboardService
 
             return [
                 'subject' => $subject,
-                'total_exams' => $subjectAssignments->count(),
-                'average_score' => round($scores->avg(), 2),
-                'highest_score' => round($scores->max(), 2),
-                'lowest_score' => round($scores->min(), 2),
+                'totalExams' => $subjectAssignments->count(),
+                'averageScore' => round($scores->avg(), 2),
+                'highestScore' => round($scores->max(), 2),
+                'lowestScore' => round($scores->min(), 2),
             ];
         })->values()->toArray();
     }
@@ -217,7 +217,7 @@ class StudentDashboardService
                 return [
                     'month' => $month,
                     'count' => $monthAssignments->count(),
-                    'average_score' => round($scores->avg(), 2),
+                    'averageScore' => round($scores->avg(), 2),
                 ];
             })
             ->values()
@@ -259,12 +259,12 @@ class StudentDashboardService
                 : round($gradedAssignments->pluck('score')->avg(), 2);
 
             return [
-                'group_id' => $group->id,
-                'group_name' => $group->name,
-                'total_exams' => $groupExamIds->count(),
-                'completed_exams' => $completedAssignments->count(),
-                'average_score' => $averageScore,
-                'completion_rate' => $groupExamIds->count() > 0
+                'groupId' => $group->id,
+                'groupName' => $group->name,
+                'totalExams' => $groupExamIds->count(),
+                'completedExams' => $completedAssignments->count(),
+                'averageScore' => $averageScore,
+                'completionRate' => $groupExamIds->count() > 0
                     ? round(($completedAssignments->count() / $groupExamIds->count()) * 100, 2)
                     : 0,
             ];
@@ -282,17 +282,17 @@ class StudentDashboardService
         $assignments = $this->studentAssignmentQueryService->getAssignmentsForStudentLight($student);
 
         $statusCounts = [
-            'not_started' => 0,
-            'in_progress' => 0,
+            'notStarted' => 0,
+            'inProgress' => 0,
             'submitted' => 0,
             'graded' => 0,
         ];
 
         foreach ($assignments as $assignment) {
             if ($assignment->started_at === null) {
-                $statusCounts['not_started']++;
+                $statusCounts['notStarted']++;
             } elseif ($assignment->submitted_at === null) {
-                $statusCounts['in_progress']++;
+                $statusCounts['inProgress']++;
             } elseif ($assignment->status === 'graded') {
                 $statusCounts['graded']++;
             } else {

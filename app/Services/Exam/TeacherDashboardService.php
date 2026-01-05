@@ -52,10 +52,10 @@ class TeacherDashboardService
         $averageScore = $totalPossible > 0 ? round(($totalScore / $totalPossible) * 100, 2) : 0;
 
         return [
-            'total_exams' => $exams->count(),
-            'total_questions' => $totalQuestions,
-            'students_evaluated' => $studentsEvaluated,
-            'average_score' => $averageScore,
+            'totalExams' => $exams->count(),
+            'totalQuestions' => $totalQuestions,
+            'studentsEvaluated' => $studentsEvaluated,
+            'averageScore' => $averageScore,
         ];
     }
 
@@ -112,10 +112,10 @@ class TeacherDashboardService
             ->map(function ($assignment) {
                 return [
                     'id' => $assignment->id,
-                    'exam_title' => $assignment->exam->title,
-                    'student_name' => $assignment->student->name,
-                    'submitted_at' => $assignment->submitted_at->format('Y-m-d H:i'),
-                    'time_taken' => $assignment->duration ? $this->formatDuration($assignment->duration) : 'N/A',
+                    'examTitle' => $assignment->exam->title,
+                    'studentName' => $assignment->student->name,
+                    'submittedAt' => $assignment->submitted_at->format('Y-m-d H:i'),
+                    'timeTaken' => $assignment->duration ? $this->formatDuration($assignment->duration) : 'N/A',
                 ];
             });
     }
@@ -141,8 +141,8 @@ class TeacherDashboardService
 
         return [
             'stats' => $stats,
-            'recent_exams' => $recentExams,
-            'pending_reviews' => $pendingReviews,
+            'recentExams' => $recentExams,
+            'pendingReviews' => $pendingReviews,
         ];
     }
 

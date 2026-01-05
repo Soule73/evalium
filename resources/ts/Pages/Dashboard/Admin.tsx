@@ -7,9 +7,10 @@ import { StatCard } from '@/Components';
 
 
 interface Stats {
-    total_users: number;
-    students_count: number;
-    teachers_count: number;
+    totalUsers: number;
+    studentsCount: number;
+    teachersCount: number;
+    adminsCount: number;
 }
 
 interface Props {
@@ -21,12 +22,11 @@ export default function AdminDashboard({ stats }: Props) {
 
     return (
         <AuthenticatedLayout title={trans('dashboard.title.admin')}
-            breadcrumb={breadcrumbs.dashboard()}
-        >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            breadcrumb={breadcrumbs.dashboard()}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" data-e2e='dashboard-content'>
                 <StatCard
                     title={trans('dashboard.admin.total_users')}
-                    value={stats.total_users}
+                    value={stats.totalUsers}
                     icon={
                         UserGroupIcon
                     }
@@ -34,7 +34,7 @@ export default function AdminDashboard({ stats }: Props) {
                 />
                 <StatCard
                     title={trans('dashboard.admin.students')}
-                    value={stats.students_count}
+                    value={stats.studentsCount}
                     color='green'
                     icon={
                         BookOpenIcon
@@ -43,7 +43,7 @@ export default function AdminDashboard({ stats }: Props) {
 
                 <StatCard
                     title={trans('dashboard.admin.teachers')}
-                    value={stats.teachers_count}
+                    value={stats.teachersCount}
                     color='purple'
                     icon={
                         UserGroupIcon

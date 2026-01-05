@@ -35,10 +35,10 @@ class AdminDashboardService
             ->first();
 
         return [
-            'total_users' => $userCounts->total_users ?? 0,
-            'students_count' => $userCounts->students_count ?? 0,
-            'teachers_count' => $userCounts->teachers_count ?? 0,
-            'admins_count' => $userCounts->admins_count ?? 0,
+            'totalUsers' => $userCounts->total_users ?? 0,
+            'studentsCount' => $userCounts->students_count ?? 0,
+            'teachersCount' => $userCounts->teachers_count ?? 0,
+            'adminsCount' => $userCounts->admins_count ?? 0,
         ];
     }
 

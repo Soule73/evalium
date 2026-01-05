@@ -24,8 +24,7 @@ interface Props {
 export default function StudentDashboard({ user, stats, examAssignments }: Props) {
     return (
         <AuthenticatedLayout title={trans('dashboard.title.student')}
-            breadcrumb={breadcrumbs.dashboard()}
-        >
+            breadcrumb={breadcrumbs.dashboard()}>
 
             <Section title={trans('dashboard.student.greeting', { name: user.name })}
                 actions={
@@ -38,7 +37,7 @@ export default function StudentDashboard({ user, stats, examAssignments }: Props
                     </Button>
                 }
             >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" data-e2e='dashboard-content'>
                     <StatCard
                         title={trans('dashboard.student.total_exams')}
                         value={`${stats.totalExams}`}

@@ -9,19 +9,20 @@ import { trans } from '@/utils';
 import { Button, ExamList, Section, StatCard } from '@/Components';
 
 interface Stats {
-    total_exams: number;
-    total_questions: number;
-    students_evaluated: number;
-    average_score: number;
+    totalExams: number;
+    totalQuestions: number;
+    studentsEvaluated: number;
+    averageScore: number;
 }
 
 interface Props {
     user: User;
     stats: Stats;
-    recent_exams: PaginationType<Exam>;
+    recentExams: PaginationType<Exam>;
+    pendingReviews?: any[];
 }
 
-export default function TeacherDashboard({ stats, recent_exams }: Props) {
+export default function TeacherDashboard({ stats, recentExams }: Props) {
     const handleCreateExam = () => {
         router.visit(route('exams.create'));
     };
@@ -35,10 +36,10 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
             breadcrumb={breadcrumbs.dashboard()}
         >
             {/* Statistiques principales */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" data-e2e='dashboard-content'>
                 <StatCard
                     title={trans('dashboard.teacher.exams_created')}
-                    value={stats.total_exams}
+                    value={stats.totalExams}
                     icon={
                         DocumentTextIcon
                     }
@@ -46,7 +47,7 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
                 />
                 <StatCard
                     title={trans('dashboard.teacher.questions_created')}
-                    value={stats.total_questions}
+                    value={stats.totalQuestions}
                     color='green'
                     icon={
                         // QuestionMarkCircleIcon
@@ -56,7 +57,7 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
 
                 <StatCard
                     title={trans('dashboard.teacher.students_evaluated')}
-                    value={stats.students_evaluated}
+                    value={stats.studentsEvaluated}
                     color='purple'
                     icon={
                         UserGroupIcon
@@ -65,7 +66,7 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
 
                 <StatCard
                     title={trans('dashboard.teacher.average_score')}
-                    value={stats.average_score}
+                    value={stats.averageScore}
                     color='yellow'
                     icon={
                         ArrowTrendingUpIcon
@@ -96,7 +97,7 @@ export default function TeacherDashboard({ stats, recent_exams }: Props) {
                     </div>
                 }
             >
-                <ExamList data={recent_exams} />
+                <ExamList data={recentExams} />
             </Section>
 
         </AuthenticatedLayout >
