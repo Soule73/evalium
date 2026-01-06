@@ -1,4 +1,4 @@
-import { Checkbox } from '@examena/ui';
+import { Checkbox, Section } from '@examena/ui';
 import { Button } from '@examena/ui';
 import { GroupedPermissions } from '@/types/role';
 import { trans } from '@/utils';
@@ -39,6 +39,7 @@ export default function PermissionSelector({
                         size="sm"
                         variant='outline'
                         color="secondary"
+                        data-e2e="permission-select-all"
                     >
                         {trans('components.permission_selector.select_all')}
                     </Button>
@@ -48,6 +49,7 @@ export default function PermissionSelector({
                         size="sm"
                         variant='outline'
                         color="secondary"
+                        data-e2e="permission-deselect-all"
                     >
                         {trans('components.permission_selector.deselect_all')}
                     </Button>
@@ -58,6 +60,7 @@ export default function PermissionSelector({
                             size="sm"
                             color="primary"
                             disabled={isSubmitting}
+                            data-e2e="permission-sync-button"
                         >
                             {trans('components.permission_selector.sync')}
                         </Button>
@@ -67,10 +70,9 @@ export default function PermissionSelector({
 
             <div className="space-y-6">
                 {Object.entries(groupedPermissions).map(([category, categoryPermissions]) => (
-                    <div key={category} className="border border-gray-300 rounded-lg overflow-hidden">
-                        <div className="bg-gray-100 px-4 py-2 border-b border-gray-300">
-                            <h3 className="text-sm font-semibold text-gray-800">{category}</h3>
-                        </div>
+                    <Section title={category} key={category}
+                        className="border border-gray-200 rounded-lg overflow-hidden"
+                    >
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-4">
                             {categoryPermissions.map((permission) => (
                                 <div
@@ -81,11 +83,12 @@ export default function PermissionSelector({
                                         label={trans(`permissions.${permission.name}`)}
                                         checked={selectedPermissions.includes(permission.id)}
                                         onChange={() => onPermissionToggle(permission.id)}
+                                        data-e2e={`permission-checkbox-${permission.id}`}
                                     />
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </Section>
                 ))}
             </div>
             {error && (

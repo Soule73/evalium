@@ -37,8 +37,8 @@ const Section = ({
     };
 
     const headerClasses = [
-        'text-gray-800 dark:text-[--color-dark-text] transition-all duration-200',
-        shouldShowContent ? 'mb-4 border-b pb-2 border-gray-300 dark:border-[--color-dark-border]' : 'mb-0'
+        'text-gray-800 transition-all duration-200',
+        shouldShowContent ? 'mb-4 border-b pb-2 border-gray-300' : 'mb-0'
     ].join(' ');
 
     const containerClasses = [
@@ -48,11 +48,11 @@ const Section = ({
 
     const titleWrapperClasses = [
         'flex items-center space-x-2',
-        collapsible ? 'cursor-pointer select-none hover:text-blue-600 dark:hover:text-[--color-dark-primary] transition-colors duration-150' : ''
+        collapsible ? 'cursor-pointer select-none hover:text-blue-600 transition-colors duration-150' : ''
     ].join(' ');
 
     const sectionClasses = [
-        'bg-white dark:bg-[--color-dark-surface] rounded-lg mb-6 transition-all duration-200',
+        'bg-white rounded-lg mb-6 transition-all duration-200',
         shouldShowContent ? 'p-2 md:p-6' : 'p-2 md:px-6 md:py-4',
         className
     ].join(' ');
@@ -71,7 +71,7 @@ const Section = ({
                             <ChevronUpIcon className={chevronClasses} aria-hidden="true" />
                         )}
                         {isStringTitle ? (
-                            <h2 className="text-xl font-semibold text-gray-800 dark:text-[--color-dark-text]">
+                            <h2 className="text-xl font-semibold text-gray-800">
                                 {title}
                             </h2>
                         ) : (
@@ -87,7 +87,7 @@ const Section = ({
                 </div>
 
                 {shouldShowContent && subtitle && (
-                    <div className="text-sm text-gray-600 dark:text-[--color-dark-text-secondary] mt-2">
+                    <div className="text-sm text-gray-600 mt-2">
                         {subtitle}
                     </div>
                 )}

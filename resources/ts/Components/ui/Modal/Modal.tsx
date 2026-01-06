@@ -24,8 +24,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size = 'md', c
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black opacity-50 dark:opacity-70" onClick={isCloseableInside ? onClose : undefined} />
-            <div className={`bg-white dark:bg-[--color-dark-surface] dark:text-[--color-dark-text] rounded-lg shadow-lg dark:shadow-2xl z-10 p-6 ${sizeClasses[size]} ${className}`}>
+            <div className="absolute inset-0 bg-black opacity-50" onClick={isCloseableInside ? onClose : undefined} />
+            <div className={`bg-white rounded-lg shadow-lg z-10 p-6 ${sizeClasses[size]} ${className}`}>
                 {children}
             </div>
         </div>

@@ -156,16 +156,16 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
 
         const baseClasses = 'relative w-full';
         const triggerClasses = `
-            w-full px-3 py-2 bg-white dark:bg-[--color-dark-surface] border rounded-md
-            focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-[--color-dark-primary]
+            w-full px-3 py-2 bg-white border rounded-md
+            focus:outline-none focus:ring-2 focus:ring-blue-500
             transition-all duration-200 cursor-pointer
             flex items-center justify-between
             ${error
-                ? 'border-red-500 dark:border-[--color-dark-danger] focus:border-red-500 dark:focus:border-[--color-dark-danger] focus:ring-red-500 dark:focus:ring-[--color-dark-danger]'
-                : 'border-gray-300 dark:border-[--color-dark-border] focus:border-blue-500 dark:focus:border-[--color-dark-primary] hover:border-gray-400 dark:hover:border-[--color-dark-text-secondary]'
+                ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                : 'border-gray-300 focus:border-blue-500 hover:border-gray-400'
             }
-            ${disabled ? 'bg-gray-50 dark:bg-[--color-dark-surface] cursor-not-allowed opacity-60' : ''}
-            ${isOpen ? 'ring-2 ring-blue-500 dark:ring-[--color-dark-primary] border-blue-500 dark:border-[--color-dark-primary]' : ''}
+            ${disabled ? 'bg-gray-50 cursor-not-allowed opacity-60' : ''}
+            ${isOpen ? 'ring-2 ring-blue-500 border-blue-500' : ''}
         `.trim();
 
         return (
@@ -174,7 +174,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                 <input type="hidden" name={name} value={value || ''} />
 
                 {label && (
-                    <label className="block text-sm font-medium text-gray-700 dark:text-[--color-dark-text] mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                         {label} {required && <span className="text-red-500 ml-1">*</span>}
                     </label>
                 )}
@@ -191,27 +191,27 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                         aria-haspopup="listbox"
                         aria-label={label || 'Select option'}
                     >
-                        <span className={`block truncate ${!selectedOption ? 'text-gray-500 dark:text-[--color-dark-text-muted]' : 'text-gray-900 dark:text-[--color-dark-text]'}`}>
+                        <span className={`block truncate ${!selectedOption ? 'text-gray-500' : 'text-gray-900'}`}>
                             {selectedOption ? selectedOption.label : (placeholder || '')}
                         </span>
                         <ChevronDownIcon
-                            className={`h-5 w-5 text-gray-400 dark:text-[--color-dark-text-secondary] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''
+                            className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''
                                 }`}
                         />
                     </div>
 
                     {/* Dropdown */}
                     {isOpen && (
-                        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-[--color-dark-surface] border border-gray-300 dark:border-[--color-dark-border] rounded-md shadow-lg dark:shadow-2xl">
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
                             {/* Search Input */}
                             {searchable && (
-                                <div className="p-2 border-b border-gray-200 dark:border-[--color-dark-border]">
+                                <div className="p-2 border-b border-gray-200">
                                     <div className="relative">
-                                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-[--color-dark-text-secondary]" />
+                                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                                         <input
                                             ref={searchInputRef}
                                             type="text"
-                                            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 dark:border-[--color-dark-border] rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-[--color-dark-primary] focus:border-blue-500 dark:focus:border-[--color-dark-primary] bg-white dark:bg-[--color-dark-bg] text-gray-900 dark:text-[--color-dark-text]"
+                                            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
                                             placeholder={searchPlaceholder}
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -228,7 +228,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                                 role="listbox"
                             >
                                 {filteredOptions.length === 0 ? (
-                                    <li className="px-3 py-2 text-sm text-gray-500 dark:text-[--color-dark-text-muted] text-center">
+                                    <li className="px-3 py-2 text-sm text-gray-500 text-center">
                                         {noOptionFound}
                                     </li>
                                 ) : (
@@ -239,12 +239,12 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                                                 px-3 py-2 text-sm cursor-pointer flex items-center justify-between
                                                 transition-colors duration-150
                                                 ${option.disabled
-                                                    ? 'text-gray-400 dark:text-[--color-dark-text-muted] cursor-not-allowed'
+                                                    ? 'text-gray-400 cursor-not-allowed'
                                                     : index === highlightedIndex
-                                                        ? 'bg-blue-50 dark:bg-[--color-dark-primary]/20 text-blue-900 dark:text-[--color-dark-primary]'
-                                                        : 'text-gray-900 dark:text-[--color-dark-text] hover:bg-gray-50 dark:hover:bg-[--color-dark-surface-hover]'
+                                                        ? 'bg-blue-50 text-blue-900'
+                                                        : 'text-gray-900 hover:bg-gray-50'
                                                 }
-                                                ${option.value === value ? 'bg-blue-100 dark:bg-[--color-dark-primary]/30' : ''}
+                                                ${option.value === value ? 'bg-blue-100' : ''}
                                             `.trim()}
                                             onClick={() => handleSelect(option)}
                                             onMouseEnter={() => setHighlightedIndex(index)}
@@ -253,7 +253,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                                         >
                                             <span className="block truncate">{option.label}</span>
                                             {option.value === value && (
-                                                <CheckIcon className="h-4 w-4 text-blue-600 dark:text-[--color-dark-primary] shrink-0" />
+                                                <CheckIcon className="h-4 w-4 text-blue-600 shrink-0" />
                                             )}
                                         </li>
                                     ))
@@ -264,10 +264,10 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                 </div>
 
                 {error && (
-                    <p className="mt-1 text-sm text-red-600 dark:text-[--color-dark-danger]">{error}</p>
+                    <p className="mt-1 text-sm text-red-600">{error}</p>
                 )}
                 {helperText && !error && (
-                    <p className="mt-1 text-sm text-gray-500 dark:text-[--color-dark-text-secondary]">{helperText}</p>
+                    <p className="mt-1 text-sm text-gray-500">{helperText}</p>
                 )}
             </div>
         );

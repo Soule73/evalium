@@ -41,26 +41,26 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         switch (type) {
             case 'danger':
                 return {
-                    iconColor: 'text-red-600 dark:text-[--color-dark-danger]',
-                    iconBg: 'bg-red-100 dark:bg-[--color-dark-danger]/20',
+                    iconColor: 'text-red-600',
+                    iconBg: 'bg-red-100',
                     confirmButton: 'danger'
                 };
             case 'warning':
                 return {
-                    iconColor: 'text-yellow-600 dark:text-[--color-dark-warning]',
-                    iconBg: 'bg-yellow-100 dark:bg-[--color-dark-warning]/20',
+                    iconColor: 'text-yellow-600',
+                    iconBg: 'bg-yellow-100',
                     confirmButton: 'warning'
                 };
             case 'info':
                 return {
-                    iconColor: 'text-blue-600 dark:text-[--color-dark-primary]',
-                    iconBg: 'bg-blue-100 dark:bg-[--color-dark-primary]/20',
+                    iconColor: 'text-blue-600',
+                    iconBg: 'bg-blue-100',
                     confirmButton: 'primary'
                 };
             default:
                 return {
-                    iconColor: 'text-yellow-600 dark:text-[--color-dark-warning]',
-                    iconBg: 'bg-yellow-100 dark:bg-[--color-dark-warning]/20',
+                    iconColor: 'text-yellow-600',
+                    iconBg: 'bg-yellow-100',
                     confirmButton: 'warning'
                 };
         }
@@ -73,8 +73,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         >
             <div className=' min-h-72 flex flex-col items-center justify-between p-6'>
                 {React.createElement(icon, { className: `w-12 h-12 mb-4 ${styles.iconColor}` })}
-                <h3 className="text-lg font-bold mb-4 dark:text-[--color-dark-text]">{title}</h3>
-                <p className="text-gray-600 dark:text-[--color-dark-text-secondary] mb-6 text-center ">
+                <h3 className="text-lg font-bold mb-4">{title}</h3>
+                <p className="text-gray-600 mb-6 text-center ">
                     {message}
                 </p>
                 {children}
@@ -85,6 +85,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                         variant="outline"
                         onClick={onClose}
                         disabled={loading}
+                        data-e2e="cancel-button"
                     >
                         {cancelText}
                     </Button>
@@ -94,6 +95,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                         onClick={onConfirm}
                         loading={loading}
                         disabled={loading}
+                        data-e2e="confirm-button"
                     >
                         {confirmText}
                     </Button>

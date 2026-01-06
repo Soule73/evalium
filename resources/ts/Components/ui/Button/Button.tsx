@@ -28,25 +28,25 @@ function Button({
 
     const colorClassesMap = {
         solid: {
-            primary: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 dark:bg-[--color-dark-primary] dark:hover:bg-[--color-dark-primary-hover]',
-            secondary: 'bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500 dark:bg-[--color-dark-secondary] dark:hover:bg-[--color-dark-secondary-hover]',
-            danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 dark:bg-[--color-dark-danger] dark:hover:bg-[--color-dark-danger-hover]',
-            success: 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500 dark:bg-[--color-dark-success] dark:hover:bg-[--color-dark-success-hover]',
-            warning: 'bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500 dark:bg-[--color-dark-warning] dark:hover:bg-[--color-dark-warning-hover]',
+            primary: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500',
+            secondary: 'bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500',
+            danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
+            success: 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500',
+            warning: 'bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500',
         },
         outline: {
-            primary: 'bg-transparent border-blue-600 text-blue-600 hover:bg-blue-50 focus:ring-blue-500 dark:border-[--color-dark-primary] dark:text-[--color-dark-primary] dark:hover:bg-[--color-dark-surface-hover]',
-            secondary: 'bg-transparent border-gray-200 text-gray-600 hover:bg-gray-50 focus:ring-gray-500 dark:border-[--color-dark-border] dark:text-[--color-dark-text-secondary] dark:hover:bg-[--color-dark-surface-hover]',
-            danger: 'bg-transparent border-red-600 text-red-600 hover:bg-red-50 focus:ring-red-500 dark:border-[--color-dark-danger] dark:text-[--color-dark-danger] dark:hover:bg-[--color-dark-surface-hover]',
-            success: 'bg-transparent border-green-600 text-green-600 hover:bg-green-50 focus:ring-green-500 dark:border-[--color-dark-success] dark:text-[--color-dark-success] dark:hover:bg-[--color-dark-surface-hover]',
-            warning: 'bg-transparent border-yellow-600 text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500 dark:border-[--color-dark-warning] dark:text-[--color-dark-warning] dark:hover:bg-[--color-dark-surface-hover]',
+            primary: 'bg-transparent border-blue-600 text-blue-600 hover:bg-blue-50 focus:ring-blue-500',
+            secondary: 'bg-transparent border-gray-200 text-gray-600 hover:bg-gray-50 focus:ring-gray-500',
+            danger: 'bg-transparent border-red-600 text-red-600 hover:bg-red-50 focus:ring-red-500',
+            success: 'bg-transparent border-green-600 text-green-600 hover:bg-green-50 focus:ring-green-500',
+            warning: 'bg-transparent border-yellow-600 text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500',
         },
         ghost: {
-            primary: 'bg-transparent text-blue-600 hover:bg-blue-50 focus:ring-blue-500 dark:text-[--color-dark-primary] dark:hover:bg-[--color-dark-surface-hover]',
-            secondary: 'bg-transparent text-gray-600 hover:bg-gray-50 focus:ring-gray-500 dark:text-[--color-dark-text-secondary] dark:hover:bg-[--color-dark-surface-hover]',
-            danger: 'bg-transparent text-red-600 hover:bg-red-50 focus:ring-red-500 dark:text-[--color-dark-danger] dark:hover:bg-[--color-dark-surface-hover]',
-            success: 'bg-transparent text-green-600 hover:bg-green-50 focus:ring-green-500 dark:text-[--color-dark-success] dark:hover:bg-[--color-dark-surface-hover]',
-            warning: 'bg-transparent text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500 dark:text-[--color-dark-warning] dark:hover:bg-[--color-dark-surface-hover]',
+            primary: 'bg-transparent text-blue-600 hover:bg-blue-50 focus:ring-blue-500',
+            secondary: 'bg-transparent text-gray-600 hover:bg-gray-50 focus:ring-gray-500',
+            danger: 'bg-transparent text-red-600 hover:bg-red-50 focus:ring-red-500',
+            success: 'bg-transparent text-green-600 hover:bg-green-50 focus:ring-green-500',
+            warning: 'bg-transparent text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500',
         },
     };
 

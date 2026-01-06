@@ -16,10 +16,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         const errorId = error ? `${generatedId}-error` : undefined;
         const helperId = helperText ? `${generatedId}-helper` : undefined;
 
-        const baseClasses = 'w-full px-3 py-2 bg-white dark:bg-[--color-dark-surface] text-gray-900 dark:text-[--color-dark-text] border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-[--color-dark-primary] transition-colors duration-200';
+        const baseClasses = 'w-full px-3 py-2 bg-white text-gray-900 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200';
         const errorClasses = error
-            ? 'border-red-500 dark:border-[--color-dark-danger] focus:border-red-500 dark:focus:border-[--color-dark-danger] focus:ring-red-500 dark:focus:ring-[--color-dark-danger]'
-            : 'border-gray-300 dark:border-[--color-dark-border] focus:border-blue-500 dark:focus:border-[--color-dark-primary]';
+            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+            : 'border-gray-300 focus:border-blue-500';
 
         const finalClassName = `${baseClasses} ${errorClasses} ${className}`;
 
@@ -28,7 +28,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 {label && (
                     <label
                         htmlFor={generatedId}
-                        className="block text-sm font-medium text-gray-700 dark:text-[--color-dark-text] mb-1"
+                        className="block text-sm font-medium text-gray-700 mb-1"
                     >
                         {label}
                     </label>
@@ -42,12 +42,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     {...props}
                 />
                 {error && (
-                    <p id={errorId} className="mt-1 text-sm text-red-600 dark:text-[--color-dark-danger]" role="alert">
+                    <p id={errorId} className="mt-1 text-sm text-red-600" role="alert">
                         {error}
                     </p>
                 )}
                 {helperText && !error && (
-                    <p id={helperId} className="mt-1 text-sm text-gray-500 dark:text-[--color-dark-text-secondary]">
+                    <p id={helperId} className="mt-1 text-sm text-gray-500">
                         {helperText}
                     </p>
                 )}

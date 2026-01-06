@@ -13,8 +13,8 @@ const TextEntry: React.FC<TextEntry> = ({ label, value, valueClass, labelClass, 
     return (
         <div className={`flex flex-col space-y-1 ${className || ''}`}>
 
-            {typeof label === "string" ? <span className={`text-sm font-bold text-gray-900 dark:text-[--color-dark-text] ${labelClass || ''}`}>{label}</span> : label}
-            {typeof value === "string" ? <span className={`text-sm text-gray-600 dark:text-[--color-dark-text-secondary] ${valueClass || ''}`}>{value}</span> : value}
+            {typeof label === "string" ? <span className={`text-sm font-bold text-gray-900 ${labelClass || ''}`}>{label}</span> : label}
+            {typeof value === "string" ? <span className={`text-sm text-gray-600 ${valueClass || ''}`}>{value}</span> : value}
         </div>
     );
 };

@@ -38,39 +38,39 @@ const sizeClasses = {
 
 const colorClasses = {
     blue: {
-        active: 'bg-blue-600 dark:bg-[--color-dark-primary]',
-        inactive: 'bg-gray-200 dark:bg-[--color-dark-border]',
-        focus: 'focus:ring-blue-500 dark:focus:ring-[--color-dark-primary]',
-        labelActive: 'text-blue-700 dark:text-[--color-dark-primary]',
-        labelInactive: 'text-gray-500 dark:text-[--color-dark-text-muted]',
+        active: 'bg-blue-600',
+        inactive: 'bg-gray-200',
+        focus: 'focus:ring-blue-500',
+        labelActive: 'text-blue-700',
+        labelInactive: 'text-gray-500',
     },
     green: {
-        active: 'bg-green-600 dark:bg-[--color-dark-success]',
-        inactive: 'bg-gray-200 dark:bg-[--color-dark-border]',
-        focus: 'focus:ring-green-500 dark:focus:ring-[--color-dark-success]',
-        labelActive: 'text-green-700 dark:text-[--color-dark-success]',
-        labelInactive: 'text-gray-500 dark:text-[--color-dark-text-muted]',
+        active: 'bg-green-600',
+        inactive: 'bg-gray-200',
+        focus: 'focus:ring-green-500',
+        labelActive: 'text-green-700',
+        labelInactive: 'text-gray-500',
     },
     purple: {
         active: 'bg-purple-600',
-        inactive: 'bg-gray-200 dark:bg-[--color-dark-border]',
+        inactive: 'bg-gray-200',
         focus: 'focus:ring-purple-500',
         labelActive: 'text-purple-700',
-        labelInactive: 'text-gray-500 dark:text-[--color-dark-text-muted]',
+        labelInactive: 'text-gray-500',
     },
     red: {
-        active: 'bg-red-600 dark:bg-[--color-dark-danger]',
-        inactive: 'bg-gray-200 dark:bg-[--color-dark-border]',
-        focus: 'focus:ring-red-500 dark:focus:ring-[--color-dark-danger]',
-        labelActive: 'text-red-700 dark:text-[--color-dark-danger]',
-        labelInactive: 'text-gray-500 dark:text-[--color-dark-text-muted]',
+        active: 'bg-red-600',
+        inactive: 'bg-gray-200',
+        focus: 'focus:ring-red-500',
+        labelActive: 'text-red-700',
+        labelInactive: 'text-gray-500',
     },
     gray: {
-        active: 'bg-gray-600 dark:bg-[--color-dark-secondary]',
-        inactive: 'bg-gray-200 dark:bg-[--color-dark-border]',
-        focus: 'focus:ring-gray-500 dark:focus:ring-[--color-dark-secondary]',
-        labelActive: 'text-gray-700 dark:text-[--color-dark-text]',
-        labelInactive: 'text-gray-500 dark:text-[--color-dark-text-muted]',
+        active: 'bg-gray-600',
+        inactive: 'bg-gray-200',
+        focus: 'focus:ring-gray-500',
+        labelActive: 'text-gray-700',
+        labelInactive: 'text-gray-500',
     },
 };
 
@@ -115,7 +115,7 @@ export default function Toggle({
             {label && (
                 <label
                     htmlFor={generatedId}
-                    className="text-sm font-medium text-gray-700 dark:text-[--color-dark-text] mr-2"
+                    className="text-sm font-medium text-gray-700 mr-2"
                 >
                     {label}
                 </label>

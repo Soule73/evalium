@@ -24,7 +24,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                     ref={ref}
                     id={generatedId}
                     type={type}
-                    className={`peer appearance-none w-5 h-5 border border-gray-300 dark:border-[--color-dark-border] ${className} ${roundedClass} checked:bg-blue-600 dark:checked:bg-[--color-dark-primary] checked:border-blue-600 dark:checked:border-[--color-dark-primary] focus:ring-2 focus:ring-blue-500 dark:focus:ring-[--color-dark-primary] transition-colors duration-200 bg-white dark:bg-[--color-dark-surface]`}
+                    className={`peer appearance-none w-5 h-5 border border-gray-300 ${className} ${roundedClass} checked:bg-blue-600 checked:border-blue-600 focus:ring-2 focus:ring-blue-500 transition-colors duration-200 bg-white`}
                     aria-invalid={error ? 'true' : 'false'}
                     aria-describedby={errorId}
                     {...props}
@@ -53,7 +53,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                     >
                         {checkboxElement}
                         {typeof label === 'string' ? (
-                            <span className="text-sm text-gray-900 dark:text-[--color-dark-text] transition-colors duration-150">
+                            <span className="text-sm text-gray-900 transition-colors duration-150">
                                 {label}
                             </span>
                         ) : (
@@ -64,7 +64,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                     checkboxElement
                 )}
                 {error && (
-                    <p id={errorId} className="mt-1 text-sm text-red-600 dark:text-[--color-dark-danger]" role="alert">
+                    <p id={errorId} className="mt-1 text-sm text-red-600" role="alert">
                         {error}
                     </p>
                 )}
