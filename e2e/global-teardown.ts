@@ -42,6 +42,21 @@ async function globalTeardown() {
         console.warn('[GlobalTeardown] Failed to clean test data:', error);
     }
 
+    console.info('[GlobalTeardown] Cleaning built assets...');
+    try {
+        const buildDir = join(rootDir, 'public', 'build');
+        if (existsSync(buildDir)) {
+            if (process.platform === 'win32') {
+                execSync(`rmdir /s /q "${buildDir}"`, { stdio: 'ignore' });
+            } else {
+                execSync(`rm -rf "${buildDir}"`, { stdio: 'ignore' });
+            }
+            console.info('[GlobalTeardown] Built assets cleaned');
+        }
+    } catch (error) {
+        console.warn('[GlobalTeardown] Failed to clean built assets:', error);
+    }
+
     console.info('[GlobalTeardown] E2E teardown complete');
 }
 

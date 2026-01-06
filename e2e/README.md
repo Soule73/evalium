@@ -359,7 +359,7 @@ await loginPage.loginWith('email@example.com', 'password', true);
 
 ### All tests
 ```bash
-npm run test:e2e
+yarn test:e2e
 ```
 
 ### Specific project
@@ -381,12 +381,12 @@ npx playwright test --debug
 
 ### UI mode
 ```bash
-npm run test:e2e:ui
+yarn run test:e2e:ui
 ```
 
 ### View report
 ```bash
-npm run test:e2e:report
+yarn run test:e2e:report
 ```
 
 ## Best Practices

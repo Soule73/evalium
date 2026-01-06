@@ -57,6 +57,21 @@ async function globalSetup() {
         throw error;
     }
 
+    console.info('[E2EGlobalSetup] Building frontend assets...');
+    
+    try {
+        execSync('yarn build', {
+            cwd: rootDir,
+            stdio: 'inherit',
+            env: envVars
+        });
+        
+        console.info('[E2EGlobalSetup] Frontend assets built successfully');
+    } catch (error) {
+        console.error('[E2EGlobalSetup] Failed to build frontend assets:', error);
+        throw error;
+    }
+
     console.info(`[E2EGlobalSetup] Starting Laravel server on port ${e2ePort}...`);
     
     try {
