@@ -86,7 +86,7 @@ class RoleController extends Controller
     {
         $this->roleService->createRole($request->validated());
 
-        return $this->redirectWithSuccess(route('roles.index'), __('messages.role_created'));
+        return $this->redirectWithSuccess('roles.index', __('messages.role_created'));
     }
 
     /**

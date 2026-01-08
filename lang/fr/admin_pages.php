@@ -22,6 +22,11 @@ return [
         'loading' => 'Chargement...',
         'modify' => 'Modifier',
         'status' => 'Statut',
+        'no_results' => 'Aucun résultat trouvé.',
+        'no_results_subtitle' => 'Essayez de modifier vos critères de recherche.',
+        'clear_search' => 'Effacer la recherche',
+        'loading' => 'Chargement...',
+        'search_placeholder' => 'Rechercher...',
     ],
 
     // Users Management

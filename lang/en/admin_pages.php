@@ -22,6 +22,12 @@ return [
         'loading' => 'Loading...',
         'modify' => 'Modify',
         'status' => 'Status',
+        'no_results' => 'No results found.',
+        'no_results_subtitle' => 'Try adjusting your search criteria.',
+        'search_placeholder' => 'Search...',
+        'loading' => 'Loading...',
+        'clear_search' => 'Clear search',
+        'reset' => 'Reset',
     ],
 
     // Users Management

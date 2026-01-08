@@ -25,10 +25,6 @@ class E2ESetupCommand extends Command
     {
         $this->info('[ArtisanE2ESetup] Setting up E2E test environment...');
 
-        $this->info('[ArtisanE2ESetup] Clearing configuration cache...');
-
-        Artisan::call('config:clear');
-
         $dbPath = config('database.connections.e2e_testing.database');
 
         try {
@@ -40,6 +36,10 @@ class E2ESetupCommand extends Command
             $this->info('[ArtisanE2ESetup] Creating fresh SQLite database...');
 
             touch($dbPath);
+
+            $this->info('[ArtisanE2ESetup] Clearing configuration cache...');
+
+            Artisan::call('config:clear');
 
             $this->info('[ArtisanE2ESetup] Running migrations on E2E database...');
 

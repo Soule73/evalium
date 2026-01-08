@@ -13,10 +13,9 @@ async function globalSetup() {
 
     const rootDir = join(__dirname, '..');
     const pidFile = join(__dirname, '.laravel-server.pid');
-    const e2ePort = process.env.E2E_PORT || '8001';
 
-    // Load E2E environment variables
-    const envE2EPath = join(rootDir, '.env.e2e');
+    // Load E2E environment variables from .env.testing (Laravel convention)
+    const envTestingPath = join(rootDir, '.env.testing');
     const envVars: Record<string, string> = {};
     
     Object.entries(process.env).forEach(([key, value]) => {
@@ -25,27 +24,35 @@ async function globalSetup() {
         }
     });
     
-    if (existsSync(envE2EPath)) {
-        const envContent = readFileSync(envE2EPath, 'utf-8');
+    if (existsSync(envTestingPath)) {
+        const envContent = readFileSync(envTestingPath, 'utf-8');
         envContent.split('\n').forEach(line => {
             const match = line.match(/^([^#=]+)=(.*)$/);
             if (match) {
                 const key = match[1].trim();
                 const value = match[2].trim().replace(/^["'](.*)["']$/, '$1');
                 envVars[key] = value;
+                // Also set in process.env for Playwright config
+                process.env[key] = value;
             }
         });
 
-        console.info('[E2EGlobalSetup] Loaded .env.e2e configuration');
+        console.info('[E2EGlobalSetup] Loaded .env.testing configuration');
     }
+
+    // Extract port from APP_URL or use default
+    const appUrl = envVars['APP_URL'] || process.env.APP_URL || 'http://localhost:8001';
+    const e2ePort = new URL(appUrl).port || '8001';
+    process.env.E2E_PORT = e2ePort;
+    process.env.BASE_URL = appUrl;
 
     console.info('[E2EGlobalSetup] Preparing test database...');
   
     try {
-        execSync('php artisan e2e:setup', {
+        execSync('php artisan e2e:setup --env=testing', {
             cwd: rootDir,
             stdio: 'inherit',
-            env: envVars
+            env: { ...process.env, APP_ENV: 'testing' }
         });
 
         console.info('[E2EGlobalSetup] Test database prepared');
@@ -79,7 +86,9 @@ async function globalSetup() {
             cwd: rootDir,
             stdio: 'pipe',
             env: {
+                ...process.env,
                 ...envVars,
+                APP_ENV: 'testing',
                 APP_URL: `http://localhost:${e2ePort}`,
             },
             detached: false,
