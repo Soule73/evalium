@@ -27,7 +27,7 @@ export default function PermissionSelector({
     isSubmitting = false,
 }: Props) {
     return (
-        <div className="space-y-3">
+        <div className="space-y-3" data-e2e="permission-selector">
             <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-gray-700">
                     {trans('components.permission_selector.label', { count: selectedPermissions.length })}
@@ -68,6 +68,9 @@ export default function PermissionSelector({
                 </div>
             </div>
 
+            {error && (
+                <p className="text-sm text-red-600" data-e2e="permission-selector-error">{error}</p>
+            )}
             <div className="space-y-6">
                 {Object.entries(groupedPermissions).map(([category, categoryPermissions]) => (
                     <Section title={category} key={category}
@@ -91,9 +94,7 @@ export default function PermissionSelector({
                     </Section>
                 ))}
             </div>
-            {error && (
-                <p className="text-sm text-red-600">{error}</p>
-            )}
+
         </div>
     );
 }

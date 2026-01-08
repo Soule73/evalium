@@ -49,7 +49,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                             autoComplete="username"
                             autoFocus
                             error={errors.email}
-                            data-e2e="email-input"
+                        // data-e2e="email-input"
                         />
 
                         <Input
@@ -64,7 +64,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                             required
                             autoComplete="current-password"
                             error={errors.password}
-                            data-e2e="password-input"
+                        // data-e2e="password-input"
                         />
 
                         <Checkbox

@@ -7,9 +7,10 @@ interface ModalProps {
     size?: ModalSize;
     className?: string;
     isCloseableInside?: boolean;
+    testIdModal?: string;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size = 'md', className, isCloseableInside = true }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size = 'md', className, isCloseableInside = true, testIdModal = "confirmation-modal" }) => {
     if (!isOpen) return null;
 
     const sizeClasses = {
@@ -23,7 +24,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size = 'md', c
 
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center" data-e2e={testIdModal}>
             <div className="absolute inset-0 bg-black opacity-50" onClick={isCloseableInside ? onClose : undefined} />
             <div className={`bg-white rounded-lg shadow-lg z-10 p-6 ${sizeClasses[size]} ${className}`}>
                 {children}

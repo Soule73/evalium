@@ -2,12 +2,14 @@ import { useState, useRef, useEffect, forwardRef } from 'react';
 import { ChevronDownIcon, CheckIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 interface Option {
+    id?: string | number;
     value: string | number;
     label: string;
     disabled?: boolean;
 }
 
 interface SelectProps {
+    id?: string;
     label?: string;
     error?: string;
     helperText?: string;
@@ -27,6 +29,7 @@ interface SelectProps {
 
 const Select = forwardRef<HTMLDivElement, SelectProps>(
     ({
+        id,
         label,
         error,
         helperText,
@@ -169,12 +172,12 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
         `.trim();
 
         return (
-            <div className={`${baseClasses} ${className}`} ref={ref}>
+            <div className={`${baseClasses} ${className}`} ref={ref} id={id} data-e2e={id ? `${id}-container` : undefined}>
                 {/* Hidden input for form submission */}
                 <input type="hidden" name={name} value={value || ''} />
 
                 {label && (
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
                         {label} {required && <span className="text-red-500 ml-1">*</span>}
                     </label>
                 )}

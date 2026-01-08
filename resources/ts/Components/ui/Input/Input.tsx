@@ -40,18 +40,24 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     aria-invalid={error ? 'true' : 'false'}
                     aria-describedby={[errorId, helperId].filter(Boolean).join(' ') || undefined}
                     {...props}
+                    data-e2e={generatedId}
                 />
                 {error && (
-                    <p id={errorId} className="mt-1 text-sm text-red-600" role="alert">
+                    <p id={errorId} className="mt-1 text-sm text-red-600" role="alert"
+                        data-e2e={errorId}
+                    >
                         {error}
                     </p>
                 )}
                 {helperText && !error && (
-                    <p id={helperId} className="mt-1 text-sm text-gray-500">
+                    <p id={helperId} className="mt-1 text-sm text-gray-500"
+                        data-e2e={helperId}
+                    >
                         {helperText}
                     </p>
-                )}
-            </div>
+                )
+                }
+            </div >
         );
     }
 );

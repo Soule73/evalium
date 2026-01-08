@@ -13,7 +13,14 @@ export function DataTable<T extends { id: number | string }>({
     onStateChange,
     onSelectionChange,
     isLoading = false,
-    className = ''
+    className = '',
+    testIdSelectAllCheckbox = 'datatable-select-all-checkbox',
+    testIdTableBody = 'datatable-table-body',
+    testIdEmptyState = 'datatable-empty-state',
+    testIdResetFiltersButton = 'datatable-reset-filters-button',
+    testIdEmptyResetFiltersButton,
+    dataTableSearchInputId
+
 }: DataTableProps<T>) {
     const { state, actions, isNavigating, selection } = useDataTable(data, {
         enableSelection: config.enableSelection,
@@ -44,12 +51,14 @@ export function DataTable<T extends { id: number | string }>({
                             onChange={actions.toggleAllOnPage}
                             className="cursor-pointer"
                             aria-label={trans('components.datatable.select_all')}
+                            data-e2e={testIdSelectAllCheckbox}
                         />
                     </th>
                 )}
                 {config.columns.map((column) => (
                     <th
                         key={column.key}
+                        data-e2e={`datatable-header-${column.key}`}
                         className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${column.className || ''}`}
                     >
                         {column.label}
@@ -60,7 +69,7 @@ export function DataTable<T extends { id: number | string }>({
     );
 
     const renderTableBody = () => (
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white divide-y divide-gray-200" data-e2e={testIdTableBody}>
             {data.data.map((item, index) => {
                 const isItemSelectable = !config.isSelectable || config.isSelectable(item);
 
@@ -74,6 +83,7 @@ export function DataTable<T extends { id: number | string }>({
                                     disabled={!isItemSelectable}
                                     className={isItemSelectable ? "cursor-pointer" : "cursor-not-allowed opacity-50"}
                                     aria-label={trans('components.datatable.select_item', { id: String(item.id) })}
+                                    data-e2e={`datatable-row-checkbox-${item.id}`}
                                 />
                             </td>
                         )}
@@ -101,11 +111,13 @@ export function DataTable<T extends { id: number | string }>({
         if (showEmptySearchState && config.emptySearchState) {
             return (
                 <EmptyState
+                    data-e2e={testIdEmptyState}
                     title={config.emptySearchState.title}
                     subtitle={config.emptySearchState.subtitle}
                     icon={config.emptySearchState.icon}
                     actions={
                         <button
+                            data-e2e={testIdEmptyResetFiltersButton}
                             onClick={actions.resetFilters}
                             className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
@@ -146,6 +158,8 @@ export function DataTable<T extends { id: number | string }>({
                     onFilterChange={actions.setFilter}
                     onReset={actions.resetFilters}
                     isLoading={isLoading || isNavigating}
+                    testIdResetFiltersButton={testIdResetFiltersButton}
+                    dataTableSearchInputId={dataTableSearchInputId}
                 />
             )}
 

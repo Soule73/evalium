@@ -63,7 +63,7 @@ export default function RoleIndex({ roles, filters }: Props) {
         emptyState: {
             title: trans('admin_pages.roles.empty_title'),
             subtitle: trans('admin_pages.roles.empty_subtitle'),
-            icon: <ShieldCheckIcon className="w-12 h-12 text-gray-400" />,
+            icon: <ShieldCheckIcon className="w-12 h-12 text-gray-400 mx-auto" />,
             actions: canCreateRoles ? (
                 <Button onClick={handleCreate} color="primary">
                     {trans('admin_pages.roles.create_button')}
@@ -82,10 +82,13 @@ export default function RoleIndex({ roles, filters }: Props) {
                 render: (role) => (
                     <div className="flex items-center gap-2">
                         <ShieldCheckIcon className="w-5 h-5 text-blue-600" />
-                        <div>
+                        <p data-e2e={`role-name-${role.name.toLowerCase()}`} className="text-sm font-medium text-gray-900">
+                            {getRoleLabel(role.name)}
+                        </p>
+                        {/* <div>
                             <div className="text-sm font-medium text-gray-900">{getRoleLabel(role.name)}</div>
                             <div className="text-xs text-gray-500">{role.name}</div>
-                        </div>
+                        </div> */}
                         {isSystemRole(role.name) && (
                             <Badge label={trans('admin_pages.roles.system_role')} type="info" />
                         )}
@@ -101,12 +104,14 @@ export default function RoleIndex({ roles, filters }: Props) {
                         <div className="text-sm font-medium text-gray-900">{trans('admin_pages.roles.permissions_count', { count: role.permissions_count || 0 })}</div>
                         <div className="text-xs text-gray-500 truncate max-w-md">
                             {role.permissions && role.permissions.length > 0 ? (
-                                <>
+                                <span data-e2e={`role-permissions-${role.name.toLowerCase()}`}>
                                     {role.permissions.slice(0, 3).map((p) => p.name).join(', ')}
                                     {role.permissions.length > 3 && ` +${role.permissions.length - 3}`}
-                                </>
+                                </span>
                             ) : (
-                                trans('admin_pages.roles.no_permissions')
+                                <span data-e2e={`role-no-permissions-${role.name.toLowerCase()}`}>
+                                    {trans('admin_pages.roles.no_permissions')}
+                                </span>
                             )}
                         </div>
                     </div>
@@ -115,33 +120,38 @@ export default function RoleIndex({ roles, filters }: Props) {
             {
                 key: 'actions',
                 label: trans('admin_pages.common.actions'),
-                render: (role) => (canUpdateRoles || canDeleteRoles) ? (
-                    <div className="flex gap-2">
-                        {canUpdateRoles && (
-                            <Button
-                                onClick={() => handleEdit(role.id)}
-                                size="sm"
-                                color="primary"
-                                variant="outline"
-                            >
-                                {isSystemRole(role.name) ? trans('admin_pages.common.view') : trans('admin_pages.common.edit')}
-                            </Button>
-                        )}
-                        {!isSystemRole(role.name) && canDeleteRoles && (
-                            <Button
-                                onClick={() => setDeleteModal({
-                                    isOpen: true,
-                                    roleId: role.id,
-                                    roleName: getRoleLabel(role.name)
-                                })}
-                                size="sm"
-                                color="danger"
-                            >
-                                {trans('admin_pages.common.delete')}
-                            </Button>
-                        )}
-                    </div>
-                ) : null,
+                render: (role) => {
+                    const roleLabel = getRoleLabel(role.name);
+                    return (canUpdateRoles || canDeleteRoles) ? (
+                        <div className="flex gap-2">
+                            {canUpdateRoles && (
+                                <Button
+                                    onClick={() => handleEdit(role.id)}
+                                    size="sm"
+                                    color="primary"
+                                    variant="outline"
+                                    data-e2e={`role-edit-${role.name.toLowerCase()}`}
+                                >
+                                    {isSystemRole(role.name) ? trans('admin_pages.common.view') : trans('admin_pages.common.edit')}
+                                </Button>
+                            )}
+                            {!isSystemRole(role.name) && canDeleteRoles && (
+                                <Button
+                                    onClick={() => setDeleteModal({
+                                        isOpen: true,
+                                        roleId: role.id,
+                                        roleName: roleLabel
+                                    })}
+                                    size="sm"
+                                    color="danger"
+                                    data-e2e={`role-delete-${role.name.toLowerCase()}`}
+                                >
+                                    {trans('admin_pages.common.delete')}
+                                </Button>
+                            )}
+                        </div>
+                    ) : null;
+                }
             },
         ],
     };
@@ -154,12 +164,17 @@ export default function RoleIndex({ roles, filters }: Props) {
                 title={trans('admin_pages.roles.title')}
                 subtitle={trans('admin_pages.roles.subtitle')}
                 actions={canCreateRoles && (
-                    <Button onClick={handleCreate} color="primary" size='sm'>
+                    <Button onClick={handleCreate} color="primary" size='sm' data-e2e="role-create-button">
                         {trans('admin_pages.roles.create')}
                     </Button>
                 )}
             >
                 <DataTable
+                    testIdTableBody='roles-datatable-body'
+                    dataTableSearchInputId="roles-datatable-search-input"
+                    testIdEmptyState='roles-datatable-empty-state'
+                    testIdEmptyResetFiltersButton='roles-datatable-empty-reset-filters-button'
+                    testIdResetFiltersButton='roles-datatable-reset-filters-button'
                     config={dataTableConfig}
                     data={roles}
                     onStateChange={(state) => {
@@ -175,7 +190,7 @@ export default function RoleIndex({ roles, filters }: Props) {
                             newFilters.page !== previousFilters.current.page
                         ) {
                             previousFilters.current = newFilters;
-                            
+
                             router.get(route('roles.index'), newFilters, {
                                 preserveState: true,
                                 preserveScroll: true,
@@ -195,6 +210,9 @@ export default function RoleIndex({ roles, filters }: Props) {
                 confirmText={trans('admin_pages.common.delete')}
                 cancelText={trans('admin_pages.common.cancel')}
                 type="danger"
+                testIdModal={`role-delete-modal-${deleteModal.roleName.toLowerCase()}`}
+                testIdConfirmButton={`role-delete-confirm-button-${deleteModal.roleName.toLowerCase()}`}
+                testIdCancelButton={`role-delete-cancel-button-${deleteModal.roleName.toLowerCase()}`}
             />
         </AuthenticatedLayout>
     );

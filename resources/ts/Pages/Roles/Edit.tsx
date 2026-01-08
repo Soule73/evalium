@@ -4,7 +4,7 @@ import { breadcrumbs } from '@/utils';
 import { Permission, Role, GroupedPermissions } from '@/types/role';
 import { useRoleForm } from '@/hooks';
 import { trans } from '@/utils';
-import { Button, RoleForm, Section } from '@/Components';
+import { RoleForm } from '@/Components';
 
 interface Props {
     role: Role;
@@ -29,7 +29,7 @@ export default function EditRole({ role, allPermissions, groupedPermissions }: P
     } = useRoleForm({
         initialData: {
             name: role.name,
-            permissions: role.permissions.map(p => p.id),
+            permissions: role?.permissions?.map(p => p.id) ?? [],
         },
         allPermissions,
         onSuccessRoute: route('roles.index'),
@@ -38,37 +38,24 @@ export default function EditRole({ role, allPermissions, groupedPermissions }: P
 
     return (
         <AuthenticatedLayout title={trans('admin_pages.roles.edit')} breadcrumb={breadcrumbs.roleEdit(role.name)}>
-            <Section
+            <RoleForm
                 title={trans('admin_pages.roles.edit_title')}
                 subtitle={trans('admin_pages.roles.edit_subtitle')}
-                actions={
-                    <Button
-                        type="button"
-                        onClick={handleCancel}
-                        variant='outline'
-                        color="secondary"
-                    >
-                        {trans('admin_pages.common.back')}
-                    </Button>
-                }
-            >
-                <RoleForm
-                    formData={formData}
-                    errors={errors}
-                    isSubmitting={isSubmitting}
-                    groupedPermissions={groupedPermissions}
-                    onSubmit={handleSubmit}
-                    onCancel={handleCancel}
-                    onFieldChange={handleFieldChange}
-                    onPermissionToggle={handlePermissionToggle}
-                    onSelectAll={selectAll}
-                    onDeselectAll={deselectAll}
-                    isSystemRole={isSystemRole}
-                    onSync={handleSyncPermissions}
-                    submitButtonText={trans('admin_pages.roles.update_button')}
-                    submittingText={trans('admin_pages.roles.updating')}
-                />
-            </Section>
+                formData={formData}
+                errors={errors}
+                isSubmitting={isSubmitting}
+                groupedPermissions={groupedPermissions}
+                onSubmit={handleSubmit}
+                onCancel={handleCancel}
+                onFieldChange={handleFieldChange}
+                onPermissionToggle={handlePermissionToggle}
+                onSelectAll={selectAll}
+                onDeselectAll={deselectAll}
+                isSystemRole={isSystemRole}
+                onSync={handleSyncPermissions}
+                submitButtonText={trans('admin_pages.roles.update_button')}
+                submittingText={trans('admin_pages.roles.updating')}
+            />
         </AuthenticatedLayout>
     );
 }

@@ -3,6 +3,8 @@ import Modal, { ModalSize } from '../Modal/Modal';
 import Button from '../Button/Button';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
+type ModalType = 'danger' | 'warning' | 'info';
+
 interface ConfirmationModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -11,13 +13,46 @@ interface ConfirmationModalProps {
     message: string;
     confirmText: string;
     cancelText: string;
-    type?: 'danger' | 'warning' | 'info';
+    type?: ModalType;
     icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     loading?: boolean;
     isCloseableInside?: boolean;
     children?: React.ReactNode;
     size?: ModalSize;
+    testIdModal?: string;
+    testIdConfirmButton?: string;
+    testIdCancelButton?: string;
 }
+
+const getTypeStyles = (type: ModalType) => {
+    switch (type) {
+        case 'danger':
+            return {
+                iconColor: 'text-red-600',
+                iconBg: 'bg-red-100',
+                confirmButton: 'danger'
+            };
+        case 'warning':
+            return {
+                iconColor: 'text-yellow-600',
+                iconBg: 'bg-yellow-100',
+                confirmButton: 'warning'
+            };
+        case 'info':
+            return {
+                iconColor: 'text-blue-600',
+                iconBg: 'bg-blue-100',
+                confirmButton: 'primary'
+            };
+        default:
+            return {
+                iconColor: 'text-yellow-600',
+                iconBg: 'bg-yellow-100',
+                confirmButton: 'warning'
+            };
+    }
+};
+
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     isOpen,
@@ -32,44 +67,18 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     loading = false,
     isCloseableInside = true,
     size = "md",
-    children
+    children,
+    testIdModal = "confirmation-modal",
+    testIdConfirmButton = "confirm-button",
+    testIdCancelButton = "cancel-button"
 }) => {
-    // const defaultConfirmText = trans('components.confirmation_modal.confirm');
-    // const defaultCancelText = trans('components.confirmation_modal.cancel');
 
-    const getTypeStyles = () => {
-        switch (type) {
-            case 'danger':
-                return {
-                    iconColor: 'text-red-600',
-                    iconBg: 'bg-red-100',
-                    confirmButton: 'danger'
-                };
-            case 'warning':
-                return {
-                    iconColor: 'text-yellow-600',
-                    iconBg: 'bg-yellow-100',
-                    confirmButton: 'warning'
-                };
-            case 'info':
-                return {
-                    iconColor: 'text-blue-600',
-                    iconBg: 'bg-blue-100',
-                    confirmButton: 'primary'
-                };
-            default:
-                return {
-                    iconColor: 'text-yellow-600',
-                    iconBg: 'bg-yellow-100',
-                    confirmButton: 'warning'
-                };
-        }
-    };
 
-    const styles = getTypeStyles();
+    const styles = getTypeStyles(type);
 
     return (
         <Modal isOpen={isOpen} size={size} onClose={onClose} isCloseableInside={isCloseableInside && !loading}
+            testIdModal={testIdModal}
         >
             <div className=' min-h-72 flex flex-col items-center justify-between p-6'>
                 {React.createElement(icon, { className: `w-12 h-12 mb-4 ${styles.iconColor}` })}
@@ -85,7 +94,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                         variant="outline"
                         onClick={onClose}
                         disabled={loading}
-                        data-e2e="cancel-button"
+                        data-e2e={testIdCancelButton}
                     >
                         {cancelText}
                     </Button>
@@ -95,7 +104,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                         onClick={onConfirm}
                         loading={loading}
                         disabled={loading}
-                        data-e2e="confirm-button"
+                        data-e2e={testIdConfirmButton}
                     >
                         {confirmText}
                     </Button>

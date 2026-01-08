@@ -116,4 +116,10 @@ export interface DataTableProps<T> {
     onSelectionChange?: (selectedIds: (number | string)[]) => void;
     isLoading?: boolean;
     className?: string;
+    testIdSelectAllCheckbox?: string;
+    testIdTableBody?: string;
+    testIdEmptyState?: string;
+    testIdResetFiltersButton?: string;
+    testIdEmptyResetFiltersButton?: string;
+    dataTableSearchInputId?: string;
 }

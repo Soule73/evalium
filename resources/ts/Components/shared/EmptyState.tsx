@@ -1,7 +1,7 @@
 import React from 'react';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
 
-interface EmptyStateProps {
+interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
     title: string;
     subtitle: string;
     icon?: React.ReactNode;
@@ -14,10 +14,11 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     subtitle,
     icon,
     actions,
-    className = ''
+    className = '',
+    ...props
 }) => {
     return (
-        <div className={`text-center py-12 bg-white ${className}`}>
+        <div className={`text-center py-12 bg-white ${className}`} {...props}>
             <div className="text-gray-400">
                 {icon || <DocumentTextIcon className="w-12 h-12 mx-auto mb-4" />}
             </div>

@@ -9,9 +9,11 @@ interface UseRoleFormOptions {
     initialData?: RoleFormData;
     allPermissions: Permission[];
     onSuccessRoute: string;
+    nameValidationMessage?: string;
+    persmissionsValidationMessage?: string;
 }
 
-export function useRoleForm({ role, initialData, allPermissions, onSuccessRoute }: UseRoleFormOptions) {
+export function useRoleForm({ role, initialData, allPermissions, onSuccessRoute, nameValidationMessage, persmissionsValidationMessage }: UseRoleFormOptions) {
     const [formData, setFormData] = useState<RoleFormData>(
         initialData || {
             name: '',
@@ -69,6 +71,19 @@ export function useRoleForm({ role, initialData, allPermissions, onSuccessRoute 
             ? route('roles.update', { role: role.id })
             : route('roles.store');
         setIsSubmitting(true);
+
+        //validate before submit
+        if (!formData.name.trim()) {
+            // handleError({ name: 'The name field is required.' });
+            handleError({ name: nameValidationMessage || 'The name field is required.' });
+            return;
+        }
+
+        if (formData.permissions.length === 0) {
+            // handleError({ permissions: 'At least one permission must be selected.' });
+            handleError({ permissions: persmissionsValidationMessage || 'At least one permission must be selected.' });
+            return;
+        }
 
         if (method === 'put') {
             router.put(url, formData as any, {

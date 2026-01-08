@@ -4,7 +4,7 @@ import { breadcrumbs } from '@/utils';
 import { Permission, GroupedPermissions } from '@/types/role';
 import { useRoleForm } from '@/hooks';
 import { trans } from '@/utils';
-import { Button, RoleForm, Section } from '@/Components';
+import { RoleForm } from '@/Components';
 
 interface Props {
     permissions: Permission[];
@@ -31,35 +31,22 @@ export default function CreateRole({ permissions, groupedPermissions }: Props) {
 
     return (
         <AuthenticatedLayout title={trans('admin_pages.roles.create')} breadcrumb={breadcrumbs.roleCreate()}>
-            <Section
+            <RoleForm
                 title={trans('admin_pages.roles.create_title')}
                 subtitle={trans('admin_pages.roles.create_subtitle')}
-                actions={
-                    <Button
-                        type="button"
-                        onClick={handleCancel}
-                        color="secondary"
-                        variant='outline'
-                    >
-                        {trans('admin_pages.common.back')}
-                    </Button>
-                }
-            >
-                <RoleForm
-                    formData={formData}
-                    errors={errors}
-                    isSubmitting={isSubmitting}
-                    groupedPermissions={groupedPermissions}
-                    onSubmit={handleSubmit}
-                    onCancel={handleCancel}
-                    onFieldChange={handleFieldChange}
-                    onPermissionToggle={handlePermissionToggle}
-                    onSelectAll={selectAll}
-                    onDeselectAll={deselectAll}
-                    submitButtonText={trans('admin_pages.roles.create_button')}
-                    submittingText={trans('admin_pages.roles.creating')}
-                />
-            </Section>
+                formData={formData}
+                errors={errors}
+                isSubmitting={isSubmitting}
+                groupedPermissions={groupedPermissions}
+                onSubmit={handleSubmit}
+                onCancel={handleCancel}
+                onFieldChange={handleFieldChange}
+                onPermissionToggle={handlePermissionToggle}
+                onSelectAll={selectAll}
+                onDeselectAll={deselectAll}
+                submitButtonText={trans('admin_pages.roles.create_button')}
+                submittingText={trans('admin_pages.roles.creating')}
+            />
         </AuthenticatedLayout>
     );
 }

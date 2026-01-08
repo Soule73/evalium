@@ -27,6 +27,7 @@ return [
         'clear_search' => 'Effacer la recherche',
         'loading' => 'Chargement...',
         'search_placeholder' => 'Rechercher...',
+        'reset' => 'Réinitialiser',
     ],
 
     // Users Management
