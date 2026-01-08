@@ -52,6 +52,13 @@ export class Core {
     }
 
     /**
+     * Wait for redirect to a specific URL
+     */
+    async waitForRedirectTo(url: string, timeout = 10000): Promise<void> {
+        await this.page.waitForURL(`**${url}`, { timeout });
+    }
+
+    /**
      * Take screenshot with name
      */
     async screenshot(name: string): Promise<void> {
@@ -78,6 +85,25 @@ export class Core {
     }
 
     /**
+     * Check if text is visible
+     */
+    async isTextVisible(text: string | RegExp): Promise<boolean> {
+        try {
+            await this.page.getByText(text).waitFor({ state: 'visible', timeout: 5000 });
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    /**
+     * Expect text to be visible
+     */
+    async expectTextVisible(text: string | RegExp): Promise<void> {
+        await expect(this.page.getByText(text)).toBeVisible();
+    }
+
+    /**
      * Get current URL
      */
     getCurrentUrl(): string {
@@ -92,10 +118,22 @@ export class Core {
     }
 
     /**
+     * Check if current URL does not contain path
+     */
+    async expectUrlNotContains(path: string): Promise<void> {
+        await expect(this.page).not.toHaveURL(new RegExp(path));
+    }
+
+    /**
      * Check if element with test ID is visible
      */
     async expectTestIdVisible(testId: string): Promise<void> {
         await expect(this.getByTestId(testId)).toBeVisible();
+    }
+
+    async waitTestIdState(testId: string, state: "detached" | "attached" | "visible" | "hidden", timeout = 10000): Promise<void> {
+        const element = this.getByTestId(testId);
+        await element.waitFor({ state, timeout });
     }
 
     /**

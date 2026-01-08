@@ -19,8 +19,8 @@ export class LoginPage extends AuthHelper {
         super(page);
         
         // Initialize locators using data-e2e test IDs
-        this.emailInput = this.getByTestId('email-input');
-        this.passwordInput = this.getByTestId('password-input');
+        this.emailInput = this.getByTestId('email');
+        this.passwordInput = this.getByTestId('password');
         this.rememberCheckbox = this.getByTestId('remember-checkbox');
         this.submitButton = this.getByTestId('login-submit');
         this.errorMessage = this.getByTestId('error-message');
