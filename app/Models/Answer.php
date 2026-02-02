@@ -39,6 +39,7 @@ class Answer extends Model
      */
     protected $fillable = [
         'assignment_id',
+        'assessment_assignment_id',
         'question_id',
         'choice_id',
         'answer_text',
@@ -59,9 +60,20 @@ class Answer extends Model
     }
 
     /**
-     * Get the assignment that this answer belongs to.
+     * Get the assessment assignment that this answer belongs to.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Assignment, self>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\AssessmentAssignment, self>
+     */
+    public function assessmentAssignment(): BelongsTo
+    {
+        return $this->belongsTo(AssessmentAssignment::class);
+    }
+
+    /**
+     * LEGACY: Get the exam assignment that this answer belongs to.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ExamAssignment, self>
+     * @deprecated Use assessmentAssignment() instead
      */
     public function assignment(): BelongsTo
     {

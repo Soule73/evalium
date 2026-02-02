@@ -30,9 +30,19 @@ class Level extends Model
     protected static function booted(): void
     {
         // Invalider le cache des groupes quand un niveau change
-        static::created(fn () => Cache::forget('groups_active_with_levels'));
-        static::updated(fn () => Cache::forget('groups_active_with_levels'));
-        static::deleted(fn () => Cache::forget('groups_active_with_levels'));
+        static::created(fn() => Cache::forget('groups_active_with_levels'));
+        static::updated(fn() => Cache::forget('groups_active_with_levels'));
+        static::deleted(fn() => Cache::forget('groups_active_with_levels'));
+    }
+
+    public function classes(): HasMany
+    {
+        return $this->hasMany(ClassModel::class);
+    }
+
+    public function subjects(): HasMany
+    {
+        return $this->hasMany(Subject::class);
     }
 
     public function groups(): HasMany

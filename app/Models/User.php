@@ -83,7 +83,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the exams associated with the user.
+     * Get the exams associated with the user (for teachers).
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Exam>
      */
@@ -93,7 +93,17 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the exam assignments associated with the user.
+     * Get the assessments associated with the user (for teachers).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Assessment>
+     */
+    public function assessments(): HasMany
+    {
+        return $this->hasMany(Assessment::class, 'teacher_id');
+    }
+
+    /**
+     * Get the exam assignments associated with the user (for students).
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\ExamAssignment>
      */
@@ -103,7 +113,49 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the groups associated with the user (student).
+     * Get the assessment assignments associated with the user (for students).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\AssessmentAssignment>
+     */
+    public function assessmentAssignments(): HasMany
+    {
+        return $this->hasMany(AssessmentAssignment::class, 'student_id');
+    }
+
+    /**
+     * Get the enrollments associated with the user (for students).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Enrollment>
+     */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class, 'student_id');
+    }
+
+    /**
+     * Get the classes associated with the user (for students via enrollments).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\ClassModel>
+     */
+    public function classes(): BelongsToMany
+    {
+        return $this->belongsToMany(ClassModel::class, 'enrollments', 'student_id', 'class_id')
+            ->withPivot(['enrolled_at', 'withdrawn_at', 'status'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the class subjects where the user is teaching (for teachers).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\ClassSubject>
+     */
+    public function classSubjects(): HasMany
+    {
+        return $this->hasMany(ClassSubject::class, 'teacher_id');
+    }
+
+    /**
+     * Get the groups associated with the user (student) - LEGACY.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Group>
      */

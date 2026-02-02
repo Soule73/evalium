@@ -43,4 +43,34 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    /**
+     * Create a user with the teacher role.
+     */
+    public function teacher(): static
+    {
+        return $this->afterCreating(function ($user) {
+            $user->assignRole('teacher');
+        });
+    }
+
+    /**
+     * Create a user with the student role.
+     */
+    public function student(): static
+    {
+        return $this->afterCreating(function ($user) {
+            $user->assignRole('student');
+        });
+    }
+
+    /**
+     * Create a user with the admin role.
+     */
+    public function admin(): static
+    {
+        return $this->afterCreating(function ($user) {
+            $user->assignRole('admin');
+        });
+    }
 }

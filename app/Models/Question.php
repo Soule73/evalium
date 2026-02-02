@@ -60,9 +60,20 @@ class Question extends Model
     ];
 
     /**
-     * Get the exam that owns the question.
+     * Get the assessment that owns the question.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Assessment, self>
+     */
+    public function assessment(): BelongsTo
+    {
+        return $this->belongsTo(Assessment::class);
+    }
+
+    /**
+     * LEGACY: Get the exam that owns the question.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Exam, self>
+     * @deprecated Use assessment() instead
      */
     public function exam(): BelongsTo
     {
