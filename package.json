@@ -8,6 +8,7 @@
     ],
     "packageManager": "yarn@1.22.22",
     "scripts": {
+        "commitlint": "commitlint --edit",
         "build": "vite build",
         "dev": "vite",
         "test": "vitest",
@@ -30,6 +31,8 @@
         "test:all": "yarn test:unit && yarn test:e2e"
     },
     "devDependencies": {
+        "@commitlint/cli": "^19.7.0",
+        "@commitlint/config-conventional": "^19.7.0",
         "@tailwindcss/vite": "^4.1.13",
         "@testing-library/dom": "^10.4.1",
         "@testing-library/jest-dom": "^6.9.1",
