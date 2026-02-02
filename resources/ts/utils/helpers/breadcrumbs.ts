@@ -279,6 +279,30 @@ export const breadcrumbs = {
             { label: classItem.display_name || classItem.name || '', href: route('admin.classes.show', classItem.id) },
             { label: trans('breadcrumbs.edit') }
         ],
+
+        enrollments: (): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.enrollments'), href: route('admin.enrollments.index') }
+        ],
+
+        createEnrollment: (): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.enrollments'), href: route('admin.enrollments.index') },
+            { label: trans('breadcrumbs.create') }
+        ],
+
+        showEnrollment: (enrollment: { id: number; student?: { name: string } }): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.enrollments'), href: route('admin.enrollments.index') },
+            { label: enrollment.student?.name || `#${enrollment.id}`, href: route('admin.enrollments.show', enrollment.id) }
+        ],
+
+        transferEnrollment: (enrollment: { id: number; student?: { name: string } }): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.enrollments'), href: route('admin.enrollments.index') },
+            { label: enrollment.student?.name || `#${enrollment.id}`, href: route('admin.enrollments.show', enrollment.id) },
+            { label: trans('breadcrumbs.transfer') }
+        ],
     },
 };
 

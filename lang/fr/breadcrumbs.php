@@ -13,6 +13,7 @@ return [
     'academic_years' => 'Années académiques',
     'subjects' => 'Matières',
     'classes' => 'Classes',
+    'enrollments' => 'Inscriptions',
 
     // Actions communes
     'create' => 'Créer',
@@ -20,6 +21,7 @@ return [
     'show' => 'Afficher',
     'assign' => 'Assigner',
     'assign_students' => 'Assigner des étudiants',
+    'transfer' => 'Transférer',
 
     // Examens
     'exams' => 'Examens',
