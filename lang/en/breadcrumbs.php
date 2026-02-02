@@ -12,6 +12,7 @@ return [
     'my_groups' => 'My Groups',
     'academic_years' => 'Academic Years',
     'subjects' => 'Subjects',
+    'classes' => 'Classes',
 
     // Common actions
     'create' => 'Create',

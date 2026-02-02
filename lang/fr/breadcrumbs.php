@@ -12,6 +12,7 @@ return [
     'my_groups' => 'Mes Groupes',
     'academic_years' => 'Années académiques',
     'subjects' => 'Matières',
+    'classes' => 'Classes',
 
     // Actions communes
     'create' => 'Créer',

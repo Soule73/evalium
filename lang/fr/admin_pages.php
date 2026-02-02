@@ -388,10 +388,61 @@ return [
         'creating' => 'Création...',
         'update_button' => 'Mettre à jour la matière',
         'updating' => 'Mise à jour...',
-        
+
         // Classes section
         'classes_section' => 'Classes associées',
         'classes_section_subtitle' => 'Classes où cette matière est enseignée',
         'no_classes' => 'Aucune classe associée à cette matière',
+    ],
+
+    // Classes Management
+    'classes' => [
+        'title' => 'Gestion des classes',
+        'subtitle' => 'Gérer les classes pour chaque année académique et niveau',
+        'create' => 'Nouvelle classe',
+        'create_title' => 'Créer une nouvelle classe',
+        'create_subtitle' => 'Ajouter une nouvelle classe au système.',
+        'edit' => 'Modifier la classe',
+        'edit_title' => 'Modifier la classe',
+        'edit_subtitle' => 'Modifier les informations de la classe.',
+        'view' => 'Voir la classe',
+        'show_subtitle' => 'Détails de la classe',
+        'name' => 'Nom de la classe',
+        'name_placeholder' => 'Ex: A, B, 1',
+        'name_helper' => 'Identifiant de la classe (sera combiné avec le niveau)',
+        'academic_year' => 'Année académique',
+        'select_academic_year' => 'Sélectionner une année académique',
+        'level' => 'Niveau',
+        'select_level' => 'Sélectionner un niveau',
+        'max_students' => 'Maximum d\'étudiants',
+        'max_students_helper' => 'Nombre maximum d\'étudiants pouvant s\'inscrire',
+        'students' => 'Étudiants',
+        'subjects' => 'Matières',
+        'full' => 'Complet',
+        'delete_title' => 'Supprimer la classe',
+        'delete_message' => 'Voulez-vous vraiment supprimer la classe ":name" ?',
+        'delete_confirm' => 'Êtes-vous sûr de vouloir supprimer cette classe ?',
+        'empty_title' => 'Aucune classe',
+        'empty_subtitle' => 'Créez votre première classe pour commencer.',
+        'create_button' => 'Créer la classe',
+        'creating' => 'Création...',
+        'update_button' => 'Mettre à jour la classe',
+        'updating' => 'Mise à jour...',
+
+        // Enrollments section
+        'enrollments_section' => 'Étudiants inscrits',
+        'enrollments_section_subtitle' => 'Étudiants inscrits dans cette classe',
+        'manage_enrollments' => 'Gérer les inscriptions',
+        'no_enrollments' => 'Aucun étudiant inscrit pour le moment',
+        'status_active' => 'Actif',
+        'status_transferred' => 'Transféré',
+        'status_withdrawn' => 'Retiré',
+        'and_more' => 'Et :count de plus...',
+
+        // Subjects section
+        'subjects_section' => 'Matières de la classe',
+        'subjects_section_subtitle' => 'Matières enseignées dans cette classe',
+        'manage_subjects' => 'Gérer les matières',
+        'no_subjects' => 'Aucune matière assignée pour le moment',
     ],
 ];

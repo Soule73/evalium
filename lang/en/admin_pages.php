@@ -386,10 +386,61 @@ return [
         'creating' => 'Creating...',
         'update_button' => 'Update Subject',
         'updating' => 'Updating...',
-        
+
         // Classes section
         'classes_section' => 'Associated Classes',
         'classes_section_subtitle' => 'Classes where this subject is taught',
         'no_classes' => 'No classes associated with this subject',
+    ],
+
+    // Classes Management
+    'classes' => [
+        'title' => 'Classes Management',
+        'subtitle' => 'Manage classes for each academic year and level',
+        'create' => 'New Class',
+        'create_title' => 'Create New Class',
+        'create_subtitle' => 'Add a new class to the system.',
+        'edit' => 'Edit Class',
+        'edit_title' => 'Edit Class',
+        'edit_subtitle' => 'Modify class information.',
+        'view' => 'View Class',
+        'show_subtitle' => 'Class Details',
+        'name' => 'Class Name',
+        'name_placeholder' => 'Ex: A, B, 1',
+        'name_helper' => 'Class identifier (will be combined with level)',
+        'academic_year' => 'Academic Year',
+        'select_academic_year' => 'Select an academic year',
+        'level' => 'Level',
+        'select_level' => 'Select a level',
+        'max_students' => 'Maximum Students',
+        'max_students_helper' => 'Maximum number of students that can enroll',
+        'students' => 'Students',
+        'subjects' => 'Subjects',
+        'full' => 'Full',
+        'delete_title' => 'Delete Class',
+        'delete_message' => 'Do you really want to delete class ":name"?',
+        'delete_confirm' => 'Are you sure you want to delete this class?',
+        'empty_title' => 'No Classes',
+        'empty_subtitle' => 'Create your first class to get started.',
+        'create_button' => 'Create Class',
+        'creating' => 'Creating...',
+        'update_button' => 'Update Class',
+        'updating' => 'Updating...',
+
+        // Enrollments section
+        'enrollments_section' => 'Enrolled Students',
+        'enrollments_section_subtitle' => 'Students enrolled in this class',
+        'manage_enrollments' => 'Manage Enrollments',
+        'no_enrollments' => 'No students enrolled yet',
+        'status_active' => 'Active',
+        'status_transferred' => 'Transferred',
+        'status_withdrawn' => 'Withdrawn',
+        'and_more' => 'And :count more...',
+
+        // Subjects section
+        'subjects_section' => 'Class Subjects',
+        'subjects_section_subtitle' => 'Subjects taught in this class',
+        'manage_subjects' => 'Manage Subjects',
+        'no_subjects' => 'No subjects assigned yet',
     ],
 ];

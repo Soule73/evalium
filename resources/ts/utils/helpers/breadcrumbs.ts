@@ -255,6 +255,30 @@ export const breadcrumbs = {
             { label: subject.name, href: route('admin.subjects.show', subject.id) },
             { label: trans('breadcrumbs.edit') }
         ],
+
+        classes: (): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.classes'), href: route('admin.classes.index') }
+        ],
+
+        createClass: (): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.classes'), href: route('admin.classes.index') },
+            { label: trans('breadcrumbs.create') }
+        ],
+
+        showClass: (classItem: { id: number; name?: string; display_name?: string }): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.classes'), href: route('admin.classes.index') },
+            { label: classItem.display_name || classItem.name || '', href: route('admin.classes.show', classItem.id) }
+        ],
+
+        editClass: (classItem: { id: number; name?: string; display_name?: string }): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.classes'), href: route('admin.classes.index') },
+            { label: classItem.display_name || classItem.name || '', href: route('admin.classes.show', classItem.id) },
+            { label: trans('breadcrumbs.edit') }
+        ],
     },
 };
 
