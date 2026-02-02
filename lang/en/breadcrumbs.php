@@ -11,6 +11,7 @@ return [
     'roles_permissions' => 'Roles & Permissions',
     'my_groups' => 'My Groups',
     'academic_years' => 'Academic Years',
+    'subjects' => 'Subjects',
 
     // Common actions
     'create' => 'Create',

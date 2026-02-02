@@ -231,6 +231,30 @@ export const breadcrumbs = {
             { label: year.name, href: route('admin.academic-years.show', year.id) },
             { label: trans('breadcrumbs.edit') }
         ],
+
+        subjects: (): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.subjects'), href: route('admin.subjects.index') }
+        ],
+
+        createSubject: (): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.subjects'), href: route('admin.subjects.index') },
+            { label: trans('breadcrumbs.create') }
+        ],
+
+        showSubject: (subject: { id: number; name: string }): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.subjects'), href: route('admin.subjects.index') },
+            { label: subject.name, href: route('admin.subjects.show', subject.id) }
+        ],
+
+        editSubject: (subject: { id: number; name: string }): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.subjects'), href: route('admin.subjects.index') },
+            { label: subject.name, href: route('admin.subjects.show', subject.id) },
+            { label: trans('breadcrumbs.edit') }
+        ],
     },
 };
 

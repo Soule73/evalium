@@ -11,6 +11,7 @@ return [
     'roles_permissions' => 'Rôles & Permissions',
     'my_groups' => 'Mes Groupes',
     'academic_years' => 'Années académiques',
+    'subjects' => 'Matières',
 
     // Actions communes
     'create' => 'Créer',
