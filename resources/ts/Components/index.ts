@@ -5,3 +5,4 @@ export * from './features/groups';
 export * from './features/roles';
 export * from './layout';
 export * from './shared';
+export * from './admin';

@@ -10,6 +10,7 @@ return [
     'levels' => 'Levels',
     'roles_permissions' => 'Roles & Permissions',
     'my_groups' => 'My Groups',
+    'academic_years' => 'Academic Years',
 
     // Common actions
     'create' => 'Create',

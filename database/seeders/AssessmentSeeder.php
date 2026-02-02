@@ -27,6 +27,7 @@ class AssessmentSeeder extends Seeder
         ];
 
         $count = 0;
+        $dayCounter = 7;
         foreach ($classSubjects as $classSubject) {
             foreach ($assessmentTypes as $assessmentData) {
                 Assessment::create([
@@ -37,10 +38,11 @@ class AssessmentSeeder extends Seeder
                     'type' => $assessmentData['type'],
                     'coefficient' => $assessmentData['coefficient'],
                     'duration_minutes' => $assessmentData['type'] === 'examen' ? 120 : 60,
-                    'scheduled_at' => now()->addDays(rand(7, 30)),
+                    'scheduled_at' => now()->addDays($dayCounter),
                     'settings' => [],
                 ]);
                 $count++;
+                $dayCounter = ($dayCounter % 30) + 7;
             }
         }
 

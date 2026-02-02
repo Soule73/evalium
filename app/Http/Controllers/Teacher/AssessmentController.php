@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Teacher;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Teacher\StoreAssessmentRequest;
-use App\Http\Requests\Teacher\UpdateAssessmentRequest;
-use App\Http\Traits\HasFlashMessages;
-use App\Models\Assessment;
-use App\Models\ClassSubject;
-use App\Services\Core\AssessmentService;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Assessment;
+use App\Models\ClassSubject;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Traits\HasFlashMessages;
+use Illuminate\Http\RedirectResponse;
+use App\Services\Core\AssessmentService;
+use App\Http\Requests\Teacher\StoreAssessmentRequest;
+use App\Http\Requests\Teacher\UpdateAssessmentRequest;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class AssessmentController extends Controller
 {
@@ -65,7 +66,7 @@ class AssessmentController extends Controller
     {
         $this->authorize('create', Assessment::class);
 
-        $teacherId = auth()->id();
+        $teacherId = Auth::id();
 
         $classSubjects = ClassSubject::where('teacher_id', $teacherId)
             ->with(['class.academicYear', 'class.level', 'subject'])

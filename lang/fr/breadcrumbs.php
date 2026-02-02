@@ -10,6 +10,7 @@ return [
     'levels' => 'Niveaux',
     'roles_permissions' => 'Rôles & Permissions',
     'my_groups' => 'Mes Groupes',
+    'academic_years' => 'Années académiques',
 
     // Actions communes
     'create' => 'Créer',

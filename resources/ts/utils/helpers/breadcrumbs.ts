@@ -206,6 +206,32 @@ export const breadcrumbs = {
         { label: examTitle },
         { label: trans('breadcrumbs.take_exam') }
     ],
+
+    admin: {
+        academicYears: (): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.academic_years'), href: route('admin.academic-years.index') }
+        ],
+
+        createAcademicYear: (): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.academic_years'), href: route('admin.academic-years.index') },
+            { label: trans('breadcrumbs.create') }
+        ],
+
+        showAcademicYear: (year: { id: number; name: string }): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.academic_years'), href: route('admin.academic-years.index') },
+            { label: year.name, href: route('admin.academic-years.show', year.id) }
+        ],
+
+        editAcademicYear: (year: { id: number; name: string }): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.academic_years'), href: route('admin.academic-years.index') },
+            { label: year.name, href: route('admin.academic-years.show', year.id) },
+            { label: trans('breadcrumbs.edit') }
+        ],
+    },
 };
 
 // Routes de navigation principales (utilisées par le Sidebar)

@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Student;
 
-use App\Http\Controllers\Controller;
-use App\Models\Assessment;
-use App\Models\AssessmentAssignment;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Assessment;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Models\AssessmentAssignment;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class StudentAssessmentController extends Controller
 {
@@ -61,7 +63,7 @@ class StudentAssessmentController extends Controller
      */
     public function show(Assessment $assessment): Response
     {
-        $studentId = auth()->id();
+        $studentId = Auth::id();
 
         $this->authorize('view', $assessment);
 
@@ -86,7 +88,7 @@ class StudentAssessmentController extends Controller
      */
     public function start(Assessment $assessment)
     {
-        $studentId = auth()->id();
+        $studentId = Auth::id();
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
             ->where('student_id', $studentId)
@@ -102,9 +104,9 @@ class StudentAssessmentController extends Controller
     /**
      * Take/work on an assessment.
      */
-    public function take(Assessment $assessment): Response
+    public function take(Assessment $assessment): Response|RedirectResponse
     {
-        $studentId = auth()->id();
+        $studentId = Auth::id();
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
             ->where('student_id', $studentId)
@@ -135,7 +137,7 @@ class StudentAssessmentController extends Controller
      */
     public function submit(Request $request, Assessment $assessment)
     {
-        $studentId = auth()->id();
+        $studentId = Auth::id();
 
         $request->validate([
             'answers' => ['required', 'array'],
@@ -174,9 +176,9 @@ class StudentAssessmentController extends Controller
     /**
      * Display assessment results.
      */
-    public function results(Assessment $assessment): Response
+    public function results(Assessment $assessment): Response|RedirectResponse
     {
-        $studentId = auth()->id();
+        $studentId = Auth::id();
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
             ->where('student_id', $studentId)
