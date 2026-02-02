@@ -303,4 +303,212 @@ Route::middleware('auth')->group(function () {
             Route::post('/{role}/sync-permissions', 'syncPermissions')
                 ->name('sync-permissions');
         });
+
+    /**
+     * ========================================
+     * NEW MCD ARCHITECTURE ROUTES
+     * ========================================
+     */
+
+    /**
+     * Admin Routes - New MCD Architecture
+     * Routes for managing academic years, subjects, classes, enrollments
+     */
+    Route::prefix('admin')
+        ->name('admin.')
+        ->group(function () {
+
+            /**
+             * Academic Year Management
+             */
+            Route::prefix('academic-years')
+                ->name('academic-years.')
+                ->controller(\App\Http\Controllers\Admin\AcademicYearController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{academic_year}', 'show')->name('show');
+                    Route::get('/{academic_year}/edit', 'edit')->name('edit');
+                    Route::put('/{academic_year}', 'update')->name('update');
+                    Route::delete('/{academic_year}', 'destroy')->name('destroy');
+                    Route::post('/{academic_year}/set-current', 'setCurrent')->name('set-current');
+                    Route::post('/{academic_year}/archive', 'archive')->name('archive');
+                });
+
+            /**
+             * Subject Management
+             */
+            Route::prefix('subjects')
+                ->name('subjects.')
+                ->controller(\App\Http\Controllers\Admin\SubjectController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{subject}', 'show')->name('show');
+                    Route::get('/{subject}/edit', 'edit')->name('edit');
+                    Route::put('/{subject}', 'update')->name('update');
+                    Route::delete('/{subject}', 'destroy')->name('destroy');
+                });
+
+            /**
+             * Class Management
+             */
+            Route::prefix('classes')
+                ->name('classes.')
+                ->controller(\App\Http\Controllers\Admin\ClassController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{class}', 'show')->name('show');
+                    Route::get('/{class}/edit', 'edit')->name('edit');
+                    Route::put('/{class}', 'update')->name('update');
+                    Route::delete('/{class}', 'destroy')->name('destroy');
+                });
+
+            /**
+             * Enrollment Management
+             */
+            Route::prefix('enrollments')
+                ->name('enrollments.')
+                ->controller(\App\Http\Controllers\Admin\EnrollmentController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{enrollment}', 'show')->name('show');
+                    Route::post('/{enrollment}/transfer', 'transfer')->name('transfer');
+                    Route::post('/{enrollment}/withdraw', 'withdraw')->name('withdraw');
+                    Route::post('/{enrollment}/reactivate', 'reactivate')->name('reactivate');
+                    Route::delete('/{enrollment}', 'destroy')->name('destroy');
+                });
+
+            /**
+             * Class Subject Management (Central table for teacher-subject-class assignments)
+             */
+            Route::prefix('class-subjects')
+                ->name('class-subjects.')
+                ->controller(\App\Http\Controllers\Admin\ClassSubjectController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{class_subject}', 'show')->name('show');
+                    Route::get('/history', 'history')->name('history');
+                    Route::post('/{class_subject}/replace-teacher', 'replaceTeacher')->name('replace-teacher');
+                    Route::post('/{class_subject}/update-coefficient', 'updateCoefficient')->name('update-coefficient');
+                    Route::post('/{class_subject}/terminate', 'terminate')->name('terminate');
+                    Route::delete('/{class_subject}', 'destroy')->name('destroy');
+                });
+        });
+
+    /**
+     * Teacher Routes - New MCD Architecture
+     * Routes for managing assessments, grading, and teacher dashboard
+     */
+    Route::prefix('teacher')
+        ->name('teacher.')
+        ->group(function () {
+
+            /**
+             * Teacher Dashboard
+             */
+            Route::get('/dashboard', [\App\Http\Controllers\Teacher\TeacherDashboardController::class, 'index'])
+                ->name('dashboard');
+
+            /**
+             * Assessment Management
+             */
+            Route::prefix('assessments')
+                ->name('assessments.')
+                ->controller(\App\Http\Controllers\Teacher\AssessmentController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{assessment}', 'show')->name('show');
+                    Route::get('/{assessment}/edit', 'edit')->name('edit');
+                    Route::put('/{assessment}', 'update')->name('update');
+                    Route::delete('/{assessment}', 'destroy')->name('destroy');
+                    Route::post('/{assessment}/publish', 'publish')->name('publish');
+                    Route::post('/{assessment}/unpublish', 'unpublish')->name('unpublish');
+                    Route::post('/{assessment}/duplicate', 'duplicate')->name('duplicate');
+                });
+
+            /**
+             * Assessment Assignment Management
+             */
+            Route::prefix('assessments/{assessment}/assignments')
+                ->name('assessment-assignments.')
+                ->controller(\App\Http\Controllers\Teacher\AssessmentAssignmentController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::post('/assign-all', 'assignAll')->name('assign-all');
+                    Route::post('/assign', 'assign')->name('assign');
+                    Route::delete('/{student}', 'unassign')->name('unassign');
+                });
+
+            /**
+             * Teacher Classes
+             */
+            Route::prefix('classes')
+                ->name('classes.')
+                ->controller(\App\Http\Controllers\Teacher\TeacherClassController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{class}', 'show')->name('show');
+                });
+
+            /**
+             * Grading
+             */
+            Route::prefix('grading')
+                ->name('grading.')
+                ->controller(\App\Http\Controllers\Teacher\GradingController::class)
+                ->group(function () {
+                    Route::get('/assessments/{assessment}', 'index')->name('index');
+                    Route::get('/assessments/{assessment}/students/{student}', 'show')->name('show');
+                    Route::post('/assessments/{assessment}/students/{student}', 'save')->name('save');
+                    Route::get('/students/{student}/classes/{class}/breakdown', 'breakdown')->name('breakdown');
+                });
+        });
+
+    /**
+     * Student Routes - New MCD Architecture
+     * Role-based routes exclusively for students
+     */
+    Route::middleware('role:student')
+        ->prefix('student/mcd')
+        ->name('student.mcd.')
+        ->group(function () {
+
+            /**
+             * Student Assessments
+             */
+            Route::prefix('assessments')
+                ->name('assessments.')
+                ->controller(\App\Http\Controllers\Student\StudentAssessmentController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{assessment}', 'show')->name('show');
+                    Route::post('/{assessment}/start', 'start')->name('start');
+                    Route::get('/{assessment}/take', 'take')->name('take');
+                    Route::post('/{assessment}/submit', 'submit')->name('submit');
+                    Route::get('/{assessment}/results', 'results')->name('results');
+                });
+
+            /**
+             * Student Enrollment
+             */
+            Route::prefix('enrollment')
+                ->name('enrollment.')
+                ->controller(\App\Http\Controllers\Student\StudentEnrollmentController::class)
+                ->group(function () {
+                    Route::get('/', 'show')->name('show');
+                    Route::get('/history', 'history')->name('history');
+                    Route::get('/classmates', 'classmates')->name('classmates');
+                });
+        });
 });
