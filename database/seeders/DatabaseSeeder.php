@@ -10,32 +10,41 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      *
-     * Ordre d'exécution :
-     * 1. Rôles et permissions
-     * 2. Niveaux scolaires
-     * 3. Utilisateurs (admin, teachers, students)
-     * 4. Groupes avec affectation des étudiants
-     * 5. Examens avec questions et choix
-     * 6. Assignation des examens aux groupes
+     * NEW MCD Architecture Order:
+     * 1. Roles & Permissions
+     * 2. Levels (already exists)
+     * 3. Users (admin, teachers, students)
+     * 4. Academic Year 2025/2026
+     * 5. Semesters (2 per year)
+     * 6. Subjects (per level)
+     * 7. Classes (per academic year)
+     * 8. Enrollments (students → classes)
+     * 9. ClassSubjects ⭐ CENTRAL (teacher → subject → class)
+     * 10. Assessments (evaluations per class subject)
+     *
+     * LEGACY seeders (Groups, Exams) preserved for backward compatibility
      */
     public function run(): void
     {
         $this->call([
-            // 1. Configuration de base
+            // === PHASE 1: Base Configuration ===
             RoleAndPermissionSeeder::class,
             LevelSeeder::class,
-
-            // 2. Utilisateurs (admin + teachers + students)
             UserSeeder::class,
 
-            // 3. Groupes (affecte automatiquement les étudiants)
-            GroupSeeder::class,
+            // === PHASE 2: NEW MCD Architecture ===
+            AcademicYearSeeder::class,
+            SemesterSeeder::class,
+            SubjectSeeder::class,
+            ClassSeeder::class,
+            EnrollmentSeeder::class,
+            ClassSubjectSeeder::class,
+            AssessmentSeeder::class,
 
-            // 4. Examens (créé les questions et choix)
-            ExamSeeder::class,
-
-            // 5. Assigner les examens aux groupes
-            ExamGroupAssignmentSeeder::class,
+            // === PHASE 3: LEGACY (temporarily disabled - need adaptation) ===
+            // GroupSeeder::class,
+            // ExamSeeder::class,
+            // ExamGroupAssignmentSeeder::class,
         ]);
     }
 }
