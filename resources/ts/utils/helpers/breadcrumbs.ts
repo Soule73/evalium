@@ -335,6 +335,30 @@ export const breadcrumbs = {
             { label: trans('breadcrumbs.update_coefficient') }
         ],
     },
+
+    teacherAssessments: (): BreadcrumbItem[] => [
+        dashboardBreadcrumb(),
+        { label: trans('breadcrumbs.assessments'), href: route('teacher.assessments.index') }
+    ],
+
+    createTeacherAssessment: (): BreadcrumbItem[] => [
+        dashboardBreadcrumb(),
+        { label: trans('breadcrumbs.assessments'), href: route('teacher.assessments.index') },
+        { label: trans('breadcrumbs.create') }
+    ],
+
+    showTeacherAssessment: (assessment: { id: number; title: string }): BreadcrumbItem[] => [
+        dashboardBreadcrumb(),
+        { label: trans('breadcrumbs.assessments'), href: route('teacher.assessments.index') },
+        { label: assessment.title, href: route('teacher.assessments.show', assessment.id) }
+    ],
+
+    editTeacherAssessment: (assessment: { id: number; title: string }): BreadcrumbItem[] => [
+        dashboardBreadcrumb(),
+        { label: trans('breadcrumbs.assessments'), href: route('teacher.assessments.index') },
+        { label: assessment.title, href: route('teacher.assessments.show', assessment.id) },
+        { label: trans('breadcrumbs.edit') }
+    ],
 };
 
 // Routes de navigation principales (utilisées par le Sidebar)

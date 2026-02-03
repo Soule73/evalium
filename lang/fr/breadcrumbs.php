@@ -31,4 +31,7 @@ return [
     'exam_groups' => 'Groupes',
     'take_exam' => 'Passer l\'examen',
     'correction' => 'Correction',
+
+    // Enseignant
+    'assessments' => 'Évaluations',
 ];

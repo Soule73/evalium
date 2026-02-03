@@ -31,4 +31,7 @@ return [
     'exam_groups' => 'Groups',
     'take_exam' => 'Take exam',
     'correction' => 'Correction',
+
+    // Teacher
+    'assessments' => 'Assessments',
 ];
