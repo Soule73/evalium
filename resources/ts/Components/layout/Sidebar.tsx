@@ -17,7 +17,8 @@ interface SidebarProps {
 interface NavItem {
     name: string;
     href: string;
-    icon: 'dashboard' | 'exams' | 'users' | 'groups' | 'levels' | 'roles' | 'results' | 'manage-exams';
+    icon: 'dashboard' | 'exams' | 'users' | 'groups' | 'levels' | 'roles' | 'results' | 'manage-exams'
+    | 'assessments' | 'enrollment' | 'grades' | 'classes' | 'grading' | 'academic-years' | 'subjects' | 'class-subjects';
 }
 
 export const Sidebar = ({ currentPath, user }: SidebarProps) => {
@@ -91,25 +92,49 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
 
     navItems.push({ name: trans('sidebar.navigation.dashboard'), href: navRoutes.dashboard(), icon: 'dashboard' });
 
+    // Student Navigation (MCD Architecture)
     if (isStudent) {
         navItems.push(
-            { name: trans('sidebar.navigation.my_groups'), href: navRoutes.studentExams(), icon: 'exams' }
+            { name: trans('sidebar.navigation.my_assessments'), href: navRoutes.studentAssessments(), icon: 'assessments' },
+            { name: trans('sidebar.navigation.my_enrollment'), href: navRoutes.studentEnrollment(), icon: 'enrollment' }
         );
     }
 
-    if (canViewExamList && !isStudent) {
+    // Teacher Navigation (MCD Architecture)
+    const isTeacher = userRole === 'teacher';
+    if (isTeacher) {
         navItems.push(
-            { name: trans('sidebar.navigation.exams'), href: navRoutes.exams(), icon: 'exams' }
+            { name: trans('sidebar.navigation.assessments'), href: navRoutes.teacherAssessments(), icon: 'assessments' },
+            { name: trans('sidebar.navigation.my_classes'), href: navRoutes.teacherClasses(), icon: 'classes' }
         );
     }
+
+    // Admin Navigation (MCD Architecture)
+    const isAdmin = userRole === 'admin' || userRole === 'super_admin';
+    if (isAdmin) {
+        navItems.push(
+            { name: trans('sidebar.navigation.academic_years'), href: navRoutes.adminAcademicYears(), icon: 'academic-years' },
+            { name: trans('sidebar.navigation.subjects'), href: navRoutes.adminSubjects(), icon: 'subjects' },
+            { name: trans('sidebar.navigation.classes'), href: navRoutes.adminClasses(), icon: 'classes' },
+            { name: trans('sidebar.navigation.enrollments'), href: navRoutes.adminEnrollments(), icon: 'enrollment' },
+            { name: trans('sidebar.navigation.class_subjects'), href: navRoutes.adminClassSubjects(), icon: 'class-subjects' }
+        );
+    }
+
+    // Legacy Routes (for backward compatibility)
+    // if (canViewExamList && !isStudent) {
+    //     navItems.push(
+    //         { name: trans('sidebar.navigation.exams'), href: navRoutes.exams(), icon: 'exams' }
+    //     );
+    // }
 
     if (canViewUsers) {
         navItems.push({ name: trans('sidebar.navigation.users'), href: navRoutes.users(), icon: 'users' });
     }
 
-    if (canViewGroups) {
-        navItems.push({ name: trans('sidebar.navigation.groups'), href: navRoutes.groups(), icon: 'groups' });
-    }
+    // if (canViewGroups) {
+    //     navItems.push({ name: trans('sidebar.navigation.groups'), href: navRoutes.groups(), icon: 'groups' });
+    // }
 
     if (canViewLevels) {
         navItems.push({ name: trans('sidebar.navigation.levels'), href: navRoutes.levels(), icon: 'levels' });

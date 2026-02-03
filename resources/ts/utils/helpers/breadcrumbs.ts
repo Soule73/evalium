@@ -359,17 +359,50 @@ export const breadcrumbs = {
         { label: assessment.title, href: route('teacher.assessments.show', assessment.id) },
         { label: trans('breadcrumbs.edit') }
     ],
+
+    teacher: {
+        classes: (): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.classes'), href: route('teacher.classes.index') }
+        ],
+
+        showClass: (classItem: { id: number; name?: string; display_name?: string }): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.classes'), href: route('teacher.classes.index') },
+            { label: classItem.display_name || classItem.name || '', href: route('teacher.classes.show', classItem.id) }
+        ],
+    },
 };
 
 // Routes de navigation principales (utilisées par le Sidebar)
 export const navRoutes = {
     dashboard: () => route('dashboard'),
-    studentExams: () => route('student.exams.index'),
+
+    // Student MCD Routes
+    studentAssessments: () => route('student.mcd.assessments.index'),
+    studentEnrollment: () => route('student.mcd.enrollment.show'),
+
+    // Teacher MCD Routes
+    teacherDashboard: () => route('teacher.dashboard'),
+    teacherAssessments: () => route('teacher.assessments.index'),
+    teacherClasses: () => route('teacher.classes.index'),
+    teacherGrading: () => route('teacher.grading.index', { assessment: '__assessment__' }), // Dynamic route
+
+    // Admin MCD Routes
+    adminAcademicYears: () => route('admin.academic-years.index'),
+    adminSubjects: () => route('admin.subjects.index'),
+    adminClasses: () => route('admin.classes.index'),
+    adminEnrollments: () => route('admin.enrollments.index'),
+    adminClassSubjects: () => route('admin.class-subjects.index'),
+
+    // Legacy Routes (kept for backward compatibility)
     exams: () => route('exams.index'),
     users: () => route('users.index'),
     groups: () => route('groups.index'),
     levels: () => route('levels.index'),
     roles: () => route('roles.index'),
+
+    // Profile & Auth
     profile: () => route('profile'),
     logout: () => route('logout'),
 };
