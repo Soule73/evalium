@@ -14,6 +14,7 @@ return [
     'subjects' => 'Matières',
     'classes' => 'Classes',
     'enrollments' => 'Inscriptions',
+    'class_subjects' => 'Matières de classe',
 
     // Actions communes
     'create' => 'Créer',
@@ -22,6 +23,8 @@ return [
     'assign' => 'Assigner',
     'assign_students' => 'Assigner des étudiants',
     'transfer' => 'Transférer',
+    'replace_teacher' => 'Remplacer l\'enseignant',
+    'update_coefficient' => 'Modifier le coefficient',
 
     // Examens
     'exams' => 'Examens',

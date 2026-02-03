@@ -14,6 +14,7 @@ return [
     'subjects' => 'Subjects',
     'classes' => 'Classes',
     'enrollments' => 'Enrollments',
+    'class_subjects' => 'Class Subjects',
 
     // Common actions
     'create' => 'Create',
@@ -22,6 +23,8 @@ return [
     'assign' => 'Assign',
     'assign_students' => 'Assign students',
     'transfer' => 'Transfer',
+    'replace_teacher' => 'Replace Teacher',
+    'update_coefficient' => 'Update Coefficient',
 
     // Exams
     'exams' => 'Exams',

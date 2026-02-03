@@ -303,6 +303,37 @@ export const breadcrumbs = {
             { label: enrollment.student?.name || `#${enrollment.id}`, href: route('admin.enrollments.show', enrollment.id) },
             { label: trans('breadcrumbs.transfer') }
         ],
+
+        classSubjects: (): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') }
+        ],
+
+        createClassSubject: (): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
+            { label: trans('breadcrumbs.create') }
+        ],
+
+        showClassSubject: (classSubject: { id: number; subject?: { name: string }; class?: { name?: string; display_name?: string } }): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
+            { label: `${classSubject.class?.display_name || classSubject.class?.name || ''} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) }
+        ],
+
+        replaceTeacherClassSubject: (classSubject: { id: number; subject?: { name: string }; class?: { name?: string; display_name?: string } }): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
+            { label: `${classSubject.class?.display_name || classSubject.class?.name || ''} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) },
+            { label: trans('breadcrumbs.replace_teacher') }
+        ],
+
+        updateCoefficientClassSubject: (classSubject: { id: number; subject?: { name: string }; class?: { name?: string; display_name?: string } }): BreadcrumbItem[] => [
+            dashboardBreadcrumb(),
+            { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
+            { label: `${classSubject.class?.display_name || classSubject.class?.name || ''} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) },
+            { label: trans('breadcrumbs.update_coefficient') }
+        ],
     },
 };
 
