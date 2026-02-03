@@ -495,6 +495,7 @@ Route::middleware('auth')->group(function () {
                     Route::get('/{assessment}', 'show')->name('show');
                     Route::post('/{assessment}/start', 'start')->name('start');
                     Route::get('/{assessment}/take', 'take')->name('take');
+                    Route::post('/{assessment}/save-answers', 'saveAnswers')->name('save-answers');
                     Route::post('/{assessment}/submit', 'submit')->name('submit');
                     Route::get('/{assessment}/results', 'results')->name('results');
                 });
