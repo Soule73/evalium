@@ -300,6 +300,46 @@ return [
         'reset_filters' => 'Réinitialiser les filtres',
     ],
 
+    'assessment_list' => [
+        'view_assessment' => 'Voir',
+        'view_assessment_title' => 'Voir l\'évaluation',
+        'assessment_label' => 'Évaluation',
+        'duration_label' => 'Durée',
+        'status_label' => 'Statut',
+        'created_on' => 'Créé le',
+        'actions_label' => 'Actions',
+        'status_published' => 'Publié',
+        'status_unpublished' => 'Non publié',
+        'search_placeholder' => 'Rechercher par titre ou description...',
+        'empty_title' => 'Aucune évaluation créée',
+        'empty_subtitle' => 'Commencez par créer votre première évaluation.',
+        'empty_search_title' => 'Aucune évaluation trouvée',
+        'empty_search_subtitle' => 'Essayez de modifier vos critères de recherche ou de filtrage.',
+        'reset_filters' => 'Réinitialiser les filtres',
+    ],
+
+    'assessment_header' => [
+        'questions_count' => ':count questions',
+        'created_on' => 'Créé le :date',
+    ],
+
+    'assessment_general_config' => [
+        'title' => 'Paramètres généraux',
+        'published_label' => 'Publié',
+        'assessment_title_label' => 'Titre de l\'évaluation',
+        'type_label' => 'Type d\'évaluation',
+        'type_assignment' => 'Devoir',
+        'type_quiz' => 'Quiz',
+        'type_exam' => 'Examen',
+        'duration_label' => 'Durée (minutes)',
+        'class_subject_label' => 'Classe & Matière',
+        'class_subject_placeholder' => 'Sélectionner classe et matière',
+        'scheduled_date_label' => 'Date planifiée',
+        'description_label' => 'Description',
+        'description_placeholder' => 'Entrez la description de l\'évaluation...',
+        'description_help' => 'Formatage Markdown supporté',
+    ],
+
     // FullscreenModal
     'fullscreen_modal' => [
         'title' => 'Mode plein écran requis',

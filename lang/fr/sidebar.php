@@ -6,7 +6,26 @@ return [
     // Navigation principale
     'navigation' => [
         'dashboard' => 'Tableau de bord',
-        'my_groups' => 'Mes Groupes',
+
+        // Student Navigation
+        'my_assessments' => 'Mes Évaluations',
+        'my_enrollment' => 'Mon Inscription',
+        'my_grades' => 'Mes Notes',
+
+        // Teacher Navigation
+        'teacher_dashboard' => 'Tableau de bord enseignant',
+        'assessments' => 'Évaluations',
+        'my_classes' => 'Mes Classes',
+        'grading' => 'Notation',
+
+        // Admin Navigation
+        'academic_years' => 'Années Scolaires',
+        'subjects' => 'Matières',
+        'classes' => 'Classes',
+        'enrollments' => 'Inscriptions',
+        'class_subjects' => 'Affectations Matières',
+
+        // Legacy Navigation
         'exams' => 'Examens',
         'users' => 'Utilisateurs',
         'groups' => 'Groupes',

@@ -1,0 +1,75 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+  // Student Enrollment - Show (Current Enrollment)
+  'show' => [
+    'title' => 'Mon Inscription',
+    'subtitle' => 'Consultez votre inscription actuelle et votre progression académique',
+    'current_class' => 'Classe actuelle',
+    'enrolled_on' => 'Inscrit le',
+    'academic_year' => 'Année académique',
+    'level' => 'Niveau',
+    'class_name' => 'Nom de la classe',
+    'grade_breakdown' => 'Détail des notes par matière',
+    'subject' => 'Matière',
+    'teacher' => 'Professeur',
+    'average' => 'Moyenne',
+    'assessments' => 'Évaluations',
+    'assessment_singular' => 'évaluation',
+    'assessment_plural' => 'évaluations',
+    'no_grade' => 'Pas encore de note',
+    'overall_statistics' => 'Statistiques globales',
+    'overall_average' => 'Moyenne générale',
+    'total_assessments' => 'Total évaluations',
+    'completed_assessments' => 'Terminées',
+    'pending_assessments' => 'En attente',
+    'no_enrollment_title' => 'Aucune inscription active',
+    'no_enrollment_subtitle' => 'Vous n\'êtes inscrit dans aucune classe pour le moment.',
+    'no_enrollment_message' => 'Veuillez contacter votre administrateur pour les informations d\'inscription.',
+    'view_history' => 'Voir l\'historique des inscriptions',
+    'view_classmates' => 'Voir les camarades de classe',
+    'excellent' => 'Excellent',
+    'very_good' => 'Très bien',
+    'good' => 'Bien',
+    'satisfactory' => 'Satisfaisant',
+    'needs_improvement' => 'À améliorer',
+  ],
+
+  // Student Enrollment - History
+  'history' => [
+    'title' => 'Historique des inscriptions',
+    'subtitle' => 'Consultez vos inscriptions passées',
+    'back_to_current' => 'Retour à l\'inscription actuelle',
+    'academic_year' => 'Année académique',
+    'class' => 'Classe',
+    'level' => 'Niveau',
+    'enrolled_on' => 'Inscrit',
+    'completed_on' => 'Terminé',
+    'status' => 'Statut',
+    'active' => 'Active',
+    'completed' => 'Terminée',
+    'in_progress' => 'En cours',
+    'empty_title' => 'Aucun historique d\'inscription',
+    'empty_subtitle' => 'Vous n\'avez aucune inscription passée.',
+    'duration' => 'Durée',
+    'final_grade' => 'Note finale',
+    'not_available' => 'Non disponible',
+  ],
+
+  // Student Enrollment - Classmates
+  'classmates' => [
+    'title' => 'Mes camarades de classe',
+    'subtitle' => 'Voir vos camarades dans :class',
+    'back_to_enrollment' => 'Retour à l\'inscription',
+    'search_placeholder' => 'Rechercher des camarades...',
+    'student_name' => 'Nom',
+    'email' => 'Email',
+    'enrolled_on' => 'Inscrit',
+    'empty_title' => 'Aucun camarade',
+    'empty_subtitle' => 'Il n\'y a aucun autre étudiant dans votre classe.',
+    'classmates_count' => 'Camarades (:count)',
+    'total_students' => 'Total étudiants',
+  ],
+];

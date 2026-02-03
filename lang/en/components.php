@@ -300,6 +300,46 @@ return [
         'reset_filters' => 'Reset filters',
     ],
 
+    'assessment_list' => [
+        'view_assessment' => 'View',
+        'view_assessment_title' => 'View assessment',
+        'assessment_label' => 'Assessment',
+        'duration_label' => 'Duration',
+        'status_label' => 'Status',
+        'created_on' => 'Created on',
+        'actions_label' => 'Actions',
+        'status_published' => 'Published',
+        'status_unpublished' => 'Unpublished',
+        'search_placeholder' => 'Search by title or description...',
+        'empty_title' => 'No assessments created',
+        'empty_subtitle' => 'Start by creating your first assessment.',
+        'empty_search_title' => 'No assessments found',
+        'empty_search_subtitle' => 'Try modifying your search or filter criteria.',
+        'reset_filters' => 'Reset filters',
+    ],
+
+    'assessment_header' => [
+        'questions_count' => ':count questions',
+        'created_on' => 'Created on :date',
+    ],
+
+    'assessment_general_config' => [
+        'title' => 'General Settings',
+        'published_label' => 'Published',
+        'assessment_title_label' => 'Assessment Title',
+        'type_label' => 'Assessment Type',
+        'type_assignment' => 'Assignment',
+        'type_quiz' => 'Quiz',
+        'type_exam' => 'Exam',
+        'duration_label' => 'Duration (minutes)',
+        'class_subject_label' => 'Class & Subject',
+        'class_subject_placeholder' => 'Select class and subject',
+        'scheduled_date_label' => 'Scheduled Date',
+        'description_label' => 'Description',
+        'description_placeholder' => 'Enter assessment description...',
+        'description_help' => 'Markdown formatting supported',
+    ],
+
     // FullscreenModal
     'fullscreen_modal' => [
         'title' => 'Full Screen Required',
