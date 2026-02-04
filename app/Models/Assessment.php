@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Assessment model representing an evaluation (devoir, examen, tp, controle, projet).
- * Replaces the old Exam model with enhanced type and coefficient support.
  */
 class Assessment extends Model
 {
@@ -35,12 +34,26 @@ class Assessment extends Model
         'settings' => 'array',
     ];
 
+    protected $appends = [
+        'duration',
+        'is_published',
+    ];
+
     /**
      * Get the class subject (teaching) this assessment belongs to.
      */
     public function classSubject(): BelongsTo
     {
         return $this->belongsTo(ClassSubject::class);
+    }
+
+    /**
+     * Get the class this assessment is assigned to (through classSubject).
+     * Returns the ClassModel instance or null if no classSubject is set.
+     */
+    public function getClassAttribute(): ?ClassModel
+    {
+        return $this->classSubject?->class;
     }
 
     /**
@@ -57,6 +70,17 @@ class Assessment extends Model
     public function questions(): HasMany
     {
         return $this->hasMany(Question::class);
+    }
+
+    /**
+     * Scope to filter assessments by academic year.
+     * Filters through classSubject->class relationship.
+     */
+    public function scopeForAcademicYear($query, int $academicYearId)
+    {
+        return $query->whereHas('classSubject.class', function ($q) use ($academicYearId) {
+            $q->where('academic_year_id', $academicYearId);
+        });
     }
 
     /**
@@ -81,5 +105,31 @@ class Assessment extends Model
     public function getTotalPointsAttribute(): float
     {
         return $this->questions()->sum('points');
+    }
+
+    /**
+     * Get the duration attribute (alias for duration_minutes).
+     */
+    public function getDurationAttribute(): ?int
+    {
+        return $this->duration_minutes;
+    }
+
+    /**
+     * Get whether the assessment is published.
+     */
+    public function getIsPublishedAttribute(): bool
+    {
+        return $this->settings['is_published'] ?? false;
+    }
+
+    /**
+     * Set whether the assessment is published.
+     */
+    public function setIsPublishedAttribute(bool $value): void
+    {
+        $settings = $this->settings ?? [];
+        $settings['is_published'] = $value;
+        $this->settings = $settings;
     }
 }

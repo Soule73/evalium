@@ -29,8 +29,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static \Illuminate\Database\Eloquent\Builder|Question newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Question query()
  *
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Exam> $exams The exams created by the user (if teacher).
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExamAssignment> $examAssignments The exam assignments for the user (if student).
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Assessment> $assessments The assessments created by the user (if teacher).
  *
  * @mixin \Eloquent
  */
@@ -83,16 +82,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the exams associated with the user (for teachers).
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Exam>
-     */
-    public function exams(): HasMany
-    {
-        return $this->hasMany(Exam::class, 'teacher_id');
-    }
-
-    /**
      * Get the assessments associated with the user (for teachers).
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Assessment>
@@ -100,16 +89,6 @@ class User extends Authenticatable
     public function assessments(): HasMany
     {
         return $this->hasMany(Assessment::class, 'teacher_id');
-    }
-
-    /**
-     * Get the exam assignments associated with the user (for students).
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\ExamAssignment>
-     */
-    public function examAssignments(): HasMany
-    {
-        return $this->hasMany(ExamAssignment::class, 'student_id');
     }
 
     /**
@@ -152,47 +131,5 @@ class User extends Authenticatable
     public function classSubjects(): HasMany
     {
         return $this->hasMany(ClassSubject::class, 'teacher_id');
-    }
-
-    /**
-     * Get the groups associated with the user (student) - LEGACY.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Group>
-     */
-    public function groups(): BelongsToMany
-    {
-        return $this->belongsToMany(Group::class, 'group_student', 'student_id', 'group_id')
-            ->withPivot(['enrolled_at', 'left_at', 'is_active'])
-            ->withTimestamps();
-    }
-
-    /**
-     * Get the current active group for the student.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Group>
-     */
-    public function activeGroup(): BelongsToMany
-    {
-        return $this->groups()
-            ->wherePivot('is_active', true)
-            ->where('groups.is_active', true);
-    }
-
-    /**
-     * Get all active groups for the student (alias for better readability)
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Group>
-     */
-    public function activeGroups(): BelongsToMany
-    {
-        return $this->activeGroup();
-    }
-
-    /**
-     * Get the current active group (single instance)
-     */
-    public function getCurrentGroup(): ?Group
-    {
-        return $this->activeGroup()->first();
     }
 }

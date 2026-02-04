@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ClassSubject extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'class_id',
         'subject_id',
@@ -45,6 +46,16 @@ class ClassSubject extends Model
     public function subject(): BelongsTo
     {
         return $this->belongsTo(Subject::class);
+    }
+
+    /**
+     * Scope to filter class subjects by academic year (through class).
+     */
+    public function scopeForAcademicYear($query, int $academicYearId)
+    {
+        return $query->whereHas('class', function ($q) use ($academicYearId) {
+            $q->where('academic_year_id', $academicYearId);
+        });
     }
 
     /**

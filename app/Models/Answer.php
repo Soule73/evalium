@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Represents an answer entity in the application.
  *
  * @property int $id The unique identifier for the answer.
- * @property int $assignment_id The ID of the related exam assignment(student).
+ * @property int $assessment_assignment_id The ID of the related assessment assignment(student).
  * @property int $question_id The ID of the related question.
  * @property int|null $choice_id The ID of the selected choice (if applicable).
  * @property string|null $answer_text The text of the answer (for text-based questions).
@@ -38,7 +38,6 @@ class Answer extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'assignment_id',
         'assessment_assignment_id',
         'question_id',
         'choice_id',
@@ -70,14 +69,15 @@ class Answer extends Model
     }
 
     /**
-     * LEGACY: Get the exam assignment that this answer belongs to.
+     * Get the assessment assignment that this answer belongs to.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ExamAssignment, self>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\AssessmentAssignment, self>
+     *
      * @deprecated Use assessmentAssignment() instead
      */
     public function assignment(): BelongsTo
     {
-        return $this->belongsTo(ExamAssignment::class);
+        return $this->belongsTo(AssessmentAssignment::class);
     }
 
     /**

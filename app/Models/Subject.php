@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Subject extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'level_id',
         'name',

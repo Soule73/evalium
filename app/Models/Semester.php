@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Semester extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'academic_year_id',
         'name',
@@ -42,5 +43,13 @@ class Semester extends Model
     public function classSubjects(): HasMany
     {
         return $this->hasMany(ClassSubject::class);
+    }
+
+    /**
+     * Scope to filter semesters by academic year.
+     */
+    public function scopeForAcademicYear($query, int $academicYearId)
+    {
+        return $query->where('academic_year_id', $academicYearId);
     }
 }

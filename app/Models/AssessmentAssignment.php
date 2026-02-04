@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * AssessmentAssignment model representing a student's assignment to an assessment.
- * Replaces the old ExamAssignment model.
  */
 class AssessmentAssignment extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'assessment_id',
         'student_id',

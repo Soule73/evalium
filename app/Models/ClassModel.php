@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ClassModel extends Model
 {
     use HasFactory;
+
     protected $table = 'classes';
 
     protected $fillable = [
@@ -51,6 +52,14 @@ class ClassModel extends Model
     }
 
     /**
+     * Scope to filter classes by academic year.
+     */
+    public function scopeForAcademicYear($query, int $academicYearId)
+    {
+        return $query->where('academic_year_id', $academicYearId);
+    }
+
+    /**
      * Get the enrollments for this class.
      */
     public function enrollments(): HasMany
@@ -77,12 +86,27 @@ class ClassModel extends Model
     }
 
     /**
+     * Get the assessments for this class via class subjects.
+     */
+    public function assessments(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Assessment::class,
+            ClassSubject::class,
+            'class_id',
+            'class_subject_id',
+            'id',
+            'id'
+        );
+    }
+
+    /**
      * Get the display name (e.g., "M1-A (2025/2026)").
      */
     protected function displayName(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->name . ' (' . $this->academicYear->name . ')'
+            get: fn () => $this->name.' ('.$this->academicYear->name.')'
         );
     }
 }

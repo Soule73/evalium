@@ -16,8 +16,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $content The text of the question.
  * @property string $type The type of the question Available(‘multiple’, ‘boolean’, ‘one_choice’, ‘text’).
  * @property int $points The points assigned to the question.
- * @property int $exam_id The ID of the related exam.
- * @property int $order_index The order index of the question within the exam.
+ * @property int $assessment_id The ID of the related assessment.
+ * @property int $order_index The order index of the question within the assessment.
  * @property \Illuminate\Support\Carbon|null $created_at The date and time when the question was created.
  * @property \Illuminate\Support\Carbon|null $updated_at The date and time when the question was last updated.
  *
@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder|Question newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Question query()
  *
- * @property-read \App\Models\Exam $exam The exam to which the question belongs.
+ * @property-read \App\Models\Assessment $assessment The assessment to which the question belongs.
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Choice> $choices The choices associated with the question (for multiple choice questions).
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Answer> $answers The answers provided by students for this question.
  *
@@ -42,7 +42,7 @@ class Question extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'exam_id',
+        'assessment_id',
         'content',
         'type',
         'points',
@@ -67,17 +67,6 @@ class Question extends Model
     public function assessment(): BelongsTo
     {
         return $this->belongsTo(Assessment::class);
-    }
-
-    /**
-     * LEGACY: Get the exam that owns the question.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Exam, self>
-     * @deprecated Use assessment() instead
-     */
-    public function exam(): BelongsTo
-    {
-        return $this->belongsTo(Exam::class);
     }
 
     /**
