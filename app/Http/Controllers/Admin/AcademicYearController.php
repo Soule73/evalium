@@ -34,13 +34,37 @@ class AcademicYearController extends Controller
 
         $academicYears = AcademicYear::query()
             ->with(['semesters', 'classes'])
-            ->when($filters['search'] ?? null, fn($query, $search) => $query->where('name', 'like', "%{$search}%"))
-            ->when(isset($filters['is_current']), fn($query) => $query->where('is_current', (bool) $filters['is_current']))
+            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
+            ->when(isset($filters['is_current']), fn ($query) => $query->where('is_current', (bool) $filters['is_current']))
             ->orderBy('start_date', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 
         return Inertia::render('Admin/AcademicYears/Index', [
+            'academicYears' => $academicYears,
+            'filters' => $filters,
+        ]);
+    }
+
+    /**
+     * Display all academic years in archives view.
+     */
+    public function archives(Request $request): Response
+    {
+        $this->authorize('viewAny', AcademicYear::class);
+
+        $filters = $request->only(['search', 'is_current']);
+        $perPage = $request->input('per_page', 20);
+
+        $academicYears = AcademicYear::query()
+            ->withCount(['semesters', 'classes'])
+            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
+            ->when(isset($filters['is_current']), fn ($query) => $query->where('is_current', (bool) $filters['is_current']))
+            ->orderBy('start_date', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return Inertia::render('Admin/AcademicYears/Archives', [
             'academicYears' => $academicYears,
             'filters' => $filters,
         ]);

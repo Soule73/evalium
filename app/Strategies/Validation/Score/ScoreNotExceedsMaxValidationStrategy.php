@@ -8,10 +8,10 @@ class ScoreNotExceedsMaxValidationStrategy implements ScoreValidationStrategy
 {
     public function validate(Validator $validator, array $data, array $context = []): void
     {
-        $exam = $context['exam'] ?? null;
+        $assessment = $context['assessment'] ?? null;
         $scores = $data['scores'] ?? [];
 
-        if (! $exam || empty($scores)) {
+        if (! $assessment || empty($scores)) {
             return;
         }
 
@@ -20,7 +20,7 @@ class ScoreNotExceedsMaxValidationStrategy implements ScoreValidationStrategy
                 continue;
             }
 
-            $question = $exam->questions()
+            $question = $assessment->questions()
                 ->where('id', $scoreData['question_id'])
                 ->first();
 

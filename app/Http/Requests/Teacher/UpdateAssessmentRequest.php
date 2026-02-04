@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Teacher;
 
+use App\Strategies\Validation\QuestionValidationContext;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class UpdateAssessmentRequest extends FormRequest
 {
@@ -15,6 +17,26 @@ class UpdateAssessmentRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        $data = [];
+
+        if ($this->has('scheduled_date')) {
+            $data['scheduled_at'] = $this->scheduled_date;
+        }
+
+        if ($this->has('duration')) {
+            $data['duration_minutes'] = $this->duration;
+        }
+
+        if (! empty($data)) {
+            $this->merge($data);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array
@@ -23,11 +45,39 @@ class UpdateAssessmentRequest extends FormRequest
             'title' => ['sometimes', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'type' => ['sometimes', 'in:devoir,examen,tp,controle,projet'],
-            'scheduled_date' => ['sometimes', 'date'],
-            'duration' => ['sometimes', 'integer', 'min:1'],
+            'scheduled_at' => ['sometimes', 'date'],
+            'duration_minutes' => ['sometimes', 'integer', 'min:1'],
             'coefficient' => ['sometimes', 'numeric', 'min:0.01'],
             'is_published' => ['sometimes', 'boolean'],
+            'questions' => ['sometimes', 'array'],
+            'questions.*.id' => ['nullable', 'integer'],
+            'questions.*.content' => ['required', 'string'],
+            'questions.*.type' => ['required', 'string'],
+            'questions.*.points' => ['required', 'numeric', 'min:0'],
+            'questions.*.order_index' => ['required', 'integer'],
+            'questions.*.choices' => ['sometimes', 'array'],
+            'questions.*.choices.*.id' => ['nullable', 'integer'],
+            'questions.*.choices.*.content' => ['required', 'string'],
+            'questions.*.choices.*.is_correct' => ['required', 'boolean'],
+            'questions.*.choices.*.order_index' => ['required', 'integer'],
+            'deletedQuestionIds' => ['sometimes', 'array'],
+            'deletedQuestionIds.*' => ['integer'],
+            'deletedChoiceIds' => ['sometimes', 'array'],
+            'deletedChoiceIds.*' => ['integer'],
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            if ($this->has('questions') && is_array($this->questions)) {
+                $validationContext = new QuestionValidationContext;
+                $validationContext->validateQuestions($validator, $this->questions);
+            }
+        });
     }
 
     /**

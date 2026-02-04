@@ -174,9 +174,9 @@ class LoginController extends Controller
         $type = self::getUserDashboardType();
 
         return match ($type) {
-            'admin' => route('dashboard'),
-            'teacher' => route('dashboard'),
-            'student' => route('dashboard'),
+            'admin' => route('admin.dashboard'),
+            'teacher' => route('teacher.dashboard'),
+            'student' => route('student.dashboard'),
             default => route('dashboard')
         };
     }

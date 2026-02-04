@@ -12,6 +12,7 @@ use App\Models\Semester;
 use App\Models\Subject;
 use App\Models\User;
 use App\Services\Core\ClassSubjectService;
+use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ use Inertia\Response;
 
 class ClassSubjectController extends Controller
 {
-    use AuthorizesRequests, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear, HasFlashMessages;
 
     public function __construct(
         private readonly ClassSubjectService $classSubjectService
@@ -33,21 +34,26 @@ class ClassSubjectController extends Controller
     {
         $this->authorize('viewAny', ClassSubject::class);
 
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
         $filters = $request->only(['class_id', 'subject_id', 'teacher_id', 'active_only']);
         $perPage = $request->input('per_page', 15);
         $activeOnly = ($filters['active_only'] ?? true) === true;
 
         $classSubjects = ClassSubject::query()
+            ->forAcademicYear($selectedYearId)
             ->with(['class.academicYear', 'class.level', 'subject', 'teacher', 'semester'])
-            ->when($filters['class_id'] ?? null, fn($query, $classId) => $query->where('class_id', $classId))
-            ->when($filters['subject_id'] ?? null, fn($query, $subjectId) => $query->where('subject_id', $subjectId))
-            ->when($filters['teacher_id'] ?? null, fn($query, $teacherId) => $query->where('teacher_id', $teacherId))
-            ->when($activeOnly, fn($query) => $query->active())
+            ->when($filters['class_id'] ?? null, fn ($query, $classId) => $query->where('class_id', $classId))
+            ->when($filters['subject_id'] ?? null, fn ($query, $subjectId) => $query->where('subject_id', $subjectId))
+            ->when($filters['teacher_id'] ?? null, fn ($query, $teacherId) => $query->where('teacher_id', $teacherId))
+            ->when($activeOnly, fn ($query) => $query->active())
             ->orderBy('valid_from', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 
-        $classes = ClassModel::with('academicYear')->orderBy('name')->get();
+        $classes = ClassModel::forAcademicYear($selectedYearId)
+            ->with('academicYear')
+            ->orderBy('name')
+            ->get();
         $subjects = Subject::orderBy('name')->get();
         $teachers = User::role('teacher')->orderBy('name')->get();
 
@@ -63,14 +69,22 @@ class ClassSubjectController extends Controller
     /**
      * Show the form for creating a new class subject assignment.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
         $this->authorize('create', ClassSubject::class);
 
-        $classes = ClassModel::with('academicYear', 'level')->orderBy('name')->get();
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+
+        $classes = ClassModel::forAcademicYear($selectedYearId)
+            ->with('academicYear', 'level')
+            ->orderBy('name')
+            ->get();
         $subjects = Subject::with('level')->orderBy('name')->get();
         $teachers = User::role('teacher')->orderBy('name')->get();
-        $semesters = Semester::with('academicYear')->orderBy('order_number')->get();
+        $semesters = Semester::where('academic_year_id', $selectedYearId)
+            ->with('academicYear')
+            ->orderBy('order_number')
+            ->get();
 
         return Inertia::render('Admin/ClassSubjects/Create', [
             'classes' => $classes,

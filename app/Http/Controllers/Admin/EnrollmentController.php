@@ -10,6 +10,7 @@ use App\Models\ClassModel;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Services\Admin\EnrollmentService;
+use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ use Inertia\Response;
 
 class EnrollmentController extends Controller
 {
-    use AuthorizesRequests, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear, HasFlashMessages;
 
     public function __construct(
         private readonly EnrollmentService $enrollmentService
@@ -31,46 +32,26 @@ class EnrollmentController extends Controller
     {
         $this->authorize('viewAny', Enrollment::class);
 
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
         $filters = $request->only(['search', 'class_id', 'status']);
         $perPage = $request->input('per_page', 15);
 
-        $enrollments = Enrollment::query()
-            ->with(['student', 'class.academicYear', 'class.level'])
-            ->when($filters['search'] ?? null, function ($query, $search) {
-                return $query->whereHas('student', function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                });
-            })
-            ->when($filters['class_id'] ?? null, fn($query, $classId) => $query->where('class_id', $classId))
-            ->when($filters['status'] ?? null, fn($query, $status) => $query->where('status', $status))
-            ->orderBy('enrolled_at', 'desc')
-            ->paginate($perPage)
-            ->withQueryString();
+        $data = $this->enrollmentService->getEnrollmentsForIndex($selectedYearId, $filters, $perPage);
 
-        $classes = ClassModel::with('academicYear')->orderBy('name')->get();
-
-        return Inertia::render('Admin/Enrollments/Index', [
-            'enrollments' => $enrollments,
-            'filters' => $filters,
-            'classes' => $classes,
-        ]);
+        return Inertia::render('Admin/Enrollments/Index', $data);
     }
 
     /**
      * Show the form for creating a new enrollment.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
         $this->authorize('create', Enrollment::class);
 
-        $classes = ClassModel::with('academicYear')->orderBy('name')->get();
-        $students = User::role('student')->orderBy('name')->get();
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+        $formData = $this->enrollmentService->getCreateFormData($selectedYearId);
 
-        return Inertia::render('Admin/Enrollments/Create', [
-            'classes' => $classes,
-            'students' => $students,
-        ]);
+        return Inertia::render('Admin/Enrollments/Create', $formData);
     }
 
     /**

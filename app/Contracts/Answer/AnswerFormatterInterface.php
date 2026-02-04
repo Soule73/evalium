@@ -2,10 +2,10 @@
 
 namespace App\Contracts\Answer;
 
-use App\Models\ExamAssignment;
+use App\Models\AssessmentAssignment;
 
 /**
- * Interface for exam answer formatting.
+ * Interface for Assessment answer formatting.
  *
  * Defines the contract for formatting student answers
  * in different formats (frontend display, export, etc.).
@@ -15,10 +15,10 @@ interface AnswerFormatterInterface
     /**
      * Format answers from an assignment for frontend display.
      *
-     * @param  ExamAssignment  $assignment  The assignment containing the answers
+     * @param  AssessmentAssignment  $assignment  The assignment containing the answers
      * @return array The formatted answers
      */
-    public function formatForFrontend(ExamAssignment $assignment): array;
+    public function formatForFrontend(AssessmentAssignment $assignment): array;
 
     /**
      * Format a single answer (single choice or text question).
@@ -39,24 +39,24 @@ interface AnswerFormatterInterface
     /**
      * Check if an assignment has any answers.
      *
-     * @param  ExamAssignment  $assignment  The assignment to check
+     * @param  AssessmentAssignment  $assignment  The assignment to check
      * @return bool True if the assignment has answers
      */
-    public function hasAnswers(ExamAssignment $assignment): bool;
+    public function hasAnswers(AssessmentAssignment $assignment): bool;
 
     /**
      * Count the number of answered questions.
      *
-     * @param  ExamAssignment  $assignment  The assignment to analyze
+     * @param  AssessmentAssignment  $assignment  The assignment to analyze
      * @return int Number of questions with answers
      */
-    public function countAnsweredQuestions(ExamAssignment $assignment): int;
+    public function countAnsweredQuestions(AssessmentAssignment $assignment): int;
 
     /**
      * Get completion statistics for an assignment.
      *
-     * @param  ExamAssignment  $assignment  The assignment to analyze
+     * @param  AssessmentAssignment  $assignment  The assignment to analyze
      * @return array Statistics including answered/total questions, completion percentage
      */
-    public function getCompletionStats(ExamAssignment $assignment): array;
+    public function getCompletionStats(AssessmentAssignment $assignment): array;
 }

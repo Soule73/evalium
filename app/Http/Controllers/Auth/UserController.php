@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\ChangeStudentGroupRequest;
 use App\Http\Requests\Admin\CreateUserRequest;
 use App\Http\Requests\Admin\EditUserRequest;
 use App\Http\Traits\HasFlashMessages;
@@ -23,8 +22,8 @@ class UserController extends Controller
 
     public function __construct(
         public readonly UserManagementService $userService,
-        public readonly ExamQueryService $examQueryService,
-        public readonly StudentAssignmentQueryService $studentAssignmentQueryService
+        // public readonly ExamQueryService $examQueryService,
+        // public readonly StudentAssignmentQueryService $studentAssignmentQueryService
     ) {}
 
     /**
@@ -52,12 +51,12 @@ class UserController extends Controller
         $users = $this->userService->getUserWithPagination($filters, 10, $currentUser);
 
         $availableRoles = $this->userService->getAvailableRoles($currentUser);
-        $groups = $this->userService->getActiveGroupsWithLevels();
+        // $groups = $this->userService->getActiveGroupsWithLevels();
 
         return Inertia::render('Users/Index', [
             'users' => $users,
             'roles' => $availableRoles,
-            'groups' => $groups,
+            // 'groups' => $groups,
             'canManageAdmins' => $currentUser->hasRole('super_admin'),
             'canDeleteUsers' => $currentUser->can('delete users'),
         ]);
@@ -117,14 +116,14 @@ class UserController extends Controller
 
         $this->userService->ensureRolesLoaded($user);
 
-        $exams = $this->examQueryService->getExams($user->id, $perPage, $status, $search);
+        // $exams = $this->examQueryService->getExams($user->id, $perPage, $status, $search);
 
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
         return Inertia::render('Users/ShowTeacher', [
             'user' => $user,
-            'exams' => $exams,
+            // 'exams' => $exams,
             'canDelete' => $currentUser->hasRole('super_admin'),
             'canToggleStatus' => $currentUser->can('toggle user status'),
         ]);
@@ -152,19 +151,17 @@ class UserController extends Controller
         $status = $request->input('status') ? $request->input('status') : null;
         $search = $request->input('search');
 
-        $this->userService->loadStudentGroupsWithExams($user);
+        // $assignments = $this->studentAssignmentQueryService->getAssignmentsForStudent($user, $perPage, $status, $search);
 
-        $assignments = $this->studentAssignmentQueryService->getAssignmentsForStudent($user, $perPage, $status, $search);
-
-        $availableGroups = $this->userService->getActiveGroupsWithLevels();
+        // $availableGroups = $this->userService->getActiveGroupsWithLevels();
 
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
         return Inertia::render('Users/ShowStudent', [
             'user' => $user,
-            'examsAssignments' => $assignments,
-            'availableGroups' => $availableGroups,
+            // 'examsAssignments' => $assignments,
+            // 'availableGroups' => $availableGroups,
             'canDelete' => $currentUser->hasRole('super_admin'),
             'canToggleStatus' => $currentUser->can('toggle user status'),
         ]);
@@ -262,32 +259,6 @@ class UserController extends Controller
         $messageKey = $user->is_active ? 'messages.user_activated' : 'messages.user_deactivated';
 
         return $this->redirectWithSuccess('users.index', __($messageKey));
-    }
-
-    /**
-     * Change the group of a student.
-     *
-     * Delegates to UserManagementService to reassign student to new group.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function changeStudentGroup(ChangeStudentGroupRequest $request, User $user)
-    {
-        $this->authorize('update', $user);
-
-        if (! $this->userService->isStudent($user)) {
-            return $this->flashError(__('messages.unauthorized'));
-        }
-
-        try {
-            $this->userService->changeStudentGroup($user, $request->validated()['group_id']);
-
-            return $this->redirectWithSuccess('users.show.student', __('messages.group_changed'), ['user' => $user->id]);
-        } catch (\Exception $e) {
-            Log::error('Error changing group', ['user_id' => $user->id, 'error' => $e->getMessage()]);
-
-            return $this->flashError(__('messages.operation_failed'));
-        }
     }
 
     /**

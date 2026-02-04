@@ -18,7 +18,7 @@ class ScoreValidationContext
 
     private function registerDefaultStrategies(): void
     {
-        $this->registerStrategy(new QuestionExistsInExamValidationStrategy);
+        $this->registerStrategy(new QuestionExistsInAssessmentValidationStrategy);
         $this->registerStrategy(new ScoreNotExceedsMaxValidationStrategy);
         $this->registerStrategy(new SingleQuestionExistsValidationStrategy);
         $this->registerStrategy(new StudentAssignmentValidationStrategy);

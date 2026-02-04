@@ -2,58 +2,82 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Http\Controllers\Controller;
+use App\Models\Assessment;
+use App\Models\AssessmentAssignment;
+use App\Services\Student\StudentAssessmentService;
+use App\Traits\FiltersAcademicYear;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Models\Assessment;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\AssessmentAssignment;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class StudentAssessmentController extends Controller
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, FiltersAcademicYear;
+
+    public function __construct(
+        private readonly StudentAssessmentService $assessmentService
+    ) {}
 
     /**
      * Display a listing of student's assessments.
      */
     public function index(Request $request): Response
     {
-        $studentId = $request->user()->id;
+        $student = $request->user();
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
 
         $filters = $request->only(['status', 'search']);
         $perPage = $request->input('per_page', 15);
 
-        $assignments = AssessmentAssignment::where('student_id', $studentId)
-            ->with([
-                'assessment.classSubject.class',
-                'assessment.classSubject.subject',
-                'assessment.questions',
-            ])
-            ->when($filters['status'] ?? null, function ($query, $status) {
-                if ($status === 'not_started') {
-                    return $query->whereNull('started_at');
-                } elseif ($status === 'in_progress') {
-                    return $query->whereNotNull('started_at')->whereNull('submitted_at');
-                } elseif ($status === 'completed') {
-                    return $query->whereNotNull('submitted_at');
-                }
+        $enrollment = $student->enrollments()
+            ->where('status', 'active')
+            ->whereHas('class', function ($query) use ($selectedYearId) {
+                $query->where('academic_year_id', $selectedYearId);
+            })
+            ->with(['class.classSubjects'])
+            ->first();
 
-                return $query;
-            })
+        if (! $enrollment) {
+            return Inertia::render('Student/Assessments/Index', [
+                'assessments' => [],
+                'filters' => $filters,
+            ]);
+        }
+
+        $classSubjectIds = $enrollment->class->classSubjects->pluck('id');
+
+        $assessmentsQuery = Assessment::whereIn('class_subject_id', $classSubjectIds)
+            ->with([
+                'classSubject.class',
+                'classSubject.subject',
+                'classSubject.teacher',
+                'questions',
+            ])
             ->when($filters['search'] ?? null, function ($query, $search) {
-                return $query->whereHas('assessment', function ($q) use ($search) {
-                    $q->where('title', 'like', "%{$search}%");
-                });
+                return $query->where('title', 'like', "%{$search}%");
             })
-            ->orderBy('assigned_at', 'desc')
-            ->paginate($perPage)
-            ->withQueryString();
+            ->orderBy('scheduled_at', 'asc');
+
+        $assessments = $assessmentsQuery->paginate($perPage)->withQueryString();
+
+        $assignments = $this->assessmentService->getAssessmentsWithAssignments($student, $assessments->getCollection());
+
+        $assessments->setCollection($assignments);
+
+        if ($filters['status'] ?? null) {
+            $assessments->setCollection(
+                $assessments->getCollection()->filter(function ($assignment) use ($filters) {
+                    return $assignment->status === $filters['status'];
+                })->values()
+            );
+        }
 
         return Inertia::render('Student/Assessments/Index', [
-            'assignments' => $assignments,
+            'assignments' => $assessments,
             'filters' => $filters,
         ]);
     }
@@ -63,19 +87,24 @@ class StudentAssessmentController extends Controller
      */
     public function show(Assessment $assessment): Response
     {
-        $studentId = Auth::id();
+        $student = Auth::user();
 
         $this->authorize('view', $assessment);
 
-        $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $studentId)
-            ->with([
-                'assessment.classSubject.class',
-                'assessment.classSubject.subject',
-                'assessment.questions.choices',
-                'answers.question',
-            ])
-            ->firstOrFail();
+        abort_unless(
+            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
+            403,
+            'You cannot access this assessment.'
+        );
+
+        $assessment->load([
+            'classSubject.class',
+            'classSubject.subject',
+            'classSubject.teacher',
+            'questions.choices',
+        ]);
+
+        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
         return Inertia::render('Student/Assessments/Show', [
             'assignment' => $assignment,
@@ -88,15 +117,17 @@ class StudentAssessmentController extends Controller
      */
     public function start(Assessment $assessment)
     {
-        $studentId = Auth::id();
+        $student = Auth::user();
 
-        $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $studentId)
-            ->firstOrFail();
+        abort_unless(
+            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
+            403,
+            'You cannot access this assessment.'
+        );
 
-        if (! $assignment->started_at) {
-            $assignment->update(['started_at' => now()]);
-        }
+        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
+
+        $this->assessmentService->startAssessment($assignment);
 
         return redirect()->route('student.assessments.take', $assessment);
     }
@@ -106,30 +137,59 @@ class StudentAssessmentController extends Controller
      */
     public function take(Assessment $assessment): Response|RedirectResponse
     {
-        $studentId = Auth::id();
+        $student = Auth::user();
 
-        $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $studentId)
-            ->with([
-                'assessment.classSubject.class',
-                'assessment.classSubject.subject',
-                'assessment.questions.choices',
-                'answers',
-            ])
-            ->firstOrFail();
+        abort_unless(
+            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
+            403,
+            'You cannot access this assessment.'
+        );
+
+        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment, startNow: true);
+
+        $assignment->load([
+            'assessment.classSubject.class',
+            'assessment.classSubject.subject',
+            'assessment.questions.choices',
+            'answers',
+        ]);
 
         if ($assignment->submitted_at) {
             return redirect()->route('student.assessments.show', $assessment);
         }
 
-        if (! $assignment->started_at) {
-            $assignment->update(['started_at' => now()]);
+        if (! $assignment->wasRecentlyCreated && ! $assignment->started_at) {
+            $this->assessmentService->startAssessment($assignment);
         }
 
         return Inertia::render('Student/Assessments/Take', [
             'assignment' => $assignment,
-            'assessment' => $assessment,
+            'assessment' => $assessment->load(['questions.choices']),
+            'questions' => $assessment->questions,
+            'userAnswers' => $assignment->answers,
         ]);
+    }
+
+    /**
+     * Save answers (auto-save during assessment).
+     */
+    public function saveAnswers(Request $request, Assessment $assessment)
+    {
+        $student = Auth::user();
+
+        $request->validate([
+            'answers' => ['required', 'array'],
+        ]);
+
+        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment, startNow: true);
+
+        if ($assignment->submitted_at) {
+            return response()->json(['message' => 'Assessment already submitted'], 400);
+        }
+
+        $this->assessmentService->saveAnswers($assignment, $request->input('answers', []));
+
+        return response()->json(['message' => 'Answers saved successfully']);
     }
 
     /**
@@ -137,39 +197,22 @@ class StudentAssessmentController extends Controller
      */
     public function submit(Request $request, Assessment $assessment)
     {
-        $studentId = Auth::id();
+        $student = Auth::user();
 
         $request->validate([
             'answers' => ['required', 'array'],
-            'answers.*.question_id' => ['required', 'exists:questions,id'],
-            'answers.*.answer_text' => ['nullable', 'string'],
-            'answers.*.choice_ids' => ['nullable', 'array'],
         ]);
 
-        $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $studentId)
-            ->firstOrFail();
+        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment, startNow: true);
 
         if ($assignment->submitted_at) {
             return back()->with('error', __('messages.assessment_already_submitted'));
         }
 
-        foreach ($request->input('answers') as $answerData) {
-            $assignment->answers()->updateOrCreate(
-                [
-                    'question_id' => $answerData['question_id'],
-                ],
-                [
-                    'answer_text' => $answerData['answer_text'] ?? null,
-                    'choice_ids' => $answerData['choice_ids'] ?? null,
-                ]
-            );
-        }
-
-        $assignment->update(['submitted_at' => now()]);
+        $this->assessmentService->submitAssessment($assignment, $assessment, $request->input('answers', []));
 
         return redirect()
-            ->route('student.assessments.show', $assessment)
+            ->route('student.assessments.results', $assessment)
             ->with('success', __('messages.assessment_submitted'));
     }
 
@@ -178,25 +221,30 @@ class StudentAssessmentController extends Controller
      */
     public function results(Assessment $assessment): Response|RedirectResponse
     {
-        $studentId = Auth::id();
+        $student = Auth::user();
+
+        $assessment->load([
+            'classSubject.class',
+            'classSubject.subject',
+            'classSubject.teacher',
+            'questions.choices',
+        ]);
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $studentId)
-            ->with([
-                'assessment.classSubject.class',
-                'assessment.classSubject.subject',
-                'assessment.questions.choices',
-                'answers.question',
-            ])
-            ->firstOrFail();
+            ->where('student_id', $student->id)
+            ->with(['answers.question', 'answers.choice'])
+            ->first();
 
-        if (! $assignment->submitted_at) {
+        if (! $assignment || ! $assignment->submitted_at) {
             return redirect()->route('student.assessments.show', $assessment);
         }
+
+        $userAnswers = $this->assessmentService->formatUserAnswers($assignment->answers);
 
         return Inertia::render('Student/Assessments/Results', [
             'assignment' => $assignment,
             'assessment' => $assessment,
+            'userAnswers' => $userAnswers,
         ]);
     }
 }

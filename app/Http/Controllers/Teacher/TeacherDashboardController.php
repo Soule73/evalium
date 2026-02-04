@@ -3,54 +3,46 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
-use App\Models\Assessment;
-use App\Models\ClassSubject;
+use App\Services\Teacher\TeacherDashboardService;
+use App\Traits\FiltersAcademicYear;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class TeacherDashboardController extends Controller
 {
+    use FiltersAcademicYear;
+
+    public function __construct(
+        private readonly TeacherDashboardService $dashboardService
+    ) {}
+
     /**
      * Display the teacher dashboard with overview statistics.
      */
     public function index(Request $request): Response
     {
         $teacherId = $request->user()->id;
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+        $search = $request->input('search');
 
-        $activeAssignments = ClassSubject::where('teacher_id', $teacherId)
-            ->active()
-            ->with(['class', 'subject'])
-            ->get();
+        $activeAssignments = $this->dashboardService->getActiveAssignments($teacherId, $selectedYearId, $search);
+        $pastAssessments = $this->dashboardService->getPastAssessments($teacherId, $selectedYearId, $search);
+        $upcomingAssessments = $this->dashboardService->getUpcomingAssessments($teacherId, $selectedYearId, $search);
 
-        $recentAssessments = Assessment::whereHas('classSubject', fn($query) => $query->where('teacher_id', $teacherId))
-            ->with(['classSubject.class', 'classSubject.subject'])
-            ->orderBy('scheduled_date', 'desc')
-            ->limit(5)
-            ->get();
+        $stats = $this->dashboardService->getDashboardStats(
+            $teacherId,
+            $selectedYearId,
+            $pastAssessments->total(),
+            $upcomingAssessments->total()
+        );
 
-        $upcomingAssessments = Assessment::whereHas('classSubject', fn($query) => $query->where('teacher_id', $teacherId))
-            ->where('scheduled_date', '>=', now())
-            ->where('is_published', true)
-            ->with(['classSubject.class', 'classSubject.subject'])
-            ->orderBy('scheduled_date', 'asc')
-            ->limit(5)
-            ->get();
-
-        $stats = [
-            'total_classes' => $activeAssignments->unique('class_id')->count(),
-            'total_subjects' => $activeAssignments->unique('subject_id')->count(),
-            'total_assessments' => Assessment::whereHas('classSubject', fn($query) => $query->where('teacher_id', $teacherId))->count(),
-            'published_assessments' => Assessment::whereHas('classSubject', fn($query) => $query->where('teacher_id', $teacherId))
-                ->where('is_published', true)
-                ->count(),
-        ];
-
-        return Inertia::render('Teacher/Dashboard', [
+        return Inertia::render('Dashboard/Teacher', [
             'activeAssignments' => $activeAssignments,
-            'recentAssessments' => $recentAssessments,
+            'pastAssessments' => $pastAssessments,
             'upcomingAssessments' => $upcomingAssessments,
             'stats' => $stats,
+            'filters' => ['search' => $search],
         ]);
     }
 }

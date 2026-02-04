@@ -2,15 +2,9 @@
 
 namespace App\Providers;
 
-use App\Contracts\Answer\AnswerFormatterInterface;
 use App\Services\Admin\AdminDashboardService;
 use App\Services\Admin\UserManagementService;
-use App\Services\Core\Answer\AnswerFormatterService;
 use App\Services\Core\Scoring\ScoringService;
-use App\Services\Exam\ExamAssignmentService;
-use App\Services\Exam\ExamScoringService as TeacherExamScoringService;
-use App\Services\Exam\TeacherDashboardService;
-use App\Services\Student\ExamSessionService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -24,10 +18,12 @@ class AppServiceProvider extends ServiceProvider
      */
     protected $policies = [
         \App\Models\User::class => \App\Policies\UserPolicy::class,
-        \App\Models\Exam::class => \App\Policies\ExamPolicy::class,
-        \App\Models\Group::class => \App\Policies\GroupPolicy::class,
         \App\Models\Level::class => \App\Policies\LevelPolicy::class,
-        \App\Models\ExamAssignment::class => \App\Policies\ExamAssignmentPolicy::class,
+        \App\Models\AcademicYear::class => \App\Policies\AcademicYearPolicy::class,
+        \App\Models\Subject::class => \App\Policies\SubjectPolicy::class,
+        \App\Models\ClassModel::class => \App\Policies\ClassPolicy::class,
+        \App\Models\Enrollment::class => \App\Policies\EnrollmentPolicy::class,
+        \App\Models\ClassSubject::class => \App\Policies\ClassSubjectPolicy::class,
     ];
 
     /**
@@ -35,29 +31,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Core services (singleton pour réutilisation)
-        $this->app->singleton(ScoringService::class, ScoringService::class);
-        $this->app->singleton(AnswerFormatterInterface::class, AnswerFormatterService::class);
-        $this->app->singleton(AnswerFormatterService::class, AnswerFormatterService::class);
-
-        // New Architecture - Repositories
-        $this->app->singleton(\App\Repositories\AssignmentRepository::class);
-
-        // New Architecture - Core Services
+        $this->app->singleton(ScoringService::class);
         $this->app->singleton(\App\Services\Core\QuestionManagementService::class);
-        $this->app->singleton(\App\Services\Core\ExamCrudService::class);
-        $this->app->singleton(\App\Services\Core\ExamQueryService::class);
-
-        // Application services
-        $this->app->bind(ExamSessionService::class, ExamSessionService::class);
-
-        $this->app->bind(ExamAssignmentService::class, ExamAssignmentService::class);
-        $this->app->bind(TeacherExamScoringService::class, TeacherExamScoringService::class);
-
-        $this->app->bind(TeacherDashboardService::class, TeacherDashboardService::class);
-        $this->app->bind(AdminDashboardService::class, AdminDashboardService::class);
-
-        $this->app->bind(UserManagementService::class, UserManagementService::class);
+        $this->app->bind(AdminDashboardService::class);
+        $this->app->bind(UserManagementService::class);
     }
 
     /**
@@ -65,12 +42,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Enregistrer les policies
         foreach ($this->policies as $model => $policy) {
             Gate::policy($model, $policy);
         }
 
-        // Partager les permissions spécifiques avec Inertia pour la navigation
         \Inertia\Inertia::share([
             'permissions' => function () {
                 $user = Auth::user();
@@ -79,42 +54,44 @@ class AppServiceProvider extends ServiceProvider
                         'canManageLevels' => false,
                         'canManageRoles' => false,
                         'canManageUsers' => false,
-                        'canManageGroups' => false,
-                        'canManageExams' => false,
+                        'canManageClasses' => false,
+                        'canManageAssessments' => false,
                     ];
                 }
 
                 /** @var \App\Models\User $user */
                 return [
-                    // Navigation permissions
                     'canManageLevels' => $user->can('view levels'),
                     'canManageRoles' => $user->can('view roles'),
                     'canManageUsers' => $user->can('view users'),
-                    'canManageGroups' => $user->can('view groups'),
-                    'canManageExams' => $user->can('view exams'),
+                    'canManageAcademicYears' => $user->can('view academic years'),
+                    'canManageSubjects' => $user->can('view subjects'),
+                    'canManageClasses' => $user->can('view classes'),
+                    'canManageEnrollments' => $user->can('view enrollments'),
+                    'canManageClassSubjects' => $user->can('view class subjects'),
+                    'canManageAssessments' => $user->can('view assessments'),
 
-                    // Feature permissions - Exams
-                    'canCreateExams' => $user->can('create exams'),
-                    'canAssignExams' => $user->can('assign exams'),
-                    'canCorrectExams' => $user->can('correct exams'),
+                    'canCreateAssessments' => $user->can('create assessments'),
+                    'canAssignAssessments' => $user->can('assign assessments'),
+                    'canCorrectAssessments' => $user->can('correct assessments'),
+                    'canViewReports' => $user->can('view assessment results'),
+                    'canPublishAssessments' => $user->can('update assessments'),
+                    'canGradeAnswers' => $user->can('correct assessments'),
 
-                    // Feature permissions - Users
                     'canCreateUsers' => $user->can('create users'),
                     'canUpdateUsers' => $user->can('update users'),
                     'canDeleteUsers' => $user->can('delete users'),
                     'canManageStudents' => $user->can('manage students'),
+                    'canManageTeachers' => $user->can('view users'),
 
-                    // Feature permissions - Groups
-                    'canCreateGroups' => $user->can('create groups'),
-                    'canUpdateGroups' => $user->can('update groups'),
-                    'canDeleteGroups' => $user->can('delete groups'),
+                    'canCreateClasses' => $user->can('create classes'),
+                    'canUpdateClasses' => $user->can('update classes'),
+                    'canDeleteClasses' => $user->can('delete classes'),
 
-                    // Feature permissions - Levels
                     'canCreateLevels' => $user->can('create levels'),
                     'canUpdateLevels' => $user->can('update levels'),
                     'canDeleteLevels' => $user->can('delete levels'),
 
-                    // Feature permissions - Roles
                     'canCreateRoles' => $user->can('create roles'),
                     'canUpdateRoles' => $user->can('update roles'),
                     'canDeleteRoles' => $user->can('delete roles'),

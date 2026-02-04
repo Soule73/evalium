@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers\Teacher;
 
-use Inertia\Inertia;
-use Inertia\Response;
-use App\Models\Assessment;
-use App\Models\ClassSubject;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Traits\HasFlashMessages;
-use Illuminate\Http\RedirectResponse;
-use App\Services\Core\AssessmentService;
 use App\Http\Requests\Teacher\StoreAssessmentRequest;
 use App\Http\Requests\Teacher\UpdateAssessmentRequest;
+use App\Http\Traits\HasFlashMessages;
+use App\Models\Assessment;
+use App\Models\ClassSubject;
+use App\Services\Core\AssessmentService;
+use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AssessmentController extends Controller
 {
-    use AuthorizesRequests, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear, HasFlashMessages;
 
     public function __construct(
         private readonly AssessmentService $assessmentService
@@ -35,19 +36,22 @@ class AssessmentController extends Controller
         $perPage = $request->input('per_page', 15);
 
         $teacherId = $request->user()->id;
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
 
         $assessments = Assessment::query()
             ->with(['classSubject.class', 'classSubject.subject', 'questions'])
-            ->whereHas('classSubject', fn($query) => $query->where('teacher_id', $teacherId))
-            ->when($filters['search'] ?? null, fn($query, $search) => $query->where('title', 'like', "%{$search}%"))
-            ->when($filters['class_subject_id'] ?? null, fn($query, $classSubjectId) => $query->where('class_subject_id', $classSubjectId))
-            ->when($filters['type'] ?? null, fn($query, $type) => $query->where('type', $type))
-            ->when(isset($filters['is_published']), fn($query) => $query->where('is_published', (bool) $filters['is_published']))
-            ->orderBy('scheduled_date', 'desc')
+            ->forAcademicYear($selectedYearId)
+            ->whereHas('classSubject', fn ($query) => $query->where('teacher_id', $teacherId))
+            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('title', 'like', "%{$search}%"))
+            ->when($filters['class_subject_id'] ?? null, fn ($query, $classSubjectId) => $query->where('class_subject_id', $classSubjectId))
+            ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
+            ->when(isset($filters['is_published']), fn ($query) => $query->where('is_published', (bool) $filters['is_published']))
+            ->orderBy('scheduled_at', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 
         $classSubjects = ClassSubject::where('teacher_id', $teacherId)
+            ->forAcademicYear($selectedYearId)
             ->with(['class', 'subject'])
             ->active()
             ->get();
@@ -62,13 +66,15 @@ class AssessmentController extends Controller
     /**
      * Show the form for creating a new assessment.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
         $this->authorize('create', Assessment::class);
 
         $teacherId = Auth::id();
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
 
         $classSubjects = ClassSubject::where('teacher_id', $teacherId)
+            ->forAcademicYear($selectedYearId)
             ->with(['class.academicYear', 'class.level', 'subject'])
             ->active()
             ->get();
@@ -99,6 +105,7 @@ class AssessmentController extends Controller
 
         $assessment->load([
             'classSubject.class.academicYear',
+            'classSubject.class.level',
             'classSubject.subject',
             'classSubject.teacher',
             'questions.choices',
@@ -113,7 +120,7 @@ class AssessmentController extends Controller
     /**
      * Show the form for editing the specified assessment.
      */
-    public function edit(Assessment $assessment): Response
+    public function edit(Request $request, Assessment $assessment): Response
     {
         $this->authorize('update', $assessment);
 
@@ -123,8 +130,18 @@ class AssessmentController extends Controller
             'questions.choices',
         ]);
 
+        $teacherId = $request->user()->id;
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+
+        $classSubjects = ClassSubject::where('teacher_id', $teacherId)
+            ->forAcademicYear($selectedYearId)
+            ->with(['class.academicYear', 'class.level', 'subject'])
+            ->active()
+            ->get();
+
         return Inertia::render('Teacher/Assessments/Edit', [
             'assessment' => $assessment,
+            'classSubjects' => $classSubjects,
         ]);
     }
 

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Teacher;
 
+use App\Strategies\Validation\QuestionValidationContext;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class StoreAssessmentRequest extends FormRequest
 {
@@ -15,6 +17,30 @@ class StoreAssessmentRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        $data = [];
+
+        if ($this->has('scheduled_date')) {
+            $data['scheduled_at'] = $this->scheduled_date;
+        }
+
+        if ($this->has('duration')) {
+            $data['duration_minutes'] = $this->duration;
+        }
+
+        if (! $this->has('coefficient') || $this->coefficient === null) {
+            $data['coefficient'] = 1.0;
+        }
+
+        if (! empty($data)) {
+            $this->merge($data);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array
@@ -24,18 +50,33 @@ class StoreAssessmentRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'type' => ['required', 'in:devoir,examen,tp,controle,projet'],
-            'scheduled_date' => ['required', 'date'],
-            'duration' => ['required', 'integer', 'min:1'],
+            'scheduled_at' => ['required', 'date'],
+            'duration_minutes' => ['required', 'integer', 'min:1'],
             'coefficient' => ['required', 'numeric', 'min:0.01'],
             'is_published' => ['sometimes', 'boolean'],
             'questions' => ['sometimes', 'array'],
-            'questions.*.text' => ['required', 'string'],
-            'questions.*.type' => ['required', 'in:multiple_choice,single_choice,text'],
+            'questions.*.content' => ['required', 'string'],
+            'questions.*.type' => ['required', 'string'],
             'questions.*.points' => ['required', 'numeric', 'min:0'],
-            'questions.*.choices' => ['required_if:questions.*.type,multiple_choice,single_choice', 'array'],
-            'questions.*.choices.*.text' => ['required', 'string'],
+            'questions.*.order_index' => ['required', 'integer'],
+            'questions.*.choices' => ['sometimes', 'array'],
+            'questions.*.choices.*.content' => ['required', 'string'],
             'questions.*.choices.*.is_correct' => ['required', 'boolean'],
+            'questions.*.choices.*.order_index' => ['required', 'integer'],
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            if ($this->has('questions') && is_array($this->questions)) {
+                $validationContext = new QuestionValidationContext;
+                $validationContext->validateQuestions($validator, $this->questions);
+            }
+        });
     }
 
     /**

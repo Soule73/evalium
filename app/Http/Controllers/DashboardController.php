@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\Admin\AdminDashboardService;
-use App\Services\Core\ExamQueryService;
-use App\Services\Exam\TeacherDashboardService;
 use App\Services\Student\StudentAssignmentQueryService;
 use App\Services\Student\StudentDashboardService;
+use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -16,11 +15,9 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, FiltersAcademicYear;
 
     public function __construct(
-        private readonly ExamQueryService $examQueryService,
-        private readonly TeacherDashboardService $teacherDashboardService,
         private readonly AdminDashboardService $adminDashboardService,
         private readonly StudentAssignmentQueryService $studentAssignmentQueryService,
         private readonly StudentDashboardService $studentDashboardService
@@ -28,17 +25,15 @@ class DashboardController extends Controller
 
     /**
      * Display the dashboard index page.
-     *
-     * @return \Inertia\Response returns the appropriate dashboard view.
      */
-    public function index(Request $request): Response
+    public function index(Request $request): Response|\Illuminate\Http\RedirectResponse
     {
         try {
 
             /** @var \App\Models\User $user */
             $user = $request->user();
 
-            if (!$user) {
+            if (! $user) {
                 abort(401, __('messages.unauthenticated'));
             }
 
@@ -74,15 +69,18 @@ class DashboardController extends Controller
 
     /**
      * Handles the request to display the student dashboard.
-     *
-     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request.
-     * @return \Inertia\Response The response containing the student dashboard view.
      */
-    public function student(Request $request, User $user): Response
+    public function student(Request $request): Response
     {
-        $allAssignments = $this->studentAssignmentQueryService->getAssignmentsForStudentLight($user);
+        $user = $request->user();
+
+        if (! $user || ! $user->hasRole('student')) {
+            abort(403, __('messages.unauthorized'));
+        }
 
         $stats = $this->studentDashboardService->getDashboardStats($user);
+
+        $allAssignments = $this->studentAssignmentQueryService->getAssignmentsForStudentLight($user);
 
         $page = $request->input('page', 1);
         $perPage = 10;
@@ -92,7 +90,7 @@ class DashboardController extends Controller
 
         $total = $allAssignments->count();
 
-        $examAssignments = new \Illuminate\Pagination\LengthAwarePaginator(
+        $assessmentAssignments = new \Illuminate\Pagination\LengthAwarePaginator(
             $items,
             $total,
             $perPage,
@@ -103,45 +101,32 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard/Student', [
             'user' => $user,
             'stats' => $stats,
-            'examAssignments' => $examAssignments,
+            'assessmentAssignments' => $assessmentAssignments,
         ]);
     }
 
     /**
      * Handle the request for the teacher dashboard.
-     *
-     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request.
-     * @return \Inertia\Response The response containing the teacher dashboard data.
      */
-    public function teacher(Request $request, User $user): Response
+    public function teacher(Request $request, User $user): \Illuminate\Http\RedirectResponse
     {
-
-        $perPage = $request->input('per_page', 10);
-
-        $status = $request->input('status');
-
-        $search = $request->input('search');
-
-        $dashboardData = $this->teacherDashboardService->getDashboardData($user, $perPage, $status, $search);
-
-        return Inertia::render('Dashboard/Teacher', [
-            'user' => $user,
-            'stats' => $dashboardData['stats'],
-            'recentExams' => $dashboardData['recentExams'],
-            'pendingReviews' => $dashboardData['pendingReviews'],
-        ]);
+        return redirect()->route('teacher.dashboard');
     }
 
     /**
      * Handle the admin dashboard request.
-     *
-     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request.
-     * @return \Inertia\Response The response to be sent back to the client.
      */
-    public function admin(Request $request, User $user): Response
+    public function admin(Request $request): Response
     {
+        $user = $request->user();
 
-        $dashboardData = $this->adminDashboardService->getDashboardData();
+        if (! $user || (! $user->hasRole('admin') && ! $user->hasRole('super_admin'))) {
+            abort(403, __('messages.unauthorized'));
+        }
+
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+
+        $dashboardData = $this->adminDashboardService->getDashboardData($selectedYearId);
 
         return Inertia::render('Dashboard/Admin', [
             'user' => $user,

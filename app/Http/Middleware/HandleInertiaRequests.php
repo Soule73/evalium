@@ -57,25 +57,60 @@ class HandleInertiaRequests extends Middleware
                 'warning' => fn () => $request->session()->pull('warning'),
                 'info' => fn () => $request->session()->pull('info'),
             ],
+            'academic_year' => [
+                'selected' => $this->getSelectedAcademicYear($request),
+                'recent' => $this->getRecentAcademicYears(),
+            ],
             'locale' => app()->getLocale(),
             'language' => $this->getTranslations(),
-            'examConfig' => [
-                'devMode' => config('exam.dev_mode', false),
-                'securityEnabled' => config('exam.security_enabled', true),
+            'assessmentConfig' => [
+                'devMode' => config('assessment.dev_mode', false),
+                'securityEnabled' => config('assessment.security_enabled', true),
                 'features' => [
-                    'fullscreenRequired' => config('exam.features.fullscreen_required', true),
-                    'tabSwitchDetection' => config('exam.features.tab_switch_detection', true),
-                    'devToolsDetection' => config('exam.features.dev_tools_detection', true),
-                    'copyPastePrevention' => config('exam.features.copy_paste_prevention', true),
-                    'contextMenuDisabled' => config('exam.features.context_menu_disabled', true),
-                    'printPrevention' => config('exam.features.print_prevention', true),
+                    'fullscreenRequired' => config('assessment.features.fullscreen_required', true),
+                    'tabSwitchDetection' => config('assessment.features.tab_switch_detection', true),
+                    'devToolsDetection' => config('assessment.features.dev_tools_detection', true),
+                    'copyPastePrevention' => config('assessment.features.copy_paste_prevention', true),
+                    'contextMenuDisabled' => config('assessment.features.context_menu_disabled', true),
+                    'printPrevention' => config('assessment.features.print_prevention', true),
                 ],
                 'timing' => [
-                    'minExamDurationMinutes' => config('exam.timing.min_exam_duration_minutes', 2),
-                    'autoSubmitOnTimeEnd' => config('exam.timing.auto_submit_on_time_end', true),
+                    'minAssessmentDurationMinutes' => config('assessment.timing.min_assessment_duration_minutes', 2),
+                    'autoSubmitOnTimeEnd' => config('assessment.timing.auto_submit_on_time_end', true),
                 ],
             ],
         ];
+    }
+
+    /**
+     * Get the selected academic year from session or default to current.
+     */
+    protected function getSelectedAcademicYear(Request $request): ?array
+    {
+        $academicYearId = $request->session()->get('academic_year_id');
+
+        if (! $academicYearId) {
+            $currentYear = \App\Models\AcademicYear::where('is_current', true)->first();
+
+            return $currentYear ? $currentYear->toArray() : null;
+        }
+
+        $academicYear = \App\Models\AcademicYear::find($academicYearId);
+
+        return $academicYear ? $academicYear->toArray() : null;
+    }
+
+    /**
+     * Get the 3 most recent academic years (cached).
+     */
+    protected function getRecentAcademicYears(): array
+    {
+        return \Illuminate\Support\Facades\Cache::remember('academic_years:recent_years', 3600, function () {
+            return \App\Models\AcademicYear::orderBy('start_date', 'desc')
+                ->take(3)
+                ->get()
+                ->toArray();
+        });
     }
 
     /**

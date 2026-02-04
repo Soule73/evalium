@@ -3,7 +3,7 @@
 namespace App\Strategies\Validation\Score;
 
 use App\Models\Answer;
-use App\Models\ExamAssignment;
+use App\Models\AssessmentAssignment;
 use App\Models\User;
 use Illuminate\Validation\Validator;
 
@@ -11,7 +11,7 @@ class StudentAssignmentValidationStrategy implements ScoreValidationStrategy
 {
     public function validate(Validator $validator, array $data, array $context = []): void
     {
-        if (! isset($data['student_id']) || ! isset($data['exam_id'])) {
+        if (! isset($data['student_id']) || ! isset($data['assessment_id'])) {
             return;
         }
 
@@ -25,8 +25,8 @@ class StudentAssignmentValidationStrategy implements ScoreValidationStrategy
             return;
         }
 
-        $assignment = ExamAssignment::where('student_id', $data['student_id'])
-            ->where('exam_id', $data['exam_id'])
+        $assignment = AssessmentAssignment::where('student_id', $data['student_id'])
+            ->where('assessment_id', $data['assessment_id'])
             ->first();
 
         if (! $assignment) {
@@ -39,7 +39,7 @@ class StudentAssignmentValidationStrategy implements ScoreValidationStrategy
         }
 
         if (isset($data['question_id'])) {
-            $answer = Answer::where('assignment_id', $assignment->id)
+            $answer = Answer::where('assessment_assignment_id', $assignment->id)
                 ->where('question_id', $data['question_id'])
                 ->first();
 

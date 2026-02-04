@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreSubjectRequest;
 use App\Http\Requests\Admin\UpdateSubjectRequest;
 use App\Http\Traits\HasFlashMessages;
-use App\Models\Level;
 use App\Models\Subject;
+use App\Services\Admin\SubjectService;
+use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,11 @@ use Inertia\Response;
 
 class SubjectController extends Controller
 {
-    use AuthorizesRequests, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear, HasFlashMessages;
+
+    public function __construct(
+        private readonly SubjectService $subjectService
+    ) {}
 
     /**
      * Display a listing of subjects.
@@ -25,20 +30,12 @@ class SubjectController extends Controller
     {
         $this->authorize('viewAny', Subject::class);
 
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
         $filters = $request->only(['search', 'level_id']);
         $perPage = $request->input('per_page', 15);
 
-        $subjects = Subject::query()
-            ->with('level')
-            ->when($filters['search'] ?? null, fn($query, $search) => $query->where('name', 'like', "%{$search}%")
-                ->orWhere('code', 'like', "%{$search}%"))
-            ->when($filters['level_id'] ?? null, fn($query, $levelId) => $query->where('level_id', $levelId))
-            ->orderBy('level_id')
-            ->orderBy('name')
-            ->paginate($perPage)
-            ->withQueryString();
-
-        $levels = Level::orderBy('name')->get();
+        $subjects = $this->subjectService->getSubjectsForIndex($selectedYearId, $filters, $perPage);
+        $levels = $this->subjectService->getAllLevels();
 
         return Inertia::render('Admin/Subjects/Index', [
             'subjects' => $subjects,
@@ -54,11 +51,9 @@ class SubjectController extends Controller
     {
         $this->authorize('create', Subject::class);
 
-        $levels = Level::orderBy('name')->get();
+        $formData = $this->subjectService->getCreateFormData();
 
-        return Inertia::render('Admin/Subjects/Create', [
-            'levels' => $levels,
-        ]);
+        return Inertia::render('Admin/Subjects/Create', $formData);
     }
 
     /**
@@ -66,7 +61,7 @@ class SubjectController extends Controller
      */
     public function store(StoreSubjectRequest $request): RedirectResponse
     {
-        $subject = Subject::create($request->validated());
+        $this->subjectService->createSubject($request->validated());
 
         return redirect()
             ->route('admin.subjects.index')
@@ -76,15 +71,25 @@ class SubjectController extends Controller
     /**
      * Display the specified subject.
      */
-    public function show(Subject $subject): Response
+    public function show(Request $request, Subject $subject): Response
     {
         $this->authorize('view', $subject);
 
-        $subject->load('level', 'classSubjects.class', 'classSubjects.teacher');
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
 
-        return Inertia::render('Admin/Subjects/Show', [
-            'subject' => $subject,
-        ]);
+        $classSubjectsFilters = [
+            'search' => $request->input('classes_search'),
+            'page' => $request->input('classes_page', 1),
+            'per_page' => $request->input('classes_per_page', 10),
+        ];
+
+        $data = $this->subjectService->getSubjectDetailsWithPagination(
+            $subject,
+            $selectedYearId,
+            $classSubjectsFilters
+        );
+
+        return Inertia::render('Admin/Subjects/Show', $data);
     }
 
     /**
@@ -94,12 +99,9 @@ class SubjectController extends Controller
     {
         $this->authorize('update', $subject);
 
-        $levels = Level::orderBy('name')->get();
+        $formData = $this->subjectService->getEditFormData($subject);
 
-        return Inertia::render('Admin/Subjects/Edit', [
-            'subject' => $subject->load('level'),
-            'levels' => $levels,
-        ]);
+        return Inertia::render('Admin/Subjects/Edit', $formData);
     }
 
     /**
@@ -107,7 +109,7 @@ class SubjectController extends Controller
      */
     public function update(UpdateSubjectRequest $request, Subject $subject): RedirectResponse
     {
-        $subject->update($request->validated());
+        $this->subjectService->updateSubject($subject, $request->validated());
 
         return redirect()
             ->route('admin.subjects.show', $subject)
@@ -121,11 +123,11 @@ class SubjectController extends Controller
     {
         $this->authorize('delete', $subject);
 
-        if ($subject->classSubjects()->exists()) {
+        if ($this->subjectService->hasClassSubjects($subject)) {
             return back()->flashError(__('messages.subject_has_class_subjects'));
         }
 
-        $subject->delete();
+        $this->subjectService->deleteSubject($subject);
 
         return redirect()
             ->route('admin.subjects.index')
