@@ -3,9 +3,11 @@
 return [
     // Permission Categories
     'category_users' => 'Utilisateurs',
-    'category_exams' => 'Examens',
-    'category_groups' => 'Groupes',
+    'category_assessments' => 'Évaluations',
+    'category_classes' => 'Classes',
     'category_levels' => 'Niveaux',
+    'category_subjects' => 'Matières',
+    'category_academic_years' => 'Années Académiques',
     'category_roles_permissions' => 'Rôles & Permissions',
 
     // User Management Permissions
@@ -28,12 +30,6 @@ return [
     'assign exams' => 'Assigner des examens',
     'correct exams' => 'Corriger les examens',
     'view exam results' => 'Voir les résultats des examens',
-
-    // Group Management Permissions
-    'view groups' => 'Voir les groupes',
-    'create groups' => 'Créer des groupes',
-    'update groups' => 'Modifier les groupes',
-    'delete groups' => 'Supprimer les groupes',
 
     // Level Management Permissions
     'view levels' => 'Voir les niveaux',

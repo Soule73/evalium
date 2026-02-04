@@ -10,12 +10,12 @@ return [
     'unauthorized' => 'Action non autorisée',
     'unauthenticated' => 'Utilisateur non authentifié',
     'operation_failed' => 'L\'opération a échoué',
-    'not_member_of_group' => 'Vous n\'êtes pas membre de ce groupe',
-    'exam_not_assigned' => 'Cet examen ne vous est pas assigné',
-    'exam_not_available' => 'Cet examen n\'est pas disponible',
-    'exam_not_accessible' => 'Cet examen n\'est pas accessible pour le moment',
-    'exam_not_found_or_submitted' => 'Examen introuvable ou déjà soumis',
-    'exam_already_completed' => 'Vous avez déjà terminé cet examen',
+    'not_member_of_class' => 'Vous n\'êtes pas membre de cette classe',
+    'assessment_not_assigned' => 'Cette évaluation ne vous est pas assignée',
+    'assessment_not_available' => 'Cette évaluation n\'est pas disponible',
+    'assessment_not_accessible' => 'Cette évaluation n\'est pas accessible pour le moment',
+    'assessment_not_found_or_submitted' => 'Évaluation introuvable ou déjà soumise',
+    'assessment_already_completed' => 'Vous avez déjà terminé cette évaluation',
 
     // Roles & Permissions
     'role_created' => 'Le rôle a été créé avec succès',
@@ -39,19 +39,7 @@ return [
     'level_delete_failed' => 'Erreur lors de la suppression du niveau',
     'level_activated' => 'Le niveau a été activé avec succès',
     'level_deactivated' => 'Le niveau a été désactivé avec succès',
-    'level_cannot_delete_with_groups' => 'Impossible de supprimer ce niveau car il contient des groupes',
-
-    // Groups
-    'group_created' => 'Le groupe a été créé avec succès',
-    'group_updated' => 'Le groupe a été modifié avec succès',
-    'group_deleted' => 'Le groupe a été supprimé avec succès',
-    'group_activated' => 'Le groupe a été activé avec succès',
-    'group_deactivated' => 'Le groupe a été désactivé avec succès',
-    'groups_activated' => ':count groupe(s) activé(s) avec succès',
-    'groups_deactivated' => ':count groupe(s) désactivé(s) avec succès',
-    'student_removed' => 'L\'étudiant a été retiré du groupe avec succès',
-    'students_removed' => ':count étudiant(s) retiré(s) avec succès',
-    'students_assigned' => ':count étudiant(s) assigné(s) avec succès',
+    'level_cannot_delete_with_classes' => 'Impossible de supprimer ce niveau car il contient des classes',
 
     // Users
     'user_created' => 'L\'utilisateur a été créé avec succès',
@@ -60,30 +48,37 @@ return [
     'user_restored' => 'L\'utilisateur a été restauré avec succès',
     'user_activated' => 'L\'utilisateur a été activé avec succès',
     'user_deactivated' => 'L\'utilisateur a été désactivé avec succès',
-    'group_changed' => 'Le groupe a été modifié avec succès',
 
-    // Exams
-    'exam_created' => 'L\'examen a été créé avec succès',
-    'exam_updated' => 'L\'examen a été modifié avec succès',
-    'exam_deleted' => 'L\'examen a été supprimé avec succès',
-    'exam_duplicated' => 'L\'examen a été dupliqué avec succès',
-    'exam_activated' => 'L\'examen a été activé avec succès',
-    'exam_deactivated' => 'L\'examen a été désactivé avec succès',
-    'exam_submitted' => 'L\'examen a été soumis avec succès',
-    'exam_must_start_before_submit' => 'Vous devez commencer l\'examen avant de le soumettre',
+    // Assessments
+    'assessment_created' => 'L\'évaluation a été créée avec succès',
+    'assessment_updated' => 'L\'évaluation a été modifiée avec succès',
+    'assessment_deleted' => 'L\'évaluation a été supprimée avec succès',
+    'assessment_duplicated' => 'L\'évaluation a été dupliquée avec succès',
+    'assessment_published' => 'L\'évaluation a été publiée avec succès',
+    'assessment_unpublished' => 'L\'évaluation a été dépubliée avec succès',
+    'assessment_submitted' => 'L\'évaluation a été soumise avec succès',
+    'assessment_must_start_before_submit' => 'Vous devez commencer l\'évaluation avant de la soumettre',
     'answers_saved' => 'Réponses enregistrées',
     'error_saving_answers' => 'Erreur lors de l\'enregistrement des réponses',
     'security_violation_processed' => 'Violation de sécurité enregistrée',
 
     // Assignments
-    'groups_assigned_to_exam' => 'Assignation terminée : :count groupe(s) assigné(s)',
-    'groups_already_assigned' => '(:already_assigned déjà assigné(s))',
-    'group_removed_from_exam' => 'L\'examen a été retiré du groupe avec succès',
-    'unable_to_remove_group' => 'Impossible de retirer l\'examen de ce groupe',
+    'classes_assigned_to_assessment' => 'Assignation terminée : :count classe(s) assignée(s)',
+    'classes_already_assigned' => '(:already_assigned déjà assignée(s))',
+    'class_removed_from_assessment' => 'L\'évaluation a été retirée de la classe avec succès',
+    'unable_to_remove_class' => 'Impossible de retirer l\'évaluation de cette classe',
 
     // Corrections
     'scores_saved' => 'Correction enregistrée avec succès ! :updated_answers réponse(s) mise(s) à jour. Score total : :total_score points',
     'error_saving_correction' => 'Erreur lors de l\'enregistrement de la correction',
     'score_updated' => 'Note mise à jour avec succès',
     'error_updating_score' => 'Erreur lors de la mise à jour de la note',
+
+    // Form labels for validation
+    'assessment_title' => 'titre de l\'évaluation',
+    'assessment_type' => 'type d\'évaluation',
+    'scheduled_date' => 'date planifiée',
+    'duration' => 'durée',
+    'coefficient' => 'coefficient',
+    'class_subject' => 'classe & matière',
 ];

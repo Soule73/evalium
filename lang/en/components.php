@@ -263,43 +263,6 @@ return [
         'graded' => 'Graded',
     ],
 
-    // GroupTableConfig
-    'group_table_config' => [
-        'group_label' => 'Group',
-        'active_students_count' => ':count active student(s)',
-        'actions_label' => 'Actions',
-        'view_details' => 'View Details',
-        'remove' => 'Remove',
-        'search_placeholder' => 'Search for a group...',
-        'empty_title' => 'No groups assigned',
-        'empty_subtitle' => 'This exam is not yet assigned to any groups',
-    ],
-
-    // ExamHeader
-    'exam_header' => [
-        'questions_count' => ':count question|:count questions',
-        'created_on' => 'Created on :date',
-    ],
-
-    // ExamList
-    'exam_list' => [
-        'view_exam' => 'View',
-        'view_exam_title' => 'View exam',
-        'exam_label' => 'Exam',
-        'duration_label' => 'Duration',
-        'status_label' => 'Status',
-        'created_on' => 'Created on',
-        'actions_label' => 'Actions',
-        'status_active' => 'Active',
-        'status_inactive' => 'Inactive',
-        'search_placeholder' => 'Search by title or description...',
-        'empty_title' => 'No exams created',
-        'empty_subtitle' => 'Start by creating your first exam for your students.',
-        'empty_search_title' => 'No exams found',
-        'empty_search_subtitle' => 'Try modifying your search or filter criteria.',
-        'reset_filters' => 'Reset filters',
-    ],
-
     'assessment_list' => [
         'view_assessment' => 'View',
         'view_assessment_title' => 'View assessment',
@@ -328,6 +291,11 @@ return [
         'published_label' => 'Published',
         'assessment_title_label' => 'Assessment Title',
         'type_label' => 'Assessment Type',
+        'type_devoir' => 'Assignment',
+        'type_examen' => 'Exam',
+        'type_tp' => 'Practical Work',
+        'type_controle' => 'Test',
+        'type_projet' => 'Project',
         'type_assignment' => 'Assignment',
         'type_quiz' => 'Quiz',
         'type_exam' => 'Exam',

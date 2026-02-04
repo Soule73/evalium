@@ -34,7 +34,6 @@ return [
     'restored' => 'Utilisateur restauré avec succès !',
     'force_deleted' => 'Utilisateur supprimé définitivement !',
     'status_toggled' => 'Statut de l\'utilisateur modifié avec succès !',
-    'group_changed' => 'Groupe de l\'étudiant modifié avec succès !',
 
     // Messages d'erreur
     'not_found' => 'Utilisateur introuvable',

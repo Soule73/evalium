@@ -34,4 +34,5 @@ return [
 
     // Enseignant
     'assessments' => 'Évaluations',
+    'grading' => 'Correction',
 ];

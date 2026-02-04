@@ -34,7 +34,6 @@ return [
     'restored' => 'User restored successfully!',
     'force_deleted' => 'User permanently deleted!',
     'status_toggled' => 'User status changed successfully!',
-    'group_changed' => 'Student group changed successfully!',
 
     // Error messages
     'not_found' => 'User not found',
@@ -55,7 +54,6 @@ return [
     'name' => 'Name',
     'email' => 'Email',
     'password' => 'Password',
-    'group' => 'Group',
     'change_group' => 'Change group',
     'no_group' => 'No group',
     'created_at' => 'Created at',
