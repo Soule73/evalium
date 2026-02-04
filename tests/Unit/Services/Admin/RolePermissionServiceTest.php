@@ -60,20 +60,20 @@ class RolePermissionServiceTest extends TestCase
         $permissions = collect([
             Permission::create(['name' => 'user.create']),
             Permission::create(['name' => 'user.edit']),
-            Permission::create(['name' => 'exam.create']),
+            Permission::create(['name' => 'assessment.create']),
             Permission::create(['name' => 'role.create']),
-            Permission::create(['name' => 'group.view']),
+            Permission::create(['name' => 'class.view']),
         ]);
 
         $grouped = $this->service->groupPermissionsByCategory($permissions);
 
         $this->assertArrayHasKey(__('permissions.category_users'), $grouped);
-        $this->assertArrayHasKey(__('permissions.category_exams'), $grouped);
+        $this->assertArrayHasKey(__('permissions.category_assessments'), $grouped);
         $this->assertArrayHasKey(__('permissions.category_roles_permissions'), $grouped);
-        $this->assertArrayHasKey(__('permissions.category_groups'), $grouped);
+        $this->assertArrayHasKey(__('permissions.category_classes'), $grouped);
 
         $this->assertCount(2, $grouped[__('permissions.category_users')]);
-        $this->assertCount(1, $grouped[__('permissions.category_exams')]);
+        $this->assertCount(1, $grouped[__('permissions.category_assessments')]);
         $this->assertCount(1, $grouped[__('permissions.category_roles_permissions')]);
     }
 
@@ -87,8 +87,8 @@ class RolePermissionServiceTest extends TestCase
         $grouped = $this->service->groupPermissionsByCategory($permissions);
 
         $this->assertArrayHasKey(__('permissions.category_users'), $grouped);
-        $this->assertArrayNotHasKey(__('permissions.category_exams'), $grouped);
-        $this->assertArrayNotHasKey(__('permissions.category_groups'), $grouped);
+        $this->assertArrayNotHasKey(__('permissions.category_assessments'), $grouped);
+        $this->assertArrayNotHasKey(__('permissions.category_classes'), $grouped);
     }
 
     #[Test]
@@ -281,16 +281,16 @@ class RolePermissionServiceTest extends TestCase
     public function it_categorizes_mixed_permissions_correctly(): void
     {
         $permissions = collect([
-            Permission::create(['name' => 'exam.create']),
-            Permission::create(['name' => 'group.delete']),
+            Permission::create(['name' => 'assessment.create']),
+            Permission::create(['name' => 'class.delete']),
             Permission::create(['name' => 'level.manage']),
         ]);
 
         $grouped = $this->service->groupPermissionsByCategory($permissions);
 
         $this->assertCount(3, $grouped);
-        $this->assertArrayHasKey(__('permissions.category_exams'), $grouped);
-        $this->assertArrayHasKey(__('permissions.category_groups'), $grouped);
+        $this->assertArrayHasKey(__('permissions.category_assessments'), $grouped);
+        $this->assertArrayHasKey(__('permissions.category_classes'), $grouped);
         $this->assertArrayHasKey(__('permissions.category_levels'), $grouped);
     }
 }

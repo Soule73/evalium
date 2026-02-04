@@ -4,6 +4,7 @@ namespace Tests\Unit\Services\Core\Scoring;
 
 use App\Models\Answer;
 use App\Models\Choice;
+use App\Models\Question;
 use App\Services\Core\Scoring\ScoringService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
@@ -24,14 +25,41 @@ class ScoringServiceTest extends TestCase
         $this->scoringService = app(ScoringService::class);
     }
 
+    private function createQuestion($assessment, string $type, array $attributes = [])
+    {
+        $question = Question::factory()->create(array_merge([
+            'assessment_id' => $assessment->id,
+            'type' => $type,
+        ], $attributes));
+
+        if (in_array($type, ['one_choice', 'boolean'])) {
+            Choice::factory()->create(['question_id' => $question->id, 'is_correct' => true]);
+            Choice::factory()->create(['question_id' => $question->id, 'is_correct' => false]);
+        } elseif ($type === 'multiple') {
+            Choice::factory()->count(2)->create(['question_id' => $question->id, 'is_correct' => true]);
+            Choice::factory()->count(2)->create(['question_id' => $question->id, 'is_correct' => false]);
+        }
+
+        return $question;
+    }
+
+    private function createAnswer($assignment, $question, array $attributes = [])
+    {
+        return Answer::factory()->create(array_merge([
+            'assessment_assignment_id' => $assignment->id,
+            'question_id' => $question->id,
+        ], $attributes));
+    }
+
     #[Test]
     public function it_calculates_score_for_correct_one_choice_question(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
-        $exam = $this->createExamWithQuestions(questionCount: 0, examAttributes: ['title' => 'Test Exam for Scoring', 'duration' => 60]);
-        $assignment = $this->createAssignmentForStudent($exam, $student, ['status' => 'submitted', 'submitted_at' => now()]);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment for Scoring', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
-        $question = $this->createQuestionForExam($exam, 'one_choice', ['points' => 10]);
+        /** @var Question $question */
+        $question = $this->createQuestion($assessment, 'one_choice', ['points' => 10]);
 
         $correctChoice = Choice::factory()->create([
             'question_id' => $question->id,
@@ -43,7 +71,7 @@ class ScoringServiceTest extends TestCase
             'is_correct' => false,
         ]);
 
-        $this->createAnswerForQuestion($assignment, $question, ['choice_id' => $correctChoice->id]);
+        $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice->id]);
 
         $score = $this->scoringService->calculateQuestionScore($assignment, $question);
 
@@ -54,10 +82,11 @@ class ScoringServiceTest extends TestCase
     public function it_calculates_zero_for_incorrect_one_choice_question(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
-        $exam = $this->createExamWithQuestions(questionCount: 0, examAttributes: ['title' => 'Test Exam for Scoring', 'duration' => 60]);
-        $assignment = $this->createAssignmentForStudent($exam, $student, ['status' => 'submitted', 'submitted_at' => now()]);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment for Scoring', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
-        $question = $this->createQuestionForExam($exam, 'one_choice', ['points' => 10]);
+        /** @var Question $question */
+        $question = $this->createQuestion($assessment, 'one_choice', ['points' => 10]);
 
         Choice::factory()->create([
             'question_id' => $question->id,
@@ -69,7 +98,7 @@ class ScoringServiceTest extends TestCase
             'is_correct' => false,
         ]);
 
-        $this->createAnswerForQuestion($assignment, $question, ['choice_id' => $incorrectChoice->id]);
+        $this->createAnswer($assignment, $question, ['choice_id' => $incorrectChoice->id]);
 
         $score = $this->scoringService->calculateQuestionScore($assignment, $question);
 
@@ -80,23 +109,24 @@ class ScoringServiceTest extends TestCase
     public function it_calculates_score_for_correct_multiple_choice_question(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
-        $exam = $this->createExamWithQuestions(questionCount: 0, examAttributes: ['title' => 'Test Exam for Scoring', 'duration' => 60]);
-        $assignment = $this->createAssignmentForStudent($exam, $student, ['status' => 'submitted', 'submitted_at' => now()]);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment for Scoring', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
-        $question = $this->createQuestionForExam($exam, 'multiple', ['points' => 15]);
+        /** @var Question $question */
+        $question = $this->createQuestion($assessment, 'multiple', ['points' => 15]);
 
         $correctChoices = $question->choices()->where('is_correct', true)->get();
         $correctChoice1 = $correctChoices[0];
         $correctChoice2 = $correctChoices[1];
 
         Answer::factory()->create([
-            'assignment_id' => $assignment->id,
+            'assessment_assignment_id' => $assignment->id,
             'question_id' => $question->id,
             'choice_id' => $correctChoice1->id,
         ]);
 
         Answer::factory()->create([
-            'assignment_id' => $assignment->id,
+            'assessment_assignment_id' => $assignment->id,
             'question_id' => $question->id,
             'choice_id' => $correctChoice2->id,
         ]);
@@ -110,10 +140,11 @@ class ScoringServiceTest extends TestCase
     public function it_calculates_zero_for_incomplete_multiple_choice(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
-        $exam = $this->createExamWithQuestions(questionCount: 0, examAttributes: ['title' => 'Test Exam for Scoring', 'duration' => 60]);
-        $assignment = $this->createAssignmentForStudent($exam, $student, ['status' => 'submitted', 'submitted_at' => now()]);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment for Scoring', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
-        $question = $this->createQuestionForExam($exam, 'multiple', ['points' => 15]);
+        /** @var Question $question */
+        $question = $this->createQuestion($assessment, 'multiple', ['points' => 15]);
 
         $correctChoice1 = Choice::factory()->create([
             'question_id' => $question->id,
@@ -125,7 +156,7 @@ class ScoringServiceTest extends TestCase
             'is_correct' => true,
         ]);
 
-        $this->createAnswerForQuestion($assignment, $question, ['choice_id' => $correctChoice1->id]);
+        $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice1->id]);
 
         $score = $this->scoringService->calculateQuestionScore($assignment, $question);
 
@@ -136,10 +167,11 @@ class ScoringServiceTest extends TestCase
     public function it_calculates_zero_for_multiple_choice_with_incorrect_selection(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
-        $exam = $this->createExamWithQuestions(questionCount: 0, examAttributes: ['title' => 'Test Exam for Scoring', 'duration' => 60]);
-        $assignment = $this->createAssignmentForStudent($exam, $student, ['status' => 'submitted', 'submitted_at' => now()]);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment for Scoring', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
-        $question = $this->createQuestionForExam($exam, 'multiple', ['points' => 15]);
+        /** @var Question $question */
+        $question = $this->createQuestion($assessment, 'multiple', ['points' => 15]);
 
         $correctChoice = Choice::factory()->create([
             'question_id' => $question->id,
@@ -151,8 +183,8 @@ class ScoringServiceTest extends TestCase
             'is_correct' => false,
         ]);
 
-        $this->createAnswerForQuestion($assignment, $question, ['choice_id' => $correctChoice->id]);
-        $this->createAnswerForQuestion($assignment, $question, ['choice_id' => $incorrectChoice->id]);
+        $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice->id]);
+        $this->createAnswer($assignment, $question, ['choice_id' => $incorrectChoice->id]);
 
         $score = $this->scoringService->calculateQuestionScore($assignment, $question);
 
@@ -163,10 +195,11 @@ class ScoringServiceTest extends TestCase
     public function it_calculates_score_for_correct_boolean_question(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
-        $exam = $this->createExamWithQuestions(questionCount: 0, examAttributes: ['title' => 'Test Exam for Scoring', 'duration' => 60]);
-        $assignment = $this->createAssignmentForStudent($exam, $student, ['status' => 'submitted', 'submitted_at' => now()]);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment for Scoring', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
-        $question = $this->createQuestionForExam($exam, 'boolean', ['points' => 5]);
+        /** @var Question $question */
+        $question = $this->createQuestion($assessment, 'boolean', ['points' => 5]);
 
         $correctChoice = Choice::factory()->create([
             'question_id' => $question->id,
@@ -180,7 +213,7 @@ class ScoringServiceTest extends TestCase
             'content' => 'Faux',
         ]);
 
-        $this->createAnswerForQuestion($assignment, $question, ['choice_id' => $correctChoice->id]);
+        $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice->id]);
 
         $score = $this->scoringService->calculateQuestionScore($assignment, $question);
 
@@ -191,12 +224,13 @@ class ScoringServiceTest extends TestCase
     public function it_returns_zero_for_text_questions_without_manual_score(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
-        $exam = $this->createExamWithQuestions(questionCount: 0, examAttributes: ['title' => 'Test Exam for Scoring', 'duration' => 60]);
-        $assignment = $this->createAssignmentForStudent($exam, $student, ['status' => 'submitted', 'submitted_at' => now()]);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment for Scoring', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
-        $question = $this->createQuestionForExam($exam, 'text', ['points' => 20]);
+        /** @var Question $question */
+        $question = $this->createQuestion($assessment, 'text', ['points' => 20]);
 
-        $this->createAnswerForQuestion($assignment, $question, ['answer_text' => 'Réponse de l\'étudiant', 'score' => null]);
+        $this->createAnswer($assignment, $question, ['answer_text' => 'Réponse de l\'étudiant', 'score' => null]);
 
         $score = $this->scoringService->calculateQuestionScore($assignment, $question);
 
@@ -207,12 +241,13 @@ class ScoringServiceTest extends TestCase
     public function it_returns_manual_score_for_corrected_text_questions(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
-        $exam = $this->createExamWithQuestions(questionCount: 0, examAttributes: ['title' => 'Test Exam for Scoring', 'duration' => 60]);
-        $assignment = $this->createAssignmentForStudent($exam, $student, ['status' => 'submitted', 'submitted_at' => now()]);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment for Scoring', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
-        $question = $this->createQuestionForExam($exam, 'text', ['points' => 20]);
+        /** @var Question $question */
+        $question = $this->createQuestion($assessment, 'text', ['points' => 20]);
 
-        $this->createAnswerForQuestion($assignment, $question, ['answer_text' => 'Réponse de l\'étudiant', 'score' => 15]);
+        $this->createAnswer($assignment, $question, ['answer_text' => 'Réponse de l\'étudiant', 'score' => 15]);
 
         $score = $this->scoringService->calculateQuestionScore($assignment, $question);
 
@@ -223,37 +258,37 @@ class ScoringServiceTest extends TestCase
     public function it_calculates_total_assignment_score_correctly(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
-        $exam = $this->createExamWithQuestions(questionCount: 0, examAttributes: ['title' => 'Test Exam for Total Score', 'duration' => 60]);
-        $assignment = $this->createAssignmentForStudent($exam, $student, ['status' => 'submitted', 'submitted_at' => now()]);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment for Total Score', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
-        $multipleChoiceQuestion = $this->createQuestionForExam($exam, 'multiple', ['points' => 15]);
+        $multipleChoiceQuestion = $this->createQuestion($assessment, 'multiple', ['points' => 15]);
         $multipleCorrectChoices = $multipleChoiceQuestion->choices()->where('is_correct', true)->get();
 
         Answer::factory()->create([
-            'assignment_id' => $assignment->id,
+            'assessment_assignment_id' => $assignment->id,
             'question_id' => $multipleChoiceQuestion->id,
             'choice_id' => $multipleCorrectChoices[0]->id,
         ]);
 
         Answer::factory()->create([
-            'assignment_id' => $assignment->id,
+            'assessment_assignment_id' => $assignment->id,
             'question_id' => $multipleChoiceQuestion->id,
             'choice_id' => $multipleCorrectChoices[1]->id,
         ]);
 
-        $oneChoiceQuestion = $this->createQuestionForExam($exam, 'one_choice', ['points' => 12]);
+        $oneChoiceQuestion = $this->createQuestion($assessment, 'one_choice', ['points' => 12]);
         $oneChoiceCorrect = $oneChoiceQuestion->choices()->where('is_correct', true)->first();
 
         Answer::factory()->create([
-            'assignment_id' => $assignment->id,
+            'assessment_assignment_id' => $assignment->id,
             'question_id' => $oneChoiceQuestion->id,
             'choice_id' => $oneChoiceCorrect->id,
         ]);
 
-        $textQuestion = $this->createQuestionForExam($exam, 'text', ['points' => 10]);
+        $textQuestion = $this->createQuestion($assessment, 'text', ['points' => 10]);
 
         Answer::factory()->create([
-            'assignment_id' => $assignment->id,
+            'assessment_assignment_id' => $assignment->id,
             'question_id' => $textQuestion->id,
             'answer_text' => 'Sample answer',
             'score' => 10,
@@ -268,21 +303,21 @@ class ScoringServiceTest extends TestCase
     public function it_calculates_auto_correctable_score_only(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
-        $exam = $this->createExamWithQuestions(questionCount: 0, examAttributes: ['title' => 'Test Exam for Scoring', 'duration' => 60]);
-        $assignment = $this->createAssignmentForStudent($exam, $student, ['status' => 'submitted', 'submitted_at' => now()]);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment for Scoring', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
-        $question1 = $this->createQuestionForExam($exam, 'one_choice', ['points' => 10]);
+        $question1 = $this->createQuestion($assessment, 'one_choice', ['points' => 10]);
 
         $correctChoice = Choice::factory()->create([
             'question_id' => $question1->id,
             'is_correct' => true,
         ]);
 
-        $this->createAnswerForQuestion($assignment, $question1, ['choice_id' => $correctChoice->id]);
+        $this->createAnswer($assignment, $question1, ['choice_id' => $correctChoice->id]);
 
-        $question2 = $this->createQuestionForExam($exam, 'text', ['points' => 20]);
+        $question2 = $this->createQuestion($assessment, 'text', ['points' => 20]);
 
-        $this->createAnswerForQuestion($assignment, $question2, ['answer_text' => 'Réponse', 'score' => 15]);
+        $this->createAnswer($assignment, $question2, ['answer_text' => 'Réponse', 'score' => 15]);
 
         $autoScore = $this->scoringService->calculateAutoCorrectableScore($assignment);
 
@@ -293,10 +328,11 @@ class ScoringServiceTest extends TestCase
     public function it_returns_zero_for_unanswered_questions(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
-        $exam = $this->createExamWithQuestions(questionCount: 0, examAttributes: ['title' => 'Test Exam for Scoring', 'duration' => 60]);
-        $assignment = $this->createAssignmentForStudent($exam, $student, ['status' => 'submitted', 'submitted_at' => now()]);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment for Scoring', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
-        $question = $this->createQuestionForExam($exam, 'one_choice', ['points' => 10]);
+        /** @var Question $question */
+        $question = $this->createQuestion($assessment, 'one_choice', ['points' => 10]);
 
         Choice::factory()->create([
             'question_id' => $question->id,
@@ -312,17 +348,18 @@ class ScoringServiceTest extends TestCase
     public function it_verifies_answer_correctness_for_one_choice(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
-        $exam = $this->createExamWithQuestions(questionCount: 0, examAttributes: ['title' => 'Test Exam for Scoring', 'duration' => 60]);
-        $assignment = $this->createAssignmentForStudent($exam, $student, ['status' => 'submitted', 'submitted_at' => now()]);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment for Scoring', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
-        $question = $this->createQuestionForExam($exam, 'one_choice', ['points' => 10]);
+        /** @var Question $question */
+        $question = $this->createQuestion($assessment, 'one_choice', ['points' => 10]);
 
         $correctChoice = Choice::factory()->create([
             'question_id' => $question->id,
             'is_correct' => true,
         ]);
 
-        $answer = $this->createAnswerForQuestion($assignment, $question, ['choice_id' => $correctChoice->id]);
+        $answer = $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice->id]);
 
         $isCorrect = $this->scoringService->isAnswerCorrect($question, collect([$answer]));
 
@@ -333,10 +370,11 @@ class ScoringServiceTest extends TestCase
     public function it_verifies_answer_incorrectness_for_one_choice(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
-        $exam = $this->createExamWithQuestions(questionCount: 0, examAttributes: ['title' => 'Test Exam for Scoring', 'duration' => 60]);
-        $assignment = $this->createAssignmentForStudent($exam, $student, ['status' => 'submitted', 'submitted_at' => now()]);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment for Scoring', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
-        $question = $this->createQuestionForExam($exam, 'one_choice', ['points' => 10]);
+        /** @var Question $question */
+        $question = $this->createQuestion($assessment, 'one_choice', ['points' => 10]);
 
         Choice::factory()->create([
             'question_id' => $question->id,
@@ -348,7 +386,7 @@ class ScoringServiceTest extends TestCase
             'is_correct' => false,
         ]);
 
-        $answer = $this->createAnswerForQuestion($assignment, $question, ['choice_id' => $incorrectChoice->id]);
+        $answer = $this->createAnswer($assignment, $question, ['choice_id' => $incorrectChoice->id]);
 
         $isCorrect = $this->scoringService->isAnswerCorrect($question, collect([$answer]));
 

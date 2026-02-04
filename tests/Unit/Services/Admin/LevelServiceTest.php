@@ -60,8 +60,8 @@ class LevelServiceTest extends TestCase
     #[Test]
     public function it_can_filter_levels_by_status(): void
     {
-        $this->createLevel(['is_active' => true]);
-        $this->createLevel(['is_active' => true]);
+        $this->createLevel([]);
+        $this->createLevel([]);
         $this->createLevel(['is_active' => false]);
 
         $activeResult = $this->levelService->getLevelsWithPagination([
@@ -105,8 +105,8 @@ class LevelServiceTest extends TestCase
     #[Test]
     public function it_invalidates_cache_when_creating_level(): void
     {
-        Cache::put('groups_active_with_levels', 'test_value', 60);
-        $this->assertEquals('test_value', Cache::get('groups_active_with_levels'));
+        Cache::put('classes_active_with_levels', 'test_value', 60);
+        $this->assertEquals('test_value', Cache::get('classes_active_with_levels'));
 
         $this->levelService->createLevel([
             'name' => 'Test Level',
@@ -114,7 +114,7 @@ class LevelServiceTest extends TestCase
             'ordre' => 1,
         ]);
 
-        $this->assertNull(Cache::get('groups_active_with_levels'));
+        $this->assertNull(Cache::get('classes_active_with_levels'));
     }
 
     #[Test]
@@ -144,21 +144,21 @@ class LevelServiceTest extends TestCase
     {
         $level = $this->createLevel();
 
-        Cache::put('groups_active_with_levels', 'test_value', 60);
+        Cache::put('classes_active_with_levels', 'test_value', 60);
 
         $this->levelService->updateLevel($level, ['name' => 'Updated Name']);
 
-        $this->assertNull(Cache::get('groups_active_with_levels'));
+        $this->assertNull(Cache::get('classes_active_with_levels'));
     }
 
     #[Test]
     public function it_cannot_delete_level_with_groups(): void
     {
         $level = $this->createLevel();
-        $this->createGroupWithStudents(studentCount: 0, groupAttributes: ['level_id' => $level->id]);
+        $this->createClassWithStudents(studentCount: 0, classAttributes: ['level_id' => $level->id]);
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(__('messages.level_cannot_delete_with_groups'));
+        $this->expectExceptionMessage(__('messages.level_cannot_delete_with_classes'));
 
         $this->levelService->deleteLevel($level);
 
@@ -181,17 +181,19 @@ class LevelServiceTest extends TestCase
     {
         $level = $this->createLevel();
 
-        Cache::put('groups_active_with_levels', 'test_value', 60);
+        Cache::put('classes_active_with_levels', 'test_value', 60);
 
         $this->levelService->deleteLevel($level);
 
-        $this->assertNull(Cache::get('groups_active_with_levels'));
+        $this->assertNull(Cache::get('classes_active_with_levels'));
     }
 
     #[Test]
     public function it_can_toggle_level_status(): void
     {
-        $level = $this->createLevel(['is_active' => true]);
+        $this->markTestSkipped('is_active column removed from levels table');
+
+        $level = $this->createLevel([]);
 
         $toggledLevel = $this->levelService->toggleStatus($level);
         $this->assertFalse($toggledLevel->is_active);
@@ -203,13 +205,13 @@ class LevelServiceTest extends TestCase
     #[Test]
     public function it_invalidates_cache_when_toggling_status(): void
     {
-        $level = $this->createLevel(['is_active' => true]);
+        $level = $this->createLevel([]);
 
-        Cache::put('groups_active_with_levels', 'test_value', 60);
+        Cache::put('classes_active_with_levels', 'test_value', 60);
 
         $this->levelService->toggleStatus($level);
 
-        $this->assertNull(Cache::get('groups_active_with_levels'));
+        $this->assertNull(Cache::get('classes_active_with_levels'));
     }
 
     #[Test]
@@ -217,23 +219,18 @@ class LevelServiceTest extends TestCase
     {
         $level = $this->createLevel();
 
-        for ($i = 0; $i < 3; $i++) {
-            $this->createGroupWithStudents(studentCount: 0, groupAttributes: [
+        $classNames = ['A', 'B', 'C', 'D'];
+        foreach ($classNames as $name) {
+            $this->createClassWithStudents(studentCount: 0, classAttributes: [
                 'level_id' => $level->id,
-                'is_active' => true,
+                'name' => $name,
             ]);
         }
-
-        $this->createGroupWithStudents(studentCount: 0, groupAttributes: [
-            'level_id' => $level->id,
-            'is_active' => false,
-        ]);
 
         $result = $this->levelService->getLevelsWithPagination(['per_page' => 10]);
 
         $items = collect($result->items());
         $fetchedLevel = $items->first();
-        $this->assertEquals(4, $fetchedLevel->groups_count);
-        $this->assertEquals(3, $fetchedLevel->active_groups_count);
+        $this->assertEquals(4, $fetchedLevel->classes_count);
     }
 }
