@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
@@ -17,40 +16,37 @@ interface StudentAssessmentsIndexProps extends PageProps {
 }
 
 export default function Index({ assignments, filters }: StudentAssessmentsIndexProps) {
-  const translations = useMemo(
-    () => ({
-      title: trans('student_assessment_pages.index.title'),
-      subtitle: trans('student_assessment_pages.index.subtitle'),
-      assessmentsCount: trans('student_assessment_pages.index.assessments_count', {
-        count: assignments.total,
-      }),
-      subject: trans('student_assessment_pages.index.subject'),
-      class: trans('student_assessment_pages.index.class'),
-      teacher: trans('student_assessment_pages.index.teacher'),
-      dueDate: trans('student_assessment_pages.index.due_date'),
-      status: trans('student_assessment_pages.index.status'),
-      actions: trans('student_assessment_pages.index.actions'),
-      viewDetails: trans('student_assessment_pages.index.view_details'),
-      takeAssessment: trans('student_assessment_pages.index.take_assessment'),
-      continueAssessment: trans('student_assessment_pages.index.continue_assessment'),
-      viewResults: trans('student_assessment_pages.index.view_results'),
-      notStarted: trans('student_assessment_pages.index.not_started'),
-      inProgress: trans('student_assessment_pages.index.in_progress'),
-      completed: trans('student_assessment_pages.index.completed'),
-      graded: trans('student_assessment_pages.index.graded'),
-      filterStatus: trans('student_assessment_pages.index.filter_status'),
-      filterAll: trans('student_assessment_pages.index.filter_all'),
-      filterNotStarted: trans('student_assessment_pages.index.filter_not_started'),
-      filterInProgress: trans('student_assessment_pages.index.filter_in_progress'),
-      filterCompleted: trans('student_assessment_pages.index.filter_completed'),
-      searchPlaceholder: trans('student_assessment_pages.index.search_placeholder'),
-      emptyTitle: trans('student_assessment_pages.index.empty_title'),
-      emptySubtitle: trans('student_assessment_pages.index.empty_subtitle'),
-      duration: trans('student_assessment_pages.index.duration'),
-      questionsCount: trans('student_assessment_pages.index.questions_count'),
+  const translations = {
+    title: trans('student_assessment_pages.index.title'),
+    subtitle: trans('student_assessment_pages.index.subtitle'),
+    assessmentsCount: trans('student_assessment_pages.index.assessments_count', {
+      count: assignments.total,
     }),
-    [assignments.total]
-  );
+    subject: trans('student_assessment_pages.index.subject'),
+    class: trans('student_assessment_pages.index.class'),
+    teacher: trans('student_assessment_pages.index.teacher'),
+    dueDate: trans('student_assessment_pages.index.due_date'),
+    status: trans('student_assessment_pages.index.status'),
+    actions: trans('student_assessment_pages.index.actions'),
+    viewDetails: trans('student_assessment_pages.index.view_details'),
+    takeAssessment: trans('student_assessment_pages.index.take_assessment'),
+    continueAssessment: trans('student_assessment_pages.index.continue_assessment'),
+    viewResults: trans('student_assessment_pages.index.view_results'),
+    notStarted: trans('student_assessment_pages.index.not_started'),
+    inProgress: trans('student_assessment_pages.index.in_progress'),
+    completed: trans('student_assessment_pages.index.completed'),
+    graded: trans('student_assessment_pages.index.graded'),
+    filterStatus: trans('student_assessment_pages.index.filter_status'),
+    filterAll: trans('student_assessment_pages.index.filter_all'),
+    filterNotStarted: trans('student_assessment_pages.index.filter_not_started'),
+    filterInProgress: trans('student_assessment_pages.index.filter_in_progress'),
+    filterCompleted: trans('student_assessment_pages.index.filter_completed'),
+    searchPlaceholder: trans('student_assessment_pages.index.search_placeholder'),
+    emptyTitle: trans('student_assessment_pages.index.empty_title'),
+    emptySubtitle: trans('student_assessment_pages.index.empty_subtitle'),
+    duration: trans('student_assessment_pages.index.duration'),
+    questionsCount: trans('student_assessment_pages.index.questions_count'),
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -73,7 +69,7 @@ export default function Index({ assignments, filters }: StudentAssessmentsIndexP
         <Button
           size="sm"
           variant="outline"
-          onClick={() => router.visit(route('student.mcd.assessments.results', assignment.assessment_id))}
+          onClick={() => router.visit(route('student.assessments.results', assignment.assessment_id))}
         >
           {translations.viewResults}
         </Button>
@@ -84,7 +80,7 @@ export default function Index({ assignments, filters }: StudentAssessmentsIndexP
       return (
         <Button
           size="sm"
-          onClick={() => router.visit(route('student.mcd.assessments.take', assignment.assessment_id))}
+          onClick={() => router.visit(route('student.assessments.take', assignment.assessment_id))}
         >
           {translations.continueAssessment}
         </Button>
@@ -94,7 +90,7 @@ export default function Index({ assignments, filters }: StudentAssessmentsIndexP
     return (
       <Button
         size="sm"
-        onClick={() => router.visit(route('student.mcd.assessments.show', assignment.assessment_id))}
+        onClick={() => router.visit(route('student.assessments.show', assignment.assessment_id))}
       >
         {translations.viewDetails}
       </Button>
@@ -110,7 +106,7 @@ export default function Index({ assignments, filters }: StudentAssessmentsIndexP
           <div className="font-medium text-gray-900">{assignment.assessment.title}</div>
           <div className="text-sm text-gray-500">
             <ClockIcon className="inline w-4 h-4 mr-1" />
-            {formatDuration(assignment.assessment.duration)} • {assignment.assessment.questions_count || 0}{' '}
+            {formatDuration(assignment.assessment.duration_minutes)} - {assignment.assessment.questions_count || 0}{' '}
             {translations.questionsCount}
           </div>
         </div>
@@ -134,14 +130,14 @@ export default function Index({ assignments, filters }: StudentAssessmentsIndexP
       key: 'teacher',
       label: translations.teacher,
       render: (assignment: AssessmentAssignment & { assessment: Assessment }) => (
-        <span className="text-gray-700">{assignment.assessment.teacher?.name || '-'}</span>
+        <span className="text-gray-700">{assignment.assessment.class_subject?.teacher?.name || '-'}</span>
       ),
     },
     {
       key: 'assessment_date',
       label: translations.dueDate,
       render: (assignment: AssessmentAssignment & { assessment: Assessment }) => (
-        <span className="text-gray-700">{formatDate(assignment.assessment.assessment_date)}</span>
+        <span className="text-gray-700">{formatDate(assignment.assessment.scheduled_at)}</span>
       ),
     },
     {
@@ -158,7 +154,7 @@ export default function Index({ assignments, filters }: StudentAssessmentsIndexP
 
   const handleFilterChange = (key: string, value: string) => {
     router.get(
-      route('student.mcd.assessments.index'),
+      route('student.assessments.index'),
       { ...filters, [key]: value || undefined },
       { preserveState: true, preserveScroll: true }
     );

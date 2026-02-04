@@ -1,7 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { RoleBadge } from './RoleBadge';
 import { UserAvatar } from './UserAvatar';
-import { NavIcon } from './NavIcon';
 import { route } from 'ziggy-js';
 
 interface UserMenuProps {
@@ -12,11 +10,11 @@ interface UserMenuProps {
     };
     isAdmin: boolean;
     isTeacher: boolean;
+    isSuperAdmin?: boolean;
     isMobile?: boolean;
 }
 
-export const UserMenu = ({ user, isAdmin, isTeacher, isMobile = false }: UserMenuProps) => {
-    const userRole = isAdmin ? 'admin' : isTeacher ? 'teacher' : 'student';
+export const UserMenu = ({ user, isMobile = false }: UserMenuProps) => {
 
     const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -52,36 +50,37 @@ export const UserMenu = ({ user, isAdmin, isTeacher, isMobile = false }: UserMen
     }
 
     return (
-        <div className="hidden sm:flex sm:items-center sm:ml-6">
-            <div className="flex items-center space-x-4">
-                {/* Role Badge */}
-                <RoleBadge role={userRole} />
+        <> </>
+        // <div className="hidden sm:flex sm:items-center sm:ml-6">
+        //     <div className="flex items-center space-x-4">
+        //         {/* Role Badge */}
+        //         <RoleBadge role={userRole} />
 
-                {/* User info */}
-                <div className="flex items-center space-x-3 cursor-pointer" onClick={handleClick}>
-                    <div className="text-right">
-                        <div className="text-sm font-medium text-gray-900">
-                            {user.name}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                            {user.email}
-                        </div>
-                    </div>
+        //         {/* User info */}
+        //         <div className="flex items-center space-x-3 cursor-pointer" onClick={handleClick}>
+        //             <div className="text-right">
+        //                 <div className="text-sm font-medium text-gray-900">
+        //                     {user.name}
+        //                 </div>
+        //                 <div className="text-xs text-gray-500">
+        //                     {user.email}
+        //                 </div>
+        //             </div>
 
-                    <UserAvatar name={user.name} />
-                </div>
+        //             <UserAvatar name={user.name} />
+        //         </div>
 
-                {/* Logout button */}
-                <Link
-                    href="/logout"
-                    method="post"
-                    as="button"
-                    className="flex cursor-pointer items-center space-x-1 text-gray-500 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                    <NavIcon type="logout" />
-                    <span>Déconnexion</span>
-                </Link>
-            </div>
-        </div>
+        //         {/* Logout button */}
+        //         <Link
+        //             href="/logout"
+        //             method="post"
+        //             as="button"
+        //             className="flex cursor-pointer items-center space-x-1 text-gray-500 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+        //         >
+        //             <NavIcon type="logout" />
+        //             <span>Déconnexion</span>
+        //         </Link>
+        //     </div>
+        // </div>
     );
 };

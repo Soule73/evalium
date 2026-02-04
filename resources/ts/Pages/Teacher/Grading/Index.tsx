@@ -94,7 +94,7 @@ const GradingIndex: React.FC<Props> = ({ assessment, assignments }) => {
   return (
     <AuthenticatedLayout
       title={trans('grading_pages.index.title', { assessment: assessment.title })}
-      breadcrumb={breadcrumbs.showTeacherAssessment(assessment)}
+      breadcrumb={breadcrumbs.gradingIndex(assessment)}
     >
       <div className="max-w-6xl mx-auto space-y-6">
         <Section

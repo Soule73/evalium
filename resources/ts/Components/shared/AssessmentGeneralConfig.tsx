@@ -2,7 +2,7 @@ import React from 'react';
 import { trans } from '@/utils';
 import { Checkbox, Input, Select } from '@examena/ui';
 import { MarkdownEditor } from '@examena/ui';
-import { ClassSubject } from '@/types';
+import { ClassSubject, AssessmentType } from '@/types';
 
 interface AssessmentGeneralConfigProps {
   data: {
@@ -10,7 +10,7 @@ interface AssessmentGeneralConfigProps {
     description: string;
     duration: number;
     scheduled_date?: string;
-    type: 'assignment' | 'quiz' | 'exam';
+    type: AssessmentType;
     class_subject_id: number;
     is_published: boolean;
   };
@@ -34,9 +34,11 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
   classSubjects
 }) => {
   const assessmentTypeOptions = [
-    { value: 'assignment', label: trans('components.assessment_general_config.type_assignment') },
-    { value: 'quiz', label: trans('components.assessment_general_config.type_quiz') },
-    { value: 'exam', label: trans('components.assessment_general_config.type_exam') }
+    { value: 'devoir', label: trans('components.assessment_general_config.type_devoir') },
+    { value: 'examen', label: trans('components.assessment_general_config.type_examen') },
+    { value: 'tp', label: trans('components.assessment_general_config.type_tp') },
+    { value: 'controle', label: trans('components.assessment_general_config.type_controle') },
+    { value: 'projet', label: trans('components.assessment_general_config.type_projet') }
   ];
 
   const classSubjectOptions = classSubjects.map(cs => ({

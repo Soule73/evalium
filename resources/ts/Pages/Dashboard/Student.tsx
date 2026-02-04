@@ -2,26 +2,33 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { ChartBarIcon, CheckIcon, ClockIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
-import { Button, Section, StatCard, StudentExamAssignmentList } from '@/Components';
-import { ExamAssignment, User } from '@/types';
+import {
+    Button, Section, StatCard, StudentExamAssignmentList
+} from '@/Components';
+import {
+    ExamAssignment,
+    User
+} from '@/types';
 import { PaginationType } from '@/types/datatable';
 import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
 
 interface Stats {
-    totalExams: number;
-    completedExams: number;
-    pendingExams: number;
-    averageScore: number;
+    totalAssessments: number;
+    completedAssessments: number;
+    pendingAssessments: number;
+    inProgressAssessments: number;
+    averageScore: number | null;
+    completionRate: number;
 }
 
 interface Props {
     user: User;
     stats: Stats;
-    examAssignments: PaginationType<ExamAssignment>;
+    assessmentAssignments: PaginationType<ExamAssignment>;
 }
 
-export default function StudentDashboard({ user, stats, examAssignments }: Props) {
+export default function StudentDashboard({ user, stats, assessmentAssignments }: Props) {
     return (
         <AuthenticatedLayout title={trans('dashboard.title.student')}
             breadcrumb={breadcrumbs.dashboard()}>
@@ -40,33 +47,32 @@ export default function StudentDashboard({ user, stats, examAssignments }: Props
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" data-e2e='dashboard-content'>
                     <StatCard
                         title={trans('dashboard.student.total_exams')}
-                        value={`${stats.totalExams}`}
+                        value={`${stats.totalAssessments}`}
                         icon={DocumentTextIcon}
                         color="blue"
                     />
 
                     <StatCard
                         title={trans('dashboard.student.pending_exams')}
-                        value={`${stats.pendingExams}`}
+                        value={`${stats.pendingAssessments}`}
                         icon={ClockIcon}
                         color="yellow"
                     />
 
                     <StatCard
                         title={trans('dashboard.student.completed_exams')}
-                        value={`${stats.completedExams}`}
+                        value={`${stats.completedAssessments}`}
                         icon={CheckIcon}
                         color="green"
                     />
 
                     <StatCard
                         title={trans('dashboard.student.average_score')}
-                        value={`${stats.averageScore} / 20`}
+                        value={stats.averageScore !== null ? `${stats.averageScore} / 20` : 'N/A'}
                         icon={ChartBarIcon}
                         color="red"
                     />
                 </div>
-
             </Section>
 
             <Section title={trans('dashboard.student.assigned_exams')}
@@ -81,7 +87,7 @@ export default function StudentDashboard({ user, stats, examAssignments }: Props
                 }
             >
                 <StudentExamAssignmentList
-                    data={examAssignments}
+                    data={assessmentAssignments}
                     variant="dashboard"
                     showFilters={false}
                     showSearch={true}

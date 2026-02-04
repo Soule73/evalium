@@ -1,266 +1,218 @@
+import React, { useState, useMemo } from 'react';
 import { router } from '@inertiajs/react';
-import { route } from 'ziggy-js';
-import {
-  PencilIcon,
-  TrashIcon,
-  DocumentDuplicateIcon,
-  UserGroupIcon,
-  ClipboardDocumentCheckIcon,
-} from '@heroicons/react/24/outline';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Button, Section, Badge } from '@/Components';
-import { Assessment, AssessmentStatistics } from '@/types';
-import { breadcrumbs, trans, formatDate } from '@/utils';
+import { formatDuration } from '@/utils';
+import { Button, ConfirmationModal, Section, StatCard } from '@/Components';
+import { Toggle } from '@examena/ui';
+import { Assessment } from '@/types';
+import { ClockIcon, QuestionMarkCircleIcon, StarIcon, DocumentDuplicateIcon, UserGroupIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
+import { route } from 'ziggy-js';
+import { breadcrumbs } from '@/utils';
+import { trans } from '@/utils';
+import { QuestionReadOnlySection } from '@/Components';
+import { QuestionResultReadOnlyText, QuestionTeacherReadOnlyChoices } from '@/Components/features/exam/QuestionResultReadOnly';
+import AssessmentHeader from '@/Components/features/assessment/AssessmentHeader';
 
 interface Props {
   assessment: Assessment;
-  statistics: AssessmentStatistics;
 }
 
-export default function Show({ assessment, statistics }: Props) {
-  const handleEdit = () => {
-    router.visit(route('teacher.assessments.edit', assessment.id));
-  };
+const AssessmentShow: React.FC<Props> = ({ assessment }) => {
+  const [isToggling, setIsToggling] = useState(false);
+  const [isDuplicating, setIsDuplicating] = useState(false);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
 
-  const handleDelete = () => {
-    if (confirm(trans('teacher_pages.assessments.confirm_delete'))) {
-      router.delete(route('teacher.assessments.destroy', assessment.id), {
-        onSuccess: () => router.visit(route('teacher.assessments.index')),
-      });
-    }
+  const totalPoints = useMemo(() =>
+    (assessment.questions ?? []).reduce((sum, q) => sum + q.points, 0),
+    [assessment.questions]
+  );
+
+  const totalStudents = assessment.class_subject?.class?.active_enrollments_count || 0;
+
+  const questionsCount = (assessment.questions ?? []).length;
+
+  const handleToggleStatus = () => {
+    if (isToggling) return;
+
+    setIsToggling(true);
+    const routeName = assessment.is_published ? 'teacher.assessments.unpublish' : 'teacher.assessments.publish';
+
+    router.post(
+      route(routeName, assessment.id),
+      {},
+      {
+        preserveScroll: true,
+        onFinish: () => setIsToggling(false),
+      }
+    );
   };
 
   const handleDuplicate = () => {
-    router.post(route('teacher.assessments.duplicate', assessment.id));
+    if (isDuplicating) return;
+
+    setIsDuplicating(true);
+    router.post(
+      route('teacher.assessments.duplicate', assessment.id),
+      {},
+      {
+        onFinish: () => {
+          setIsDuplicating(false);
+          setShowDuplicateModal(false);
+        },
+      }
+    );
   };
-
-  const handleManageAssignments = () => {
-    router.visit(route('teacher.assessment-assignments.index', { assessment_id: assessment.id }));
-  };
-
-  const handleViewGrading = () => {
-    router.visit(route('teacher.grading.index', { assessment_id: assessment.id }));
-  };
-
-  const handleTogglePublish = () => {
-    router.patch(route('teacher.assessments.toggle-publish', assessment.id));
-  };
-
-  const statusBadge = assessment.is_published
-    ? { type: 'success' as const, label: trans('teacher_pages.assessments.filters.published') }
-    : { type: 'gray' as const, label: trans('teacher_pages.assessments.filters.draft') };
-
-  const completionRate = statistics.total_assigned > 0
-    ? (statistics.completed / statistics.total_assigned) * 100
-    : 0;
 
   return (
     <AuthenticatedLayout
       title={assessment.title}
       breadcrumb={breadcrumbs.showTeacherAssessment(assessment)}
     >
-      <Section
-        title={assessment.title}
-        subtitle={trans('teacher_pages.assessments.show.subtitle')}
-        actions={
-          <div className="flex gap-2">
-            <Button
-              onClick={handleTogglePublish}
-              color={assessment.is_published ? 'warning' : 'success'}
-              variant="outline"
-              size="sm"
-            >
-              {assessment.is_published
-                ? trans('teacher_pages.assessments.unpublish')
-                : trans('teacher_pages.assessments.publish')
-              }
-            </Button>
-            <Button
-              onClick={handleEdit}
-              color="secondary"
-              variant="outline"
-              size="sm"
-            >
-              <PencilIcon className="w-4 h-4 mr-1" />
-              {trans('common.edit')}
-            </Button>
-            <Button
-              onClick={handleDuplicate}
-              color="secondary"
-              variant="outline"
-              size="sm"
-            >
-              <DocumentDuplicateIcon className="w-4 h-4 mr-1" />
-              {trans('teacher_pages.assessments.duplicate')}
-            </Button>
-            <Button
-              onClick={handleDelete}
-              color="danger"
-              variant="outline"
-              size="sm"
-            >
-              <TrashIcon className="w-4 h-4 mr-1" />
-              {trans('common.delete')}
-            </Button>
-          </div>
-        }
-      >
-        <div className="space-y-6">
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {trans('teacher_pages.assessments.show.basic_info')}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {assessment.class_subject?.class?.name} - {assessment.class_subject?.subject?.name}
-                </p>
-              </div>
-              <Badge type={statusBadge.type} label={statusBadge.label} />
+      <div className="max-w-6xl mx-auto space-y-6">
+        <Section
+          title={trans('assessment_pages.common.subtitle')}
+          actions={
+            <div className="flex flex-col md:flex-row space-y-2 md:space-x-3 md:space-y-0">
+              <Toggle
+                checked={assessment.is_published}
+                onChange={handleToggleStatus}
+                disabled={isToggling}
+                color="green"
+                size="sm"
+                showLabel
+                activeLabel={trans('assessment_pages.common.toggle_published')}
+                inactiveLabel={trans('assessment_pages.common.toggle_unpublished')}
+              />
+              <Button
+                onClick={() => setShowDuplicateModal(true)}
+                color="secondary"
+                variant='outline'
+                size="sm"
+                disabled={isDuplicating}
+              >
+                <DocumentDuplicateIcon className="h-4 w-4 mr-1" />
+                {trans('assessment_pages.common.duplicate')}
+              </Button>
+              <Button
+                onClick={() => router.visit(route('teacher.assessments.edit', assessment.id))}
+                color="secondary"
+                variant='outline'
+                size="sm"
+              >
+                {trans('assessment_pages.common.edit')}
+              </Button>
+              <Button
+                onClick={() => router.visit(route('teacher.grading.index', assessment.id))}
+                color="secondary"
+                variant='outline'
+                size="sm"
+              >
+                {trans('assessment_pages.common.view_assignments')}
+              </Button>
             </div>
+          }
+        >
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <AssessmentHeader assessment={assessment} showDescription={true} showMetadata={false} />
 
-            {assessment.description && (
-              <div className="mb-6">
-                <p className="text-gray-700">{assessment.description}</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                <StatCard
+                  title={trans('assessment_pages.common.questions')}
+                  value={questionsCount}
+                  icon={QuestionMarkCircleIcon}
+                  color='blue'
+                />
+                <StatCard
+                  title={trans('assessment_pages.common.total_points')}
+                  value={totalPoints}
+                  color='green'
+                  icon={StarIcon}
+                />
+                <StatCard
+                  title={trans('assessment_pages.common.duration')}
+                  value={formatDuration(assessment.duration)}
+                  color='yellow'
+                  icon={ClockIcon}
+                />
+                <StatCard
+                  title={trans('assessment_pages.common.assigned_classes')}
+                  value={1}
+                  color='purple'
+                  icon={UserGroupIcon}
+                />
               </div>
-            )}
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <p className="text-sm text-gray-600">{trans('teacher_pages.assessments.show.type')}</p>
-                <p className="font-medium text-gray-900 capitalize">
-                  {trans(`teacher_pages.assessments.types.${assessment.type}`)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">{trans('teacher_pages.assessments.show.date')}</p>
-                <p className="font-medium text-gray-900">
-                  {formatDate(assessment.assessment_date)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">{trans('teacher_pages.assessments.show.duration')}</p>
-                <p className="font-medium text-gray-900">
-                  {assessment.duration} {trans('teacher_pages.assessments.minutes')}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">{trans('teacher_pages.assessments.show.coefficient')}</p>
-                <p className="font-medium text-gray-900">{assessment.coefficient}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium text-gray-600">
-                  {trans('teacher_pages.assessments.show.total_assigned')}
-                </h4>
-                <UserGroupIcon className="w-5 h-5 text-blue-500" />
-              </div>
-              <p className="text-3xl font-bold text-gray-900">{statistics.total_assigned}</p>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium text-gray-600">
-                  {trans('teacher_pages.assessments.show.completed')}
-                </h4>
-                <ClipboardDocumentCheckIcon className="w-5 h-5 text-green-500" />
-              </div>
-              <p className="text-3xl font-bold text-gray-900">{statistics.completed}</p>
-              <div className="mt-2">
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-green-600 h-2 rounded-full"
-                    style={{ width: `${completionRate}%` }}
+              {totalStudents > 0 && (
+                <div className="mt-4">
+                  <StatCard
+                    title={trans('assessment_pages.common.concerned_students')}
+                    value={totalStudents}
+                    color='blue'
+                    icon={AcademicCapIcon}
                   />
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {completionRate.toFixed(0)}% {trans('teacher_pages.assessments.show.completion_rate')}
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium text-gray-600">
-                  {trans('teacher_pages.assessments.show.average_score')}
-                </h4>
-              </div>
-              <p className="text-3xl font-bold text-gray-900">
-                {statistics.average_score ? `${statistics.average_score.toFixed(2)}/20` : '-'}
-              </p>
-              {statistics.highest_score !== undefined && statistics.lowest_score !== undefined && (
-                <div className="mt-2 text-xs text-gray-500">
-                  <p>{trans('teacher_pages.assessments.show.highest')}: {statistics.highest_score.toFixed(2)}</p>
-                  <p>{trans('teacher_pages.assessments.show.lowest')}: {statistics.lowest_score.toFixed(2)}</p>
                 </div>
               )}
             </div>
           </div>
+        </Section>
 
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {trans('teacher_pages.assessments.show.questions')} ({assessment.questions_count || 0})
-            </h3>
-
-            {assessment.questions && assessment.questions.length > 0 ? (
-              <div className="space-y-4">
-                {assessment.questions.map((question, index) => (
-                  <div key={question.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium text-gray-900">
-                        {trans('teacher_pages.assessments.show.question_number', { number: index + 1 })}
-                      </h4>
-                      <Badge
-                        type="info"
-                        label={`${question.points} ${trans('teacher_pages.assessments.show.points')}`}
-                      />
-                    </div>
-                    <p className="text-gray-700 mb-3">{question.content}</p>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Badge
-                        type="gray"
-                        label={trans(`teacher_pages.assessments.question_types.${question.type}`)}
-                      />
-                      {question.choices && question.choices.length > 0 && (
-                        <span>• {question.choices.length} {trans('teacher_pages.assessments.show.choices')}</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
+        <Section
+          title={trans('assessment_pages.common.assessment_questions')}
+          collapsible
+        >
+          {(assessment.questions ?? []).length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>{trans('assessment_pages.common.no_questions')}</p>
+              <div className="mt-4">
+                <Button>{trans('assessment_pages.common.add_questions')}</Button>
               </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <p>{trans('teacher_pages.assessments.show.no_questions')}</p>
-              </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200">
+              {(assessment.questions ?? []).map((question, index) => (
+                <QuestionReadOnlySection key={question.id} question={question} questionIndex={index}>
+                  {question.type !== 'text' && (question.choices ?? []).length > 0 && (
+                    <div className="ml-4">
+                      <h5 className="text-sm font-medium text-gray-700 mb-2">
+                        {trans('assessment_pages.common.answer_choices')}
+                      </h5>
+                      <div className="space-y-2">
+                        <QuestionTeacherReadOnlyChoices
+                          type={question.type}
+                          choices={question.choices ?? []}
+                        />
+                      </div>
+                    </div>
+                  )}
 
-          <div className="flex gap-4">
-            <Button
-              onClick={handleManageAssignments}
-              color="primary"
-              className="flex-1"
-            >
-              <UserGroupIcon className="w-5 h-5 mr-2" />
-              {trans('teacher_pages.assessments.show.manage_assignments')}
-            </Button>
-            {assessment.is_published && (
-              <Button
-                onClick={handleViewGrading}
-                color="secondary"
-                className="flex-1"
-              >
-                <ClipboardDocumentCheckIcon className="w-5 h-5 mr-2" />
-                {trans('teacher_pages.assessments.show.view_grading')}
-              </Button>
-            )}
-          </div>
-        </div>
-      </Section>
+                  {question.type === 'text' && (
+                    <QuestionResultReadOnlyText
+                      userText={trans('assessment_pages.common.free_text_info')}
+                      label=""
+                    />
+                  )}
+                </QuestionReadOnlySection>
+              ))}
+            </div>
+          )}
+        </Section>
+      </div>
+
+      <ConfirmationModal
+        isOpen={showDuplicateModal}
+        onClose={() => setShowDuplicateModal(false)}
+        onConfirm={handleDuplicate}
+        title={trans('assessment_pages.common.duplicate_modal_title')}
+        message={trans('assessment_pages.common.duplicate_modal_message', { title: assessment.title })}
+        confirmText={trans('assessment_pages.common.duplicate_confirm')}
+        cancelText={trans('assessment_pages.create.cancel')}
+        type="info"
+        loading={isDuplicating}
+      />
     </AuthenticatedLayout>
   );
-}
+};
+
+export default AssessmentShow;
+

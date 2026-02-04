@@ -6,7 +6,7 @@ import { UserGroupIcon, TrashIcon, ArrowPathIcon } from '@heroicons/react/24/out
 import { route } from 'ziggy-js';
 import { useState } from 'react';
 import CreateUser from './Create';
-import { User, PageProps, Group } from '@/types';
+import { User, PageProps } from '@/types';
 import { breadcrumbs } from '@/utils';
 import { hasPermission } from '@/utils';
 import { trans } from '@/utils';
@@ -18,11 +18,10 @@ import { useConfirmationModal } from '@/hooks';
 interface Props extends PageProps {
     users: PaginationType<User>;
     roles: string[];
-    groups: Group[];
     canManageAdmins: boolean;
 }
 
-export default function UserIndex({ users, roles, groups }: Props) {
+export default function UserIndex({ users, roles }: Props) {
     const { auth } = usePage<PageProps>().props;
 
     const canCreateUsers = hasPermission(auth.permissions, 'create users');
@@ -249,7 +248,6 @@ export default function UserIndex({ users, roles, groups }: Props) {
 
             <CreateUser
                 roles={roles}
-                groups={groups}
                 isOpen={isShowCreateModal}
                 onClose={() => setIsShowCreateModal(false)}
             />

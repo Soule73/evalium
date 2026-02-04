@@ -1,5 +1,7 @@
 export { Breadcrumb } from './Breadcrumb';
 export { default as LanguageSelector } from './LanguageSelector';
+export { default as AcademicYearSelector } from './AcademicYearSelector';
+export { default as AcademicYearBadge } from './AcademicYearBadge';
 export { Logo } from './Logo';
 export { MobileMenuButton } from './MobileMenuButton';
 export { NavIcon } from './NavIcon';

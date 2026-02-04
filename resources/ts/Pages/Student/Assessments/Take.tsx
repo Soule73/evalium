@@ -14,7 +14,6 @@ import { Answer, Assessment, AssessmentAssignment, Question } from '@/types';
 import { ExclamationCircleIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { useTakeAssessment } from '@/hooks/features/assessment';
 import { formatTime, trans } from '@/utils';
-import { useMemo } from 'react';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -25,7 +24,7 @@ interface TakeAssessmentProps {
   userAnswers: Answer[];
 }
 
-export default function Take({ assessment, assignment, questions = [], userAnswers = [] }: TakeAssessmentProps) {
+function Take({ assessment, assignment, questions = [], userAnswers = [] }: TakeAssessmentProps) {
   const {
     answers,
     timeLeft,
@@ -35,7 +34,6 @@ export default function Take({ assessment, assignment, questions = [], userAnswe
     assessmentTerminated,
     terminationReason,
     showFullscreenModal,
-    assessmentCanStart,
   } = useAssessmentTakeStore(
     useShallow((state) => ({
       answers: state.answers,
@@ -46,41 +44,37 @@ export default function Take({ assessment, assignment, questions = [], userAnswe
       assessmentTerminated: state.assessmentTerminated,
       terminationReason: state.terminationReason,
       showFullscreenModal: state.showFullscreenModal,
-      assessmentCanStart: state.assessmentCanStart,
     }))
   );
 
-  const translations = useMemo(
-    () => ({
-      title: trans('student_assessment_pages.take.title', { assessment: assessment.title }),
-      assessmentTerminatedTitle: trans('student_assessment_pages.take.assessment_terminated_title'),
-      assessmentAlreadySubmitted: trans('student_assessment_pages.take.assessment_already_submitted'),
-      noQuestionsTitle: trans('student_assessment_pages.take.no_questions_title'),
-      noQuestionsSubtitle: trans('student_assessment_pages.take.no_questions_subtitle'),
-      noQuestionsMessage: trans('student_assessment_pages.take.no_questions_message'),
-      timeRemaining: trans('student_assessment_pages.take.time_remaining'),
-      fullscreenRequired: trans('student_assessment_pages.take.fullscreen_required'),
-      submitting: trans('student_assessment_pages.take.submitting'),
-      finishAssessment: trans('student_assessment_pages.take.finish_assessment'),
-      importantInstructions: trans('student_assessment_pages.take.important_instructions'),
-      warningTitle: trans('student_assessment_pages.take.warning_title'),
-      warningMessage1: trans('student_assessment_pages.take.warning_message_1'),
-      warningMessage2: trans('student_assessment_pages.take.warning_message_2'),
-      warningMessage3: trans('student_assessment_pages.take.warning_message_3'),
-      warningAutoSave: trans('student_assessment_pages.take.warning_auto_save'),
-      fullscreenActivationTitle: trans('student_assessment_pages.take.fullscreen_activation_title'),
-      attention: trans('student_assessment_pages.take.attention'),
-      fullscreenActivationMessage: trans('student_assessment_pages.take.fullscreen_activation_message'),
-      confirmSubmitTitle: trans('student_assessment_pages.take.confirm_submit_title'),
-      confirmSubmitMessage: trans('student_assessment_pages.take.confirm_submit_message'),
-      confirmSubmitCheck: trans('student_assessment_pages.take.confirm_submit_check'),
-      modalConfirmText: trans('components.confirmation_modal.confirm'),
-      modalCancelText: trans('components.confirmation_modal.cancel'),
-    }),
-    [assessment.title]
-  );
+  const translations = {
+    title: trans('student_assessment_pages.take.title', { assessment: assessment.title }),
+    assessmentTerminatedTitle: trans('student_assessment_pages.take.assessment_terminated_title'),
+    assessmentAlreadySubmitted: trans('student_assessment_pages.take.assessment_already_submitted'),
+    noQuestionsTitle: trans('student_assessment_pages.take.no_questions_title'),
+    noQuestionsSubtitle: trans('student_assessment_pages.take.no_questions_subtitle'),
+    noQuestionsMessage: trans('student_assessment_pages.take.no_questions_message'),
+    timeRemaining: trans('student_assessment_pages.take.time_remaining'),
+    fullscreenRequired: trans('student_assessment_pages.take.fullscreen_required'),
+    submitting: trans('student_assessment_pages.take.submitting'),
+    finishAssessment: trans('student_assessment_pages.take.finish_assessment'),
+    importantInstructions: trans('student_assessment_pages.take.important_instructions'),
+    warningTitle: trans('student_assessment_pages.take.warning_title'),
+    warningMessage1: trans('student_assessment_pages.take.warning_message_1'),
+    warningMessage2: trans('student_assessment_pages.take.warning_message_2'),
+    warningMessage3: trans('student_assessment_pages.take.warning_message_3'),
+    warningAutoSave: trans('student_assessment_pages.take.warning_auto_save'),
+    fullscreenActivationTitle: trans('student_assessment_pages.take.fullscreen_activation_title'),
+    attention: trans('student_assessment_pages.take.attention'),
+    fullscreenActivationMessage: trans('student_assessment_pages.take.fullscreen_activation_message'),
+    confirmSubmitTitle: trans('student_assessment_pages.take.confirm_submit_title'),
+    confirmSubmitMessage: trans('student_assessment_pages.take.confirm_submit_message'),
+    confirmSubmitCheck: trans('student_assessment_pages.take.confirm_submit_check'),
+    modalConfirmText: trans('components.confirmation_modal.confirm'),
+    modalCancelText: trans('components.confirmation_modal.cancel'),
+  };
 
-  const { security, processing, handleAnswerChange, handleSubmit, enterFullscreen } = useTakeAssessment({
+  const { security, processing, handleAnswerChange, handleSubmit, enterFullscreen, assessmentCanStart } = useTakeAssessment({
     assessment,
     questions,
     userAnswers,
@@ -199,3 +193,7 @@ export default function Take({ assessment, assignment, questions = [], userAnswe
     </div>
   );
 }
+
+Take.layout = (page: React.ReactNode) => page;
+
+export default Take;

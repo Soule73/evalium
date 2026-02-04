@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
     PlusIcon,
     TrashIcon,
@@ -273,7 +273,7 @@ const QuestionMultipleItem: React.FC<QuestionMultipleItemProps> = ({
     error,
     onRemoveChoice
 }) => {
-    const translations = useMemo(() => ({
+    const translations = {
         placeholders: trans('components.choice_editor.placeholders'),
         simple: trans('components.choice_editor.simple'),
         markdown: trans('components.choice_editor.markdown'),
@@ -285,7 +285,7 @@ const QuestionMultipleItem: React.FC<QuestionMultipleItemProps> = ({
         switchMarkdown: trans('components.choice_editor.switch_markdown'),
         showPreview: trans('components.choice_editor.show_preview'),
         hidePreview: trans('components.choice_editor.hide_preview'),
-    }), []);
+    };
     return (
         <div
             key={choice.id || `choice-${choiceIndex}`}

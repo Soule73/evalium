@@ -19,13 +19,13 @@ interface Props {
   userAnswers: Record<number, Answer>;
 }
 
-const GradingShow: React.FC<Props> = ({ assessment, student, assignment, userAnswers }) => {
+const GradingShow: React.FC<Props> = ({ assessment, student, assignment, userAnswers = {} }) => {
   const { auth } = usePage<PageProps>().props;
-  const canGradeAssessments = hasPermission(auth.permissions, 'correct assessments');
+  const canGradeAssessments = hasPermission(auth.permissions, 'grade assessments');
 
   const [scores, setScores] = useState<Record<number, number>>(() => {
     const initialScores: Record<number, number> = {};
-    Object.values(userAnswers).forEach(answer => {
+    Object.values(userAnswers || {}).forEach(answer => {
       if (answer.question_id && answer.score !== null && answer.score !== undefined) {
         initialScores[answer.question_id] = answer.score;
       }
@@ -35,7 +35,7 @@ const GradingShow: React.FC<Props> = ({ assessment, student, assignment, userAns
 
   const [feedbacks, setFeedbacks] = useState<Record<number, string>>(() => {
     const initialFeedbacks: Record<number, string> = {};
-    Object.values(userAnswers).forEach(answer => {
+    Object.values(userAnswers || {}).forEach(answer => {
       if (answer.question_id && answer.feedback) {
         initialFeedbacks[answer.question_id] = answer.feedback;
       }
@@ -184,7 +184,7 @@ const GradingShow: React.FC<Props> = ({ assessment, student, assignment, userAns
   return (
     <AuthenticatedLayout
       title={trans('grading_pages.show.title', { student: student.name, assessment: assessment.title })}
-      breadcrumb={breadcrumbs.showTeacherAssessment(assessment)}
+      breadcrumb={breadcrumbs.gradingShow(assessment, student)}
     >
       <div className="max-w-6xl mx-auto space-y-6">
         <Section
@@ -235,7 +235,7 @@ const GradingShow: React.FC<Props> = ({ assessment, student, assignment, userAns
             {(assessment.questions ?? []).map((question) => (
               <div key={question.id} className="pb-6 border-b border-gray-200 last:border-0">
                 <QuestionRenderer
-                  questions={assessment.questions ?? []}
+                  questions={[question]}
                   getQuestionResult={getQuestionResult}
                   scores={scores}
                   isTeacherView={true}

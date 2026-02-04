@@ -65,16 +65,16 @@ export default function History({ enrollments }: StudentEnrollmentHistoryProps) 
       ),
     },
     {
-      key: 'enrolled_date',
+      key: 'enrolled_at',
       label: translations.enrolledOn,
-      render: (enrollment: Enrollment) => <span className="text-gray-700">{formatDate(enrollment.enrolled_date)}</span>,
+      render: (enrollment: Enrollment) => <span className="text-gray-700">{formatDate(enrollment.enrolled_at)}</span>,
     },
     {
       key: 'completed_date',
       label: translations.completedOn,
       render: (enrollment: Enrollment) => (
         <span className="text-gray-700">
-          {enrollment.status === 'completed' ? formatDate(enrollment.enrolled_date) : translations.notAvailable}
+          {enrollment.status === 'completed' ? formatDate(enrollment.enrolled_at) : translations.notAvailable}
         </span>
       ),
     },
@@ -94,7 +94,7 @@ export default function History({ enrollments }: StudentEnrollmentHistoryProps) 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => router.visit(route('student.mcd.enrollment.show'))}
+            onClick={() => router.visit(route('student.enrollment.show'))}
           >
             {translations.backToCurrent}
           </Button>

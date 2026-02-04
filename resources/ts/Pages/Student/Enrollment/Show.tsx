@@ -2,64 +2,77 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Enrollment, PageProps } from '@/types';
-import { Badge, Button, EmptyState, Section, StatCard, TextEntry } from '@/Components';
+import { Enrollment, PageProps, PaginationType } from '@/types';
+import { Badge, Button, DataTable, Section, StatCard, TextEntry } from '@/Components';
+import type { DataTableConfig } from '@/types/datatable';
 import { trans, formatDate } from '@/utils';
 import { AcademicCapIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 
-interface StudentEnrollmentShowProps extends PageProps {
-  enrollment: Enrollment;
-  gradeBreakdown: {
-    subject_id: number;
-    subject_name: string;
-    teacher_name: string;
-    average: number | null;
-    assessments_count: number;
-    completed_count: number;
-  }[];
+interface SubjectGrade {
+  id: number;
+  class_subject_id: number;
+  subject_name: string;
+  teacher_name: string;
+  coefficient: number;
+  average: number | null;
+  assessments_count: number;
+  completed_count: number;
 }
 
-export default function Show({ enrollment, gradeBreakdown }: StudentEnrollmentShowProps) {
-  const translations = useMemo(
-    () => ({
-      title: trans('student_enrollment_pages.show.title'),
-      subtitle: trans('student_enrollment_pages.show.subtitle'),
-      currentClass: trans('student_enrollment_pages.show.current_class'),
-      enrolledOn: trans('student_enrollment_pages.show.enrolled_on'),
-      academicYear: trans('student_enrollment_pages.show.academic_year'),
-      level: trans('student_enrollment_pages.show.level'),
-      className: trans('student_enrollment_pages.show.class_name'),
-      gradeBreakdown: trans('student_enrollment_pages.show.grade_breakdown'),
-      subject: trans('student_enrollment_pages.show.subject'),
-      teacher: trans('student_enrollment_pages.show.teacher'),
-      average: trans('student_enrollment_pages.show.average'),
-      assessments: trans('student_enrollment_pages.show.assessments'),
-      noGrade: trans('student_enrollment_pages.show.no_grade'),
-      overallStatistics: trans('student_enrollment_pages.show.overall_statistics'),
-      overallAverage: trans('student_enrollment_pages.show.overall_average'),
-      totalAssessments: trans('student_enrollment_pages.show.total_assessments'),
-      completedAssessments: trans('student_enrollment_pages.show.completed_assessments'),
-      pendingAssessments: trans('student_enrollment_pages.show.pending_assessments'),
-      viewHistory: trans('student_enrollment_pages.show.view_history'),
-      viewClassmates: trans('student_enrollment_pages.show.view_classmates'),
-    }),
-    []
-  );
+interface OverallStats {
+  student_id: number;
+  student_name: string;
+  class_id: number;
+  class_name: string;
+  subjects: SubjectGrade[];
+  annual_average: number | null;
+  total_coefficient: number;
+}
 
-  const overallAverage = useMemo(() => {
-    const validGrades = gradeBreakdown.filter((item) => item.average !== null);
-    if (validGrades.length === 0) return null;
-    return validGrades.reduce((sum, item) => sum + (item.average || 0), 0) / validGrades.length;
-  }, [gradeBreakdown]);
+interface StudentEnrollmentShowProps extends PageProps {
+  enrollment: Enrollment;
+  subjects: PaginationType<SubjectGrade>;
+  overallStats: OverallStats;
+}
+
+export default function Show({ enrollment, subjects, overallStats }: StudentEnrollmentShowProps) {
+  const translations = {
+    title: trans('student_enrollment_pages.show.title'),
+    subtitle: trans('student_enrollment_pages.show.subtitle'),
+    currentClass: trans('student_enrollment_pages.show.current_class'),
+    enrolledOn: trans('student_enrollment_pages.show.enrolled_on'),
+    academicYear: trans('student_enrollment_pages.show.academic_year'),
+    level: trans('student_enrollment_pages.show.level'),
+    className: trans('student_enrollment_pages.show.class_name'),
+    gradeBreakdown: trans('student_enrollment_pages.show.grade_breakdown'),
+    subject: trans('student_enrollment_pages.show.subject'),
+    teacher: trans('student_enrollment_pages.show.teacher'),
+    average: trans('student_enrollment_pages.show.average'),
+    assessments: trans('student_enrollment_pages.show.assessments'),
+    noGrade: trans('student_enrollment_pages.show.no_grade'),
+    overallStatistics: trans('student_enrollment_pages.show.overall_statistics'),
+    overallAverage: trans('student_enrollment_pages.show.overall_average'),
+    totalAssessments: trans('student_enrollment_pages.show.total_assessments'),
+    completedAssessments: trans('student_enrollment_pages.show.completed_assessments'),
+    pendingAssessments: trans('student_enrollment_pages.show.pending_assessments'),
+    viewHistory: trans('student_enrollment_pages.show.view_history'),
+    viewClassmates: trans('student_enrollment_pages.show.view_classmates'),
+    searchPlaceholder: trans('common.search'),
+    excellent: trans('student_enrollment_pages.show.excellent'),
+    veryGood: trans('student_enrollment_pages.show.very_good'),
+    good: trans('student_enrollment_pages.show.good'),
+    satisfactory: trans('student_enrollment_pages.show.satisfactory'),
+    needsImprovement: trans('student_enrollment_pages.show.needs_improvement'),
+  };
 
   const totalAssessments = useMemo(
-    () => gradeBreakdown.reduce((sum, item) => sum + item.assessments_count, 0),
-    [gradeBreakdown]
+    () => overallStats?.subjects?.reduce((sum, item) => sum + (item.assessments_count || 0), 0) || 0,
+    [overallStats]
   );
 
   const completedAssessments = useMemo(
-    () => gradeBreakdown.reduce((sum, item) => sum + item.completed_count, 0),
-    [gradeBreakdown]
+    () => overallStats?.subjects?.reduce((sum, item) => sum + (item.completed_count || 0), 0) || 0,
+    [overallStats]
   );
 
   const getGradeColor = (average: number | null) => {
@@ -73,11 +86,64 @@ export default function Show({ enrollment, gradeBreakdown }: StudentEnrollmentSh
 
   const getGradeLabel = (average: number | null) => {
     if (average === null) return null;
-    if (average >= 16) return <Badge label={trans('student_enrollment_pages.show.excellent')} type="success" />;
-    if (average >= 14) return <Badge label={trans('student_enrollment_pages.show.very_good')} type="success" />;
-    if (average >= 12) return <Badge label={trans('student_enrollment_pages.show.good')} type="info" />;
-    if (average >= 10) return <Badge label={trans('student_enrollment_pages.show.satisfactory')} type="warning" />;
-    return <Badge label={trans('student_enrollment_pages.show.needs_improvement')} type="error" />;
+    if (average >= 16) return <Badge label={translations.excellent} type="success" />;
+    if (average >= 14) return <Badge label={translations.veryGood} type="success" />;
+    if (average >= 12) return <Badge label={translations.good} type="info" />;
+    if (average >= 10) return <Badge label={translations.satisfactory} type="warning" />;
+    return <Badge label={translations.needsImprovement} type="error" />;
+  };
+
+  const subjectsTableConfig: DataTableConfig<SubjectGrade> = {
+    columns: [
+      {
+        key: 'subject_name',
+        label: translations.subject,
+        sortable: true,
+      },
+      {
+        key: 'teacher_name',
+        label: translations.teacher,
+        sortable: true,
+        render: (item: SubjectGrade) => item.teacher_name || '-',
+      },
+      {
+        key: 'assessments',
+        label: translations.assessments,
+        sortable: false,
+        render: (item: SubjectGrade) => (
+          <span className="text-sm text-gray-600">
+            {item.completed_count} / {item.assessments_count}
+          </span>
+        ),
+      },
+      {
+        key: 'average',
+        label: translations.average,
+        sortable: true,
+        render: (item: SubjectGrade) => (
+          <div className="flex items-center justify-start space-x-2">
+            <span className={`${getGradeColor(item.average)}`}>
+              {item.average !== null
+                ? `${item.average.toFixed(2)}/20`
+                : translations.noGrade}
+            </span>
+            {getGradeLabel(item.average)}
+          </div>
+        ),
+      },
+    ],
+    searchPlaceholder: translations.searchPlaceholder,
+    perPageOptions: [10, 25, 50],
+    emptyState: {
+      icon: <BookOpenIcon className="w-12 h-12" />,
+      title: trans('student_enrollment_pages.show.no_subjects_title'),
+      subtitle: trans('student_enrollment_pages.show.no_subjects_subtitle'),
+    },
+    emptySearchState: {
+      icon: <BookOpenIcon className="w-12 h-12" />,
+      title: trans('common.no_search_results'),
+      subtitle: trans('common.try_different_search'),
+    },
   };
 
   return (
@@ -90,11 +156,11 @@ export default function Show({ enrollment, gradeBreakdown }: StudentEnrollmentSh
             <Button
               variant="outline"
               size="sm"
-              onClick={() => router.visit(route('student.mcd.enrollment.history'))}
+              onClick={() => router.visit(route('student.enrollment.history'))}
             >
               {translations.viewHistory}
             </Button>
-            <Button size="sm" onClick={() => router.visit(route('student.mcd.enrollment.classmates'))}>
+            <Button size="sm" onClick={() => router.visit(route('student.enrollment.classmates'))}>
               {translations.viewClassmates}
             </Button>
           </div>
@@ -111,7 +177,7 @@ export default function Show({ enrollment, gradeBreakdown }: StudentEnrollmentSh
             />
           </div>
           <div className="mt-4">
-            <TextEntry label={translations.enrolledOn} value={formatDate(enrollment.enrolled_date)} />
+            <TextEntry label={translations.enrolledOn} value={formatDate(enrollment.enrolled_at)} />
           </div>
         </div>
 
@@ -120,28 +186,28 @@ export default function Show({ enrollment, gradeBreakdown }: StudentEnrollmentSh
           <div className="grid gap-y-2 grid-cols-1 lg:grid-cols-4">
             <StatCard
               title={translations.overallAverage}
-              value={overallAverage !== null ? `${overallAverage.toFixed(2)}/20` : translations.noGrade}
+              value={overallStats.annual_average !== null ? `${overallStats.annual_average.toFixed(2)}/20` : translations.noGrade}
               icon={AcademicCapIcon}
               color="blue"
               className="lg:rounded-r-none"
             />
             <StatCard
               title={translations.totalAssessments}
-              value={totalAssessments}
+              value={totalAssessments || 0}
               icon={BookOpenIcon}
               color="green"
               className="lg:rounded-none lg:border-x-0"
             />
             <StatCard
               title={translations.completedAssessments}
-              value={completedAssessments}
+              value={completedAssessments || 0}
               icon={BookOpenIcon}
               color="purple"
               className="lg:rounded-none lg:border-x-0"
             />
             <StatCard
               title={translations.pendingAssessments}
-              value={totalAssessments - completedAssessments}
+              value={(totalAssessments - completedAssessments) || 0}
               icon={BookOpenIcon}
               color="yellow"
               className="lg:rounded-l-none"
@@ -151,63 +217,7 @@ export default function Show({ enrollment, gradeBreakdown }: StudentEnrollmentSh
 
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">{translations.gradeBreakdown}</h3>
-          {gradeBreakdown.length === 0 ? (
-            <EmptyState
-              icon={<BookOpenIcon className="w-12 h-12" />}
-              title={trans('student_enrollment_pages.show.no_enrollment_title')}
-              subtitle={trans('student_enrollment_pages.show.no_enrollment_subtitle')}
-            />
-          ) : (
-            <div className="bg-gray-50 rounded-lg overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {translations.subject}
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {translations.teacher}
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {translations.assessments}
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {translations.average}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {gradeBreakdown.map((item) => (
-                    <tr key={item.subject_id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {item.subject_name}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600">{item.teacher_name || '-'}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="text-sm text-gray-600">
-                          {item.completed_count} / {item.assessments_count}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="flex items-center justify-center space-x-2">
-                          <span className={`text-lg ${getGradeColor(item.average)}`}>
-                            {item.average !== null
-                              ? `${item.average.toFixed(2)}/20`
-                              : translations.noGrade}
-                          </span>
-                          {getGradeLabel(item.average)}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <DataTable data={subjects} config={subjectsTableConfig} />
         </div>
       </Section>
     </AuthenticatedLayout>

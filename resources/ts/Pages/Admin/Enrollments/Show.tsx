@@ -103,7 +103,7 @@ export default function EnrollmentShow({ enrollment, auth }: Props) {
                   {trans('admin_pages.enrollments.enrolled_at')}
                 </div>
                 <div className="mt-1 text-sm text-gray-900">
-                  {formatDate(enrollment.enrolled_date)}
+                  {formatDate(enrollment.enrolled_at)}
                 </div>
               </div>
             </div>

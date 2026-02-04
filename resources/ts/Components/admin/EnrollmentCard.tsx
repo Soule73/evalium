@@ -52,7 +52,7 @@ export default function EnrollmentCard({ enrollment, onClick }: EnrollmentCardPr
         <div className="flex items-center space-x-2">
           <CalendarIcon className="w-4 h-4 text-gray-400" />
           <div className="text-sm text-gray-600">
-            {trans('admin_pages.enrollments.enrolled_on')}: {formatDate(enrollment.enrolled_date)}
+            {trans('admin_pages.enrollments.enrolled_on')}: {formatDate(enrollment.enrolled_at)}
           </div>
         </div>
 

@@ -10,12 +10,12 @@ import { AcademicCapIcon, UserGroupIcon, BookOpenIcon, CalendarIcon } from '@her
 interface Props extends PageProps {
   class: ClassModel & {
     enrollments?: Enrollment[];
-    class_subjects?: ClassSubject[];
-    assessments?: Assessment[];
   };
+  subjects: PaginationType<ClassSubject>;
+  assessments: PaginationType<Assessment>;
 }
 
-export default function TeacherClassShow({ class: classItem }: Props) {
+export default function TeacherClassShow({ class: classItem, subjects, assessments }: Props) {
   const handleBack = () => {
     router.visit(route('teacher.classes.index'));
   };
@@ -32,15 +32,14 @@ export default function TeacherClassShow({ class: classItem }: Props) {
     router.visit(route('teacher.assessments.show', assessment.id));
   };
 
-  const activeEnrollments = classItem.enrollments?.filter(e => e.status === 'active') || [];
-  const mySubjects = classItem.class_subjects || [];
-  const recentAssessments = classItem.assessments?.slice(0, 5) || [];
+  const activeEnrollments = classItem.enrollments || [];
+  const mySubjectsCount = subjects.total;
 
   const subjectsTableConfig: DataTableConfig<ClassSubject> = {
     columns: [
       {
         key: 'subject',
-        label: trans('teacher_pages.classes.subject_name'),
+        label: trans('teacher_class_pages.show.subject_name'),
         render: (cs) => (
           <div>
             <div className="font-medium text-gray-900">{cs.subject?.name}</div>
@@ -50,21 +49,21 @@ export default function TeacherClassShow({ class: classItem }: Props) {
       },
       {
         key: 'coefficient',
-        label: trans('teacher_pages.classes.coefficient'),
+        label: trans('teacher_class_pages.show.coefficient'),
         render: (cs) => (
           <span className="text-sm text-gray-900">{cs.coefficient}</span>
         ),
       },
       {
         key: 'assessments_count',
-        label: trans('teacher_pages.classes.assessments_count'),
+        label: trans('teacher_class_pages.show.assessments_count'),
         render: (cs) => (
-          <Badge label={String(cs.assessments_count || 0)} type="info" size="sm" />
+          <Badge label={String(cs.assessments?.length || 0)} type="info" size="sm" />
         ),
       },
       {
         key: 'actions',
-        label: trans('teacher_pages.classes.actions'),
+        label: trans('teacher_class_pages.index.actions'),
         render: (cs) => (
           <Button
             size="sm"
@@ -72,38 +71,31 @@ export default function TeacherClassShow({ class: classItem }: Props) {
             color="primary"
             onClick={() => handleCreateAssessment(cs.id)}
           >
-            {trans('teacher_pages.classes.create_assessment')}
+            {trans('teacher_class_pages.show.create_assessment')}
           </Button>
         ),
       },
     ],
+    searchPlaceholder: trans('teacher_class_pages.show.search_subjects') || 'Search subjects...',
+    perPageOptions: [10, 25, 50],
     emptyState: {
-      title: trans('teacher_pages.classes.no_subjects'),
-      subtitle: trans('teacher_pages.classes.no_subjects_description'),
+      title: trans('teacher_class_pages.show.no_subjects'),
+      subtitle: trans('teacher_class_pages.show.no_subjects_description'),
+    },
+    emptySearchState: {
+      title: trans('teacher_class_pages.show.no_subjects_found'),
+      subtitle: trans('teacher_class_pages.show.no_subjects_found_description'),
+      resetLabel: trans('teacher_class_pages.index.reset_search') || 'Clear search',
     },
   };
 
-  const subjectsPagination: PaginationType<ClassSubject> = {
-    data: mySubjects,
-    current_page: 1,
-    last_page: 1,
-    per_page: mySubjects.length,
-    total: mySubjects.length,
-    from: 1,
-    to: mySubjects.length,
-    first_page_url: '',
-    last_page_url: '',
-    next_page_url: null,
-    prev_page_url: null,
-    path: '',
-    links: [],
-  };
+
 
   const assessmentsTableConfig: DataTableConfig<Assessment> = {
     columns: [
       {
         key: 'title',
-        label: trans('teacher_pages.classes.assessment_title'),
+        label: trans('teacher_class_pages.show.assessment_title'),
         render: (assessment) => (
           <div>
             <div className="font-medium text-gray-900">{assessment.title}</div>
@@ -115,7 +107,7 @@ export default function TeacherClassShow({ class: classItem }: Props) {
       },
       {
         key: 'type',
-        label: trans('teacher_pages.classes.assessment_type'),
+        label: trans('teacher_class_pages.show.assessment_type'),
         render: (assessment) => {
           const typeColors: Record<string, 'info' | 'success' | 'warning'> = {
             devoir: 'info',
@@ -126,7 +118,7 @@ export default function TeacherClassShow({ class: classItem }: Props) {
           };
           return (
             <Badge
-              label={trans(`teacher_pages.classes.type_${assessment.type}`)}
+              label={trans(`teacher_class_pages.show.type_${assessment.type}`)}
               type={typeColors[assessment.type] || 'gray'}
               size="sm"
             />
@@ -135,21 +127,21 @@ export default function TeacherClassShow({ class: classItem }: Props) {
       },
       {
         key: 'date',
-        label: trans('teacher_pages.classes.assessment_date'),
+        label: trans('teacher_class_pages.show.assessment_date'),
         render: (assessment) => (
           <span className="text-sm text-gray-600">
-            {new Date(assessment.assessment_date).toLocaleDateString()}
+            {new Date(assessment.scheduled_at).toLocaleDateString()}
           </span>
         ),
       },
       {
         key: 'status',
-        label: trans('teacher_pages.classes.status'),
+        label: trans('teacher_class_pages.show.status'),
         render: (assessment) => (
           <Badge
             label={assessment.is_published
-              ? trans('teacher_pages.classes.published')
-              : trans('teacher_pages.classes.draft')}
+              ? trans('teacher_class_pages.show.published')
+              : trans('teacher_class_pages.show.draft')}
             type={assessment.is_published ? 'success' : 'gray'}
             size="sm"
           />
@@ -157,7 +149,7 @@ export default function TeacherClassShow({ class: classItem }: Props) {
       },
       {
         key: 'actions',
-        label: trans('teacher_pages.classes.actions'),
+        label: trans('teacher_class_pages.index.actions'),
         render: (assessment) => (
           <Button
             size="sm"
@@ -165,32 +157,25 @@ export default function TeacherClassShow({ class: classItem }: Props) {
             color="secondary"
             onClick={() => handleViewAssessment(assessment)}
           >
-            {trans('teacher_pages.classes.view_details')}
+            {trans('teacher_class_pages.show.view_details')}
           </Button>
         ),
       },
     ],
+    searchPlaceholder: trans('teacher_class_pages.show.search_assessments') || 'Search assessments...',
+    perPageOptions: [10, 25, 50],
     emptyState: {
-      title: trans('teacher_pages.classes.no_assessments'),
-      subtitle: trans('teacher_pages.classes.no_assessments_description'),
+      title: trans('teacher_class_pages.show.no_assessments'),
+      subtitle: trans('teacher_class_pages.show.no_assessments_description'),
+    },
+    emptySearchState: {
+      title: trans('teacher_class_pages.show.no_assessments_found'),
+      subtitle: trans('teacher_class_pages.show.no_assessments_found_description'),
+      resetLabel: trans('teacher_class_pages.index.reset_search') || 'Clear search',
     },
   };
 
-  const assessmentsPagination: PaginationType<Assessment> = {
-    data: recentAssessments,
-    current_page: 1,
-    last_page: 1,
-    per_page: recentAssessments.length,
-    total: recentAssessments.length,
-    from: 1,
-    to: recentAssessments.length,
-    first_page_url: '',
-    last_page_url: '',
-    next_page_url: null,
-    prev_page_url: null,
-    path: '',
-    links: [],
-  };
+
 
   return (
     <AuthenticatedLayout
@@ -200,14 +185,14 @@ export default function TeacherClassShow({ class: classItem }: Props) {
       <div className="space-y-6">
         <Section
           title={classItem.display_name || classItem.name}
-          subtitle={trans('teacher_pages.classes.show_subtitle')}
+          subtitle={trans('teacher_class_pages.show.show_subtitle')}
           actions={
             <div className="flex space-x-3">
               <Button size="sm" variant="outline" color="secondary" onClick={handleBack}>
-                {trans('teacher_pages.classes.back')}
+                {trans('teacher_class_pages.show.back')}
               </Button>
               <Button size="sm" variant="solid" color="primary" onClick={handleViewAssessments}>
-                {trans('teacher_pages.classes.all_assessments')}
+                {trans('teacher_class_pages.show.all_assessments')}
               </Button>
             </div>
           }
@@ -217,7 +202,7 @@ export default function TeacherClassShow({ class: classItem }: Props) {
               <AcademicCapIcon className="w-5 h-5 text-gray-400 mt-1" />
               <div>
                 <div className="text-sm font-medium text-gray-500">
-                  {trans('teacher_pages.classes.level')}
+                  {trans('teacher_class_pages.show.level')}
                 </div>
                 <div className="mt-1 text-sm text-gray-900">
                   {classItem.level?.name || '-'}
@@ -229,7 +214,7 @@ export default function TeacherClassShow({ class: classItem }: Props) {
               <CalendarIcon className="w-5 h-5 text-gray-400 mt-1" />
               <div>
                 <div className="text-sm font-medium text-gray-500">
-                  {trans('teacher_pages.classes.academic_year')}
+                  {trans('teacher_class_pages.show.academic_year')}
                 </div>
                 <div className="mt-1 text-sm text-gray-900">
                   {classItem.academic_year?.name || '-'}
@@ -241,7 +226,7 @@ export default function TeacherClassShow({ class: classItem }: Props) {
               <UserGroupIcon className="w-5 h-5 text-gray-400 mt-1" />
               <div>
                 <div className="text-sm font-medium text-gray-500">
-                  {trans('teacher_pages.classes.students')}
+                  {trans('teacher_class_pages.show.students')}
                 </div>
                 <div className="mt-1 text-sm font-semibold text-gray-900">
                   {activeEnrollments.length}
@@ -253,10 +238,10 @@ export default function TeacherClassShow({ class: classItem }: Props) {
               <BookOpenIcon className="w-5 h-5 text-gray-400 mt-1" />
               <div>
                 <div className="text-sm font-medium text-gray-500">
-                  {trans('teacher_pages.classes.my_subjects')}
+                  {trans('teacher_class_pages.show.my_subjects')}
                 </div>
                 <div className="mt-1 text-sm font-semibold text-gray-900">
-                  {mySubjects.length}
+                  {mySubjectsCount}
                 </div>
               </div>
             </div>
@@ -264,24 +249,24 @@ export default function TeacherClassShow({ class: classItem }: Props) {
         </Section>
 
         <Section
-          title={trans('teacher_pages.classes.subjects_section_title')}
-          subtitle={trans('teacher_pages.classes.subjects_section_subtitle')}
+          title={trans('teacher_class_pages.show.subjects_section_title')}
+          subtitle={trans('teacher_class_pages.show.subjects_section_subtitle')}
         >
-          <DataTable data={subjectsPagination} config={subjectsTableConfig} />
+          <DataTable data={subjects} config={subjectsTableConfig} />
         </Section>
 
         <Section
-          title={trans('teacher_pages.classes.recent_assessments_title')}
-          subtitle={trans('teacher_pages.classes.recent_assessments_subtitle')}
+          title={trans('teacher_class_pages.show.recent_assessments_title')}
+          subtitle={trans('teacher_class_pages.show.recent_assessments_subtitle')}
           actions={
-            recentAssessments.length > 0 && (
+            assessments.total > 0 && (
               <Button size="sm" variant="outline" color="secondary" onClick={handleViewAssessments}>
-                {trans('teacher_pages.classes.view_all')}
+                {trans('teacher_class_pages.show.view_all')}
               </Button>
             )
           }
         >
-          <DataTable data={assessmentsPagination} config={assessmentsTableConfig} />
+          <DataTable data={assessments} config={assessmentsTableConfig} />
         </Section>
       </div>
     </AuthenticatedLayout>

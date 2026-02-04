@@ -71,7 +71,7 @@ export default function LevelIndex({ levels }: Props) {
                     canUpdateLevels ? (
                         <Toggle
                             checked={level.is_active}
-                            onChange={() => handleToggleStatus(level.id)}
+                            onChange={() => handleToggleStatus(level)}
                             size="sm"
                         />
                     ) : (
@@ -89,7 +89,7 @@ export default function LevelIndex({ levels }: Props) {
                     <div className="flex gap-2">
                         {canUpdateLevels && (
                             <Button
-                                onClick={() => handleEdit(level.id)}
+                                onClick={() => handleEdit(level)}
                                 size="sm"
                                 color="primary"
                             >

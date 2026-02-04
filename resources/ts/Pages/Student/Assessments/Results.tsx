@@ -1,8 +1,7 @@
-import { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Assessment, AssessmentAssignment, Answer } from '@/types';
 import { useAssessmentResults } from '@/hooks/features/assessment';
-import { useExamScoring } from '@/hooks';
+import useAssessmentScoring from '@/hooks/features/assessment/useAssessmentScoring';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { AlertEntry, Badge, Button, Section, QuestionRenderer, TextEntry } from '@/Components';
@@ -18,47 +17,33 @@ const AssessmentResults: React.FC<Props> = ({ assessment, assignment, userAnswer
   const { isPendingReview, assignmentStatus, showCorrectAnswers, assessmentIsActive, totalPoints, getQuestionResult } =
     useAssessmentResults({ assessment, assignment, userAnswers });
 
-  const { finalPercentage } = useExamScoring({
-    exam: {
-      ...assessment,
-      is_active: assessment.is_published,
-      teacher_id: assessment.teacher?.id || 0,
-      assignments: undefined
-    } as any,
-    assignment: {
-      ...assignment,
-      exam_id: assignment.assessment_id,
-      status: assignment.status as any
-    } as any,
+  const { finalScore, finalPercentage } = useAssessmentScoring({
+    assessment,
+    assignment,
     userAnswers,
     totalPoints,
     getQuestionResult,
   });
 
-  const translations = useMemo(
-    () => ({
-      title: trans('student_assessment_pages.results.title', { assessment: assessment.title }),
-      sectionTitle: trans('student_assessment_pages.results.section_title'),
-      assessmentActive: trans('student_assessment_pages.results.assessment_active'),
-      assessmentDisabled: trans('student_assessment_pages.results.assessment_disabled'),
-      backToAssessments: trans('student_assessment_pages.results.back_to_assessments'),
-      answersDetail: trans('student_assessment_pages.results.answers_detail'),
-      teacherComments: trans('student_assessment_pages.results.teacher_comments'),
-      yourScore: trans('student_assessment_pages.results.your_score'),
-      percentage: trans('student_assessment_pages.results.percentage'),
-      status: trans('student_assessment_pages.results.status'),
-      submittedAt: trans('student_assessment_pages.results.submitted_at'),
-      gradedAt: trans('student_assessment_pages.results.graded_at'),
-      pendingReview: trans('student_assessment_pages.results.pending_review'),
-      graded: trans('student_assessment_pages.results.graded'),
-      subject: trans('student_assessment_pages.results.subject'),
-      class: trans('student_assessment_pages.results.class'),
-      teacher: trans('student_assessment_pages.results.teacher'),
-    }),
-    [assessment.title]
-  );
-
-  const finalScore = assignment.score ?? assignment.auto_score ?? 0;
+  const translations = {
+    title: trans('student_assessment_pages.results.title', { assessment: assessment.title }),
+    sectionTitle: trans('student_assessment_pages.results.section_title'),
+    assessmentActive: trans('student_assessment_pages.results.assessment_active'),
+    assessmentDisabled: trans('student_assessment_pages.results.assessment_disabled'),
+    backToAssessments: trans('student_assessment_pages.results.back_to_assessments'),
+    answersDetail: trans('student_assessment_pages.results.answers_detail'),
+    teacherComments: trans('student_assessment_pages.results.teacher_comments'),
+    yourScore: trans('student_assessment_pages.results.your_score'),
+    percentage: trans('student_assessment_pages.results.percentage'),
+    status: trans('student_assessment_pages.results.status'),
+    submittedAt: trans('student_assessment_pages.results.submitted_at'),
+    gradedAt: trans('student_assessment_pages.results.graded_at'),
+    pendingReview: trans('student_assessment_pages.results.pending_review'),
+    graded: trans('student_assessment_pages.results.graded'),
+    subject: trans('student_assessment_pages.results.subject'),
+    class: trans('student_assessment_pages.results.class'),
+    teacher: trans('student_assessment_pages.results.teacher'),
+  };
 
   return (
     <AuthenticatedLayout title={translations.title}>
@@ -84,7 +69,7 @@ const AssessmentResults: React.FC<Props> = ({ assessment, assignment, userAnswer
             variant="outline"
             size="sm"
             className="w-max"
-            onClick={() => router.visit(route('student.mcd.assessments.index'))}
+            onClick={() => router.visit(route('student.assessments.index'))}
           >
             {translations.backToAssessments}
           </Button>
@@ -100,7 +85,7 @@ const AssessmentResults: React.FC<Props> = ({ assessment, assignment, userAnswer
                   value={assessment.class_subject?.subject?.name || '-'}
                 />
                 <TextEntry label={translations.class} value={assessment.class_subject?.class?.name || '-'} />
-                <TextEntry label={translations.teacher} value={assessment.teacher?.name || '-'} />
+                <TextEntry label={translations.teacher} value={assessment.class_subject?.teacher?.name || '-'} />
               </div>
             </div>
 
@@ -109,10 +94,10 @@ const AssessmentResults: React.FC<Props> = ({ assessment, assignment, userAnswer
                 <div>
                   <p className="text-sm text-gray-600 mb-1">{translations.yourScore}</p>
                   <p className="text-3xl font-bold text-gray-900">
-                    {finalScore.toFixed(2)} / {totalPoints}
+                    {Number(finalScore || 0).toFixed(2)} / {totalPoints}
                   </p>
                   <p className="text-lg text-gray-600">
-                    {translations.percentage}: {finalPercentage.toFixed(1)}%
+                    {translations.percentage}: {Number(finalPercentage || 0).toFixed(1)}%
                   </p>
                 </div>
 

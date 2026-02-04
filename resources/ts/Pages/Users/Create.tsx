@@ -3,16 +3,14 @@ import { route } from 'ziggy-js';
 import { getRoleLabel, trans } from '@/utils';
 import { Button, Modal, Select } from '@/Components';
 import { Input } from '@examena/ui';
-import { Group } from '@/types';
 
 interface Props {
     roles: string[];
-    groups: Group[];
     isOpen: boolean;
     onClose: () => void;
 }
 
-export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
+export default function CreateUser({ roles, isOpen, onClose }: Props) {
     const { data, setData, post, processing, errors } = useForm<{
         name: string;
         email: string;
@@ -43,9 +41,6 @@ export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
             group_id: null,
         });
     };
-
-    // Filtrer les groupes actifs uniquement
-    const activeGroups = groups.filter(group => group.is_active);
 
     const searchPlaceholder = trans('components.select.search_placeholder');
     const noOptionFound = trans('components.select.no_option_found');
@@ -99,23 +94,6 @@ export default function CreateUser({ roles, groups, isOpen, onClose }: Props) {
                         searchable={false}
                         placeholder={trans('admin_pages.users.select_role')}
                     />
-
-                    {data.role === 'student' && (
-                        <Select
-                            label={trans('admin_pages.users.group')}
-                            noOptionFound={noOptionFound}
-                            searchPlaceholder={searchPlaceholder}
-                            options={activeGroups.map(group => ({
-                                value: group.id,
-                                label: `${group.display_name} (${group.academic_year})`
-                            }))}
-                            value={data.group_id ?? ''}
-                            onChange={(value) => setData('group_id', Number(value))}
-                            error={errors.group_id}
-                            searchable={true}
-                            placeholder={trans('admin_pages.users.select_group')}
-                        />
-                    )}
 
                     <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
                         <div className="flex">

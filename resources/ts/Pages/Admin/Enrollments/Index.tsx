@@ -93,7 +93,7 @@ export default function EnrollmentIndex({ enrollments, auth }: Props) {
         label: trans('admin_pages.enrollments.enrolled_at'),
         render: (enrollment) => (
           <div className="text-sm text-gray-600">
-            {formatDate(enrollment.enrolled_date)}
+            {formatDate(enrollment.enrolled_at)}
           </div>
         ),
       },
@@ -128,6 +128,15 @@ export default function EnrollmentIndex({ enrollments, auth }: Props) {
     emptyState: {
       title: trans('admin_pages.enrollments.empty_title'),
       subtitle: trans('admin_pages.enrollments.empty_subtitle'),
+    },
+    searchable: true,
+    searchPlaceholder: trans('admin_pages.enrollments.search_placeholder'),
+    onSearch: (search) => {
+      router.get(
+        route('admin.enrollments.index'),
+        { search },
+        { preserveState: true, preserveScroll: true }
+      );
     },
   };
 

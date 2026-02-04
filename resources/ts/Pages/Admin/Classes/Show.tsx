@@ -1,19 +1,44 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { ClassModel, Enrollment, ClassSubject, PageProps } from '@/types';
+import { ClassModel, Enrollment, ClassSubject, PageProps, PaginationType } from '@/types';
 import { breadcrumbs, trans, hasPermission } from '@/utils';
-import { Button, Section, Badge } from '@/Components';
+import { Button, Section, Badge, DataTable } from '@/Components';
+import { DataTableConfig } from '@/types/datatable';
 import { route } from 'ziggy-js';
 import { AcademicCapIcon, UserGroupIcon, BookOpenIcon, CalendarIcon } from '@heroicons/react/24/outline';
 
+interface ClassStatistics {
+  total_students: number;
+  active_students: number;
+  withdrawn_students: number;
+  subjects_count: number;
+  assessments_count: number;
+  max_students: number;
+  available_slots: number;
+}
+
 interface Props extends PageProps {
-  class: ClassModel & {
-    enrollments?: Enrollment[];
-    class_subjects?: ClassSubject[];
+  class: ClassModel;
+  enrollments: PaginationType<Enrollment>;
+  classSubjects: PaginationType<ClassSubject>;
+  statistics: ClassStatistics;
+  studentsFilters?: {
+    search?: string;
+  };
+  subjectsFilters?: {
+    search?: string;
   };
 }
 
-export default function ClassShow({ class: classItem, auth }: Props) {
+export default function ClassShow({
+  class: classItem,
+  enrollments,
+  classSubjects,
+  statistics,
+  studentsFilters,
+  subjectsFilters,
+  auth,
+}: Props) {
   const canUpdate = hasPermission(auth.permissions, 'update classes');
   const canDelete = hasPermission(auth.permissions, 'delete classes');
 
@@ -31,18 +56,118 @@ export default function ClassShow({ class: classItem, auth }: Props) {
     router.visit(route('admin.classes.index'));
   };
 
-  const handleManageEnrollments = () => {
-    router.visit(route('admin.enrollments.index', { class_id: classItem.id }));
-  };
-
-  const handleManageSubjects = () => {
-    router.visit(route('admin.class-subjects.index', { class_id: classItem.id }));
-  };
-
-  const activeEnrollments = classItem.enrollments?.filter(e => e.status === 'active') || [];
-  const enrollmentPercentage = classItem.max_students > 0
-    ? (activeEnrollments.length / classItem.max_students) * 100
+  const enrollmentPercentage = statistics.max_students > 0
+    ? (statistics.active_students / statistics.max_students) * 100
     : 0;
+
+  const enrollmentsTableConfig: DataTableConfig<Enrollment> = {
+    columns: [
+      {
+        key: 'student',
+        label: trans('admin_pages.classes.student'),
+        render: (enrollment) => (
+          <div>
+            <div className="font-medium text-gray-900">{enrollment.student?.name}</div>
+            <div className="text-sm text-gray-500">{enrollment.student?.email}</div>
+          </div>
+        ),
+      },
+      {
+        key: 'enrolled_at',
+        label: trans('admin_pages.classes.enrolled_at'),
+        render: (enrollment) => (
+          <div className="text-sm text-gray-600">
+            {enrollment.enrolled_at ? new Date(enrollment.enrolled_at).toLocaleDateString() : '-'}
+          </div>
+        ),
+      },
+      {
+        key: 'status',
+        label: trans('admin_pages.classes.status'),
+        render: (enrollment) => (
+          <Badge
+            label={trans(`admin_pages.enrollments.status_${enrollment.status}`)}
+            type={enrollment.status === 'active' ? 'success' : 'gray'}
+            size="sm"
+          />
+        ),
+      },
+    ],
+    filters: [],
+    emptyState: {
+      title: trans('admin_pages.classes.no_enrollments'),
+      subtitle: trans('admin_pages.classes.no_enrollments_subtitle'),
+    },
+    searchable: true,
+    searchPlaceholder: trans('admin_pages.classes.search_students'),
+    onSearch: (search) => {
+      router.get(
+        route('admin.classes.show', classItem.id),
+        { students_search: search, subjects_search: subjectsFilters?.search },
+        { preserveState: true, preserveScroll: true }
+      );
+    },
+    pageName: 'students_page',
+    perPageName: 'students_per_page',
+  };
+
+  const subjectsTableConfig: DataTableConfig<ClassSubject> = {
+    columns: [
+      {
+        key: 'subject',
+        label: trans('admin_pages.classes.subject'),
+        render: (classSubject) => (
+          <div>
+            <div className="font-medium text-gray-900">{classSubject.subject?.name}</div>
+            <div className="text-sm text-gray-500">{classSubject.subject?.code}</div>
+          </div>
+        ),
+      },
+      {
+        key: 'teacher',
+        label: trans('admin_pages.classes.teacher'),
+        render: (classSubject) => (
+          <div className="text-sm text-gray-900">
+            {classSubject.teacher?.name || '-'}
+          </div>
+        ),
+      },
+      {
+        key: 'semester',
+        label: trans('admin_pages.classes.semester'),
+        render: (classSubject) => (
+          <div className="text-sm text-gray-600">
+            {classSubject.semester?.name || '-'}
+          </div>
+        ),
+      },
+      {
+        key: 'assessments',
+        label: trans('admin_pages.classes.assessments'),
+        render: (classSubject) => (
+          <div className="text-sm text-gray-600">
+            {classSubject.assessments_count || 0}
+          </div>
+        ),
+      },
+    ],
+    filters: [],
+    emptyState: {
+      title: trans('admin_pages.classes.no_subjects'),
+      subtitle: trans('admin_pages.classes.no_subjects_subtitle'),
+    },
+    searchable: true,
+    searchPlaceholder: trans('admin_pages.classes.search_subjects'),
+    onSearch: (search) => {
+      router.get(
+        route('admin.classes.show', classItem.id),
+        { subjects_search: search, students_search: studentsFilters?.search },
+        { preserveState: true, preserveScroll: true }
+      );
+    },
+    pageName: 'subjects_page',
+    perPageName: 'subjects_per_page',
+  };
 
   return (
     <AuthenticatedLayout
@@ -104,7 +229,7 @@ export default function ClassShow({ class: classItem, auth }: Props) {
                 </div>
                 <div className="mt-1 flex items-center space-x-2">
                   <span className="text-sm font-semibold text-gray-900">
-                    {activeEnrollments.length} / {classItem.max_students}
+                    {statistics.active_students} / {statistics.max_students}
                   </span>
                   {enrollmentPercentage >= 90 && (
                     <Badge label={trans('admin_pages.classes.full')} type="warning" size="sm" />
@@ -120,99 +245,26 @@ export default function ClassShow({ class: classItem, auth }: Props) {
                   {trans('admin_pages.classes.subjects')}
                 </div>
                 <div className="mt-1 text-sm font-semibold text-gray-900">
-                  {classItem.class_subjects?.length || 0}
+                  {statistics.subjects_count}
                 </div>
               </div>
             </div>
           </div>
         </Section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Section
-            title={trans('admin_pages.classes.enrollments_section')}
-            subtitle={trans('admin_pages.classes.enrollments_section_subtitle')}
-            actions={
-              <Button size="sm" variant="outline" color="primary" onClick={handleManageEnrollments}>
-                {trans('admin_pages.classes.manage_enrollments')}
-              </Button>
-            }
-          >
-            {activeEnrollments.length > 0 ? (
-              <div className="space-y-2">
-                {activeEnrollments.slice(0, 5).map((enrollment) => (
-                  <div
-                    key={enrollment.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {enrollment.student?.name}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {enrollment.student?.email}
-                      </div>
-                    </div>
-                    <Badge
-                      label={trans(`admin_pages.classes.status_${enrollment.status}`)}
-                      type="success"
-                      size="sm"
-                    />
-                  </div>
-                ))}
-                {activeEnrollments.length > 5 && (
-                  <div className="text-sm text-gray-500 text-center pt-2">
-                    {trans('admin_pages.classes.and_more', { count: activeEnrollments.length - 5 })}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                {trans('admin_pages.classes.no_enrollments')}
-              </div>
-            )}
-          </Section>
+        <Section
+          title={trans('admin_pages.classes.enrollments_section')}
+          subtitle={trans('admin_pages.classes.enrollments_section_subtitle')}
+        >
+          <DataTable data={enrollments} config={enrollmentsTableConfig} />
+        </Section>
 
-          <Section
-            title={trans('admin_pages.classes.subjects_section')}
-            subtitle={trans('admin_pages.classes.subjects_section_subtitle')}
-            actions={
-              <Button size="sm" variant="outline" color="primary" onClick={handleManageSubjects}>
-                {trans('admin_pages.classes.manage_subjects')}
-              </Button>
-            }
-          >
-            {classItem.class_subjects && classItem.class_subjects.length > 0 ? (
-              <div className="space-y-2">
-                {classItem.class_subjects.map((classSubject) => (
-                  <div
-                    key={classSubject.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {classSubject.subject?.name}
-                      </div>
-                      {classSubject.teacher && (
-                        <div className="text-xs text-gray-500">
-                          {classSubject.teacher.name}
-                        </div>
-                      )}
-                    </div>
-                    <Badge
-                      label={`Coef. ${classSubject.coefficient}`}
-                      type="info"
-                      size="sm"
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                {trans('admin_pages.classes.no_subjects')}
-              </div>
-            )}
-          </Section>
-        </div>
+        <Section
+          title={trans('admin_pages.classes.subjects_section')}
+          subtitle={trans('admin_pages.classes.subjects_section_subtitle')}
+        >
+          <DataTable data={classSubjects} config={subjectsTableConfig} />
+        </Section>
       </div>
     </AuthenticatedLayout>
   );

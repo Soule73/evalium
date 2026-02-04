@@ -91,7 +91,7 @@ export default function Classmates({ enrollment, classmates }: StudentEnrollment
             <Button
               variant="outline"
               size="sm"
-              onClick={() => router.visit(route('student.mcd.enrollment.show'))}
+              onClick={() => router.visit(route('student.enrollment.show'))}
             >
               {translations.backToEnrollment}
             </Button>

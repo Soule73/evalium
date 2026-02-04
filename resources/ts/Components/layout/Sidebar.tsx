@@ -8,6 +8,7 @@ import { NavIcon } from './NavIcon';
 import { RoleBadge } from './RoleBadge';
 import { UserAvatar } from './UserAvatar';
 import LogoExamena from '../shared/LogoExamena';
+import { route } from 'ziggy-js';
 
 interface SidebarProps {
     currentPath: string;
@@ -29,17 +30,13 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
 
     const canViewUsers = hasPermission(auth.permissions, 'view users');
 
-    const canViewGroups = hasPermission(auth.permissions, 'view groups');
-
     const canViewRoles = hasPermission(auth.permissions, 'view roles');
 
     const canViewLevels = hasPermission(auth.permissions, 'view levels');
 
-    const canViewExams = hasPermission(auth.permissions, 'view exams');
+    // const canViewExams = hasPermission(auth.permissions, 'view exams');
 
-    const canViewAnyExam = hasPermission(auth.permissions, 'view any exam');
-
-    const canViewExamList = canViewExams || canViewAnyExam;
+    // const canViewAnyExam = hasPermission(auth.permissions, 'view any exam');
 
     const userRole = user.roles?.[0]?.name as 'super_admin' | 'admin' | 'teacher' | 'student' | undefined;
 
@@ -113,11 +110,11 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
     const isAdmin = userRole === 'admin' || userRole === 'super_admin';
     if (isAdmin) {
         navItems.push(
-            { name: trans('sidebar.navigation.academic_years'), href: navRoutes.adminAcademicYears(), icon: 'academic-years' },
-            { name: trans('sidebar.navigation.subjects'), href: navRoutes.adminSubjects(), icon: 'subjects' },
-            { name: trans('sidebar.navigation.classes'), href: navRoutes.adminClasses(), icon: 'classes' },
-            { name: trans('sidebar.navigation.enrollments'), href: navRoutes.adminEnrollments(), icon: 'enrollment' },
-            { name: trans('sidebar.navigation.class_subjects'), href: navRoutes.adminClassSubjects(), icon: 'class-subjects' }
+            // { name: trans('sidebar.navigation.academic_years'), href: route('admin.academic-years.index'), icon: 'academic-years' },
+            { name: trans('sidebar.navigation.subjects'), href: route('admin.subjects.index'), icon: 'subjects' },
+            { name: trans('sidebar.navigation.classes'), href: route('admin.classes.index'), icon: 'classes' },
+            { name: trans('sidebar.navigation.enrollments'), href: route('admin.enrollments.index'), icon: 'enrollment' },
+            { name: trans('sidebar.navigation.class_subjects'), href: route('admin.class-subjects.index'), icon: 'class-subjects' }
         );
     }
 

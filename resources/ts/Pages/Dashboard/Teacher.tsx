@@ -1,34 +1,244 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Exam, User } from '@/types';
 import { route } from 'ziggy-js';
-import { ArrowTrendingUpIcon, DocumentTextIcon, QuestionMarkCircleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import { AcademicCapIcon, BookOpenIcon, ClipboardDocumentListIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 import { breadcrumbs } from '@/utils';
-import { PaginationType } from '@/types/datatable';
 import { trans } from '@/utils';
-import { Button, ExamList, Section, StatCard } from '@/Components';
+import { Button, Section, StatCard, DataTable } from '@/Components';
+import { DataTableConfig, PaginationType } from '@/types/datatable';
+
+interface ClassSubject {
+    id: number;
+    class: {
+        id: number;
+        name: string;
+        display_name?: string;
+        level?: { name: string };
+        academic_year?: { name: string };
+    };
+    subject: { id: number; name: string; code?: string };
+}
+
+interface Assessment {
+    id: number;
+    title: string;
+    scheduled_at: string;
+    classSubject?: {
+        class: {
+            name: string;
+            display_name?: string;
+            level?: { name: string };
+            academic_year?: { name: string };
+        };
+        subject: {
+            name: string;
+            code?: string;
+        };
+    };
+}
 
 interface Stats {
-    totalExams: number;
-    totalQuestions: number;
-    studentsEvaluated: number;
-    averageScore: number;
+    total_classes: number;
+    total_subjects: number;
+    total_assessments: number;
+    past_assessments: number;
+    upcoming_assessments: number;
 }
 
 interface Props {
-    user: User;
+    activeAssignments: PaginationType<ClassSubject>;
+    pastAssessments: PaginationType<Assessment>;
+    upcomingAssessments: PaginationType<Assessment>;
     stats: Stats;
-    recentExams: PaginationType<Exam>;
-    pendingReviews?: any[];
+    filters: { search?: string };
 }
 
-export default function TeacherDashboard({ stats, recentExams }: Props) {
-    const handleCreateExam = () => {
-        router.visit(route('exams.create'));
+
+export default function TeacherDashboard({ stats, activeAssignments, pastAssessments, upcomingAssessments }: Props) {
+    const handleViewAssessments = () => {
+        router.visit(route('teacher.assessments.index'));
     };
 
-    const handleViewExams = () => {
-        router.visit(route('exams.index'));
+    const handleViewClasses = () => {
+        router.visit(route('teacher.classes.index'));
+    };
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('fr-FR', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const activeAssignmentsTableConfig: DataTableConfig<ClassSubject> = {
+        columns: [
+            {
+                key: 'class',
+                label: trans('dashboard.teacher.class'),
+                render: (assignment) => (
+                    <div>
+                        <div className="font-medium text-gray-900">
+                            {assignment.class.display_name || assignment.class.name}
+                        </div>
+                        {(assignment.class.level?.name || assignment.class.academic_year?.name) && (
+                            <div className="text-sm text-gray-500">
+                                {assignment.class.level?.name}
+                                {assignment.class.level?.name && assignment.class.academic_year?.name && ' - '}
+                                {assignment.class.academic_year?.name}
+                            </div>
+                        )}
+                    </div>
+                ),
+            },
+            {
+                key: 'subject',
+                label: trans('dashboard.teacher.subject'),
+                render: (assignment) => (
+                    <div>
+                        <div className="font-medium text-gray-900">
+                            {assignment.subject.name}
+                        </div>
+                        {assignment.subject.code && (
+                            <div className="text-sm text-gray-500">
+                                {assignment.subject.code}
+                            </div>
+                        )}
+                    </div>
+                ),
+            },
+        ],
+        filters: [],
+        emptyState: {
+            title: trans('dashboard.teacher.no_active_assignments'),
+            subtitle: '',
+        },
+    };
+
+    const pastAssessmentsTableConfig: DataTableConfig<Assessment> = {
+        columns: [
+            {
+                key: 'title',
+                label: trans('dashboard.teacher.assessment_title'),
+                render: (assessment) => (
+                    <div className="font-medium text-gray-900">
+                        {assessment.title}
+                    </div>
+                ),
+            },
+            {
+                key: 'class',
+                label: trans('dashboard.teacher.class'),
+                render: (assessment) => (
+                    <div>
+                        <div className="text-sm text-gray-900">
+                            {assessment.classSubject?.class?.display_name || assessment.classSubject?.class?.name || '-'}
+                        </div>
+                        {assessment.classSubject?.class && (assessment.classSubject.class.level?.name || assessment.classSubject.class.academic_year?.name) && (
+                            <div className="text-xs text-gray-500">
+                                {assessment.classSubject.class.level?.name}
+                                {assessment.classSubject.class.level?.name && assessment.classSubject.class.academic_year?.name && ' - '}
+                                {assessment.classSubject.class.academic_year?.name}
+                            </div>
+                        )}
+                    </div>
+                ),
+            },
+            {
+                key: 'subject',
+                label: trans('dashboard.teacher.subject'),
+                render: (assessment) => (
+                    <div>
+                        <div className="text-sm text-gray-900">
+                            {assessment.classSubject?.subject?.name || '-'}
+                        </div>
+                        {assessment.classSubject?.subject?.code && (
+                            <div className="text-xs text-gray-500">
+                                {assessment.classSubject.subject.code}
+                            </div>
+                        )}
+                    </div>
+                ),
+            },
+            {
+                key: 'scheduled_at',
+                label: trans('dashboard.teacher.scheduled_at'),
+                render: (assessment) => (
+                    <div className="text-sm text-gray-600">
+                        {formatDate(assessment.scheduled_at)}
+                    </div>
+                ),
+            },
+        ],
+        filters: [],
+        emptyState: {
+            title: trans('dashboard.teacher.no_past_assessments'),
+            subtitle: '',
+        },
+    };
+
+    const upcomingAssessmentsTableConfig: DataTableConfig<Assessment> = {
+        columns: [
+            {
+                key: 'title',
+                label: trans('dashboard.teacher.assessment_title'),
+                render: (assessment) => (
+                    <div className="font-medium text-gray-900">
+                        {assessment.title}
+                    </div>
+                ),
+            },
+            {
+                key: 'class',
+                label: trans('dashboard.teacher.class'),
+                render: (assessment) => (
+                    <div>
+                        <div className="text-sm text-gray-900">
+                            {assessment.classSubject?.class?.display_name || assessment.classSubject?.class?.name || '-'}
+                        </div>
+                        {assessment.classSubject?.class && (assessment.classSubject.class.level?.name || assessment.classSubject.class.academic_year?.name) && (
+                            <div className="text-xs text-gray-500">
+                                {assessment.classSubject.class.level?.name}
+                                {assessment.classSubject.class.level?.name && assessment.classSubject.class.academic_year?.name && ' - '}
+                                {assessment.classSubject.class.academic_year?.name}
+                            </div>
+                        )}
+                    </div>
+                ),
+            },
+            {
+                key: 'subject',
+                label: trans('dashboard.teacher.subject'),
+                render: (assessment) => (
+                    <div>
+                        <div className="text-sm text-gray-900">
+                            {assessment.classSubject?.subject?.name || '-'}
+                        </div>
+                        {assessment.classSubject?.subject?.code && (
+                            <div className="text-xs text-gray-500">
+                                {assessment.classSubject.subject.code}
+                            </div>
+                        )}
+                    </div>
+                ),
+            },
+            {
+                key: 'scheduled_at',
+                label: trans('dashboard.teacher.scheduled_at'),
+                render: (assessment) => (
+                    <div className="text-sm text-gray-600">
+                        {formatDate(assessment.scheduled_at)}
+                    </div>
+                ),
+            },
+        ],
+        filters: [],
+        emptyState: {
+            title: trans('dashboard.teacher.no_upcoming_assessments'),
+            subtitle: '',
+        },
     };
 
     return (
@@ -38,66 +248,73 @@ export default function TeacherDashboard({ stats, recentExams }: Props) {
             {/* Statistiques principales */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" data-e2e='dashboard-content'>
                 <StatCard
-                    title={trans('dashboard.teacher.exams_created')}
-                    value={stats.totalExams}
-                    icon={
-                        DocumentTextIcon
-                    }
+                    title={trans('dashboard.teacher.total_classes')}
+                    value={stats.total_classes}
+                    icon={AcademicCapIcon}
                     color="blue"
                 />
                 <StatCard
-                    title={trans('dashboard.teacher.questions_created')}
-                    value={stats.totalQuestions}
+                    title={trans('dashboard.teacher.total_subjects')}
+                    value={stats.total_subjects}
                     color='green'
-                    icon={
-                        // QuestionMarkCircleIcon
-                        QuestionMarkCircleIcon
-                    }
+                    icon={BookOpenIcon}
                 />
-
                 <StatCard
-                    title={trans('dashboard.teacher.students_evaluated')}
-                    value={stats.studentsEvaluated}
+                    title={trans('dashboard.teacher.total_assessments')}
+                    value={stats.total_assessments}
                     color='purple'
-                    icon={
-                        UserGroupIcon
-                    }
+                    icon={ClipboardDocumentListIcon}
                 />
-
                 <StatCard
-                    title={trans('dashboard.teacher.average_score')}
-                    value={stats.averageScore}
+                    title={trans('dashboard.teacher.upcoming_assessments')}
+                    value={stats.upcoming_assessments}
                     color='yellow'
-                    icon={
-                        ArrowTrendingUpIcon
-                    }
+                    icon={CalendarDaysIcon}
                 />
             </div>
+
+            {/* Affectations actives */}
             <Section
-                title={trans('dashboard.teacher.recent_exams')}
-                subtitle={trans('dashboard.teacher.recent_exams_subtitle')}
+                title={trans('dashboard.teacher.active_assignments')}
+                subtitle={trans('dashboard.teacher.active_assignments_subtitle')}
                 actions={
-                    <div className='flex justify-end space-x-4 items-center'>
-                        <Button
-                            onClick={handleCreateExam}
-                            color="secondary"
-                            variant='outline'
-                            size='sm'
-                        >
-                            {trans('dashboard.teacher.create_exam')}
-                        </Button>
-                        <Button
-                            onClick={handleViewExams}
-                            color="secondary"
-                            variant='outline'
-                            size='sm'
-                        >
-                            {trans('dashboard.teacher.view_all_exams')}
-                        </Button>
-                    </div>
+                    <Button
+                        onClick={handleViewClasses}
+                        color="secondary"
+                        variant='outline'
+                        size='sm'
+                    >
+                        {trans('dashboard.teacher.view_all_classes')}
+                    </Button>
                 }
             >
-                <ExamList data={recentExams} />
+                <DataTable data={activeAssignments} config={activeAssignmentsTableConfig} />
+            </Section>
+
+            {/* Évaluations passées */}
+            <Section
+                title={trans('dashboard.teacher.past_assessments')}
+                subtitle={trans('dashboard.teacher.past_assessments_subtitle')}
+                actions={
+                    <Button
+                        onClick={handleViewAssessments}
+                        color="secondary"
+                        variant='outline'
+                        size='sm'
+                    >
+                        {trans('dashboard.teacher.view_all_assessments')}
+                    </Button>
+                }
+            >
+                <DataTable data={pastAssessments} config={pastAssessmentsTableConfig} />
+            </Section>
+
+            {/* Évaluations à venir */}
+            <Section
+                title={trans('dashboard.teacher.upcoming_assessments_section')}
+                subtitle={trans('dashboard.teacher.upcoming_assessments_subtitle')}
+            >
+                <DataTable data={upcomingAssessments} config={upcomingAssessmentsTableConfig} />
             </Section>
 
         </AuthenticatedLayout >

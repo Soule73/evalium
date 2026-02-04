@@ -1,8 +1,9 @@
 import { Head, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import { useMemo, useState, useEffect } from 'react';
-import { Sidebar, Breadcrumb, FlashToastHandler } from '@/Components';
+import { Sidebar, Breadcrumb, FlashToastHandler, UserMenu } from '@/Components';
 import { BreadcrumbItem } from '@/Components/layout/Breadcrumb';
+import AcademicYearSelector from './AcademicYearSelector';
 
 interface AuthenticatedLayoutProps {
     children: React.ReactNode;
@@ -65,8 +66,21 @@ const AuthenticatedLayout = ({ children, title, breadcrumb }: AuthenticatedLayou
                                 ) : null}
                             </div>
 
-                            {/* Espace vide à droite pour l'équilibre */}
-                            <div className="w-10"></div>
+                            {/* Academic Year Selector + User Menu */}
+                            <div className="hidden lg:flex items-center gap-4">
+                                <AcademicYearSelector user={auth.user} />
+                                <UserMenu
+                                    user={auth.user}
+                                    isSuperAdmin={auth.user.roles?.some(role => role.name === 'super_admin') || false}
+                                    isAdmin={auth.user.roles?.some(role => role.name === 'admin') || false}
+                                    isTeacher={auth.user.roles?.some(role => role.name === 'teacher') || false}
+                                />
+                            </div>
+
+                            {/* Mobile: Only Academic Year Selector */}
+                            <div className="lg:hidden">
+                                <AcademicYearSelector user={auth.user} />
+                            </div>
                         </div>
                     </header>
 

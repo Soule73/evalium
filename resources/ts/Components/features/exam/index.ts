@@ -1,16 +1,9 @@
 export { default as AlertSecurityViolation } from './take/AlertSecurityViolation';
-export { AssignedGroupsSection } from './assignements/AssignedGroupsSection';
-export { AssignmentModals } from './assignements/AssignmentModals';
-export { AvailableGroupsSection } from './assignements/AvailableGroupsSection';
 export { ExamAssignInfoSection } from './assignements/ExamAssignInfoSection';
-export { getExamAssignmentColumns, getExamAssignmentFilters } from './assignements/ExamAssignmentColumns';
-export { default as ExamHeader } from './ExamHeader';
 export { default as ExamInfoSection } from './ExamInfoSection';
 export { default as ExamList } from './ExamList';
-export { default as ExamStatsCards } from './ExamStatsCards';
 export { default as FullscreenModal } from './take/FullscreenModal';
 export { CanNotTakeExam } from './take/AlertSecurityViolation';
-export { getGroupTableConfig } from './GroupTableConfig';
 export { useQuestionOptions } from './form/questionOptions';
 export { default as QuestionReadOnlySection } from './form/QuestionReadOnlySection';
 export { default as QuestionRenderer } from './form/QuestionRenderer';

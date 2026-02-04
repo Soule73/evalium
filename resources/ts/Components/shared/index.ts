@@ -3,7 +3,7 @@ export { DataTable } from './datatable/DataTable';
 export { DataTableFilters } from './datatable/DataTableFilters';
 export { DataTablePagination } from './datatable/DataTablePagination';
 export { EmptyState } from './EmptyState';
-export { default as ExamGeneralConfig } from './ExamGeneralConfig';
+export { default as AssessmentGeneralConfig } from './AssessmentGeneralConfig';
 export { default as FlashToastHandler } from './toast/FlashToastHandler';
 export { default as StatCard } from './StatCard';
 export { default as Toast } from './toast/Toast';

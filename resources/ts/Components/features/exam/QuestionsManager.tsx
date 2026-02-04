@@ -20,13 +20,14 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { QuestionType } from '@/types';
-import { useQuestionsManager } from '@/hooks';
-import { useExamFormStore } from '@/stores';
+// import { useQuestionsManager } from '@/hooks';
+import { useAssessmentFormStore } from '@/stores';
 import { getQuestionTypeLabel } from '@/utils';
 import { useQuestionOptions } from './form/questionOptions';
 import SortableQuestionItem from './form/SortableQuestionItem';
 import { Section, Button, ConfirmationModal } from '@examena/ui';
 import DeleteHistoryModal from '@/Components/shared/DeleteHistoryModal';
+import { useQuestionsManager } from '@/hooks/features/assessment/useQuestionsManager';
 
 interface QuestionsManagerProps {
     errors?: Record<string, string>;
@@ -67,7 +68,7 @@ function QuestionMenu({ addQuestion }: Props) {
 const QuestionsManager: React.FC<QuestionsManagerProps> = ({
     errors = {}
 }) => {
-    const questions = useExamFormStore((state) => state.questions);
+    const questions = useAssessmentFormStore((state) => state.questions);
 
     const {
         collapsedQuestions,

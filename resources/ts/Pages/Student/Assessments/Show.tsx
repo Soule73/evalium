@@ -22,41 +22,39 @@ interface StudentAssessmentShowProps extends PageProps {
 export default function Show({ assessment, assignment }: StudentAssessmentShowProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const translations = useMemo(
-    () => ({
-      title: trans('student_assessment_pages.show.title'),
-      backToAssessments: trans('student_assessment_pages.show.back_to_assessments'),
-      startAssessment: trans('student_assessment_pages.show.start_assessment'),
-      continueAssessment: trans('student_assessment_pages.show.continue_assessment'),
-      startModalTitle: trans('student_assessment_pages.show.start_modal_title'),
-      startModalQuestion: trans('student_assessment_pages.show.start_modal_question'),
-      startModalConfirm: trans('student_assessment_pages.show.start_modal_confirm'),
-      subject: trans('student_assessment_pages.show.subject'),
-      class: trans('student_assessment_pages.show.class'),
-      teacher: trans('student_assessment_pages.show.teacher'),
-      duration: trans('student_assessment_pages.show.duration'),
-      minutes: trans('student_assessment_pages.show.minutes'),
-      questions: trans('student_assessment_pages.show.questions'),
-      status: trans('student_assessment_pages.show.status'),
-      statusCompleted: trans('student_assessment_pages.show.status_completed'),
-      statusInProgress: trans('student_assessment_pages.show.status_in_progress'),
-      statusNotStarted: trans('student_assessment_pages.show.status_not_started'),
-      importantDates: trans('student_assessment_pages.show.important_dates'),
-      assignedDate: trans('student_assessment_pages.show.assigned_date'),
-      dueDate: trans('student_assessment_pages.show.due_date'),
-      startedDate: trans('student_assessment_pages.show.started_date'),
-      submittedDate: trans('student_assessment_pages.show.submitted_date'),
-      importantTitle: trans('student_assessment_pages.show.important_title'),
-      alertStableConnection: trans('student_assessment_pages.show.alert_stable_connection'),
-      alertFullscreen: trans('student_assessment_pages.show.alert_fullscreen'),
-      alertCheating: trans('student_assessment_pages.show.alert_cheating'),
-      alertAutoSave: trans('student_assessment_pages.show.alert_auto_save'),
-      alertTimeLimit: trans('student_assessment_pages.show.alert_time_limit'),
-      description: trans('student_assessment_pages.show.description'),
-      noDescription: trans('student_assessment_pages.show.no_description'),
-    }),
-    []
-  );
+  const translations = {
+    title: trans('student_assessment_pages.show.title'),
+    backToAssessments: trans('student_assessment_pages.show.back_to_assessments'),
+    startAssessment: trans('student_assessment_pages.show.start_assessment'),
+    continueAssessment: trans('student_assessment_pages.show.continue_assessment'),
+    startModalTitle: trans('student_assessment_pages.show.start_modal_title'),
+    startModalQuestion: trans('student_assessment_pages.show.start_modal_question'),
+    startModalConfirm: trans('student_assessment_pages.show.start_modal_confirm'),
+    subject: trans('student_assessment_pages.show.subject'),
+    class: trans('student_assessment_pages.show.class'),
+    teacher: trans('student_assessment_pages.show.teacher'),
+    duration: trans('student_assessment_pages.show.duration'),
+    minutes: trans('student_assessment_pages.show.minutes'),
+    questions: trans('student_assessment_pages.show.questions'),
+    status: trans('student_assessment_pages.show.status'),
+    statusCompleted: trans('student_assessment_pages.show.status_completed'),
+    statusInProgress: trans('student_assessment_pages.show.status_in_progress'),
+    statusNotStarted: trans('student_assessment_pages.show.status_not_started'),
+    importantDates: trans('student_assessment_pages.show.important_dates'),
+    assignedDate: trans('student_assessment_pages.show.assigned_date'),
+    dueDate: trans('student_assessment_pages.show.due_date'),
+    startedDate: trans('student_assessment_pages.show.started_date'),
+    submittedDate: trans('student_assessment_pages.show.submitted_date'),
+    importantTitle: trans('student_assessment_pages.show.important_title'),
+    alertStableConnection: trans('student_assessment_pages.show.alert_stable_connection'),
+    alertFullscreen: trans('student_assessment_pages.show.alert_fullscreen'),
+    alertCheating: trans('student_assessment_pages.show.alert_cheating'),
+    alertAutoSave: trans('student_assessment_pages.show.alert_auto_save'),
+    alertTimeLimit: trans('student_assessment_pages.show.alert_time_limit'),
+    description: trans('student_assessment_pages.show.description'),
+    noDescription: trans('student_assessment_pages.show.no_description'),
+  };
+
 
   const statusValue = useMemo(() => {
     if (assignment.submitted_at) return translations.statusCompleted;
@@ -81,11 +79,11 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
   const handleStartAssessment = () => {
     setIsModalOpen(false);
     router.post(
-      route('student.mcd.assessments.start', assessment.id),
+      route('student.assessments.start', assessment.id),
       {},
       {
         onSuccess: () => {
-          router.visit(route('student.mcd.assessments.take', assessment.id));
+          router.visit(route('student.assessments.take', assessment.id));
         },
       }
     );
@@ -125,7 +123,7 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
               color="secondary"
               variant="outline"
               size="sm"
-              onClick={() => router.visit(route('student.mcd.assessments.index'))}
+              onClick={() => router.visit(route('student.assessments.index'))}
             >
               {translations.backToAssessments}
             </Button>
@@ -155,20 +153,20 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
               value={assessment.class_subject?.subject?.name || '-'}
             />
             <TextEntry label={translations.class} value={assessment.class_subject?.class?.name || '-'} />
-            <TextEntry label={translations.teacher} value={assessment.teacher?.name || '-'} />
+            <TextEntry label={translations.teacher} value={assessment.class_subject?.teacher?.name || '-'} />
           </div>
 
           <div className="grid gap-y-2 grid-cols-1 lg:grid-cols-3">
             <StatCard
               title={translations.duration}
-              value={`${assessment.duration} ${translations.minutes}`}
+              value={`${assessment.duration_minutes} ${translations.minutes}`}
               icon={ClockIcon}
               color="blue"
               className="lg:rounded-r-none"
             />
             <StatCard
               title={translations.questions}
-              value={assessment.questions_count || 0}
+              value={assessment.questions?.length || 0}
               icon={DocumentTextIcon}
               color="green"
               className="lg:rounded-none lg:border-x-0"
@@ -190,7 +188,7 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
                   label={translations.assignedDate}
                   value={formatDate(assignment.assigned_at)}
                 />
-                <TextEntry label={translations.dueDate} value={formatDate(assessment.assessment_date)} />
+                <TextEntry label={translations.dueDate} value={formatDate(assessment.scheduled_at)} />
                 {assignment.started_at && (
                   <TextEntry
                     label={translations.startedDate}
