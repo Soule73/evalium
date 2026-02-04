@@ -33,7 +33,7 @@ class ClassSubjectFactory extends Factory
 
     public function historical(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'valid_to' => now()->subDays($this->faker->numberBetween(1, 10)),
         ]);
     }

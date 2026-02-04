@@ -18,35 +18,47 @@ class EnrollmentSeeder extends Seeder
             $query->where('name', 'student');
         })->get();
 
-        if ($students->isEmpty()) {
-            $this->command->warn('⚠ No students found. Skipping enrollments.');
+        if ($students->count() < 20) {
+            $this->command->error('Need at least 20 students. Run UserSeeder first.');
+
             return;
         }
 
-        $classes = ClassModel::all();
+        $l1Class = ClassModel::whereHas('level', function ($query) {
+            $query->where('name', 'L1');
+        })->first();
 
-        if ($classes->isEmpty()) {
-            $this->command->error('✗ No classes found. Run ClassSeeder first.');
+        $m1Class = ClassModel::whereHas('level', function ($query) {
+            $query->where('name', 'M1');
+        })->first();
+
+        if (! $l1Class || ! $m1Class) {
+            $this->command->error('L1 or M1 class not found. Run ClassSeeder first.');
+
             return;
         }
 
         $count = 0;
-        foreach ($students as $student) {
-            $randomClass = $classes->random();
-
-            Enrollment::firstOrCreate(
-                [
-                    'class_id' => $randomClass->id,
-                    'student_id' => $student->id,
-                ],
-                [
-                    'enrolled_at' => now(),
-                    'status' => 'active',
-                ]
-            );
+        foreach ($students->take(10) as $student) {
+            Enrollment::create([
+                'class_id' => $l1Class->id,
+                'student_id' => $student->id,
+                'enrolled_at' => now(),
+                'status' => 'active',
+            ]);
             $count++;
         }
 
-        $this->command->info("✓ {$count} Students enrolled in classes");
+        foreach ($students->skip(10)->take(10) as $student) {
+            Enrollment::create([
+                'class_id' => $m1Class->id,
+                'student_id' => $student->id,
+                'enrolled_at' => now(),
+                'status' => 'active',
+            ]);
+            $count++;
+        }
+
+        $this->command->info("{$count} Students enrolled (10 in L1-A, 10 in M1-A)");
     }
 }

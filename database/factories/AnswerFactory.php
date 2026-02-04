@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Answer;
-use App\Models\ExamAssignment;
+use App\Models\AssessmentAssignment;
 use App\Models\Question;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,7 +22,7 @@ class AnswerFactory extends Factory
     public function definition(): array
     {
         return [
-            'assignment_id' => ExamAssignment::factory(),
+            'assessment_assignment_id' => AssessmentAssignment::factory(),
             'question_id' => Question::factory(),
             'choice_id' => null,
             'answer_text' => $this->faker->optional()->sentence(),

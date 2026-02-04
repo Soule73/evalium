@@ -14,73 +14,17 @@ class LevelSeeder extends Seeder
     {
         $levels = [
             [
-                'name' => 'BTS 1ère année',
-                'code' => 'bts_1',
-                'description' => 'Première année de Brevet de Technicien Supérieur',
+                'name' => 'L1',
+                'code' => 'l1',
+                'description' => 'Licence 1ère année',
                 'order' => 1,
                 'is_active' => true,
             ],
             [
-                'name' => 'BTS 2ème année',
-                'code' => 'bts_2',
-                'description' => 'Deuxième année de Brevet de Technicien Supérieur',
+                'name' => 'M1',
+                'code' => 'm1',
+                'description' => 'Master 1ère année',
                 'order' => 2,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Licence 1ère année',
-                'code' => 'licence_1',
-                'description' => 'Première année de Licence (L1)',
-                'order' => 3,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Licence 2ème année',
-                'code' => 'licence_2',
-                'description' => 'Deuxième année de Licence (L2)',
-                'order' => 4,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Licence 3ème année',
-                'code' => 'licence_3',
-                'description' => 'Troisième année de Licence (L3)',
-                'order' => 5,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Master 1ère année',
-                'code' => 'master_1',
-                'description' => 'Première année de Master (M1)',
-                'order' => 6,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Master 2ème année',
-                'code' => 'master_2',
-                'description' => 'Deuxième année de Master (M2)',
-                'order' => 7,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Doctorat 1ère année',
-                'code' => 'doctorat_1',
-                'description' => 'Première année de Doctorat',
-                'order' => 8,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Doctorat 2ème année',
-                'code' => 'doctorat_2',
-                'description' => 'Deuxième année de Doctorat',
-                'order' => 9,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Doctorat 3ème année',
-                'code' => 'doctorat_3',
-                'description' => 'Troisième année de Doctorat',
-                'order' => 10,
                 'is_active' => true,
             ],
         ];
@@ -91,5 +35,7 @@ class LevelSeeder extends Seeder
                 $levelData
             );
         }
+
+        $this->command->info('✓ 2 Levels created: L1, M1');
     }
 }

@@ -15,8 +15,9 @@ class SemesterSeeder extends Seeder
     {
         $currentYear = AcademicYear::where('is_current', true)->first();
 
-        if (!$currentYear) {
+        if (! $currentYear) {
             $this->command->error('✗ No current academic year found. Run AcademicYearSeeder first.');
+
             return;
         }
 
@@ -36,6 +37,6 @@ class SemesterSeeder extends Seeder
             'order_number' => 2,
         ]);
 
-        $this->command->info('✓ 2 Semesters created for ' . $currentYear->name);
+        $this->command->info('✓ 2 Semesters created for '.$currentYear->name);
     }
 }

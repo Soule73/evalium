@@ -29,7 +29,7 @@ class EnrollmentFactory extends Factory
 
     public function withdrawn(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'status' => 'withdrawn',
             'withdrawn_at' => now()->subDays($this->faker->numberBetween(1, 10)),
         ]);
@@ -37,7 +37,7 @@ class EnrollmentFactory extends Factory
 
     public function pending(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'status' => 'pending',
         ]);
     }

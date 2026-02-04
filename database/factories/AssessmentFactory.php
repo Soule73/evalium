@@ -35,7 +35,7 @@ class AssessmentFactory extends Factory
 
     public function devoir(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'type' => 'devoir',
             'coefficient' => 1,
         ]);
@@ -43,7 +43,7 @@ class AssessmentFactory extends Factory
 
     public function examen(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'type' => 'examen',
             'coefficient' => 2,
             'duration_minutes' => 120,
@@ -52,7 +52,7 @@ class AssessmentFactory extends Factory
 
     public function tp(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'type' => 'tp',
             'coefficient' => 1.5,
         ]);

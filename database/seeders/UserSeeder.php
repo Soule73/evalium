@@ -36,18 +36,23 @@ class UserSeeder extends Seeder
 
         $teachers = [
             [
-                'name' => 'Dr. Marie Dupont',
-                'email' => 'marie.dupont@examena.com',
+                'name' => 'Prof. Mathematics',
+                'email' => 'math.teacher@examena.com',
                 'password' => Hash::make('password'),
             ],
             [
-                'name' => 'Prof. Jean Martin',
-                'email' => 'jean.martin@examena.com',
+                'name' => 'Prof. Physics',
+                'email' => 'physics.teacher@examena.com',
                 'password' => Hash::make('password'),
             ],
             [
-                'name' => 'Dr. Sophie Bernard',
-                'email' => 'sophie.bernard@examena.com',
+                'name' => 'Prof. Computer Science',
+                'email' => 'cs.teacher@examena.com',
+                'password' => Hash::make('password'),
+            ],
+            [
+                'name' => 'Prof. English',
+                'email' => 'english.teacher@examena.com',
                 'password' => Hash::make('password'),
             ],
         ];
@@ -61,48 +66,14 @@ class UserSeeder extends Seeder
             $teacher->assignRole('teacher');
         }
 
-        $students = [
-            [
-                'name' => 'Alice Johnson',
-                'email' => 'alice.johnson@student.examena.com',
+        $students = [];
+        for ($i = 1; $i <= 20; $i++) {
+            $students[] = [
+                'name' => "Student {$i}",
+                'email' => "student{$i}@examena.com",
                 'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'Bob Smith',
-                'email' => 'bob.smith@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'Claire Davis',
-                'email' => 'claire.davis@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'David Wilson',
-                'email' => 'david.wilson@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'Emma Brown',
-                'email' => 'emma.brown@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'Frank Miller',
-                'email' => 'frank.miller@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'Grace Taylor',
-                'email' => 'grace.taylor@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'Henry Anderson',
-                'email' => 'henry.anderson@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-        ];
+            ];
+        }
 
         foreach ($students as $studentData) {
             $student = \App\Models\User::create(array_merge($studentData, [
@@ -113,11 +84,11 @@ class UserSeeder extends Seeder
             $student->assignRole('student');
         }
 
-        $this->command->info('✅ Utilisateurs créés avec succès !');
-        $this->command->info('   - 1 super administrateur (superadmin@examena.com)');
-        $this->command->info('   - 1 administrateur (admin@examena.com)');
-        $this->command->info('   - '.count($teachers).' enseignants');
-        $this->command->info('   - '.count($students).' étudiants');
-        $this->command->info('   - Mot de passe pour tous: password');
+        $this->command->info('Utilisateurs créés avec succès !');
+        $this->command->info('- 1 super administrateur (superadmin@examena.com)');
+        $this->command->info('- 1 administrateur (admin@examena.com)');
+        $this->command->info('- '.count($teachers).' enseignants');
+        $this->command->info('- '.count($students).' étudiants');
+        $this->command->info('- Mot de passe pour tous: password');
     }
 }

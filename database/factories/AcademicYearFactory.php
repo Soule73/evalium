@@ -30,7 +30,7 @@ class AcademicYearFactory extends Factory
 
     public function current(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'is_current' => true,
         ]);
     }

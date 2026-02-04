@@ -32,7 +32,8 @@ class AssessmentAssignmentFactory extends Factory
     public function started(): static
     {
         $assignedAt = $this->faker->dateTimeBetween('-30 days', '-1 day');
-        return $this->state(fn(array $attributes) => [
+
+        return $this->state(fn (array $attributes) => [
             'assigned_at' => $assignedAt,
             'started_at' => $this->faker->dateTimeBetween($assignedAt, 'now'),
         ]);
@@ -42,7 +43,8 @@ class AssessmentAssignmentFactory extends Factory
     {
         $assignedAt = $this->faker->dateTimeBetween('-10 days', '-5 days');
         $startedAt = $this->faker->dateTimeBetween($assignedAt, '-2 days');
-        return $this->state(fn(array $attributes) => [
+
+        return $this->state(fn (array $attributes) => [
             'assigned_at' => $assignedAt,
             'started_at' => $startedAt,
             'submitted_at' => $this->faker->dateTimeBetween($startedAt, 'now'),
@@ -55,7 +57,8 @@ class AssessmentAssignmentFactory extends Factory
         $assignedAt = $this->faker->dateTimeBetween('-15 days', '-10 days');
         $startedAt = $this->faker->dateTimeBetween($assignedAt, '-8 days');
         $submittedAt = $this->faker->dateTimeBetween($startedAt, '-5 days');
-        return $this->state(fn(array $attributes) => [
+
+        return $this->state(fn (array $attributes) => [
             'assigned_at' => $assignedAt,
             'started_at' => $startedAt,
             'submitted_at' => $submittedAt,

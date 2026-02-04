@@ -30,7 +30,7 @@ class SemesterFactory extends Factory
 
     public function firstSemester(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'name' => 'Semestre 1',
             'order_number' => 1,
         ]);
@@ -38,7 +38,7 @@ class SemesterFactory extends Factory
 
     public function secondSemester(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'name' => 'Semestre 2',
             'order_number' => 2,
         ]);

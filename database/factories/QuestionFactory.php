@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Exam;
+use App\Models\Assessment;
 use App\Models\Question;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,7 +21,7 @@ class QuestionFactory extends Factory
     public function definition(): array
     {
         return [
-            'exam_id' => Exam::factory(),
+            'assessment_id' => Assessment::factory(),
             'content' => $this->faker->sentence().'?',
             'type' => $this->faker->randomElement(['multiple', 'one_choice', 'boolean', 'text']),
             'points' => $this->faker->numberBetween(1, 20),

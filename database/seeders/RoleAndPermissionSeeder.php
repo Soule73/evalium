@@ -27,24 +27,6 @@ class RoleAndPermissionSeeder extends Seeder
             'force delete users',
             'manage students',
 
-            // Exam Management
-            'view exams',
-            'view any exams',
-            'create exams',
-            'update exams',
-            'delete exams',
-            'restore exams',
-            'force delete exams',
-            'assign exams',
-            'correct exams',
-            'view exam results',
-
-            // Group Management
-            'view groups',
-            'create groups',
-            'update groups',
-            'delete groups',
-
             // Level Management
             'view levels',
             'create levels',
@@ -56,6 +38,47 @@ class RoleAndPermissionSeeder extends Seeder
             'create roles',
             'update roles',
             'delete roles',
+
+            // Academic Year Management
+            'view academic years',
+            'create academic years',
+            'update academic years',
+            'delete academic years',
+            'archive academic years',
+
+            // Subject Management
+            'view subjects',
+            'create subjects',
+            'update subjects',
+            'delete subjects',
+
+            // Class Management
+            'view classes',
+            'create classes',
+            'update classes',
+            'delete classes',
+
+            // Enrollment Management
+            'view enrollments',
+            'create enrollments',
+            'update enrollments',
+            'delete enrollments',
+            'transfer enrollments',
+
+            // ClassSubject Management
+            'view class subjects',
+            'create class subjects',
+            'update class subjects',
+            'delete class subjects',
+            'replace teacher class subjects',
+
+            // Assessment Management
+            'view assessments',
+            'create assessments',
+            'update assessments',
+            'delete assessments',
+            'publish assessments',
+            'grade assessments',
         ];
 
         foreach ($permissions as $permission) {
@@ -68,7 +91,7 @@ class RoleAndPermissionSeeder extends Seeder
         $superAdminRole = Role::firstOrCreate(['name' => 'super_admin']);
         $superAdminRole->syncPermissions(Permission::all());
 
-        // Admin Role - User, Group, Level, and Role management
+        // Admin Role - User, Level, and Role management + MCD modules
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $adminRole->syncPermissions([
             // Users
@@ -77,17 +100,6 @@ class RoleAndPermissionSeeder extends Seeder
             'update users',
             'delete users',
             'manage students',
-
-            // Exams (view only)
-            'view exams',
-            'view any exams',
-            'view exam results',
-
-            // Groups
-            'view groups',
-            'create groups',
-            'update groups',
-            'delete groups',
 
             // Levels
             'view levels',
@@ -100,28 +112,63 @@ class RoleAndPermissionSeeder extends Seeder
             'create roles',
             'update roles',
             'delete roles',
+
+            // Academic Years
+            'view academic years',
+            'create academic years',
+            'update academic years',
+            'delete academic years',
+            'archive academic years',
+
+            // Subjects
+            'view subjects',
+            'create subjects',
+            'update subjects',
+            'delete subjects',
+
+            // Classes
+            'view classes',
+            'create classes',
+            'update classes',
+            'delete classes',
+
+            // Enrollments
+            'view enrollments',
+            'create enrollments',
+            'update enrollments',
+            'delete enrollments',
+            'transfer enrollments',
+
+            // ClassSubjects
+            'view class subjects',
+            'create class subjects',
+            'update class subjects',
+            'delete class subjects',
+            'replace teacher class subjects',
+
+            // Assessments (view only for admin)
+            'view assessments',
         ]);
 
-        // Teacher Role - Exam creation, assignment and correction
+        // Teacher Role - Assessment management
         $teacherRole = Role::firstOrCreate(['name' => 'teacher']);
         $teacherRole->syncPermissions([
-            // Exams (own exams only)
-            'view exams',
-            'create exams',
-            'update exams',
-            'delete exams',
-            'assign exams',
-            'correct exams',
-            'view exam results',
+            // Classes (view only - assigned classes)
+            'view classes',
 
-            // Groups (view only)
-            'view groups',
+            // Assessments (full CRUD for own assessments)
+            'view assessments',
+            'create assessments',
+            'update assessments',
+            'delete assessments',
+            'publish assessments',
+            'grade assessments',
         ]);
 
-        // Student Role - Exam taking only
+        // Student Role - Assessment taking
         $studentRole = Role::firstOrCreate(['name' => 'student']);
         $studentRole->syncPermissions([
-            'view exams',
+            'view assessments',
         ]);
 
         $this->command->info('All roles and permissions created successfully!');
