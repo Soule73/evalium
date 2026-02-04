@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useShallow } from 'zustand/react/shallow';
-import { QuestionFormData } from '@/types';
+import { QuestionFormData, AssessmentType } from '@/types';
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
 
 interface AssessmentCreateData {
@@ -10,7 +10,7 @@ interface AssessmentCreateData {
   description: string;
   duration: number;
   scheduled_date: string;
-  type: 'assignment' | 'quiz' | 'exam';
+  type: AssessmentType;
   class_subject_id: number;
   is_published: boolean;
   questions: QuestionFormData[];
@@ -22,12 +22,12 @@ export const useCreateAssessment = () => {
     resetStore: state.reset,
   })));
 
-  const { data, setData, post, processing, errors, reset, transform, clearErrors } = useForm<AssessmentCreateData>({
+  const { data, setData, post, processing, errors, reset, clearErrors, transform } = useForm<AssessmentCreateData>({
     title: '',
     description: '',
     duration: 60,
     scheduled_date: '',
-    type: 'assignment',
+    type: 'devoir',
     class_subject_id: 0,
     is_published: false,
     questions: []

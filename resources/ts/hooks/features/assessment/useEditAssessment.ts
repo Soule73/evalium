@@ -10,7 +10,7 @@ interface AssessmentEditData {
   description: string;
   duration: number;
   scheduled_date: string;
-  type: 'assignment' | 'quiz' | 'exam';
+  type: AssessmentType;
   class_subject_id: number;
   is_published: boolean;
   questions: QuestionFormData[];
@@ -43,20 +43,12 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
     resetStore: state.reset,
   })));
 
-  const typeMapping: Record<AssessmentType, 'assignment' | 'exam' | 'quiz'> = {
-    'devoir': 'assignment',
-    'examen': 'exam',
-    'tp': 'quiz',
-    'controle': 'exam',
-    'projet': 'assignment'
-  };
-
-  const { data, setData, put, processing, errors, transform, clearErrors } = useForm<AssessmentEditData>({
+  const { data, setData, put, processing, errors, clearErrors, transform } = useForm<AssessmentEditData>({
     title: assessment.title || '',
     description: assessment.description || '',
-    duration: assessment.duration || 60,
-    scheduled_date: assessment.assessment_date ? assessment.assessment_date.slice(0, 16) : '',
-    type: typeMapping[assessment.type] || 'assignment',
+    duration: assessment.duration_minutes || 60,
+    scheduled_date: assessment.scheduled_at ? assessment.scheduled_at.slice(0, 16) : '',
+    type: assessment.type,
     class_subject_id: assessment.class_subject_id || 0,
     is_published: assessment.is_published ?? false,
     questions: [],
@@ -88,8 +80,9 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
         }) || []
       }));
       setQuestions(formattedQuestions);
+      setData('questions', formattedQuestions);
     }
-  }, [assessment.questions, questions.length, setQuestions]);
+  }, [assessment.questions, questions.length, setQuestions, setData]);
 
   useEffect(() => {
     return () => {
@@ -111,14 +104,6 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
     e.preventDefault();
 
     clearErrors();
-    clearDeletedHistory();
-
-    console.log('Submitted data:', {
-      ...data,
-      questions,
-      deletedQuestionIds,
-      deletedChoiceIds
-    });
 
     transform((data) => ({
       ...data,
@@ -128,11 +113,14 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
     }));
 
     put(route('teacher.assessments.update', assessment.id), {
-      onError: (errors) => {
+      onSuccess: () => {
+        clearDeletedHistory();
+      },
+      onError: (errors: any) => {
         console.error('Submission errors:', errors);
       }
     });
-  }, [data, questions, deletedQuestionIds, deletedChoiceIds, clearErrors, clearDeletedHistory, transform, put, assessment.id]);
+  }, [questions, deletedQuestionIds, deletedChoiceIds, assessment.id, clearDeletedHistory, clearErrors, transform, put]);
 
   return {
     data,

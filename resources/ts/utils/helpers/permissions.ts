@@ -69,12 +69,6 @@ export const PERMISSIONS = {
     CORRECT_EXAMS: 'correct exams',
     VIEW_EXAM_RESULTS: 'view exam results',
 
-    // Group permissions
-    VIEW_GROUPS: 'view groups',
-    CREATE_GROUPS: 'create groups',
-    UPDATE_GROUPS: 'update groups',
-    DELETE_GROUPS: 'delete groups',
-
     // Level permissions
     VIEW_LEVELS: 'view levels',
     CREATE_LEVELS: 'create levels',

@@ -8,7 +8,7 @@ export interface Enrollment {
   class_id: number;
   student_id: number;
   status: EnrollmentStatus;
-  enrolled_date: string;
+  enrolled_at: string;
   left_date?: string;
   created_at: string;
   updated_at: string;
@@ -22,7 +22,7 @@ export interface Enrollment {
 export interface EnrollmentFormData {
   class_id: number;
   student_id: number;
-  enrolled_date?: string;
+  enrolled_at?: string;
 }
 
 export interface TransferStudentFormData {

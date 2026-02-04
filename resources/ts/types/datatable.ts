@@ -100,6 +100,10 @@ export interface DataTableConfig<T> {
     maxSelectable?: number;
     isSelectable?: (item: T) => boolean;
     selectionActions?: (selectedIds: (number | string)[]) => ReactNode;
+    searchable?: boolean;
+    onSearch?: (search: string) => void;
+    pageName?: string;
+    perPageName?: string;
 }
 
 export interface DataTableState {

@@ -27,7 +27,6 @@ types/
     │
     ├── legacy/                # ❌ ANCIENS TYPES (à supprimer après migration)
     │   ├── index.ts
-    │   ├── group.ts           # Group (sera remplacé par ClassModel)
     │   ├── exam.ts            # Exam (sera remplacé par Assessment)
     │   └── examAssignment.ts  # ExamAssignment (sera remplacé par AssessmentAssignment)
     │
@@ -67,15 +66,6 @@ import type { AcademicYear } from "@/types/models/mcd/academicYear";
 import type { User, Level, Question, Choice, Answer } from "@/types";
 
 // Ces types sont utilisables partout (legacy + MCD)
-```
-
-### Import des types legacy (anciens)
-
-```typescript
-import type { Exam, Group, ExamAssignment } from "@/types";
-
-// ⚠️ À ÉVITER dans les nouveaux composants
-// Ces types seront supprimés après migration
 ```
 
 ---

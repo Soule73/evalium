@@ -1,5 +1,5 @@
 import { Assessment, AssessmentAssignment, Question } from '@/types';
-import { canShowExamResults, formatExamAssignmentStatus } from '@/utils';
+import { canShowAssessmentResults, formatAssessmentAssignmentStatus } from '@/utils';
 import { useMemo } from 'react';
 
 interface UseAssessmentResultParams {
@@ -24,9 +24,9 @@ const useAssessmentResults = ({ assessment, assignment, userAnswers }: UseAssess
 
   const isPendingReview = useMemo(() => assignmentStatus !== 'graded', [assignmentStatus]);
 
-  const formattedAssignmentStatus = useMemo(() => formatExamAssignmentStatus(assignmentStatus), [assignmentStatus]);
+  const formattedAssignmentStatus = formatAssessmentAssignmentStatus(assignmentStatus);
 
-  const showCorrectAnswers = useMemo(() => canShowExamResults(assignmentStatus), [assignmentStatus]);
+  const showCorrectAnswers = canShowAssessmentResults(assignmentStatus);
 
   const getQuestionResult = useMemo(() => {
     return (question: Question) => {
@@ -42,11 +42,14 @@ const useAssessmentResults = ({ assessment, assignment, userAnswers }: UseAssess
       }
 
       if (question.type === 'multiple') {
-        if (userAnswer.type === 'multiple' && userAnswer.choices) {
-          const selectedChoices = userAnswer.choices.map((c: { choice: { id: number } }) => c.choice);
+        if (userAnswer.choices && Array.isArray(userAnswer.choices)) {
+          const selectedChoices = userAnswer.choices
+            .map((c: any) => c.choice)
+            .filter((choice: any) => choice !== null && choice !== undefined);
+
           const correctChoices = (question.choices ?? []).filter((c) => c.is_correct);
 
-          const selectedChoiceIds = new Set(selectedChoices.map((choice: { id: number }) => choice.id));
+          const selectedChoiceIds = new Set(selectedChoices.map((choice: any) => choice.id));
           const correctChoiceIds = new Set(correctChoices.map((choice) => choice.id));
 
           const hasAllCorrectChoices =
@@ -90,7 +93,7 @@ const useAssessmentResults = ({ assessment, assignment, userAnswers }: UseAssess
       }
 
       if (question.type === 'one_choice') {
-        if (userAnswer.type === 'single' && userAnswer.choice) {
+        if (userAnswer.choice) {
           const selectedChoice = userAnswer.choice;
           const isCorrect = selectedChoice.is_correct;
 
@@ -126,7 +129,7 @@ const useAssessmentResults = ({ assessment, assignment, userAnswers }: UseAssess
         feedback: null,
       };
     };
-  }, [userAnswers]);
+  }, [userAnswers, questions]);
 
   return {
     totalPoints,

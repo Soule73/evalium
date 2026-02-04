@@ -1,18 +1,18 @@
-import { ExamAssignment, Answer } from '../index';
+import { AssessmentAssignment, Answer } from '../index';
 import { PaginatedResponse, ApiResponse } from './common';
 
-export interface GetAssignmentsResponse extends PaginatedResponse<ExamAssignment> { }
+export interface GetAssignmentsResponse extends PaginatedResponse<AssessmentAssignment> { }
 
-export interface GetAssignmentResponse extends ApiResponse<ExamAssignment> { }
+export interface GetAssignmentResponse extends ApiResponse<AssessmentAssignment> { }
 
 export interface CreateAssignmentRequest {
     student_id: number;
-    exam_id: number;
+    assessment_id: number;
     assigned_at?: string;
 }
 
-export interface StartExamRequest {
-    exam_id: number;
+export interface StartAssessmentRequest {
+    assessment_id: number;
 }
 
 export interface SaveAnswerRequest {
@@ -22,7 +22,7 @@ export interface SaveAnswerRequest {
     answer_text?: string;
 }
 
-export interface SubmitExamRequest {
+export interface SubmitAssessmentRequest {
     assignment_id: number;
     forced?: boolean;
     security_violation?: string;
@@ -42,6 +42,6 @@ export interface BulkGradeRequest {
     }>;
 }
 
-export interface AssignmentWithAnswers extends ExamAssignment {
+export interface AssignmentWithAnswers extends AssessmentAssignment {
     answers: Answer[];
 }

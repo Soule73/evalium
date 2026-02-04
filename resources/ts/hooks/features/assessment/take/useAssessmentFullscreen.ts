@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useExamConfig, isFeatureEnabled } from '../useExamConfig';
-import { useExamTakeStore } from '@/stores/useExamTakeStore';
+import { useAssessmentConfig, isFeatureEnabled } from '../useAssessmentConfig';
+import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 import { isFullscreenSupported } from '@/utils/exam/take';
 
@@ -28,25 +28,25 @@ interface UseExamFullscreenOptions {
  * - `enterFullscreen`: Function to trigger entering fullscreen mode.
  * - `exitFullscreen`: Function to trigger exiting fullscreen mode.
  */
-export function useExamFullscreen({ security }: UseExamFullscreenOptions) {
-    const { showFullscreenModal, setShowFullscreenModal, examCanStart, setExamCanStart } = useExamTakeStore(
+export function useAssessmentFullscreen({ security }: UseExamFullscreenOptions) {
+    const { showFullscreenModal, setShowFullscreenModal, examCanStart, setExamCanStart } = useAssessmentTakeStore(
         useShallow((state) => ({
             showFullscreenModal: state.showFullscreenModal,
             setShowFullscreenModal: state.setShowFullscreenModal,
-            examCanStart: state.examCanStart,
-            setExamCanStart: state.setExamCanStart,
+            examCanStart: state.assessmentCanStart,
+            setExamCanStart: state.setAssessmentCanStart,
         }))
     );
 
     const [fullscreenRequired, setFullscreenRequired] = useState<boolean>(false);
 
-    const examConfig = useExamConfig();
+    const assessmentConfig = useAssessmentConfig();
 
     const fullscreenIsSupported = useMemo(() => isFullscreenSupported(), []);
 
     useEffect(() => {
-        const shouldRequireFullscreen = isFeatureEnabled(examConfig, 'fullscreenRequired')
-            && examConfig.securityEnabled
+        const shouldRequireFullscreen = isFeatureEnabled(assessmentConfig, 'fullscreenRequired')
+            && assessmentConfig.securityEnabled
             && fullscreenIsSupported;
 
         if (shouldRequireFullscreen) {
@@ -58,7 +58,8 @@ export function useExamFullscreen({ security }: UseExamFullscreenOptions) {
             setShowFullscreenModal(false);
             setExamCanStart(true);
         }
-    }, [examConfig, fullscreenIsSupported, setShowFullscreenModal, setExamCanStart]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [assessmentConfig, fullscreenIsSupported]);
 
     const enterFullscreen = useCallback(async () => {
         if (security?.enterFullscreen) {
@@ -74,7 +75,8 @@ export function useExamFullscreen({ security }: UseExamFullscreenOptions) {
             setShowFullscreenModal(false);
             setExamCanStart(true);
         }
-    }, [security, setShowFullscreenModal, setExamCanStart]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [security]);
 
     const exitFullscreen = useCallback(async () => {
         if (security?.exitFullscreen) {

@@ -1,5 +1,4 @@
 import type { Role } from './role';
-import type { Group } from '../legacy';
 import type { Enrollment } from '../mcd/enrollment';
 import type { ClassModel } from '../mcd/class';
 
@@ -16,19 +15,10 @@ export interface User {
   deleted_at?: string | null;
 
   roles?: Role[];
-
-  current_group?: Group;
-  groups?: GroupWithPivot[];
+  permissions?: string[];
 
   current_enrollment?: Enrollment;
   enrollments?: Enrollment[];
   classes?: ClassModel[];
 }
 
-export interface GroupWithPivot extends Group {
-  pivot?: {
-    enrolled_at: string;
-    left_at?: string | null;
-    is_active: boolean;
-  };
-}

@@ -9,8 +9,8 @@ import {
     removeSecurityMeasures
 } from '@/utils';
 import { getViolationTranslationKey } from '@/utils/exam/take';
-import { useExamConfig, isSecurityEnabled, isFeatureEnabled } from '../useExamConfig';
-import { useExamTakeStore } from '@/stores/useExamTakeStore';
+import { useAssessmentConfig, isSecurityEnabled, isFeatureEnabled } from '../useAssessmentConfig';
+import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 import { trans } from '@/utils';
 
@@ -37,7 +37,7 @@ interface UseExamSecurityViolationOptions {
  *   terminationReason,
  *   handleViolation,
  *   handleBlocked
- * } = useExamSecurityViolation({
+ * } = useAssessmentSecurityViolation({
  *   examId: 123,
  *   onViolation: (type) => console.log(`Violation: ${type}`)
  * });
@@ -47,17 +47,17 @@ interface UseExamSecurityViolationOptions {
  * }
  * ```
  */
-export function useExamSecurityViolation({ examId, onViolation }: UseExamSecurityViolationOptions) {
-    const { examTerminated, terminationReason, setExamTerminated } = useExamTakeStore(
+export function useAssessmentSecurityViolation({ examId, onViolation }: UseExamSecurityViolationOptions) {
+    const { examTerminated, terminationReason, setExamTerminated } = useAssessmentTakeStore(
         useShallow((state) => ({
-            examTerminated: state.examTerminated,
+            examTerminated: state.assessmentTerminated,
             terminationReason: state.terminationReason,
-            setExamTerminated: state.setExamTerminated,
+            setExamTerminated: state.setAssessmentTerminated,
         }))
     );
 
-    const examConfig = useExamConfig();
-    const securityEnabled = isSecurityEnabled(examConfig);
+    const assessmentConfig = useAssessmentConfig();
+    const securityEnabled = isSecurityEnabled(assessmentConfig);
 
     const getViolationLabel = useCallback((violationType: string): string => {
         const translationKey = getViolationTranslationKey(violationType);
@@ -75,11 +75,11 @@ export function useExamSecurityViolation({ examId, onViolation }: UseExamSecurit
 
         // Configuration des fonctionnalités de sécurité
         const securityConfig = {
-            devToolsDetection: isFeatureEnabled(examConfig, 'devToolsDetection'),
-            copyPastePrevention: isFeatureEnabled(examConfig, 'copyPastePrevention'),
-            contextMenuDisabled: isFeatureEnabled(examConfig, 'contextMenuDisabled'),
-            printPrevention: isFeatureEnabled(examConfig, 'printPrevention'),
-            tabSwitchDetection: isFeatureEnabled(examConfig, 'tabSwitchDetection')
+            devToolsDetection: isFeatureEnabled(assessmentConfig, 'devToolsDetection'),
+            copyPastePrevention: isFeatureEnabled(assessmentConfig, 'copyPastePrevention'),
+            contextMenuDisabled: isFeatureEnabled(assessmentConfig, 'contextMenuDisabled'),
+            printPrevention: isFeatureEnabled(assessmentConfig, 'printPrevention'),
+            tabSwitchDetection: isFeatureEnabled(assessmentConfig, 'tabSwitchDetection')
         };
 
         // Applique les mesures de sécurité selon la configuration
@@ -93,7 +93,7 @@ export function useExamSecurityViolation({ examId, onViolation }: UseExamSecurit
             detachConfigurableEventListeners(handlers, securityConfig);
             removeSecurityMeasures();
         };
-    }, [securityEnabled, examConfig]);
+    }, [securityEnabled, assessmentConfig]);
 
     /**
      * Termine immédiatement l'examen suite à une violation de sécurité
@@ -128,7 +128,8 @@ export function useExamSecurityViolation({ examId, onViolation }: UseExamSecurit
         if (onViolation) {
             onViolation(violationType);
         }
-    }, [examId, onViolation, setExamTerminated, getViolationLabel]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [examId, onViolation, getViolationLabel]);
 
     /**
      * Gestionnaire pour les violations critiques de sécurité

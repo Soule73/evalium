@@ -1,20 +1,20 @@
 import { useMemo } from 'react';
-import { Question, Exam, ExamAssignment } from '@/types';
+import { Question, Assessment, AssessmentAssignment } from '@/types';
 
-interface UseExamScoringParams {
-    exam: Exam;
-    assignment: ExamAssignment;
+interface UseAssessmentScoringParams {
+    assessment: Assessment;
+    assignment: AssessmentAssignment;
     userAnswers: Record<number, any>;
     totalPoints: number;
     getQuestionResult: (question: Question) => any;
 }
 
 /**
- * Hook commun pour les calculs de score et pourcentages dans les examens
+ * Hook for score and percentage calculations in assessments
  */
-const useExamScoring = ({ exam, assignment, userAnswers, totalPoints, getQuestionResult }: UseExamScoringParams) => {
+const useAssessmentScoring = ({ assessment, assignment, userAnswers, totalPoints, getQuestionResult }: UseAssessmentScoringParams) => {
     const finalScore = useMemo(
-        () => assignment.score ?? assignment.auto_score,
+        () => assignment.score ?? assignment.auto_score ?? 0,
         [assignment.score, assignment.auto_score]
     );
 
@@ -57,7 +57,7 @@ const useExamScoring = ({ exam, assignment, userAnswers, totalPoints, getQuestio
     const initializeScores = useMemo(() => {
         return (): Record<number, number> => {
             const initialScores: Record<number, number> = {};
-            exam.questions?.forEach(question => {
+            assessment.questions?.forEach(question => {
                 const existingScore = userAnswers[question.id]?.score;
 
                 if (existingScore !== null && existingScore !== undefined) {
@@ -68,7 +68,7 @@ const useExamScoring = ({ exam, assignment, userAnswers, totalPoints, getQuestio
             });
             return initialScores;
         };
-    }, [exam.questions, userAnswers, calculateQuestionScore]);
+    }, [assessment.questions, userAnswers, calculateQuestionScore]);
 
     return {
         totalPoints,
@@ -81,4 +81,4 @@ const useExamScoring = ({ exam, assignment, userAnswers, totalPoints, getQuestio
     };
 };
 
-export default useExamScoring;
+export default useAssessmentScoring;

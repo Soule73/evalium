@@ -20,7 +20,7 @@ export {
     formatNumber,
     formatRelativeTime,
     truncateText,
-    formatExamAssignmentStatus,
-    canShowExamResults,
+    formatAssessmentAssignmentStatus,
+    canShowAssessmentResults,
     getAssignmentStatusWithLabel,
 } from './formatters';

@@ -1,6 +1,6 @@
 import { usePage } from '@inertiajs/react';
 
-interface ExamConfig {
+interface AssessmentConfig {
     devMode: boolean;
     securityEnabled: boolean;
     features: {
@@ -12,20 +12,20 @@ interface ExamConfig {
         printPrevention: boolean;
     };
     timing: {
-        minExamDurationMinutes: number;
+        minAssessmentDurationMinutes: number;
         autoSubmitOnTimeEnd: boolean;
     };
 }
 
 interface PageProps extends Record<string, any> {
-    examConfig?: ExamConfig;
+    assessmentConfig?: AssessmentConfig;
 }
 
-export function useExamConfig(): ExamConfig {
+export function useAssessmentConfig(): AssessmentConfig {
     const { props } = usePage<PageProps>();
 
     // Configuration par défaut si non fournie par le backend
-    const defaultConfig: ExamConfig = {
+    const defaultConfig: AssessmentConfig = {
         devMode: false,
         securityEnabled: true,
         features: {
@@ -37,22 +37,21 @@ export function useExamConfig(): ExamConfig {
             printPrevention: true,
         },
         timing: {
-            minExamDurationMinutes: 2,
+            minAssessmentDurationMinutes: 2,
             autoSubmitOnTimeEnd: true,
         },
     };
 
-    return props.examConfig || defaultConfig;
+    return props.assessmentConfig || defaultConfig;
 }
 
 export function useSecurityEnabled(): boolean {
-    const config = useExamConfig();
+    const config = useAssessmentConfig();
     return config.securityEnabled && !config.devMode;
 }
 
-export function useFeatureEnabled(feature: keyof ExamConfig['features']): boolean {
-    const config = useExamConfig();
-
+export function useFeatureEnabled(feature: keyof AssessmentConfig['features']): boolean {
+    const config = useAssessmentConfig();
     // Si en mode dev, toutes les fonctionnalités sont désactivées
     if (config.devMode) {
         return false;
@@ -67,11 +66,11 @@ export function useFeatureEnabled(feature: keyof ExamConfig['features']): boolea
 }
 
 // Fonctions utilitaires pour les cas où on a déjà la config
-export function isSecurityEnabled(config: ExamConfig): boolean {
+export function isSecurityEnabled(config: AssessmentConfig): boolean {
     return config.securityEnabled && !config.devMode;
 }
 
-export function isFeatureEnabled(config: ExamConfig, feature: keyof ExamConfig['features']): boolean {
+export function isFeatureEnabled(config: AssessmentConfig, feature: keyof AssessmentConfig['features']): boolean {
     // Si en mode dev, toutes les fonctionnalités sont désactivées
     if (config.devMode) {
         return false;

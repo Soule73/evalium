@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Answer, Question } from '@/types';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
+import { useShallow } from 'zustand/react/shallow';
 
 interface UseAssessmentAnswersParams {
   questions: Question[];
@@ -12,10 +13,10 @@ interface UseAssessmentAnswersParams {
  * Initializes answers from existing userAnswers and provides update functionality.
  */
 export const useAssessmentAnswers = ({ questions, userAnswers }: UseAssessmentAnswersParams) => {
-  const { setAnswers, setAnswer } = useAssessmentTakeStore((state) => ({
+  const { setAnswers, setAnswer } = useAssessmentTakeStore(useShallow((state) => ({
     setAnswers: state.setAnswers,
     setAnswer: state.setAnswer,
-  }));
+  })));
 
   useEffect(() => {
     const initialAnswers: Record<number, string | number | number[]> = {};
@@ -35,7 +36,8 @@ export const useAssessmentAnswers = ({ questions, userAnswers }: UseAssessmentAn
     });
 
     setAnswers(initialAnswers);
-  }, [questions, userAnswers, setAnswers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const updateAnswer = (questionId: number, value: string | number | number[]) => {
     setAnswer(questionId, value);

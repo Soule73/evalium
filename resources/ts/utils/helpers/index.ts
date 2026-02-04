@@ -11,7 +11,6 @@ export {
 } from './permissions';
 export { setupZiggy } from './ziggy';
 export { trans, locale, isLocale, transAll, transChoice } from './translations';
-export { groupsToPaginationType } from './paginationHelpers';
 export {
     buildDataTableUrl,
     getSelectableItems,

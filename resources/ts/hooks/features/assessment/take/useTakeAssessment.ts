@@ -1,15 +1,14 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { Answer, Assessment, Question } from '@/types';
-import { useExamSecurity } from '../../exam/take/useExamSecurity';
-import { useAutoSave } from '../../exam/take/useAutoSave';
+import { useAssessmentSecurity } from './useAssessmentSecurity';
 import { useAssessmentTimer } from './useAssessmentTimer';
 import { useAssessmentAnswers } from './useAssessmentAnswers';
-import { useExamFullscreen } from '../../exam/take/useExamFullscreen';
-import { useExamSecurityViolation } from '../../exam/take/useExamSecurityViolation';
+import { useAssessmentSecurityViolation } from './useAssessmentSecurityViolation';
 import { useAssessmentAnswerSave } from './useAssessmentAnswerSave';
 import { useAssessmentSubmission } from './useAssessmentSubmission';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
+import { useAssessmentFullscreen } from './useAssessmentFullscreen';
 
 interface UseTakeAssessment {
   assessment: Assessment;
@@ -54,6 +53,12 @@ const useTakeAssessment = ({ assessment, questions = [], userAnswers = [] }: Use
     }))
   );
 
+  const answersRef = useRef(answers);
+
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+
   const { updateAnswer } = useAssessmentAnswers({ questions, userAnswers });
 
   const {
@@ -65,10 +70,10 @@ const useTakeAssessment = ({ assessment, questions = [], userAnswers = [] }: Use
   } = useAssessmentSubmission({
     assessmentId: assessment.id,
     onSubmitSuccess: () => {
-      exitFullscreen();
+      exitFullscreenRef.current();
     },
     onSubmitError: () => {
-      exitFullscreen();
+      exitFullscreenRef.current();
     },
   });
 
@@ -76,71 +81,76 @@ const useTakeAssessment = ({ assessment, questions = [], userAnswers = [] }: Use
     examTerminated: assessmentTerminated,
     terminationReason,
     handleViolation,
-  } = useExamSecurityViolation({
+  } = useAssessmentSecurityViolation({
     examId: assessment.id,
   });
 
   const handleViolationCallback = useCallback(
     (type: string) => {
-      handleViolation(type, answers);
+      handleViolation(type, answersRef.current);
     },
-    [handleViolation, answers]
+    [handleViolation]
   );
 
-  const security = useExamSecurity({
+  const security = useAssessmentSecurity({
     onViolation: handleViolationCallback,
   });
 
-  const { showFullscreenModal, fullscreenRequired, examCanStart: assessmentCanStart, enterFullscreen, exitFullscreen } = useExamFullscreen({ security });
+  const { showFullscreenModal, fullscreenRequired, examCanStart: assessmentCanStart, enterFullscreen, exitFullscreen } = useAssessmentFullscreen({ security });
 
-  const handleSubmitCallback = useCallback(() => handleSubmit(), []);
+  const exitFullscreenRef = useRef(exitFullscreen);
 
-  const { timeLeft } = useAssessmentTimer({
-    duration: assessment.duration,
-    onTimeEnd: handleSubmitCallback,
-    isSubmitting,
-  });
+  useEffect(() => {
+    exitFullscreenRef.current = exitFullscreen;
+  }, [exitFullscreen]);
 
   const { saveAnswerIndividual, saveAllAnswers, forceSave, cleanup } = useAssessmentAnswerSave({
     assessmentId: assessment.id,
   });
 
-  const handleAutoSave = useCallback(() => {
-    return saveAllAnswers(answers);
-  }, [saveAllAnswers, answers]);
+  const handleSubmit = useCallback(() => {
+    forceSave(answersRef.current).then(() => {
+      submitAssessment(answersRef.current);
+    });
+  }, [forceSave, submitAssessment]);
 
-  const autoSave = useAutoSave(answers, {
-    interval: 30000,
-    onSave: handleAutoSave,
-    onError: () => { },
+  const { timeLeft } = useAssessmentTimer({
+    duration: assessment.duration_minutes,
+    onTimeEnd: handleSubmit,
+    isSubmitting,
   });
 
   useEffect(() => {
+    const autoSaveInterval = setInterval(() => {
+      saveAllAnswers(answersRef.current);
+    }, 30000);
+
+    return () => clearInterval(autoSaveInterval);
+  }, [saveAllAnswers]);
+
+  useEffect(() => {
     if (assessmentTerminated) {
-      exitFullscreen();
+      exitFullscreenRef.current();
     }
-  }, [assessmentTerminated, exitFullscreen]);
+  }, [assessmentTerminated]);
 
   const handleAnswerChange = useCallback(
     (questionId: number, value: string | number | number[]) => {
       updateAnswer(questionId, value);
 
-      const newAnswers = { ...answers, [questionId]: value };
+      const newAnswers = { ...answersRef.current, [questionId]: value };
 
       saveAnswerIndividual(questionId, value, newAnswers);
     },
-    [updateAnswer, answers, saveAnswerIndividual]
+    [updateAnswer, saveAnswerIndividual]
   );
 
-  const handleSubmit = useCallback(() => {
-    forceSave(answers).then(() => {
-      submitAssessment(answers);
-    });
-  }, [forceSave, answers, submitAssessment]);
-
   useEffect(() => {
-    return cleanup;
-  }, [cleanup]);
+    return () => {
+      cleanup();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     answers,
@@ -152,7 +162,6 @@ const useTakeAssessment = ({ assessment, questions = [], userAnswers = [] }: Use
     processing,
     handleAnswerChange,
     handleSubmit,
-    autoSave,
     assessmentTerminated,
     terminationReason,
     showFullscreenModal,

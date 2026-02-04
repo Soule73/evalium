@@ -349,10 +349,10 @@ export const truncateText = (text: string, maxLength: number): string => {
  * Maps known status strings to their corresponding French label and color.
  * If the status is not recognized, returns the status as the label and 'gray' as the color.
  *
- * @param status - The status string of the exam assignment (e.g., 'submitted', 'graded').
+ * @param status - The status string of the assessment assignment (e.g., 'submitted', 'graded').
  * @returns An object containing the `label` (string) and `color` (string) for the given status.
  */
-export const formatExamAssignmentStatus = (status: string): { label: string; color: string } => {
+export const formatAssessmentAssignmentStatus = (status: string): { label: string; color: string } => {
     const statusMap: Record<string, { label: string; color: string }> = {
         'submitted': { label: trans('formatters.assignment_submitted'), color: 'info' },
         'graded': { label: trans('formatters.assignment_graded'), color: 'success' },
@@ -362,7 +362,7 @@ export const formatExamAssignmentStatus = (status: string): { label: string; col
     return statusMap[status] || { label: status, color: 'gray' };
 };
 
-export const canShowExamResults = (assignmentStatus: string): boolean => {
+export const canShowAssessmentResults = (assignmentStatus: string): boolean => {
     return assignmentStatus === 'graded';
 }
 

@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
-import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
+import axios from 'axios';
 
 interface UseAssessmentAnswerSaveParams {
   assessmentId: number;
@@ -20,15 +20,8 @@ export const useAssessmentAnswerSave = ({ assessmentId }: UseAssessmentAnswerSav
       }
 
       saveTimeoutRef.current = setTimeout(() => {
-        router.post(
-          route('student.mcd.assessments.save-answers', assessmentId),
-          { answers: allAnswers },
-          {
-            preserveScroll: true,
-            preserveState: true,
-            only: [],
-          }
-        );
+        axios.post(route('student.assessments.save-answers', assessmentId), { answers: allAnswers })
+          .catch(() => { });
       }, 500);
     },
     [assessmentId]
@@ -36,19 +29,11 @@ export const useAssessmentAnswerSave = ({ assessmentId }: UseAssessmentAnswerSav
 
   const saveAllAnswers = useCallback(
     async (answers: Record<number, string | number | number[]>) => {
-      return new Promise<void>((resolve, reject) => {
-        router.post(
-          route('student.mcd.assessments.save-answers', assessmentId),
-          { answers },
-          {
-            preserveScroll: true,
-            preserveState: true,
-            only: [],
-            onSuccess: () => resolve(),
-            onError: () => reject(new Error('Failed to save answers')),
-          }
-        );
-      });
+      try {
+        await axios.post(route('student.assessments.save-answers', assessmentId), { answers });
+      } catch (error) {
+        throw new Error('Failed to save answers');
+      }
     },
     [assessmentId]
   );

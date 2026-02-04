@@ -1,6 +1,6 @@
 export * from './models/mcd';
-export * from './models/legacy';
 export * from './models/shared';
+export * from './datatable';
 
 export type FlashMessageObject = { id: string; message: string } | null;
 
@@ -23,8 +23,6 @@ export type PageProps<T = Record<string, unknown>> = {
         canManageLevels: boolean;
         canManageRoles: boolean;
         canManageUsers: boolean;
-        canManageGroups: boolean;
-        canManageExams: boolean;
         canManageAcademicYears: boolean;
         canManageSubjects: boolean;
         canManageClasses: boolean;
@@ -34,10 +32,6 @@ export type PageProps<T = Record<string, unknown>> = {
 
         canViewReports: boolean;
         canExportReports: boolean;
-        canCreateExams: boolean;
-        canPublishExams: boolean;
-        canAssignExams: boolean;
-        canCorrectExams: boolean;
         canGradeAnswers: boolean;
 
         canCreateUsers: boolean;
@@ -46,11 +40,6 @@ export type PageProps<T = Record<string, unknown>> = {
         canManageStudents: boolean;
         canManageTeachers: boolean;
 
-        canCreateGroups: boolean;
-        canUpdateGroups: boolean;
-        canDeleteGroups: boolean;
-        canManageGroupStudents: boolean;
-
         canCreateLevels: boolean;
         canUpdateLevels: boolean;
         canDeleteLevels: boolean;
@@ -58,7 +47,7 @@ export type PageProps<T = Record<string, unknown>> = {
         canCreateRoles: boolean;
         canUpdateRoles: boolean;
         canDeleteRoles: boolean;
-        canAssignPermissions: boolean;
+        canAssignPermissions: boolean;;
     };
     flash: FlashMessages;
     locale: string;

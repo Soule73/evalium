@@ -1,4 +1,3 @@
-import type { Group } from '../legacy';
 
 export interface Level {
   id: number;
@@ -11,7 +10,6 @@ export interface Level {
   updated_at: string;
 
   groups_count?: number;
-  groups?: Group[];
 
   classes_count?: number;
   subjects_count?: number;

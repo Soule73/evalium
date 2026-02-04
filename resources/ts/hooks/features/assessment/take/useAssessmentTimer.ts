@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
+import { useShallow } from 'zustand/react/shallow';
 
 interface UseAssessmentTimerParams {
   duration: number;
@@ -12,10 +13,10 @@ interface UseAssessmentTimerParams {
  * Automatically submits the assessment when time runs out.
  */
 export const useAssessmentTimer = ({ duration, onTimeEnd, isSubmitting }: UseAssessmentTimerParams) => {
-  const { timeLeft, setTimeLeft } = useAssessmentTakeStore((state) => ({
+  const { timeLeft, setTimeLeft } = useAssessmentTakeStore(useShallow((state) => ({
     timeLeft: state.timeLeft,
     setTimeLeft: state.setTimeLeft,
-  }));
+  })));
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const onTimeEndRef = useRef(onTimeEnd);
@@ -26,7 +27,8 @@ export const useAssessmentTimer = ({ duration, onTimeEnd, isSubmitting }: UseAss
 
   useEffect(() => {
     setTimeLeft(duration * 60);
-  }, [duration, setTimeLeft]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [duration]);
 
   const tick = useCallback(() => {
     setTimeLeft((prev) => {
@@ -40,7 +42,8 @@ export const useAssessmentTimer = ({ duration, onTimeEnd, isSubmitting }: UseAss
       }
       return prev - 1;
     });
-  }, [setTimeLeft]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (isSubmitting) {

@@ -11,8 +11,8 @@ export interface Assessment {
   description?: string;
   type: AssessmentType;
   coefficient: number;
-  duration: number;
-  assessment_date: string;
+  duration_minutes: number;
+  scheduled_at: string;
   is_published: boolean;
   created_at: string;
   updated_at: string;

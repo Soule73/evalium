@@ -64,13 +64,13 @@ export function useAutoSave<T extends Record<string, any>>(
                     onError?.(error as Error);
                     break;
                 }
-                // Wait before retry (exponential backoff)
                 await new Promise(resolve => setTimeout(resolve, Math.pow(2, retries) * 1000));
             }
         }
 
         setIsSaving(false);
-    }, [data, isSaving, maxRetries, onSave, onError]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isSaving, maxRetries, onSave, onError]);
 
     const resetModified = useCallback(() => {
         setIsModified(false);

@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useExamConfig, isSecurityEnabled, isFeatureEnabled } from '../useExamConfig';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useAssessmentConfig, isSecurityEnabled, isFeatureEnabled } from '../useAssessmentConfig';
 import { isInFullscreen, ExamViolationType } from '@/utils/exam/take';
 
 interface SecurityConfig {
@@ -65,18 +65,35 @@ interface UseExamSecurityReturn {
  *   clearViolations,
  *   getSecurityScore,
  *   securityEnabled,
- * } = useExamSecurity({ maxAttempts: 2, onViolation: handleViolation });
+ * } = useAssessmentSecurity({ maxAttempts: 2, onViolation: handleViolation });
  */
-export function useExamSecurity(config: SecurityConfig = {}): UseExamSecurityReturn {
-    const examConfig = useExamConfig();
+export function useAssessmentSecurity(config: SecurityConfig = {}): UseExamSecurityReturn {
+    const assessmentConfig = useAssessmentConfig();
 
-    const securityEnabled = isSecurityEnabled(examConfig);
+    const securityEnabled = isSecurityEnabled(assessmentConfig);
 
     const {
         maxAttempts = 3,
         onViolation,
         onBlocked,
     } = config;
+
+    const onViolationRef = useRef(onViolation);
+    const onBlockedRef = useRef(onBlocked);
+
+    useEffect(() => {
+        onViolationRef.current = onViolation;
+        onBlockedRef.current = onBlocked;
+    }, [onViolation, onBlocked]);
+
+    const securityFeatures = useMemo(() => ({
+        devToolsDetection: isFeatureEnabled(assessmentConfig, 'devToolsDetection'),
+        printPrevention: isFeatureEnabled(assessmentConfig, 'printPrevention'),
+        copyPastePrevention: isFeatureEnabled(assessmentConfig, 'copyPastePrevention'),
+        tabSwitchDetection: isFeatureEnabled(assessmentConfig, 'tabSwitchDetection'),
+        contextMenuDisabled: isFeatureEnabled(assessmentConfig, 'contextMenuDisabled'),
+        fullscreenRequired: isFeatureEnabled(assessmentConfig, 'fullscreenRequired'),
+    }), [assessmentConfig]);
 
     const [isFullscreen, setIsFullscreen] = useState(isInFullscreen());
 
@@ -104,20 +121,20 @@ export function useExamSecurity(config: SecurityConfig = {}): UseExamSecurityRet
         setAttemptCount(prev => {
             const newCount = prev + 1;
 
-            if (onViolation) {
-                onViolation(type, details);
+            if (onViolationRef.current) {
+                onViolationRef.current(type, details);
             }
 
             if (newCount >= maxAttempts) {
                 setIsBlocked(true);
-                if (onBlocked) {
-                    onBlocked();
+                if (onBlockedRef.current) {
+                    onBlockedRef.current();
                 }
             }
 
             return newCount;
         });
-    }, [securityEnabled, maxAttempts, onViolation, onBlocked]);
+    }, [securityEnabled, maxAttempts]);
 
     const enterFullscreen = useCallback(async () => {
         try {
@@ -160,7 +177,7 @@ export function useExamSecurity(config: SecurityConfig = {}): UseExamSecurityRet
         if (!securityEnabled) return;
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (isFeatureEnabled(examConfig, 'devToolsDetection')) {
+            if (securityFeatures.devToolsDetection) {
                 if (e.key === 'F12' ||
                     (e.ctrlKey && e.shiftKey && e.key === 'I') ||
                     (e.ctrlKey && e.key === 'u')) {
@@ -169,14 +186,14 @@ export function useExamSecurity(config: SecurityConfig = {}): UseExamSecurityRet
                 }
             }
 
-            if (isFeatureEnabled(examConfig, 'printPrevention')) {
+            if (securityFeatures.printPrevention) {
                 if (e.ctrlKey && e.key === 'p') {
                     e.preventDefault();
                     return;
                 }
             }
 
-            if (isFeatureEnabled(examConfig, 'copyPastePrevention')) {
+            if (securityFeatures.copyPastePrevention) {
                 if ((e.ctrlKey && e.key === 'c') || (e.ctrlKey && e.key === 'x')) {
                     e.preventDefault();
                     return;
@@ -193,7 +210,7 @@ export function useExamSecurity(config: SecurityConfig = {}): UseExamSecurityRet
         };
 
         const handleVisibilityChange = () => {
-            if (!isFeatureEnabled(examConfig, 'tabSwitchDetection')) return;
+            if (!securityFeatures.tabSwitchDetection) return;
 
             if (document.hidden) {
                 addViolation('tab_switch');
@@ -201,34 +218,34 @@ export function useExamSecurity(config: SecurityConfig = {}): UseExamSecurityRet
         };
 
         const handleCopy = (e: ClipboardEvent) => {
-            if (!isFeatureEnabled(examConfig, 'copyPastePrevention')) return;
+            if (!securityFeatures.copyPastePrevention) return;
 
             e.preventDefault();
             e.stopPropagation();
         };
 
         const handlePaste = (e: ClipboardEvent) => {
-            if (!isFeatureEnabled(examConfig, 'copyPastePrevention')) return;
+            if (!securityFeatures.copyPastePrevention) return;
 
             e.preventDefault();
             e.stopPropagation();
         };
 
         const handleCut = (e: ClipboardEvent) => {
-            if (!isFeatureEnabled(examConfig, 'copyPastePrevention')) return;
+            if (!securityFeatures.copyPastePrevention) return;
 
             e.preventDefault();
             e.stopPropagation();
         };
 
         const handleContextMenu = (e: MouseEvent) => {
-            if (!isFeatureEnabled(examConfig, 'contextMenuDisabled')) return;
+            if (!securityFeatures.contextMenuDisabled) return;
 
             e.preventDefault();
         };
 
         const handleFullscreenChange = () => {
-            if (!isFeatureEnabled(examConfig, 'fullscreenRequired')) return;
+            if (!securityFeatures.fullscreenRequired) return;
 
             const isCurrentlyFullscreen = Boolean(document.fullscreenElement);
             setIsFullscreen(isCurrentlyFullscreen);
@@ -253,7 +270,7 @@ export function useExamSecurity(config: SecurityConfig = {}): UseExamSecurityRet
         document.addEventListener('fullscreenchange', handleFullscreenChange);
 
         let originalPrint: (() => void) | null = null;
-        if (isFeatureEnabled(examConfig, 'printPrevention')) {
+        if (securityFeatures.printPrevention) {
             originalPrint = window.print;
             window.print = () => {
             };
@@ -278,7 +295,7 @@ export function useExamSecurity(config: SecurityConfig = {}): UseExamSecurityRet
                 window.print = originalPrint;
             }
         };
-    }, [securityEnabled, addViolation, examConfig, isFullscreen, programmaticExit]);
+    }, [securityEnabled, addViolation, securityFeatures, isFullscreen, programmaticExit]);
 
     return {
         isFullscreen,

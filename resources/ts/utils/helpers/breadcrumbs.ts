@@ -14,12 +14,6 @@ const userIndex = (): BreadcrumbItem[] => [
     { label: trans('breadcrumbs.users'), href: route('users.index') },
 ];
 
-// Breadcrumb index des groupes
-const groupIndex = (): BreadcrumbItem[] => [
-    dashboardBreadcrumb(),
-    { label: trans('breadcrumbs.groups'), href: route('groups.index') },
-];
-
 // Breadcrumb index des niveaux
 const levelIndex = (): BreadcrumbItem[] => [
     dashboardBreadcrumb(),
@@ -31,34 +25,6 @@ const roleIndex = (): BreadcrumbItem[] => [
     dashboardBreadcrumb(),
     { label: trans('breadcrumbs.roles_permissions'), href: route('roles.index') },
 ];
-
-// Breadcrumb index des examens
-const examIndex = (): BreadcrumbItem[] => [
-    dashboardBreadcrumb(),
-    { label: trans('breadcrumbs.exams'), href: route('exams.index') },
-];
-
-// Breadcrumb index des examens pour étudiants
-const studentExamIndex = (): BreadcrumbItem[] => [
-    dashboardBreadcrumb(),
-    { label: trans('breadcrumbs.my_groups'), href: route('student.exams.index') },
-];
-
-// Breadcrumb détails d'un groupe étudiant
-const studentGroupShowBreadcrumb = (groupName: string, groupId: number): BreadcrumbItem[] => (
-    [
-        ...studentExamIndex(),
-        { label: groupName, href: route('student.exams.group.show', { group: groupId }) },
-    ]
-);
-
-// Breadcrumb details d'un examen 
-const examShowBreadcrumb = (examTitle: string, examId: number): BreadcrumbItem[] => (
-    [
-        ...examIndex(),
-        { label: examTitle, href: route('exams.show', { exam: examId }) },
-    ]
-);
 
 // Helper pour créer des breadcrumbs
 export const breadcrumbs = {
@@ -76,28 +42,6 @@ export const breadcrumbs = {
     userEdit: (userName: string): BreadcrumbItem[] => [
         ...userIndex(),
         { label: userName }
-    ],
-
-    groups: (): BreadcrumbItem[] => groupIndex(),
-
-    groupCreate: (): BreadcrumbItem[] => [
-        ...groupIndex(),
-        { label: trans('breadcrumbs.create') }
-    ],
-
-    groupEdit: (groupName: string): BreadcrumbItem[] => [
-        ...groupIndex(),
-        { label: groupName }
-    ],
-    groupAssignStudents: (groupName: string, id: number): BreadcrumbItem[] => [
-        ...groupIndex(),
-        { label: groupName, href: route('groups.show', { group: id }) },
-        { label: trans('breadcrumbs.assign_students') }
-    ],
-
-    groupShow: (groupName: string): BreadcrumbItem[] => [
-        ...groupIndex(),
-        { label: groupName }
     ],
 
     levels: (): BreadcrumbItem[] => levelIndex(),
@@ -130,81 +74,6 @@ export const breadcrumbs = {
     teacherShow: (user: { name: string }): BreadcrumbItem[] => [
         ...userIndex(),
         { label: user.name }
-    ],
-
-    examCreate: (): BreadcrumbItem[] => [
-        ...examIndex(),
-        { label: trans('breadcrumbs.create') }
-    ],
-
-    examEdit: (examTitle: string, examId: number): BreadcrumbItem[] => [
-        ...examShowBreadcrumb(examTitle, examId),
-        { label: trans('breadcrumbs.edit') }
-    ],
-
-    examShow: (examTitle: string): BreadcrumbItem[] => [
-        ...examIndex(),
-        { label: examTitle }
-    ],
-
-    examAssign: (examTitle: string, examId: number): BreadcrumbItem[] => [
-        ...examShowBreadcrumb(examTitle, examId),
-        { label: trans('breadcrumbs.assign') }
-    ],
-
-    examAssignments: (examTitle: string, examId: number): BreadcrumbItem[] => [
-        ...examShowBreadcrumb(examTitle, examId),
-        { label: trans('breadcrumbs.exam_groups') }
-    ],
-
-    examGroupShow: (examTitle: string, examId: number, groupName: string): BreadcrumbItem[] => [
-        ...examShowBreadcrumb(examTitle, examId),
-        { label: trans('breadcrumbs.exam_groups'), href: route('exams.groups', { exam: examId }) },
-        { label: groupName }
-    ],
-    examGroupSubmission: (
-        examId: number,
-        groupId: number,
-        examTitle: string,
-        groupName: string,
-        studentFullName: string): BreadcrumbItem[] => [
-            ...examShowBreadcrumb(examTitle, examId),
-            { label: trans('breadcrumbs.exam_groups'), href: route('exams.groups', { exam: examId }) },
-            { label: groupName, href: route('exams.group.show', { exam: examId, group: groupId }) },
-            { label: studentFullName }
-        ],
-    examGroupReview: (
-        examId: number,
-        groupId: number,
-        studentId: number,
-        examTitle: string,
-        groupName: string,
-        studentFullName: string): BreadcrumbItem[] => [
-            ...examShowBreadcrumb(examTitle, examId),
-            { label: trans('breadcrumbs.exam_groups'), href: route('exams.groups', { exam: examId }) },
-            { label: groupName, href: route('exams.group.show', { exam: examId, group: groupId }) },
-            { label: studentFullName, href: route('exams.submissions', { exam: examId, group: groupId, student: studentId }) },
-            { label: trans('breadcrumbs.correction') }
-        ],
-
-    exams: (): BreadcrumbItem[] => examIndex(),
-
-    studentExams: (): BreadcrumbItem[] => studentExamIndex(),
-
-    studentGroupShow: (groupName: string): BreadcrumbItem[] => [
-        ...studentExamIndex(),
-        { label: groupName }
-    ],
-
-    studentExamShow: (groupName: string, groupId: number, examTitle: string): BreadcrumbItem[] => [
-        ...studentGroupShowBreadcrumb(groupName, groupId),
-        { label: examTitle }
-    ],
-
-    studentExamTake: (groupName: string, groupId: number, examTitle: string): BreadcrumbItem[] => [
-        ...studentGroupShowBreadcrumb(groupName, groupId),
-        { label: examTitle },
-        { label: trans('breadcrumbs.take_exam') }
     ],
 
     admin: {
@@ -353,6 +222,21 @@ export const breadcrumbs = {
         { label: assessment.title, href: route('teacher.assessments.show', assessment.id) }
     ],
 
+    gradingIndex: (assessment: { id: number; title: string }): BreadcrumbItem[] => [
+        dashboardBreadcrumb(),
+        { label: trans('breadcrumbs.assessments'), href: route('teacher.assessments.index') },
+        { label: assessment.title, href: route('teacher.assessments.show', assessment.id) },
+        { label: trans('breadcrumbs.grading') }
+    ],
+
+    gradingShow: (assessment: { id: number; title: string }, student: { name: string }): BreadcrumbItem[] => [
+        dashboardBreadcrumb(),
+        { label: trans('breadcrumbs.assessments'), href: route('teacher.assessments.index') },
+        { label: assessment.title, href: route('teacher.assessments.show', assessment.id) },
+        { label: trans('breadcrumbs.grading'), href: route('teacher.grading.index', assessment.id) },
+        { label: student.name }
+    ],
+
     editTeacherAssessment: (assessment: { id: number; title: string }): BreadcrumbItem[] => [
         dashboardBreadcrumb(),
         { label: trans('breadcrumbs.assessments'), href: route('teacher.assessments.index') },
@@ -372,6 +256,11 @@ export const breadcrumbs = {
             { label: classItem.display_name || classItem.name || '', href: route('teacher.classes.show', classItem.id) }
         ],
     },
+
+    adminAcademicYears: (): BreadcrumbItem[] => [
+        dashboardBreadcrumb(),
+        { label: trans('admin_pages.academic_years.title') }
+    ],
 };
 
 // Routes de navigation principales (utilisées par le Sidebar)
@@ -379,8 +268,8 @@ export const navRoutes = {
     dashboard: () => route('dashboard'),
 
     // Student MCD Routes
-    studentAssessments: () => route('student.mcd.assessments.index'),
-    studentEnrollment: () => route('student.mcd.enrollment.show'),
+    studentAssessments: () => route('student.assessments.index'),
+    studentEnrollment: () => route('student.enrollment.show'),
 
     // Teacher MCD Routes
     teacherDashboard: () => route('teacher.dashboard'),
@@ -395,10 +284,8 @@ export const navRoutes = {
     adminEnrollments: () => route('admin.enrollments.index'),
     adminClassSubjects: () => route('admin.class-subjects.index'),
 
-    // Legacy Routes (kept for backward compatibility)
-    exams: () => route('exams.index'),
+    // System Routes
     users: () => route('users.index'),
-    groups: () => route('groups.index'),
     levels: () => route('levels.index'),
     roles: () => route('roles.index'),
 
