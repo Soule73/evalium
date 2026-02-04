@@ -28,8 +28,10 @@ return new class extends Migration
             $table->index('semester_id');
         });
 
-        DB::statement('ALTER TABLE class_subjects ADD CONSTRAINT check_coefficient CHECK (coefficient > 0)');
-        DB::statement('ALTER TABLE class_subjects ADD CONSTRAINT check_valid_dates CHECK (valid_to IS NULL OR valid_to >= valid_from)');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE class_subjects ADD CONSTRAINT check_coefficient CHECK (coefficient > 0)');
+            DB::statement('ALTER TABLE class_subjects ADD CONSTRAINT check_valid_dates CHECK (valid_to IS NULL OR valid_to >= valid_from)');
+        }
     }
 
     /**

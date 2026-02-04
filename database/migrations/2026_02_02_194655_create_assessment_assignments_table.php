@@ -28,8 +28,10 @@ return new class extends Migration
             $table->index(['assessment_id', 'score']);
         });
 
-        DB::statement('ALTER TABLE assessment_assignments ADD CONSTRAINT check_score CHECK (score IS NULL OR (score >= 0 AND score <= 20))');
-        DB::statement('ALTER TABLE assessment_assignments ADD CONSTRAINT check_times CHECK (started_at IS NULL OR started_at >= assigned_at)');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE assessment_assignments ADD CONSTRAINT check_score CHECK (score IS NULL OR (score >= 0 AND score <= 20))');
+            DB::statement('ALTER TABLE assessment_assignments ADD CONSTRAINT check_times CHECK (started_at IS NULL OR started_at >= assigned_at)');
+        }
     }
 
     /**

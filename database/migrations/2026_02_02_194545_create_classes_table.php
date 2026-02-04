@@ -25,7 +25,9 @@ return new class extends Migration
             $table->index(['academic_year_id', 'level_id']);
         });
 
-        DB::statement('ALTER TABLE classes ADD CONSTRAINT check_max_students CHECK (max_students IS NULL OR max_students > 0)');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE classes ADD CONSTRAINT check_max_students CHECK (max_students IS NULL OR max_students > 0)');
+        }
     }
 
     /**

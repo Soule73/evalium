@@ -30,8 +30,10 @@ return new class extends Migration
             $table->index(['teacher_id', 'scheduled_at']);
         });
 
-        DB::statement('ALTER TABLE assessments ADD CONSTRAINT check_assessment_coefficient CHECK (coefficient > 0)');
-        DB::statement('ALTER TABLE assessments ADD CONSTRAINT check_duration CHECK (duration_minutes IS NULL OR duration_minutes > 0)');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE assessments ADD CONSTRAINT check_assessment_coefficient CHECK (coefficient > 0)');
+            DB::statement('ALTER TABLE assessments ADD CONSTRAINT check_duration CHECK (duration_minutes IS NULL OR duration_minutes > 0)');
+        }
     }
 
     /**

@@ -24,7 +24,9 @@ return new class extends Migration
             $table->index('is_current');
         });
 
-        DB::statement('ALTER TABLE academic_years ADD CONSTRAINT check_end_date_after_start CHECK (end_date > start_date)');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE academic_years ADD CONSTRAINT check_end_date_after_start CHECK (end_date > start_date)');
+        }
     }
 
     /**
