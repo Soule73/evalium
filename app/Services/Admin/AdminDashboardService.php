@@ -15,9 +15,10 @@ class AdminDashboardService
     /**
      * Get admin dashboard statistics with optimized single query
      *
+     * @param  int|null  $academicYearId  Optional academic year filter
      * @return array Statistics with user counts by role
      */
-    public function getDashboardStats(): array
+    public function getDashboardStats(?int $academicYearId = null): array
     {
         $userCounts = DB::table('users')
             ->leftJoin('model_has_roles', function ($join) {
@@ -45,12 +46,13 @@ class AdminDashboardService
     /**
      * Get complete admin dashboard data
      *
+     * @param  int|null  $academicYearId  Optional academic year filter
      * @return array Dashboard data with statistics
      */
-    public function getDashboardData(): array
+    public function getDashboardData(?int $academicYearId = null): array
     {
         return [
-            'stats' => $this->getDashboardStats(),
+            'stats' => $this->getDashboardStats($academicYearId),
         ];
     }
 }

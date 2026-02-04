@@ -17,9 +17,9 @@ use Illuminate\Support\Facades\Log;
 class LevelService
 {
     /**
-     * Cache key for active groups with levels
+     * Cache key for active classes with levels
      */
-    private const CACHE_KEY_GROUPS = 'groups_active_with_levels';
+    private const CACHE_KEY_CLASSES = 'classes_active_with_levels';
 
     /**
      * Get paginated list of levels with filtering
@@ -47,7 +47,7 @@ class LevelService
         try {
             $level = Level::create($data);
 
-            $this->invalidateGroupsCache();
+            $this->invalidateClassesCache();
 
             return $level;
         } catch (\Exception $e) {
@@ -71,7 +71,7 @@ class LevelService
         try {
             $level->update($data);
 
-            $this->invalidateGroupsCache();
+            $this->invalidateClassesCache();
 
             return $level->fresh();
         } catch (\Exception $e) {
@@ -86,22 +86,22 @@ class LevelService
     }
 
     /**
-     * Delete a level (if no groups are associated)
+     * Delete a level (if no classes are associated)
      *
      * @param  Level  $level  Level to delete
      *
-     * @throws \Exception If level has associated groups
+     * @throws \Exception If level has associated classes
      */
     public function deleteLevel(Level $level): bool
     {
-        if ($level->groups()->count() > 0) {
-            throw new \Exception(__('messages.level_cannot_delete_with_groups'));
+        if ($level->classes()->count() > 0) {
+            throw new \Exception(__('messages.level_cannot_delete_with_classes'));
         }
 
         try {
             $level->delete();
 
-            $this->invalidateGroupsCache();
+            $this->invalidateClassesCache();
 
             return true;
         } catch (\Exception $e) {
@@ -126,7 +126,7 @@ class LevelService
                 'is_active' => ! $level->is_active,
             ]);
 
-            $this->invalidateGroupsCache();
+            $this->invalidateClassesCache();
 
             return $level->fresh();
         } catch (\Exception $e) {
@@ -140,11 +140,11 @@ class LevelService
     }
 
     /**
-     * Invalidate groups cache when levels are modified
+     * Invalidate classes cache when levels are modified
      */
-    private function invalidateGroupsCache(): void
+    private function invalidateClassesCache(): void
     {
-        Cache::forget(self::CACHE_KEY_GROUPS);
+        Cache::forget(self::CACHE_KEY_CLASSES);
     }
 
     /**
@@ -155,7 +155,7 @@ class LevelService
      */
     private function buildLevelQuery(?string $search, ?string $status): Builder
     {
-        $query = Level::query()->withCount(['groups', 'activeGroups']);
+        $query = Level::query()->withCount(['classes', 'activeClasses']);
 
         if ($search) {
             $query->where(function ($q) use ($search) {

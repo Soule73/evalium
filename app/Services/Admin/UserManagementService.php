@@ -2,10 +2,8 @@
 
 namespace App\Services\Admin;
 
-use App\Models\Group;
 use App\Models\User;
 use App\Notifications\UserCredentialsNotification;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -15,15 +13,10 @@ use Spatie\Permission\Models\Role;
 /**
  * User Management Service - Handle user CRUD operations and role assignments
  *
- * Single Responsibility: Manage user lifecycle and role/group assignments
- * Dependencies: GroupService for student group assignments
+ * Single Responsibility: Manage user lifecycle and role assignments
  */
 class UserManagementService
 {
-    public function __construct(
-        private readonly GroupService $groupService
-    ) {}
-
     /**
      * Get paginated list of users with filtering
      *
@@ -72,7 +65,7 @@ class UserManagementService
     /**
      * Create a new user with random password and send credentials notification
      *
-     * @param  array  $data  User data (name, email, role, group_id optional)
+     * @param  array  $data  User data (name, email, role)
      * @return User
      */
     public function store(array $data)
@@ -89,11 +82,6 @@ class UserManagementService
 
             $user->assignRole($data['role']);
 
-            if ($data['role'] === 'student' && isset($data['group_id'])) {
-                $group = Group::findOrFail($data['group_id']);
-                $this->groupService->assignStudentToGroup($group, $user->id);
-            }
-
             $user->notify(new UserCredentialsNotification($password, $data['role']));
 
             return $user;
@@ -104,7 +92,7 @@ class UserManagementService
      * Update existing user data and role
      *
      * @param  User  $user  User to update
-     * @param  array  $data  Updated data (name, email, password optional, role, group_id optional)
+     * @param  array  $data  Updated data (name, email, password optional, role)
      * @return void
      *
      * @throws \InvalidArgumentException
@@ -129,11 +117,6 @@ class UserManagementService
                 }
 
                 $user->syncRoles([$data['role']]);
-
-                if ($data['role'] === 'student' && isset($data['group_id'])) {
-                    $group = Group::findOrFail($data['group_id']);
-                    $this->groupService->assignStudentToGroup($group, $user->id);
-                }
             });
         } catch (\Exception $e) {
             Log::error('Error updating user: '.$e->getMessage());
@@ -162,40 +145,6 @@ class UserManagementService
     {
         $user->is_active = ! $user->is_active;
         $user->save();
-    }
-
-    /**
-     * Change student's group assignment
-     *
-     * @param  User  $student  Student to reassign
-     * @param  int  $newGroupId  New group ID
-     * @return void
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function changeStudentGroup(User $student, int $newGroupId)
-    {
-        if (! $student->hasRole('student')) {
-            throw new \InvalidArgumentException('User must be a student.');
-        }
-
-        $newGroup = Group::findOrFail($newGroupId);
-        $this->groupService->assignStudentToGroup($newGroup, $student->id);
-    }
-
-    /**
-     * Get active groups with their levels (cached for 1 hour)
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getActiveGroupsWithLevels()
-    {
-        return Cache::remember('groups_active_with_levels', 3600, function () {
-            return Group::with('level')
-                ->where('is_active', true)
-                ->orderBy('id')
-                ->get();
-        });
     }
 
     /**
@@ -298,27 +247,6 @@ class UserManagementService
     public function isStudent(User $user): bool
     {
         return $user->hasRole('student');
-    }
-
-    /**
-     * Load student groups with levels and active exams
-     *
-     * @param  User  $student  Student to load groups for
-     */
-    public function loadStudentGroupsWithExams(User $student): void
-    {
-        $student->load([
-            'groups' => function ($query) {
-                $query->with([
-                    'level',
-                    'exams' => function ($q) {
-                        $q->where('is_active', true);
-                    },
-                ])
-                    ->withPivot(['enrolled_at', 'left_at', 'is_active'])
-                    ->orderBy('group_student.enrolled_at', 'desc');
-            },
-        ]);
     }
 
     /**

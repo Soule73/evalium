@@ -186,4 +186,139 @@ class ClassService
             throw new InvalidArgumentException('A class with this name already exists for this level and academic year');
         }
     }
+
+    /**
+     * Get paginated classes for index page with filters
+     */
+    public function getClassesForIndex(int $academicYearId, array $filters, int $perPage)
+    {
+        return ClassModel::query()
+            ->forAcademicYear($academicYearId)
+            ->with(['academicYear', 'level'])
+            ->withCount([
+                'enrollments as active_enrollments_count' => function ($query) {
+                    $query->where('status', 'active');
+                },
+                'classSubjects as subjects_count',
+            ])
+            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
+            ->when($filters['level_id'] ?? null, fn ($query, $levelId) => $query->where('level_id', $levelId))
+            ->orderBy('level_id')
+            ->orderBy('name')
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    /**
+     * Get all levels for dropdown
+     */
+    public function getAllLevels(): Collection
+    {
+        return Level::orderBy('name')->get();
+    }
+
+    /**
+     * Get form data for create page
+     */
+    public function getCreateFormData(int $selectedYearId): array
+    {
+        return [
+            'levels' => Level::orderBy('name')->get(),
+            'selectedAcademicYear' => AcademicYear::find($selectedYearId),
+        ];
+    }
+
+    /**
+     * Get form data for edit page
+     */
+    public function getEditFormData(ClassModel $class): array
+    {
+        return [
+            'class' => $class->load(['academicYear', 'level']),
+            'levels' => Level::orderBy('name')->get(),
+            'academicYears' => AcademicYear::orderBy('start_date', 'desc')->get(),
+        ];
+    }
+
+    /**
+     * Get class details with paginated students and subjects
+     */
+    public function getClassDetailsWithPagination(
+        ClassModel $class,
+        array $studentsFilters,
+        array $subjectsFilters
+    ): array {
+        $class->load(['academicYear', 'level']);
+
+        $enrollments = $this->getPaginatedEnrollments($class, $studentsFilters);
+        $classSubjects = $this->getPaginatedClassSubjects($class, $subjectsFilters);
+
+        return [
+            'class' => $class,
+            'enrollments' => $enrollments,
+            'classSubjects' => $classSubjects,
+            'statistics' => $this->getClassStatistics($class),
+            'studentsFilters' => [
+                'search' => $studentsFilters['search'],
+            ],
+            'subjectsFilters' => [
+                'search' => $subjectsFilters['search'],
+            ],
+        ];
+    }
+
+    /**
+     * Get paginated enrollments for a class
+     */
+    public function getPaginatedEnrollments(ClassModel $class, array $filters)
+    {
+        return $class->enrollments()
+            ->with('student')
+            ->when($filters['search'] ?? null, function ($query, $search) {
+                $query->whereHas('student', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('enrolled_at', 'desc')
+            ->paginate(
+                $filters['per_page'] ?? 10,
+                ['*'],
+                'students_page',
+                $filters['page'] ?? 1
+            )
+            ->withQueryString()
+            ->appends([
+                'students_search' => $filters['search'],
+                'students_per_page' => $filters['per_page'],
+            ]);
+    }
+
+    /**
+     * Get paginated class subjects for a class
+     */
+    public function getPaginatedClassSubjects(ClassModel $class, array $filters)
+    {
+        return $class->classSubjects()
+            ->with(['subject', 'teacher', 'semester'])
+            ->withCount('assessments')
+            ->when($filters['search'] ?? null, function ($query, $search) {
+                $query->whereHas('subject', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('code', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(
+                $filters['per_page'] ?? 10,
+                ['*'],
+                'subjects_page',
+                $filters['page'] ?? 1
+            )
+            ->withQueryString()
+            ->appends([
+                'subjects_search' => $filters['search'],
+                'subjects_per_page' => $filters['per_page'],
+            ]);
+    }
 }

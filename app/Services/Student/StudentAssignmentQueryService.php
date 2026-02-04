@@ -2,337 +2,172 @@
 
 namespace App\Services\Student;
 
-use App\Models\Exam;
-use App\Models\ExamAssignment;
-use App\Models\Group;
+use App\Models\AssessmentAssignment;
 use App\Models\User;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Support\Collection;
 
 /**
  * Student Assignment Query Service
  *
- * Centralizes all queries related to student exam assignments.
- * Handles virtual assignments (exams available via groups but not yet started).
- * Eliminates duplication from ExamQueryService and ExamAssignmentService.
- *
- * Single Responsibility: Query student assignments only
+ * Handles querying student assignments with various filters and relationships.
+ * Single Responsibility: Query student assignments only.
  */
 class StudentAssignmentQueryService
 {
     /**
-     * Get all assigned exams for a student (real + virtual via groups)
+     * Get lightweight assignments for a student (without heavy relationships)
      *
-     * @param  User  $student  The student
-     * @param  int  $perPage  Items per page
-     * @param  string|null  $status  Filter by status
-     * @param  string|null  $search  Search term
-     * @return LengthAwarePaginator Paginated assignments
-     */
-    public function getAssignmentsForStudent(
-        User $student,
-        int $perPage = 10,
-        ?string $status = null,
-        ?string $search = null
-    ): LengthAwarePaginator {
-        $student->loadMissing(['groups' => function ($query) {
-            $query->with(['exams' => function ($q) {
-                $q->where('is_active', true);
-            }])
-                ->withPivot(['enrolled_at', 'left_at', 'is_active']);
-        }]);
-
-        $examIdsFromGroups = $student->groups
-            ->filter(fn ($group) => $group->pivot && $group->pivot->is_active)
-            ->flatMap(function ($group) {
-                $group->loadMissing(['exams' => function ($q) {
-                    $q->where('is_active', true);
-                }]);
-
-                return $group->exams ?? collect([]);
-            })
-            ->pluck('id')
-            ->unique()
-            ->toArray();
-
-        $assignmentsQuery = $student->examAssignments()
-            ->with(['exam' => function ($query) {
-                $query->withCount('questions');
-            }])
-            ->orderBy('assigned_at', 'desc');
-
-        if ($search) {
-            $assignmentsQuery->whereHas(
-                'exam',
-                fn ($q) => $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%")
-            );
-        }
-
-        if ($status && ! in_array($status, ['in_progress', 'not_started'])) {
-            $assignmentsQuery->where('status', $status);
-        }
-
-        $existingAssignments = $assignmentsQuery->get();
-        $existingExamIds = $existingAssignments->pluck('exam_id')->toArray();
-
-        $availableExamIds = array_diff($examIdsFromGroups, $existingExamIds);
-
-        if (! empty($availableExamIds)) {
-            $availableExams = Exam::whereIn('id', $availableExamIds)
-                ->where('is_active', true)
-                ->withCount('questions')
-                ->when(
-                    $search,
-                    fn ($q) => $q->where('title', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%")
-                )
-                ->get();
-
-            $virtualAssignments = $availableExams->map(function ($exam) use ($student) {
-                return $this->createVirtualAssignment($exam, $student);
-            });
-
-            $allAssignments = $existingAssignments->concat($virtualAssignments);
-        } else {
-            $allAssignments = $existingAssignments;
-        }
-
-        if ($status) {
-            $allAssignments = $this->filterByStatus($allAssignments, $status);
-        }
-
-        return $this->paginateCollection($allAssignments, $perPage);
-    }
-
-    /**
-     * Get exams for a student in a specific group
-     *
-     * @param  Group  $group  The group
-     * @param  User  $student  The student
-     * @param  int  $perPage  Items per page
-     * @param  string|null  $status  Filter by status
-     * @param  string|null  $search  Search term
-     * @return LengthAwarePaginator Paginated assignments
-     */
-    public function getAssignmentsForStudentInGroup(
-        Group $group,
-        User $student,
-        int $perPage = 10,
-        ?string $status = null,
-        ?string $search = null
-    ): LengthAwarePaginator {
-        $examsQuery = $group->exams()
-            ->where('is_active', true)
-            ->withCount('questions');
-
-        if ($search) {
-            $examsQuery->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        $exams = $examsQuery->get();
-
-        $assignments = ExamAssignment::where('student_id', $student->id)
-            ->whereIn('exam_id', $exams->pluck('id'))
-            ->get()
-            ->keyBy('exam_id');
-
-        $allAssignments = $exams->map(function ($exam) use ($student, $assignments) {
-            if (isset($assignments[$exam->id])) {
-                $assignment = $assignments[$exam->id];
-                $assignment->setRelation('exam', $exam);
-
-                return $assignment;
-            }
-
-            return $this->createVirtualAssignment($exam, $student);
-        });
-
-        if ($status) {
-            $allAssignments = $this->filterByStatus($allAssignments, $status);
-        }
-
-        return $this->paginateCollection($allAssignments, $perPage);
-    }
-
-    /**
-     * Get student groups with exam statistics
-     *
-     * @param  User  $student  The student
-     * @param  int  $perPage  Items per page
-     * @return LengthAwarePaginator Paginated groups with stats
-     */
-    public function getStudentGroupsWithStats(User $student, int $perPage = 15): LengthAwarePaginator
-    {
-        $studentId = $student->id;
-
-        $query = $student->groups()
-            ->withPivot(['enrolled_at', 'left_at', 'is_active'])
-            ->with('level')
-            ->withCount(['exams' => function ($query) {
-                $query->where('is_active', true);
-            }])
-            ->selectSub(function ($query) use ($studentId) {
-                $query->selectRaw('COUNT(*)')
-                    ->from('exam_assignments')
-                    ->join('exams', 'exam_assignments.exam_id', '=', 'exams.id')
-                    ->join('exam_group', 'exams.id', '=', 'exam_group.exam_id')
-                    ->whereColumn('exam_group.group_id', 'groups.id')
-                    ->where('exam_assignments.student_id', $studentId)
-                    ->whereNotNull('exam_assignments.submitted_at')
-                    ->whereNull('exams.deleted_at');
-            }, 'completed_exams_count')
-            ->orderByDesc('is_active')
-            ->orderByDesc('enrolled_at');
-
-        return $query->paginate($perPage)->through(function ($group) {
-            $group->is_current = (bool) $group->pivot->is_active;
-
-            if (! $group->is_current) {
-                unset($group->completed_exams_count);
-            }
-
-            return $group;
-        });
-    }
-
-    /**
-     * Get lightweight assignments for dashboard stats (no pagination)
-     *
-     * @param  User  $student  The student
+     * @param  User  $student  The student user
+     * @param  array  $filters  Optional filters (status, search, etc.)
      * @return Collection Collection of assignments
      */
-    public function getAssignmentsForStudentLight(User $student): Collection
+    public function getAssignmentsForStudentLight(User $student, array $filters = []): Collection
     {
-        return $student->examAssignments()
-            ->with(['exam' => function ($query) {
-                $query->withCount('questions');
-            }])
-            ->orderBy('assigned_at', 'desc')
+        $query = AssessmentAssignment::where('student_id', $student->id)
+            ->with([
+                'assessment:id,title,subject,duration,total_points',
+                'assessment.teacher:id,name',
+            ])
+            ->orderBy('assigned_at', 'desc');
+
+        if (isset($filters['status'])) {
+            $this->applyStatusFilter($query, $filters['status']);
+        }
+
+        if (isset($filters['search']) && $filters['search']) {
+            $query->whereHas('assessment', function ($q) use ($filters) {
+                $q->where('title', 'like', '%'.$filters['search'].'%')
+                    ->orWhere('subject', 'like', '%'.$filters['search'].'%');
+            });
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Get detailed assignments with all relationships
+     *
+     * @param  User  $student  The student user
+     * @param  array  $filters  Optional filters
+     * @return Collection Collection of assignments with full relationships
+     */
+    public function getAssignmentsForStudent(User $student, array $filters = []): Collection
+    {
+        $query = AssessmentAssignment::where('student_id', $student->id)
+            ->with([
+                'assessment.questions.choices',
+                'assessment.teacher',
+                'answers',
+            ])
+            ->orderBy('assigned_at', 'desc');
+
+        if (isset($filters['status'])) {
+            $this->applyStatusFilter($query, $filters['status']);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Get upcoming assignments (not started)
+     *
+     * @param  User  $student  The student user
+     * @param  int  $limit  Number of assignments to return
+     * @return Collection Collection of upcoming assignments
+     */
+    public function getUpcomingAssignments(User $student, int $limit = 5): Collection
+    {
+        return AssessmentAssignment::where('student_id', $student->id)
+            ->whereNull('started_at')
+            ->with('assessment:id,title,subject,duration,total_points')
+            ->orderBy('assigned_at', 'asc')
+            ->limit($limit)
             ->get();
     }
 
     /**
-     * Create a virtual assignment for an exam available via group
+     * Get in-progress assignments
      *
-     * @param  Exam  $exam  The exam
-     * @param  User  $student  The student
-     * @return ExamAssignment Virtual assignment (exists = false)
+     * @param  User  $student  The student user
+     * @return Collection Collection of in-progress assignments
      */
-    private function createVirtualAssignment(Exam $exam, User $student): ExamAssignment
+    public function getInProgressAssignments(User $student): Collection
     {
-        $assignment = new ExamAssignment;
-        $assignment->exam_id = $exam->id;
-        $assignment->student_id = $student->id;
-        $assignment->status = null;
-        $assignment->assigned_at = now();
-        $assignment->setRelation('exam', $exam);
-        $assignment->exists = false;
-
-        return $assignment;
+        return AssessmentAssignment::where('student_id', $student->id)
+            ->whereNotNull('started_at')
+            ->whereNull('submitted_at')
+            ->with('assessment:id,title,subject,duration')
+            ->orderBy('started_at', 'desc')
+            ->get();
     }
 
     /**
-     * Filter assignments by status
+     * Get completed assignments
      *
-     * @param  Collection  $assignments  Collection of assignments
-     * @param  string  $status  Status to filter by
-     * @return Collection Filtered collection
+     * @param  User  $student  The student user
+     * @param  int  $limit  Number of assignments to return
+     * @return Collection Collection of completed assignments
      */
-    private function filterByStatus(Collection $assignments, string $status): Collection
+    public function getCompletedAssignments(User $student, int $limit = 10): Collection
     {
-        return match ($status) {
-            'in_progress' => $assignments->filter(function ($assignment) {
-                return $assignment->started_at !== null && $assignment->submitted_at === null;
-            }),
-            'not_started' => $assignments->filter(function ($assignment) {
-                return $assignment->started_at === null;
-            }),
-            default => $assignments->where('status', $status),
-        };
+        return AssessmentAssignment::where('student_id', $student->id)
+            ->whereNotNull('submitted_at')
+            ->with('assessment:id,title,subject,total_points')
+            ->orderBy('submitted_at', 'desc')
+            ->limit($limit)
+            ->get();
     }
 
     /**
-     * Paginate a collection manually
+     * Check if student has access to an assessment
      *
-     * @param  Collection  $collection  Collection to paginate
-     * @param  int  $perPage  Items per page
-     * @return LengthAwarePaginator Paginated result
+     * @param  User  $student  The student user
+     * @param  int  $assessmentId  The assessment ID
+     * @return bool True if student has an assignment for this assessment
      */
-    private function paginateCollection(Collection $collection, int $perPage): LengthAwarePaginator
+    public function hasAccessToAssessment(User $student, int $assessmentId): bool
     {
-        $page = request()->input('page', 1);
-        $offset = ($page - 1) * $perPage;
+        return AssessmentAssignment::where('student_id', $student->id)
+            ->where('assessment_id', $assessmentId)
+            ->exists();
+    }
 
-        $items = $collection->slice($offset, $perPage)->values();
-        $total = $collection->count();
-
-        return new Paginator(
-            $items,
-            $total,
-            $perPage,
-            $page,
+    /**
+     * Get or create an assignment for a student
+     *
+     * @param  User  $student  The student user
+     * @param  int  $assessmentId  The assessment ID
+     * @return AssessmentAssignment|null The assignment or null if not authorized
+     */
+    public function getOrCreateAssignment(User $student, int $assessmentId): ?AssessmentAssignment
+    {
+        $assignment = AssessmentAssignment::firstOrCreate(
             [
-                'path' => request()->url(),
-                'query' => request()->query(),
+                'student_id' => $student->id,
+                'assessment_id' => $assessmentId,
+            ],
+            [
+                'assigned_at' => now(),
             ]
         );
-    }
-
-    /**
-     * Check if student can access an exam
-     *
-     * @param  Exam  $exam  The exam
-     * @param  User  $student  The student
-     * @return bool True if student can access
-     */
-    public function canStudentAccessExam(Exam $exam, User $student): bool
-    {
-        $hasDirectAssignment = $exam->assignments()
-            ->where('student_id', $student->id)
-            ->exists();
-
-        if ($hasDirectAssignment) {
-            return true;
-        }
-
-        $hasGroupAccess = $student->groups()
-            ->wherePivot('is_active', true)
-            ->whereHas('exams', function ($query) use ($exam) {
-                $query->where('exams.id', $exam->id);
-            })
-            ->exists();
-
-        return $hasGroupAccess;
-    }
-
-    /**
-     * Get or create assignment for student taking an exam
-     *
-     * @param  Exam  $exam  The exam
-     * @param  User  $student  The student
-     * @return ExamAssignment|null Assignment or null if no access
-     */
-    public function getOrCreateAssignmentForExam(Exam $exam, User $student): ?ExamAssignment
-    {
-        if (! $this->canStudentAccessExam($exam, $student)) {
-            return null;
-        }
-
-        $assignment = $exam->assignments()
-            ->where('student_id', $student->id)
-            ->first();
-
-        if (! $assignment) {
-            return $this->createVirtualAssignment($exam, $student);
-        }
-
-        $assignment->loadMissing('exam');
 
         return $assignment;
+    }
+
+    /**
+     * Apply status filter to query
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query  The query builder
+     * @param  string  $status  The status filter (not_started, in_progress, completed, graded)
+     */
+    protected function applyStatusFilter($query, string $status): void
+    {
+        match ($status) {
+            'not_started' => $query->whereNull('started_at'),
+            'in_progress' => $query->whereNotNull('started_at')->whereNull('submitted_at'),
+            'completed' => $query->whereNotNull('submitted_at'),
+            'graded' => $query->whereNotNull('submitted_at')->whereNotNull('score'),
+            default => null,
+        };
     }
 }

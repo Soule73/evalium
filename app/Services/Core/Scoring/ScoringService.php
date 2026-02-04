@@ -3,7 +3,7 @@
 namespace App\Services\Core\Scoring;
 
 use App\Contracts\Scoring\ScoringStrategyInterface;
-use App\Models\ExamAssignment;
+use App\Models\AssessmentAssignment;
 use App\Models\Question;
 use App\Strategies\Scoring\BooleanScoringStrategy;
 use App\Strategies\Scoring\MultipleChoiceScoringStrategy;
@@ -14,10 +14,6 @@ use Illuminate\Support\Collection;
 /**
  * Central scoring service orchestrating question scoring strategies.
  *
- * Eliminates scoring logic duplication previously present in
- * ExamService, ExamSessionService, and ExamScoringService.
- *
- * Design Pattern: Strategy Pattern
  */
 class ScoringService
 {
@@ -44,16 +40,16 @@ class ScoringService
      *
      * Iterates through all questions and calculates the score for each.
      *
-     * @param  ExamAssignment  $assignment  The assignment to evaluate
+     * @param  AssessmentAssignment  $assignment  The assignment to evaluate
      * @return float The total earned score
      */
-    public function calculateAssignmentScore(ExamAssignment $assignment): float
+    public function calculateAssignmentScore(AssessmentAssignment $assignment): float
     {
         $totalScore = 0.0;
 
-        $exam = $assignment->exam()->with('questions.choices')->first();
+        $assessment = $assignment->assessment()->with('questions.choices')->first();
 
-        foreach ($exam->questions as $question) {
+        foreach ($assessment->questions as $question) {
             $totalScore += $this->calculateQuestionScore($assignment, $question);
         }
 
@@ -63,11 +59,11 @@ class ScoringService
     /**
      * Calculate the score for a specific question.
      *
-     * @param  ExamAssignment  $assignment  The assignment being evaluated
+     * @param  AssessmentAssignment  $assignment  The assignment being evaluated
      * @param  Question  $question  The question to score
      * @return float The earned score for this question
      */
-    public function calculateQuestionScore(ExamAssignment $assignment, Question $question): float
+    public function calculateQuestionScore(AssessmentAssignment $assignment, Question $question): float
     {
         $answers = $assignment->answers()
             ->where('question_id', $question->id)
@@ -106,18 +102,18 @@ class ScoringService
      *
      * Excludes text questions that require manual grading.
      *
-     * @param  ExamAssignment  $assignment  The assignment to evaluate
+     * @param  AssessmentAssignment  $assignment  The assignment to evaluate
      * @return float The auto-correctable score
      */
-    public function calculateAutoCorrectableScore(ExamAssignment $assignment): float
+    public function calculateAutoCorrectableScore(AssessmentAssignment $assignment): float
     {
         $totalScore = 0.0;
 
         $autoCorrectableTypes = ['one_choice', 'multiple', 'boolean'];
 
-        $exam = $assignment->exam()->with('questions.choices')->first();
+        $assessment = $assignment->assessment()->with('questions.choices')->first();
 
-        foreach ($exam->questions as $question) {
+        foreach ($assessment->questions as $question) {
             if (in_array($question->type, $autoCorrectableTypes)) {
                 $totalScore += $this->calculateQuestionScore($assignment, $question);
             }
@@ -129,12 +125,12 @@ class ScoringService
     /**
      * Check if an exam contains questions requiring manual grading.
      *
-     * @param  ExamAssignment  $assignment  The assignment to check
+     * @param  AssessmentAssignment  $assignment  The assignment to check
      * @return bool True if the exam has text/essay questions
      */
-    public function hasManualCorrectionQuestions(ExamAssignment $assignment): bool
+    public function hasManualCorrectionQuestions(AssessmentAssignment $assignment): bool
     {
-        return $assignment->exam->questions()
+        return $assignment->assessment->questions()
             ->whereIn('type', ['text', 'essay'])
             ->exists();
     }

@@ -3,8 +3,8 @@
 namespace App\Services\Core;
 
 use App\Models\Answer;
+use App\Models\Assessment;
 use App\Models\Choice;
-use App\Models\Exam;
 use App\Models\Question;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -12,18 +12,17 @@ use Illuminate\Support\Facades\DB;
 /**
  * Question Management Service - Handle all question-related operations
  *
- * Single Responsibility: Manage questions and choices for exams
- * No business logic about exams themselves (delegated to ExamCrudService)
+ * Single Responsibility: Manage questions and choices for assessments
  */
 class QuestionManagementService
 {
     /**
-     * Create questions for an exam
+     * Create questions for an assessment
      */
-    public function createQuestionsForExam(Exam $exam, array $questionsData): void
+    public function createQuestionsForAssessment(Assessment $assessment, array $questionsData): void
     {
         foreach ($questionsData as $questionData) {
-            $question = $exam->questions()->create([
+            $question = $assessment->questions()->create([
                 'content' => $questionData['content'],
                 'type' => $questionData['type'],
                 'points' => $questionData['points'],
@@ -35,16 +34,16 @@ class QuestionManagementService
     }
 
     /**
-     * Update questions for an exam
+     * Update questions for an assessment
      */
-    public function updateQuestionsForExam(Exam $exam, array $questionsData): void
+    public function updateQuestionsForAssessment(Assessment $assessment, array $questionsData): void
     {
-        DB::transaction(function () use ($exam, $questionsData) {
+        DB::transaction(function () use ($assessment, $questionsData) {
             foreach ($questionsData as $questionData) {
-                if (isset($questionData['id']) && ! empty($questionData['id'])) {
-                    $this->updateQuestion($exam, $questionData);
+                if (isset($questionData['id']) && is_numeric($questionData['id']) && $questionData['id'] > 0) {
+                    $this->updateQuestion($assessment, $questionData);
                 } else {
-                    $this->createSingleQuestion($exam, $questionData);
+                    $this->createSingleQuestion($assessment, $questionData);
                 }
             }
         });
@@ -53,10 +52,10 @@ class QuestionManagementService
     /**
      * Update a single question
      */
-    private function updateQuestion(Exam $exam, array $questionData): void
+    private function updateQuestion(Assessment $assessment, array $questionData): void
     {
         Question::where('id', $questionData['id'])
-            ->where('exam_id', $exam->id)
+            ->where('assessment_id', $assessment->id)
             ->update([
                 'content' => $questionData['content'],
                 'type' => $questionData['type'],
@@ -74,9 +73,9 @@ class QuestionManagementService
     /**
      * Create a single question
      */
-    private function createSingleQuestion(Exam $exam, array $questionData): Question
+    private function createSingleQuestion(Assessment $assessment, array $questionData): Question
     {
-        $question = $exam->questions()->create([
+        $question = $assessment->questions()->create([
             'content' => $questionData['content'],
             'type' => $questionData['type'],
             'points' => $questionData['points'],
@@ -91,9 +90,9 @@ class QuestionManagementService
     /**
      * Delete questions by IDs
      */
-    public function deleteQuestionsById(Exam $exam, array $questionIds): void
+    public function deleteQuestionsById(Assessment $assessment, array $questionIds): void
     {
-        $validQuestionIds = Question::where('exam_id', $exam->id)
+        $validQuestionIds = Question::where('assessment_id', $assessment->id)
             ->whereIn('id', $questionIds)
             ->pluck('id')
             ->toArray();
@@ -108,10 +107,10 @@ class QuestionManagementService
     /**
      * Delete choices by IDs
      */
-    public function deleteChoicesById(Exam $exam, array $choiceIds): void
+    public function deleteChoicesById(Assessment $assessment, array $choiceIds): void
     {
-        $validChoiceIds = Choice::whereHas('question', function ($query) use ($exam) {
-            $query->where('exam_id', $exam->id);
+        $validChoiceIds = Choice::whereHas('question', function ($query) use ($assessment) {
+            $query->where('assessment_id', $assessment->id);
         })
             ->whereIn('id', $choiceIds)
             ->pluck('id')
@@ -142,14 +141,14 @@ class QuestionManagementService
     }
 
     /**
-     * Duplicate a question to a new exam
+     * Duplicate a question to a new assessment
      */
-    public function duplicateQuestion(Question $originalQuestion, Exam $newExam): Question
+    public function duplicateQuestion(Question $originalQuestion, Assessment $newAssessment): Question
     {
         $questionData = $originalQuestion->toArray();
-        unset($questionData['id'], $questionData['exam_id'], $questionData['created_at'], $questionData['updated_at']);
+        unset($questionData['id'], $questionData['assessment_id'], $questionData['created_at'], $questionData['updated_at']);
 
-        $newQuestion = $newExam->questions()->create($questionData);
+        $newQuestion = $newAssessment->questions()->create($questionData);
 
         foreach ($originalQuestion->choices as $originalChoice) {
             $choiceData = $originalChoice->toArray();
@@ -264,7 +263,7 @@ class QuestionManagementService
         foreach ($questionData['choices'] as $index => $choiceData) {
             $isCorrect = (bool) ($choiceData['is_correct'] ?? false);
 
-            if (isset($choiceData['id']) && ! empty($choiceData['id'])) {
+            if (isset($choiceData['id']) && is_numeric($choiceData['id']) && $choiceData['id'] > 0) {
                 Choice::where('id', $choiceData['id'])
                     ->where('question_id', $question->id)
                     ->update([

@@ -17,6 +17,56 @@ use InvalidArgumentException;
 class EnrollmentService
 {
     /**
+     * Get paginated enrollments for index page
+     */
+    public function getEnrollmentsForIndex(?int $academicYearId, array $filters, int $perPage = 15): array
+    {
+        $enrollments = Enrollment::query()
+            ->forAcademicYear($academicYearId)
+            ->with(['student', 'class.academicYear', 'class.level'])
+            ->when($filters['search'] ?? null, function ($query, $search) {
+                return $query->whereHas('student', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($filters['class_id'] ?? null, fn ($query, $classId) => $query->where('class_id', $classId))
+            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
+            ->orderBy('enrolled_at', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $classes = ClassModel::forAcademicYear($academicYearId)
+            ->with('academicYear')
+            ->orderBy('name')
+            ->get();
+
+        return [
+            'enrollments' => $enrollments,
+            'filters' => $filters,
+            'classes' => $classes,
+        ];
+    }
+
+    /**
+     * Get form data for create page
+     */
+    public function getCreateFormData(?int $academicYearId): array
+    {
+        $classes = ClassModel::forAcademicYear($academicYearId)
+            ->with('academicYear')
+            ->orderBy('name')
+            ->get();
+
+        $students = User::role('student')->orderBy('name')->get();
+
+        return [
+            'classes' => $classes,
+            'students' => $students,
+        ];
+    }
+
+    /**
      * Enroll a student in a class
      */
     public function enrollStudent(User $student, ClassModel $class): Enrollment
@@ -120,15 +170,20 @@ class EnrollmentService
     /**
      * Get current active enrollment for a student
      */
-    public function getCurrentEnrollment(User $student): ?Enrollment
+    public function getCurrentEnrollment(User $student, ?int $academicYearId = null): ?Enrollment
     {
-        return Enrollment::active()
-            ->where('student_id', $student->id)
-            ->whereHas('class.academicYear', function ($query) {
-                $query->where('is_current', true);
-            })
-            ->with(['class.academicYear', 'class.level'])
-            ->first();
+        $query = Enrollment::active()
+            ->where('student_id', $student->id);
+
+        if ($academicYearId) {
+            $query->forAcademicYear($academicYearId);
+        } else {
+            $query->whereHas('class.academicYear', function ($q) {
+                $q->where('is_current', true);
+            });
+        }
+
+        return $query->with(['class.academicYear', 'class.level'])->first();
     }
 
     /**

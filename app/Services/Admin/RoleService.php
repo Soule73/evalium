@@ -24,9 +24,11 @@ class RoleService
 
     private const CATEGORY_MAPPINGS = [
         'category_users' => ['user', 'student', 'teacher', 'admin'],
-        'category_exams' => ['exam', 'result'],
-        'category_groups' => ['group'],
+        'category_assessments' => ['assessment', 'result'],
+        'category_classes' => ['class', 'enrollment'],
         'category_levels' => ['level'],
+        'category_subjects' => ['subject'],
+        'category_academic_years' => ['academic year'],
         'category_roles_permissions' => ['role', 'permission'],
     ];
 
@@ -53,8 +55,8 @@ class RoleService
     /**
      * Retrieve paginated roles with their permissions
      *
-     * @param int $perPage Number of items per page
-     * @param string|null $search Search term for role name
+     * @param  int  $perPage  Number of items per page
+     * @param  string|null  $search  Search term for role name
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function getRolesWithPermissionsPaginated(int $perPage = 15, ?string $search = null)
@@ -80,7 +82,7 @@ class RoleService
     }
 
     /**
-     * Group permissions by business category
+     * Permissions by business category
      *
      * @return array<string, array<Permission>>
      */
@@ -102,7 +104,7 @@ class RoleService
             }
         }
 
-        return array_filter($grouped, fn($items) => ! empty($items));
+        return array_filter($grouped, fn ($items) => ! empty($items));
     }
 
     /**

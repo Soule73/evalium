@@ -3,14 +3,12 @@
 namespace App\Services\Core\Answer;
 
 use App\Contracts\Answer\AnswerFormatterInterface;
-use App\Models\Exam;
-use App\Models\ExamAssignment;
-use App\Models\Group;
-use App\Models\User;
+use App\Models\Assessment;
+use App\Models\AssessmentAssignment;
 use Illuminate\Support\Collection;
 
 /**
- * Centralized service for exam answer formatting.
+ * Centralized service for assessment answer formatting.
  *
  *
  * Responsibilities:
@@ -26,10 +24,10 @@ class AnswerFormatterService implements AnswerFormatterInterface
      * Format assignment answers for frontend display.
      *
      *
-     * @param  ExamAssignment  $assignment  The assignment containing the answers
+     * @param  AssessmentAssignment  $assignment  The assignment containing the answers
      * @return array Formatted answers, grouped by question_id
      */
-    public function formatForFrontend(ExamAssignment $assignment): array
+    public function formatForFrontend(AssessmentAssignment $assignment): array
     {
         $answers = $assignment->relationLoaded('answers')
             ? $assignment->answers
@@ -96,7 +94,7 @@ class AnswerFormatterService implements AnswerFormatterInterface
      *
      * @return bool True if the assignment has any answers
      */
-    public function hasAnswers(ExamAssignment $assignment): bool
+    public function hasAnswers(AssessmentAssignment $assignment): bool
     {
         return $assignment->answers()->exists();
     }
@@ -106,7 +104,7 @@ class AnswerFormatterService implements AnswerFormatterInterface
      *
      * @return int Number of questions with at least one answer
      */
-    public function countAnsweredQuestions(ExamAssignment $assignment): int
+    public function countAnsweredQuestions(AssessmentAssignment $assignment): int
     {
         return $assignment->answers()
             ->distinct('question_id')
@@ -118,13 +116,13 @@ class AnswerFormatterService implements AnswerFormatterInterface
      *
      * @return array Statistics including total, answered, and completion percentage
      */
-    public function getCompletionStats(ExamAssignment $assignment): array
+    public function getCompletionStats(AssessmentAssignment $assignment): array
     {
-        $exam = $assignment->relationLoaded('exam') ? $assignment->exam : $assignment->exam()->first();
+        $assessment = $assignment->relationLoaded('assessment') ? $assignment->assessment : $assignment->assessment()->first();
 
-        $totalQuestions = $exam->relationLoaded('questions')
-            ? $exam->questions->count()
-            : $exam->questions()->count();
+        $totalQuestions = $assessment->relationLoaded('questions')
+            ? $assessment->questions->count()
+            : $assessment->questions()->count();
 
         $answeredQuestions = $assignment->relationLoaded('answers')
             ? $assignment->answers->pluck('question_id')->unique()->count()
@@ -145,135 +143,30 @@ class AnswerFormatterService implements AnswerFormatterInterface
      * Get complete data for displaying student results.
      *
      *
-     * @return array Formatted data with assignment, student, exam, and answers
+     * @return array Formatted data with assignment, student, assessment, and answers
      */
-    public function getStudentResultsData(ExamAssignment $assignment): array
+    public function getStudentResultsData(AssessmentAssignment $assignment): array
     {
         $assignment->load([
             'answers.question.choices',
             'answers.choice',
-            'exam.questions.choices',
+            'assessment.questions.choices',
             'student',
         ]);
 
         return [
             'assignment' => $assignment,
             'student' => $assignment->student,
-            'exam' => $assignment->exam,
+            'assessment' => $assignment->assessment,
             'userAnswers' => $this->formatForFrontend($assignment),
             'stats' => $this->getCompletionStats($assignment),
-        ];
-    }
-
-    /**
-     * Get formatted data for displaying student results in a group context.
-     *
-     * @param  Exam  $exam  Target exam
-     * @param  Group  $group  Student's group
-     * @param  User  $student  Target student
-     * @return array Complete data for results display
-     */
-    public function getStudentResultsDataInGroup(Exam $exam, Group $group, User $student): array
-    {
-        $belongsToGroup = $group->students()
-            ->where('student_id', $student->id)
-            ->wherePivot('is_active', true)
-            ->exists();
-
-        if (! $belongsToGroup) {
-            abort(403, 'Student does not belong to this group or is not active.');
-        }
-
-        $exam->load(['questions.choices', 'teacher']);
-        $group->load('level');
-
-        $assignment = $exam->assignments()
-            ->with(['answers.choice'])
-            ->where('student_id', $student->id)
-            ->firstOrFail();
-
-        $assignment->setRelation('student', $student);
-
-        $questionsById = $exam->questions->keyBy('id');
-        foreach ($assignment->answers as $answer) {
-            if (isset($questionsById[$answer->question_id])) {
-                $answer->setRelation('question', $questionsById[$answer->question_id]);
-            }
-        }
-
-        $assignment->setRelation('exam', $exam);
-
-        return [
-            'assignment' => $assignment,
-            'student' => $assignment->student,
-            'exam' => $assignment->exam,
-            'group' => $group,
-            'creator' => $exam->teacher,
-            'userAnswers' => $this->formatForFrontend($assignment),
-            'stats' => $this->getCompletionStats($assignment),
-        ];
-    }
-
-    /**
-     * Get formatted data for student review/correction page.
-     *
-     * @param  Exam  $exam  Target exam
-     * @param  Group  $group  Student's group
-     * @param  User  $student  Target student
-     * @return array Complete data for review page
-     */
-    public function getStudentReviewData(Exam $exam, Group $group, User $student): array
-    {
-        $belongsToGroup = $group->students()
-            ->where('student_id', $student->id)->exists();
-
-        if (! $belongsToGroup) {
-            abort(403, 'Student does not belong to this group.');
-        }
-
-        $exam->load('questions.choices');
-        $group->load('level');
-
-        $assignment = $exam->assignments()
-            ->with([
-                'answers.choice',
-                'student',
-            ])
-            ->where('student_id', $student->id)
-            ->firstOrFail();
-
-        $assignment->setRelation('exam', $exam);
-
-        if (! $assignment->relationLoaded('answers')) {
-            $assignment->load(['answers.choice']);
-        }
-
-        $loadedExam = $assignment->exam;
-
-        $questionsById = $loadedExam->questions->keyBy('id');
-
-        foreach ($assignment->answers as $answer) {
-            if (! $answer->relationLoaded('question') && isset($questionsById[$answer->question_id])) {
-                $answer->setRelation('question', $questionsById[$answer->question_id]);
-            }
-        }
-
-        return [
-            'assignment' => $assignment,
-            'student' => $assignment->student,
-            'exam' => $loadedExam,
-            'group' => $group,
-            'questions' => $loadedExam->questions,
-            'userAnswers' => $this->formatForFrontend($assignment),
-            'totalQuestions' => $loadedExam->questions->count(),
-            'totalPoints' => $loadedExam->questions->sum('points'),
         ];
     }
 
     /**
      * Prepare answer data based on question type.
      *
-     * Replaces ExamSessionService::prepareAnswerData()
+     * Replaces AssessmentSessionService::prepareAnswerData()
      *
      * @param  string  $questionType  Question type (multiple, one_choice, boolean, text)
      * @param  array  $requestData  Request data containing the answer

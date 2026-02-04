@@ -16,6 +16,10 @@ use InvalidArgumentException;
  */
 class AssessmentService
 {
+    public function __construct(
+        private readonly QuestionManagementService $questionService
+    ) {}
+
     /**
      * Create a new assessment for a class-subject
      */
@@ -37,24 +41,7 @@ class AssessmentService
             ]);
 
             if (isset($data['questions']) && is_array($data['questions'])) {
-                foreach ($data['questions'] as $questionData) {
-                    $question = $assessment->questions()->create([
-                        'content' => $questionData['content'],
-                        'type' => $questionData['type'],
-                        'points' => $questionData['points'],
-                        'order_index' => $questionData['order_index'] ?? 0,
-                    ]);
-
-                    if (isset($questionData['choices']) && is_array($questionData['choices'])) {
-                        foreach ($questionData['choices'] as $choiceData) {
-                            $question->choices()->create([
-                                'content' => $choiceData['content'],
-                                'is_correct' => $choiceData['is_correct'] ?? false,
-                                'order_index' => $choiceData['order_index'] ?? 0,
-                            ]);
-                        }
-                    }
-                }
+                $this->questionService->createQuestionsForAssessment($assessment, $data['questions']);
             }
 
             return $assessment->load(['questions.choices']);
@@ -82,6 +69,18 @@ class AssessmentService
             }
 
             $assessment->update($updateData);
+
+            if (isset($data['deletedChoiceIds']) && ! empty($data['deletedChoiceIds'])) {
+                $this->questionService->deleteChoicesById($assessment, $data['deletedChoiceIds']);
+            }
+
+            if (isset($data['deletedQuestionIds']) && ! empty($data['deletedQuestionIds'])) {
+                $this->questionService->deleteQuestionsById($assessment, $data['deletedQuestionIds']);
+            }
+
+            if (isset($data['questions']) && is_array($data['questions'])) {
+                $this->questionService->updateQuestionsForAssessment($assessment, $data['questions']);
+            }
 
             return $assessment->fresh(['questions.choices']);
         });
@@ -155,15 +154,7 @@ class AssessmentService
             $newAssessment->save();
 
             foreach ($assessment->questions as $question) {
-                $newQuestion = $question->replicate();
-                $newQuestion->assessment_id = $newAssessment->id;
-                $newQuestion->save();
-
-                foreach ($question->choices as $choice) {
-                    $newChoice = $choice->replicate();
-                    $newChoice->question_id = $newQuestion->id;
-                    $newChoice->save();
-                }
+                $this->questionService->duplicateQuestion($question, $newAssessment);
             }
 
             return $newAssessment->load(['questions.choices']);
