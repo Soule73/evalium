@@ -6,7 +6,7 @@ return [
     | Exam Security Settings
     |--------------------------------------------------------------------------
     |
-    | These settings control the security features during exam sessions.
+    | These settings control the security features during assessment sessions.
     | You can disable security features in development environment.
     |
     */
@@ -18,7 +18,7 @@ return [
     | Development Mode
     |--------------------------------------------------------------------------
     |
-    | When set to true, disables all exam security features for development.
+    | When set to true, disables all assessment security features for development.
     | This should NEVER be true in production.
     |
     */
@@ -49,12 +49,12 @@ return [
     | Timing Settings
     |--------------------------------------------------------------------------
     |
-    | Settings related to exam timing and violations.
+    | Settings related to assessment timing and violations.
     |
     */
 
     'timing' => [
-        'min_exam_duration_minutes' => env('EXAM_MIN_DURATION', 2),
+        'min_assessment_duration_minutes' => env('EXAM_MIN_DURATION', 2),
         'auto_submit_on_time_end' => env('EXAM_AUTO_SUBMIT', true),
     ],
 ];
