@@ -4,9 +4,9 @@ namespace Tests\Traits;
 
 trait InteractsWithTestData
 {
+    use CreatesTestAssessments;
     use CreatesTestAssignments;
-    use CreatesTestExams;
-    use CreatesTestGroups;
+    use CreatesTestClasses;
     use CreatesTestUsers;
 
     protected function setupBasicTestData(): object
@@ -25,29 +25,29 @@ trait InteractsWithTestData
         $this->seedRolesAndPermissions();
 
         $teacher = $this->createTeacher();
-        $exam = $this->createExamWithQuestions($teacher);
+        $assessment = $this->createAssessmentWithQuestions($teacher);
         $students = $this->createMultipleStudents($studentCount);
 
         return (object) [
             'teacher' => $teacher,
-            'exam' => $exam,
+            'assessment' => $assessment,
             'students' => $students,
         ];
     }
 
-    protected function setupGroupTestData(int $studentsPerGroup = 2, int $groupCount = 1): object
+    protected function setupGroupTestData(int $studentsPerClass = 2, int $classCount = 1): object
     {
         $this->seedRolesAndPermissions();
 
-        $groups = [];
+        $classes = [];
 
-        for ($i = 0; $i < $groupCount; $i++) {
-            $groups[] = $this->createGroupWithStudents($studentsPerGroup);
+        for ($i = 0; $i < $classCount; $i++) {
+            $classes[] = $this->createClassWithStudents($studentsPerClass);
         }
 
         return (object) [
-            'groups' => $groups,
-            'group' => $groups[0],
+            'classes' => $classes,
+            'class' => $classes[0],
         ];
     }
 
@@ -56,28 +56,28 @@ trait InteractsWithTestData
         $this->seedRolesAndPermissions();
 
         $teacher = $this->createTeacher();
-        $exam = $this->createExamWithQuestions($teacher);
-        $group = $this->createGroupWithStudents(3);
+        $assessment = $this->createAssessmentWithQuestions($teacher);
+        $class = $this->createClassWithStudents(3);
 
-        $this->assignExamToGroup($exam, $group, $teacher);
+        $this->assignAssessmentToClass($assessment, $class, $teacher);
 
-        $students = $group->students;
+        $students = $class->students;
         $assignments = [];
 
         foreach ($students as $index => $student) {
             if ($index === 0) {
-                $assignments[] = $this->createStartedAssignment($exam, $student);
+                $assignments[] = $this->createStartedAssignment($assessment, $student);
             } elseif ($index === 1) {
-                $assignments[] = $this->createSubmittedAssignment($exam, $student);
+                $assignments[] = $this->createSubmittedAssignment($assessment, $student);
             } else {
-                $assignments[] = $this->createGradedAssignment($exam, $student);
+                $assignments[] = $this->createGradedAssignment($assessment, $student);
             }
         }
 
         return (object) [
             'teacher' => $teacher,
-            'exam' => $exam,
-            'group' => $group,
+            'assessment' => $assessment,
+            'class' => $class,
             'students' => $students,
             'assignments' => $assignments,
         ];

@@ -1,17 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\LevelController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RoleController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Exam\AssignmentController;
-use App\Http\Controllers\Exam\CorrectionController;
-use App\Http\Controllers\Exam\ExamController;
-use App\Http\Controllers\Exam\ResultsController;
-use App\Http\Controllers\Group\GroupController;
-use App\Http\Controllers\Group\LevelController;
 use App\Http\Controllers\LocaleController;
-use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -41,6 +35,8 @@ Route::middleware('guest')
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
+    Route::get('/student/dashboard', [DashboardController::class, 'student'])->name('student.dashboard');
 
     Route::controller(LoginController::class)->group(function () {
         Route::get('/profile', 'profile')->name('profile');
@@ -52,114 +48,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 
     /**
-     * Student Routes
-     * Role-based routes exclusively for students (hasRole, not assignable via permissions)
+     * Academic Year Routes
+     * API endpoint for academic year selection
      */
-    Route::middleware('role:student')
-        ->prefix('student')
-        ->name('student.')
-        ->controller(StudentController::class)
-        ->group(function () {
-            Route::prefix('exams')
-                ->name('exams.')
-                ->group(function () {
-                    Route::get('/', 'index')->name('index');
-                    Route::get('/groups/{group}', 'showGroup')->name('group.show');
-                    Route::get('/{exam}', 'show')->name('show');
-                    Route::get('/{exam}/take', 'take')->name('take');
-                    Route::post('/{exam}/save-answers', 'saveAnswers')->name('save-answers');
-                    Route::post('/{exam}/security-violation', 'handleSecurityViolation')->name('security-violation');
-                    Route::post('/{exam}/abandon', 'abandon')->name('abandon');
-                    Route::post('/{exam}/submit', 'submit')->name('submit');
-                });
-        });
-
-    /**
-     * Exam Routes
-     * Permission-based routes for exam management
-     */
-    Route::prefix('exams')
-        ->name('exams.')
-        ->group(function () {
-
-            /**
-             * Exam CRUD operations
-             */
-            Route::controller(ExamController::class)->group(function () {
-                Route::get('/', 'index')
-                    ->name('index');
-
-                Route::get('/create', 'create')
-                    ->name('create');
-
-                Route::post('/', 'store')
-                    ->name('store');
-
-                Route::post('/{exam}/duplicate', 'duplicate')
-                    ->name('duplicate');
-
-                Route::patch('/{exam}/toggle-active', 'toggleActive')
-                    ->name('toggle-active');
-
-                Route::get('/{exam}/edit', 'edit')
-                    ->name('edit');
-
-                Route::put('/{exam}', 'update')
-                    ->name('update');
-
-                Route::delete('/{exam}', 'destroy')
-                    ->name('destroy');
-
-                Route::get('/{exam}', 'show')
-                    ->name('show');
-            });
-
-            /**
-             * Group Assignment operations
-             * Unique exam assignment mode
-             */
-            Route::controller(AssignmentController::class)->group(function () {
-                Route::get('/{exam}/assign', 'showAssignForm')
-                    ->name('assign');
-
-                Route::post('/{exam}/assign-groups', 'assignToGroups')
-                    ->name('assign.groups');
-
-                Route::get('/{exam}/groups', 'showAssignments')
-                    ->name('groups');
-
-                Route::delete('/{exam}/groups/{group}', 'removeFromGroup')
-                    ->name('groups.remove');
-
-                Route::get('/{exam}/groups/{group}', 'showGroup')
-                    ->name('group.show');
-            });
-
-            /**
-             * Exam Correction operations
-             */
-            Route::controller(CorrectionController::class)->group(function () {
-                Route::get('/{exam}/groups/{group}/review/{student}', 'showStudentReview')
-                    ->name('review');
-
-                Route::post('/{exam}/groups/{group}/review/{student}', 'saveStudentReview')
-                    ->name('review.save');
-
-                Route::post('/{exam}/score/update', 'updateScore')
-                    ->name('score.update');
-            });
-
-            /**
-             * Exam Results operations
-             */
-            Route::controller(ResultsController::class)->group(function () {
-                Route::get('/{exam}/groups/{group}/submissions/{student}', 'showStudentSubmission')
-                    ->name('submissions');
-
-                Route::get('/{exam}/stats', 'stats')
-                    ->name('stats');
-            });
-        });
+    Route::post('/academic-years/set-current', [
+        \App\Http\Controllers\AcademicYearController::class,
+        'setCurrent',
+    ])->name('api.academic-years.set-current');
 
     /**
      * User Management operations
@@ -189,61 +84,11 @@ Route::middleware('auth')->group(function () {
             Route::patch('/{user}/toggle-status', 'toggleStatus')
                 ->name('toggle-status');
 
-            Route::put('/{user}/change-group', 'changeStudentGroup')
-                ->name('change-group');
-
             Route::post('/{id}/restore', 'restore')
                 ->name('restore');
 
             Route::delete('/{id}/force', 'forceDelete')
                 ->name('force-delete');
-        });
-
-    /**
-     * Group Management operations
-     */
-    Route::prefix('groups')
-        ->name('groups.')
-        ->controller(GroupController::class)
-        ->group(function () {
-            Route::get('/', 'index')
-                ->name('index');
-
-            Route::get('/create', 'create')
-                ->name('create');
-
-            Route::post('/', 'store')
-                ->name('store');
-
-            Route::post('/bulk-activate', 'bulkActivate')
-                ->name('bulk-activate');
-
-            Route::post('/bulk-deactivate', 'bulkDeactivate')
-                ->name('bulk-deactivate');
-
-            Route::get('/{group}', 'show')
-                ->name('show');
-
-            Route::get('/{group}/edit', 'edit')
-                ->name('edit');
-
-            Route::put('/{group}', 'update')
-                ->name('update');
-
-            Route::delete('/{group}', 'destroy')
-                ->name('destroy');
-
-            Route::get('/{group}/assign-students', 'assignStudents')
-                ->name('assign-students');
-
-            Route::post('/{group}/assign-students', 'storeStudents')
-                ->name('store-students');
-
-            Route::post('/{group}/bulk-remove-students', 'bulkRemoveStudents')
-                ->name('bulk-remove-students');
-
-            Route::delete('/{group}/students/{student}', 'removeStudent')
-                ->name('remove-student');
         });
 
     /**
@@ -305,13 +150,7 @@ Route::middleware('auth')->group(function () {
         });
 
     /**
-     * ========================================
-     * NEW MCD ARCHITECTURE ROUTES
-     * ========================================
-     */
-
-    /**
-     * Admin Routes - New MCD Architecture
+     * Admin Routes
      * Routes for managing academic years, subjects, classes, enrollments
      */
     Route::prefix('admin')
@@ -326,6 +165,7 @@ Route::middleware('auth')->group(function () {
                 ->controller(\App\Http\Controllers\Admin\AcademicYearController::class)
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
+                    Route::get('/archives', 'archives')->name('archives');
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
                     Route::get('/{academic_year}', 'show')->name('show');
@@ -405,7 +245,7 @@ Route::middleware('auth')->group(function () {
         });
 
     /**
-     * Teacher Routes - New MCD Architecture
+     * Teacher Routes
      * Routes for managing assessments, grading, and teacher dashboard
      */
     Route::prefix('teacher')
@@ -438,19 +278,6 @@ Route::middleware('auth')->group(function () {
                 });
 
             /**
-             * Assessment Assignment Management
-             */
-            Route::prefix('assessments/{assessment}/assignments')
-                ->name('assessment-assignments.')
-                ->controller(\App\Http\Controllers\Teacher\AssessmentAssignmentController::class)
-                ->group(function () {
-                    Route::get('/', 'index')->name('index');
-                    Route::post('/assign-all', 'assignAll')->name('assign-all');
-                    Route::post('/assign', 'assign')->name('assign');
-                    Route::delete('/{student}', 'unassign')->name('unassign');
-                });
-
-            /**
              * Teacher Classes
              */
             Route::prefix('classes')
@@ -476,12 +303,12 @@ Route::middleware('auth')->group(function () {
         });
 
     /**
-     * Student Routes - New MCD Architecture
+     * Student Routes
      * Role-based routes exclusively for students
      */
     Route::middleware('role:student')
-        ->prefix('student/mcd')
-        ->name('student.mcd.')
+        ->prefix('student')
+        ->name('student.')
         ->group(function () {
 
             /**
