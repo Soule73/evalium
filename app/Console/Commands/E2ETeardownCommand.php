@@ -39,7 +39,7 @@ class E2ETeardownCommand extends Command
 
             return self::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('[ArtisanE2ETeardown] Failed to teardown E2E environment: ' . $e->getMessage());
+            $this->error('[ArtisanE2ETeardown] Failed to teardown E2E environment: '.$e->getMessage());
 
             return self::FAILURE;
         }
