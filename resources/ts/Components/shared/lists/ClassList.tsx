@@ -11,8 +11,6 @@ interface ClassListProps {
   data: PaginationType<ClassModel>;
   variant?: EntityListVariant;
   onView?: (classItem: ClassModel) => void;
-  onEdit?: (classItem: ClassModel) => void;
-  onDelete?: (classItem: ClassModel) => void;
   onCreateAssessment?: (classItem: ClassModel) => void;
 }
 
@@ -28,8 +26,6 @@ export function ClassList({
   data,
   variant = 'admin',
   onView,
-  onEdit,
-  onDelete,
   onCreateAssessment,
 }: ClassListProps) {
   const config: EntityListConfig<ClassModel> = {
@@ -47,7 +43,6 @@ export function ClassList({
             </div>
             <div className="text-sm text-gray-500">
               {levelNameDescription}
-              {/* {classItem.level?.name} - {classItem.academic_year?.name} */}
             </div>
           </div>)
         },
@@ -137,24 +132,6 @@ export function ClassList({
           onView?.(item) || router.visit(route(`${variant}.classes.show`, item.id)),
         color: 'secondary',
         variant: 'outline',
-      },
-      {
-        labelKey: 'admin_pages.common.edit',
-        onClick: (item) =>
-          onEdit?.(item) || router.visit(route('admin.classes.edit', item.id)),
-        permission: 'update classes',
-        color: 'primary',
-        variant: 'outline',
-        conditional: (_item, v) => v === 'admin',
-      },
-      {
-        labelKey: 'admin_pages.common.delete',
-        onClick: (item) =>
-          onDelete?.(item),
-        permission: 'delete classes',
-        color: 'danger',
-        variant: 'outline',
-        conditional: (_item, v) => v === 'admin',
       },
       {
         labelKey: 'teacher_class_pages.index.assessments',

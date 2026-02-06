@@ -332,6 +332,7 @@ return [
         'delete_title' => 'Delete Class',
         'delete_message' => 'Do you really want to delete class ":name"?',
         'delete_confirm' => 'Are you sure you want to delete this class?',
+        'cannot_delete_has_data' => 'Cannot delete: this class has students or subjects',
         'empty_title' => 'No Classes',
         'empty_subtitle' => 'Create your first class to get started.',
         'create_button' => 'Create Class',

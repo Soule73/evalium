@@ -1,10 +1,10 @@
+import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { ClassModel, Enrollment, ClassSubject, PageProps, PaginationType } from '@/types';
 import { breadcrumbs, trans, hasPermission } from '@/utils';
-import { Button, Section, Badge, DataTable } from '@/Components';
-import { EnrollmentList } from '@/Components/shared/lists';
-import { DataTableConfig } from '@/types/datatable';
+import { Button, Section, Badge, ConfirmationModal, Stat } from '@/Components';
+import { EnrollmentList, ClassSubjectList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
 import { AcademicCapIcon, UserGroupIcon, BookOpenIcon, CalendarIcon } from '@heroicons/react/24/outline';
 
@@ -36,20 +36,22 @@ export default function ClassShow({
   enrollments,
   classSubjects,
   statistics,
-  studentsFilters,
   auth,
 }: Props) {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
   const canUpdate = hasPermission(auth.permissions, 'update classes');
   const canDelete = hasPermission(auth.permissions, 'delete classes');
+  const canBeSafelyDeleted = classItem.can_delete ?? false;
 
   const handleEdit = () => {
     router.visit(route('admin.classes.edit', classItem.id));
   };
 
-  const handleDelete = () => {
-    if (confirm(trans('adminss_pages.classes.delete_confirm'))) {
-      router.delete(route('admin.classes.destroy', classItem.id));
-    }
+  const handleDeleteConfirm = () => {
+    router.delete(route('admin.classes.destroy', classItem.id), {
+      onSuccess: () => setIsDeleteModalOpen(false),
+    });
   };
 
   const handleBack = () => {
@@ -59,64 +61,6 @@ export default function ClassShow({
   const enrollmentPercentage = statistics.max_students > 0
     ? (statistics.active_students / statistics.max_students) * 100
     : 0;
-
-  const subjectsTableConfig: DataTableConfig<ClassSubject> = {
-    columns: [
-      {
-        key: 'subject',
-        label: trans('admin_pages.classes.subject'),
-        render: (classSubject) => (
-          <div>
-            <div className="font-medium text-gray-900">{classSubject.subject?.name}</div>
-            <div className="text-sm text-gray-500">{classSubject.subject?.code}</div>
-          </div>
-        ),
-      },
-      {
-        key: 'teacher',
-        label: trans('admin_pages.classes.teacher'),
-        render: (classSubject) => (
-          <div className="text-sm text-gray-900">
-            {classSubject.teacher?.name || '-'}
-          </div>
-        ),
-      },
-      {
-        key: 'semester',
-        label: trans('admin_pages.classes.semester'),
-        render: (classSubject) => (
-          <div className="text-sm text-gray-600">
-            {classSubject.semester?.name || '-'}
-          </div>
-        ),
-      },
-      {
-        key: 'assessments',
-        label: trans('admin_pages.classes.assessments'),
-        render: (classSubject) => (
-          <div className="text-sm text-gray-600">
-            {classSubject.assessments_count || 0}
-          </div>
-        ),
-      },
-    ],
-    filters: [],
-    emptyState: {
-      title: trans('admin_pages.classes.no_subjects'),
-      subtitle: trans('admin_pages.classes.no_subjects_subtitle'),
-    },
-    searchable: true,
-    searchPlaceholder: trans('admin_pages.classes.search_subjects'),
-    onSearch: (search) => {
-      router.get(
-        route('admin.classes.show', classItem.id),
-        { subjects_search: search, students_search: studentsFilters?.search },
-        { preserveState: true, preserveScroll: true }
-      );
-    },
-    pageName: 'subjects_page',
-    perPageName: 'subjects_per_page',
-  };
 
   return (
     <AuthenticatedLayout
@@ -138,45 +82,36 @@ export default function ClassShow({
                 </Button>
               )}
               {canDelete && (
-                <Button size="sm" variant="outline" color="danger" onClick={handleDelete}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  color="danger"
+                  onClick={() => setIsDeleteModalOpen(true)}
+                  disabled={!canBeSafelyDeleted}
+                  title={!canBeSafelyDeleted ? trans('admin_pages.classes.cannot_delete_has_data') : undefined}
+                >
                   {trans('admin_pages.common.delete')}
                 </Button>
               )}
             </div>
           }
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="flex items-start space-x-3">
-              <AcademicCapIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('admin_pages.classes.level')}
-                </div>
-                <div className="mt-1 text-sm text-gray-900">
-                  {classItem.level?.name || '-'}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <CalendarIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('admin_pages.classes.academic_year')}
-                </div>
-                <div className="mt-1 text-sm text-gray-900">
-                  {classItem.academic_year?.name || '-'}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <UserGroupIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('admin_pages.classes.students')}
-                </div>
-                <div className="mt-1 flex items-center space-x-2">
+          <Stat.Group columns={4}>
+            <Stat.Item
+              icon={AcademicCapIcon}
+              title={trans('admin_pages.classes.level')}
+              value={<span className="text-sm text-gray-900">{classItem.level?.name || '-'}</span>}
+            />
+            <Stat.Item
+              icon={CalendarIcon}
+              title={trans('admin_pages.classes.academic_year')}
+              value={<span className="text-sm text-gray-900">{classItem.academic_year?.name || '-'}</span>}
+            />
+            <Stat.Item
+              icon={UserGroupIcon}
+              title={trans('admin_pages.classes.students')}
+              value={
+                <div className="flex items-center space-x-2">
                   <span className="text-sm font-semibold text-gray-900">
                     {statistics.active_students} / {statistics.max_students}
                   </span>
@@ -184,37 +119,52 @@ export default function ClassShow({
                     <Badge label={trans('admin_pages.classes.full')} type="warning" size="sm" />
                   )}
                 </div>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <BookOpenIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('admin_pages.classes.subjects')}
-                </div>
-                <div className="mt-1 text-sm font-semibold text-gray-900">
-                  {statistics.subjects_count}
-                </div>
-              </div>
-            </div>
-          </div>
+              }
+            />
+            <Stat.Item
+              icon={BookOpenIcon}
+              title={trans('admin_pages.classes.subjects')}
+              value={<span className="text-sm font-semibold text-gray-900">{statistics.subjects_count}</span>}
+            />
+          </Stat.Group>
         </Section>
 
         <Section
           title={trans('admin_pages.classes.enrollments_section')}
           subtitle={trans('admin_pages.classes.enrollments_section_subtitle')}
         >
-          <EnrollmentList data={enrollments} variant="admin" showActions={false} />
+          <EnrollmentList
+            data={enrollments}
+            variant="admin"
+            showClassColumn={false}
+            permissions={{ canView: true }}
+            onView={(enrollment) => enrollment.student_id && router.visit(route('admin.users.show', enrollment.student_id))}
+          />
         </Section>
 
         <Section
           title={trans('admin_pages.classes.subjects_section')}
           subtitle={trans('admin_pages.classes.subjects_section_subtitle')}
         >
-          <DataTable data={classSubjects} config={subjectsTableConfig} />
+          <ClassSubjectList
+            data={classSubjects}
+            variant="admin"
+            showClassColumn={false}
+            onView={(classSubject) => classSubject.subject_id && router.visit(route('admin.subjects.show', classSubject.subject_id))}
+          />
         </Section>
       </div>
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title={trans('admin_pages.classes.delete_title')}
+        message={trans('admin_pages.classes.delete_message', { name: classItem.name })}
+        confirmText={trans('admin_pages.common.delete')}
+        cancelText={trans('admin_pages.common.cancel')}
+        type="danger"
+      />
     </AuthenticatedLayout>
   );
 }

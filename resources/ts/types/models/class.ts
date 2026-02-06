@@ -21,6 +21,7 @@ export interface ClassModel {
   enrollments_count?: number;
   active_enrollments_count?: number;
   subjects_count?: number;
+  can_delete?: boolean;
 }
 
 export interface ClassFormData {

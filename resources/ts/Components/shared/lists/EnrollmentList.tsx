@@ -10,6 +10,7 @@ interface EnrollmentListProps {
   data: PaginationType<Enrollment>;
   variant?: EntityListVariant;
   showActions?: boolean;
+  showClassColumn?: boolean;
   permissions?: {
     canView?: boolean;
     canUpdate?: boolean;
@@ -23,6 +24,7 @@ export function EnrollmentList({
   data,
   variant = 'admin',
   showActions = true,
+  showClassColumn = true,
   permissions = {},
   onView,
   onTransfer,
@@ -94,6 +96,7 @@ export function EnrollmentList({
             </div>
           );
         },
+        conditional: () => showClassColumn,
       },
       {
         key: 'level',

@@ -335,6 +335,7 @@ return [
         'delete_title' => 'Supprimer la classe',
         'delete_message' => 'Voulez-vous vraiment supprimer la classe ":name" ?',
         'delete_confirm' => 'Êtes-vous sûr de vouloir supprimer cette classe ?',
+        'cannot_delete_has_data' => 'Suppression impossible : cette classe a des étudiants ou des matières',
         'empty_title' => 'Aucune classe',
         'empty_subtitle' => 'Créez votre première classe pour commencer.',
         'create_button' => 'Créer la classe',

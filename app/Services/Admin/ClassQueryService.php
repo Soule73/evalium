@@ -39,8 +39,8 @@ class ClassQueryService
                 },
                 'classSubjects as subjects_count',
             ])
-            ->when($filters['search'] ?? null, fn($query, $search) => $query->where('name', 'like', "%{$search}%"))
-            ->when($filters['level_id'] ?? null, fn($query, $levelId) => $query->where('level_id', $levelId))
+            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
+            ->when($filters['level_id'] ?? null, fn ($query, $levelId) => $query->where('level_id', $levelId))
             ->orderBy('level_id')
             ->orderBy('name');
 
@@ -137,6 +137,7 @@ class ClassQueryService
         array $subjectsFilters
     ): array {
         $class->load(['academicYear', 'level']);
+        $class->can_delete = $class->canBeDeleted();
 
         $enrollments = $this->getPaginatedEnrollments($class, $studentsFilters);
         $classSubjects = $this->getPaginatedClassSubjects($class, $subjectsFilters);

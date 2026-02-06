@@ -10,6 +10,7 @@ import type { PaginationType } from '@/types/datatable';
 interface ClassSubjectListProps {
   data: PaginationType<ClassSubject>;
   variant?: 'admin' | 'teacher';
+  showClassColumn?: boolean;
   onView?: (classSubject: ClassSubject) => void;
   onReplaceTeacher?: (classSubject: ClassSubject) => void;
   onUpdateCoefficient?: (classSubject: ClassSubject) => void;
@@ -26,6 +27,7 @@ interface ClassSubjectListProps {
 export function ClassSubjectList({
   data,
   variant = 'admin',
+  showClassColumn = true,
   onView,
   onReplaceTeacher,
   onUpdateCoefficient,
@@ -53,6 +55,7 @@ export function ClassSubjectList({
             </div>
           );
         },
+        conditional: () => showClassColumn,
       },
 
       {
@@ -116,6 +119,16 @@ export function ClassSubjectList({
             />
           );
         },
+      },
+
+      {
+        key: 'assessments',
+        labelKey: 'admin_pages.classes.assessments',
+        render: (classSubject) => (
+          <div className="text-sm text-gray-600">
+            {classSubject.assessments_count || 0}
+          </div>
+        ),
       },
     ],
 
