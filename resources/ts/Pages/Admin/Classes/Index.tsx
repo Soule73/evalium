@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { DataTableConfig, PaginationType } from '@/types/datatable';
+import { PaginationType } from '@/types/datatable';
 import { ClassModel, PageProps } from '@/types';
 import { breadcrumbs, trans, hasPermission } from '@/utils';
-import { Badge, Button, ConfirmationModal, DataTable, Section } from '@/Components';
+import { Button, ConfirmationModal, Section } from '@/Components';
+import { ClassList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
 
 interface Props extends PageProps {
@@ -23,19 +24,9 @@ export default function ClassIndex({ classes, auth }: Props) {
   });
 
   const canCreate = hasPermission(auth.permissions, 'create classes');
-  const canUpdate = hasPermission(auth.permissions, 'update classes');
-  const canDelete = hasPermission(auth.permissions, 'delete classes');
 
   const handleCreate = () => {
     router.visit(route('admin.classes.create'));
-  };
-
-  const handleView = (classItem: ClassModel) => {
-    router.visit(route('admin.classes.show', classItem.id));
-  };
-
-  const handleEdit = (classItem: ClassModel) => {
-    router.visit(route('admin.classes.edit', classItem.id));
   };
 
   const handleDeleteClick = (classItem: ClassModel) => {
@@ -50,78 +41,6 @@ export default function ClassIndex({ classes, auth }: Props) {
         },
       });
     }
-  };
-
-  const dataTableConfig: DataTableConfig<ClassModel> = {
-    columns: [
-      {
-        key: 'name',
-        label: trans('admin_pages.classes.name'),
-        render: (classItem) => (
-          <div>
-            <div className="font-medium text-gray-900">{classItem.display_name || classItem.name}</div>
-            <div className="text-sm text-gray-500">
-              {classItem.level?.name} - {classItem.academic_year?.name}
-            </div>
-          </div>
-        ),
-      },
-      {
-        key: 'students',
-        label: trans('admin_pages.classes.students'),
-        render: (classItem) => {
-          const activeCount = classItem.active_enrollments_count || 0;
-          const maxStudents = classItem.max_students;
-          const percentage = maxStudents > 0 ? (activeCount / maxStudents) * 100 : 0;
-
-          return (
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-900">
-                {activeCount} / {maxStudents}
-              </span>
-              {percentage >= 90 && (
-                <Badge label={trans('admin_pages.classes.full')} type="warning" size="sm" />
-              )}
-            </div>
-          );
-        },
-      },
-      {
-        key: 'subjects',
-        label: trans('admin_pages.classes.subjects'),
-        render: (classItem) => (
-          <div className="text-sm text-gray-600">
-            {classItem.subjects_count || 0}
-          </div>
-        ),
-      },
-      {
-        key: 'actions',
-        label: trans('admin_pages.common.actions'),
-        render: (classItem) => (
-          <div className="flex space-x-2">
-            <Button size="sm" variant="outline" color="secondary" onClick={() => handleView(classItem)}>
-              {trans('admin_pages.common.view')}
-            </Button>
-            {canUpdate && (
-              <Button size="sm" variant="outline" color="primary" onClick={() => handleEdit(classItem)}>
-                {trans('admin_pages.common.edit')}
-              </Button>
-            )}
-            {canDelete && (
-              <Button size="sm" variant="outline" color="danger" onClick={() => handleDeleteClick(classItem)}>
-                {trans('admin_pages.common.delete')}
-              </Button>
-            )}
-          </div>
-        ),
-      },
-    ],
-    filters: [],
-    emptyState: {
-      title: trans('admin_pages.classes.empty_title'),
-      subtitle: trans('admin_pages.classes.empty_subtitle'),
-    },
   };
 
   return (
@@ -140,7 +59,7 @@ export default function ClassIndex({ classes, auth }: Props) {
           )
         }
       >
-        <DataTable data={classes} config={dataTableConfig} />
+        <ClassList data={classes} variant="admin" onDelete={handleDeleteClick} />
       </Section>
 
       <ConfirmationModal
