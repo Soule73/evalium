@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { EnrollmentFormData, ClassModel, User } from '@/types';
@@ -49,6 +49,23 @@ export default function EnrollmentCreate({ classes, students }: Props) {
     ? (selectedClass.max_students - (selectedClass.active_enrollments_count || 0))
     : 0;
 
+  const studentsItem = useMemo(() => [
+    { value: 0, label: trans('admin_pages.enrollments.select_student') },
+    ...students.map((student) => ({
+      value: student.id,
+      label: `${student.name} (${student.email})`
+    }))
+  ], [students]);
+
+  const classesItem = useMemo(() => [
+    { value: 0, label: trans('admin_pages.enrollments.select_class') },
+    ...classes.map((classItem) => ({
+      value: classItem.id,
+      label: `${classItem.name} - ${classItem.level?.name}(${(classItem.level?.description || '')?.substring(0, 30)})`
+    }))
+  ], [classes]);
+
+
   return (
     <AuthenticatedLayout
       title={trans('admin_pages.enrollments.create_title')}
@@ -68,13 +85,7 @@ export default function EnrollmentCreate({ classes, students }: Props) {
               error={errors.student_id}
               required
               searchable
-              options={[
-                { value: 0, label: trans('admin_pages.enrollments.select_student') },
-                ...students.map((student) => ({
-                  value: student.id,
-                  label: `${student.name} (${student.email})`
-                }))
-              ]}
+              options={studentsItem}
             />
 
             <Select
@@ -85,13 +96,7 @@ export default function EnrollmentCreate({ classes, students }: Props) {
               error={errors.class_id}
               required
               searchable
-              options={[
-                { value: 0, label: trans('admin_pages.enrollments.select_class') },
-                ...classes.map((classItem) => ({
-                  value: classItem.id,
-                  label: `${classItem.display_name || classItem.name} - ${classItem.level?.name}`
-                }))
-              ]}
+              options={classesItem}
             />
 
             {selectedClass && (

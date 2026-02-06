@@ -67,7 +67,7 @@ export default function ClassIndex({ classes, auth }: Props) {
         onClose={() => setDeleteModal({ isOpen: false, classItem: null })}
         onConfirm={handleDeleteConfirm}
         title={trans('admin_pages.classes.delete_title')}
-        message={trans('admin_pages.classes.delete_message', { name: deleteModal.classItem?.display_name || deleteModal.classItem?.name || '' })}
+        message={trans('admin_pages.classes.delete_message', { name: deleteModal.classItem?.name || '' })}
         confirmText={trans('admin_pages.common.delete')}
         cancelText={trans('admin_pages.common.cancel')}
         type="danger"

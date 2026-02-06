@@ -12,7 +12,6 @@ interface ClassSubject {
     class: {
         id: number;
         name: string;
-        display_name?: string;
         level?: { name: string };
         academic_year?: { name: string };
     };
@@ -26,7 +25,6 @@ interface Assessment {
     classSubject?: {
         class: {
             name: string;
-            display_name?: string;
             level?: { name: string };
             academic_year?: { name: string };
         };
@@ -81,7 +79,7 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
                 render: (assignment) => (
                     <div>
                         <div className="font-medium text-gray-900">
-                            {assignment.class.display_name || assignment.class.name}
+                            {assignment.class.name}
                         </div>
                         {(assignment.class.level?.name || assignment.class.academic_year?.name) && (
                             <div className="text-sm text-gray-500">
@@ -134,7 +132,7 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
                 render: (assessment) => (
                     <div>
                         <div className="text-sm text-gray-900">
-                            {assessment.classSubject?.class?.display_name || assessment.classSubject?.class?.name || '-'}
+                            {assessment.classSubject?.class?.name || '-'}
                         </div>
                         {assessment.classSubject?.class && (assessment.classSubject.class.level?.name || assessment.classSubject.class.academic_year?.name) && (
                             <div className="text-xs text-gray-500">
@@ -196,7 +194,7 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
                 render: (assessment) => (
                     <div>
                         <div className="text-sm text-gray-900">
-                            {assessment.classSubject?.class?.display_name || assessment.classSubject?.class?.name || '-'}
+                            {assessment.classSubject?.class?.name || '-'}
                         </div>
                         {assessment.classSubject?.class && (assessment.classSubject.class.level?.name || assessment.classSubject.class.academic_year?.name) && (
                             <div className="text-xs text-gray-500">

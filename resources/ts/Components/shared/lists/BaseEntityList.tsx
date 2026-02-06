@@ -85,7 +85,7 @@ export function BaseEntityList<T>({
         }
 
         return (
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center gap-2">
             {visibleActions.map((action, idx) => {
               const Icon = action.icon;
               return (

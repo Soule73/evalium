@@ -136,16 +136,16 @@ export const breadcrumbs = {
             { label: trans('breadcrumbs.create') }
         ],
 
-        showClass: (classItem: { id: number; name?: string; display_name?: string }): BreadcrumbItem[] => [
+        showClass: (classItem: { id: number; name?: string; }): BreadcrumbItem[] => [
             dashboardBreadcrumb(),
             { label: trans('breadcrumbs.classes'), href: route('admin.classes.index') },
-            { label: classItem.display_name || classItem.name || '', href: route('admin.classes.show', classItem.id) }
+            { label: classItem.name || '', href: route('admin.classes.show', classItem.id) }
         ],
 
-        editClass: (classItem: { id: number; name?: string; display_name?: string }): BreadcrumbItem[] => [
+        editClass: (classItem: { id: number; name?: string; }): BreadcrumbItem[] => [
             dashboardBreadcrumb(),
             { label: trans('breadcrumbs.classes'), href: route('admin.classes.index') },
-            { label: classItem.display_name || classItem.name || '', href: route('admin.classes.show', classItem.id) },
+            { label: classItem.name || '', href: route('admin.classes.show', classItem.id) },
             { label: trans('breadcrumbs.edit') }
         ],
 
@@ -184,23 +184,23 @@ export const breadcrumbs = {
             { label: trans('breadcrumbs.create') }
         ],
 
-        showClassSubject: (classSubject: { id: number; subject?: { name: string }; class?: { name?: string; display_name?: string } }): BreadcrumbItem[] => [
+        showClassSubject: (classSubject: { id: number; subject?: { name: string }; class?: { name?: string } }): BreadcrumbItem[] => [
             dashboardBreadcrumb(),
             { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
-            { label: `${classSubject.class?.display_name || classSubject.class?.name || ''} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) }
+            { label: `${classSubject.class?.name || ''} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) }
         ],
 
-        replaceTeacherClassSubject: (classSubject: { id: number; subject?: { name: string }; class?: { name?: string; display_name?: string } }): BreadcrumbItem[] => [
+        replaceTeacherClassSubject: (classSubject: { id: number; subject?: { name: string }; class?: { name?: string } }): BreadcrumbItem[] => [
             dashboardBreadcrumb(),
             { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
-            { label: `${classSubject.class?.display_name || classSubject.class?.name || ''} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) },
+            { label: `${classSubject.class?.name || ''} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) },
             { label: trans('breadcrumbs.replace_teacher') }
         ],
 
-        updateCoefficientClassSubject: (classSubject: { id: number; subject?: { name: string }; class?: { name?: string; display_name?: string } }): BreadcrumbItem[] => [
+        updateCoefficientClassSubject: (classSubject: { id: number; subject?: { name: string }; class?: { name?: string } }): BreadcrumbItem[] => [
             dashboardBreadcrumb(),
             { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
-            { label: `${classSubject.class?.display_name || classSubject.class?.name || ''} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) },
+            { label: `${classSubject.class?.name || ''} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) },
             { label: trans('breadcrumbs.update_coefficient') }
         ],
     },
@@ -250,10 +250,10 @@ export const breadcrumbs = {
             { label: trans('breadcrumbs.classes'), href: route('teacher.classes.index') }
         ],
 
-        showClass: (classItem: { id: number; name?: string; display_name?: string }): BreadcrumbItem[] => [
+        showClass: (classItem: { id: number; name?: string }): BreadcrumbItem[] => [
             dashboardBreadcrumb(),
             { label: trans('breadcrumbs.classes'), href: route('teacher.classes.index') },
-            { label: classItem.display_name || classItem.name || '', href: route('teacher.classes.show', classItem.id) }
+            { label: classItem.name || '', href: route('teacher.classes.show', classItem.id) }
         ],
     },
 

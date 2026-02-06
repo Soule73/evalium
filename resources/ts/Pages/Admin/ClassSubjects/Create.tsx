@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { ClassSubjectFormData, ClassModel, Subject, Semester, User } from '@/types';
@@ -49,6 +49,39 @@ export default function ClassSubjectCreate({ classes, subjects, teachers, semest
     router.visit(route('admin.class-subjects.index'));
   };
 
+  const classesItem = useMemo(() => [
+    { value: 0, label: trans('admin_pages.class_subjects.select_class') },
+    ...classes.map((classItem) => ({
+      value: classItem.id,
+      label: `${classItem.name} - ${classItem.level?.name}(${(classItem.level?.description || '')?.substring(0, 30)})`
+    }))
+  ], [classes]);
+
+  const subjectsItem = useMemo(() => [
+    { value: 0, label: trans('admin_pages.class_subjects.select_subject') },
+    ...subjects.map((subject) => ({
+      value: subject.id,
+      label: `${subject.code} - ${subject.name}`
+    }))
+  ], [subjects]);
+
+  const teachersItem = useMemo(() => [
+    { value: 0, label: trans('admin_pages.class_subjects.select_teacher') },
+    ...teachers.map((teacher) => ({
+      value: teacher.id,
+      label: `${teacher.name} (${teacher.email})`
+    }))
+  ], [teachers]);
+
+
+  const semestersItem = useMemo(() => [
+    { value: 0, label: trans('admin_pages.class_subjects.all_year') },
+    ...(semesters?.map((semester) => ({
+      value: semester.id,
+      label: `${trans('admin_pages.class_subjects.semester')} ${semester.order_number}`
+    })) || [])
+  ], [semesters]);
+
   return (
     <AuthenticatedLayout
       title={trans('admin_pages.class_subjects.create_title')}
@@ -68,13 +101,7 @@ export default function ClassSubjectCreate({ classes, subjects, teachers, semest
               error={errors.class_id}
               required
               searchable
-              options={[
-                { value: 0, label: trans('admin_pages.class_subjects.select_class') },
-                ...classes.map((classItem) => ({
-                  value: classItem.id,
-                  label: `${classItem.display_name || classItem.name} - ${classItem.level?.name}`
-                }))
-              ]}
+              options={classesItem}
             />
 
             <Select
@@ -85,13 +112,7 @@ export default function ClassSubjectCreate({ classes, subjects, teachers, semest
               error={errors.subject_id}
               required
               searchable
-              options={[
-                { value: 0, label: trans('admin_pages.class_subjects.select_subject') },
-                ...subjects.map((subject) => ({
-                  value: subject.id,
-                  label: `${subject.code} - ${subject.name}`
-                }))
-              ]}
+              options={subjectsItem}
             />
 
             <Select
@@ -102,13 +123,7 @@ export default function ClassSubjectCreate({ classes, subjects, teachers, semest
               error={errors.teacher_id}
               required
               searchable
-              options={[
-                { value: 0, label: trans('admin_pages.class_subjects.select_teacher') },
-                ...teachers.map((teacher) => ({
-                  value: teacher.id,
-                  label: `${teacher.name} (${teacher.email})`
-                }))
-              ]}
+              options={teachersItem}
             />
 
             <Input
@@ -131,13 +146,7 @@ export default function ClassSubjectCreate({ classes, subjects, teachers, semest
                 value={formData.semester_id || 0}
                 onChange={(value) => handleChange('semester_id', value === 0 ? undefined : value as number)}
                 error={errors.semester_id}
-                options={[
-                  { value: 0, label: trans('admin_pages.class_subjects.all_year') },
-                  ...semesters.map((semester) => ({
-                    value: semester.id,
-                    label: `${trans('admin_pages.class_subjects.semester')} ${semester.order_number}`
-                  }))
-                ]}
+                options={semestersItem}
               />
             )}
           </div>
@@ -148,7 +157,7 @@ export default function ClassSubjectCreate({ classes, subjects, teachers, semest
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-6">
+          <div className="flex justify-end space-x-3 pt-6 border-t">
             <Button type="button" variant="outline" color="secondary" onClick={handleCancel} disabled={isSubmitting}>
               {trans('admin_pages.common.cancel')}
             </Button>

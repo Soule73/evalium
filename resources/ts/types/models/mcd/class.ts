@@ -21,7 +21,6 @@ export interface ClassModel {
   enrollments_count?: number;
   active_enrollments_count?: number;
   subjects_count?: number;
-  display_name?: string;
 }
 
 export interface ClassFormData {

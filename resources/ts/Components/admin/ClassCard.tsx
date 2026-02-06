@@ -44,7 +44,7 @@ const ClassCard: React.FC<ClassCardProps> = ({
         <div className="flex items-center space-x-2">
           <AcademicCapIcon className="w-5 h-5 text-gray-400" />
           <h3 className="text-lg font-semibold text-gray-900">
-            {classItem.display_name || classItem.name}
+            {classItem.name}
           </h3>
         </div>
         {enrollmentPercentage >= 90 && (

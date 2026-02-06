@@ -70,7 +70,7 @@ export default function EnrollmentTransfer({ enrollment, classes }: Props) {
             <div className="text-blue-800">
               <span className="font-medium">{enrollment.student?.name}</span> → {' '}
               <span className="font-medium">
-                {enrollment.class?.display_name || enrollment.class?.name}
+                {enrollment.class?.name}
               </span>
               {' '}({enrollment.class?.level?.name})
             </div>
@@ -91,7 +91,7 @@ export default function EnrollmentTransfer({ enrollment, classes }: Props) {
                 { value: 0, label: trans('admin_pages.enrollments.select_target_class') },
                 ...availableClasses.map((classItem) => ({
                   value: classItem.id,
-                  label: `${classItem.display_name || classItem.name} - ${classItem.level?.name} (${classItem.active_enrollments_count}/${classItem.max_students})`
+                  label: `${classItem.name} - ${classItem.level?.name} (${classItem.active_enrollments_count}/${classItem.max_students})`
                 }))
               ]}
             />

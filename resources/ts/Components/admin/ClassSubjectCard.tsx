@@ -36,7 +36,7 @@ export function ClassSubjectCard({ classSubject, onClick }: ClassSubjectCardProp
           <AcademicCapIcon className="w-4 h-4 text-gray-400 mt-0.5" />
           <div>
             <div className="text-sm font-medium text-gray-900">
-              {classSubject.class?.display_name || classSubject.class?.name}
+              {classSubject.class?.name}
             </div>
             <div className="text-xs text-gray-500">
               {classSubject.class?.level?.name}

@@ -32,10 +32,6 @@ class ClassModel extends Model
         'max_students' => 'integer',
     ];
 
-    protected $appends = [
-        'display_name',
-    ];
-
     /**
      * Get the academic year this class belongs to.
      */
@@ -90,16 +86,6 @@ class ClassModel extends Model
             'class_subject_id',
             'id',
             'id'
-        );
-    }
-
-    /**
-     * Get the display name (e.g., "M1-A (2025/2026)").
-     */
-    protected function displayName(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->name.' ('.$this->academicYear->name.')'
         );
     }
 }

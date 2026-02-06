@@ -98,16 +98,17 @@ export function SubjectList({
         labelKey: 'admin_pages.subjects.class',
         render: (item) => {
           const classSubject = item as ClassSubject;
+          const levelNameDescription = `${classSubject.class?.level?.name} (${classSubject.class?.level?.description})`;
           return (
             <div
               className="cursor-pointer hover:text-primary-600"
               onClick={() => onClassClick?.(classSubject)}
             >
               <div className="font-medium">
-                {classSubject.class?.display_name || classSubject.class?.name}
+                {classSubject.class?.name}
               </div>
               <div className="text-sm text-gray-500">
-                {classSubject.class?.level?.name} - {classSubject.class?.academic_year?.name}
+                {levelNameDescription}
               </div>
             </div>
           );

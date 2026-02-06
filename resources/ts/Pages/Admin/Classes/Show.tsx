@@ -120,12 +120,12 @@ export default function ClassShow({
 
   return (
     <AuthenticatedLayout
-      title={classItem.display_name || classItem.name}
+      title={classItem.name || '-'}
       breadcrumb={breadcrumbs.admin.showClass(classItem)}
     >
       <div className="space-y-6">
         <Section
-          title={classItem.display_name || classItem.name}
+          title={classItem.name || '-'}
           subtitle={trans('admin_pages.classes.show_subtitle')}
           actions={
             <div className="flex space-x-3">

@@ -72,7 +72,7 @@ export default function ClassSubjectShow({ classSubject, history, auth }: Props)
                   {trans('admin_pages.class_subjects.class')}
                 </div>
                 <div className="mt-1 text-sm font-semibold text-gray-900">
-                  {classSubject.class?.display_name || classSubject.class?.name}
+                  {classSubject.class?.name}
                 </div>
                 <div className="text-xs text-gray-500">
                   {classSubject.class?.level?.name}

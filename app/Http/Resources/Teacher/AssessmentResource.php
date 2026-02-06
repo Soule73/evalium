@@ -22,7 +22,7 @@ class AssessmentResource extends JsonResource
                 return [
                     'class' => [
                         'name' => $this->classSubject->class->name ?? null,
-                        'display_name' => $this->classSubject->class->display_name ?? null,
+                        'description' => $this->classSubject->class->description ?? null,
                         'level' => $this->classSubject->class->level ? [
                             'name' => $this->classSubject->class->level->name,
                         ] : null,

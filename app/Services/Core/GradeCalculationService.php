@@ -107,7 +107,7 @@ class GradeCalculationService
             'student_id' => $student->id,
             'student_name' => $student->name,
             'class_id' => $class->id,
-            'class_name' => $class->display_name,
+            'description' => $class->description,
             'subjects' => $subjectGrades,
             'annual_average' => $annualAverage,
             'total_coefficient' => $totalCoefficients,

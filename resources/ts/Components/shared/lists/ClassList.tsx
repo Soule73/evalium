@@ -39,16 +39,18 @@ export function ClassList({
       {
         key: 'name',
         labelKey: variant === 'admin' ? 'admin_pages.classes.name' : 'teacher_class_pages.index.name',
-        render: (classItem) => (
-          <div>
+        render: (classItem) => {
+          const levelNameDescription = `${classItem.level?.name} (${classItem.level?.description})`;
+          return (<div>
             <div className="font-medium text-gray-900">
-              {classItem.display_name || classItem.name}
+              {classItem.name}
             </div>
             <div className="text-sm text-gray-500">
-              {classItem.level?.name} - {classItem.academic_year?.name}
+              {levelNameDescription}
+              {/* {classItem.level?.name} - {classItem.academic_year?.name} */}
             </div>
-          </div>
-        ),
+          </div>)
+        },
       },
 
       {

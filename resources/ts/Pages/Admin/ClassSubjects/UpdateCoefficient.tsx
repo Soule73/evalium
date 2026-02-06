@@ -59,7 +59,7 @@ export default function ClassSubjectUpdateCoefficient({ classSubject }: Props) {
             <div className="text-blue-800 space-y-1">
               <div>
                 <span className="font-medium">{trans('admin_pages.class_subjects.class')}:</span>{' '}
-                {classSubject.class?.display_name || classSubject.class?.name}
+                {classSubject.class?.name}
               </div>
               <div>
                 <span className="font-medium">{trans('admin_pages.class_subjects.subject')}:</span>{' '}

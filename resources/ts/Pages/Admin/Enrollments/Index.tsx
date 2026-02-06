@@ -101,9 +101,7 @@ export default function EnrollmentIndex({ enrollments, auth }: Props) {
         title={trans('admin_pages.enrollments.withdraw_title')}
         message={trans('admin_pages.enrollments.withdraw_message', {
           student: withdrawModal.enrollment?.student?.name || '',
-          class:
-            withdrawModal.enrollment?.class?.display_name ||
-            withdrawModal.enrollment?.class?.name ||
+          class: withdrawModal.enrollment?.class?.name ||
             '',
         })}
         confirmText={trans('admin_pages.enrollments.withdraw_confirm')}

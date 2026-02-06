@@ -35,8 +35,8 @@ class TeacherDashboardService
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->whereHas('class', fn ($query) => $query->where('name', 'like', "%{$search}%"))
-                    ->orWhereHas('subject', fn ($query) => $query->where('name', 'like', "%{$search}%"));
+                $q->whereHas('class', fn($query) => $query->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('subject', fn($query) => $query->where('name', 'like', "%{$search}%"));
             });
         }
 
@@ -54,7 +54,7 @@ class TeacherDashboardService
      */
     public function getPastAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 10): LengthAwarePaginator
     {
-        $query = Assessment::whereHas('classSubject', fn ($q) => $q->where('teacher_id', $teacherId))
+        $query = Assessment::whereHas('classSubject', fn($q) => $q->where('teacher_id', $teacherId))
             ->forAcademicYear($academicYearId)
             ->where('scheduled_at', '<', now())
             ->with(['classSubject.class.level', 'classSubject.class.academicYear', 'classSubject.subject'])
@@ -66,7 +66,7 @@ class TeacherDashboardService
 
         $assessments = $this->simplePaginate($query, $perPage);
 
-        $assessments->through(fn ($assessment) => $this->formatAssessmentForDisplay($assessment));
+        $assessments->through(fn($assessment) => $this->formatAssessmentForDisplay($assessment));
 
         return $assessments;
     }
@@ -82,7 +82,7 @@ class TeacherDashboardService
      */
     public function getUpcomingAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 10): LengthAwarePaginator
     {
-        $query = Assessment::whereHas('classSubject', fn ($q) => $q->where('teacher_id', $teacherId))
+        $query = Assessment::whereHas('classSubject', fn($q) => $q->where('teacher_id', $teacherId))
             ->forAcademicYear($academicYearId)
             ->where('scheduled_at', '>=', now())
             ->with(['classSubject.class.level', 'classSubject.class.academicYear', 'classSubject.subject'])
@@ -94,7 +94,7 @@ class TeacherDashboardService
 
         $assessments = $this->simplePaginate($query, $perPage);
 
-        $assessments->through(fn ($assessment) => $this->formatAssessmentForDisplay($assessment));
+        $assessments->through(fn($assessment) => $this->formatAssessmentForDisplay($assessment));
 
         return $assessments;
     }
@@ -115,7 +115,7 @@ class TeacherDashboardService
             ->active()
             ->get();
 
-        $totalAssessmentsCount = Assessment::whereHas('classSubject', fn ($query) => $query->where('teacher_id', $teacherId))
+        $totalAssessmentsCount = Assessment::whereHas('classSubject', fn($query) => $query->where('teacher_id', $teacherId))
             ->forAcademicYear($academicYearId)
             ->count();
 
@@ -143,7 +143,7 @@ class TeacherDashboardService
             'classSubject' => [
                 'class' => [
                     'name' => $assessment->classSubject?->class?->name,
-                    'display_name' => $assessment->classSubject?->class?->display_name,
+                    'description' => $assessment->classSubject?->class?->description,
                     'level' => $assessment->classSubject?->class?->level ? ['name' => $assessment->classSubject->class->level->name] : null,
                     'academic_year' => $assessment->classSubject?->class?->academicYear ? ['name' => $assessment->classSubject->class->academicYear->name] : null,
                 ],

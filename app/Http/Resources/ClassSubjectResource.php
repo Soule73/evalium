@@ -35,7 +35,7 @@ class ClassSubjectResource extends JsonResource
       'class' => $this->whenLoaded('class', fn() => [
         'id' => $this->class->id,
         'name' => $this->class->name,
-        'display_name' => $this->class->display_name,
+        'description' => $this->class->description,
       ]),
 
       'created_at' => $this->created_at?->toISOString(),

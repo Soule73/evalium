@@ -88,7 +88,7 @@ export default function EnrollmentShow({ enrollment, auth }: Props) {
                   {trans('admin_pages.enrollments.class')}
                 </div>
                 <div className="mt-1 text-sm font-semibold text-gray-900">
-                  {enrollment.class?.display_name || enrollment.class?.name}
+                  {enrollment.class?.name}
                 </div>
                 <div className="text-xs text-gray-500">
                   {enrollment.class?.level?.name} - {enrollment.class?.academic_year?.name}

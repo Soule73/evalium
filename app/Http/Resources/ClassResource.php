@@ -25,7 +25,7 @@ class ClassResource extends JsonResource
     return [
       'id' => $this->id,
       'name' => $this->name,
-      'display_name' => $this->display_name,
+      'description' => $this->description,
       'max_students' => $this->when(
         $this->shouldIncludeField('max_students'),
         $this->max_students

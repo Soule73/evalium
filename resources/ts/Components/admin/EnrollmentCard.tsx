@@ -41,7 +41,7 @@ export function EnrollmentCard({ enrollment, onClick }: EnrollmentCardProps) {
           <AcademicCapIcon className="w-4 h-4 text-gray-400 mt-0.5" />
           <div>
             <div className="text-sm font-medium text-gray-900">
-              {enrollment.class?.display_name || enrollment.class?.name}
+              {enrollment.class?.name}
             </div>
             <div className="text-xs text-gray-500">
               {enrollment.class?.level?.name}

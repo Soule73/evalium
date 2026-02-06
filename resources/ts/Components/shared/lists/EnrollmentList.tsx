@@ -82,13 +82,14 @@ export function EnrollmentList({
           if (currentVariant === 'student') {
             return <span className="text-gray-700">{enrollment.class?.name || '-'}</span>;
           }
+          const levelNameDescription = `${enrollment.class?.level?.name} (${enrollment.class?.level?.description})`;
           return (
             <div>
               <div className="font-medium text-gray-900">
-                {enrollment.class?.display_name || enrollment.class?.name}
+                {enrollment.class?.name}
               </div>
               <div className="text-sm text-gray-500">
-                {enrollment.class?.level?.name} - {enrollment.class?.academic_year?.name}
+                {levelNameDescription}
               </div>
             </div>
           );
