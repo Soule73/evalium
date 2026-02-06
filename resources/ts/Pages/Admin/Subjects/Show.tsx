@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Subject, ClassSubject, PageProps, PaginationType } from '@/types';
 import { breadcrumbs, trans, hasPermission } from '@/utils';
-import { Button, Section, Badge } from '@/Components';
+import { Button, Section, ConfirmationModal } from '@/Components';
+import { Badge, Stat } from '@examena/ui';
 import { SubjectList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
 import { AcademicCapIcon, BookOpenIcon } from '@heroicons/react/24/outline';
@@ -10,23 +12,24 @@ import { AcademicCapIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 interface Props extends PageProps {
   subject: Subject;
   classSubjects: PaginationType<ClassSubject>;
-  classSubjectsFilters?: {
-    search?: string;
-  };
 }
 
 export default function SubjectShow({ subject, classSubjects, auth }: Props) {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
   const canUpdate = hasPermission(auth.permissions, 'update subjects');
-  const canDelete = hasPermission(auth.permissions, 'delete subjects');
+  const canDelete = hasPermission(auth.permissions, 'delete subjects') && subject.can_delete;
 
   const handleEdit = () => {
     router.visit(route('admin.subjects.edit', subject.id));
   };
 
-  const handleDelete = () => {
-    if (confirm(trans('admin_pages.subjects.delete_confirm'))) {
-      router.delete(route('admin.subjects.destroy', subject.id));
-    }
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    router.delete(route('admin.subjects.destroy', subject.id));
   };
 
   const handleBack = () => {
@@ -59,50 +62,30 @@ export default function SubjectShow({ subject, classSubjects, auth }: Props) {
                 </Button>
               )}
               {canDelete && (
-                <Button size="sm" variant="outline" color="danger" onClick={handleDelete}>
+                <Button size="sm" variant="outline" color="danger" onClick={handleDeleteClick}>
                   {trans('admin_pages.common.delete')}
                 </Button>
               )}
             </div>
           }
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex items-start space-x-3">
-              <BookOpenIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('admin_pages.subjects.code')}
-                </div>
-                <div className="mt-1">
-                  <Badge label={subject.code} type="info" size="sm" />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <AcademicCapIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('admin_pages.subjects.level')}
-                </div>
-                <div className="mt-1 text-sm text-gray-900">
-                  {subject.level?.name || '-'}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <BookOpenIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('admin_pages.subjects.classes_count')}
-                </div>
-                <div className="mt-1 text-sm font-semibold text-gray-900">
-                  {classSubjects.total || 0}
-                </div>
-              </div>
-            </div>
-          </div>
+          <Stat.Group columns={3}>
+            <Stat.Item
+              icon={BookOpenIcon}
+              title={trans('admin_pages.subjects.code')}
+              value={<Badge label={subject.code} type="info" size="sm" />}
+            />
+            <Stat.Item
+              icon={AcademicCapIcon}
+              title={trans('admin_pages.subjects.level')}
+              value={<span className="text-sm text-gray-900">{subject.level?.name || '-'}</span>}
+            />
+            <Stat.Item
+              icon={BookOpenIcon}
+              title={trans('admin_pages.subjects.classes_count')}
+              value={<span className="text-sm font-semibold text-gray-900">{classSubjects.total || 0}</span>}
+            />
+          </Stat.Group>
 
           {subject.description && (
             <div className="mt-6 pt-6 border-t border-gray-200">
@@ -121,6 +104,17 @@ export default function SubjectShow({ subject, classSubjects, auth }: Props) {
           <SubjectList data={classSubjects} variant="class-assignment" onClassClick={handleClassClick} />
         </Section>
       </div>
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title={trans('admin_pages.subjects.delete_title')}
+        message={trans('admin_pages.subjects.delete_message', { name: subject.name })}
+        confirmText={trans('admin_pages.common.delete')}
+        cancelText={trans('admin_pages.common.cancel')}
+        type="danger"
+      />
     </AuthenticatedLayout>
   );
 }

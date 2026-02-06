@@ -10,8 +10,6 @@ interface SubjectListProps {
   data: PaginationType<Subject | ClassSubject>;
   variant?: 'admin' | 'class-assignment';
   onView?: (item: Subject) => void;
-  onEdit?: (item: Subject) => void;
-  onDelete?: (item: Subject) => void;
   onClassClick?: (classSubject: ClassSubject) => void;
 }
 
@@ -26,8 +24,6 @@ export function SubjectList({
   data,
   variant = 'admin',
   onView,
-  onEdit,
-  onDelete,
   onClassClick,
 }: SubjectListProps) {
   type SubjectItem = Subject | ClassSubject;
@@ -107,7 +103,7 @@ export function SubjectList({
               className="cursor-pointer hover:text-primary-600"
               onClick={() => onClassClick?.(classSubject)}
             >
-              <div className="font-medium text-gray-900">
+              <div className="font-medium">
                 {classSubject.class?.display_name || classSubject.class?.name}
               </div>
               <div className="text-sm text-gray-500">
@@ -162,28 +158,6 @@ export function SubjectList({
         },
         color: 'secondary',
         variant: 'outline',
-      },
-      {
-        labelKey: 'admin_pages.common.edit',
-        onClick: (item) => {
-          const subject = item as Subject;
-          return onEdit?.(subject) || router.visit(route('admin.subjects.edit', subject.id));
-        },
-        permission: 'update subjects',
-        color: 'primary',
-        variant: 'outline',
-        conditional: (_item, v) => v === 'admin',
-      },
-      {
-        labelKey: 'admin_pages.common.delete',
-        onClick: (item) => {
-          const subject = item as Subject;
-          return onDelete?.(subject);
-        },
-        permission: 'delete subjects',
-        color: 'danger',
-        variant: 'outline',
-        conditional: (_item, v) => v === 'admin',
       },
     ],
   };

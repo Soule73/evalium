@@ -48,7 +48,16 @@ class SubjectService
             ->orderBy('level_id')
             ->orderBy('name');
 
-        return $this->simplePaginate($query, $perPage);
+        /** @var \Illuminate\Pagination\LengthAwarePaginator<\App\Models\Subject> $paginated */
+        $paginated = $this->simplePaginate($query, $perPage);
+
+        $paginated->getCollection()->transform(function ($subject) {
+            $subject->can_delete = $subject->canBeDeleted();
+
+            return $subject;
+        });
+
+        return $paginated;
     }
 
     /**
@@ -103,15 +112,13 @@ class SubjectService
         array $classSubjectsFilters
     ): array {
         $subject->load('level');
+        $subject->can_delete = $subject->canBeDeleted();
 
         $classSubjects = $this->getPaginatedClassSubjects($subject, $academicYearId, $classSubjectsFilters);
 
         return [
             'subject' => $subject,
             'classSubjects' => $classSubjects,
-            'classSubjectsFilters' => [
-                'search' => $classSubjectsFilters['search'],
-            ],
         ];
     }
 
@@ -120,7 +127,7 @@ class SubjectService
      */
     public function getPaginatedClassSubjects(Subject $subject, ?int $academicYearId, array $filters)
     {
-        return $subject->classSubjects()
+        $query = $subject->classSubjects()
             ->with(['class.academicYear', 'class.level', 'teacher'])
             ->when($academicYearId, function ($query) use ($academicYearId) {
                 $query->whereHas('class', function ($q) use ($academicYearId) {
@@ -128,20 +135,21 @@ class SubjectService
                 });
             })
             ->when($filters['search'] ?? null, function ($query, $search) {
-                $query->whereHas('class', function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('display_name', 'like', "%{$search}%");
-                })
-                    ->orWhereHas('teacher', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    });
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('class', function ($classQuery) use ($search) {
+                        $classQuery->where('name', 'like', "%{$search}%");
+                    })
+                        ->orWhereHas('teacher', function ($teacherQuery) use ($search) {
+                            $teacherQuery->where('name', 'like', "%{$search}%");
+                        });
+                });
             })
             ->orderBy('created_at', 'desc');
 
         return $this->paginateWithFilters(
-            $subject->classSubjects(),
-            ['per_page' => $filters['per_page'] ?? 10, 'page' => $filters['page'] ?? 1, 'page_name' => 'classes_page'],
-            ['classes_search' => $filters['search'] ?? null, 'classes_per_page' => $filters['per_page'] ?? null]
+            $query,
+            ['per_page' => $filters['per_page'] ?? 10, 'page' => $filters['page'] ?? 1],
+            ['search' => $filters['search'] ?? null]
         );
     }
 

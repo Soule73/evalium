@@ -81,9 +81,9 @@ class SubjectController extends Controller
         $selectedYearId = $this->getSelectedAcademicYearId($request);
 
         $classSubjectsFilters = [
-            'search' => $request->input('classes_search'),
-            'page' => $request->input('classes_page', 1),
-            'per_page' => $request->input('classes_per_page', 10),
+            'search' => $request->input('search'),
+            'page' => $request->input('page', 1),
+            'per_page' => $request->input('per_page', 10),
         ];
 
         $data = $this->subjectService->getSubjectDetailsWithPagination(

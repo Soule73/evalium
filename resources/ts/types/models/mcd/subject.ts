@@ -13,6 +13,7 @@ export interface Subject {
   level?: Level;
   class_subjects?: ClassSubject[];
   class_subjects_count?: number;
+  can_delete?: boolean;
 }
 
 export interface SubjectFormData {

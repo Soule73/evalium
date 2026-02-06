@@ -27,9 +27,9 @@ class Subject extends Model
 
     protected static function booted(): void
     {
-        static::created(fn () => Cache::forget('subjects:all'));
-        static::updated(fn () => Cache::forget('subjects:all'));
-        static::deleted(fn () => Cache::forget('subjects:all'));
+        static::created(fn() => Cache::forget('subjects:all'));
+        static::updated(fn() => Cache::forget('subjects:all'));
+        static::deleted(fn() => Cache::forget('subjects:all'));
     }
 
     /**
@@ -46,5 +46,13 @@ class Subject extends Model
     public function classSubjects(): HasMany
     {
         return $this->hasMany(ClassSubject::class);
+    }
+
+    /**
+     * Check if subject can be deleted (no class assignments).
+     */
+    public function canBeDeleted(): bool
+    {
+        return ! $this->classSubjects()->exists();
     }
 }
