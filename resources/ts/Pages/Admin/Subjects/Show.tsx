@@ -2,8 +2,8 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Subject, ClassSubject, PageProps, PaginationType } from '@/types';
 import { breadcrumbs, trans, hasPermission } from '@/utils';
-import { Button, Section, Badge, DataTable } from '@/Components';
-import { DataTableConfig } from '@/types/datatable';
+import { Button, Section, Badge } from '@/Components';
+import { ClassSubjectList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
 import { AcademicCapIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 
@@ -37,74 +37,6 @@ export default function SubjectShow({ subject, classSubjects, auth }: Props) {
     if (classSubject.class) {
       router.visit(route('admin.classes.show', classSubject.class.id));
     }
-  };
-
-  const classSubjectsTableConfig: DataTableConfig<ClassSubject> = {
-    columns: [
-      {
-        key: 'class',
-        label: trans('admin_pages.subjects.class'),
-        render: (classSubject) => (
-          <div
-            className="cursor-pointer hover:text-primary-600"
-            onClick={() => handleClassClick(classSubject)}
-          >
-            <div className="font-medium text-gray-900">
-              {classSubject.class?.display_name || classSubject.class?.name}
-            </div>
-            <div className="text-sm text-gray-500">
-              {classSubject.class?.level?.name} - {classSubject.class?.academic_year?.name}
-            </div>
-          </div>
-        ),
-      },
-      {
-        key: 'teacher',
-        label: trans('admin_pages.subjects.teacher'),
-        render: (classSubject) => (
-          <div className="text-sm text-gray-900">
-            {classSubject.teacher?.name || '-'}
-          </div>
-        ),
-      },
-      {
-        key: 'coefficient',
-        label: trans('admin_pages.subjects.coefficient'),
-        render: (classSubject) => (
-          <Badge label={classSubject.coefficient.toString()} type="info" size="sm" />
-        ),
-      },
-      {
-        key: 'actions',
-        label: trans('admin_pages.common.actions'),
-        render: (classSubject) => (
-          <Button
-            size="sm"
-            variant="outline"
-            color="secondary"
-            onClick={() => handleClassClick(classSubject)}
-          >
-            {trans('admin_pages.common.view')}
-          </Button>
-        ),
-      },
-    ],
-    filters: [],
-    emptyState: {
-      title: trans('admin_pages.subjects.no_classes'),
-      subtitle: trans('admin_pages.subjects.no_classes_subtitle'),
-    },
-    searchable: true,
-    searchPlaceholder: trans('admin_pages.subjects.search_classes'),
-    onSearch: (search) => {
-      router.get(
-        route('admin.subjects.show', subject.id),
-        { classes_search: search },
-        { preserveState: true, preserveScroll: true }
-      );
-    },
-    pageName: 'classes_page',
-    perPageName: 'classes_per_page',
   };
 
   return (
@@ -186,7 +118,7 @@ export default function SubjectShow({ subject, classSubjects, auth }: Props) {
           title={trans('admin_pages.subjects.classes_section')}
           subtitle={trans('admin_pages.subjects.classes_section_subtitle')}
         >
-          <DataTable data={classSubjects} config={classSubjectsTableConfig} />
+          <ClassSubjectList data={classSubjects} onClassClick={handleClassClick} />
         </Section>
       </div>
     </AuthenticatedLayout>
