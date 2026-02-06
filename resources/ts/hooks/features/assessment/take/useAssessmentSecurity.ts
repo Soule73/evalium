@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAssessmentConfig, isSecurityEnabled, isFeatureEnabled } from '../useAssessmentConfig';
-import { isInFullscreen, ExamViolationType } from '@/utils/exam/take';
+import { isInFullscreen, AssessmentViolationType } from '@/utils/assessment/take';
 
 interface SecurityConfig {
     maxAttempts?: number;
@@ -9,12 +9,12 @@ interface SecurityConfig {
 }
 
 interface SecurityEvent {
-    type: ExamViolationType | string;
+    type: AssessmentViolationType | string;
     timestamp: Date;
     details?: any;
 }
 
-interface UseExamSecurityReturn {
+interface UseAssessmentSecurityReturn {
     isFullscreen: boolean;
     securityViolations: SecurityEvent[];
     violations: SecurityEvent[];
@@ -29,45 +29,7 @@ interface UseExamSecurityReturn {
     securityEnabled: boolean;
 }
 
-/**
- * React hook to manage and enforce exam security features such as fullscreen enforcement,
- * tab switch detection, copy/paste prevention, context menu disabling, and print prevention.
- * 
- * This hook tracks security violations, blocks the user after a configurable number of violations,
- * and provides utility functions to interact with security mechanisms (e.g., entering/exiting fullscreen).
- * 
- * @param config - Optional configuration object for customizing security behavior.
- * @param config.maxAttempts - Maximum allowed security violations before blocking the user (default: 3).
- * @param config.onViolation - Callback invoked when a security violation occurs.
- * @param config.onBlocked - Callback invoked when the user is blocked due to too many violations.
- * 
- * @returns An object containing:
- * - `isFullscreen`: Whether the exam is currently in fullscreen mode.
- * - `securityViolations`: Array of recorded security violation events.
- * - `violations`: Alias for `securityViolations`.
- * - `isIdle`: Whether the user is considered idle (currently always `false`).
- * - `isBlocked`: Whether the user is blocked due to exceeding violation attempts.
- * - `attemptCount`: Number of security violations detected.
- * - `enterFullscreen`: Function to programmatically enter fullscreen mode.
- * - `exitFullscreen`: Function to programmatically exit fullscreen mode.
- * - `clearViolations`: Function to clear all recorded violations and reset state.
- * - `resetViolations`: Alias for `clearViolations`.
- * - `getSecurityScore`: Function returning a score (0-100) based on the number of violations.
- * - `securityEnabled`: Whether security features are enabled based on exam configuration.
- * 
- * @example
- * const {
- *   isFullscreen,
- *   securityViolations,
- *   isBlocked,
- *   enterFullscreen,
- *   exitFullscreen,
- *   clearViolations,
- *   getSecurityScore,
- *   securityEnabled,
- * } = useAssessmentSecurity({ maxAttempts: 2, onViolation: handleViolation });
- */
-export function useAssessmentSecurity(config: SecurityConfig = {}): UseExamSecurityReturn {
+export function useAssessmentSecurity(config: SecurityConfig = {}): UseAssessmentSecurityReturn {
     const assessmentConfig = useAssessmentConfig();
 
     const securityEnabled = isSecurityEnabled(assessmentConfig);

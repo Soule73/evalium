@@ -8,51 +8,23 @@ import {
     detachConfigurableEventListeners,
     removeSecurityMeasures
 } from '@/utils';
-import { getViolationTranslationKey } from '@/utils/exam/take';
+import { getViolationTranslationKey } from '@/utils/assessment/take';
 import { useAssessmentConfig, isSecurityEnabled, isFeatureEnabled } from '../useAssessmentConfig';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 import { trans } from '@/utils';
 
-interface UseExamSecurityViolationOptions {
-    examId: number;
+interface UseAssessmentSecurityViolationOptions {
+    assessmentId: number;
     onViolation?: (type: string) => void;
 }
 
-/**
- * Hook de gestion des violations de sécurité pendant un examen
- * 
- * Ce hook implémente un système simplifié de sécurité pour les examens en ligne,
- * en utilisant des utilitaires modulaires pour la réutilisabilité et la maintenabilité.
- * 
- * @param examId - L'identifiant unique de l'examen
- * @param onViolation - Callback optionnel appelé lors d'une violation
- * 
- * @returns Objet contenant les états et gestionnaires de sécurité
- * 
- * @example
- * ```typescript
- * const {
- *   examTerminated,
- *   terminationReason,
- *   handleViolation,
- *   handleBlocked
- * } = useAssessmentSecurityViolation({
- *   examId: 123,
- *   onViolation: (type) => console.log(`Violation: ${type}`)
- * });
- * 
- * if (examTerminated) {
- *   return <SecurityViolationPage reason={terminationReason} />;
- * }
- * ```
- */
-export function useAssessmentSecurityViolation({ examId, onViolation }: UseExamSecurityViolationOptions) {
-    const { examTerminated, terminationReason, setExamTerminated } = useAssessmentTakeStore(
+export function useAssessmentSecurityViolation({ assessmentId, onViolation }: UseAssessmentSecurityViolationOptions) {
+    const { assessmentTerminated, terminationReason, setAssessmentTerminated } = useAssessmentTakeStore(
         useShallow((state) => ({
-            examTerminated: state.assessmentTerminated,
+            assessmentTerminated: state.assessmentTerminated,
             terminationReason: state.terminationReason,
-            setExamTerminated: state.setAssessmentTerminated,
+            setAssessmentTerminated: state.setAssessmentTerminated,
         }))
     );
 
@@ -64,16 +36,12 @@ export function useAssessmentSecurityViolation({ examId, onViolation }: UseExamS
         return trans(translationKey);
     }, []);
 
-    /**
-     * Applique les mesures de sécurité en fonction de la configuration
-     * Nettoie automatiquement lors du démontage
-     */
+
     useEffect(() => {
         if (!securityEnabled) {
             return;
         }
 
-        // Configuration des fonctionnalités de sécurité
         const securityConfig = {
             devToolsDetection: isFeatureEnabled(assessmentConfig, 'devToolsDetection'),
             copyPastePrevention: isFeatureEnabled(assessmentConfig, 'copyPastePrevention'),
@@ -82,78 +50,54 @@ export function useAssessmentSecurityViolation({ examId, onViolation }: UseExamS
             tabSwitchDetection: isFeatureEnabled(assessmentConfig, 'tabSwitchDetection')
         };
 
-        // Applique les mesures de sécurité selon la configuration
         const handlers = applyConfigurableSecurityMeasures(securityConfig);
 
-        // Attache les événements selon la configuration
         attachConfigurableEventListeners(handlers, securityConfig);
 
-        // Nettoyage
         return () => {
             detachConfigurableEventListeners(handlers, securityConfig);
             removeSecurityMeasures();
         };
     }, [securityEnabled, assessmentConfig]);
 
-    /**
-     * Termine immédiatement l'examen suite à une violation de sécurité
-     * 
-     * Responsabilités :
-     * - Définit la raison de terminaison selon le type de violation
-     * - Met à jour l'état local (examTerminated = true)
-     * - Envoie les données de violation au serveur
-     * - Sauvegarde les réponses actuelles de l'étudiant
-     * 
-     * @param violationType - Type de violation détectée
-     * @param answers - Réponses actuelles à sauvegarder
-     */
-    const terminateExamForViolation = useCallback(async (
+
+    const terminateAssessmentForViolation = useCallback(async (
         violationType: string,
         answers: Record<number, string | number | number[]>
     ) => {
         const reason = getViolationLabel(violationType);
 
-        setExamTerminated(true, reason);
+        setAssessmentTerminated(true, reason);
 
         try {
-            await axios.post(route('student.exams.security-violation', examId), {
+            await axios.post(route('student.assessments.security-violation', assessmentId), {
                 violation_type: violationType,
                 violation_details: reason,
                 answers: answers
             });
         } catch (error) {
-            setExamTerminated(true, reason);
+            setAssessmentTerminated(true, reason);
         }
 
         if (onViolation) {
             onViolation(violationType);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [examId, onViolation, getViolationLabel]);
 
-    /**
-     * Gestionnaire pour les violations critiques de sécurité
-     * 
-     * Traite uniquement les violations qui entraînent une terminaison immédiate :
-     * - Changement d'onglet (tab_switch)
-     * - Sortie du mode plein écran (fullscreen_exit)
-     * 
-     * @param type - Type de violation détectée
-     * @param answers - Réponses actuelles à sauvegarder
-     */
+    }, [assessmentId, onViolation, getViolationLabel]);
+
     const handleViolation = useCallback((
         type: string,
         answers: Record<number, string | number | number[]>
     ) => {
         if (type === VIOLATION_TYPES.TAB_SWITCH || type === VIOLATION_TYPES.FULLSCREEN_EXIT) {
-            terminateExamForViolation(type, answers);
+            terminateAssessmentForViolation(type, answers);
         }
-    }, [terminateExamForViolation]);
+    }, [terminateAssessmentForViolation]);
 
     return {
-        examTerminated,
+        assessmentTerminated,
         terminationReason,
         handleViolation,
-        terminateExamForViolation
+        terminateAssessmentForViolation
     };
 }

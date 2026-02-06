@@ -78,11 +78,11 @@ const useTakeAssessment = ({ assessment, questions = [], userAnswers = [] }: Use
   });
 
   const {
-    examTerminated: assessmentTerminated,
+    assessmentTerminated: assessmentTerminated,
     terminationReason,
     handleViolation,
   } = useAssessmentSecurityViolation({
-    examId: assessment.id,
+    assessmentId: assessment.id,
   });
 
   const handleViolationCallback = useCallback(
@@ -96,7 +96,7 @@ const useTakeAssessment = ({ assessment, questions = [], userAnswers = [] }: Use
     onViolation: handleViolationCallback,
   });
 
-  const { showFullscreenModal, fullscreenRequired, examCanStart: assessmentCanStart, enterFullscreen, exitFullscreen } = useAssessmentFullscreen({ security });
+  const { showFullscreenModal, fullscreenRequired, assessmentCanStart: assessmentCanStart, enterFullscreen, exitFullscreen } = useAssessmentFullscreen({ security });
 
   const exitFullscreenRef = useRef(exitFullscreen);
 

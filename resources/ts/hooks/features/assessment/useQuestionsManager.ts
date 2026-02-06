@@ -2,8 +2,8 @@ import { useState, useCallback } from 'react';
 import { DragEndEvent } from '@dnd-kit/core';
 import { useShallow } from 'zustand/react/shallow';
 import { QuestionFormData, ChoiceFormData, QuestionType } from '@/types';
-import { useExamFormStore } from '@/stores';
-import { getQuestionTypeIcon as getIcon } from '@/utils/exam';
+import { useAssessmentFormStore } from '@/stores';
+import { getQuestionTypeIcon as getIcon } from '@/utils/assessment';
 
 export const useQuestionsManager = () => {
     const [showAddDropdown, setShowAddDropdown] = useState(false);
@@ -25,7 +25,7 @@ export const useQuestionsManager = () => {
         restoreQuestion,
         restoreChoice,
         clearDeletedHistory,
-    } = useExamFormStore(useShallow((state) => ({
+    } = useAssessmentFormStore(useShallow((state) => ({
         questions: state.questions,
         addQuestion: state.addQuestion,
         removeQuestion: state.removeQuestion,

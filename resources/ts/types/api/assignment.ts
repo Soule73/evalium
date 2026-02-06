@@ -8,11 +8,6 @@ export interface GetAssignmentResponse extends ApiResponse<AssessmentAssignment>
 export interface CreateAssignmentRequest {
     student_id: number;
     assessment_id: number;
-    assigned_at?: string;
-}
-
-export interface StartAssessmentRequest {
-    assessment_id: number;
 }
 
 export interface SaveAnswerRequest {
