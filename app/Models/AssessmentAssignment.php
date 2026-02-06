@@ -17,17 +17,15 @@ class AssessmentAssignment extends Model
     protected $fillable = [
         'assessment_id',
         'student_id',
-        'assigned_at',
-        'started_at',
         'submitted_at',
+        'graded_at',
         'score',
-        'feedback',
+        'teacher_notes',
     ];
 
     protected $casts = [
-        'assigned_at' => 'datetime',
-        'started_at' => 'datetime',
         'submitted_at' => 'datetime',
+        'graded_at' => 'datetime',
         'score' => 'decimal:2',
     ];
 
@@ -56,28 +54,42 @@ class AssessmentAssignment extends Model
     }
 
     /**
-     * Scope to get completed assignments.
+     * Scope to get submitted assignments (graded or not).
      */
-    public function scopeCompleted($query)
+    public function scopeSubmitted($query)
     {
         return $query->whereNotNull('submitted_at');
     }
 
     /**
-     * Scope to get in-progress assignments.
+     * Scope to get graded assignments.
      */
-    public function scopeInProgress($query)
+    public function scopeGraded($query)
     {
-        return $query->whereNotNull('started_at')
-            ->whereNull('submitted_at');
+        return $query->whereNotNull('graded_at');
     }
 
     /**
-     * Scope to get not-started assignments.
+     * Scope to get not submitted assignments.
      */
-    public function scopeNotStarted($query)
+    public function scopeNotSubmitted($query)
     {
-        return $query->whereNull('started_at')
-            ->whereNull('submitted_at');
+        return $query->whereNull('submitted_at');
+    }
+
+    /**
+     * Get the status attribute.
+     */
+    public function getStatusAttribute(): string
+    {
+        if ($this->graded_at) {
+            return 'graded';
+        }
+
+        if ($this->submitted_at) {
+            return 'submitted';
+        }
+
+        return 'not_submitted';
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasAcademicYearThroughClass;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class ClassSubject extends Model
 {
-    use HasFactory;
+    use HasAcademicYearThroughClass, HasFactory;
 
     protected $fillable = [
         'class_id',
@@ -46,16 +47,6 @@ class ClassSubject extends Model
     public function subject(): BelongsTo
     {
         return $this->belongsTo(Subject::class);
-    }
-
-    /**
-     * Scope to filter class subjects by academic year (through class).
-     */
-    public function scopeForAcademicYear($query, int $academicYearId)
-    {
-        return $query->whereHas('class', function ($q) use ($academicYearId) {
-            $q->where('academic_year_id', $academicYearId);
-        });
     }
 
     /**

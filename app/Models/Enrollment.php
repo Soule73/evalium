@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasAcademicYearThroughClass;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Enrollment extends Model
 {
-    use HasFactory;
+    use HasAcademicYearThroughClass, HasFactory;
 
     protected $fillable = [
         'class_id',
@@ -49,15 +50,5 @@ class Enrollment extends Model
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
-    }
-
-    /**
-     * Scope to filter enrollments by academic year (through class).
-     */
-    public function scopeForAcademicYear($query, int $academicYearId)
-    {
-        return $query->whereHas('class', function ($q) use ($academicYearId) {
-            $q->where('academic_year_id', $academicYearId);
-        });
     }
 }

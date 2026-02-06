@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasAcademicYearScope;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class ClassModel extends Model
 {
-    use HasFactory;
+    use HasAcademicYearScope, HasFactory;
 
     protected $table = 'classes';
 
@@ -49,14 +50,6 @@ class ClassModel extends Model
     public function level(): BelongsTo
     {
         return $this->belongsTo(Level::class);
-    }
-
-    /**
-     * Scope to filter classes by academic year.
-     */
-    public function scopeForAcademicYear($query, int $academicYearId)
-    {
-        return $query->where('academic_year_id', $academicYearId);
     }
 
     /**

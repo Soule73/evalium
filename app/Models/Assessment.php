@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasAcademicYearThroughClass;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Assessment extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasAcademicYearThroughClass, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'class_subject_id',
@@ -73,14 +74,11 @@ class Assessment extends Model
     }
 
     /**
-     * Scope to filter assessments by academic year.
-     * Filters through classSubject->class relationship.
+     * Override to filter through classSubject.class relationship.
      */
-    public function scopeForAcademicYear($query, int $academicYearId)
+    protected function academicYearRelation(): string
     {
-        return $query->whereHas('classSubject.class', function ($q) use ($academicYearId) {
-            $q->where('academic_year_id', $academicYearId);
-        });
+        return 'classSubject.class';
     }
 
     /**

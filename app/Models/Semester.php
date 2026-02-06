@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasAcademicYearScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Semester extends Model
 {
-    use HasFactory;
+    use HasAcademicYearScope, HasFactory;
 
     protected $fillable = [
         'academic_year_id',
@@ -43,13 +44,5 @@ class Semester extends Model
     public function classSubjects(): HasMany
     {
         return $this->hasMany(ClassSubject::class);
-    }
-
-    /**
-     * Scope to filter semesters by academic year.
-     */
-    public function scopeForAcademicYear($query, int $academicYearId)
-    {
-        return $query->where('academic_year_id', $academicYearId);
     }
 }
