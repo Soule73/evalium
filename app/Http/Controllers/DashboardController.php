@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Services\Admin\AdminDashboardService;
 use App\Services\Core\RoleBasedRedirectService;
 use App\Services\Student\StudentAssignmentQueryService;
 use App\Services\Student\StudentDashboardService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,51 +25,36 @@ class DashboardController extends Controller
     ) {}
 
     /**
-     * Display the dashboard index page.
+     * Display the appropriate dashboard based on user role.
      */
-    public function index(Request $request): Response|\Illuminate\Http\RedirectResponse
+    public function index(Request $request): RedirectResponse|Response
     {
-        try {
+        $user = $request->user();
 
-            /** @var \App\Models\User $user */
-            $user = $request->user();
-
-            if (! $user) {
-                abort(401, __('messages.unauthenticated'));
-            }
-
-            $method = $this->redirectService->getDashboardMethod($user);
-
-            return $this->{$method}($request, $user);
-        } catch (\Exception $e) {
-            Log::error('Error accessing dashboard', [
-                'exception' => $e->getMessage(),
-                'user_id' => $request->user()?->id,
-            ]);
-
-            abort(403, __('messages.unauthorized'));
+        if (! $user) {
+            abort(401, __('messages.unauthenticated'));
         }
+
+        if ($this->redirectService->isTeacher($user)) {
+            return redirect()->route('teacher.dashboard');
+        }
+
+        if ($this->redirectService->isAdmin($user)) {
+            return $this->renderAdminDashboard($request, $user);
+        }
+
+        if ($this->redirectService->isStudent($user)) {
+            return $this->renderStudentDashboard($request, $user);
+        }
+
+        throw new \RuntimeException(__('messages.user_has_no_valid_role'));
     }
 
     /**
-     * Affiche le dashboard par default
+     * Render the student dashboard.
      */
-    public function unified(Request $request, User $user): Response
+    private function renderStudentDashboard(Request $request, $user): Response
     {
-        return Inertia::render('Dashboard/Unified', ['user' => $user]);
-    }
-
-    /**
-     * Handles the request to display the student dashboard.
-     */
-    public function student(Request $request, ?User $user = null): Response
-    {
-        $user = $user ?? $request->user();
-
-        if (! $user || ! $user->hasRole('student')) {
-            abort(403, __('messages.unauthorized'));
-        }
-
         $stats = $this->studentDashboardService->getDashboardStats($user);
 
         $assessmentAssignments = $this->studentAssignmentQueryService->getAssignmentsForStudentLightPaginated(
@@ -87,24 +71,10 @@ class DashboardController extends Controller
     }
 
     /**
-     * Handle the request for the teacher dashboard.
+     * Render the admin dashboard.
      */
-    public function teacher(Request $request, User $user): \Illuminate\Http\RedirectResponse
+    private function renderAdminDashboard(Request $request, $user): Response
     {
-        return redirect()->route('teacher.dashboard');
-    }
-
-    /**
-     * Handle the admin dashboard request.
-     */
-    public function admin(Request $request, ?User $user = null): Response
-    {
-        $user = $user ?? $request->user();
-
-        if (! $user || (! $user->hasRole('admin') && ! $user->hasRole('super_admin'))) {
-            abort(403, __('messages.unauthorized'));
-        }
-
         $selectedYearId = $this->getSelectedAcademicYearId($request);
 
         $dashboardData = $this->adminDashboardService->getDashboardData($selectedYearId);

@@ -48,31 +48,18 @@ class RoleBasedRedirectService
      * Get the dashboard route URL for the authenticated user.
      *
      * @return string The dashboard route URL based on user's role
+     *
+     * @throws \RuntimeException When user has no valid role
      */
     public function getDashboardRoute(?User $user = null): string
     {
         $type = $this->getDashboardType($user);
 
         return match ($type) {
-            'admin' => route('admin.dashboard'),
+            'admin', 'student' => route('dashboard'),
             'teacher' => route('teacher.dashboard'),
-            'student' => route('student.dashboard'),
-            default => route('dashboard')
+            default => throw new \RuntimeException(__('messages.user_has_no_valid_role'))
         };
-    }
-
-    /**
-     * Get the dashboard method name for a given user.
-     *
-     * Used primarily by DashboardController to determine which method to call.
-     *
-     * @return string The method name ('admin', 'teacher', 'student', or 'unified')
-     */
-    public function getDashboardMethod(?User $user = null): string
-    {
-        $type = $this->getDashboardType($user);
-
-        return $type ?? 'unified';
     }
 
     /**

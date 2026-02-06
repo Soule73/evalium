@@ -91,7 +91,7 @@ class RoleBasedRedirectServiceTest extends TestCase
 
         $route = $this->service->getDashboardRoute($user);
 
-        $this->assertEquals(route('admin.dashboard'), $route);
+        $this->assertEquals(route('dashboard'), $route);
     }
 
     public function test_get_dashboard_route_returns_teacher_route(): void
@@ -111,55 +111,16 @@ class RoleBasedRedirectServiceTest extends TestCase
 
         $route = $this->service->getDashboardRoute($user);
 
-        $this->assertEquals(route('student.dashboard'), $route);
-    }
-
-    public function test_get_dashboard_route_returns_default_route_for_no_role(): void
-    {
-        $user = User::factory()->create();
-
-        $route = $this->service->getDashboardRoute($user);
-
         $this->assertEquals(route('dashboard'), $route);
     }
 
-    public function test_get_dashboard_method_returns_admin(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('admin');
-
-        $method = $this->service->getDashboardMethod($user);
-
-        $this->assertEquals('admin', $method);
-    }
-
-    public function test_get_dashboard_method_returns_teacher(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('teacher');
-
-        $method = $this->service->getDashboardMethod($user);
-
-        $this->assertEquals('teacher', $method);
-    }
-
-    public function test_get_dashboard_method_returns_student(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('student');
-
-        $method = $this->service->getDashboardMethod($user);
-
-        $this->assertEquals('student', $method);
-    }
-
-    public function test_get_dashboard_method_returns_unified_for_no_role(): void
+    public function test_get_dashboard_route_throws_exception_for_no_role(): void
     {
         $user = User::factory()->create();
 
-        $method = $this->service->getDashboardMethod($user);
+        $this->expectException(\RuntimeException::class);
 
-        $this->assertEquals('unified', $method);
+        $this->service->getDashboardRoute($user);
     }
 
     public function test_is_admin_returns_true_for_super_admin(): void
