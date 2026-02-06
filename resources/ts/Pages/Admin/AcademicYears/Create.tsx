@@ -101,7 +101,7 @@ export default function AcademicYearCreate() {
             <p className="text-sm text-blue-800">{trans('admin_pages.academic_years.create_note')}</p>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-6 border-t">
+          <div className="flex justify-end space-x-3 pt-6">
             <Button type="button" variant="outline" color="secondary" onClick={handleCancel} disabled={isSubmitting}>
               {trans('admin_pages.common.cancel')}
             </Button>

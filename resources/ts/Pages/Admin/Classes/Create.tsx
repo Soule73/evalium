@@ -115,7 +115,7 @@ export default function ClassCreate({ academicYears, levels }: Props) {
             />
           </div>
 
-          <div className="flex justify-end space-x-3 pt-6 border-t">
+          <div className="flex justify-end space-x-3 pt-6">
             <Button type="button" variant="outline" color="secondary" onClick={handleCancel} disabled={isSubmitting}>
               {trans('admin_pages.common.cancel')}
             </Button>
