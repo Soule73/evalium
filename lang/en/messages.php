@@ -10,6 +10,7 @@ return [
     'unauthorized' => 'Unauthorized action',
     'unauthenticated' => 'User not authenticated',
     'operation_failed' => 'Operation failed',
+    'user_has_no_valid_role' => 'User has no valid role assigned',
     'not_member_of_class' => 'You are not a member of this class',
     'assessment_not_assigned' => 'This assessment is not assigned to you',
     'assessment_not_available' => 'This assessment is not available',
@@ -88,11 +89,69 @@ return [
     'score_updated' => 'Score updated successfully',
     'error_updating_score' => 'Error updating score',
 
-    // Form labels for validation
+    // Classes
+    'class_created' => 'Class created successfully',
+    'class_updated' => 'Class updated successfully',
+    'class_deleted' => 'Class deleted successfully',
+
+    // Class Subjects
+    'class_subject_created' => 'Subject assigned to class successfully',
+    'class_subject_deleted' => 'Subject removed from class successfully',
+    'class_subject_has_assessments' => 'Cannot delete: this assignment has assessments',
+    'class_and_subject_required' => 'Class and subject are required',
+    'teacher_replaced' => 'Teacher replaced successfully',
+    'coefficient_updated' => 'Coefficient updated successfully',
+    'assignment_terminated' => 'Assignment terminated successfully',
+
+    // Subjects
+    'subject_created' => 'Subject created successfully',
+    'subject_updated' => 'Subject updated successfully',
+    'subject_deleted' => 'Subject deleted successfully',
+    'subject_has_class_subjects' => 'Cannot delete: this subject is assigned to classes',
+
+    // Academic Years
+    'academic_year_created' => 'Academic year created successfully',
+    'academic_year_updated' => 'Academic year updated successfully',
+    'academic_year_deleted' => 'Academic year deleted successfully',
+    'academic_year_set_current' => 'Academic year set as current successfully',
+    'academic_year_archived' => 'Academic year archived successfully',
+    'resource_wrong_academic_year' => 'This resource does not belong to the selected academic year',
+
+    // Grading
+    'grade_saved' => 'Grade saved successfully',
+    'assessment_already_submitted' => 'This assessment has already been submitted',
+
+    // Validation - Form labels
     'assessment_title' => 'assessment title',
     'assessment_type' => 'assessment type',
     'scheduled_date' => 'scheduled date',
     'duration' => 'duration',
     'coefficient' => 'coefficient',
     'class_subject' => 'class & subject',
+    'academic_year' => 'academic year',
+    'academic_year_name' => 'academic year name',
+    'level' => 'level',
+    'class_name' => 'class name',
+    'class' => 'class',
+    'max_students' => 'maximum students',
+    'subject' => 'subject',
+    'subject_name' => 'subject name',
+    'subject_code' => 'subject code',
+    'teacher' => 'teacher',
+    'student' => 'student',
+    'scores' => 'scores',
+    'score' => 'score',
+    'question' => 'question',
+    'start_date' => 'start date',
+    'end_date' => 'end date',
+    'valid_from' => 'valid from',
+    'valid_to' => 'valid to',
+    'new_class' => 'new class',
+    'new_teacher' => 'new teacher',
+    'effective_date' => 'effective date',
+
+    // Custom validation messages
+    'student_already_enrolled' => 'This student is already enrolled in this class',
+    'new_class_must_be_different' => 'The new class must be different from the current class',
+    'new_teacher_must_be_different' => 'The new teacher must be different from the current teacher',
 ];

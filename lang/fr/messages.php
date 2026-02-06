@@ -10,6 +10,7 @@ return [
     'unauthorized' => 'Action non autorisée',
     'unauthenticated' => 'Utilisateur non authentifié',
     'operation_failed' => 'L\'opération a échoué',
+    'user_has_no_valid_role' => 'L\'utilisateur n\'a pas de rôle valide assigné',
     'not_member_of_class' => 'Vous n\'êtes pas membre de cette classe',
     'assessment_not_assigned' => 'Cette évaluation ne vous est pas assignée',
     'assessment_not_available' => 'Cette évaluation n\'est pas disponible',
@@ -88,11 +89,69 @@ return [
     'score_updated' => 'Note mise à jour avec succès',
     'error_updating_score' => 'Erreur lors de la mise à jour de la note',
 
-    // Form labels for validation
+    // Classes
+    'class_created' => 'Classe créée avec succès',
+    'class_updated' => 'Classe mise à jour avec succès',
+    'class_deleted' => 'Classe supprimée avec succès',
+
+    // Class Subjects
+    'class_subject_created' => 'Matière assignée à la classe avec succès',
+    'class_subject_deleted' => 'Matière retirée de la classe avec succès',
+    'class_subject_has_assessments' => 'Impossible de supprimer : cette assignation a des évaluations',
+    'class_and_subject_required' => 'La classe et la matière sont requises',
+    'teacher_replaced' => 'Enseignant remplacé avec succès',
+    'coefficient_updated' => 'Coefficient mis à jour avec succès',
+    'assignment_terminated' => 'Assignation terminée avec succès',
+
+    // Subjects
+    'subject_created' => 'Matière créée avec succès',
+    'subject_updated' => 'Matière mise à jour avec succès',
+    'subject_deleted' => 'Matière supprimée avec succès',
+    'subject_has_class_subjects' => 'Impossible de supprimer : cette matière est assignée à des classes',
+
+    // Academic Years
+    'academic_year_created' => 'Année académique créée avec succès',
+    'academic_year_updated' => 'Année académique mise à jour avec succès',
+    'academic_year_deleted' => 'Année académique supprimée avec succès',
+    'academic_year_set_current' => 'Année académique définie comme courante avec succès',
+    'academic_year_archived' => 'Année académique archivée avec succès',
+    'resource_wrong_academic_year' => 'Cette ressource n\'appartient pas à l\'année académique sélectionnée',
+
+    // Grading
+    'grade_saved' => 'Note enregistrée avec succès',
+    'assessment_already_submitted' => 'Cette évaluation a déjà été soumise',
+
+    // Validation - Form labels
     'assessment_title' => 'titre de l\'évaluation',
     'assessment_type' => 'type d\'évaluation',
     'scheduled_date' => 'date planifiée',
     'duration' => 'durée',
     'coefficient' => 'coefficient',
     'class_subject' => 'classe & matière',
+    'academic_year' => 'année académique',
+    'academic_year_name' => 'nom de l\'année académique',
+    'level' => 'niveau',
+    'class_name' => 'nom de la classe',
+    'class' => 'classe',
+    'max_students' => 'nombre maximum d\'étudiants',
+    'subject' => 'matière',
+    'subject_name' => 'nom de la matière',
+    'subject_code' => 'code de la matière',
+    'teacher' => 'enseignant',
+    'student' => 'étudiant',
+    'scores' => 'notes',
+    'score' => 'note',
+    'question' => 'question',
+    'start_date' => 'date de début',
+    'end_date' => 'date de fin',
+    'valid_from' => 'valide à partir de',
+    'valid_to' => 'valide jusqu\'à',
+    'new_class' => 'nouvelle classe',
+    'new_teacher' => 'nouvel enseignant',
+    'effective_date' => 'date d\'effet',
+
+    // Custom validation messages
+    'student_already_enrolled' => 'Cet étudiant est déjà inscrit dans cette classe',
+    'new_class_must_be_different' => 'La nouvelle classe doit être différente de la classe actuelle',
+    'new_teacher_must_be_different' => 'Le nouvel enseignant doit être différent de l\'enseignant actuel',
 ];
