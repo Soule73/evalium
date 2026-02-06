@@ -48,6 +48,20 @@ return [
     'user_restored' => 'User restored successfully',
     'user_activated' => 'User activated successfully',
     'user_deactivated' => 'User deactivated successfully',
+    'user_cannot_delete_self' => 'You cannot delete your own account',
+    'user_delete_failed' => 'Error deleting user',
+    'user_force_delete_failed' => 'Error permanently deleting user',
+
+    // Enrollments
+    'enrollment_created' => 'Enrollment created successfully',
+    'enrollment_deleted' => 'Enrollment deleted successfully',
+    'enrollment_reactivated' => 'Enrollment reactivated successfully',
+    'enrollment_not_in_selected_year' => 'This enrollment does not belong to the selected academic year',
+    'student_transferred' => 'Student transferred successfully',
+    'student_withdrawn' => 'Student withdrawn successfully',
+
+    // Classes
+    'class_not_in_selected_year' => 'This class does not belong to the selected academic year',
 
     // Assessments
     'assessment_created' => 'Assessment created successfully',

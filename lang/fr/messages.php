@@ -48,6 +48,20 @@ return [
     'user_restored' => 'L\'utilisateur a été restauré avec succès',
     'user_activated' => 'L\'utilisateur a été activé avec succès',
     'user_deactivated' => 'L\'utilisateur a été désactivé avec succès',
+    'user_cannot_delete_self' => 'Vous ne pouvez pas supprimer votre propre compte',
+    'user_delete_failed' => 'Erreur lors de la suppression de l\'utilisateur',
+    'user_force_delete_failed' => 'Erreur lors de la suppression définitive de l\'utilisateur',
+
+    // Enrollments
+    'enrollment_created' => 'L\'inscription a été créée avec succès',
+    'enrollment_deleted' => 'L\'inscription a été supprimée avec succès',
+    'enrollment_reactivated' => 'L\'inscription a été réactivée avec succès',
+    'enrollment_not_in_selected_year' => 'Cette inscription n\'appartient pas à l\'année académique sélectionnée',
+    'student_transferred' => 'L\'étudiant a été transféré avec succès',
+    'student_withdrawn' => 'L\'étudiant a été retiré avec succès',
+
+    // Classes
+    'class_not_in_selected_year' => 'Cette classe n\'appartient pas à l\'année académique sélectionnée',
 
     // Assessments
     'assessment_created' => 'L\'évaluation a été créée avec succès',

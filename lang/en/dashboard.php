@@ -62,6 +62,21 @@ return [
         'assigned_assessments' => 'Assigned assessments',
         'view_my_assessments' => 'View my assessments',
         'view_all_assessments' => 'View all assessments',
+        'status' => [
+            'not_submitted' => 'Not Submitted',
+            'submitted' => 'Submitted',
+            'graded' => 'Graded',
+        ],
+        'table' => [
+            'title' => 'Title',
+            'subject' => 'Subject',
+            'submitted_at' => 'Submitted At',
+            'status' => 'Status',
+            'actions' => 'Actions',
+            'view' => 'View',
+        ],
+        'no_assessments' => 'No Assessments',
+        'no_assessments_subtitle' => 'You have no assessments assigned yet.',
     ],
 
     // Unified Dashboard

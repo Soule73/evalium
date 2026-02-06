@@ -62,6 +62,21 @@ return [
         'assigned_assessments' => 'Évaluations assignées',
         'view_my_assessments' => 'Voir mes évaluations',
         'view_all_assessments' => 'Voir toutes les évaluations',
+        'status' => [
+            'not_submitted' => 'Non rendu',
+            'submitted' => 'Rendu',
+            'graded' => 'Corrigé',
+        ],
+        'table' => [
+            'title' => 'Titre',
+            'subject' => 'Matière',
+            'submitted_at' => 'Rendu le',
+            'status' => 'Statut',
+            'actions' => 'Actions',
+            'view' => 'Voir',
+        ],
+        'no_assessments' => 'Aucune évaluation',
+        'no_assessments_subtitle' => 'Vous n\'avez aucune évaluation assignée pour le moment.',
     ],
 
     // Unified Dashboard
