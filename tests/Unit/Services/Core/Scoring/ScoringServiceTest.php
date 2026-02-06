@@ -3,6 +3,7 @@
 namespace Tests\Unit\Services\Core\Scoring;
 
 use App\Models\Answer;
+use App\Models\AssessmentAssignment;
 use App\Models\Choice;
 use App\Models\Question;
 use App\Services\Core\Scoring\ScoringService;
@@ -391,5 +392,112 @@ class ScoringServiceTest extends TestCase
         $isCorrect = $this->scoringService->isAnswerCorrect($question, collect([$answer]));
 
         $this->assertFalse($isCorrect);
+    }
+
+    #[Test]
+    public function it_saves_manual_grades_for_single_answer_questions(): void
+    {
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
+
+        $question = $this->createQuestion($assessment, 'text', ['points' => 10]);
+        $answer = $this->createAnswer($assignment, $question, ['answer_text' => 'Student answer']);
+
+        $scores = [
+            ['question_id' => $question->id, 'score' => 8.5, 'feedback' => 'Good answer'],
+        ];
+
+        $result = $this->scoringService->saveManualGrades($assignment, $scores, 'Well done overall');
+
+        $this->assertEquals(1, $result['updated_count']);
+        $this->assertEquals(8.5, $result['total_score']);
+        $this->assertEquals('graded', $result['status']);
+
+        // Reload assignment from database
+        $assignment = AssessmentAssignment::find($assignment->id);
+        $this->assertEquals(8.5, $assignment->score);
+        $this->assertEquals('Well done overall', $assignment->teacher_notes);
+
+        $answer->refresh();
+        $this->assertEquals(8.5, $answer->score);
+        $this->assertEquals('Good answer', $answer->feedback);
+    }
+
+    #[Test]
+    public function it_saves_manual_grades_for_multiple_choice_questions(): void
+    {
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
+
+        $question = $this->createQuestion($assessment, 'multiple', ['points' => 10]);
+
+        $correctChoice1 = $question->choices()->where('is_correct', true)->first();
+        $correctChoice2 = $question->choices()->where('is_correct', true)->skip(1)->first();
+
+        // Create multiple answers for multiple choice
+        $answer1 = $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice1->id]);
+        $answer2 = $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice2->id]);
+
+        $scores = [
+            ['question_id' => $question->id, 'score' => 7.0, 'feedback' => 'Partial credit'],
+        ];
+
+        $result = $this->scoringService->saveManualGrades($assignment, $scores);
+
+        $this->assertEquals(1, $result['updated_count']);
+
+        $answer1->refresh();
+        $answer2->refresh();
+
+        // First answer should have the score
+        $this->assertEquals(7.0, $answer1->score);
+        $this->assertEquals('Partial credit', $answer1->feedback);
+
+        // Second answer should have 0 score but same feedback
+        $this->assertEquals(0, $answer2->score);
+        $this->assertEquals('Partial credit', $answer2->feedback);
+    }
+
+    #[Test]
+    public function it_saves_manual_grades_for_multiple_questions(): void
+    {
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
+
+        $question1 = $this->createQuestion($assessment, 'text', ['points' => 10]);
+        $question2 = $this->createQuestion($assessment, 'text', ['points' => 15]);
+
+        $this->createAnswer($assignment, $question1, ['answer_text' => 'Answer 1']);
+        $this->createAnswer($assignment, $question2, ['answer_text' => 'Answer 2']);
+
+        $scores = [
+            ['question_id' => $question1->id, 'score' => 8.0, 'feedback' => 'Good'],
+            ['question_id' => $question2->id, 'score' => 12.5, 'feedback' => 'Very good'],
+        ];
+
+        $result = $this->scoringService->saveManualGrades($assignment, $scores, 'Excellent work');
+
+        $this->assertEquals(2, $result['updated_count']);
+        $this->assertEquals(20.5, $result['total_score']);
+
+        // Reload assignment from database
+        $assignment = AssessmentAssignment::find($assignment->id);
+        $this->assertEquals(20.5, $assignment->score);
+    }
+
+    #[Test]
+    public function it_handles_empty_scores_array_gracefully(): void
+    {
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Test Assessment', 'duration_minutes' => 60]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
+
+        $result = $this->scoringService->saveManualGrades($assignment, [], 'No answers graded');
+
+        $this->assertEquals(0, $result['updated_count']);
+        $this->assertEquals(0.0, $result['total_score']);
     }
 }

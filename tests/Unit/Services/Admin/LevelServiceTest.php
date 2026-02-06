@@ -60,8 +60,8 @@ class LevelServiceTest extends TestCase
     #[Test]
     public function it_can_filter_levels_by_status(): void
     {
-        $this->createLevel([]);
-        $this->createLevel([]);
+        $this->createLevel(['is_active' => true]);
+        $this->createLevel(['is_active' => true]);
         $this->createLevel(['is_active' => false]);
 
         $activeResult = $this->levelService->getLevelsWithPagination([

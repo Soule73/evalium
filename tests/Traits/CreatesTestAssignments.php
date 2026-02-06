@@ -25,21 +25,6 @@ trait CreatesTestAssignments
     }
 
     /**
-     * Create a started assignment.
-     */
-    protected function createStartedAssignment(
-        Assessment $assessment,
-        User $student,
-        array $attributes = []
-    ): AssessmentAssignment {
-        return AssessmentAssignment::factory()->create(array_merge([
-            'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
-            'started_at' => now()->subMinutes(10),
-        ], $attributes));
-    }
-
-    /**
      * Create a submitted assignment.
      */
     protected function createSubmittedAssignment(
@@ -50,7 +35,6 @@ trait CreatesTestAssignments
         return AssessmentAssignment::factory()->create(array_merge([
             'assessment_id' => $assessment->id,
             'student_id' => $student->id,
-            'started_at' => now()->subHour(),
             'submitted_at' => now()->subMinutes(30),
         ], $attributes));
     }
@@ -67,8 +51,8 @@ trait CreatesTestAssignments
         return AssessmentAssignment::factory()->create(array_merge([
             'assessment_id' => $assessment->id,
             'student_id' => $student->id,
-            'started_at' => now()->subHours(2),
             'submitted_at' => now()->subHour(),
+            'graded_at' => now()->subMinutes(30),
             'score' => $score,
         ], $attributes));
     }

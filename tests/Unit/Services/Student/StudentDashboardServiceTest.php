@@ -29,23 +29,21 @@ class StudentDashboardServiceTest extends TestCase
 
         $this->createAssignmentForStudent($assessment1, $student, [
             'submitted_at' => now(),
+            'graded_at' => now(),
             'score' => 85.5,
         ]);
 
         $this->createAssignmentForStudent($assessment2, $student, [
-            'started_at' => now()->subHour(),
-            'submitted_at' => null,
+            'submitted_at' => now()->subHour(),
         ]);
 
-        $this->createAssignmentForStudent($assessment3, $student, [
-            'started_at' => null,
-        ]);
+        $this->createAssignmentForStudent($assessment3, $student);
 
         $result = $this->service->getDashboardStats($student);
 
         $this->assertGreaterThanOrEqual(3, $result['totalAssessments']);
         $this->assertGreaterThanOrEqual(1, $result['completedAssessments']);
-        $this->assertGreaterThanOrEqual(1, $result['inProgressAssessments']);
+        $this->assertGreaterThanOrEqual(1, $result['submittedAssessments']);
         $this->assertGreaterThanOrEqual(1, $result['pendingAssessments']);
         $this->assertIsFloat($result['averageScore']);
         $this->assertGreaterThan(0, $result['completionRate']);
@@ -99,18 +97,18 @@ class StudentDashboardServiceTest extends TestCase
 
         $this->createAssignmentForStudent($assessment1, $student, [
             'submitted_at' => now()->subDays(2),
+            'graded_at' => now()->subDay(),
             'score' => 80.0,
         ]);
 
         $this->createAssignmentForStudent($assessment2, $student, [
-            'started_at' => now()->subHour(),
-            'submitted_at' => null,
+            'submitted_at' => now()->subHour(),
         ]);
 
         $result = $this->service->getRecentActivity($student, 10);
 
         $this->assertCount(2, $result);
-        $this->assertEquals('started', $result[0]['type']);
+        $this->assertEquals('submission', $result[0]['type']);
         $this->assertEquals('Science Assessment', $result[0]['assessmentTitle']);
         $this->assertEquals('submission', $result[1]['type']);
         $this->assertEquals('Math Assessment', $result[1]['assessmentTitle']);
@@ -198,29 +196,26 @@ class StudentDashboardServiceTest extends TestCase
         $assessment3 = $this->createAssessmentWithQuestions(questionCount: 0);
         $assessment4 = $this->createAssessmentWithQuestions(questionCount: 0);
 
-        $this->createAssignmentForStudent($assessment1, $student, ['started_at' => null]);
+        $this->createAssignmentForStudent($assessment1, $student);
 
         $this->createAssignmentForStudent($assessment2, $student, [
-            'started_at' => now(),
-            'submitted_at' => null,
+            'submitted_at' => now(),
         ]);
 
         $this->createAssignmentForStudent($assessment3, $student, [
-            'started_at' => now()->subHour(),
-            'submitted_at' => now(),
+            'submitted_at' => now()->subHour(),
         ]);
 
         $this->createAssignmentForStudent($assessment4, $student, [
-            'started_at' => now()->subHours(2),
-            'submitted_at' => now(),
+            'submitted_at' => now()->subHours(2),
+            'graded_at' => now()->subHour(),
             'score' => 75.0,
         ]);
 
-        $result = $this->service->getExamStatusBreakdown($student);
+        $result = $this->service->getAssessmentStatusBreakdown($student);
 
-        $this->assertGreaterThanOrEqual(1, $result['not_started']);
-        $this->assertGreaterThanOrEqual(1, $result['in_progress']);
-        $this->assertGreaterThanOrEqual(1, $result['submitted']);
+        $this->assertGreaterThanOrEqual(1, $result['notStarted']);
+        $this->assertGreaterThanOrEqual(2, $result['submitted']);
         $this->assertGreaterThanOrEqual(1, $result['graded']);
 
         $total = $result['not_started'] + $result['in_progress'] + $result['submitted'] + $result['graded'];
