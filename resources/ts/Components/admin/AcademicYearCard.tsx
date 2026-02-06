@@ -69,4 +69,4 @@ const AcademicYearCard: React.FC<AcademicYearCardProps> = ({
   );
 };
 
-export default AcademicYearCard;
+export { AcademicYearCard };

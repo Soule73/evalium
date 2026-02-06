@@ -22,4 +22,4 @@ const LogoExamena = (
     );
 }
 
-export default LogoExamena; 
+export { LogoExamena }; 

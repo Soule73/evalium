@@ -136,4 +136,4 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
   );
 };
 
-export default AssessmentGeneralConfig;
+export { AssessmentGeneralConfig };

@@ -3,7 +3,7 @@ import { PageProps } from '@/types';
 import { useMemo, useState, useEffect } from 'react';
 import { Sidebar, Breadcrumb, FlashToastHandler, UserMenu } from '@/Components';
 import { BreadcrumbItem } from '@/Components/layout/Breadcrumb';
-import AcademicYearSelector from './AcademicYearSelector';
+import { AcademicYearSelector } from './AcademicYearSelector';
 
 interface AuthenticatedLayoutProps {
     children: React.ReactNode;

@@ -20,4 +20,4 @@ const GuestLayout = ({ children, title }: GuestLayoutProps) => {
     );
 };
 
-export default GuestLayout;
+export { GuestLayout };

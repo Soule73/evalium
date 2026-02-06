@@ -54,4 +54,4 @@ const FlashToastHandler: React.FC<FlashToastHandlerProps> = ({ flash }) => {
     return null;
 };
 
-export default FlashToastHandler;
+export { FlashToastHandler };

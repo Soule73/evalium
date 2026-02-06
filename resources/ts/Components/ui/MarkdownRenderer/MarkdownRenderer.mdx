@@ -1,5 +1,5 @@
-import { Meta, Canvas, Controls } from '@storybook/blocks';
-import * as MarkdownRendererStories from './MarkdownRenderer.stories';
+import { Meta, Canvas, Controls } from "@storybook/blocks";
+import * as MarkdownRendererStories from "./MarkdownRenderer.stories";
 
 <Meta of={MarkdownRendererStories} />
 
@@ -27,12 +27,12 @@ yarn add react-markdown remark-gfm remark-math rehype-katex rehype-prism-plus ka
 ## Basic Usage
 
 ```tsx
-import { MarkdownRenderer } from '@examena/ui';
+import { MarkdownRenderer } from "@examena/ui";
 
 function MyComponent() {
-  const markdown = '# Hello World\n\nThis is **Markdown**.';
-  
-  return <MarkdownRenderer>{markdown}</MarkdownRenderer>;
+    const markdown = "# Hello World\n\nThis is **Markdown**.";
+
+    return <MarkdownRenderer>{markdown}</MarkdownRenderer>;
 }
 ```
 
@@ -112,7 +112,7 @@ All features in one document.
 
 ### Question Example
 
-Real-world usage for exam questions.
+Real-world usage for assessment questions.
 
 <Canvas of={MarkdownRendererStories.QuestionExample} />
 
@@ -131,8 +131,8 @@ Apply custom CSS classes.
 ### Text Formatting
 
 ```markdown
-**bold** or __bold__
-*italic* or _italic_
+**bold** or **bold**
+_italic_ or _italic_
 ~~strikethrough~~
 `inline code`
 ```
@@ -141,23 +141,30 @@ Apply custom CSS classes.
 
 ```markdown
 # H1
+
 ## H2
+
 ### H3
+
 #### H4
+
 ##### H5
+
 ###### H6
 ```
 
 ### Lists
 
 **Unordered:**
+
 ```markdown
 - Item 1
 - Item 2
-  - Nested item
+    - Nested item
 ```
 
 **Ordered:**
+
 ```markdown
 1. First
 2. Second
@@ -192,16 +199,19 @@ Supported languages: javascript, typescript, python, php, java, c, cpp, csharp, 
 ### Mathematical Formulas
 
 **Inline math:**
+
 ```markdown
 The value of $\pi$ is approximately 3.14159.
 ```
 
 **Display math:**
+
 ```markdown
 $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$
 ```
 
 **Common LaTeX symbols:**
+
 - Greek: `\alpha`, `\beta`, `\gamma`, `\Delta`, `\Sigma`
 - Operators: `\sum`, `\int`, `\prod`, `\lim`
 - Relations: `\leq`, `\geq`, `\neq`, `\approx`
@@ -212,14 +222,14 @@ $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$
 
 ```markdown
 | Header 1 | Header 2 | Header 3 |
-|----------|----------|----------|
+| -------- | -------- | -------- |
 | Cell 1   | Cell 2   | Cell 3   |
 | Cell 4   | Cell 5   | Cell 6   |
 
 Alignment:
 | Left | Center | Right |
 |:-----|:------:|------:|
-| L    | C      | R     |
+| L | C | R |
 ```
 
 ### Blockquotes
@@ -229,6 +239,7 @@ Alignment:
 > It can span multiple lines
 
 > Nested quotes:
+>
 > > Nested quote
 ```
 
@@ -237,9 +248,11 @@ Alignment:
 ```markdown
 ---
 or
-***
+---
+
 or
-___
+
+---
 ```
 
 ## Styling Customization
@@ -247,20 +260,22 @@ ___
 The component uses Tailwind CSS classes. You can customize appearance by:
 
 1. **Pass className prop:**
+
 ```tsx
 <MarkdownRenderer className="bg-gray-50 p-4 rounded-lg">
-  {content}
+    {content}
 </MarkdownRenderer>
 ```
 
 2. **Override styles globally:**
+
 ```css
 .markdown-content h1 {
-  @apply text-3xl font-extrabold text-purple-900;
+    @apply text-3xl font-extrabold text-purple-900;
 }
 
 .markdown-content code {
-  @apply bg-purple-100 text-purple-800;
+    @apply bg-purple-100 text-purple-800;
 }
 ```
 
@@ -282,11 +297,11 @@ The component uses Tailwind CSS classes. You can customize appearance by:
 
 ## Common Use Cases
 
-### Exam Questions
+### Assessment Questions
 
 ```tsx
 <MarkdownRenderer>
-  {`# Question 1
+    {`# Question 1
   
   Calculate the derivative of $f(x) = x^2 + 2x + 1$
   
@@ -299,7 +314,7 @@ The component uses Tailwind CSS classes. You can customize appearance by:
 
 ```tsx
 <MarkdownRenderer>
-  {`## API Reference
+    {`## API Reference
   
   \`\`\`typescript
   interface User {
@@ -315,7 +330,7 @@ The component uses Tailwind CSS classes. You can customize appearance by:
 
 ```tsx
 <MarkdownRenderer>
-  {`> **Important**: System maintenance on Sunday
+    {`> **Important**: System maintenance on Sunday
   > 
   > Expected downtime: 2 hours
   `}
@@ -327,23 +342,26 @@ The component uses Tailwind CSS classes. You can customize appearance by:
 ### Math formulas not rendering
 
 Ensure KaTeX CSS is imported:
+
 ```tsx
-import 'katex/dist/katex.min.css';
+import "katex/dist/katex.min.css";
 ```
 
 ### Code blocks not highlighted
 
 Ensure Prism CSS is imported:
+
 ```tsx
-import 'prismjs/themes/prism-tomorrow.css';
+import "prismjs/themes/prism-tomorrow.css";
 ```
 
 ### Table overflow
 
 Tables automatically scroll on small screens. Ensure parent container allows overflow:
+
 ```css
 .container {
-  overflow-x: auto;
+    overflow-x: auto;
 }
 ```
 

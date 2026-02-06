@@ -1,9 +1,9 @@
 import { Link } from '@inertiajs/react';
-import { NavIcon } from './NavIcon';
+import { NavIcon, NavIconType } from './NavIcon';
 
 interface NavLinkProps {
     href: string;
-    icon?: 'dashboard' | 'exams' | 'results' | 'manage-exams' | 'users' | 'groups' | 'levels' | 'roles' | 'logout';
+    icon?: NavIconType;
     children: React.ReactNode;
     isActive?: boolean;
     variant?: 'desktop' | 'mobile';

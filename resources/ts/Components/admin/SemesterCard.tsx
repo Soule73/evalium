@@ -68,4 +68,4 @@ const SemesterCard: React.FC<SemesterCardProps> = ({
   );
 };
 
-export default SemesterCard;
+export { SemesterCard };

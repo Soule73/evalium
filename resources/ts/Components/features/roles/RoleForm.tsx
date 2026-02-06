@@ -1,5 +1,5 @@
 import { FormEvent } from 'react';
-import PermissionSelector from './PermissionSelector';
+import { PermissionSelector } from './PermissionSelector';
 import { GroupedPermissions, RoleFormData } from '@/types/role';
 import { trans } from '@/utils';
 import { Input, Section } from '@examena/ui';
@@ -24,7 +24,7 @@ interface Props {
     submittingText?: string;
 }
 
-export default function RoleForm({
+export function RoleForm({
     title,
     subtitle,
     formData,

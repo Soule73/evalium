@@ -55,22 +55,22 @@ export const WithSubtitle: Story = {
 
 export const WithActions: Story = {
     args: {
-        title: "Exam Management",
-        subtitle: "Create and manage your exams",
+        title: "Assessment Management",
+        subtitle: "Create and manage your assessments",
         actions: (
             <div className="flex space-x-2">
                 <Button size="sm" variant="outline" color="secondary">
                     Cancel
                 </Button>
                 <Button size="sm" color="primary">
-                    Create Exam
+                    Create Assessment
                 </Button>
             </div>
         ),
         children: (
             <div className="space-y-4">
                 <p className="text-gray-600">
-                    List of all exams will appear here.
+                    List of all assessments will appear here.
                 </p>
             </div>
         ),
@@ -164,7 +164,7 @@ export const NotCentered: Story = {
 
 export const WithRichContent: Story = {
     args: {
-        title: "Exam Questions",
+        title: "Assessment Questions",
         subtitle: "5 questions total",
         actions: (
             <Button size="sm" color="primary">

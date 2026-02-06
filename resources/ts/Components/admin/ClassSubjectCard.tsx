@@ -8,7 +8,7 @@ interface ClassSubjectCardProps {
   onClick?: () => void;
 }
 
-export default function ClassSubjectCard({ classSubject, onClick }: ClassSubjectCardProps) {
+export function ClassSubjectCard({ classSubject, onClick }: ClassSubjectCardProps) {
   const isActive = !classSubject.valid_to;
 
   return (

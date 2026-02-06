@@ -49,7 +49,7 @@ export const Info: Story = {
     args: {
         title: "Information",
         type: "info",
-        children: <p>You have 3 pending exam submissions to review.</p>,
+        children: <p>You have 3 pending assessment submissions to review.</p>,
     },
 };
 
@@ -81,13 +81,13 @@ export const WithLongContent: Story = {
     },
 };
 
-export const ExamSubmitted: Story = {
+export const AssessmentSubmitted: Story = {
     args: {
-        title: "Exam Submitted Successfully",
+        title: "Assessment Submitted Successfully",
         type: "success",
         children: (
             <p>
-                Your exam has been submitted. You will receive your results
+                Your assessment has been submitted. You will receive your results
                 within 48 hours.
             </p>
         ),
@@ -118,7 +118,7 @@ export const TimeWarning: Story = {
         children: (
             <p>
                 You have only <strong>5 minutes</strong> remaining to complete
-                your exam. Please submit your answers before time runs out.
+                your assessment. Please submit your answers before time runs out.
             </p>
         ),
     },
@@ -137,7 +137,7 @@ export const SystemMaintenance: Story = {
                     <li>Expected downtime: 4 hours</li>
                 </ul>
                 <p className="mt-2">
-                    Please plan your exam schedule accordingly.
+                    Please plan your assessment schedule accordingly.
                 </p>
             </div>
         ),

@@ -1,6 +1,6 @@
-export { default as AcademicYearCard } from './AcademicYearCard';
-export { default as SemesterCard } from './SemesterCard';
-export { default as SubjectCard } from './SubjectCard';
-export { default as ClassCard } from './ClassCard';
-export { default as EnrollmentCard } from './EnrollmentCard';
-export { default as ClassSubjectCard } from './ClassSubjectCard';
+export * from './AcademicYearCard';
+export * from './ClassCard';
+export * from './ClassSubjectCard';
+export * from './EnrollmentCard';
+export * from './SemesterCard';
+export * from './SubjectCard';

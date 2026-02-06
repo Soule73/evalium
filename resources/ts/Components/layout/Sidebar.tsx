@@ -7,7 +7,7 @@ import { trans } from '@/utils';
 import { NavIcon } from './NavIcon';
 import { RoleBadge } from './RoleBadge';
 import { UserAvatar } from './UserAvatar';
-import LogoExamena from '../shared/LogoExamena';
+import { LogoExamena } from '../shared/LogoExamena';
 import { route } from 'ziggy-js';
 
 interface SidebarProps {
@@ -18,7 +18,7 @@ interface SidebarProps {
 interface NavItem {
     name: string;
     href: string;
-    icon: 'dashboard' | 'exams' | 'users' | 'groups' | 'levels' | 'roles' | 'results' | 'manage-exams'
+    icon: 'dashboard' | 'assessments' | 'users' | 'groups' | 'levels' | 'roles' | 'results' | 'manage-assessments'
     | 'assessments' | 'enrollment' | 'grades' | 'classes' | 'grading' | 'academic-years' | 'subjects' | 'class-subjects';
 }
 
@@ -33,10 +33,6 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
     const canViewRoles = hasPermission(auth.permissions, 'view roles');
 
     const canViewLevels = hasPermission(auth.permissions, 'view levels');
-
-    // const canViewExams = hasPermission(auth.permissions, 'view exams');
-
-    // const canViewAnyExam = hasPermission(auth.permissions, 'view any exam');
 
     const userRole = user.roles?.[0]?.name as 'super_admin' | 'admin' | 'teacher' | 'student' | undefined;
 
@@ -106,7 +102,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
         );
     }
 
-    // Admin Navigation (MCD Architecture)
+    // Admin Navigation
     const isAdmin = userRole === 'admin' || userRole === 'super_admin';
     if (isAdmin) {
         navItems.push(
@@ -118,21 +114,9 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
         );
     }
 
-    // Legacy Routes (for backward compatibility)
-    // if (canViewExamList && !isStudent) {
-    //     navItems.push(
-    //         { name: trans('sidebar.navigation.exams'), href: navRoutes.exams(), icon: 'exams' }
-    //     );
-    // }
-
     if (canViewUsers) {
         navItems.push({ name: trans('sidebar.navigation.users'), href: navRoutes.users(), icon: 'users' });
     }
-
-    // if (canViewGroups) {
-    //     navItems.push({ name: trans('sidebar.navigation.groups'), href: navRoutes.groups(), icon: 'groups' });
-    // }
-
     if (canViewLevels) {
         navItems.push({ name: trans('sidebar.navigation.levels'), href: navRoutes.levels(), icon: 'levels' });
     }

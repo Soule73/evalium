@@ -28,10 +28,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Danger = {
-    args:{
-        type:"warning"
+    args: {
+        type: "warning"
     },
-    render:() => {
+    render: () => {
         const [isOpen, setIsOpen] = useState(false);
 
         return (
@@ -59,23 +59,23 @@ export const Danger = {
 } as unknown as Story;
 
 export const Warning = {
-    render:() => {
+    render: () => {
         const [isOpen, setIsOpen] = useState(false);
 
         return (
             <div>
                 <Button color="warning" onClick={() => setIsOpen(true)}>
-                    Submit Exam
+                    Submit Assessment
                 </Button>
                 <ConfirmationModal
                     isOpen={isOpen}
                     onClose={() => setIsOpen(false)}
                     onConfirm={() => {
-                        alert("Exam submitted!");
+                        alert("Assessment submitted!");
                         setIsOpen(false);
                     }}
-                    title="Submit Exam"
-                    message="Are you sure you want to submit your exam? You won't be able to change your answers after submission."
+                    title="Submit Assessment"
+                    message="Are you sure you want to submit your assessment? You won't be able to change your answers after submission."
                     confirmText="Submit"
                     cancelText="Cancel"
                     type="warning"
@@ -86,7 +86,7 @@ export const Warning = {
 } as unknown as Story;
 
 export const Info = {
-    render:() => {
+    render: () => {
         const [isOpen, setIsOpen] = useState(false);
 
         return (
@@ -114,7 +114,7 @@ export const Info = {
 } as unknown as Story;
 
 export const WithLoading = {
-    render:() => {
+    render: () => {
         const [isOpen, setIsOpen] = useState(false);
         const [loading, setLoading] = useState(false);
 
@@ -149,7 +149,7 @@ export const WithLoading = {
 } as unknown as Story;
 
 export const NotCloseable = {
-    render:() => {
+    render: () => {
         const [isOpen, setIsOpen] = useState(false);
 
         return (
@@ -177,7 +177,7 @@ export const NotCloseable = {
 } as unknown as Story;
 
 export const WithCustomContent = {
-    render:() => {
+    render: () => {
         const [isOpen, setIsOpen] = useState(false);
 
         return (
@@ -204,7 +204,7 @@ export const WithCustomContent = {
                             Warning:
                         </p>
                         <ul className="text-sm text-red-700 list-disc list-inside mt-2 space-y-1">
-                            <li>All your exams will be deleted</li>
+                            <li>All your assessments will be deleted</li>
                             <li>All your grades will be lost</li>
                             <li>This action cannot be undone</li>
                         </ul>
@@ -216,7 +216,7 @@ export const WithCustomContent = {
 } as unknown as Story;
 
 export const LargeModal = {
-    render:() => {
+    render: () => {
         const [isOpen, setIsOpen] = useState(false);
 
         return (

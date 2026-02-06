@@ -64,4 +64,4 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
   );
 };
 
-export default SubjectCard;
+export { SubjectCard };

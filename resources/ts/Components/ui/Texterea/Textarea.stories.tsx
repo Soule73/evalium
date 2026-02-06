@@ -131,7 +131,7 @@ export const WithCharacterCount = {
     },
 } as Story;
 
-export const ExamAnswer = {
+export const AssessmentAnswer = {
     render: () => {
         const [value, setValue] = useState("");
         const wordCount = value.trim().split(/\s+/).filter(Boolean).length;

@@ -8,7 +8,7 @@ interface EnrollmentCardProps {
   onClick?: () => void;
 }
 
-export default function EnrollmentCard({ enrollment, onClick }: EnrollmentCardProps) {
+export function EnrollmentCard({ enrollment, onClick }: EnrollmentCardProps) {
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { type: 'success' | 'error' | 'warning' | 'info' | 'gray'; label: string }> = {
       active: { type: 'success', label: trans('admin_pages.enrollments.status_active') },

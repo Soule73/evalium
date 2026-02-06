@@ -34,4 +34,4 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, classNam
     );
 };
 
-export default StatCard;
+export { StatCard };

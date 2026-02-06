@@ -8,7 +8,7 @@ interface LanguageSelectorProps {
     currentLocale: string;
 }
 
-export default function LanguageSelector({ currentLocale }: LanguageSelectorProps) {
+export function LanguageSelector({ currentLocale }: LanguageSelectorProps) {
     const [isChanging, setIsChanging] = useState(false);
 
     const languages = [

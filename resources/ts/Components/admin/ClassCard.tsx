@@ -78,4 +78,4 @@ const ClassCard: React.FC<ClassCardProps> = ({
   );
 };
 
-export default ClassCard;
+export { ClassCard };

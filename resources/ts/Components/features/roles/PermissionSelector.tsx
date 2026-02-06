@@ -15,7 +15,7 @@ interface Props {
     isSubmitting?: boolean;
 }
 
-export default function PermissionSelector({
+export function PermissionSelector({
     groupedPermissions,
     selectedPermissions,
     onPermissionToggle,

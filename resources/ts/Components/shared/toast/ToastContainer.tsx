@@ -1,7 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import Toast from './Toast';
 import { useToast, ToastPosition } from './ToastContext';
+import { Toast } from './Toast';
 
 const positionClasses: Record<ToastPosition, string> = {
     'top-right': 'top-4 right-4 items-end',
@@ -78,4 +78,4 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ position }) => {
     );
 };
 
-export default ToastContainer;
+export { ToastContainer };

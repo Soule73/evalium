@@ -3,7 +3,7 @@ import { Menu, Transition } from '@headlessui/react';
 import { ChevronDownIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 import { Link, router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import AcademicYearBadge from './AcademicYearBadge';
+import { AcademicYearBadge } from './AcademicYearBadge';
 import { trans } from '@/utils';
 import type { User } from '@/types/models/shared/user';
 import type { AcademicYear } from '@/types/models/mcd/academicYear';
@@ -20,7 +20,7 @@ interface AcademicYearPageProps extends InertiaPageProps {
   };
 }
 
-export default function AcademicYearSelector({ user }: AcademicYearSelectorProps) {
+export function AcademicYearSelector({ user }: AcademicYearSelectorProps) {
   const { academic_year } = usePage<AcademicYearPageProps>().props;
 
   const selectedYear = academic_year.selected;

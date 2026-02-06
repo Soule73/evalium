@@ -58,7 +58,7 @@ export const WithReactNodeLabel: Story = {
 
 export const WithReactNodeValue: Story = {
     args: {
-        label: "Exam Status",
+        label: "Assessment Status",
         value: (
             <div className="flex items-center space-x-2">
                 <Badge label="Completed" type="success" />
@@ -109,13 +109,13 @@ export const StudentProfile = {
     ),
 } as unknown as Story;
 
-export const ExamDetails = {
+export const AssessmentDetails = {
     render: () => (
         <div className="bg-white p-6 rounded-lg border border-gray-200 w-96 space-y-4">
             <h3 className="text-lg font-bold text-gray-900 mb-4">
-                Exam Information
+                Assessment Information
             </h3>
-            <TextEntry label="Exam Title" value="Final Exam - Mathematics" />
+            <TextEntry label="Assessment Title" value="Final Assessment - Mathematics" />
             <TextEntry label="Duration" value="2 hours" />
             <TextEntry label="Total Questions" value="50" />
             <TextEntry label="Passing Score" value="70%" />

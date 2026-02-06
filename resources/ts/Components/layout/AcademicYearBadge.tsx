@@ -8,7 +8,7 @@ interface AcademicYearBadgeProps {
   size?: 'sm' | 'md';
 }
 
-export default function AcademicYearBadge({
+export function AcademicYearBadge({
   year,
   isSelected = false,
   size = 'md',

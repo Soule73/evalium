@@ -1,12 +1,15 @@
-export { Breadcrumb } from './Breadcrumb';
-export { default as LanguageSelector } from './LanguageSelector';
-export { default as AcademicYearSelector } from './AcademicYearSelector';
-export { default as AcademicYearBadge } from './AcademicYearBadge';
-export { Logo } from './Logo';
-export { MobileMenuButton } from './MobileMenuButton';
-export { NavIcon } from './NavIcon';
-export { NavLink } from './NavLink';
-export { RoleBadge } from './RoleBadge';
-export { Sidebar } from './Sidebar';
-export { UserAvatar } from './UserAvatar';
-export { UserMenu } from './UserMenu';
+export * from './AcademicYearBadge';
+export * from './AcademicYearSelector';
+export * from './AuthenticatedLayout';
+export * from './Breadcrumb';
+export * from './GuestLayout';
+export * from './LanguageSelector';
+export * from './Logo';
+export * from './MobileMenuButton';
+export * from './NavIcon';
+export * from './NavLink';
+export * from './RoleBadge';
+export * from './Sidebar';
+export * from './UserAvatar';
+export * from './UserMenu';
+

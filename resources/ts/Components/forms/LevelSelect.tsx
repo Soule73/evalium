@@ -9,7 +9,7 @@ interface LevelSelectProps {
     required?: boolean;
 }
 
-export default function LevelSelect({
+export function LevelSelect({
     value,
     onChange,
     levels,

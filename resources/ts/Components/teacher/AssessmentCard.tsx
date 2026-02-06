@@ -12,7 +12,7 @@ interface AssessmentCardProps {
   onClick?: () => void;
 }
 
-export default function AssessmentCard({ assessment, onClick }: AssessmentCardProps) {
+export function AssessmentCard({ assessment, onClick }: AssessmentCardProps) {
   const completionRate = assessment.assignments_count && assessment.assignments_count > 0
     ? (assessment.completed_assignments_count || 0) / assessment.assignments_count
     : 0;
@@ -59,11 +59,11 @@ export default function AssessmentCard({ assessment, onClick }: AssessmentCardPr
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="flex items-center text-sm text-gray-600">
           <CalendarDaysIcon className="w-4 h-4 mr-2" />
-          <span>{formatDate(assessment.assessment_date)}</span>
+          <span>{formatDate(assessment.scheduled_at)}</span>
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <ClockIcon className="w-4 h-4 mr-2" />
-          <span>{assessment.duration} {trans('teacher_pages.assessments.minutes')}</span>
+          <span>{assessment.duration_minutes} {trans('teacher_pages.assessments.minutes')}</span>
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <DocumentTextIcon className="w-4 h-4 mr-2" />

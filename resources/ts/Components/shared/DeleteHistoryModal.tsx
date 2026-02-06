@@ -8,9 +8,9 @@ import {
 } from '@heroicons/react/24/outline';
 import { formatDate } from '@/utils';
 import { MarkdownRenderer } from '@examena/ui';
-import { DeletedChoice, DeletedQuestion } from '@/hooks/features/exam/useDeleteHistory';
 import { trans } from '@/utils';
 import { Button } from '../ui';
+import { DeletedChoice, DeletedQuestion } from '@/stores/useAssessmentFormStore';
 
 interface DeleteHistoryModalProps {
     isOpen: boolean;
@@ -234,4 +234,4 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
     );
 };
 
-export default DeleteHistoryModal;
+export { DeleteHistoryModal };
