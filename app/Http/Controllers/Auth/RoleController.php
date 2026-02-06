@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreRoleRequest;
 use App\Http\Requests\Admin\SyncRolePermissionsRequest;
 use App\Http\Requests\Admin\UpdateRoleRequest;
+use App\Http\Traits\HandlesIndexRequests;
 use App\Http\Traits\HasFlashMessages;
 use App\Services\Admin\RoleService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,7 +19,7 @@ use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
-    use AuthorizesRequests, HasFlashMessages;
+    use AuthorizesRequests, HandlesIndexRequests, HasFlashMessages;
 
     public function __construct(
         private readonly RoleService $roleService
@@ -28,14 +30,16 @@ class RoleController extends Controller
      *
      * @return Response The response containing the list of roles.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $this->authorize('viewAny', \Spatie\Permission\Models\Role::class);
 
-        $perPage = request()->integer('per_page', 15);
-        $search = request()->string('search')->toString();
+        ['filters' => $filters, 'per_page' => $perPage] = $this->extractIndexParams(
+            $request,
+            ['search']
+        );
 
-        $roles = $this->roleService->getRolesWithPermissionsPaginated($perPage, $search ?: null);
+        $roles = $this->roleService->getRolesWithPermissionsPaginated($perPage, $filters['search'] ?? null);
 
         $allPermissions = $this->roleService->getAllPermissions();
 
@@ -46,7 +50,7 @@ class RoleController extends Controller
             'allPermissions' => $allPermissions,
             'groupedPermissions' => $groupedPermissions,
             'filters' => [
-                'search' => $search,
+                'search' => $filters['search'] ?? '',
                 'per_page' => $perPage,
             ],
         ]);

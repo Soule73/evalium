@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreClassRequest;
 use App\Http\Requests\Admin\UpdateClassRequest;
+use App\Http\Traits\HandlesIndexRequests;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\ClassModel;
 use App\Services\Admin\ClassQueryService;
@@ -18,7 +19,7 @@ use Inertia\Response;
 
 class ClassController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests, HasFlashMessages;
 
     public function __construct(
         private readonly ClassService $classService,
@@ -33,8 +34,10 @@ class ClassController extends Controller
         $this->authorize('viewAny', ClassModel::class);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $filters = $request->only(['search', 'level_id']);
-        $perPage = $request->input('per_page', 15);
+        ['filters' => $filters, 'per_page' => $perPage] = $this->extractIndexParams(
+            $request,
+            ['search', 'level_id']
+        );
 
         $classes = $this->classQueryService->getClassesForIndex(
             $selectedYearId,

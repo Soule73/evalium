@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreSubjectRequest;
 use App\Http\Requests\Admin\UpdateSubjectRequest;
+use App\Http\Traits\HandlesIndexRequests;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\Subject;
 use App\Services\Admin\SubjectService;
@@ -17,7 +18,7 @@ use Inertia\Response;
 
 class SubjectController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests, HasFlashMessages;
 
     public function __construct(
         private readonly SubjectService $subjectService
@@ -31,8 +32,10 @@ class SubjectController extends Controller
         $this->authorize('viewAny', Subject::class);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $filters = $request->only(['search', 'level_id']);
-        $perPage = $request->input('per_page', 15);
+        ['filters' => $filters, 'per_page' => $perPage] = $this->extractIndexParams(
+            $request,
+            ['search', 'level_id']
+        );
 
         $subjects = $this->subjectService->getSubjectsForIndex($selectedYearId, $filters, $perPage);
         $levels = $this->subjectService->getAllLevels();

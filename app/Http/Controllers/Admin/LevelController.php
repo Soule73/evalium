@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LevelRequest;
+use App\Http\Traits\HandlesIndexRequests;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\Level;
 use App\Services\Admin\LevelService;
@@ -16,7 +17,7 @@ use Inertia\Response;
 
 class LevelController extends Controller
 {
-    use AuthorizesRequests, HasFlashMessages;
+    use AuthorizesRequests, HandlesIndexRequests, HasFlashMessages;
 
     public function __construct(
         private readonly LevelService $levelService
@@ -32,7 +33,11 @@ class LevelController extends Controller
     {
         $this->authorize('viewAny', Level::class);
 
-        $filters = $request->only(['search', 'status', 'per_page']);
+        ['filters' => $filters, 'per_page' => $perPage] = $this->extractIndexParams(
+            $request,
+            ['search', 'status']
+        );
+        $filters['per_page'] = $perPage;
 
         $levels = $this->levelService->getLevelsWithPagination($filters);
 

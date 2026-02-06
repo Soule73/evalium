@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreEnrollmentRequest;
 use App\Http\Requests\Admin\TransferStudentRequest;
+use App\Http\Traits\HandlesIndexRequests;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\ClassModel;
 use App\Models\Enrollment;
@@ -19,7 +20,7 @@ use Inertia\Response;
 
 class EnrollmentController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests, HasFlashMessages;
 
     public function __construct(
         private readonly EnrollmentService $enrollmentService
@@ -33,8 +34,10 @@ class EnrollmentController extends Controller
         $this->authorize('viewAny', Enrollment::class);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $filters = $request->only(['search', 'class_id', 'status']);
-        $perPage = $request->input('per_page', 15);
+        ['filters' => $filters, 'per_page' => $perPage] = $this->extractIndexParams(
+            $request,
+            ['search', 'class_id', 'status']
+        );
 
         $data = $this->enrollmentService->getEnrollmentsForIndex($selectedYearId, $filters, $perPage);
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CreateUserRequest;
 use App\Http\Requests\Admin\EditUserRequest;
+use App\Http\Traits\HandlesIndexRequests;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\User;
 use App\Services\Admin\UserManagementService;
@@ -16,7 +17,7 @@ use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    use AuthorizesRequests, HasFlashMessages;
+    use AuthorizesRequests, HandlesIndexRequests, HasFlashMessages;
 
     public function __construct(
         public readonly UserManagementService $userService
@@ -38,13 +39,16 @@ class UserController extends Controller
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
-        $filters = $request->only(['search', 'role', 'per_page', 'status', 'include_deleted']);
+        ['filters' => $filters, 'per_page' => $perPage] = $this->extractIndexParams(
+            $request,
+            ['search', 'role', 'status', 'include_deleted']
+        );
 
         if (! $currentUser->hasRole('super_admin')) {
             $filters['exclude_roles'] = ['admin', 'super_admin'];
         }
 
-        $users = $this->userService->getUserWithPagination($filters, 10, $currentUser);
+        $users = $this->userService->getUserWithPagination($filters, $perPage, $currentUser);
 
         $availableRoles = $this->userService->getAvailableRoles($currentUser);
 
