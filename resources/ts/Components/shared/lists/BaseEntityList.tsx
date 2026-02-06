@@ -58,12 +58,15 @@ export function BaseEntityList<T>({
     filters: visibleFilters,
     searchable: showSearch,
     searchPlaceholder: searchPlaceholder ?? trans('common.search'),
-    emptyState: emptyMessage
-      ? {
-        title: emptyMessage,
-        subtitle: trans('common.no_results_subtitle'),
-      }
-      : undefined,
+    emptyState: {
+      title: emptyMessage ?? trans('common.no_data'),
+      subtitle: trans('common.no_results_subtitle'),
+    },
+    emptySearchState: {
+      title: trans('common.no_search_results'),
+      subtitle: trans('common.no_search_results_subtitle'),
+      resetLabel: trans('common.reset_filters'),
+    },
   };
 
   if (config.actions && config.actions.length > 0) {
