@@ -7,8 +7,8 @@ use App\Http\Requests\Teacher\StoreAssessmentRequest;
 use App\Http\Requests\Teacher\UpdateAssessmentRequest;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\Assessment;
-use App\Models\ClassSubject;
 use App\Services\Core\AssessmentService;
+use App\Services\Teacher\TeacherAssessmentQueryService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -22,7 +22,8 @@ class AssessmentController extends Controller
     use AuthorizesRequests, FiltersAcademicYear, HasFlashMessages;
 
     public function __construct(
-        private readonly AssessmentService $assessmentService
+        private readonly AssessmentService $assessmentService,
+        private readonly TeacherAssessmentQueryService $assessmentQueryService
     ) {}
 
     /**
@@ -38,23 +39,17 @@ class AssessmentController extends Controller
         $teacherId = $request->user()->id;
         $selectedYearId = $this->getSelectedAcademicYearId($request);
 
-        $assessments = Assessment::query()
-            ->with(['classSubject.class', 'classSubject.subject', 'questions'])
-            ->forAcademicYear($selectedYearId)
-            ->whereHas('classSubject', fn ($query) => $query->where('teacher_id', $teacherId))
-            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('title', 'like', "%{$search}%"))
-            ->when($filters['class_subject_id'] ?? null, fn ($query, $classSubjectId) => $query->where('class_subject_id', $classSubjectId))
-            ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
-            ->when(isset($filters['is_published']), fn ($query) => $query->where('is_published', (bool) $filters['is_published']))
-            ->orderBy('scheduled_at', 'desc')
-            ->paginate($perPage)
-            ->withQueryString();
+        $assessments = $this->assessmentQueryService->getAssessmentsForTeacher(
+            $teacherId,
+            $selectedYearId,
+            $filters,
+            $perPage
+        );
 
-        $classSubjects = ClassSubject::where('teacher_id', $teacherId)
-            ->forAcademicYear($selectedYearId)
-            ->with(['class', 'subject'])
-            ->active()
-            ->get();
+        $classSubjects = $this->assessmentQueryService->getClassSubjectsForTeacher(
+            $teacherId,
+            $selectedYearId
+        );
 
         return Inertia::render('Teacher/Assessments/Index', [
             'assessments' => $assessments,
@@ -73,11 +68,11 @@ class AssessmentController extends Controller
         $teacherId = Auth::id();
         $selectedYearId = $this->getSelectedAcademicYearId($request);
 
-        $classSubjects = ClassSubject::where('teacher_id', $teacherId)
-            ->forAcademicYear($selectedYearId)
-            ->with(['class.academicYear', 'class.level', 'subject'])
-            ->active()
-            ->get();
+        $classSubjects = $this->assessmentQueryService->getClassSubjectsForTeacher(
+            $teacherId,
+            $selectedYearId,
+            ['class.academicYear', 'class.level']
+        );
 
         return Inertia::render('Teacher/Assessments/Create', [
             'classSubjects' => $classSubjects,
@@ -103,14 +98,7 @@ class AssessmentController extends Controller
     {
         $this->authorize('view', $assessment);
 
-        $assessment->load([
-            'classSubject.class.academicYear',
-            'classSubject.class.level',
-            'classSubject.subject',
-            'classSubject.teacher',
-            'questions.choices',
-            'assignments.student',
-        ]);
+        $assessment = $this->assessmentQueryService->loadAssessmentDetails($assessment);
 
         return Inertia::render('Teacher/Assessments/Show', [
             'assessment' => $assessment,
@@ -124,20 +112,16 @@ class AssessmentController extends Controller
     {
         $this->authorize('update', $assessment);
 
-        $assessment->load([
-            'classSubject.class',
-            'classSubject.subject',
-            'questions.choices',
-        ]);
+        $assessment = $this->assessmentQueryService->loadAssessmentForEdit($assessment);
 
         $teacherId = $request->user()->id;
         $selectedYearId = $this->getSelectedAcademicYearId($request);
 
-        $classSubjects = ClassSubject::where('teacher_id', $teacherId)
-            ->forAcademicYear($selectedYearId)
-            ->with(['class.academicYear', 'class.level', 'subject'])
-            ->active()
-            ->get();
+        $classSubjects = $this->assessmentQueryService->getClassSubjectsForTeacher(
+            $teacherId,
+            $selectedYearId,
+            ['class.academicYear', 'class.level']
+        );
 
         return Inertia::render('Teacher/Assessments/Edit', [
             'assessment' => $assessment,

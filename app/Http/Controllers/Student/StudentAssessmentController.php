@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assessment;
-use App\Models\AssessmentAssignment;
 use App\Services\Student\StudentAssessmentService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -33,51 +32,15 @@ class StudentAssessmentController extends Controller
         $filters = $request->only(['status', 'search']);
         $perPage = $request->input('per_page', 15);
 
-        $enrollment = $student->enrollments()
-            ->where('status', 'active')
-            ->whereHas('class', function ($query) use ($selectedYearId) {
-                $query->where('academic_year_id', $selectedYearId);
-            })
-            ->with(['class.classSubjects'])
-            ->first();
-
-        if (! $enrollment) {
-            return Inertia::render('Student/Assessments/Index', [
-                'assessments' => [],
-                'filters' => $filters,
-            ]);
-        }
-
-        $classSubjectIds = $enrollment->class->classSubjects->pluck('id');
-
-        $assessmentsQuery = Assessment::whereIn('class_subject_id', $classSubjectIds)
-            ->with([
-                'classSubject.class',
-                'classSubject.subject',
-                'classSubject.teacher',
-                'questions',
-            ])
-            ->when($filters['search'] ?? null, function ($query, $search) {
-                return $query->where('title', 'like', "%{$search}%");
-            })
-            ->orderBy('scheduled_at', 'asc');
-
-        $assessments = $assessmentsQuery->paginate($perPage)->withQueryString();
-
-        $assignments = $this->assessmentService->getAssessmentsWithAssignments($student, $assessments->getCollection());
-
-        $assessments->setCollection($assignments);
-
-        if ($filters['status'] ?? null) {
-            $assessments->setCollection(
-                $assessments->getCollection()->filter(function ($assignment) use ($filters) {
-                    return $assignment->status === $filters['status'];
-                })->values()
-            );
-        }
+        $assignments = $this->assessmentService->getStudentAssessmentsForIndex(
+            $student,
+            $selectedYearId,
+            $filters,
+            $perPage
+        );
 
         return Inertia::render('Student/Assessments/Index', [
-            'assignments' => $assessments,
+            'assignments' => $assignments,
             'filters' => $filters,
         ]);
     }
@@ -113,7 +76,7 @@ class StudentAssessmentController extends Controller
     }
 
     /**
-     * Start an assessment (mark started_at).
+     * Start an assessment.
      */
     public function start(Assessment $assessment)
     {
@@ -124,10 +87,6 @@ class StudentAssessmentController extends Controller
             403,
             'You cannot access this assessment.'
         );
-
-        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
-
-        $this->assessmentService->startAssessment($assignment);
 
         return redirect()->route('student.assessments.take', $assessment);
     }
@@ -145,7 +104,7 @@ class StudentAssessmentController extends Controller
             'You cannot access this assessment.'
         );
 
-        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment, startNow: true);
+        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
         $assignment->load([
             'assessment.classSubject.class',
@@ -156,10 +115,6 @@ class StudentAssessmentController extends Controller
 
         if ($assignment->submitted_at) {
             return redirect()->route('student.assessments.show', $assessment);
-        }
-
-        if (! $assignment->wasRecentlyCreated && ! $assignment->started_at) {
-            $this->assessmentService->startAssessment($assignment);
         }
 
         return Inertia::render('Student/Assessments/Take', [
@@ -181,7 +136,7 @@ class StudentAssessmentController extends Controller
             'answers' => ['required', 'array'],
         ]);
 
-        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment, startNow: true);
+        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
         if ($assignment->submitted_at) {
             return response()->json(['message' => 'Assessment already submitted'], 400);
@@ -203,7 +158,7 @@ class StudentAssessmentController extends Controller
             'answers' => ['required', 'array'],
         ]);
 
-        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment, startNow: true);
+        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
         if ($assignment->submitted_at) {
             return back()->with('error', __('messages.assessment_already_submitted'));
@@ -230,10 +185,7 @@ class StudentAssessmentController extends Controller
             'questions.choices',
         ]);
 
-        $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $student->id)
-            ->with(['answers.question', 'answers.choice'])
-            ->first();
+        $assignment = $this->assessmentService->getAssignmentForResults($student, $assessment);
 
         if (! $assignment || ! $assignment->submitted_at) {
             return redirect()->route('student.assessments.show', $assessment);

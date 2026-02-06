@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\EditUserRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Traits\HasFlashMessages;
 use App\Services\Admin\UserManagementService;
+use App\Services\Core\RoleBasedRedirectService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -25,7 +26,8 @@ class LoginController extends Controller
     use HasFlashMessages;
 
     public function __construct(
-        public readonly UserManagementService $userService
+        public readonly UserManagementService $userService,
+        private readonly RoleBasedRedirectService $redirectService
     ) {}
 
     /**
@@ -169,34 +171,8 @@ class LoginController extends Controller
         return Str::transliterate(Str::lower($request->input('email')).'|'.$request->ip());
     }
 
-    public static function getDashboardRoute(): string
+    public function getDashboardRoute(): string
     {
-        $type = self::getUserDashboardType();
-
-        return match ($type) {
-            'admin' => route('admin.dashboard'),
-            'teacher' => route('teacher.dashboard'),
-            'student' => route('student.dashboard'),
-            default => route('dashboard')
-        };
-    }
-
-    public static function getUserDashboardType(): ?string
-    {
-        if (! Auth::check()) {
-            return null;
-        }
-
-        $user = Auth::user();
-
-        if ($user->hasRole('admin') || $user->hasRole('super_admin')) {
-            return 'admin';
-        } elseif ($user->hasRole('teacher')) {
-            return 'teacher';
-        } elseif ($user->hasRole('student')) {
-            return 'student';
-        }
-
-        return null;
+        return $this->redirectService->getDashboardRoute();
     }
 }

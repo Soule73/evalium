@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Traits\ClassValidationRules;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreClassRequest extends FormRequest
 {
+    use ClassValidationRules;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -20,21 +22,7 @@ class StoreClassRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'academic_year_id' => ['required', 'exists:academic_years,id'],
-            'level_id' => ['required', 'exists:levels,id'],
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('classes')->where(function ($query) {
-                    return $query->where('academic_year_id', $this->input('academic_year_id'))
-                        ->where('level_id', $this->input('level_id'));
-                }),
-            ],
-            'description' => ['nullable', 'string'],
-            'max_students' => ['nullable', 'integer', 'min:1'],
-        ];
+        return $this->getClassValidationRules();
     }
 
     /**
@@ -42,12 +30,6 @@ class StoreClassRequest extends FormRequest
      */
     public function messages(): array
     {
-        return [
-            'academic_year_id.required' => __('validation.required', ['attribute' => __('messages.academic_year')]),
-            'level_id.required' => __('validation.required', ['attribute' => __('messages.level')]),
-            'name.required' => __('validation.required', ['attribute' => __('messages.class_name')]),
-            'name.unique' => __('validation.unique', ['attribute' => __('messages.class_name')]),
-            'max_students.min' => __('validation.min.numeric', ['attribute' => __('messages.max_students'), 'min' => 1]),
-        ];
+        return $this->getClassValidationMessages();
     }
 }

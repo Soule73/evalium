@@ -2,12 +2,14 @@
 
 namespace App\Http\Requests\Teacher;
 
-use App\Strategies\Validation\QuestionValidationContext;
+use App\Http\Requests\Traits\AssessmentValidationRules;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
 class UpdateAssessmentRequest extends FormRequest
 {
+    use AssessmentValidationRules;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -21,19 +23,7 @@ class UpdateAssessmentRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        $data = [];
-
-        if ($this->has('scheduled_date')) {
-            $data['scheduled_at'] = $this->scheduled_date;
-        }
-
-        if ($this->has('duration')) {
-            $data['duration_minutes'] = $this->duration;
-        }
-
-        if (! empty($data)) {
-            $this->merge($data);
-        }
+        $this->prepareAssessmentForValidation();
     }
 
     /**
@@ -41,30 +31,7 @@ class UpdateAssessmentRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'title' => ['sometimes', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'type' => ['sometimes', 'in:devoir,examen,tp,controle,projet'],
-            'scheduled_at' => ['sometimes', 'date'],
-            'duration_minutes' => ['sometimes', 'integer', 'min:1'],
-            'coefficient' => ['sometimes', 'numeric', 'min:0.01'],
-            'is_published' => ['sometimes', 'boolean'],
-            'questions' => ['sometimes', 'array'],
-            'questions.*.id' => ['nullable', 'integer'],
-            'questions.*.content' => ['required', 'string'],
-            'questions.*.type' => ['required', 'string'],
-            'questions.*.points' => ['required', 'numeric', 'min:0'],
-            'questions.*.order_index' => ['required', 'integer'],
-            'questions.*.choices' => ['sometimes', 'array'],
-            'questions.*.choices.*.id' => ['nullable', 'integer'],
-            'questions.*.choices.*.content' => ['required', 'string'],
-            'questions.*.choices.*.is_correct' => ['required', 'boolean'],
-            'questions.*.choices.*.order_index' => ['required', 'integer'],
-            'deletedQuestionIds' => ['sometimes', 'array'],
-            'deletedQuestionIds.*' => ['integer'],
-            'deletedChoiceIds' => ['sometimes', 'array'],
-            'deletedChoiceIds.*' => ['integer'],
-        ];
+        return $this->getAssessmentValidationRules(isUpdate: true);
     }
 
     /**
@@ -72,12 +39,7 @@ class UpdateAssessmentRequest extends FormRequest
      */
     public function withValidator(Validator $validator): void
     {
-        $validator->after(function (Validator $validator) {
-            if ($this->has('questions') && is_array($this->questions)) {
-                $validationContext = new QuestionValidationContext;
-                $validationContext->validateQuestions($validator, $this->questions);
-            }
-        });
+        $this->configureAssessmentValidator($validator);
     }
 
     /**
@@ -85,11 +47,6 @@ class UpdateAssessmentRequest extends FormRequest
      */
     public function messages(): array
     {
-        return [
-            'title.string' => __('validation.string', ['attribute' => __('messages.assessment_title')]),
-            'type.in' => __('validation.in', ['attribute' => __('messages.assessment_type')]),
-            'duration.min' => __('validation.min.numeric', ['attribute' => __('messages.duration'), 'min' => 1]),
-            'coefficient.min' => __('validation.min.numeric', ['attribute' => __('messages.coefficient'), 'min' => 0.01]),
-        ];
+        return $this->getAssessmentValidationMessages(isUpdate: true);
     }
 }

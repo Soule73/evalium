@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\AssessmentAssignment;
-use App\Models\ClassSubject;
-use App\Models\Enrollment;
+use App\Http\Resources\Student\SubjectStatsResource;
 use App\Services\Admin\EnrollmentService;
 use App\Services\Core\GradeCalculationService;
+use App\Services\Student\StudentEnrollmentQueryService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,6 +18,7 @@ class StudentEnrollmentController extends Controller
 
     public function __construct(
         private readonly EnrollmentService $enrollmentService,
+        private readonly StudentEnrollmentQueryService $enrollmentQueryService,
         private readonly GradeCalculationService $gradeCalculationService
     ) {}
 
@@ -41,48 +41,20 @@ class StudentEnrollmentController extends Controller
             'class.level',
         ]);
 
+        $filters = ['search' => $request->input('search')];
         $perPage = (int) $request->input('per_page', 10);
-        $search = $request->input('search');
 
-        $subjectsQuery = ClassSubject::active()
-            ->where('class_id', $currentEnrollment->class_id)
-            ->with(['subject', 'teacher'])
-            ->when($search, function ($query, $search) {
-                $query->whereHas('subject', function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
-                })
-                    ->orWhereHas('teacher', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    });
-            });
+        $subjects = $this->enrollmentQueryService->getSubjectsWithStatsForEnrollment(
+            $currentEnrollment,
+            $student,
+            $filters,
+            $perPage
+        );
 
-        $subjects = $subjectsQuery->paginate($perPage)->withQueryString();
+        SubjectStatsResource::setGradeService($this->gradeCalculationService);
 
-        $subjects->getCollection()->transform(function ($classSubject) use ($student) {
-            $subjectGrade = $this->gradeCalculationService->calculateSubjectGrade($student, $classSubject);
-            $assessmentDetails = AssessmentAssignment::whereHas('assessment', function ($query) use ($classSubject) {
-                $query->where('class_subject_id', $classSubject->id);
-            })
-                ->where('student_id', $student->id)
-                ->count();
-
-            $completedCount = AssessmentAssignment::whereHas('assessment', function ($query) use ($classSubject) {
-                $query->where('class_subject_id', $classSubject->id);
-            })
-                ->where('student_id', $student->id)
-                ->whereNotNull('score')
-                ->count();
-
-            return [
-                'id' => $classSubject->id,
-                'class_subject_id' => $classSubject->id,
-                'subject_name' => $classSubject->subject->name,
-                'teacher_name' => $classSubject->teacher->name,
-                'coefficient' => $classSubject->coefficient,
-                'average' => $subjectGrade,
-                'assessments_count' => $assessmentDetails,
-                'completed_count' => $completedCount,
-            ];
+        $subjectsTransformed = $subjects->through(function ($classSubject) use ($student) {
+            return (new SubjectStatsResource($classSubject))->forStudent($student);
         });
 
         $overallStats = $this->gradeCalculationService->getGradeBreakdown(
@@ -92,11 +64,9 @@ class StudentEnrollmentController extends Controller
 
         return Inertia::render('Student/Enrollment/Show', [
             'enrollment' => $currentEnrollment,
-            'subjects' => $subjects,
+            'subjects' => $subjectsTransformed,
             'overallStats' => $overallStats,
-            'filters' => [
-                'search' => $search,
-            ],
+            'filters' => $filters,
         ]);
     }
 
@@ -108,14 +78,7 @@ class StudentEnrollmentController extends Controller
         $student = $request->user();
         $selectedYearId = $this->getSelectedAcademicYearId($request);
 
-        $enrollments = Enrollment::where('student_id', $student->id)
-            ->forAcademicYear($selectedYearId)
-            ->with([
-                'class.academicYear',
-                'class.level',
-            ])
-            ->orderBy('enrolled_at', 'desc')
-            ->get();
+        $enrollments = $this->enrollmentQueryService->getEnrollmentHistory($student, $selectedYearId);
 
         return Inertia::render('Student/Enrollment/History', [
             'enrollments' => $enrollments,
@@ -136,19 +99,14 @@ class StudentEnrollmentController extends Controller
             return Inertia::render('Student/Enrollment/NoEnrollment');
         }
 
-        $this->validateAcademicYearAccess($currentEnrollment, $selectedYearId);
-
-        $classmates = Enrollment::where('class_id', $currentEnrollment->class_id)
-            ->where('student_id', '!=', $student->id)
-            ->where('status', 'active')
-            ->with('student')
-            ->get()
-            ->pluck('student');
+        $this->enrollmentQueryService->validateAcademicYearAccess($currentEnrollment, $selectedYearId);
 
         $currentEnrollment->load([
             'class.academicYear',
             'class.level',
         ]);
+
+        $classmates = $this->enrollmentQueryService->getClassmates($currentEnrollment, $student);
 
         return Inertia::render('Student/Enrollment/Classmates', [
             'enrollment' => $currentEnrollment,

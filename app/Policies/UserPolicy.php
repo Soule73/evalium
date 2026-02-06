@@ -70,6 +70,9 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
+        if ($model->hasRole(['admin', 'super_admin'])) {
+            return $user->hasRole('super_admin');
+        }
 
         return $user->can('update users') || $user->id === $model->id;
     }
@@ -88,6 +91,10 @@ class UserPolicy
     {
         if ($user->id === $model->id) {
             return false;
+        }
+
+        if ($model->hasRole(['admin', 'super_admin'])) {
+            return $user->hasRole('super_admin');
         }
 
         return $user->can('delete users');
@@ -122,6 +129,10 @@ class UserPolicy
     {
         if ($user->id === $model->id) {
             return false;
+        }
+
+        if ($model->hasRole(['admin', 'super_admin'])) {
+            return $user->hasRole('super_admin');
         }
 
         return $user->can('force delete users');
@@ -183,6 +194,10 @@ class UserPolicy
     {
         if ($user->id === $model->id) {
             return false;
+        }
+
+        if ($model->hasRole(['admin', 'super_admin'])) {
+            return $user->hasRole('super_admin');
         }
 
         return $user->can('update users');

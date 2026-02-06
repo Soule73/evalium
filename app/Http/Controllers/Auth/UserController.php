@@ -8,8 +8,6 @@ use App\Http\Requests\Admin\EditUserRequest;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\User;
 use App\Services\Admin\UserManagementService;
-use App\Services\Core\ExamQueryService;
-use App\Services\Student\StudentAssignmentQueryService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,9 +19,7 @@ class UserController extends Controller
     use AuthorizesRequests, HasFlashMessages;
 
     public function __construct(
-        public readonly UserManagementService $userService,
-        // public readonly ExamQueryService $examQueryService,
-        // public readonly StudentAssignmentQueryService $studentAssignmentQueryService
+        public readonly UserManagementService $userService
     ) {}
 
     /**
@@ -51,12 +47,10 @@ class UserController extends Controller
         $users = $this->userService->getUserWithPagination($filters, 10, $currentUser);
 
         $availableRoles = $this->userService->getAvailableRoles($currentUser);
-        // $groups = $this->userService->getActiveGroupsWithLevels();
 
         return Inertia::render('Users/Index', [
             'users' => $users,
             'roles' => $availableRoles,
-            // 'groups' => $groups,
             'canManageAdmins' => $currentUser->hasRole('super_admin'),
             'canDeleteUsers' => $currentUser->can('delete users'),
         ]);
@@ -116,14 +110,11 @@ class UserController extends Controller
 
         $this->userService->ensureRolesLoaded($user);
 
-        // $exams = $this->examQueryService->getExams($user->id, $perPage, $status, $search);
-
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
         return Inertia::render('Users/ShowTeacher', [
             'user' => $user,
-            // 'exams' => $exams,
             'canDelete' => $currentUser->hasRole('super_admin'),
             'canToggleStatus' => $currentUser->can('toggle user status'),
         ]);
@@ -151,17 +142,11 @@ class UserController extends Controller
         $status = $request->input('status') ? $request->input('status') : null;
         $search = $request->input('search');
 
-        // $assignments = $this->studentAssignmentQueryService->getAssignmentsForStudent($user, $perPage, $status, $search);
-
-        // $availableGroups = $this->userService->getActiveGroupsWithLevels();
-
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
         return Inertia::render('Users/ShowStudent', [
             'user' => $user,
-            // 'examsAssignments' => $assignments,
-            // 'availableGroups' => $availableGroups,
             'canDelete' => $currentUser->hasRole('super_admin'),
             'canToggleStatus' => $currentUser->can('toggle user status'),
         ]);
@@ -170,7 +155,6 @@ class UserController extends Controller
     /**
      * Update the specified user's information.
      *
-     * Validates permissions (only super_admin can edit admins).
      * Delegates to UserManagementService to update user data.
      *
      * @param  \App\Http\Requests\EditUserRequest  $request  The validated request containing user update data.
@@ -180,13 +164,6 @@ class UserController extends Controller
     public function update(EditUserRequest $request, User $user)
     {
         $this->authorize('update', $user);
-
-        /** @var \App\Models\User $auth */
-        $auth = Auth::user();
-
-        if ($user->hasRole(['admin', 'super_admin']) && ! $auth->hasRole('super_admin')) {
-            return $this->flashError(__('messages.unauthorized'));
-        }
 
         try {
             $validated = $request->validated();
@@ -204,8 +181,7 @@ class UserController extends Controller
     /**
      * Remove the specified user from storage (soft delete).
      *
-     * Validates permissions and prevents self-deletion.
-     * Only super_admin can delete admin users.
+     * Delegates to UserManagementService to delete user.
      *
      * @param  \App\Models\User  $user  The user instance to be deleted.
      * @return \Illuminate\Http\Response
@@ -213,17 +189,6 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $this->authorize('delete', $user);
-
-        /** @var \App\Models\User $auth */
-        $auth = Auth::user();
-
-        if ($user->id === $auth->id) {
-            return $this->flashError(__('messages.unauthorized'));
-        }
-
-        if ($user->hasRole(['admin', 'super_admin']) && ! $auth->hasRole('super_admin')) {
-            return $this->flashError(__('messages.unauthorized'));
-        }
 
         $this->userService->delete($user);
 
@@ -233,8 +198,7 @@ class UserController extends Controller
     /**
      * Toggle the status (active/inactive) of the specified user.
      *
-     * Validates permissions and prevents self-modification.
-     * Only super_admin can modify admin status.
+     * Delegates to UserManagementService to toggle status.
      *
      * @param  \App\Models\User  $user  The user instance whose status will be toggled.
      * @return \Illuminate\Http\Response
@@ -242,17 +206,6 @@ class UserController extends Controller
     public function toggleStatus(User $user)
     {
         $this->authorize('toggleStatus', $user);
-
-        /** @var \App\Models\User $auth */
-        $auth = Auth::user();
-
-        if ($user->id === $auth->id) {
-            return $this->flashError(__('messages.unauthorized'));
-        }
-
-        if ($user->hasRole(['admin', 'super_admin']) && ! $auth->hasRole('super_admin')) {
-            return $this->flashError(__('messages.unauthorized'));
-        }
 
         $this->userService->toggleStatus($user);
 
@@ -268,11 +221,8 @@ class UserController extends Controller
      */
     public function restore(int $id)
     {
-        $this->authorize('restore', User::class);
-
         try {
-            $user = User::withTrashed()->findOrFail($id);
-            $user->restore();
+            $user = $this->userService->restoreUser($id);
 
             return $this->redirectWithSuccess('users.index', __('messages.user_restored'));
         } catch (\Exception $e) {
@@ -289,19 +239,15 @@ class UserController extends Controller
      */
     public function forceDelete(int $id)
     {
-        $this->authorize('forceDelete', User::class);
-
         try {
-            $user = User::withTrashed()->findOrFail($id);
+            /** @var \App\Models\User $currentUser */
+            $currentUser = Auth::user();
 
-            /** @var \App\Models\User $auth */
-            $auth = Auth::user();
-
-            if ($user->id === $auth->id) {
+            if (! $this->userService->canForceDeleteUser($currentUser, $id)) {
                 return $this->flashError(__('messages.unauthorized'));
             }
 
-            $user->forceDelete();
+            $this->userService->forceDeleteUser($id);
 
             return $this->redirectWithSuccess('users.index', __('messages.user_deleted'));
         } catch (\Exception $e) {

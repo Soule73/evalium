@@ -10,7 +10,6 @@ use App\Http\Traits\HasFlashMessages;
 use App\Services\Admin\RoleService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -31,9 +30,7 @@ class RoleController extends Controller
      */
     public function index(): Response
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $user->can('view roles');
+        $this->authorize('viewAny', \Spatie\Permission\Models\Role::class);
 
         $perPage = request()->integer('per_page', 15);
         $search = request()->string('search')->toString();
@@ -62,9 +59,7 @@ class RoleController extends Controller
      */
     public function create(): Response
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $user->can('create roles');
+        $this->authorize('create', \Spatie\Permission\Models\Role::class);
 
         $permissions = $this->roleService->getAllPermissions();
 
@@ -97,9 +92,7 @@ class RoleController extends Controller
      */
     public function edit(Role $role): Response
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $user->can('update roles');
+        $this->authorize('update', $role);
 
         $roleWithPermissions = $this->roleService->loadRolesWithPermissions($role);
 
@@ -160,9 +153,7 @@ class RoleController extends Controller
      */
     public function destroy(Role $role): RedirectResponse
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $user->can('delete roles');
+        $this->authorize('delete', $role);
 
         try {
             $this->roleService->deleteRole($role);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\Admin\AdminDashboardService;
+use App\Services\Core\RoleBasedRedirectService;
 use App\Services\Student\StudentAssignmentQueryService;
 use App\Services\Student\StudentDashboardService;
 use App\Traits\FiltersAcademicYear;
@@ -20,7 +21,8 @@ class DashboardController extends Controller
     public function __construct(
         private readonly AdminDashboardService $adminDashboardService,
         private readonly StudentAssignmentQueryService $studentAssignmentQueryService,
-        private readonly StudentDashboardService $studentDashboardService
+        private readonly StudentDashboardService $studentDashboardService,
+        private readonly RoleBasedRedirectService $redirectService
     ) {}
 
     /**
@@ -37,18 +39,9 @@ class DashboardController extends Controller
                 abort(401, __('messages.unauthenticated'));
             }
 
-            if ($user->hasRole('admin') || $user->hasRole('super_admin')) {
-                return $this->admin($request, $user);
-            } elseif ($user->hasRole('teacher')) {
+            $method = $this->redirectService->getDashboardMethod($user);
 
-                return $this->teacher($request, $user);
-            } elseif ($user->hasRole('student')) {
-
-                return $this->student($request, $user);
-            } else {
-
-                return $this->unified($request, $user);
-            }
+            return $this->{$method}($request, $user);
         } catch (\Exception $e) {
             Log::error('Error accessing dashboard', [
                 'exception' => $e->getMessage(),
@@ -70,9 +63,9 @@ class DashboardController extends Controller
     /**
      * Handles the request to display the student dashboard.
      */
-    public function student(Request $request): Response
+    public function student(Request $request, ?User $user = null): Response
     {
-        $user = $request->user();
+        $user = $user ?? $request->user();
 
         if (! $user || ! $user->hasRole('student')) {
             abort(403, __('messages.unauthorized'));
@@ -80,22 +73,10 @@ class DashboardController extends Controller
 
         $stats = $this->studentDashboardService->getDashboardStats($user);
 
-        $allAssignments = $this->studentAssignmentQueryService->getAssignmentsForStudentLight($user);
-
-        $page = $request->input('page', 1);
-        $perPage = 10;
-        $offset = ($page - 1) * $perPage;
-
-        $items = $allAssignments->slice($offset, $perPage)->values();
-
-        $total = $allAssignments->count();
-
-        $assessmentAssignments = new \Illuminate\Pagination\LengthAwarePaginator(
-            $items,
-            $total,
-            $perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()]
+        $assessmentAssignments = $this->studentAssignmentQueryService->getAssignmentsForStudentLightPaginated(
+            $user,
+            $request->only(['status', 'search']),
+            $request->input('per_page', 10)
         );
 
         return Inertia::render('Dashboard/Student', [
@@ -116,9 +97,9 @@ class DashboardController extends Controller
     /**
      * Handle the admin dashboard request.
      */
-    public function admin(Request $request): Response
+    public function admin(Request $request, ?User $user = null): Response
     {
-        $user = $request->user();
+        $user = $user ?? $request->user();
 
         if (! $user || (! $user->hasRole('admin') && ! $user->hasRole('super_admin'))) {
             abort(403, __('messages.unauthorized'));

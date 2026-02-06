@@ -23,9 +23,11 @@ class EditUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $userId = $this->route('user')->id;
+
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.request()->user()->id],
+            'email' => ['required', 'string', 'email', 'max:255', "unique:users,email,{$userId}"],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'role' => ['required', 'string', 'in:admin,teacher,student,super_admin'],
         ];

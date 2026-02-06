@@ -32,7 +32,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(ScoringService::class);
-        $this->app->singleton(\App\Services\Core\QuestionManagementService::class);
+        $this->app->singleton(\App\Services\Core\QuestionCrudService::class);
+        $this->app->singleton(\App\Services\Core\ChoiceManagementService::class);
+        $this->app->singleton(\App\Services\Core\QuestionDuplicationService::class);
         $this->app->bind(AdminDashboardService::class);
         $this->app->bind(UserManagementService::class);
     }

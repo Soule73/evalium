@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreClassRequest;
 use App\Http\Requests\Admin\UpdateClassRequest;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\ClassModel;
+use App\Services\Admin\ClassQueryService;
 use App\Services\Admin\ClassService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -20,7 +21,8 @@ class ClassController extends Controller
     use AuthorizesRequests, FiltersAcademicYear, HasFlashMessages;
 
     public function __construct(
-        private readonly ClassService $classService
+        private readonly ClassService $classService,
+        private readonly ClassQueryService $classQueryService
     ) {}
 
     /**
@@ -34,13 +36,13 @@ class ClassController extends Controller
         $filters = $request->only(['search', 'level_id']);
         $perPage = $request->input('per_page', 15);
 
-        $classes = $this->classService->getClassesForIndex(
+        $classes = $this->classQueryService->getClassesForIndex(
             $selectedYearId,
             $filters,
             $perPage
         );
 
-        $levels = $this->classService->getAllLevels();
+        $levels = $this->classQueryService->getAllLevels();
 
         return Inertia::render('Admin/Classes/Index', [
             'classes' => $classes,
@@ -57,7 +59,7 @@ class ClassController extends Controller
         $this->authorize('create', ClassModel::class);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $formData = $this->classService->getCreateFormData($selectedYearId);
+        $formData = $this->classQueryService->getCreateFormData($selectedYearId);
 
         return Inertia::render('Admin/Classes/Create', $formData);
     }
@@ -102,7 +104,7 @@ class ClassController extends Controller
             'per_page' => $request->input('subjects_per_page', 10),
         ];
 
-        $data = $this->classService->getClassDetailsWithPagination(
+        $data = $this->classQueryService->getClassDetailsWithPagination(
             $class,
             $studentsFilters,
             $subjectsFilters
@@ -118,7 +120,7 @@ class ClassController extends Controller
     {
         $this->authorize('update', $class);
 
-        $formData = $this->classService->getEditFormData($class);
+        $formData = $this->classQueryService->getEditFormData($class);
 
         return Inertia::render('Admin/Classes/Edit', $formData);
     }

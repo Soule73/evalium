@@ -26,7 +26,6 @@ class CreateUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'role' => ['required', 'string', 'in:admin,teacher,student,super_admin'],
-            'group_id' => ['nullable', 'integer', 'exists:groups,id', 'required_if:role,student'],
         ];
     }
 }

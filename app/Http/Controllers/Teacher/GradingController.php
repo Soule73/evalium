@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\SaveManualGradeRequest;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\Assessment;
-use App\Models\AssessmentAssignment;
 use App\Models\User;
 use App\Services\Core\GradeCalculationService;
 use App\Services\Core\Scoring\ScoringService;
+use App\Services\Teacher\GradingQueryService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -23,7 +23,8 @@ class GradingController extends Controller
 
     public function __construct(
         private readonly GradeCalculationService $gradeCalculationService,
-        private readonly ScoringService $scoringService
+        private readonly ScoringService $scoringService,
+        private readonly GradingQueryService $gradingQueryService
     ) {}
 
     /**
@@ -34,18 +35,13 @@ class GradingController extends Controller
         $this->authorize('view', $assessment);
         $selectedYearId = $this->getSelectedAcademicYearId($request);
 
-        $assessment->load([
-            'classSubject.class',
-            'questions',
-        ]);
-
+        $assessment = $this->gradingQueryService->loadAssessmentForGradingIndex($assessment);
         $this->validateAcademicYearAccess($assessment->classSubject->class, $selectedYearId);
 
-        $assignments = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->with(['student', 'answers.question'])
-            ->paginate(
-                $request->input('per_page', 10)
-            );
+        $assignments = $this->gradingQueryService->getAssignmentsForGrading(
+            $assessment,
+            $request->input('per_page', 10)
+        );
 
         return Inertia::render('Teacher/Grading/Index', [
             'assessment' => $assessment,
@@ -61,29 +57,11 @@ class GradingController extends Controller
         $this->authorize('view', $assessment);
         $selectedYearId = $this->getSelectedAcademicYearId($request);
 
-        $assessment->load(['classSubject.class', 'questions.choices']);
+        $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
         $this->validateAcademicYearAccess($assessment->classSubject->class, $selectedYearId);
 
-        $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $student->id)
-            ->with(['answers.question', 'answers.choice'])
-            ->firstOrFail();
-
-        $userAnswers = [];
-        foreach ($assignment->answers->groupBy('question_id') as $questionId => $answers) {
-            if ($answers->count() === 1) {
-                $userAnswers[$questionId] = $answers->first();
-            } else {
-                $firstAnswer = $answers->first();
-                $firstAnswer->choices = $answers->filter(function ($answer) {
-                    return $answer->choice_id !== null;
-                })->map(function ($answer) {
-                    return ['choice' => $answer->choice];
-                })->values()->all();
-
-                $userAnswers[$questionId] = $firstAnswer;
-            }
-        }
+        $assignment = $this->gradingQueryService->getAssignmentForStudent($assessment, $student);
+        $userAnswers = $this->gradingQueryService->transformUserAnswers($assignment);
 
         return Inertia::render('Teacher/Grading/Show', [
             'assignment' => $assignment,
@@ -98,36 +76,13 @@ class GradingController extends Controller
      */
     public function save(SaveManualGradeRequest $request, Assessment $assessment, User $student): RedirectResponse
     {
-        $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $student->id)
-            ->firstOrFail();
+        $assignment = $this->gradingQueryService->getAssignmentForStudent($assessment, $student);
 
-        foreach ($request->input('scores', []) as $scoreData) {
-            $answers = $assignment->answers()
-                ->where('question_id', $scoreData['question_id'])
-                ->get();
-
-            if ($answers->isNotEmpty()) {
-                $answers->first()->update([
-                    'score' => $scoreData['score'],
-                    'feedback' => $scoreData['feedback'] ?? null,
-                ]);
-
-                $answers->skip(1)->each(function ($answer) use ($scoreData) {
-                    $answer->update([
-                        'score' => 0,
-                        'feedback' => $scoreData['feedback'] ?? null,
-                    ]);
-                });
-            }
-        }
-
-        $totalScore = $this->scoringService->calculateAssignmentScore($assignment);
-
-        $assignment->update([
-            'score' => $totalScore,
-            'teacher_notes' => $request->input('teacher_notes'),
-        ]);
+        $this->scoringService->saveManualGrades(
+            $assignment,
+            $request->input('scores', []),
+            $request->input('teacher_notes')
+        );
 
         return back()->flashSuccess(__('messages.grade_saved'));
     }

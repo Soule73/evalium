@@ -32,13 +32,7 @@ class AcademicYearController extends Controller
         $filters = $request->only(['search', 'is_current']);
         $perPage = $request->input('per_page', 15);
 
-        $academicYears = AcademicYear::query()
-            ->with(['semesters', 'classes'])
-            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
-            ->when(isset($filters['is_current']), fn ($query) => $query->where('is_current', (bool) $filters['is_current']))
-            ->orderBy('start_date', 'desc')
-            ->paginate($perPage)
-            ->withQueryString();
+        $academicYears = $this->academicYearService->getAcademicYearsForIndex($filters, $perPage);
 
         return Inertia::render('Admin/AcademicYears/Index', [
             'academicYears' => $academicYears,
@@ -56,13 +50,7 @@ class AcademicYearController extends Controller
         $filters = $request->only(['search', 'is_current']);
         $perPage = $request->input('per_page', 20);
 
-        $academicYears = AcademicYear::query()
-            ->withCount(['semesters', 'classes'])
-            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
-            ->when(isset($filters['is_current']), fn ($query) => $query->where('is_current', (bool) $filters['is_current']))
-            ->orderBy('start_date', 'desc')
-            ->paginate($perPage)
-            ->withQueryString();
+        $academicYears = $this->academicYearService->getAcademicYearsForArchives($filters, $perPage);
 
         return Inertia::render('Admin/AcademicYears/Archives', [
             'academicYears' => $academicYears,
@@ -99,7 +87,7 @@ class AcademicYearController extends Controller
     {
         $this->authorize('view', $academicYear);
 
-        $academicYear->load(['semesters', 'classes.level', 'classes.students']);
+        $academicYear = $this->academicYearService->loadAcademicYearDetails($academicYear);
 
         return Inertia::render('Admin/AcademicYears/Show', [
             'academicYear' => $academicYear,
