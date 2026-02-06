@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamp('started_at')->nullable();
             $table->timestamp('submitted_at')->nullable();
             $table->decimal('score', 5, 2)->nullable();
-            $table->text('feedback')->nullable();
+            $table->text('teacher_notes')->nullable();
             $table->timestamps();
 
             $table->unique(['assessment_id', 'student_id']);

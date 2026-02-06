@@ -40,11 +40,6 @@ class DatabaseSeeder extends Seeder
             EnrollmentSeeder::class,
             ClassSubjectSeeder::class,
             AssessmentSeeder::class,
-
-            // === PHASE 3: LEGACY (temporarily disabled - need adaptation) ===
-            // GroupSeeder::class,
-            // ExamSeeder::class,
-            // ExamGroupAssignmentSeeder::class,
         ]);
     }
 }
