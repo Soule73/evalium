@@ -8,7 +8,7 @@ import { route } from 'ziggy-js';
 import { hasPermission } from '@/utils';
 import { trans } from '@/utils';
 import { breadcrumbs } from '@/utils';
-import { AssessmentList } from '@/Components/features/assessment/AssessmentList';
+import { AssessmentList } from '@/Components/shared/lists';
 
 interface Props extends PageProps {
   assessments: PaginationType<Assessment>;

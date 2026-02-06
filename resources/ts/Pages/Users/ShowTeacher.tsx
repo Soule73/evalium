@@ -6,7 +6,8 @@ import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
 import { hasPermission } from '@/utils';
 import { usePage } from '@inertiajs/react';
-import { Section, StatCard, AssessmentList } from '@/Components';
+import { Section, StatCard } from '@/Components';
+import { AssessmentList } from '@/Components/shared/lists';
 
 
 interface Props {
@@ -56,8 +57,6 @@ export default function ShowTeacher({ user, assessments }: Props) {
                 <AssessmentList
                     data={assessments}
                     variant="admin"
-                    showFilters={true}
-                    showSearch={true}
                 />
             </Section>
         </ShowUser >
