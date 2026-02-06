@@ -75,7 +75,7 @@ const AssessmentList: React.FC<AssessmentListProps> = ({
   );
 
   const renderDuration = (assessment: Assessment) => (
-    <span className="text-sm text-gray-900">{formatDuration(assessment.duration)}</span>
+    <span className="text-sm text-gray-900">{formatDuration(assessment.duration_minutes)}</span>
   );
 
   const renderStatus = (assessment: Assessment) => (
@@ -162,4 +162,4 @@ const AssessmentList: React.FC<AssessmentListProps> = ({
 
   );
 };
-export default AssessmentList;
+export { AssessmentList };

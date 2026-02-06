@@ -16,7 +16,7 @@ interface AssessmentHeaderProps {
  * Reusable component for displaying assessment header
  * Used in AssessmentShow, AssessmentAssignments, etc.
  */
-export default function AssessmentHeader({
+export function AssessmentHeader({
   assessment,
   showDescription = true,
   showMetadata = false,
@@ -37,10 +37,10 @@ export default function AssessmentHeader({
 
       {showMetadata && (
         <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-          {assessment.duration && (
+          {assessment.duration_minutes && (
             <div className="flex items-center gap-2">
               <ClockIcon className="w-4 h-4" />
-              <span>{formatDuration(assessment.duration)}</span>
+              <span>{formatDuration(assessment.duration_minutes)}</span>
             </div>
           )}
           {assessment.questions && assessment.questions.length > 0 && (
