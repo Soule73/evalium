@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { ClassModel, Enrollment, ClassSubject, PageProps, PaginationType } from '@/types';
 import { breadcrumbs, trans, hasPermission } from '@/utils';
 import { Button, Section, Badge, DataTable } from '@/Components';
+import { EnrollmentList } from '@/Components/shared/lists';
 import { DataTableConfig } from '@/types/datatable';
 import { route } from 'ziggy-js';
 import { AcademicCapIcon, UserGroupIcon, BookOpenIcon, CalendarIcon } from '@heroicons/react/24/outline';
@@ -36,7 +37,6 @@ export default function ClassShow({
   classSubjects,
   statistics,
   studentsFilters,
-  subjectsFilters,
   auth,
 }: Props) {
   const canUpdate = hasPermission(auth.permissions, 'update classes');
@@ -47,7 +47,7 @@ export default function ClassShow({
   };
 
   const handleDelete = () => {
-    if (confirm(trans('admin_pages.classes.delete_confirm'))) {
+    if (confirm(trans('adminss_pages.classes.delete_confirm'))) {
       router.delete(route('admin.classes.destroy', classItem.id));
     }
   };
@@ -59,57 +59,6 @@ export default function ClassShow({
   const enrollmentPercentage = statistics.max_students > 0
     ? (statistics.active_students / statistics.max_students) * 100
     : 0;
-
-  const enrollmentsTableConfig: DataTableConfig<Enrollment> = {
-    columns: [
-      {
-        key: 'student',
-        label: trans('admin_pages.classes.student'),
-        render: (enrollment) => (
-          <div>
-            <div className="font-medium text-gray-900">{enrollment.student?.name}</div>
-            <div className="text-sm text-gray-500">{enrollment.student?.email}</div>
-          </div>
-        ),
-      },
-      {
-        key: 'enrolled_at',
-        label: trans('admin_pages.classes.enrolled_at'),
-        render: (enrollment) => (
-          <div className="text-sm text-gray-600">
-            {enrollment.enrolled_at ? new Date(enrollment.enrolled_at).toLocaleDateString() : '-'}
-          </div>
-        ),
-      },
-      {
-        key: 'status',
-        label: trans('admin_pages.classes.status'),
-        render: (enrollment) => (
-          <Badge
-            label={trans(`admin_pages.enrollments.status_${enrollment.status}`)}
-            type={enrollment.status === 'active' ? 'success' : 'gray'}
-            size="sm"
-          />
-        ),
-      },
-    ],
-    filters: [],
-    emptyState: {
-      title: trans('admin_pages.classes.no_enrollments'),
-      subtitle: trans('admin_pages.classes.no_enrollments_subtitle'),
-    },
-    searchable: true,
-    searchPlaceholder: trans('admin_pages.classes.search_students'),
-    onSearch: (search) => {
-      router.get(
-        route('admin.classes.show', classItem.id),
-        { students_search: search, subjects_search: subjectsFilters?.search },
-        { preserveState: true, preserveScroll: true }
-      );
-    },
-    pageName: 'students_page',
-    perPageName: 'students_per_page',
-  };
 
   const subjectsTableConfig: DataTableConfig<ClassSubject> = {
     columns: [
@@ -256,7 +205,7 @@ export default function ClassShow({
           title={trans('admin_pages.classes.enrollments_section')}
           subtitle={trans('admin_pages.classes.enrollments_section_subtitle')}
         >
-          <DataTable data={enrollments} config={enrollmentsTableConfig} />
+          <EnrollmentList data={enrollments} variant="admin" showActions={false} />
         </Section>
 
         <Section
