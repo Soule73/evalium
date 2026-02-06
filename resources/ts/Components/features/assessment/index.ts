@@ -1,7 +1,6 @@
 export * from './AlertSecurityViolation';
 export * from './AssessmentHeader';
 export * from './AssessmentInfoSection';
-export * from './AssessmentList';
 export * from './FullscreenModal';
 export * from './questionOptions';
 export * from './QuestionReadOnlySection';
