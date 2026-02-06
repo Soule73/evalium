@@ -11,7 +11,8 @@ import type { PaginationType } from '@/types/datatable';
 
 interface UserListProps {
   data: PaginationType<User>;
-  permissions: {
+  variant?: 'admin' | 'classmates';
+  permissions?: {
     canCreate?: boolean;
     canUpdate?: boolean;
     canDelete?: boolean;
@@ -23,9 +24,17 @@ interface UserListProps {
   onForceDeleteClick?: (user: { id: number; name: string }) => void;
 }
 
+/**
+ * Unified UserList component for displaying users
+ *
+ * Supports two variants:
+ * - admin: Full user management with roles, status, actions
+ * - classmates: Simple list of classmates with name and email
+ */
 export function UserList({
   data,
-  permissions,
+  variant = 'admin',
+  permissions = {},
   roles = [],
   onCreateClick,
   onDeleteClick,
@@ -56,25 +65,55 @@ export function UserList({
   };
 
   const config: EntityListConfig<User> = {
-    entity: 'user',
+    entity: variant === 'classmates' ? 'classmate' : 'user',
 
     columns: [
       {
         key: 'name',
-        labelKey: 'admin_pages.users.name',
-        render: (user: User) => (
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-900">{user.name}</span>
-              {user.deleted_at && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                  {trans('admin_pages.users.deleted')}
-                </span>
-              )}
+        labelKey: variant === 'classmates' ? 'student_enrollment_pages.classmates.student_name' : 'admin_pages.users.name',
+        render: (user: User, currentVariant) => {
+          if (currentVariant === 'classmates') {
+            return (
+              <div className="flex items-center">
+                <div className="shrink-0 h-10 w-10">
+                  <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-600 font-medium text-sm">
+                      {user.name
+                        .split(' ')
+                        .map((n: string) => n[0])
+                        .join('')
+                        .toUpperCase()
+                        .slice(0, 2)}
+                    </span>
+                  </div>
+                </div>
+                <div className="ml-4">
+                  <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-900">{user.name}</span>
+                {user.deleted_at && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                    {trans('admin_pages.users.deleted')}
+                  </span>
+                )}
+              </div>
+              <div className="text-sm text-gray-500">{user.email}</div>
             </div>
-            <div className="text-sm text-gray-500">{user.email}</div>
-          </div>
-        )
+          );
+        }
+      },
+      {
+        key: 'email',
+        labelKey: 'student_enrollment_pages.classmates.email',
+        render: (user: User) => <span className="text-gray-700">{user.email || '-'}</span>,
+        conditional: (v) => v === 'classmates',
       },
       {
         key: 'role',
@@ -85,7 +124,8 @@ export function UserList({
               {getRoleLabel(user.roles?.[0]?.name ?? '')}
             </span>
           ) : null
-        )
+        ),
+        conditional: (v) => v === 'admin',
       },
       {
         key: 'status',
@@ -112,20 +152,22 @@ export function UserList({
               </span>
             )}
           </div>
-        )
+        ),
+        conditional: (v) => v === 'admin',
       },
       {
         key: 'created_at',
         labelKey: 'admin_pages.users.created_at',
         render: (user: User) => (
           <span className="text-sm text-gray-500">{formatDate(user.created_at)}</span>
-        )
+        ),
+        conditional: (v) => v === 'admin',
       }
     ],
 
     actions: [],
 
-    filters: [
+    filters: variant === 'admin' ? [
       {
         key: 'role',
         type: 'select',
@@ -153,10 +195,10 @@ export function UserList({
           { label: trans('admin_pages.users.deleted'), value: '1' }
         ]
       }
-    ]
+    ] : undefined
   };
 
-  if (permissions.canUpdate || permissions.canDelete) {
+  if (variant === 'admin' && (permissions.canUpdate || permissions.canDelete)) {
     config.columns.push({
       key: 'actions',
       labelKey: 'admin_pages.common.actions',
@@ -222,7 +264,7 @@ export function UserList({
 
   return (
     <>
-      {permissions.canCreate && onCreateClick && (
+      {variant === 'admin' && permissions.canCreate && onCreateClick && (
         <div className="mb-4 flex justify-end">
           <Button
             onClick={onCreateClick}
@@ -237,71 +279,18 @@ export function UserList({
       <BaseEntityList
         data={data}
         config={config}
-        searchPlaceholder={trans('admin_pages.users.search_placeholder')}
-        emptyMessage={trans('admin_pages.users.empty_subtitle')}
+        variant={variant}
+        searchPlaceholder={
+          variant === 'classmates'
+            ? trans('student_enrollment_pages.classmates.search_placeholder')
+            : trans('admin_pages.users.search_placeholder')
+        }
+        emptyMessage={
+          variant === 'classmates'
+            ? trans('student_enrollment_pages.classmates.empty_subtitle')
+            : trans('admin_pages.users.empty_subtitle')
+        }
       />
     </>
-  );
-}
-
-export function ClassmatesList({ classmates }: { classmates: User[] }) {
-  const config: EntityListConfig<User> = {
-    entity: 'classmate',
-
-    columns: [
-      {
-        key: 'name',
-        labelKey: 'student_enrollment_pages.classmates.student_name',
-        render: (student: User) => (
-          <div className="flex items-center">
-            <div className="shrink-0 h-10 w-10">
-              <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-600 font-medium text-sm">
-                  {student.name
-                    .split(' ')
-                    .map((n: string) => n[0])
-                    .join('')
-                    .toUpperCase()
-                    .slice(0, 2)}
-                </span>
-              </div>
-            </div>
-            <div className="ml-4">
-              <div className="text-sm font-medium text-gray-900">{student.name}</div>
-            </div>
-          </div>
-        )
-      },
-      {
-        key: 'email',
-        labelKey: 'student_enrollment_pages.classmates.email',
-        render: (student: User) => <span className="text-gray-700">{student.email || '-'}</span>
-      }
-    ]
-  };
-
-  const paginatedData: PaginationType<User> = {
-    data: classmates,
-    current_page: 1,
-    last_page: 1,
-    per_page: classmates.length,
-    total: classmates.length,
-    first_page_url: '',
-    from: 1,
-    last_page_url: '',
-    next_page_url: null,
-    path: '',
-    prev_page_url: null,
-    to: classmates.length,
-    links: []
-  };
-
-  return (
-    <BaseEntityList
-      data={paginatedData}
-      config={config}
-      searchPlaceholder={trans('student_enrollment_pages.classmates.search_placeholder')}
-      emptyMessage={trans('student_enrollment_pages.classmates.empty_subtitle')}
-    />
   );
 }

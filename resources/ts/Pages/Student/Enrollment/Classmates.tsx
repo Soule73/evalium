@@ -3,9 +3,10 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Enrollment, User, PageProps } from '@/types';
+import type { PaginationType } from '@/types/datatable';
 import { Button, Section } from '@/Components';
 import { trans } from '@/utils';
-import { ClassmatesList } from '@/Components/shared/lists';
+import { UserList } from '@/Components/shared/lists';
 
 interface StudentEnrollmentClassmatesProps extends PageProps {
   enrollment: Enrollment;
@@ -27,6 +28,22 @@ export default function Classmates({ enrollment, classmates }: StudentEnrollment
     [enrollment.class?.name, classmates.length]
   );
 
+  const paginatedClassmates: PaginationType<User> = {
+    data: classmates,
+    current_page: 1,
+    last_page: 1,
+    per_page: classmates.length,
+    total: classmates.length,
+    first_page_url: '',
+    from: 1,
+    last_page_url: '',
+    next_page_url: null,
+    path: '',
+    prev_page_url: null,
+    to: classmates.length,
+    links: []
+  };
+
   return (
     <AuthenticatedLayout title={translations.title}>
       <Section
@@ -42,7 +59,7 @@ export default function Classmates({ enrollment, classmates }: StudentEnrollment
           </Button>
         }
       >
-        <ClassmatesList classmates={classmates} />
+        <UserList data={paginatedClassmates} variant="classmates" />
       </Section>
     </AuthenticatedLayout>
   );

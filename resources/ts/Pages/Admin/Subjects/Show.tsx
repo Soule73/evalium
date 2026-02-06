@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Subject, ClassSubject, PageProps, PaginationType } from '@/types';
 import { breadcrumbs, trans, hasPermission } from '@/utils';
 import { Button, Section, Badge } from '@/Components';
-import { ClassSubjectList } from '@/Components/shared/lists';
+import { SubjectList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
 import { AcademicCapIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 
@@ -118,7 +118,7 @@ export default function SubjectShow({ subject, classSubjects, auth }: Props) {
           title={trans('admin_pages.subjects.classes_section')}
           subtitle={trans('admin_pages.subjects.classes_section_subtitle')}
         >
-          <ClassSubjectList data={classSubjects} onClassClick={handleClassClick} />
+          <SubjectList data={classSubjects} variant="class-assignment" onClassClick={handleClassClick} />
         </Section>
       </div>
     </AuthenticatedLayout>

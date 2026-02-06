@@ -1,6 +1,6 @@
 export { BaseEntityList } from './BaseEntityList';
 export { ClassList } from './ClassList';
-export { SubjectList, ClassSubjectList } from './SubjectList';
+export { SubjectList } from './SubjectList';
 export { AssessmentList } from './AssessmentList';
-export { UserList, ClassmatesList } from './UserList';
+export { UserList } from './UserList';
 export * from './types/listConfig';

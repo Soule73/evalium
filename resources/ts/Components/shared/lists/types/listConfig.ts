@@ -49,7 +49,7 @@ export interface PermissionConfig {
 /**
  * Supported variants for entity lists
  */
-export type EntityListVariant = 'admin' | 'teacher' | 'student';
+export type EntityListVariant = 'admin' | 'teacher' | 'student' | 'classmates' | 'class-assignment';
 
 /**
  * Complete configuration for an entity list
