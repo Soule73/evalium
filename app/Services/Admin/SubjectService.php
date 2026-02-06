@@ -4,17 +4,30 @@ namespace App\Services\Admin;
 
 use App\Models\Level;
 use App\Models\Subject;
+use App\Services\Core\CacheService;
+use App\Services\Traits\Paginatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
+/**
+ * Subject Service - Manage subjects
+ *
+ * Performance: Uses cache for frequently accessed data
+ */
 class SubjectService
 {
+    use Paginatable;
+
+    public function __construct(
+        private readonly CacheService $cacheService
+    ) {}
+
     /**
      * Get paginated subjects with filters
      */
     public function getSubjectsForIndex(?int $academicYearId, array $filters, int $perPage = 15): LengthAwarePaginator
     {
-        return Subject::query()
+        $query = Subject::query()
             ->with(['level', 'classSubjects' => function ($query) use ($academicYearId) {
                 if ($academicYearId) {
                     $query->whereHas('class', function ($q) use ($academicYearId) {
@@ -33,17 +46,31 @@ class SubjectService
                 ->orWhere('code', 'like', "%{$search}%"))
             ->when($filters['level_id'] ?? null, fn ($query, $levelId) => $query->where('level_id', $levelId))
             ->orderBy('level_id')
-            ->orderBy('name')
-            ->paginate($perPage)
-            ->withQueryString();
+            ->orderBy('name');
+
+        return $this->simplePaginate($query, $perPage);
     }
 
     /**
-     * Get all levels for dropdown
+     * Get all levels for dropdown (cached)
      */
     public function getAllLevels(): Collection
     {
-        return Level::orderBy('name')->get();
+        return $this->cacheService->remember(
+            CacheService::KEY_LEVELS_ALL,
+            fn () => Level::orderBy('name')->get()
+        );
+    }
+
+    /**
+     * Get all subjects (cached for dropdowns)
+     */
+    public function getAllSubjects(): Collection
+    {
+        return $this->cacheService->remember(
+            CacheService::KEY_SUBJECTS_ALL,
+            fn () => Subject::with('level')->orderBy('name')->get()
+        );
     }
 
     /**
@@ -109,18 +136,13 @@ class SubjectService
                         $q->where('name', 'like', "%{$search}%");
                     });
             })
-            ->orderBy('created_at', 'desc')
-            ->paginate(
-                $filters['per_page'] ?? 10,
-                ['*'],
-                'classes_page',
-                $filters['page'] ?? 1
-            )
-            ->withQueryString()
-            ->appends([
-                'classes_search' => $filters['search'],
-                'classes_per_page' => $filters['per_page'],
-            ]);
+            ->orderBy('created_at', 'desc');
+
+        return $this->paginateWithFilters(
+            $subject->classSubjects(),
+            ['per_page' => $filters['per_page'] ?? 10, 'page' => $filters['page'] ?? 1, 'page_name' => 'classes_page'],
+            ['classes_search' => $filters['search'] ?? null, 'classes_per_page' => $filters['per_page'] ?? null]
+        );
     }
 
     /**

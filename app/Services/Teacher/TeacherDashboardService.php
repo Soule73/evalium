@@ -4,6 +4,7 @@ namespace App\Services\Teacher;
 
 use App\Models\Assessment;
 use App\Models\ClassSubject;
+use App\Services\Traits\Paginatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 /**
@@ -14,6 +15,8 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
  */
 class TeacherDashboardService
 {
+    use Paginatable;
+
     /**
      * Get active class-subject assignments for a teacher
      *
@@ -37,7 +40,7 @@ class TeacherDashboardService
             });
         }
 
-        return $query->paginate($perPage)->withQueryString();
+        return $this->simplePaginate($query, $perPage);
     }
 
     /**
@@ -61,7 +64,7 @@ class TeacherDashboardService
             $query->where('title', 'like', "%{$search}%");
         }
 
-        $assessments = $query->paginate($perPage)->withQueryString();
+        $assessments = $this->simplePaginate($query, $perPage);
 
         $assessments->through(fn ($assessment) => $this->formatAssessmentForDisplay($assessment));
 
@@ -89,7 +92,7 @@ class TeacherDashboardService
             $query->where('title', 'like', "%{$search}%");
         }
 
-        $assessments = $query->paginate($perPage)->withQueryString();
+        $assessments = $this->simplePaginate($query, $perPage);
 
         $assessments->through(fn ($assessment) => $this->formatAssessmentForDisplay($assessment));
 

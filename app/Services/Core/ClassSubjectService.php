@@ -2,6 +2,8 @@
 
 namespace App\Services\Core;
 
+use App\Exceptions\ClassSubjectException;
+use App\Exceptions\ValidationException;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
 use App\Models\Subject;
@@ -9,7 +11,6 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use InvalidArgumentException;
 
 /**
  * ClassSubject Service - THE CENTRAL SERVICE
@@ -107,7 +108,7 @@ class ClassSubjectService
     public function updateCoefficient(ClassSubject $classSubject, float $coefficient): ClassSubject
     {
         if ($coefficient <= 0) {
-            throw new InvalidArgumentException('Coefficient must be greater than 0');
+            throw ClassSubjectException::invalidCoefficient();
         }
 
         $classSubject->update(['coefficient' => $coefficient]);
@@ -151,19 +152,19 @@ class ClassSubjectService
         $required = ['class_id', 'subject_id', 'teacher_id', 'semester_id', 'coefficient'];
         foreach ($required as $field) {
             if (! isset($data[$field])) {
-                throw new InvalidArgumentException("Missing required field: {$field}");
+                throw ValidationException::missingRequiredField($field);
             }
         }
 
         if ($data['coefficient'] <= 0) {
-            throw new InvalidArgumentException('Coefficient must be greater than 0');
+            throw ClassSubjectException::invalidCoefficient();
         }
 
         $class = ClassModel::find($data['class_id']);
         $subject = Subject::find($data['subject_id']);
 
         if ($class && $subject && $class->level_id !== $subject->level_id) {
-            throw new InvalidArgumentException('Subject level must match class level');
+            throw ClassSubjectException::levelMismatch();
         }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Services\Admin;
 
 use App\Models\User;
 use App\Notifications\UserCredentialsNotification;
+use App\Services\Traits\Paginatable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,8 @@ use Spatie\Permission\Models\Role;
  */
 class UserManagementService
 {
+    use Paginatable;
+
     /**
      * Get paginated list of users with filtering
      *
@@ -47,8 +50,6 @@ class UserManagementService
             $query->withTrashed();
         }
 
-        $per_page = $filters['per_page'] ?? 10;
-
         if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
@@ -57,9 +58,7 @@ class UserManagementService
             });
         }
 
-        $users = $query->paginate($per_page)->withQueryString();
-
-        return $users;
+        return $this->simplePaginate($query, $filters['per_page'] ?? 10);
     }
 
     /**

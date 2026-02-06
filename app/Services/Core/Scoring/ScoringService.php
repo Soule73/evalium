@@ -13,7 +13,6 @@ use Illuminate\Support\Collection;
 
 /**
  * Central scoring service orchestrating question scoring strategies.
- *
  */
 class ScoringService
 {
@@ -175,5 +174,60 @@ class ScoringService
         $this->strategies[] = $strategy;
 
         return $this;
+    }
+
+    /**
+     * Save manual grades for multiple questions in an assignment.
+     *
+     * Handles batch update of question scores and feedback, then recalculates total score.
+     *
+     * @param  AssessmentAssignment  $assignment  The assignment to grade
+     * @param  array  $scores  Array of scores: [['question_id' => 1, 'score' => 8.5, 'feedback' => '...'], ...]
+     * @param  string|null  $teacherNotes  Optional teacher notes for the entire assignment
+     * @return array Result with updated_count, total_score, and status
+     */
+    public function saveManualGrades(AssessmentAssignment $assignment, array $scores, ?string $teacherNotes = null): array
+    {
+        $updatedCount = 0;
+
+        foreach ($scores as $scoreData) {
+            $answers = $assignment->answers()
+                ->where('question_id', $scoreData['question_id'])
+                ->get();
+
+            if ($answers->isNotEmpty()) {
+                // Update the first answer with the score
+                $answers->first()->update([
+                    'score' => $scoreData['score'],
+                    'feedback' => $scoreData['feedback'] ?? null,
+                ]);
+
+                // Update remaining answers (for multiple choice) with 0 score but same feedback
+                $answers->skip(1)->each(function ($answer) use ($scoreData) {
+                    $answer->update([
+                        'score' => 0,
+                        'feedback' => $scoreData['feedback'] ?? null,
+                    ]);
+                });
+
+                $updatedCount++;
+            }
+        }
+
+        // Recalculate total score
+        $totalScore = $this->calculateAssignmentScore($assignment);
+
+        // Update assignment
+        $assignment->update([
+            'score' => $totalScore,
+            'teacher_notes' => $teacherNotes,
+            'graded_at' => now(),
+        ]);
+
+        return [
+            'updated_count' => $updatedCount,
+            'total_score' => $totalScore,
+            'status' => 'graded',
+        ];
     }
 }

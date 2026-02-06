@@ -2,26 +2,30 @@
 
 namespace App\Services\Admin;
 
+use App\Exceptions\EnrollmentException;
 use App\Models\ClassModel;
 use App\Models\Enrollment;
 use App\Models\User;
+use App\Services\Traits\Paginatable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use InvalidArgumentException;
 
 /**
  * Enrollment Service - Manage student enrollments in classes
  *
  * Single Responsibility: Handle student enrollment CRUD and status management
+ * Performance: Optimized queries with proper eager loading
  */
 class EnrollmentService
 {
+    use Paginatable;
+
     /**
      * Get paginated enrollments for index page
      */
     public function getEnrollmentsForIndex(?int $academicYearId, array $filters, int $perPage = 15): array
     {
-        $enrollments = Enrollment::query()
+        $query = Enrollment::query()
             ->forAcademicYear($academicYearId)
             ->with(['student', 'class.academicYear', 'class.level'])
             ->when($filters['search'] ?? null, function ($query, $search) {
@@ -32,9 +36,9 @@ class EnrollmentService
             })
             ->when($filters['class_id'] ?? null, fn ($query, $classId) => $query->where('class_id', $classId))
             ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
-            ->orderBy('enrolled_at', 'desc')
-            ->paginate($perPage)
-            ->withQueryString();
+            ->orderBy('enrolled_at', 'desc');
+
+        $enrollments = $this->simplePaginate($query, $perPage);
 
         $classes = ClassModel::forAcademicYear($academicYearId)
             ->with('academicYear')
@@ -49,16 +53,22 @@ class EnrollmentService
     }
 
     /**
-     * Get form data for create page
+     * Get form data for create page (optimized)
      */
     public function getCreateFormData(?int $academicYearId): array
     {
         $classes = ClassModel::forAcademicYear($academicYearId)
-            ->with('academicYear')
+            ->with('academicYear', 'level')
+            ->withCount([
+                'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
+            ])
             ->orderBy('name')
             ->get();
 
-        $students = User::role('student')->orderBy('name')->get();
+        $students = User::role('student')
+            ->select(['id', 'name', 'email'])
+            ->orderBy('name')
+            ->get();
 
         return [
             'classes' => $classes,
@@ -74,7 +84,7 @@ class EnrollmentService
         $this->validateEnrollment($student, $class);
 
         if ($class->enrollments()->count() >= $class->max_students) {
-            throw new InvalidArgumentException('Class is full');
+            throw EnrollmentException::classFull();
         }
 
         return Enrollment::create([
@@ -93,7 +103,7 @@ class EnrollmentService
         $this->validateEnrollment($enrollment->student, $newClass);
 
         if ($newClass->enrollments()->count() >= $newClass->max_students) {
-            throw new InvalidArgumentException('Target class is full');
+            throw EnrollmentException::targetClassFull();
         }
 
         return DB::transaction(function () use ($enrollment, $newClass) {
@@ -130,11 +140,11 @@ class EnrollmentService
     public function reactivateEnrollment(Enrollment $enrollment): Enrollment
     {
         if ($enrollment->status !== 'withdrawn') {
-            throw new InvalidArgumentException('Only withdrawn enrollments can be reactivated');
+            throw EnrollmentException::invalidStatus($enrollment->status);
         }
 
         if ($enrollment->class->enrollments()->count() >= $enrollment->class->max_students) {
-            throw new InvalidArgumentException('Class is full');
+            throw EnrollmentException::classFull();
         }
 
         $enrollment->update([
@@ -194,7 +204,7 @@ class EnrollmentService
         $availableSlots = $class->max_students - $class->enrollments()->count();
 
         if (count($studentIds) > $availableSlots) {
-            throw new InvalidArgumentException("Class has only {$availableSlots} available slots");
+            throw EnrollmentException::classFull($availableSlots);
         }
 
         $enrollments = collect();
@@ -215,7 +225,7 @@ class EnrollmentService
     private function validateEnrollment(User $student, ClassModel $class): void
     {
         if (! $student->hasRole('student')) {
-            throw new InvalidArgumentException('User must have student role');
+            throw EnrollmentException::invalidStudentRole();
         }
 
         $existingEnrollment = Enrollment::active()
@@ -226,7 +236,7 @@ class EnrollmentService
             ->exists();
 
         if ($existingEnrollment) {
-            throw new InvalidArgumentException('Student already enrolled in a class for this academic year');
+            throw EnrollmentException::alreadyEnrolled();
         }
     }
 }

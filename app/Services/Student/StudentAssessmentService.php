@@ -6,16 +6,21 @@ use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\User;
 use App\Services\Core\Scoring\ScoringService;
+use App\Services\Traits\Paginatable;
 use Illuminate\Support\Collection;
 
 /**
  * Student Assessment Service
  *
- * Handles business logic for student assessment operations.
- * Single Responsibility: Manage student assessment lifecycle and scoring.
+ * Handles student assessment operations:
+ * - Starting assessments
+ * - Submitting answers
+ * - Retrieving assessment data
  */
 class StudentAssessmentService
 {
+    use Paginatable;
+
     public function __construct(
         private readonly ScoringService $scoringService
     ) {}
@@ -25,40 +30,14 @@ class StudentAssessmentService
      *
      * @param  User  $student  The student
      * @param  Assessment  $assessment  The assessment
-     * @param  bool  $startNow  Whether to set started_at to now
      * @return AssessmentAssignment The assignment
      */
-    public function getOrCreateAssignment(User $student, Assessment $assessment, bool $startNow = false): AssessmentAssignment
+    public function getOrCreateAssignment(User $student, Assessment $assessment): AssessmentAssignment
     {
-        $attributes = [
+        return AssessmentAssignment::firstOrCreate([
             'assessment_id' => $assessment->id,
             'student_id' => $student->id,
-        ];
-
-        $defaults = [
-            'assigned_at' => now(),
-        ];
-
-        if ($startNow) {
-            $defaults['started_at'] = now();
-        }
-
-        return AssessmentAssignment::firstOrCreate($attributes, $defaults);
-    }
-
-    /**
-     * Start an assessment (set started_at if not already set)
-     *
-     * @param  AssessmentAssignment  $assignment  The assignment
-     * @return AssessmentAssignment Updated assignment
-     */
-    public function startAssessment(AssessmentAssignment $assignment): AssessmentAssignment
-    {
-        if (! $assignment->started_at) {
-            $assignment->update(['started_at' => now()]);
-        }
-
-        return $assignment->fresh();
+        ]);
     }
 
     /**
@@ -124,7 +103,7 @@ class StudentAssessmentService
     }
 
     /**
-     * Auto-score non-text questions
+     * Auto-score non-text questions and set graded_at if all questions are auto-gradable
      *
      * @param  AssessmentAssignment  $assignment  The assignment
      * @param  Assessment  $assessment  The assessment with loaded questions and choices
@@ -132,6 +111,8 @@ class StudentAssessmentService
     public function autoScoreAssessment(AssessmentAssignment $assignment, Assessment $assessment): void
     {
         $assessment->load('questions.choices');
+
+        $hasTextQuestions = $assessment->questions->contains('type', 'text');
 
         foreach ($assessment->questions as $question) {
             if ($question->type === 'text') {
@@ -152,29 +133,29 @@ class StudentAssessmentService
                 $answer->update(['score' => 0]);
             });
         }
+
+        if (! $hasTextQuestions) {
+            $totalScore = $this->scoringService->calculateAssignmentScore($assignment);
+            $assignment->update([
+                'score' => $totalScore,
+                'graded_at' => now(),
+            ]);
+        }
     }
 
     /**
      * Determine assessment status based on assignment state
      *
-     * @param  AssessmentAssignment|null  $assignment  The assignment (null if not started)
-     * @return string Status: 'not_started', 'in_progress', 'completed'
+     * @param  AssessmentAssignment|null  $assignment  The assignment (null if not submitted)
+     * @return string Status: 'not_submitted', 'submitted', 'graded'
      */
     public function getAssessmentStatus(?AssessmentAssignment $assignment): string
     {
-        if (! $assignment) {
-            return 'not_started';
+        if (! $assignment || ! $assignment->exists) {
+            return 'not_submitted';
         }
 
-        if ($assignment->submitted_at) {
-            return 'completed';
-        }
-
-        if ($assignment->started_at) {
-            return 'in_progress';
-        }
-
-        return 'not_started';
+        return $assignment->status;
     }
 
     /**
@@ -248,5 +229,82 @@ class StudentAssessmentService
         }
 
         return $userAnswers;
+    }
+
+    /**
+     * Get paginated assessments for a student with filtering
+     *
+     * @param  User  $student  The student
+     * @param  int  $academicYearId  The academic year ID
+     * @param  array  $filters  Filter parameters (status, search)
+     * @param  int  $perPage  Items per page
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|array Paginated assignments or empty array
+     */
+    public function getStudentAssessmentsForIndex(User $student, int $academicYearId, array $filters, int $perPage)
+    {
+        $enrollment = $student->enrollments()
+            ->where('status', 'active')
+            ->whereHas('class', function ($query) use ($academicYearId) {
+                $query->where('academic_year_id', $academicYearId);
+            })
+            ->with(['class.classSubjects'])
+            ->first();
+
+        if (! $enrollment) {
+            return [];
+        }
+
+        $classSubjectIds = $enrollment->class->classSubjects->pluck('id');
+
+        $assessmentsQuery = Assessment::whereIn('class_subject_id', $classSubjectIds)
+            ->with([
+                'classSubject.class',
+                'classSubject.subject',
+                'classSubject.teacher',
+                'questions',
+            ])
+            ->when($filters['search'] ?? null, function ($query, $search) {
+                return $query->where('title', 'like', "%{$search}%");
+            })
+            ->orderBy('scheduled_at', 'asc');
+
+        $assessments = $this->simplePaginate($assessmentsQuery, $perPage);
+
+        $assessmentItems = $assessments instanceof \Illuminate\Pagination\AbstractPaginator
+            ? collect($assessments->items())
+            : $assessments;
+
+        $assignments = $this->getAssessmentsWithAssignments($student, $assessmentItems);
+
+        if ($assessments instanceof \Illuminate\Pagination\AbstractPaginator) {
+            $assessments->setCollection($assignments);
+        } else {
+            $assessments = $assignments;
+        }
+
+        if ($filters['status'] ?? null) {
+            $assessments->setCollection(
+                $assessments->getCollection()->filter(function ($assignment) use ($filters) {
+                    return $assignment->status === $filters['status'];
+                })->values()
+            );
+        }
+
+        return $assessments;
+    }
+
+    /**
+     * Get assessment assignment with results for a student
+     *
+     * @param  User  $student  The student
+     * @param  Assessment  $assessment  The assessment
+     * @return AssessmentAssignment|null The assignment with answers or null
+     */
+    public function getAssignmentForResults(User $student, Assessment $assessment): ?AssessmentAssignment
+    {
+        return AssessmentAssignment::where('assessment_id', $assessment->id)
+            ->where('student_id', $student->id)
+            ->with(['answers.question', 'answers.choice'])
+            ->first();
     }
 }

@@ -2,12 +2,13 @@
 
 namespace App\Services\Core;
 
+use App\Exceptions\AssessmentException;
+use App\Exceptions\ValidationException;
 use App\Models\Assessment;
 use App\Models\ClassSubject;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use InvalidArgumentException;
 
 /**
  * Assessment Service - Manage assessments (exams, devoirs, tp, etc.)
@@ -17,7 +18,9 @@ use InvalidArgumentException;
 class AssessmentService
 {
     public function __construct(
-        private readonly QuestionManagementService $questionService
+        private readonly QuestionCrudService $questionCrudService,
+        private readonly ChoiceManagementService $choiceManagementService,
+        private readonly QuestionDuplicationService $questionDuplicationService
     ) {}
 
     /**
@@ -41,7 +44,10 @@ class AssessmentService
             ]);
 
             if (isset($data['questions']) && is_array($data['questions'])) {
-                $this->questionService->createQuestionsForAssessment($assessment, $data['questions']);
+                foreach ($data['questions'] as $questionData) {
+                    $question = $this->questionCrudService->createQuestion($assessment, $questionData);
+                    $this->choiceManagementService->createChoicesForQuestion($question, $questionData);
+                }
             }
 
             return $assessment->load(['questions.choices']);
@@ -65,21 +71,21 @@ class AssessmentService
             ], fn ($value) => $value !== null);
 
             if (isset($data['coefficient']) && $data['coefficient'] <= 0) {
-                throw new InvalidArgumentException('Coefficient must be greater than 0');
+                throw AssessmentException::invalidCoefficient();
             }
 
             $assessment->update($updateData);
 
             if (isset($data['deletedChoiceIds']) && ! empty($data['deletedChoiceIds'])) {
-                $this->questionService->deleteChoicesById($assessment, $data['deletedChoiceIds']);
+                $this->choiceManagementService->deleteChoicesByIds($data['deletedChoiceIds']);
             }
 
             if (isset($data['deletedQuestionIds']) && ! empty($data['deletedQuestionIds'])) {
-                $this->questionService->deleteQuestionsById($assessment, $data['deletedQuestionIds']);
+                $this->questionCrudService->deleteQuestionsById($assessment, $data['deletedQuestionIds']);
             }
 
             if (isset($data['questions']) && is_array($data['questions'])) {
-                $this->questionService->updateQuestionsForAssessment($assessment, $data['questions']);
+                $this->updateQuestionsForAssessment($assessment, $data['questions']);
             }
 
             return $assessment->fresh(['questions.choices']);
@@ -92,7 +98,7 @@ class AssessmentService
     public function deleteAssessment(Assessment $assessment): bool
     {
         if ($assessment->assignments()->exists()) {
-            throw new InvalidArgumentException('Cannot delete assessment with existing student assignments');
+            throw AssessmentException::hasExistingAssignments();
         }
 
         return $assessment->delete();
@@ -153,9 +159,10 @@ class AssessmentService
             $newAssessment->scheduled_at = $overrides['scheduled_at'] ?? null;
             $newAssessment->save();
 
-            foreach ($assessment->questions as $question) {
-                $this->questionService->duplicateQuestion($question, $newAssessment);
-            }
+            $this->questionDuplicationService->duplicateMultiple(
+                $assessment->questions,
+                $newAssessment
+            );
 
             return $newAssessment->load(['questions.choices']);
         });
@@ -169,21 +176,39 @@ class AssessmentService
         $required = ['class_subject_id', 'title', 'type', 'coefficient', 'duration_minutes'];
         foreach ($required as $field) {
             if (! isset($data[$field])) {
-                throw new InvalidArgumentException("Missing required field: {$field}");
+                throw ValidationException::missingRequiredField($field);
             }
         }
 
         if ($data['coefficient'] <= 0) {
-            throw new InvalidArgumentException('Coefficient must be greater than 0');
+            throw AssessmentException::invalidCoefficient();
         }
 
         if ($data['duration_minutes'] <= 0) {
-            throw new InvalidArgumentException('Duration must be greater than 0');
+            throw AssessmentException::invalidDuration();
         }
 
         $validTypes = ['devoir', 'examen', 'tp', 'controle', 'projet'];
         if (! in_array($data['type'], $validTypes)) {
-            throw new InvalidArgumentException('Invalid assessment type');
+            throw AssessmentException::invalidType($data['type']);
+        }
+    }
+
+    /**
+     * Update questions for an assessment
+     */
+    private function updateQuestionsForAssessment(Assessment $assessment, array $questionsData): void
+    {
+        foreach ($questionsData as $questionData) {
+            if (isset($questionData['id']) && is_numeric($questionData['id']) && $questionData['id'] > 0) {
+                $question = $this->questionCrudService->updateQuestionById($assessment, $questionData['id'], $questionData);
+                if ($question) {
+                    $this->choiceManagementService->updateChoicesForQuestion($question, $questionData);
+                }
+            } else {
+                $question = $this->questionCrudService->createQuestion($assessment, $questionData);
+                $this->choiceManagementService->createChoicesForQuestion($question, $questionData);
+            }
         }
     }
 }

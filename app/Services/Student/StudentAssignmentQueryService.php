@@ -4,6 +4,7 @@ namespace App\Services\Student;
 
 use App\Models\AssessmentAssignment;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 /**
@@ -28,7 +29,7 @@ class StudentAssignmentQueryService
                 'assessment:id,title,subject,duration,total_points',
                 'assessment.teacher:id,name',
             ])
-            ->orderBy('assigned_at', 'desc');
+            ->orderBy('created_at', 'desc');
 
         if (isset($filters['status'])) {
             $this->applyStatusFilter($query, $filters['status']);
@@ -42,6 +43,37 @@ class StudentAssignmentQueryService
         }
 
         return $query->get();
+    }
+
+    /**
+     * Get paginated lightweight assignments for a student (without heavy relationships)
+     *
+     * @param  User  $student  The student user
+     * @param  array  $filters  Optional filters (status, search, etc.)
+     * @param  int  $perPage  Number of items per page
+     * @return LengthAwarePaginator Paginated assignments
+     */
+    public function getAssignmentsForStudentLightPaginated(User $student, array $filters = [], int $perPage = 10): LengthAwarePaginator
+    {
+        $query = AssessmentAssignment::where('student_id', $student->id)
+            ->with([
+                'assessment:id,title,subject,duration,total_points',
+                'assessment.teacher:id,name',
+            ])
+            ->orderBy('created_at', 'desc');
+
+        if (isset($filters['status'])) {
+            $this->applyStatusFilter($query, $filters['status']);
+        }
+
+        if (isset($filters['search']) && $filters['search']) {
+            $query->whereHas('assessment', function ($q) use ($filters) {
+                $q->where('title', 'like', '%'.$filters['search'].'%')
+                    ->orWhere('subject', 'like', '%'.$filters['search'].'%');
+            });
+        }
+
+        return $query->paginate($perPage)->withQueryString();
     }
 
     /**
@@ -59,7 +91,7 @@ class StudentAssignmentQueryService
                 'assessment.teacher',
                 'answers',
             ])
-            ->orderBy('assigned_at', 'desc');
+            ->orderBy('created_at', 'desc');
 
         if (isset($filters['status'])) {
             $this->applyStatusFilter($query, $filters['status']);
@@ -69,7 +101,7 @@ class StudentAssignmentQueryService
     }
 
     /**
-     * Get upcoming assignments (not started)
+     * Get upcoming assignments (not submitted)
      *
      * @param  User  $student  The student user
      * @param  int  $limit  Number of assignments to return
@@ -78,26 +110,10 @@ class StudentAssignmentQueryService
     public function getUpcomingAssignments(User $student, int $limit = 5): Collection
     {
         return AssessmentAssignment::where('student_id', $student->id)
-            ->whereNull('started_at')
-            ->with('assessment:id,title,subject,duration,total_points')
-            ->orderBy('assigned_at', 'asc')
-            ->limit($limit)
-            ->get();
-    }
-
-    /**
-     * Get in-progress assignments
-     *
-     * @param  User  $student  The student user
-     * @return Collection Collection of in-progress assignments
-     */
-    public function getInProgressAssignments(User $student): Collection
-    {
-        return AssessmentAssignment::where('student_id', $student->id)
-            ->whereNotNull('started_at')
             ->whereNull('submitted_at')
-            ->with('assessment:id,title,subject,duration')
-            ->orderBy('started_at', 'desc')
+            ->with('assessment:id,title,subject,duration,total_points')
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
             ->get();
     }
 
@@ -141,15 +157,10 @@ class StudentAssignmentQueryService
      */
     public function getOrCreateAssignment(User $student, int $assessmentId): ?AssessmentAssignment
     {
-        $assignment = AssessmentAssignment::firstOrCreate(
-            [
-                'student_id' => $student->id,
-                'assessment_id' => $assessmentId,
-            ],
-            [
-                'assigned_at' => now(),
-            ]
-        );
+        $assignment = AssessmentAssignment::firstOrCreate([
+            'student_id' => $student->id,
+            'assessment_id' => $assessmentId,
+        ]);
 
         return $assignment;
     }
@@ -158,15 +169,14 @@ class StudentAssignmentQueryService
      * Apply status filter to query
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query  The query builder
-     * @param  string  $status  The status filter (not_started, in_progress, completed, graded)
+     * @param  string  $status  The status filter (not_submitted, submitted, graded)
      */
     protected function applyStatusFilter($query, string $status): void
     {
         match ($status) {
-            'not_started' => $query->whereNull('started_at'),
-            'in_progress' => $query->whereNotNull('started_at')->whereNull('submitted_at'),
-            'completed' => $query->whereNotNull('submitted_at'),
-            'graded' => $query->whereNotNull('submitted_at')->whereNotNull('score'),
+            'not_submitted' => $query->whereNull('submitted_at'),
+            'submitted' => $query->whereNotNull('submitted_at')->whereNull('graded_at'),
+            'graded' => $query->whereNotNull('graded_at'),
             default => null,
         };
     }

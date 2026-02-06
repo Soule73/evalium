@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\Level;
+use App\Services\Traits\Paginatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Log;
  */
 class LevelService
 {
+    use Paginatable;
+
     /**
      * Cache key for active classes with levels
      */
@@ -32,9 +35,9 @@ class LevelService
         $search = $params['search'] ?? null;
         $status = $params['status'] ?? null;
 
-        $query = $this->buildLevelQuery($search, $status);
+        $query = $this->buildLevelQuery($search, $status)->ordered();
 
-        return $query->ordered()->paginate($perPage);
+        return $this->simplePaginate($query, $perPage);
     }
 
     /**

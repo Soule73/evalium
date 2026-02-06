@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Admin;
 
+use App\Services\Traits\Paginatable;
 use Illuminate\Support\Collection;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -20,6 +21,8 @@ use Spatie\Permission\Models\Role;
  */
 class RoleService
 {
+    use Paginatable;
+
     private const SYSTEM_ROLES = ['super_admin', 'admin', 'teacher', 'student'];
 
     private const CATEGORY_MAPPINGS = [
@@ -70,7 +73,7 @@ class RoleService
             $query->where('name', 'like', "%{$search}%");
         }
 
-        return $query->paginate($perPage);
+        return $this->simplePaginate($query, $perPage);
     }
 
     /**
