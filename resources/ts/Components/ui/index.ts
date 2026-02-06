@@ -11,6 +11,8 @@ export type { MarkdownEditorHandle } from './MarkdownEditor/MarkdownEditor';
 export { default as Modal } from './Modal/Modal';
 export { default as Section } from './Section/Section';
 export { default as Select } from './Select/Select';
+export { default as Stat } from './Stat/Stat';
+export type { StatItemProps, StatGroupProps } from './Stat/Stat';
 export { default as Textarea } from './Texterea/Textarea';
 export { default as TextEntry } from './TextEntry/TextEntry';
 export { default as Toggle } from './Toggle/Toggle';
