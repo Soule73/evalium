@@ -1,5 +1,5 @@
 import type { ClassModel } from './class';
-import type { User } from '../shared';
+import type { User } from './shared';
 
 export type EnrollmentStatus = 'active' | 'withdrawn' | 'transferred' | 'completed';
 

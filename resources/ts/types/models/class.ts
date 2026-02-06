@@ -1,7 +1,7 @@
 import type { AcademicYear } from './academicYear';
 import type { Enrollment } from './enrollment';
 import type { ClassSubject } from './classSubject';
-import { Level, User } from '../shared';
+import { Level, User } from './shared';
 
 export interface ClassModel {
   id: number;

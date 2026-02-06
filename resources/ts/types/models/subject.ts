@@ -1,4 +1,4 @@
-import type { Level } from '../shared';
+import type { Level } from './shared';
 import type { ClassSubject } from './classSubject';
 
 export interface Subject {

@@ -1,4 +1,4 @@
-export * from './models/mcd';
+export * from './models';
 export * from './models/shared';
 export * from './datatable';
 

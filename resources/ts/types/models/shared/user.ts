@@ -1,6 +1,6 @@
 import type { Role } from './role';
-import type { Enrollment } from '../mcd/enrollment';
-import type { ClassModel } from '../mcd/class';
+import type { Enrollment } from '../enrollment';
+import type { ClassModel } from '../class';
 
 export interface User {
   id: number;

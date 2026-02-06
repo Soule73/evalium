@@ -1,7 +1,7 @@
 import type { ClassModel } from './class';
 import type { Subject } from './subject';
 import type { Semester } from './semester';
-import type { User } from '../shared';
+import type { User } from './shared';
 import type { Assessment } from './assessment';
 
 export interface ClassSubject {

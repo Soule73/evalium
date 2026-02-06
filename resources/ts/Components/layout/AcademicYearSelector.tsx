@@ -6,7 +6,7 @@ import { route } from 'ziggy-js';
 import { AcademicYearBadge } from './AcademicYearBadge';
 import { trans } from '@/utils';
 import type { User } from '@/types/models/shared/user';
-import type { AcademicYear } from '@/types/models/mcd/academicYear';
+import type { AcademicYear } from '@/types/models/academicYear';
 import type { PageProps as InertiaPageProps } from '@inertiajs/core';
 
 interface AcademicYearSelectorProps {

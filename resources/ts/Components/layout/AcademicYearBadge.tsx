@@ -1,6 +1,6 @@
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { trans } from '@/utils';
-import type { AcademicYear } from '@/types/models/mcd/academicYear';
+import type { AcademicYear } from '@/types/models/academicYear';
 
 interface AcademicYearBadgeProps {
   year: AcademicYear;
