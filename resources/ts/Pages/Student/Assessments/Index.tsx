@@ -41,6 +41,7 @@ export default function Index({ assignments, filters }: StudentAssessmentsIndexP
     filterNotStarted: trans('student_assessment_pages.index.filter_not_started'),
     filterInProgress: trans('student_assessment_pages.index.filter_in_progress'),
     filterCompleted: trans('student_assessment_pages.index.filter_completed'),
+    filterGraded: trans('student_assessment_pages.index.filter_graded'),
     searchPlaceholder: trans('student_assessment_pages.index.search_placeholder'),
     emptyTitle: trans('student_assessment_pages.index.empty_title'),
     emptySubtitle: trans('student_assessment_pages.index.empty_subtitle'),
@@ -50,12 +51,10 @@ export default function Index({ assignments, filters }: StudentAssessmentsIndexP
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'not_started':
+      case 'not_submitted':
         return <Badge label={translations.notStarted} type="warning" />;
-      case 'in_progress':
-        return <Badge label={translations.inProgress} type="info" />;
       case 'submitted':
-        return <Badge label={translations.completed} type="success" />;
+        return <Badge label={translations.completed} type="info" />;
       case 'graded':
         return <Badge label={translations.graded} type="success" />;
       default:
@@ -72,17 +71,6 @@ export default function Index({ assignments, filters }: StudentAssessmentsIndexP
           onClick={() => router.visit(route('student.assessments.results', assignment.assessment_id))}
         >
           {translations.viewResults}
-        </Button>
-      );
-    }
-
-    if (assignment.status === 'in_progress') {
-      return (
-        <Button
-          size="sm"
-          onClick={() => router.visit(route('student.assessments.take', assignment.assessment_id))}
-        >
-          {translations.continueAssessment}
         </Button>
       );
     }
@@ -162,9 +150,9 @@ export default function Index({ assignments, filters }: StudentAssessmentsIndexP
 
   const statusOptions = [
     { value: '', label: translations.filterAll },
-    { value: 'not_started', label: translations.filterNotStarted },
-    { value: 'in_progress', label: translations.filterInProgress },
-    { value: 'completed', label: translations.filterCompleted },
+    { value: 'not_submitted', label: translations.filterNotStarted },
+    { value: 'submitted', label: translations.filterCompleted },
+    { value: 'graded', label: translations.filterGraded },
   ];
 
   return (

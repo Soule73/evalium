@@ -3,7 +3,7 @@ import {
   AlertEntry,
   AlertSecurityViolation,
   Button,
-  CanNotTakeExam,
+  CanNotTakeAssessment,
   ConfirmationModal,
   FullscreenModal,
   Section,
@@ -81,12 +81,12 @@ function Take({ assessment, assignment, questions = [], userAnswers = [] }: Take
   });
 
   if (assessmentTerminated) {
-    return <AlertSecurityViolation exam={assessment} reason={terminationReason || 'Violation de sécurité détectée'} />;
+    return <AlertSecurityViolation assessment={assessment} reason={terminationReason || 'Violation de sécurité détectée'} />;
   }
 
   if (assignment.submitted_at) {
     return (
-      <CanNotTakeExam
+      <CanNotTakeAssessment
         title={translations.assessmentTerminatedTitle}
         message={translations.assessmentAlreadySubmitted}
         icon={<ExclamationCircleIcon className="h-12 w-12 text-yellow-500 mx-auto mb-4" />}
@@ -96,7 +96,7 @@ function Take({ assessment, assignment, questions = [], userAnswers = [] }: Take
 
   if (!questions || questions.length === 0) {
     return (
-      <CanNotTakeExam
+      <CanNotTakeAssessment
         title={translations.noQuestionsTitle}
         subtitle={translations.noQuestionsSubtitle}
         message={translations.noQuestionsMessage}

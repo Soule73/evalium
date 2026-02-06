@@ -1,8 +1,8 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, QuestionsManager, Section } from '@/Components';
-import AssessmentGeneralConfig from '@/Components/shared/AssessmentGeneralConfig';
+import { AssessmentGeneralConfig } from '@/Components/shared/AssessmentGeneralConfig';
 import { useEditAssessment } from '@/hooks/features/assessment';
-import { useAssessmentFormStore } from '@/stores';
+// import { useAssessmentFormStore } from '@/stores';
 import { Assessment, ClassSubject } from '@/types';
 import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
@@ -13,9 +13,9 @@ interface Props {
 }
 
 export default function AssessmentEdit({ assessment, classSubjects }: Props) {
-  const totalPoints = useAssessmentFormStore((state) =>
-    state.questions.reduce((sum, q) => sum + q.points, 0)
-  );
+  // const totalPoints = useAssessmentFormStore((state) =>
+  //   state.questions.reduce((sum, q) => sum + q.points, 0)
+  // );
 
   const {
     data,
@@ -25,7 +25,7 @@ export default function AssessmentEdit({ assessment, classSubjects }: Props) {
     handleSubmit
   } = useEditAssessment(assessment);
 
-  const pointsLabel = totalPoints !== 1 ? trans('assessment_pages.common.s') : '';
+  // const pointsLabel = totalPoints !== 1 ? trans('assessment_pages.common.s') : '';
 
   return (
     <AuthenticatedLayout

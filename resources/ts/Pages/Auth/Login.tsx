@@ -1,4 +1,4 @@
-import GuestLayout from '@/Components/layout/GuestLayout';
+import { GuestLayout } from '@/Components/layout/GuestLayout';
 import { trans } from '@/utils';
 import { Button, Logo } from '@/Components';
 import { Checkbox, Input } from '@examena/ui';

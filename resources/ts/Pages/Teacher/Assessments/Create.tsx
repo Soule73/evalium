@@ -1,7 +1,7 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, QuestionsManager, Section } from '@/Components';
-import AssessmentGeneralConfig from '@/Components/shared/AssessmentGeneralConfig';
+import { AssessmentGeneralConfig } from '@/Components/shared/AssessmentGeneralConfig';
 import { useCreateAssessment } from '@/hooks/features/assessment';
 import { useAssessmentFormStore } from '@/stores';
 import { breadcrumbs } from '@/utils';

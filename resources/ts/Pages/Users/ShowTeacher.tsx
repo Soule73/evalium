@@ -1,4 +1,4 @@
-import { Exam, PageProps, User } from '@/types';
+import { Assessment, PageProps, User } from '@/types';
 import { PaginationType } from '@/types/datatable';
 import ShowUser from './ShowUser';
 import { DocumentTextIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
@@ -6,20 +6,20 @@ import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
 import { hasPermission } from '@/utils';
 import { usePage } from '@inertiajs/react';
-import { Section, StatCard, ExamList } from '@/Components';
+import { Section, StatCard, AssessmentList } from '@/Components';
 
 
 interface Props {
     user: User;
-    exams: PaginationType<Exam>;
+    assessments: PaginationType<Assessment>;
 }
 
-export default function ShowTeacher({ user, exams }: Props) {
+export default function ShowTeacher({ user, assessments }: Props) {
     const { auth } = usePage<PageProps>().props;
 
-    const totalExams = exams.total || 0;
-    const activeExams = exams.data.filter(exam => exam.is_active).length;
-    const inactiveExams = totalExams - activeExams;
+    const totalAssessments = assessments.total || 0;
+    const activeAssessments = assessments.data.filter(assessment => assessment.is_published).length;
+    const inactiveAssessments = totalAssessments - activeAssessments;
 
     const canDeleteUsers = hasPermission(auth.permissions, 'delete users');
     const canToggleStatus = hasPermission(auth.permissions, 'update users');
@@ -32,29 +32,29 @@ export default function ShowTeacher({ user, exams }: Props) {
             <Section title={trans('admin_pages.users.show_teacher_stats')} subtitle={trans('admin_pages.users.show_teacher_stats_subtitle')}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <StatCard
-                        title={trans('admin_pages.users.total_exams')}
-                        value={totalExams}
+                        title={trans('admin_pages.users.total_assessments')}
+                        value={totalAssessments}
                         icon={DocumentTextIcon}
                         color="blue"
                     />
                     <StatCard
-                        title={trans('admin_pages.users.active_exams')}
-                        value={activeExams}
+                        title={trans('admin_pages.users.active_assessments')}
+                        value={activeAssessments}
                         icon={CheckCircleIcon}
                         color="green"
                     />
                     <StatCard
-                        title={trans('admin_pages.users.inactive_exams')}
-                        value={inactiveExams}
+                        title={trans('admin_pages.users.inactive_assessments')}
+                        value={inactiveAssessments}
                         icon={ClockIcon}
                         color="yellow"
                     />
                 </div>
             </Section>
 
-            <Section title={trans('admin_pages.users.show_teacher_exams')} subtitle={trans('admin_pages.users.show_teacher_exams_subtitle')}>
-                <ExamList
-                    data={exams}
+            <Section title={trans('admin_pages.users.show_teacher_assessments')} subtitle={trans('admin_pages.users.show_teacher_assessments_subtitle')}>
+                <AssessmentList
+                    data={assessments}
                     variant="admin"
                     showFilters={true}
                     showSearch={true}

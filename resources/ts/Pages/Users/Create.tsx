@@ -15,12 +15,10 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
         name: string;
         email: string;
         role: string;
-        group_id: number | null;
     }>({
         name: '',
         email: '',
         role: 'student',
-        group_id: null,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -38,7 +36,6 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
             name: '',
             email: '',
             role: 'student',
-            group_id: null,
         });
     };
 

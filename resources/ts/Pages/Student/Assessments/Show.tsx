@@ -37,13 +37,11 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
     minutes: trans('student_assessment_pages.show.minutes'),
     questions: trans('student_assessment_pages.show.questions'),
     status: trans('student_assessment_pages.show.status'),
-    statusCompleted: trans('student_assessment_pages.show.status_completed'),
-    statusInProgress: trans('student_assessment_pages.show.status_in_progress'),
+    completed: trans('student_assessment_pages.show.status_completed'),
+    graded: trans('student_assessment_pages.show.status_graded'),
     statusNotStarted: trans('student_assessment_pages.show.status_not_started'),
     importantDates: trans('student_assessment_pages.show.important_dates'),
-    assignedDate: trans('student_assessment_pages.show.assigned_date'),
     dueDate: trans('student_assessment_pages.show.due_date'),
-    startedDate: trans('student_assessment_pages.show.started_date'),
     submittedDate: trans('student_assessment_pages.show.submitted_date'),
     importantTitle: trans('student_assessment_pages.show.important_title'),
     alertStableConnection: trans('student_assessment_pages.show.alert_stable_connection'),
@@ -57,10 +55,10 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
 
 
   const statusValue = useMemo(() => {
-    if (assignment.submitted_at) return translations.statusCompleted;
-    if (assignment.started_at) return translations.statusInProgress;
+    if (assignment.status === 'graded') return translations.graded;
+    if (assignment.status === 'submitted') return translations.completed;
     return translations.statusNotStarted;
-  }, [assignment.submitted_at, assignment.started_at, translations]);
+  }, [assignment.status, translations]);
 
   const canTake = !assignment.submitted_at;
 
@@ -130,7 +128,7 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
 
             {canTake && (
               <Button color="primary" size="sm" onClick={() => setIsModalOpen(true)}>
-                {assignment.started_at ? translations.continueAssessment : translations.startAssessment}
+                {translations.startAssessment}
               </Button>
             )}
           </div>
@@ -184,17 +182,7 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
             <h2 className="text-lg font-semibold text-gray-900 mb-3">{translations.importantDates}</h2>
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextEntry
-                  label={translations.assignedDate}
-                  value={formatDate(assignment.assigned_at)}
-                />
                 <TextEntry label={translations.dueDate} value={formatDate(assessment.scheduled_at)} />
-                {assignment.started_at && (
-                  <TextEntry
-                    label={translations.startedDate}
-                    value={formatDate(assignment.started_at)}
-                  />
-                )}
                 {assignment.submitted_at && (
                   <TextEntry
                     label={translations.submittedDate}

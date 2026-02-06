@@ -14,7 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import { trans } from '@/utils';
-import LogoExamena from '@/Components/shared/LogoExamena';
+import { LogoExamena } from '@/Components/shared/LogoExamena';
 
 const Welcome = () => {
     const { auth } = usePage<PageProps>().props;
@@ -33,13 +33,13 @@ const Welcome = () => {
     const features = [
         {
             icon: ClipboardDocumentCheckIcon,
-            title: trans('welcome.features.exam_creation.title'),
-            description: trans('welcome.features.exam_creation.description'),
+            title: trans('welcome.features.assessment_creation.title'),
+            description: trans('welcome.features.assessment_creation.description'),
             color: "blue",
             benefits: [
-                trans('welcome.features.exam_creation.benefits.0'),
-                trans('welcome.features.exam_creation.benefits.1'),
-                trans('welcome.features.exam_creation.benefits.2')
+                trans('welcome.features.assessment_creation.benefits.0'),
+                trans('welcome.features.assessment_creation.benefits.1'),
+                trans('welcome.features.assessment_creation.benefits.2')
             ]
         },
         {
@@ -55,13 +55,13 @@ const Welcome = () => {
         },
         {
             icon: ClockIcon,
-            title: trans('welcome.features.timed_exams.title'),
-            description: trans('welcome.features.timed_exams.description'),
+            title: trans('welcome.features.timed_assessments.title'),
+            description: trans('welcome.features.timed_assessments.description'),
             color: "green",
             benefits: [
-                trans('welcome.features.timed_exams.benefits.0'),
-                trans('welcome.features.timed_exams.benefits.1'),
-                trans('welcome.features.timed_exams.benefits.2')
+                trans('welcome.features.timed_assessments.benefits.0'),
+                trans('welcome.features.timed_assessments.benefits.1'),
+                trans('welcome.features.timed_assessments.benefits.2')
             ]
         },
         {
@@ -166,9 +166,9 @@ const Welcome = () => {
             description: trans('welcome.stats.active_students.description')
         },
         {
-            label: trans('welcome.stats.exams_created.label'),
-            value: trans('welcome.stats.exams_created.value'),
-            description: trans('welcome.stats.exams_created.description')
+            label: trans('welcome.stats.assessments_created.label'),
+            value: trans('welcome.stats.assessments_created.value'),
+            description: trans('welcome.stats.assessments_created.description')
         },
         {
             label: trans('welcome.stats.satisfaction.label'),

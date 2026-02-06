@@ -10,8 +10,8 @@ import { route } from 'ziggy-js';
 import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
 import { QuestionReadOnlySection } from '@/Components';
-import { QuestionResultReadOnlyText, QuestionTeacherReadOnlyChoices } from '@/Components/features/exam/QuestionResultReadOnly';
-import AssessmentHeader from '@/Components/features/assessment/AssessmentHeader';
+import { QuestionResultReadOnlyText, QuestionTeacherReadOnlyChoices } from '@/Components/features/assessment/QuestionResultReadOnly';
+import { AssessmentHeader } from '@/Components/features/assessment/AssessmentHeader';
 
 interface Props {
   assessment: Assessment;
@@ -131,7 +131,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment }) => {
                 />
                 <StatCard
                   title={trans('assessment_pages.common.duration')}
-                  value={formatDuration(assessment.duration)}
+                  value={formatDuration(assessment.duration_minutes)}
                   color='yellow'
                   icon={ClockIcon}
                 />
