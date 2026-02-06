@@ -39,8 +39,8 @@ class ClassQueryService
                 },
                 'classSubjects as subjects_count',
             ])
-            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
-            ->when($filters['level_id'] ?? null, fn ($query, $levelId) => $query->where('level_id', $levelId))
+            ->when($filters['search'] ?? null, fn($query, $search) => $query->where('name', 'like', "%{$search}%"))
+            ->when($filters['level_id'] ?? null, fn($query, $levelId) => $query->where('level_id', $levelId))
             ->orderBy('level_id')
             ->orderBy('name');
 
@@ -160,7 +160,7 @@ class ClassQueryService
      */
     public function getPaginatedEnrollments(ClassModel $class, array $filters): LengthAwarePaginator
     {
-        return $class->enrollments()
+        $query = $class->enrollments()
             ->with('student')
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->whereHas('student', function ($q) use ($search) {
@@ -171,9 +171,9 @@ class ClassQueryService
             ->orderBy('enrolled_at', 'desc');
 
         return $this->paginateWithFilters(
-            $class->enrollments(),
-            ['per_page' => $filters['per_page'] ?? 10, 'page' => $filters['page'] ?? 1, 'page_name' => 'students_page'],
-            ['students_search' => $filters['search'] ?? null, 'students_per_page' => $filters['per_page'] ?? null]
+            $query,
+            ['per_page' => $filters['per_page'] ?? 10, 'page' => $filters['page'] ?? 1],
+            ['search' => $filters['search'] ?? null]
         );
     }
 
@@ -182,7 +182,7 @@ class ClassQueryService
      */
     public function getPaginatedClassSubjects(ClassModel $class, array $filters): LengthAwarePaginator
     {
-        return $class->classSubjects()
+        $query = $class->classSubjects()
             ->with(['subject', 'teacher', 'semester'])
             ->withCount('assessments')
             ->when($filters['search'] ?? null, function ($query, $search) {
@@ -194,9 +194,9 @@ class ClassQueryService
             ->orderBy('created_at', 'desc');
 
         return $this->paginateWithFilters(
-            $class->classSubjects(),
-            ['per_page' => $filters['per_page'] ?? 10, 'page' => $filters['page'] ?? 1, 'page_name' => 'subjects_page'],
-            ['subjects_search' => $filters['search'] ?? null, 'subjects_per_page' => $filters['per_page'] ?? null]
+            $query,
+            ['per_page' => $filters['per_page'] ?? 10, 'page' => $filters['page'] ?? 1],
+            ['search' => $filters['search'] ?? null]
         );
     }
 
