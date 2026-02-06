@@ -109,7 +109,7 @@ export const commonValidationSchemas = {
             pattern: validationPatterns.strongPassword,
         },
     },
-    exam: {
+    assessment: {
         title: {
             required: true,
             minLength: 3,

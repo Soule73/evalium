@@ -107,16 +107,15 @@ export const formatDuration = (minutes: number): string => {
         ? trans('formatters.duration_hours', { value: hrs })
         : trans('formatters.duration_hours_min', { hours: hrs, minutes: mins });
 };
-// Formatage des pourcentages
+
 export const formatPercentage = (value: number, decimals: number = 1): string => {
     return `${value.toFixed(decimals)}%`;
 };
 
 /**
- * Format grade with color class - cohérent avec useExamScoring
+ * Format grade with color class
  */
 export function formatGrade(score: number, total: number): { text: string; colorClass: string } {
-    // Limitation du score pour éviter les pourcentages > 100%
     const limitedScore = Math.min(score, total);
     const percentage = total > 0 ? Math.round((limitedScore / total) * 100) : 0;
 
@@ -134,15 +133,15 @@ export function formatGrade(score: number, total: number): { text: string; color
 
 
 /**
- * Formats the exam status as a human-readable string.
+ * Formats the assessment status as a human-readable string.
  *
- * @param status - The boolean status of the exam. `true` indicates active, `false` indicates inactive.
- * @returns A string representing the exam status: 'Actif' if active, 'Inactif' if inactive.
+ * @param status - The boolean status of the assessment. `true` indicates active, `false` indicates inactive.
+ * @returns A string representing the assessment status: 'Actif' if active, 'Inactif' if inactive.
  */
-export function formatExamStatus(status: boolean): string {
+export function formatAssessmentStatus(status: boolean): string {
     return status
-        ? trans('formatters.exam_status_active')
-        : trans('formatters.exam_status_inactive');
+        ? trans('formatters.assessment_status_active')
+        : trans('formatters.assessment_status_inactive');
 }
 
 
@@ -230,18 +229,7 @@ export const getAssignmentStatusLabels = (): Record<string, string> => ({
 
 
 /**
- * Format exam deadline warning
- */
-/**
- * Formats a warning message and urgency level based on the remaining time until a given end date.
- *
- * @param endDate - The ISO string representing the deadline to compare against the current time.
- * @returns An object containing a human-readable warning text and an urgency level:
- * - If the deadline has passed, returns "Examen terminé" with 'high' urgency.
- * - If less than 1 hour remains, returns the number of minutes left with 'high' urgency.
- * - If less than 24 hours remain, returns the number of hours left with 'high' urgency.
- * - If less than 7 days remain, returns the number of days left with 'medium' urgency.
- * - Otherwise, returns the number of days left with 'low' urgency.
+ * Formats a deadline warning message based on the time remaining until the given end date. 
  */
 export function formatDeadlineWarning(endDate: string): { text: string; urgency: 'low' | 'medium' | 'high' } {
     const end = new Date(endDate);
@@ -251,7 +239,7 @@ export function formatDeadlineWarning(endDate: string): { text: string; urgency:
     const days = Math.floor(hours / 24);
 
     if (diff <= 0) {
-        return { text: trans('formatters.deadline_exam_finished'), urgency: 'high' };
+        return { text: trans('formatters.deadline_assessment_finished'), urgency: 'high' };
     } else if (hours < 1) {
         const minutes = Math.floor(diff / (1000 * 60));
         return { text: trans('formatters.deadline_minutes_remaining', { minutes }), urgency: 'high' };
@@ -344,7 +332,7 @@ export const truncateText = (text: string, maxLength: number): string => {
 };
 
 /**
- * Returns a formatted label and color for a given exam assignment status.
+ * Returns a formatted label and color for a given assessment assignment status.
  *
  * Maps known status strings to their corresponding French label and color.
  * If the status is not recognized, returns the status as the label and 'gray' as the color.
