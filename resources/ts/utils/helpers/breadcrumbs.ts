@@ -1,6 +1,7 @@
 import { route } from 'ziggy-js';
 import { trans } from './translations';
 import { BreadcrumbItem } from '@/Components/layout/Breadcrumb';
+import { ClassSubject } from '@/types';
 
 // Breadcrumb tableau de board
 const dashboardBreadcrumb = (): BreadcrumbItem => ({
@@ -178,31 +179,19 @@ export const breadcrumbs = {
             { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') }
         ],
 
-        createClassSubject: (): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
-            { label: trans('breadcrumbs.create') }
-        ],
+        showClassSubject: (classSubject: ClassSubject): BreadcrumbItem[] => {
 
-        showClassSubject: (classSubject: { id: number; subject?: { name: string }; class?: { name?: string } }): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
-            { label: `${classSubject.class?.name || ''} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) }
-        ],
+            const levelInfo = classSubject.class?.level
+                ? `${classSubject.class.level.name} (${classSubject.class.level.description})`
+                : '';
 
-        replaceTeacherClassSubject: (classSubject: { id: number; subject?: { name: string }; class?: { name?: string } }): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
-            { label: `${classSubject.class?.name || ''} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) },
-            { label: trans('breadcrumbs.replace_teacher') }
-        ],
+            return [
+                dashboardBreadcrumb(),
+                { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
+                { label: `${classSubject.class?.name || ''}, ${levelInfo} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) }
+            ];
+        }
 
-        updateCoefficientClassSubject: (classSubject: { id: number; subject?: { name: string }; class?: { name?: string } }): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
-            { label: `${classSubject.class?.name || ''} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) },
-            { label: trans('breadcrumbs.update_coefficient') }
-        ],
     },
 
     teacherAssessments: (): BreadcrumbItem[] => [
