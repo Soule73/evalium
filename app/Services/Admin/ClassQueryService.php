@@ -39,8 +39,8 @@ class ClassQueryService
                 },
                 'classSubjects as subjects_count',
             ])
-            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
-            ->when($filters['level_id'] ?? null, fn ($query, $levelId) => $query->where('level_id', $levelId))
+            ->when($filters['search'] ?? null, fn($query, $search) => $query->where('name', 'like', "%{$search}%"))
+            ->when($filters['level_id'] ?? null, fn($query, $levelId) => $query->where('level_id', $levelId))
             ->orderBy('level_id')
             ->orderBy('name');
 

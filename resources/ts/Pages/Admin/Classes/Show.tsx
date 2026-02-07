@@ -150,7 +150,6 @@ export default function ClassShow({
             data={classSubjects}
             variant="admin"
             showClassColumn={false}
-            onView={(classSubject) => classSubject.subject_id && router.visit(route('admin.subjects.show', classSubject.subject_id))}
           />
         </Section>
       </div>

@@ -47,7 +47,7 @@ export type PageProps<T = Record<string, unknown>> = {
         canCreateRoles: boolean;
         canUpdateRoles: boolean;
         canDeleteRoles: boolean;
-        canAssignPermissions: boolean;;
+        canAssignPermissions: boolean;
     };
     flash: FlashMessages;
     locale: string;
