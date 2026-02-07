@@ -1,6 +1,7 @@
 export { BaseEntityList } from './BaseEntityList';
 export { ClassList } from './ClassList';
 export { ClassSubjectList } from './ClassSubjectList';
+export { ClassSubjectHistoryList } from './ClassSubjectHistoryList';
 export { SubjectList } from './SubjectList';
 export { AssessmentList } from './AssessmentList';
 export { UserList } from './UserList';
