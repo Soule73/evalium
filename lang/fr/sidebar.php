@@ -23,7 +23,7 @@ return [
         'subjects' => 'Matières',
         'classes' => 'Classes',
         'enrollments' => 'Inscriptions',
-        'class_subjects' => 'Affectations Matières',
+        'class_subjects' => 'Affectations',
 
         // Legacy Navigation
         'exams' => 'Examens',

@@ -14,7 +14,7 @@ return [
     'subjects' => 'Matières',
     'classes' => 'Classes',
     'enrollments' => 'Inscriptions',
-    'class_subjects' => 'Matières de classe',
+    'class_subjects' => 'Affectations',
 
     // Actions communes
     'create' => 'Créer',
