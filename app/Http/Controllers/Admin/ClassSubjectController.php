@@ -44,33 +44,12 @@ class ClassSubjectController extends Controller
             $perPage
         );
 
-        $formData = $this->classSubjectQueryService->getFormDataForIndex($selectedYearId);
+        $formData = $this->classSubjectQueryService->getFormDataForCreate($selectedYearId);
 
         return Inertia::render('Admin/ClassSubjects/Index', [
             'classSubjects' => $classSubjects,
             'filters' => $filters,
-            'classes' => $formData['classes'],
-            'subjects' => $formData['subjects'],
-            'teachers' => $formData['teachers'],
-        ]);
-    }
-
-    /**
-     * Show the form for creating a new class subject assignment.
-     */
-    public function create(Request $request): Response
-    {
-        $this->authorize('create', ClassSubject::class);
-
-        $selectedYearId = $this->getSelectedAcademicYearId($request);
-
-        $formData = $this->classSubjectQueryService->getFormDataForCreate($selectedYearId);
-
-        return Inertia::render('Admin/ClassSubjects/Create', [
-            'classes' => $formData['classes'],
-            'subjects' => $formData['subjects'],
-            'teachers' => $formData['teachers'],
-            'semesters' => $formData['semesters'],
+            'formData' => $formData,
         ]);
     }
 
@@ -93,14 +72,23 @@ class ClassSubjectController extends Controller
     /**
      * Display the specified class subject assignment.
      */
-    public function show(ClassSubject $classSubject): Response
+    public function show(Request $request, ClassSubject $classSubject): Response
     {
         $this->authorize('view', $classSubject);
 
         $classSubject = $this->classSubjectQueryService->loadClassSubjectDetails($classSubject);
+        $teachers = $this->classSubjectQueryService->getTeachersForReplacement();
+        $history = $this->classSubjectQueryService->getPaginatedHistory(
+            $classSubject->class_id,
+            $classSubject->subject_id,
+            $request->input('history_per_page', 10),
+            $classSubject->id
+        );
 
         return Inertia::render('Admin/ClassSubjects/Show', [
             'classSubject' => $classSubject,
+            'teachers' => $teachers,
+            'history' => $history,
         ]);
     }
 
