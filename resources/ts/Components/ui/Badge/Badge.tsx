@@ -17,12 +17,12 @@ const Badge: React.FC<BadgeProps> = ({ label, type = "info", size = "md" }) => {
     };
 
     const sizeStyles: Record<BadgeSize, string> = {
-        sm: "text-xs px-2 py-1",
+        sm: "text-xs px-1.5 py-0.5",
         md: "text-sm px-3 py-1.5",
         lg: "text-base px-4 py-2",
     };
 
-    return <div className={`text-xs w-max font-medium rounded-lg px-2 py-1 ${typeStyles[type]} ${sizeStyles[size]}`}>{label}</div>;
+    return <div className={`w-max font-medium rounded-lg ${typeStyles[type]} ${sizeStyles[size]}`}>{label}</div>;
 };
 
 export default Badge;
