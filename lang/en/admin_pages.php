@@ -388,6 +388,8 @@ return [
         'status_active' => 'Active',
         'status_transferred' => 'Transferred',
         'status_withdrawn' => 'Withdrawn',
+        'all_classes' => 'All Classes',
+        'all_statuses' => 'All Statuses',
         'transfer' => 'Transfer',
         'transfer_button' => 'Transfer Student',
         'transferring' => 'Transferring...',

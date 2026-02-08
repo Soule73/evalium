@@ -7,9 +7,7 @@ use App\Http\Requests\Admin\StoreEnrollmentRequest;
 use App\Http\Requests\Admin\TransferStudentRequest;
 use App\Http\Traits\HandlesIndexRequests;
 use App\Http\Traits\HasFlashMessages;
-use App\Models\ClassModel;
 use App\Models\Enrollment;
-use App\Models\User;
 use App\Services\Admin\EnrollmentService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -62,11 +60,11 @@ class EnrollmentController extends Controller
      */
     public function store(StoreEnrollmentRequest $request): RedirectResponse
     {
-        $student = User::findOrFail($request->input('student_id'));
-        $class = ClassModel::findOrFail($request->input('class_id'));
-
         try {
-            $this->enrollmentService->enrollStudent($student, $class);
+            $this->enrollmentService->enrollStudent(
+                $request->integer('student_id'),
+                $request->integer('class_id')
+            );
 
             return redirect()
                 ->route('admin.enrollments.index')
@@ -79,15 +77,14 @@ class EnrollmentController extends Controller
     /**
      * Display the specified enrollment.
      */
-    public function show(Enrollment $enrollment): Response
+    public function show(Request $request, Enrollment $enrollment): Response
     {
         $this->authorize('view', $enrollment);
 
-        $enrollment->load(['student', 'class.academicYear', 'class.level']);
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+        $data = $this->enrollmentService->getShowData($enrollment, $selectedYearId);
 
-        return Inertia::render('Admin/Enrollments/Show', [
-            'enrollment' => $enrollment,
-        ]);
+        return Inertia::render('Admin/Enrollments/Show', $data);
     }
 
     /**
@@ -95,10 +92,11 @@ class EnrollmentController extends Controller
      */
     public function transfer(TransferStudentRequest $request, Enrollment $enrollment): RedirectResponse
     {
-        $newClass = ClassModel::findOrFail($request->input('new_class_id'));
-
         try {
-            $newEnrollment = $this->enrollmentService->transferStudent($enrollment, $newClass);
+            $newEnrollment = $this->enrollmentService->transferStudent(
+                $enrollment,
+                $request->integer('new_class_id')
+            );
 
             return redirect()
                 ->route('admin.enrollments.show', $newEnrollment)

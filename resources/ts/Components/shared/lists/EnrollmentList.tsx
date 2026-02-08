@@ -1,7 +1,9 @@
-import { Button, Badge } from '@/Components';
+import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
+import { Badge } from '@/Components';
 import { BaseEntityList } from './BaseEntityList';
 import { EntityListConfig } from './types/listConfig';
-import { Enrollment } from '@/types';
+import { Enrollment, ClassModel } from '@/types';
 import { PaginationType } from '@/types/datatable';
 import { trans, formatDate } from '@/utils';
 import { EntityListVariant } from './types/listConfig';
@@ -9,27 +11,43 @@ import { EntityListVariant } from './types/listConfig';
 interface EnrollmentListProps {
   data: PaginationType<Enrollment>;
   variant?: EntityListVariant;
-  showActions?: boolean;
   showClassColumn?: boolean;
+  classes?: ClassModel[];
   permissions?: {
     canView?: boolean;
-    canUpdate?: boolean;
   };
   onView?: (enrollment: Enrollment) => void;
-  onTransfer?: (enrollment: Enrollment) => void;
-  onWithdraw?: (enrollment: Enrollment) => void;
 }
 
+/**
+ * Unified EnrollmentList component for displaying enrollments
+ *
+ * Supports variants:
+ * - admin: Shows student, class, enrolled_at, status with view action
+ * - student: Shows academic year, class, level, dates, status (view only)
+ */
 export function EnrollmentList({
   data,
   variant = 'admin',
-  showActions = true,
   showClassColumn = true,
+  classes = [],
   permissions = {},
   onView,
-  onTransfer,
-  onWithdraw,
 }: EnrollmentListProps) {
+  const classFilterOptions = [
+    { value: '', label: trans('admin_pages.enrollments.all_classes') },
+    ...classes.map((c) => ({
+      value: c.id,
+      label: `${c.name} ${c?.description ? `(${c.description})` : ''}`,
+    })),
+  ];
+
+  const statusFilterOptions = [
+    { value: '', label: trans('admin_pages.enrollments.all_statuses') },
+    { value: 'active', label: trans('admin_pages.enrollments.status_active') },
+    { value: 'transferred', label: trans('admin_pages.enrollments.status_transferred') },
+    { value: 'withdrawn', label: trans('admin_pages.enrollments.status_withdrawn') },
+  ];
   const getStatusBadge = (status: string, currentVariant: EntityListVariant) => {
     if (currentVariant === 'student') {
       const statusMap: Record<string, { type: 'success' | 'info' | 'gray'; label: string }> = {
@@ -52,6 +70,24 @@ export function EnrollmentList({
 
   const config: EntityListConfig<Enrollment> = {
     entity: 'enrollment',
+
+    filters: [
+      {
+        key: 'class_id',
+        labelKey: 'admin_pages.enrollments.class',
+        type: 'select',
+        options: classFilterOptions,
+        conditional: (v) => v === 'admin',
+      },
+      {
+        key: 'status',
+        labelKey: 'admin_pages.enrollments.status',
+        type: 'select',
+        options: statusFilterOptions,
+        conditional: (v) => v === 'admin',
+      },
+    ],
+
     columns: [
       {
         key: 'academic_year',
@@ -139,48 +175,16 @@ export function EnrollmentList({
         render: (enrollment, currentVariant) =>
           getStatusBadge(enrollment.status, currentVariant || variant),
       },
+    ],
+
+    actions: [
       {
-        key: 'actions',
-        labelKey: 'admin_pages.common.actions',
-        render: (enrollment) => (
-          <div className="flex space-x-2">
-            {permissions.canView && onView && (
-              <Button
-                size="sm"
-                variant="outline"
-                color="secondary"
-                onClick={() => onView(enrollment)}
-              >
-                {trans('admin_pages.common.view')}
-              </Button>
-            )}
-            {permissions.canUpdate && enrollment.status === 'active' && (
-              <>
-                {onTransfer && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    color="primary"
-                    onClick={() => onTransfer(enrollment)}
-                  >
-                    {trans('admin_pages.enrollments.transfer')}
-                  </Button>
-                )}
-                {onWithdraw && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    color="danger"
-                    onClick={() => onWithdraw(enrollment)}
-                  >
-                    {trans('admin_pages.enrollments.withdraw')}
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
-        ),
-        conditional: (v) => v === 'admin' && showActions,
+        labelKey: 'admin_pages.common.view',
+        onClick: (item) =>
+          onView?.(item) || router.visit(route('admin.enrollments.show', item.id)),
+        color: 'secondary',
+        variant: 'outline',
+        conditional: (_item, v) => v === 'admin' && permissions.canView !== false,
       },
     ],
   };

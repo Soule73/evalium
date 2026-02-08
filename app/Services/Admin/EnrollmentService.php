@@ -77,10 +77,34 @@ class EnrollmentService
     }
 
     /**
+     * Get data for show page with classes for transfer modal
+     */
+    public function getShowData(Enrollment $enrollment, ?int $academicYearId): array
+    {
+        $enrollment->load(['student', 'class.academicYear', 'class.level']);
+
+        $classes = ClassModel::forAcademicYear($academicYearId)
+            ->with(['level', 'academicYear'])
+            ->withCount([
+                'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
+            ])
+            ->orderBy('name')
+            ->get();
+
+        return [
+            'enrollment' => $enrollment,
+            'classes' => $classes,
+        ];
+    }
+
+    /**
      * Enroll a student in a class
      */
-    public function enrollStudent(User $student, ClassModel $class): Enrollment
+    public function enrollStudent(int $studentId, int $classId): Enrollment
     {
+        $student = User::findOrFail($studentId);
+        $class = ClassModel::findOrFail($classId);
+
         $this->validateEnrollment($student, $class);
 
         if ($class->enrollments()->count() >= $class->max_students) {
@@ -98,8 +122,10 @@ class EnrollmentService
     /**
      * Transfer a student from one class to another
      */
-    public function transferStudent(Enrollment $enrollment, ClassModel $newClass): Enrollment
+    public function transferStudent(Enrollment $enrollment, int $newClassId): Enrollment
     {
+        $newClass = ClassModel::findOrFail($newClassId);
+
         $this->validateEnrollment($enrollment->student, $newClass);
 
         if ($newClass->enrollments()->count() >= $newClass->max_students) {
@@ -211,8 +237,7 @@ class EnrollmentService
 
         DB::transaction(function () use ($class, $studentIds, &$enrollments) {
             foreach ($studentIds as $studentId) {
-                $student = User::findOrFail($studentId);
-                $enrollments->push($this->enrollStudent($student, $class));
+                $enrollments->push($this->enrollStudent($studentId, $class->id));
             }
         });
 

@@ -12,7 +12,7 @@ const dashboardBreadcrumb = (): BreadcrumbItem => ({
 // Breadcrumb index des utilisateurs
 const userIndex = (): BreadcrumbItem[] => [
     dashboardBreadcrumb(),
-    { label: trans('breadcrumbs.users'), href: route('users.index') },
+    { label: trans('breadcrumbs.users'), href: route('admin.users.index') },
 ];
 
 // Breadcrumb index des niveaux
@@ -167,13 +167,6 @@ export const breadcrumbs = {
             { label: enrollment.student?.name || `#${enrollment.id}`, href: route('admin.enrollments.show', enrollment.id) }
         ],
 
-        transferEnrollment: (enrollment: { id: number; student?: { name: string } }): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.enrollments'), href: route('admin.enrollments.index') },
-            { label: enrollment.student?.name || `#${enrollment.id}`, href: route('admin.enrollments.show', enrollment.id) },
-            { label: trans('breadcrumbs.transfer') }
-        ],
-
         classSubjects: (): BreadcrumbItem[] => [
             dashboardBreadcrumb(),
             { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') }
@@ -274,7 +267,7 @@ export const navRoutes = {
     adminClassSubjects: () => route('admin.class-subjects.index'),
 
     // System Routes
-    users: () => route('users.index'),
+    users: () => route('admin.users.index'),
     levels: () => route('levels.index'),
     roles: () => route('roles.index'),
 

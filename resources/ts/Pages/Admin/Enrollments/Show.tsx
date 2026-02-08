@@ -1,27 +1,23 @@
+import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Enrollment, PageProps } from '@/types';
+import { Enrollment, ClassModel, PageProps } from '@/types';
 import { breadcrumbs, trans, formatDate, hasPermission } from '@/utils';
-import { Button, Section, Badge } from '@/Components';
+import { Button, Section, Badge, Stat } from '@/Components';
+import { TransferEnrollmentModal, WithdrawEnrollmentModal } from '@/Components/features';
 import { route } from 'ziggy-js';
 import { UserIcon, AcademicCapIcon, CalendarIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 interface Props extends PageProps {
   enrollment: Enrollment;
+  classes: ClassModel[];
 }
 
-export default function EnrollmentShow({ enrollment, auth }: Props) {
+export default function EnrollmentShow({ enrollment, classes, auth }: Props) {
   const canUpdate = hasPermission(auth.permissions, 'update enrollments');
 
-  const handleTransfer = () => {
-    router.visit(route('admin.enrollments.transfer', enrollment.id));
-  };
-
-  const handleWithdraw = () => {
-    if (confirm(trans('admin_pages.enrollments.withdraw_confirm_message'))) {
-      router.post(route('admin.enrollments.withdraw', enrollment.id));
-    }
-  };
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
 
   const handleBack = () => {
     router.visit(route('admin.enrollments.index'));
@@ -37,6 +33,8 @@ export default function EnrollmentShow({ enrollment, auth }: Props) {
     const config = statusMap[status] || statusMap.active;
     return <Badge label={config.label} type={config.type} size="sm" />;
   };
+
+  const levelNameDescription = `${enrollment.class?.level?.name} (${enrollment.class?.level?.description})`;
 
   return (
     <AuthenticatedLayout
@@ -54,10 +52,10 @@ export default function EnrollmentShow({ enrollment, auth }: Props) {
               </Button>
               {canUpdate && enrollment.status === 'active' && (
                 <>
-                  <Button size="sm" variant="solid" color="primary" onClick={handleTransfer}>
+                  <Button size="sm" variant="solid" color="primary" onClick={() => setTransferModalOpen(true)}>
                     {trans('admin_pages.enrollments.transfer')}
                   </Button>
-                  <Button size="sm" variant="outline" color="danger" onClick={handleWithdraw}>
+                  <Button size="sm" variant="outline" color="danger" onClick={() => setWithdrawModalOpen(true)}>
                     {trans('admin_pages.enrollments.withdraw')}
                   </Button>
                 </>
@@ -65,61 +63,45 @@ export default function EnrollmentShow({ enrollment, auth }: Props) {
             </div>
           }
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="flex items-start space-x-3">
-              <UserIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('admin_pages.enrollments.student')}
-                </div>
-                <div className="mt-1 text-sm font-semibold text-gray-900">
+          <Stat.Group columns={2}>
+            <Stat.Item
+              icon={UserIcon}
+              title={trans('admin_pages.enrollments.student')}
+              value={
+                <span className="text-sm font-semibold text-gray-900">
                   {enrollment.student?.name}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {enrollment.student?.email}
-                </div>
-              </div>
-            </div>
+                </span>
+              }
+              description={enrollment.student?.email}
+            />
 
-            <div className="flex items-start space-x-3">
-              <AcademicCapIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('admin_pages.enrollments.class')}
-                </div>
-                <div className="mt-1 text-sm font-semibold text-gray-900">
+            <Stat.Item
+              icon={AcademicCapIcon}
+              title={trans('admin_pages.enrollments.class')}
+              value={
+                <span className="text-sm font-semibold text-gray-900">
                   {enrollment.class?.name}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {enrollment.class?.level?.name} - {enrollment.class?.academic_year?.name}
-                </div>
-              </div>
-            </div>
+                </span>
+              }
+              description={levelNameDescription}
+            />
 
-            <div className="flex items-start space-x-3">
-              <CalendarIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('admin_pages.enrollments.enrolled_at')}
-                </div>
-                <div className="mt-1 text-sm text-gray-900">
+            <Stat.Item
+              icon={CalendarIcon}
+              title={trans('admin_pages.enrollments.enrolled_at')}
+              value={
+                <span className="text-sm text-gray-900">
                   {formatDate(enrollment.enrolled_at)}
-                </div>
-              </div>
-            </div>
+                </span>
+              }
+            />
 
-            <div className="flex items-start space-x-3">
-              <ArrowPathIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('admin_pages.enrollments.status')}
-                </div>
-                <div className="mt-1">
-                  {getStatusBadge(enrollment.status)}
-                </div>
-              </div>
-            </div>
-          </div>
+            <Stat.Item
+              icon={ArrowPathIcon}
+              title={trans('admin_pages.enrollments.status')}
+              value={getStatusBadge(enrollment.status)}
+            />
+          </Stat.Group>
 
           {enrollment.status === 'transferred' && enrollment.left_date && (
             <div className="mt-6 pt-6 border-t border-gray-200">
@@ -148,6 +130,19 @@ export default function EnrollmentShow({ enrollment, auth }: Props) {
           )}
         </Section>
       </div>
+
+      <TransferEnrollmentModal
+        isOpen={transferModalOpen}
+        onClose={() => setTransferModalOpen(false)}
+        enrollment={enrollment}
+        classes={classes}
+      />
+
+      <WithdrawEnrollmentModal
+        isOpen={withdrawModalOpen}
+        onClose={() => setWithdrawModalOpen(false)}
+        enrollment={enrollment}
+      />
     </AuthenticatedLayout>
   );
 }

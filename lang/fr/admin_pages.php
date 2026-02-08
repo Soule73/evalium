@@ -391,6 +391,8 @@ return [
         'status_active' => 'Actif',
         'status_transferred' => 'Transféré',
         'status_withdrawn' => 'Retiré',
+        'all_classes' => 'Toutes les classes',
+        'all_statuses' => 'Tous les statuts',
         'transfer' => 'Transférer',
         'transfer_button' => 'Transférer l\'étudiant',
         'transferring' => 'Transfert...',
