@@ -35,4 +35,5 @@ return [
     // Teacher
     'assessments' => 'Assessments',
     'grading' => 'Grading',
+    'review' => 'Review',
 ];

@@ -33,6 +33,7 @@ return [
         'empty_subtitle' => 'You have no assessments assigned at the moment.',
         'duration' => 'Duration',
         'questions_count' => 'Questions',
+        'not_started' => 'Not Started',
     ],
 
     // Student Assessments - Show
