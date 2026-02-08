@@ -37,7 +37,7 @@ return [
         'subject_name' => 'Matière',
         'coefficient' => 'Coefficient',
         'assessments_count' => 'Évaluations',
-        'create_assessment' => 'Créer Évaluation',
+        'create_assessment' => 'Nouvelle Évaluation',
         'no_subjects' => 'Aucune matière assignée',
         'no_subjects_description' => 'Vous n\'enseignez aucune matière dans cette classe.',
         'subjects_section_title' => 'Matières que j\'enseigne',

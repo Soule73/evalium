@@ -12,7 +12,6 @@ interface ClassListProps {
   variant?: EntityListVariant;
   levels?: Level[];
   onView?: (classItem: ClassModel) => void;
-  onCreateAssessment?: (classItem: ClassModel) => void;
 }
 
 /**
@@ -28,7 +27,6 @@ export function ClassList({
   variant = 'admin',
   levels = [],
   onView,
-  onCreateAssessment,
 }: ClassListProps) {
   const levelFilterOptions = [
     { value: '', label: trans('admin_pages.classes.all_levels') },
@@ -152,16 +150,7 @@ export function ClassList({
           onView?.(item) || router.visit(route(`${variant}.classes.show`, item.id)),
         color: 'secondary',
         variant: 'outline',
-      },
-      {
-        labelKey: 'teacher_class_pages.index.assessments',
-        onClick: (item) =>
-          onCreateAssessment?.(item) ||
-          router.visit(route('teacher.assessments.index', { class_id: item.id })),
-        color: 'primary',
-        variant: 'solid',
-        conditional: (_item, v) => v === 'teacher',
-      },
+      }
     ],
   };
 

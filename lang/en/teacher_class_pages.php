@@ -37,7 +37,7 @@ return [
         'subject_name' => 'Subject',
         'coefficient' => 'Coefficient',
         'assessments_count' => 'Assessments',
-        'create_assessment' => 'Create Assessment',
+        'create_assessment' => 'New Assessment',
         'no_subjects' => 'No subjects assigned',
         'no_subjects_description' => 'You do not teach any subjects in this class.',
         'subjects_section_title' => 'Subjects I Teach',

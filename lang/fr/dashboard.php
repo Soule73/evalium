@@ -26,7 +26,7 @@ return [
         'average_score' => 'Note moyen',
         'recent_assessments' => 'Évaluations récentes',
         'recent_assessments_subtitle' => 'Gérez vos évaluations et suivez les performances de vos étudiants.',
-        'create_assessment' => 'Créer une évaluation',
+        'create_assessment' => 'Nouvelle Évaluationn',
         'view_all_assessments' => 'Voir toutes les évaluations',
         'total_classes' => 'Total classes',
         'total_subjects' => 'Total matières',

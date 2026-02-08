@@ -26,7 +26,7 @@ return [
         'average_score' => 'Average score',
         'recent_assessments' => 'Recent assessments',
         'recent_assessments_subtitle' => 'Manage your assessments and track your students\' performance.',
-        'create_assessment' => 'Create assessment',
+        'create_assessment' => 'New assessment',
         'view_all_assessments' => 'View all assessments',
         'total_classes' => 'Total classes',
         'total_subjects' => 'Total subjects',
