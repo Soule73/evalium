@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { formatDuration } from '@/utils';
-import { Button, ConfirmationModal, Section, StatCard } from '@/Components';
+import { Button, ConfirmationModal, Section, Stat } from '@/Components';
 import { Toggle } from '@examena/ui';
 import { Assessment } from '@/types';
 import { ClockIcon, QuestionMarkCircleIcon, StarIcon, DocumentDuplicateIcon, UserGroupIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
@@ -116,42 +116,37 @@ const AssessmentShow: React.FC<Props> = ({ assessment }) => {
             <div className="flex-1">
               <AssessmentHeader assessment={assessment} showDescription={true} showMetadata={false} />
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                <StatCard
+              <Stat.Group columns={4} className="mt-6">
+                <Stat.Item
                   title={trans('assessment_pages.common.questions')}
                   value={questionsCount}
                   icon={QuestionMarkCircleIcon}
-                  color='blue'
                 />
-                <StatCard
+                <Stat.Item
                   title={trans('assessment_pages.common.total_points')}
                   value={totalPoints}
-                  color='green'
                   icon={StarIcon}
                 />
-                <StatCard
+                <Stat.Item
                   title={trans('assessment_pages.common.duration')}
                   value={formatDuration(assessment.duration_minutes)}
-                  color='yellow'
                   icon={ClockIcon}
                 />
-                <StatCard
+                <Stat.Item
                   title={trans('assessment_pages.common.assigned_classes')}
                   value={1}
-                  color='purple'
                   icon={UserGroupIcon}
                 />
-              </div>
+              </Stat.Group>
 
               {totalStudents > 0 && (
-                <div className="mt-4">
-                  <StatCard
+                <Stat.Group columns={1} className="mt-4">
+                  <Stat.Item
                     title={trans('assessment_pages.common.concerned_students')}
                     value={totalStudents}
-                    color='blue'
                     icon={AcademicCapIcon}
                   />
-                </div>
+                </Stat.Group>
               )}
             </div>
           </div>

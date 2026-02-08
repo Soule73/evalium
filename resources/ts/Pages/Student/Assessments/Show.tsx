@@ -8,7 +8,7 @@ import {
   Button,
   Modal,
   Section,
-  StatCard,
+  Stat,
   TextEntry,
 } from '@/Components';
 import { trans, formatDate } from '@/utils';
@@ -154,29 +154,23 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
             <TextEntry label={translations.teacher} value={assessment.class_subject?.teacher?.name || '-'} />
           </div>
 
-          <div className="grid gap-y-2 grid-cols-1 lg:grid-cols-3">
-            <StatCard
+          <Stat.Group columns={3}>
+            <Stat.Item
               title={translations.duration}
               value={`${assessment.duration_minutes} ${translations.minutes}`}
               icon={ClockIcon}
-              color="blue"
-              className="lg:rounded-r-none"
             />
-            <StatCard
+            <Stat.Item
               title={translations.questions}
               value={assessment.questions?.length || 0}
               icon={DocumentTextIcon}
-              color="green"
-              className="lg:rounded-none lg:border-x-0"
             />
-            <StatCard
+            <Stat.Item
               title={translations.status}
               value={statusValue}
               icon={QuestionMarkCircleIcon}
-              color="purple"
-              className="lg:rounded-l-none"
             />
-          </div>
+          </Stat.Group>
 
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">{translations.importantDates}</h2>

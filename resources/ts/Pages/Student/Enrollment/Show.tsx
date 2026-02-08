@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Enrollment, PageProps, PaginationType } from '@/types';
-import { Badge, Button, DataTable, Section, StatCard, TextEntry } from '@/Components';
+import { Badge, Button, DataTable, Section, Stat, TextEntry } from '@/Components';
 import type { DataTableConfig } from '@/types/datatable';
 import { trans, formatDate } from '@/utils';
 import { AcademicCapIcon, BookOpenIcon } from '@heroicons/react/24/outline';
@@ -183,36 +183,28 @@ export default function Show({ enrollment, subjects, overallStats }: StudentEnro
 
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">{translations.overallStatistics}</h3>
-          <div className="grid gap-y-2 grid-cols-1 lg:grid-cols-4">
-            <StatCard
+          <Stat.Group columns={4}>
+            <Stat.Item
               title={translations.overallAverage}
               value={overallStats.annual_average !== null ? `${overallStats.annual_average.toFixed(2)}/20` : translations.noGrade}
               icon={AcademicCapIcon}
-              color="blue"
-              className="lg:rounded-r-none"
             />
-            <StatCard
+            <Stat.Item
               title={translations.totalAssessments}
               value={totalAssessments || 0}
               icon={BookOpenIcon}
-              color="green"
-              className="lg:rounded-none lg:border-x-0"
             />
-            <StatCard
+            <Stat.Item
               title={translations.completedAssessments}
               value={completedAssessments || 0}
               icon={BookOpenIcon}
-              color="purple"
-              className="lg:rounded-none lg:border-x-0"
             />
-            <StatCard
+            <Stat.Item
               title={translations.pendingAssessments}
               value={(totalAssessments - completedAssessments) || 0}
               icon={BookOpenIcon}
-              color="yellow"
-              className="lg:rounded-l-none"
             />
-          </div>
+          </Stat.Group>
         </div>
 
         <div>

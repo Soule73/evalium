@@ -33,6 +33,7 @@ return [
     // Users Management
     'users' => [
         'title' => 'Gestion des utilisateurs',
+        'all_users' => 'Tous les utilisateurs',
         'subtitle' => 'Gérez les utilisateurs, leurs rôles et permissions',
         'create' => 'Nouvel utilisateur',
         'create_title' => 'Créer un nouvel utilisateur',

@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { ChartBarIcon, CheckIcon, ClockIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import {
-    Badge, Button, DataTable, Section, StatCard
+    Badge, Button, DataTable, Section, Stat
 } from '@/Components';
 import {
     AssessmentAssignment,
@@ -104,35 +104,28 @@ export default function StudentDashboard({ user, stats, assessmentAssignments }:
                     </Button>
                 }
             >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" data-e2e='dashboard-content'>
-                    <StatCard
+                <Stat.Group columns={4} className="mb-8" data-e2e="dashboard-content">
+                    <Stat.Item
                         title={trans('dashboard.student.total_assessments')}
-                        value={`${stats.totalAssessments}`}
+                        value={stats.totalAssessments}
                         icon={DocumentTextIcon}
-                        color="blue"
                     />
-
-                    <StatCard
+                    <Stat.Item
                         title={trans('dashboard.student.pending_assessments')}
-                        value={`${stats.pendingAssessments}`}
+                        value={stats.pendingAssessments}
                         icon={ClockIcon}
-                        color="yellow"
                     />
-
-                    <StatCard
+                    <Stat.Item
                         title={trans('dashboard.student.completed_assessments')}
-                        value={`${stats.completedAssessments}`}
+                        value={stats.completedAssessments}
                         icon={CheckIcon}
-                        color="green"
                     />
-
-                    <StatCard
+                    <Stat.Item
                         title={trans('dashboard.student.average_score')}
                         value={stats.averageScore !== null ? `${stats.averageScore} / 20` : 'N/A'}
                         icon={ChartBarIcon}
-                        color="red"
                     />
-                </div>
+                </Stat.Group>
             </Section>
 
             <Section title={trans('dashboard.student.assigned_assessments')}

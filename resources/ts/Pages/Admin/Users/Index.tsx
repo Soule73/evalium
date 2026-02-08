@@ -1,6 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { UserGroupIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, AcademicCapIcon, BookOpenIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
 import { useState } from 'react';
 import CreateUser from './Create';
@@ -8,7 +8,7 @@ import { User, PageProps } from '@/types';
 import { breadcrumbs } from '@/utils';
 import { hasPermission } from '@/utils';
 import { trans } from '@/utils';
-import { StatCard, Section, ConfirmationModal } from '@/Components';
+import { Stat, Section, ConfirmationModal, Button } from '@/Components';
 import { useConfirmationModal } from '@/hooks';
 import { PaginationType } from '@/types/datatable';
 import { UserList } from '@/Components/shared/lists';
@@ -57,44 +57,48 @@ export default function UserIndex({ users, roles }: Props) {
                 isOpen={isShowCreateModal}
                 onClose={() => setIsShowCreateModal(false)}
             />
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <StatCard
-                    title={trans('admin_pages.users.title')}
+            <Stat.Group columns={4} className="mb-6">
+                <Stat.Item
+                    title={trans('admin_pages.users.all_users')}
                     value={users.total}
                     icon={UserGroupIcon}
-                    color="blue"
                 />
-                <StatCard
+                <Stat.Item
                     title={trans('admin_pages.roles.role_labels.student')}
                     value={users.data.filter(user => user.roles?.some(role => role.name === 'student')).length}
-                    icon={UserGroupIcon}
-                    color="green"
+                    icon={AcademicCapIcon}
                 />
-                <StatCard
+                <Stat.Item
                     title={trans('admin_pages.roles.role_labels.teacher')}
                     value={users.data.filter(user => user.roles?.some(role => role.name === 'teacher')).length}
-                    icon={UserGroupIcon}
-                    color="purple"
+                    icon={BookOpenIcon}
                 />
-
-                <StatCard
+                <Stat.Item
                     title={trans('admin_pages.roles.role_labels.admin')}
                     value={users.data.filter(user => user.roles?.some(role => role.name === 'admin')).length}
-                    icon={UserGroupIcon}
-                    color="red"
+                    icon={ShieldCheckIcon}
                 />
-            </div>
-            <Section title={trans('admin_pages.users.subtitle')}>
+            </Stat.Group>
+            <Section title={trans('admin_pages.users.subtitle')}
+                actions={
+                    canCreateUsers && (
+                        <Button
+                            onClick={() => setIsShowCreateModal(true)}
+                            size="sm"
+                        >
+                            {trans('admin_pages.users.create')}
+                        </Button>
+                    )
+                }
+            >
                 <UserList
                     data={users}
                     roles={roles}
                     permissions={{
-                        canCreate: canCreateUsers,
                         canUpdate: canUpdateUsers,
                         canToggleStatus: canToggleUserStatus,
                         canDelete: canDeleteUsers
                     }}
-                    onCreateClick={() => setIsShowCreateModal(true)}
                     onDeleteClick={(user) => deleteModal.openModal(user)}
                     onForceDeleteClick={(user) => forceDeleteModal.openModal(user)}
                 />

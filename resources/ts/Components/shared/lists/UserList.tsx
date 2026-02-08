@@ -13,13 +13,11 @@ interface UserListProps {
   data: PaginationType<User>;
   variant?: 'admin' | 'classmates';
   permissions?: {
-    canCreate?: boolean;
     canUpdate?: boolean;
     canDelete?: boolean;
     canToggleStatus?: boolean;
   };
   roles?: string[];
-  onCreateClick?: () => void;
   onDeleteClick?: (user: { id: number; name: string }) => void;
   onForceDeleteClick?: (user: { id: number; name: string }) => void;
 }
@@ -36,7 +34,6 @@ export function UserList({
   variant = 'admin',
   permissions = {},
   roles = [],
-  onCreateClick,
   onDeleteClick,
   onForceDeleteClick
 }: UserListProps) {
@@ -263,34 +260,20 @@ export function UserList({
   }
 
   return (
-    <>
-      {variant === 'admin' && permissions.canCreate && onCreateClick && (
-        <div className="mb-4 flex justify-end">
-          <Button
-            onClick={onCreateClick}
-            color="secondary"
-            variant='outline'
-            size='sm'
-          >
-            {trans('admin_pages.users.create')}
-          </Button>
-        </div>
-      )}
-      <BaseEntityList
-        data={data}
-        config={config}
-        variant={variant}
-        searchPlaceholder={
-          variant === 'classmates'
-            ? trans('student_enrollment_pages.classmates.search_placeholder')
-            : trans('admin_pages.users.search_placeholder')
-        }
-        emptyMessage={
-          variant === 'classmates'
-            ? trans('student_enrollment_pages.classmates.empty_subtitle')
-            : trans('admin_pages.users.empty_subtitle')
-        }
-      />
-    </>
+    <BaseEntityList
+      data={data}
+      config={config}
+      variant={variant}
+      searchPlaceholder={
+        variant === 'classmates'
+          ? trans('student_enrollment_pages.classmates.search_placeholder')
+          : trans('admin_pages.users.search_placeholder')
+      }
+      emptyMessage={
+        variant === 'classmates'
+          ? trans('student_enrollment_pages.classmates.empty_subtitle')
+          : trans('admin_pages.users.empty_subtitle')
+      }
+    />
   );
 }

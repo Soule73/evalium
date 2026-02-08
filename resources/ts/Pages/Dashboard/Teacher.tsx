@@ -4,7 +4,7 @@ import { route } from 'ziggy-js';
 import { AcademicCapIcon, BookOpenIcon, ClipboardDocumentListIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
-import { Button, Section, StatCard, DataTable } from '@/Components';
+import { Button, Section, Stat, DataTable } from '@/Components';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
 
 interface ClassSubject {
@@ -244,32 +244,28 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
             breadcrumb={breadcrumbs.dashboard()}
         >
             {/* Statistiques principales */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" data-e2e='dashboard-content'>
-                <StatCard
+            <Stat.Group columns={4} className="mb-8" data-e2e="dashboard-content">
+                <Stat.Item
                     title={trans('dashboard.teacher.total_classes')}
                     value={stats.total_classes}
                     icon={AcademicCapIcon}
-                    color="blue"
                 />
-                <StatCard
+                <Stat.Item
                     title={trans('dashboard.teacher.total_subjects')}
                     value={stats.total_subjects}
-                    color='green'
                     icon={BookOpenIcon}
                 />
-                <StatCard
+                <Stat.Item
                     title={trans('dashboard.teacher.total_assessments')}
                     value={stats.total_assessments}
-                    color='purple'
                     icon={ClipboardDocumentListIcon}
                 />
-                <StatCard
+                <Stat.Item
                     title={trans('dashboard.teacher.upcoming_assessments')}
                     value={stats.upcoming_assessments}
-                    color='yellow'
                     icon={CalendarDaysIcon}
                 />
-            </div>
+            </Stat.Group>
 
             {/* Affectations actives */}
             <Section

@@ -6,7 +6,7 @@ import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
 import { hasPermission } from '@/utils';
 import { usePage } from '@inertiajs/react';
-import { Section, StatCard } from '@/Components';
+import { Section, Stat } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';
 
 
@@ -31,26 +31,23 @@ export default function ShowTeacher({ user, assessments }: Props) {
             breadcrumb={breadcrumbs.teacherShow(user)}
         >
             <Section title={trans('admin_pages.users.show_teacher_stats')} subtitle={trans('admin_pages.users.show_teacher_stats_subtitle')}>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <StatCard
+                <Stat.Group columns={3}>
+                    <Stat.Item
                         title={trans('admin_pages.users.total_assessments')}
                         value={totalAssessments}
                         icon={DocumentTextIcon}
-                        color="blue"
                     />
-                    <StatCard
+                    <Stat.Item
                         title={trans('admin_pages.users.active_assessments')}
                         value={activeAssessments}
                         icon={CheckCircleIcon}
-                        color="green"
                     />
-                    <StatCard
+                    <Stat.Item
                         title={trans('admin_pages.users.inactive_assessments')}
                         value={inactiveAssessments}
                         icon={ClockIcon}
-                        color="yellow"
                     />
-                </div>
+                </Stat.Group>
             </Section>
 
             <Section title={trans('admin_pages.users.show_teacher_assessments')} subtitle={trans('admin_pages.users.show_teacher_assessments_subtitle')}>

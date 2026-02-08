@@ -10,7 +10,7 @@ interface StatItemProps {
   className?: string;
 }
 
-interface StatGroupProps {
+interface StatGroupProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   columns?: 1 | 2 | 3 | 4;
   className?: string;
@@ -48,7 +48,7 @@ function StatItem({ icon, title, value, description, className = '' }: StatItemP
 /**
  * Container for grouping multiple StatItem components in a grid layout
  */
-function StatGroup({ children, columns = 3, className = '' }: StatGroupProps) {
+function StatGroup({ children, columns = 3, className = '', ...rest }: StatGroupProps) {
   const columnClasses: Record<number, string> = {
     1: 'grid-cols-1',
     2: 'grid-cols-1 md:grid-cols-2',
@@ -57,7 +57,7 @@ function StatGroup({ children, columns = 3, className = '' }: StatGroupProps) {
   };
 
   return (
-    <div className={`grid ${columnClasses[columns]} gap-6 ${className}`}>
+    <div className={`grid ${columnClasses[columns]} gap-6 ${className}`} {...rest}>
       {children}
     </div>
   );

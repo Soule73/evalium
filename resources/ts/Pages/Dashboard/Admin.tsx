@@ -3,7 +3,7 @@ import { User } from '@/types';
 import { BookOpenIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
-import { StatCard } from '@/Components';
+import { Stat } from '@/Components';
 
 
 interface Stats {
@@ -23,33 +23,23 @@ export default function AdminDashboard({ stats }: Props) {
     return (
         <AuthenticatedLayout title={trans('dashboard.title.admin')}
             breadcrumb={breadcrumbs.dashboard()}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" data-e2e='dashboard-content'>
-                <StatCard
+            <Stat.Group columns={3} className="mb-8" data-e2e="dashboard-content">
+                <Stat.Item
                     title={trans('dashboard.admin.total_users')}
                     value={stats.totalUsers}
-                    icon={
-                        UserGroupIcon
-                    }
-                    color="blue"
+                    icon={UserGroupIcon}
                 />
-                <StatCard
+                <Stat.Item
                     title={trans('dashboard.admin.students')}
                     value={stats.studentsCount}
-                    color='green'
-                    icon={
-                        BookOpenIcon
-                    }
+                    icon={BookOpenIcon}
                 />
-
-                <StatCard
+                <Stat.Item
                     title={trans('dashboard.admin.teachers')}
                     value={stats.teachersCount}
-                    color='purple'
-                    icon={
-                        UserGroupIcon
-                    }
+                    icon={UserGroupIcon}
                 />
-            </div>
+            </Stat.Group>
 
         </AuthenticatedLayout >
     );
