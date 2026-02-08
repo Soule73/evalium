@@ -1,6 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
-import { ClassFormData, ClassModel, AcademicYear, Level } from '@/types';
+import { ClassFormData, ClassModel, Level } from '@/types';
 import { trans } from '@/utils';
 import { Button, Input, Section, Select } from '@examena/ui';
 import { route } from 'ziggy-js';
@@ -9,7 +9,6 @@ interface ClassFormProps {
   title?: string;
   subtitle?: string;
   classItem?: ClassModel;
-  academicYears: AcademicYear[];
   levels: Level[];
   onCancel: () => void;
 }
@@ -21,23 +20,21 @@ export function ClassForm({
   title,
   subtitle,
   classItem,
-  academicYears,
   levels,
   onCancel,
 }: ClassFormProps) {
   const isEditMode = !!classItem;
 
-  const [formData, setFormData] = useState<ClassFormData>({
-    academic_year_id: classItem?.academic_year_id || 0,
+  const [formData, setFormData] = useState({
     level_id: classItem?.level_id || 0,
     name: classItem?.name || '',
     max_students: classItem?.max_students || 30,
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof ClassFormData, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (field: keyof ClassFormData, value: string | number) => {
+  const handleChange = (field: keyof typeof formData, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
@@ -48,7 +45,7 @@ export function ClassForm({
 
     const submitOptions = {
       onError: (errors: Record<string, string>) => {
-        setErrors(errors as Partial<Record<keyof ClassFormData, string>>);
+        setErrors(errors as Partial<Record<keyof typeof formData, string>>);
         setIsSubmitting(false);
       },
       onSuccess: () => {
@@ -63,21 +60,15 @@ export function ClassForm({
     }
   };
 
-  const academicYearOptions = useMemo(() => [
-    { value: 0, label: trans('admin_pages.classes.select_academic_year') },
-    ...academicYears.map((year) => ({
-      value: year.id,
-      label: year.name,
-    })),
-  ], [academicYears]);
+  const selectLevelLabel = trans('admin_pages.classes.select_level');
 
   const levelOptions = useMemo(() => [
-    { value: 0, label: trans('admin_pages.classes.select_level') },
+    { value: 0, label: selectLevelLabel },
     ...levels.map((level) => ({
       value: level.id,
       label: level.name,
     })),
-  ], [levels]);
+  ], [levels, selectLevelLabel]);
 
   const submitButtonText = isEditMode
     ? isSubmitting
@@ -115,27 +106,15 @@ export function ClassForm({
             helperText={trans('admin_pages.classes.name_helper')}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Select
-              label={trans('admin_pages.classes.academic_year')}
-              name="academic_year_id"
-              value={formData.academic_year_id}
-              onChange={(value) => handleChange('academic_year_id', Number(value))}
-              error={errors.academic_year_id}
-              required
-              options={academicYearOptions}
-            />
-
-            <Select
-              label={trans('admin_pages.classes.level')}
-              name="level_id"
-              value={formData.level_id}
-              onChange={(value) => handleChange('level_id', Number(value))}
-              error={errors.level_id}
-              required
-              options={levelOptions}
-            />
-          </div>
+          <Select
+            label={trans('admin_pages.classes.level')}
+            name="level_id"
+            value={formData.level_id}
+            onChange={(value) => handleChange('level_id', Number(value))}
+            error={errors.level_id}
+            required
+            options={levelOptions}
+          />
 
           <Input
             label={trans('admin_pages.classes.max_students')}

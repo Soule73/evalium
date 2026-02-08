@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Http\Requests\Traits\ClassValidationRules;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateClassRequest extends FormRequest
 {
@@ -22,9 +23,17 @@ class UpdateClassRequest extends FormRequest
      */
     public function rules(): array
     {
-        $classId = $this->route('class')->id;
+        $class = $this->route('class');
+        $rules = $this->getClassValidationRules($class->id);
 
-        return $this->getClassValidationRules($classId);
+        unset($rules['academic_year_id']);
+
+        $rules['name'][3] = Rule::unique('classes')->where(function ($query) use ($class) {
+            return $query->where('academic_year_id', $class->academic_year_id)
+                ->where('level_id', $this->input('level_id'));
+        })->ignore($class->id);
+
+        return $rules;
     }
 
     /**
