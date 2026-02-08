@@ -21,7 +21,8 @@ class GradeCalculationService
     /**
      * Calculate final grade for a student in a specific subject (class-subject)
      *
-     * Formula: Note_Matière = Σ(coefficient_assessment × score) / Σ(coefficient_assessment)
+     * Formula: Note_Matière = Σ(coefficient_assessment × note_normalisée) / Σ(coefficient_assessment)
+     * Where note_normalisée = (score / max_points) × 20
      */
     public function calculateSubjectGrade(User $student, ClassSubject $classSubject): ?float
     {
@@ -35,11 +36,14 @@ class GradeCalculationService
         $totalCoefficients = 0;
 
         foreach ($assessmentGrades as $grade) {
-            $totalWeightedScore += $grade['coefficient'] * $grade['score'];
-            $totalCoefficients += $grade['coefficient'];
+            if ($grade['max_points'] > 0) {
+                $normalizedScore = ($grade['score'] / $grade['max_points']) * 20;
+                $totalWeightedScore += $grade['coefficient'] * $normalizedScore;
+                $totalCoefficients += $grade['coefficient'];
+            }
         }
 
-        return $totalCoefficients > 0 ? $totalWeightedScore / $totalCoefficients : null;
+        return $totalCoefficients > 0 ? round($totalWeightedScore / $totalCoefficients, 2) : null;
     }
 
     /**
@@ -65,7 +69,7 @@ class GradeCalculationService
             }
         }
 
-        return $totalCoefficients > 0 ? $totalWeightedGrade / $totalCoefficients : null;
+        return $totalCoefficients > 0 ? round($totalWeightedGrade / $totalCoefficients, 2) : null;
     }
 
     /**
@@ -101,13 +105,13 @@ class GradeCalculationService
             }
         }
 
-        $annualAverage = $totalCoefficients > 0 ? $totalWeightedGrade / $totalCoefficients : null;
+        $annualAverage = $totalCoefficients > 0 ? round($totalWeightedGrade / $totalCoefficients, 2) : null;
 
         return [
             'student_id' => $student->id,
             'student_name' => $student->name,
             'class_id' => $class->id,
-            'description' => $class->description,
+            'class_name' => $class->name,
             'subjects' => $subjectGrades,
             'annual_average' => $annualAverage,
             'total_coefficient' => $totalCoefficients,
@@ -124,15 +128,18 @@ class GradeCalculationService
         })
             ->where('student_id', $student->id)
             ->whereNotNull('score')
-            ->with(['assessment'])
+            ->with(['assessment.questions'])
             ->get()
             ->map(function ($assignment) {
+                $maxPoints = $assignment->assessment->questions->sum('points');
+
                 return [
                     'assessment_id' => $assignment->assessment_id,
                     'title' => $assignment->assessment->title,
                     'type' => $assignment->assessment->type,
                     'coefficient' => $assignment->assessment->coefficient,
                     'score' => $assignment->score,
+                    'max_points' => $maxPoints,
                     'submitted_at' => $assignment->submitted_at,
                 ];
             });
