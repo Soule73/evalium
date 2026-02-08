@@ -16,6 +16,7 @@ return [
         'teacher_dashboard' => 'Tableau de bord enseignant',
         'assessments' => 'Évaluations',
         'my_classes' => 'Mes Classes',
+        'my_subjects' => 'Mes Matieres',
         'grading' => 'Notation',
 
         // Admin Navigation

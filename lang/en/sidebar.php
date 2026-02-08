@@ -16,6 +16,7 @@ return [
         'teacher_dashboard' => 'Teacher Dashboard',
         'assessments' => 'Assessments',
         'my_classes' => 'My Classes',
+        'my_subjects' => 'My Subjects',
         'grading' => 'Grading',
 
         // Admin Navigation

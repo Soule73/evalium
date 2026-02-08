@@ -98,7 +98,8 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
     if (isTeacher) {
         navItems.push(
             { name: trans('sidebar.navigation.assessments'), href: navRoutes.teacherAssessments(), icon: 'assessments' },
-            { name: trans('sidebar.navigation.my_classes'), href: navRoutes.teacherClasses(), icon: 'classes' }
+            { name: trans('sidebar.navigation.my_classes'), href: navRoutes.teacherClasses(), icon: 'classes' },
+            { name: trans('sidebar.navigation.my_subjects'), href: navRoutes.teacherSubjects(), icon: 'subjects' }
         );
     }
 
