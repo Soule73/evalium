@@ -76,7 +76,7 @@ function createSimpleBreadcrumbs(labelKey: string, indexRoute: string) {
 
 const levelsBc = createSimpleBreadcrumbs('breadcrumbs.levels', 'admin.levels.index');
 const usersBc = createSimpleBreadcrumbs('breadcrumbs.users', 'admin.users.index');
-const rolesBc = createSimpleBreadcrumbs('breadcrumbs.roles_permissions', 'roles.index');
+const rolesBc = createSimpleBreadcrumbs('breadcrumbs.roles_permissions', 'admin.roles.index');
 
 const academicYearsBc = createEntityBreadcrumbs<{ id: number; name: string }>({
     labelKey: 'breadcrumbs.academic_years',
@@ -238,7 +238,7 @@ export const navRoutes = {
     // System Routes
     users: () => route('admin.users.index'),
     levels: () => route('admin.levels.index'),
-    roles: () => route('roles.index'),
+    roles: () => route('admin.roles.index'),
 
     // Profile & Auth
     profile: () => route('profile'),

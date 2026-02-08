@@ -37,16 +37,16 @@ export default function RoleIndex({ roles }: Props) {
     });
 
     const handleCreate = () => {
-        router.visit(route('roles.create'));
+        router.visit(route('admin.roles.create'));
     };
 
     const handleEdit = (roleId: number) => {
-        router.visit(route('roles.edit', { role: roleId }));
+        router.visit(route('admin.roles.edit', { role: roleId }));
     };
 
     const handleDelete = (roleId: number) => {
         if (!deleteModal.roleId) return;
-        router.delete(route('roles.destroy', { role: roleId }), {
+        router.delete(route('admin.roles.destroy', { role: roleId }), {
             onFinish: () => setDeleteModal({ isOpen: false, roleId: null, roleName: '' }),
         });
     };

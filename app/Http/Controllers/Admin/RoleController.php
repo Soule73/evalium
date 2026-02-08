@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreRoleRequest;
@@ -45,7 +45,7 @@ class RoleController extends Controller
 
         $groupedPermissions = $this->roleService->groupPermissionsByCategory($allPermissions);
 
-        return Inertia::render('Roles/Index', [
+        return Inertia::render('Admin/Roles/Index', [
             'roles' => $roles,
             'allPermissions' => $allPermissions,
             'groupedPermissions' => $groupedPermissions,
@@ -69,7 +69,7 @@ class RoleController extends Controller
 
         $groupedPermissions = $this->roleService->groupPermissionsByCategory($permissions);
 
-        return Inertia::render('Roles/Create', [
+        return Inertia::render('Admin/Roles/Create', [
             'permissions' => $permissions,
             'groupedPermissions' => $groupedPermissions,
         ]);
@@ -85,7 +85,7 @@ class RoleController extends Controller
     {
         $this->roleService->createRole($request->validated());
 
-        return $this->redirectWithSuccess('roles.index', __('messages.role_created'));
+        return $this->redirectWithSuccess('admin.roles.index', __('messages.role_created'));
     }
 
     /**
@@ -104,7 +104,7 @@ class RoleController extends Controller
 
         $groupedPermissions = $this->roleService->groupPermissionsByCategory($allPermissions);
 
-        return Inertia::render('Roles/Edit', [
+        return Inertia::render('Admin/Roles/Edit', [
             'role' => $roleWithPermissions,
             'allPermissions' => $allPermissions,
             'groupedPermissions' => $groupedPermissions,
@@ -124,7 +124,7 @@ class RoleController extends Controller
 
             $this->roleService->updateRole($role, $request->validated());
 
-            return $this->redirectWithSuccess('roles.index', __('messages.role_updated'));
+            return $this->redirectWithSuccess('admin.roles.index', __('messages.role_updated'));
         } catch (\Exception $e) {
 
             Log::error('Failed to update role', $e->getMessage());
@@ -146,7 +146,7 @@ class RoleController extends Controller
 
         $this->roleService->syncRolePermissions($role, $data['permissions']);
 
-        return $this->redirectWithSuccess('roles.index', __('messages.permissions_updated'));
+        return $this->redirectWithSuccess('admin.roles.index', __('messages.permissions_updated'));
     }
 
     /**
@@ -162,7 +162,7 @@ class RoleController extends Controller
         try {
             $this->roleService->deleteRole($role);
 
-            return $this->redirectWithSuccess('roles.index', __('messages.role_deleted'));
+            return $this->redirectWithSuccess('admin.roles.index', __('messages.role_deleted'));
         } catch (\Exception $e) {
             Log::error('Failed to delete role', $e->getMessage());
 

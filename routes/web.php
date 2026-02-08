@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\LevelController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RoleController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocaleController;
@@ -53,35 +53,6 @@ Route::middleware('auth')->group(function () {
         \App\Http\Controllers\AcademicYearController::class,
         'setCurrent',
     ])->name('api.academic-years.set-current');
-
-    /**
-     * Role and Permission Management operations
-     */
-    Route::prefix('roles')
-        ->name('roles.')
-        ->controller(RoleController::class)
-        ->group(function () {
-            Route::get('/', 'index')
-                ->name('index');
-
-            Route::get('/create', 'create')
-                ->name('create');
-
-            Route::post('/', 'store')
-                ->name('store');
-
-            Route::get('/{role}/edit', 'edit')
-                ->name('edit');
-
-            Route::put('/{role}', 'update')
-                ->name('update');
-
-            Route::delete('/{role}', 'destroy')
-                ->name('destroy');
-
-            Route::post('/{role}/sync-permissions', 'syncPermissions')
-                ->name('sync-permissions');
-        });
 
     /**
      * Admin Routes
@@ -225,6 +196,22 @@ Route::middleware('auth')->group(function () {
                     Route::put('/{level}', 'update')->name('update');
                     Route::delete('/{level}', 'destroy')->name('destroy');
                     Route::patch('/{level}/toggle-status', 'toggleStatus')->name('toggle-status');
+                });
+
+            /**
+             * Role and Permission Management
+             */
+            Route::prefix('roles')
+                ->name('roles.')
+                ->controller(RoleController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{role}/edit', 'edit')->name('edit');
+                    Route::put('/{role}', 'update')->name('update');
+                    Route::delete('/{role}', 'destroy')->name('destroy');
+                    Route::post('/{role}/sync-permissions', 'syncPermissions')->name('sync-permissions');
                 });
         });
 

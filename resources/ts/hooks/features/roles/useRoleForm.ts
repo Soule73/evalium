@@ -68,8 +68,8 @@ export function useRoleForm({ role, initialData, allPermissions, onSuccessRoute,
         e.preventDefault();
         const method = role ? 'put' : 'post';
         const url = role
-            ? route('roles.update', { role: role.id })
-            : route('roles.store');
+            ? route('admin.roles.update', { role: role.id })
+            : route('admin.roles.store');
         setIsSubmitting(true);
 
         //validate before submit
@@ -102,7 +102,7 @@ export function useRoleForm({ role, initialData, allPermissions, onSuccessRoute,
         setIsSubmitting(true);
 
         router.post(
-            route('roles.sync-permissions', { role: role?.id }),
+            route('admin.roles.sync-permissions', { role: role?.id }),
             { permissions: formData.permissions } as any,
             {
                 onError: handleError,

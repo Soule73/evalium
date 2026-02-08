@@ -24,7 +24,7 @@ export default function CreateRole({ permissions, groupedPermissions }: Props) {
         handleSubmit
     } = useRoleForm({
         allPermissions: permissions,
-        onSuccessRoute: route('roles.index'),
+        onSuccessRoute: route('admin.roles.index'),
     });
 
 

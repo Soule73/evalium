@@ -32,7 +32,7 @@ export default function EditRole({ role, allPermissions, groupedPermissions }: P
             permissions: role?.permissions?.map(p => p.id) ?? [],
         },
         allPermissions,
-        onSuccessRoute: route('roles.index'),
+        onSuccessRoute: route('admin.roles.index'),
     });
 
 
