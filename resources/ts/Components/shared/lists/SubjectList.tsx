@@ -1,14 +1,16 @@
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { Subject, ClassSubject } from '@/types';
+import { Subject, ClassSubject, Level } from '@/types';
 import { Badge } from '@examena/ui';
+import { trans } from '@/utils';
 import type { EntityListConfig } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';
 
 interface SubjectListProps {
   data: PaginationType<Subject | ClassSubject>;
   variant?: 'admin' | 'class-assignment';
+  levels?: Level[];
   onView?: (item: Subject) => void;
   onClassClick?: (classSubject: ClassSubject) => void;
 }
@@ -23,13 +25,32 @@ interface SubjectListProps {
 export function SubjectList({
   data,
   variant = 'admin',
+  levels = [],
   onView,
   onClassClick,
 }: SubjectListProps) {
   type SubjectItem = Subject | ClassSubject;
 
+  const levelFilterOptions = [
+    { value: '', label: trans('admin_pages.subjects.all_levels') },
+    ...levels.map((level) => ({
+      value: level.id,
+      label: level.name,
+    })),
+  ];
+
   const config: EntityListConfig<SubjectItem> = {
     entity: 'subject',
+
+    filters: [
+      {
+        key: 'level_id',
+        labelKey: 'admin_pages.subjects.level',
+        type: 'select',
+        options: levelFilterOptions,
+        conditional: (v) => v === 'admin',
+      },
+    ],
 
     columns: [
       {

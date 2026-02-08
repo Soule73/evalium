@@ -272,6 +272,7 @@ return [
         'description_helper' => 'Brief description of the subject',
         'level' => 'Level',
         'select_level' => 'Select a level',
+        'all_levels' => 'All levels',
         'class' => 'Class',
         'classes_count' => 'Classes',
         'coefficient' => 'Coefficient',

@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { PaginationType } from '@/types/datatable';
-import { Subject, PageProps } from '@/types';
+import { Subject, PageProps, Level } from '@/types';
 import { breadcrumbs, trans, hasPermission } from '@/utils';
 import { Button, Section } from '@/Components';
 import { SubjectList } from '@/Components/shared/lists';
@@ -9,9 +9,10 @@ import { route } from 'ziggy-js';
 
 interface Props extends PageProps {
   subjects: PaginationType<Subject>;
+  levels: Level[];
 }
 
-export default function SubjectIndex({ subjects, auth }: Props) {
+export default function SubjectIndex({ subjects, levels, auth }: Props) {
   const canCreate = hasPermission(auth.permissions, 'create subjects');
 
   const handleCreate = () => {
@@ -34,7 +35,7 @@ export default function SubjectIndex({ subjects, auth }: Props) {
           )
         }
       >
-        <SubjectList data={subjects} variant="admin" />
+        <SubjectList data={subjects} variant="admin" levels={levels} />
       </Section>
     </AuthenticatedLayout>
   );

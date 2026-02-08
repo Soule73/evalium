@@ -275,6 +275,7 @@ return [
         'description_helper' => 'Brève description de la matière',
         'level' => 'Niveau',
         'select_level' => 'Sélectionner un niveau',
+        'all_levels' => 'Tous les niveaux',
         'class' => 'Classe',
         'classes_count' => 'Classes',
         'coefficient' => 'Coefficient',
