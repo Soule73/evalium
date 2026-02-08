@@ -3,263 +3,232 @@ import { trans } from './translations';
 import { BreadcrumbItem } from '@/Components/layout/Breadcrumb';
 import { ClassSubject } from '@/types';
 
-// Breadcrumb tableau de board
-const dashboardBreadcrumb = (): BreadcrumbItem => ({
+const dashboard = (): BreadcrumbItem => ({
     label: trans('breadcrumbs.dashboard'),
     href: route('dashboard')
 });
 
-// Breadcrumb index des utilisateurs
-const userIndex = (): BreadcrumbItem[] => [
-    dashboardBreadcrumb(),
-    { label: trans('breadcrumbs.users'), href: route('admin.users.index') },
-];
+interface EntityConfig {
+    labelKey: string;
+    indexRoute: string;
+    showRoute?: string;
+}
 
-// Breadcrumb index des niveaux
-const levelIndex = (): BreadcrumbItem[] => [
-    dashboardBreadcrumb(),
-    { label: trans('breadcrumbs.levels'), href: route('admin.levels.index') },
-];
+interface NamedEntity {
+    id: number;
+    name?: string;
+    title?: string;
+}
 
-// Breadcrumb index des rôles et permissions
-const roleIndex = (): BreadcrumbItem[] => [
-    dashboardBreadcrumb(),
-    { label: trans('breadcrumbs.roles_permissions'), href: route('roles.index') },
-];
+/**
+ * Creates standard CRUD breadcrumb methods for an entity
+ */
+function createEntityBreadcrumbs<T extends NamedEntity>(config: EntityConfig) {
+    const { labelKey, indexRoute, showRoute } = config;
 
-// Helper pour créer des breadcrumbs
+    const index = (): BreadcrumbItem[] => [
+        dashboard(),
+        { label: trans(labelKey), href: route(indexRoute) }
+    ];
+
+    const create = (): BreadcrumbItem[] => [
+        ...index(),
+        { label: trans('breadcrumbs.create') }
+    ];
+
+    const show = (item: T): BreadcrumbItem[] => {
+        const label = item.name || item.title || `#${item.id}`;
+        return [
+            ...index(),
+            { label, href: showRoute ? route(showRoute, item.id) : undefined }
+        ];
+    };
+
+    const edit = (item: T): BreadcrumbItem[] => [
+        ...show(item),
+        { label: trans('breadcrumbs.edit') }
+    ];
+
+    return { index, create, show, edit };
+}
+
+/**
+ * Creates simple breadcrumbs for entities without show page
+ */
+function createSimpleBreadcrumbs(labelKey: string, indexRoute: string) {
+    const index = (): BreadcrumbItem[] => [
+        dashboard(),
+        { label: trans(labelKey), href: route(indexRoute) }
+    ];
+
+    const create = (): BreadcrumbItem[] => [
+        ...index(),
+        { label: trans('breadcrumbs.create') }
+    ];
+
+    const edit = (name: string): BreadcrumbItem[] => [
+        ...index(),
+        { label: name }
+    ];
+
+    return { index, create, edit };
+}
+
+const levelsBc = createSimpleBreadcrumbs('breadcrumbs.levels', 'admin.levels.index');
+const usersBc = createSimpleBreadcrumbs('breadcrumbs.users', 'admin.users.index');
+const rolesBc = createSimpleBreadcrumbs('breadcrumbs.roles_permissions', 'roles.index');
+
+const academicYearsBc = createEntityBreadcrumbs<{ id: number; name: string }>({
+    labelKey: 'breadcrumbs.academic_years',
+    indexRoute: 'admin.academic-years.index',
+    showRoute: 'admin.academic-years.show'
+});
+
+const subjectsBc = createEntityBreadcrumbs<{ id: number; name: string }>({
+    labelKey: 'breadcrumbs.subjects',
+    indexRoute: 'admin.subjects.index',
+    showRoute: 'admin.subjects.show'
+});
+
+const classesBc = createEntityBreadcrumbs<{ id: number; name?: string }>({
+    labelKey: 'breadcrumbs.classes',
+    indexRoute: 'admin.classes.index',
+    showRoute: 'admin.classes.show'
+});
+
+const enrollmentsBc = createEntityBreadcrumbs<{ id: number; student?: { name: string } }>({
+    labelKey: 'breadcrumbs.enrollments',
+    indexRoute: 'admin.enrollments.index',
+    showRoute: 'admin.enrollments.show'
+});
+
+const classSubjectsBc = {
+    index: (): BreadcrumbItem[] => [
+        dashboard(),
+        { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') }
+    ],
+    show: (classSubject: ClassSubject): BreadcrumbItem[] => {
+        const levelInfo = classSubject.class?.level
+            ? `${classSubject.class.level.name} (${classSubject.class.level.description})`
+            : '';
+        return [
+            dashboard(),
+            { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
+            { label: `${classSubject.class?.name || ''}, ${levelInfo} - ${classSubject.subject?.name || ''}` }
+        ];
+    }
+};
+
+const teacherClassesBc = {
+    index: (): BreadcrumbItem[] => [
+        dashboard(),
+        { label: trans('breadcrumbs.classes'), href: route('teacher.classes.index') }
+    ],
+    show: (classItem: { id: number; name?: string }): BreadcrumbItem[] => [
+        dashboard(),
+        { label: trans('breadcrumbs.classes'), href: route('teacher.classes.index') },
+        { label: classItem.name || '' }
+    ]
+};
+
+const assessmentsBc = createEntityBreadcrumbs<{ id: number; title: string }>({
+    labelKey: 'breadcrumbs.assessments',
+    indexRoute: 'teacher.assessments.index',
+    showRoute: 'teacher.assessments.show'
+});
+
 export const breadcrumbs = {
-    dashboard: (): BreadcrumbItem[] => [
-        dashboardBreadcrumb()
-    ],
+    dashboard: (): BreadcrumbItem[] => [dashboard()],
 
-    users: (): BreadcrumbItem[] => userIndex(),
+    // Users (simple: index, create, edit by name)
+    users: usersBc.index,
+    userCreate: usersBc.create,
+    userEdit: usersBc.edit,
+    studentShow: (user: { name: string }): BreadcrumbItem[] => [...usersBc.index(), { label: user.name }],
+    teacherShow: (user: { name: string }): BreadcrumbItem[] => [...usersBc.index(), { label: user.name }],
 
-    userCreate: (): BreadcrumbItem[] => [
-        ...userIndex(),
-        { label: trans('breadcrumbs.create') }
-    ],
+    // Levels (simple: index, create, edit by name)
+    levels: levelsBc.index,
+    levelCreate: levelsBc.create,
+    levelEdit: levelsBc.edit,
 
-    userEdit: (userName: string): BreadcrumbItem[] => [
-        ...userIndex(),
-        { label: userName }
-    ],
+    // Roles (simple: index, create, edit by name)
+    roles: rolesBc.index,
+    roleCreate: rolesBc.create,
+    roleEdit: rolesBc.edit,
 
-    levels: (): BreadcrumbItem[] => levelIndex(),
-
-    levelCreate: (): BreadcrumbItem[] => [
-        ...levelIndex(),
-        { label: trans('breadcrumbs.create') }
-    ],
-
-    levelEdit: (levelName: string): BreadcrumbItem[] => [
-        ...levelIndex(),
-        { label: levelName }
-    ],
-
-    roles: (): BreadcrumbItem[] => roleIndex(),
-
-    roleCreate: (): BreadcrumbItem[] => [
-        ...roleIndex(),
-        { label: trans('breadcrumbs.create') }
-    ],
-
-    roleEdit: (roleName: string): BreadcrumbItem[] => [
-        ...roleIndex(),
-        { label: roleName }
-    ],
-    studentShow: (user: { name: string }): BreadcrumbItem[] => [
-        ...userIndex(),
-        { label: user.name }
-    ],
-    teacherShow: (user: { name: string }): BreadcrumbItem[] => [
-        ...userIndex(),
-        { label: user.name }
-    ],
-
+    // Admin entities with full CRUD
     admin: {
-        academicYears: (): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.academic_years'), href: route('admin.academic-years.index') }
-        ],
+        academicYears: academicYearsBc.index,
+        createAcademicYear: academicYearsBc.create,
+        showAcademicYear: academicYearsBc.show,
+        editAcademicYear: academicYearsBc.edit,
 
-        createAcademicYear: (): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.academic_years'), href: route('admin.academic-years.index') },
-            { label: trans('breadcrumbs.create') }
-        ],
+        subjects: subjectsBc.index,
+        createSubject: subjectsBc.create,
+        showSubject: subjectsBc.show,
+        editSubject: subjectsBc.edit,
 
-        showAcademicYear: (year: { id: number; name: string }): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.academic_years'), href: route('admin.academic-years.index') },
-            { label: year.name, href: route('admin.academic-years.show', year.id) }
-        ],
+        classes: classesBc.index,
+        createClass: classesBc.create,
+        showClass: classesBc.show,
+        editClass: classesBc.edit,
 
-        editAcademicYear: (year: { id: number; name: string }): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.academic_years'), href: route('admin.academic-years.index') },
-            { label: year.name, href: route('admin.academic-years.show', year.id) },
-            { label: trans('breadcrumbs.edit') }
-        ],
-
-        subjects: (): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.subjects'), href: route('admin.subjects.index') }
-        ],
-
-        createSubject: (): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.subjects'), href: route('admin.subjects.index') },
-            { label: trans('breadcrumbs.create') }
-        ],
-
-        showSubject: (subject: { id: number; name: string }): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.subjects'), href: route('admin.subjects.index') },
-            { label: subject.name, href: route('admin.subjects.show', subject.id) }
-        ],
-
-        editSubject: (subject: { id: number; name: string }): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.subjects'), href: route('admin.subjects.index') },
-            { label: subject.name, href: route('admin.subjects.show', subject.id) },
-            { label: trans('breadcrumbs.edit') }
-        ],
-
-        classes: (): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.classes'), href: route('admin.classes.index') }
-        ],
-
-        createClass: (): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.classes'), href: route('admin.classes.index') },
-            { label: trans('breadcrumbs.create') }
-        ],
-
-        showClass: (classItem: { id: number; name?: string; }): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.classes'), href: route('admin.classes.index') },
-            { label: classItem.name || '', href: route('admin.classes.show', classItem.id) }
-        ],
-
-        editClass: (classItem: { id: number; name?: string; }): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.classes'), href: route('admin.classes.index') },
-            { label: classItem.name || '', href: route('admin.classes.show', classItem.id) },
-            { label: trans('breadcrumbs.edit') }
-        ],
-
-        enrollments: (): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.enrollments'), href: route('admin.enrollments.index') }
-        ],
-
-        createEnrollment: (): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.enrollments'), href: route('admin.enrollments.index') },
-            { label: trans('breadcrumbs.create') }
-        ],
-
+        enrollments: enrollmentsBc.index,
+        createEnrollment: enrollmentsBc.create,
         showEnrollment: (enrollment: { id: number; student?: { name: string } }): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.enrollments'), href: route('admin.enrollments.index') },
-            { label: enrollment.student?.name || `#${enrollment.id}`, href: route('admin.enrollments.show', enrollment.id) }
+            ...enrollmentsBc.index(),
+            { label: enrollment.student?.name || `#${enrollment.id}` }
         ],
 
-        classSubjects: (): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') }
-        ],
-
-        showClassSubject: (classSubject: ClassSubject): BreadcrumbItem[] => {
-
-            const levelInfo = classSubject.class?.level
-                ? `${classSubject.class.level.name} (${classSubject.class.level.description})`
-                : '';
-
-            return [
-                dashboardBreadcrumb(),
-                { label: trans('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
-                { label: `${classSubject.class?.name || ''}, ${levelInfo} - ${classSubject.subject?.name || ''}`, href: route('admin.class-subjects.show', classSubject.id) }
-            ];
-        }
-
+        classSubjects: classSubjectsBc.index,
+        showClassSubject: classSubjectsBc.show,
     },
 
-    teacherAssessments: (): BreadcrumbItem[] => [
-        dashboardBreadcrumb(),
-        { label: trans('breadcrumbs.assessments'), href: route('teacher.assessments.index') }
-    ],
+    // Teacher entities
+    teacher: {
+        classes: teacherClassesBc.index,
+        showClass: teacherClassesBc.show,
+    },
 
-    createTeacherAssessment: (): BreadcrumbItem[] => [
-        dashboardBreadcrumb(),
-        { label: trans('breadcrumbs.assessments'), href: route('teacher.assessments.index') },
-        { label: trans('breadcrumbs.create') }
-    ],
+    // Teacher assessments (legacy naming)
+    teacherAssessments: assessmentsBc.index,
+    createTeacherAssessment: assessmentsBc.create,
+    showTeacherAssessment: assessmentsBc.show,
+    editTeacherAssessment: assessmentsBc.edit,
 
-    showTeacherAssessment: (assessment: { id: number; title: string }): BreadcrumbItem[] => [
-        dashboardBreadcrumb(),
-        { label: trans('breadcrumbs.assessments'), href: route('teacher.assessments.index') },
-        { label: assessment.title, href: route('teacher.assessments.show', assessment.id) }
-    ],
-
+    // Grading (nested under assessment)
     gradingIndex: (assessment: { id: number; title: string }): BreadcrumbItem[] => [
-        dashboardBreadcrumb(),
-        { label: trans('breadcrumbs.assessments'), href: route('teacher.assessments.index') },
-        { label: assessment.title, href: route('teacher.assessments.show', assessment.id) },
+        ...assessmentsBc.show(assessment),
         { label: trans('breadcrumbs.grading') }
     ],
-
     gradingShow: (assessment: { id: number; title: string }, student: { name: string }): BreadcrumbItem[] => [
-        dashboardBreadcrumb(),
-        { label: trans('breadcrumbs.assessments'), href: route('teacher.assessments.index') },
-        { label: assessment.title, href: route('teacher.assessments.show', assessment.id) },
+        ...assessmentsBc.show(assessment),
         { label: trans('breadcrumbs.grading'), href: route('teacher.grading.index', assessment.id) },
         { label: student.name }
     ],
 
-    editTeacherAssessment: (assessment: { id: number; title: string }): BreadcrumbItem[] => [
-        dashboardBreadcrumb(),
-        { label: trans('breadcrumbs.assessments'), href: route('teacher.assessments.index') },
-        { label: assessment.title, href: route('teacher.assessments.show', assessment.id) },
-        { label: trans('breadcrumbs.edit') }
-    ],
-
-    teacher: {
-        classes: (): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.classes'), href: route('teacher.classes.index') }
-        ],
-
-        showClass: (classItem: { id: number; name?: string }): BreadcrumbItem[] => [
-            dashboardBreadcrumb(),
-            { label: trans('breadcrumbs.classes'), href: route('teacher.classes.index') },
-            { label: classItem.name || '', href: route('teacher.classes.show', classItem.id) }
-        ],
-    },
-
+    // Legacy alias
     adminAcademicYears: (): BreadcrumbItem[] => [
-        dashboardBreadcrumb(),
+        dashboard(),
         { label: trans('admin_pages.academic_years.title') }
     ],
 };
 
-// Routes de navigation principales (utilisées par le Sidebar)
 export const navRoutes = {
     dashboard: () => route('dashboard'),
 
-    // Student MCD Routes
+    // Student Routes
     studentAssessments: () => route('student.assessments.index'),
     studentEnrollment: () => route('student.enrollment.show'),
 
-    // Teacher MCD Routes
+    // Teacher Routes
     teacherDashboard: () => route('teacher.dashboard'),
     teacherAssessments: () => route('teacher.assessments.index'),
     teacherClasses: () => route('teacher.classes.index'),
-    teacherGrading: () => route('teacher.grading.index', { assessment: '__assessment__' }), // Dynamic route
+    teacherGrading: () => route('teacher.grading.index', { assessment: '__assessment__' }),
 
-    // Admin MCD Routes
+    // Admin Routes
     adminAcademicYears: () => route('admin.academic-years.index'),
     adminSubjects: () => route('admin.subjects.index'),
     adminClasses: () => route('admin.classes.index'),

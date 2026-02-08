@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { PaginationType } from '@/types/datatable';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import { trans } from '@/utils';
+import { breadcrumbs, trans } from '@/utils';
 import { Button, ConfirmationModal, Section } from '@/Components';
 import { useListLevels } from '@/hooks';
 import { Level } from '@/types';
@@ -24,13 +24,16 @@ export default function LevelIndex({ levels }: Props) {
     } = useListLevels();
 
     return (
-        <AuthenticatedLayout title={trans('admin_pages.levels.title')}>
+        <AuthenticatedLayout
+            title={trans('admin_pages.levels.title')}
+            breadcrumb={breadcrumbs.levels()}
+        >
             <Section
                 title={trans('admin_pages.levels.title')}
                 subtitle={trans('admin_pages.levels.subtitle')}
                 actions={
                     canCreateLevels && (
-                        <Button onClick={handleCreate} color="primary">
+                        <Button onClick={handleCreate} size='sm'>
                             <PlusIcon className="w-5 h-5 mr-2" />
                             {trans('admin_pages.levels.create')}
                         </Button>
