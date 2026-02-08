@@ -320,6 +320,9 @@ return [
         'year' => 'année',
     ],
     'custom' => [
+        'class_subject_id' => [
+            'not_assigned' => 'Vous n\'etes pas assigne a enseigner cette combinaison classe-matiere.',
+        ],
         'end_time' => [
             'after' => 'Le champ :attribute doit être une date postérieure à la date de début.',
         ],

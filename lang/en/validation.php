@@ -320,6 +320,9 @@ return [
         'year' => 'year',
     ],
     'custom' => [
+        'class_subject_id' => [
+            'not_assigned' => 'You are not assigned to teach this class-subject combination.',
+        ],
         'end_time' => [
             'after' => 'The :attribute must be a date after the start date.',
         ],

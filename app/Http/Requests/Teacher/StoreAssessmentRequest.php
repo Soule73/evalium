@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Teacher;
 
 use App\Http\Requests\Traits\AssessmentValidationRules;
+use App\Models\ClassSubject;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -40,6 +41,16 @@ class StoreAssessmentRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $this->configureAssessmentValidator($validator);
+
+        $validator->after(function (Validator $validator) {
+            $classSubjectId = $this->input('class_subject_id');
+            if ($classSubjectId) {
+                $classSubject = ClassSubject::find($classSubjectId);
+                if (! $classSubject || $classSubject->teacher_id !== $this->user()->id) {
+                    $validator->errors()->add('class_subject_id', __('validation.class_subject_not_assigned'));
+                }
+            }
+        });
     }
 
     /**

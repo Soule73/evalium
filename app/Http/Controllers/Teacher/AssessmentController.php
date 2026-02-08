@@ -215,12 +215,13 @@ class AssessmentController extends Controller
     public function grade(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response
     {
         $this->authorize('view', $assessment);
+        abort_unless($assignment->assessment_id === $assessment->id, 404);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
         $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
         $this->validateAcademicYearAccess($assessment->classSubject->class, $selectedYearId);
 
-        $assignment->load('student');
+        $assignment->load(['student', 'answers.choice']);
         $userAnswers = $this->gradingQueryService->transformUserAnswers($assignment);
 
         return Inertia::render('Teacher/Assessments/Grade', [
@@ -237,12 +238,13 @@ class AssessmentController extends Controller
     public function review(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response
     {
         $this->authorize('view', $assessment);
+        abort_unless($assignment->assessment_id === $assessment->id, 404);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
         $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
         $this->validateAcademicYearAccess($assessment->classSubject->class, $selectedYearId);
 
-        $assignment->load('student');
+        $assignment->load(['student', 'answers.choice']);
         $userAnswers = $this->gradingQueryService->transformUserAnswers($assignment);
 
         return Inertia::render('Teacher/Assessments/Review', [
@@ -258,6 +260,8 @@ class AssessmentController extends Controller
      */
     public function saveGrade(SaveManualGradeRequest $request, Assessment $assessment, AssessmentAssignment $assignment): RedirectResponse
     {
+        abort_unless($assignment->assessment_id === $assessment->id, 404);
+
         $this->scoringService->saveManualGrades(
             $assignment,
             $request->input('scores', []),
