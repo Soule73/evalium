@@ -55,11 +55,18 @@ class DashboardController extends Controller
      */
     private function renderStudentDashboard(Request $request, $user): Response
     {
-        $stats = $this->studentDashboardService->getDashboardStats($user);
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+
+        $stats = $this->studentDashboardService->getDashboardStats($user, $selectedYearId);
+
+        $filters = array_merge(
+            $request->only(['status', 'search']),
+            ['academic_year_id' => $selectedYearId]
+        );
 
         $assessmentAssignments = $this->studentAssignmentQueryService->getAssignmentsForStudentLightPaginated(
             $user,
-            $request->only(['status', 'search']),
+            $filters,
             $request->input('per_page', 10)
         );
 
