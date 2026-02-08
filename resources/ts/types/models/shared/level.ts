@@ -9,8 +9,7 @@ export interface Level {
   created_at: string;
   updated_at: string;
 
-  groups_count?: number;
-
   classes_count?: number;
+  active_classes_count?: number;
   subjects_count?: number;
 }

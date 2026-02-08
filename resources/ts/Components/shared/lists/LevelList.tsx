@@ -7,7 +7,7 @@ import { PaginationType } from '@/types/datatable';
 import { trans } from '@/utils';
 
 interface LevelListProps {
-  data: PaginationType<Level & { groups_count: number; active_groups_count: number }>;
+  data: PaginationType<Level & { classes_count: number; active_classes_count: number }>;
   permissions?: {
     canUpdate?: boolean;
     canDelete?: boolean;
@@ -24,7 +24,7 @@ export function LevelList({
   onEdit,
   onDelete,
 }: LevelListProps) {
-  const config: EntityListConfig<Level & { groups_count: number; active_groups_count: number }> = {
+  const config: EntityListConfig<Level & { classes_count: number; active_classes_count: number }> = {
     entity: 'level',
     columns: [
       {
@@ -56,14 +56,14 @@ export function LevelList({
         sortable: true,
       },
       {
-        key: 'groups',
-        labelKey: 'admin_pages.levels.groups_count',
+        key: 'classes',
+        labelKey: 'admin_pages.levels.classes_count',
         render: (level) => (
           <div className="text-sm">
-            <div className="text-gray-900">{level.groups_count}</div>
+            <div className="text-gray-900">{level.classes_count}</div>
             <div className="text-xs text-green-600">
-              {trans('admin_pages.levels.active_groups', {
-                active: level.active_groups_count,
+              {trans('admin_pages.levels.active_classes', {
+                active: level.active_classes_count,
               })}
             </div>
           </div>
@@ -106,7 +106,7 @@ export function LevelList({
                   onClick={() => onDelete(level.id, level.name)}
                   size="sm"
                   color="danger"
-                  disabled={level.groups_count > 0}
+                  disabled={level.classes_count > 0}
                 >
                   {trans('admin_pages.common.delete')}
                 </Button>
