@@ -54,7 +54,7 @@ class StudentEnrollmentController extends Controller
         SubjectStatsResource::setGradeService($this->gradeCalculationService);
 
         $subjectsTransformed = $subjects->through(function ($classSubject) use ($student) {
-            return (new SubjectStatsResource($classSubject))->forStudent($student);
+            return (new SubjectStatsResource($classSubject))->forStudent($student)->resolve();
         });
 
         $overallStats = $this->gradeCalculationService->getGradeBreakdown(

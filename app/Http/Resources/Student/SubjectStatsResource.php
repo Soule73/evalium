@@ -62,8 +62,8 @@ class SubjectStatsResource extends JsonResource
         return [
             'id' => $this->resource->id,
             'class_subject_id' => $this->resource->id,
-            'subject_name' => $this->resource->subject->name,
-            'teacher_name' => $this->resource->teacher->name,
+            'subject_name' => $this->resource->subject?->name ?? '',
+            'teacher_name' => $this->resource->teacher?->name ?? '',
             'coefficient' => $this->resource->coefficient,
             'average' => $this->calculateAverage(),
             'assessments_count' => $this->getAssessmentsCount(),
