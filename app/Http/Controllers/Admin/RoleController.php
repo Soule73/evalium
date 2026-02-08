@@ -3,20 +3,23 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreRoleRequest;
 use App\Http\Requests\Admin\SyncRolePermissionsRequest;
-use App\Http\Requests\Admin\UpdateRoleRequest;
 use App\Http\Traits\HandlesIndexRequests;
 use App\Http\Traits\HasFlashMessages;
 use App\Services\Admin\RoleService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
 
+/**
+ * Manages role permission configuration.
+ *
+ * Note: Roles are predefined (super_admin, admin, teacher, student)
+ * and cannot be created or deleted. Only permissions can be configured.
+ */
 class RoleController extends Controller
 {
     use AuthorizesRequests, HandlesIndexRequests, HasFlashMessages;
@@ -26,13 +29,11 @@ class RoleController extends Controller
     ) {}
 
     /**
-     * Display a listing of roles.
-     *
-     * @return Response The response containing the list of roles.
+     * Display a listing of roles with their permissions.
      */
     public function index(Request $request): Response
     {
-        $this->authorize('viewAny', \Spatie\Permission\Models\Role::class);
+        $this->authorize('viewAny', Role::class);
 
         ['filters' => $filters, 'per_page' => $perPage] = $this->extractIndexParams(
             $request,
@@ -40,14 +41,12 @@ class RoleController extends Controller
         );
 
         $roles = $this->roleService->getRolesWithPermissionsPaginated($perPage, $filters['search'] ?? null);
-
-        $allPermissions = $this->roleService->getAllPermissions();
-
-        $groupedPermissions = $this->roleService->groupPermissionsByCategory($allPermissions);
+        $groupedPermissions = $this->roleService->groupPermissionsByCategory(
+            $this->roleService->getAllPermissions()
+        );
 
         return Inertia::render('Admin/Roles/Index', [
             'roles' => $roles,
-            'allPermissions' => $allPermissions,
             'groupedPermissions' => $groupedPermissions,
             'filters' => [
                 'search' => $filters['search'] ?? '',
@@ -57,116 +56,30 @@ class RoleController extends Controller
     }
 
     /**
-     * Show the form for creating a new role.
-     *
-     * @return Response The response containing the creation form view.
-     */
-    public function create(): Response
-    {
-        $this->authorize('create', \Spatie\Permission\Models\Role::class);
-
-        $permissions = $this->roleService->getAllPermissions();
-
-        $groupedPermissions = $this->roleService->groupPermissionsByCategory($permissions);
-
-        return Inertia::render('Admin/Roles/Create', [
-            'permissions' => $permissions,
-            'groupedPermissions' => $groupedPermissions,
-        ]);
-    }
-
-    /**
-     * Store a newly created role in storage.
-     *
-     * @param  StoreRoleRequest  $request  The validated request instance containing role data.
-     * @return RedirectResponse Redirect response after storing the role.
-     */
-    public function store(StoreRoleRequest $request): RedirectResponse
-    {
-        $this->roleService->createRole($request->validated());
-
-        return $this->redirectWithSuccess('admin.roles.index', __('messages.role_created'));
-    }
-
-    /**
-     * Show the form for editing the specified role.
-     *
-     * @param  Role  $role  The role instance to be edited.
-     * @return Response The response containing the edit form view.
+     * Show the permission configuration form for a role.
      */
     public function edit(Role $role): Response
     {
         $this->authorize('update', $role);
 
         $roleWithPermissions = $this->roleService->loadRolesWithPermissions($role);
-
-        $allPermissions = $this->roleService->getAllPermissions();
-
-        $groupedPermissions = $this->roleService->groupPermissionsByCategory($allPermissions);
+        $groupedPermissions = $this->roleService->groupPermissionsByCategory(
+            $this->roleService->getAllPermissions()
+        );
 
         return Inertia::render('Admin/Roles/Edit', [
             'role' => $roleWithPermissions,
-            'allPermissions' => $allPermissions,
             'groupedPermissions' => $groupedPermissions,
         ]);
     }
 
     /**
-     * Update the specified role in storage.
-     *
-     * @param  UpdateRoleRequest  $request  The validated request instance containing role data.
-     * @param  Role  $role  The role instance to be updated.
-     * @return RedirectResponse Redirect response after updating the role.
-     */
-    public function update(UpdateRoleRequest $request, Role $role): RedirectResponse
-    {
-        try {
-
-            $this->roleService->updateRole($role, $request->validated());
-
-            return $this->redirectWithSuccess('admin.roles.index', __('messages.role_updated'));
-        } catch (\Exception $e) {
-
-            Log::error('Failed to update role', $e->getMessage());
-
-            return $this->flashError(__('messages.role_update_failed'));
-        }
-    }
-
-    /**
      * Sync permissions for a role.
-     *
-     * @param  SyncRolePermissionsRequest  $request  The validated request containing permissions to sync.
-     * @param  Role  $role  The role instance to be updated.
-     * @return RedirectResponse Redirect response after syncing role permissions.
      */
     public function syncPermissions(SyncRolePermissionsRequest $request, Role $role): RedirectResponse
     {
-        $data = $request->validated();
-
-        $this->roleService->syncRolePermissions($role, $data['permissions']);
+        $this->roleService->syncRolePermissions($role, $request->validated()['permissions']);
 
         return $this->redirectWithSuccess('admin.roles.index', __('messages.permissions_updated'));
-    }
-
-    /**
-     * Remove the specified role from storage.
-     *
-     * @param  Role  $role  The role instance to be deleted.
-     * @return RedirectResponse Redirect response after deleting the role.
-     */
-    public function destroy(Role $role): RedirectResponse
-    {
-        $this->authorize('delete', $role);
-
-        try {
-            $this->roleService->deleteRole($role);
-
-            return $this->redirectWithSuccess('admin.roles.index', __('messages.role_deleted'));
-        } catch (\Exception $e) {
-            Log::error('Failed to delete role', $e->getMessage());
-
-            return $this->flashError(__('messages.role_delete_failed'));
-        }
     }
 }

@@ -152,9 +152,8 @@ export const breadcrumbs = {
     levelCreate: levelsBc.create,
     levelEdit: levelsBc.edit,
 
-    // Roles (simple: index, create, edit by name)
+    // Roles (config only: index, edit)
     roles: rolesBc.index,
-    roleCreate: rolesBc.create,
     roleEdit: rolesBc.edit,
 
     // Admin entities with full CRUD

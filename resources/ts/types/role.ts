@@ -13,8 +13,3 @@ export interface Role {
 export interface GroupedPermissions {
     [category: string]: Permission[];
 }
-
-export interface RoleFormData {
-    name: string;
-    permissions: number[];
-}

@@ -199,18 +199,14 @@ Route::middleware('auth')->group(function () {
                 });
 
             /**
-             * Role and Permission Management
+             * Role and Permission Configuration
              */
             Route::prefix('roles')
                 ->name('roles.')
                 ->controller(RoleController::class)
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
-                    Route::get('/create', 'create')->name('create');
-                    Route::post('/', 'store')->name('store');
                     Route::get('/{role}/edit', 'edit')->name('edit');
-                    Route::put('/{role}', 'update')->name('update');
-                    Route::delete('/{role}', 'destroy')->name('destroy');
                     Route::post('/{role}/sync-permissions', 'syncPermissions')->name('sync-permissions');
                 });
         });
