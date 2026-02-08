@@ -317,6 +317,7 @@ return [
         'select_academic_year' => 'Sélectionner une année académique',
         'level' => 'Niveau',
         'select_level' => 'Sélectionner un niveau',
+        'all_levels' => 'Tous les niveaux',
         'max_students' => 'Maximum d\'étudiants',
         'max_students_helper' => 'Nombre maximum d\'étudiants pouvant s\'inscrire',
         'students' => 'Étudiants',

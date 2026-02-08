@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { ClassModel } from '@/types';
+import { ClassModel, Level } from '@/types';
 import { Badge } from '@examena/ui';
 import { trans } from '@/utils';
 import type { EntityListConfig, EntityListVariant } from './types/listConfig';
@@ -10,6 +10,7 @@ import type { PaginationType } from '@/types/datatable';
 interface ClassListProps {
   data: PaginationType<ClassModel>;
   variant?: EntityListVariant;
+  levels?: Level[];
   onView?: (classItem: ClassModel) => void;
   onCreateAssessment?: (classItem: ClassModel) => void;
 }
@@ -25,11 +26,30 @@ interface ClassListProps {
 export function ClassList({
   data,
   variant = 'admin',
+  levels = [],
   onView,
   onCreateAssessment,
 }: ClassListProps) {
+  const levelFilterOptions = [
+    { value: '', label: trans('admin_pages.classes.all_levels') },
+    ...levels.map((level) => ({
+      value: level.id,
+      label: level.name,
+    })),
+  ];
+
   const config: EntityListConfig<ClassModel> = {
     entity: 'class',
+
+    filters: [
+      {
+        key: 'level_id',
+        labelKey: 'admin_pages.classes.level',
+        type: 'select',
+        options: levelFilterOptions,
+        conditional: (v) => v === 'admin',
+      },
+    ],
 
     columns: [
       {

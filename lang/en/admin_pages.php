@@ -314,6 +314,7 @@ return [
         'select_academic_year' => 'Select an academic year',
         'level' => 'Level',
         'select_level' => 'Select a level',
+        'all_levels' => 'All levels',
         'max_students' => 'Maximum Students',
         'max_students_helper' => 'Maximum number of students that can enroll',
         'students' => 'Students',

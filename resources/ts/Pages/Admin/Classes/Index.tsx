@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { PaginationType } from '@/types/datatable';
-import { ClassModel, PageProps } from '@/types';
+import { ClassModel, PageProps, Level } from '@/types';
 import { breadcrumbs, trans, hasPermission } from '@/utils';
 import { Button, Section } from '@/Components';
 import { ClassList } from '@/Components/shared/lists';
@@ -9,14 +9,14 @@ import { route } from 'ziggy-js';
 
 interface Props extends PageProps {
   classes: PaginationType<ClassModel>;
+  levels: Level[];
   filters?: {
     search?: string;
-    academic_year_id?: string;
     level_id?: string;
   };
 }
 
-export default function ClassIndex({ classes, auth }: Props) {
+export default function ClassIndex({ classes, levels, auth }: Props) {
   const canCreate = hasPermission(auth.permissions, 'create classes');
 
   const handleCreate = () => {
@@ -39,7 +39,7 @@ export default function ClassIndex({ classes, auth }: Props) {
           )
         }
       >
-        <ClassList data={classes} variant="admin" />
+        <ClassList data={classes} variant="admin" levels={levels} />
       </Section>
     </AuthenticatedLayout>
   );

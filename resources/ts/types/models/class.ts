@@ -25,7 +25,6 @@ export interface ClassModel {
 }
 
 export interface ClassFormData {
-  academic_year_id: number;
   level_id: number;
   name: string;
   max_students: number;
