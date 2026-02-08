@@ -127,5 +127,7 @@ return [
         'your_answer' => 'Votre réponse',
         'question_score' => 'Score : :score / :max',
         'no_feedback' => 'Aucun retour fourni pour le moment.',
+        'results_hidden_title' => 'Résultats non encore disponibles',
+        'results_hidden_message' => 'Les réponses correctes seront affichées après que votre professeur aura corrigé cette évaluation.',
     ],
 ];

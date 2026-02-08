@@ -127,5 +127,7 @@ return [
         'your_answer' => 'Your Answer',
         'question_score' => 'Score: :score / :max',
         'no_feedback' => 'No feedback provided yet.',
+        'results_hidden_title' => 'Results Not Yet Available',
+        'results_hidden_message' => 'The correct answers will be displayed after your teacher has graded this assessment.',
     ],
 ];

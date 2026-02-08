@@ -350,7 +350,10 @@ export const formatAssessmentAssignmentStatus = (status: string): { label: strin
     return statusMap[status] || { label: status, color: 'gray' };
 };
 
-export const canShowAssessmentResults = (assignmentStatus: string): boolean => {
+export const canShowAssessmentResults = (assignmentStatus: string, showResultsImmediately: boolean = false): boolean => {
+    if (showResultsImmediately && (assignmentStatus === 'submitted' || assignmentStatus === 'graded')) {
+        return true;
+    }
     return assignmentStatus === 'graded';
 }
 

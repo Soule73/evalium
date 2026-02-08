@@ -14,7 +14,7 @@ interface Props {
 }
 
 const AssessmentResults: React.FC<Props> = ({ assessment, assignment, userAnswers }) => {
-  const { isPendingReview, assignmentStatus, showCorrectAnswers, assessmentIsActive, totalPoints, getQuestionResult } =
+  const { isPendingReview, assignmentStatus, showCorrectAnswers, showResultsImmediately, assessmentIsActive, totalPoints, getQuestionResult } =
     useAssessmentResults({ assessment, assignment, userAnswers });
 
   const { finalScore, finalPercentage } = useAssessmentScoring({
@@ -43,6 +43,8 @@ const AssessmentResults: React.FC<Props> = ({ assessment, assignment, userAnswer
     subject: trans('student_assessment_pages.results.subject'),
     class: trans('student_assessment_pages.results.class'),
     teacher: trans('student_assessment_pages.results.teacher'),
+    resultsHiddenTitle: trans('student_assessment_pages.results.results_hidden_title'),
+    resultsHiddenMessage: trans('student_assessment_pages.results.results_hidden_message'),
   };
 
   return (
@@ -126,6 +128,12 @@ const AssessmentResults: React.FC<Props> = ({ assessment, assignment, userAnswer
         {assignment.teacher_notes && (
           <AlertEntry title={translations.teacherComments} type="info" className="mb-6">
             <p className="text-sm whitespace-pre-wrap">{assignment.teacher_notes}</p>
+          </AlertEntry>
+        )}
+
+        {!showCorrectAnswers && !showResultsImmediately && isPendingReview && (
+          <AlertEntry title={translations.resultsHiddenTitle} type="warning" className="mb-6">
+            <p className="text-sm">{translations.resultsHiddenMessage}</p>
           </AlertEntry>
         )}
 

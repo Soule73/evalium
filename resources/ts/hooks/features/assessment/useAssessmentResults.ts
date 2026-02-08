@@ -17,6 +17,7 @@ const useAssessmentResults = ({ assessment, assignment, userAnswers }: UseAssess
   const assignmentScore = assignment.score;
   const assignmentAutoScore = assignment.auto_score;
   const assignmentStatus = assignment.status;
+  const showResultsImmediately = assessment.show_results_immediately ?? true;
 
   const totalPoints = useMemo(() => questions.reduce((sum, q) => sum + (q.points || 0), 0), [questions]);
 
@@ -26,7 +27,7 @@ const useAssessmentResults = ({ assessment, assignment, userAnswers }: UseAssess
 
   const formattedAssignmentStatus = formatAssessmentAssignmentStatus(assignmentStatus);
 
-  const showCorrectAnswers = canShowAssessmentResults(assignmentStatus);
+  const showCorrectAnswers = canShowAssessmentResults(assignmentStatus, showResultsImmediately);
 
   const getQuestionResult = useMemo(() => {
     return (question: Question) => {
@@ -137,6 +138,7 @@ const useAssessmentResults = ({ assessment, assignment, userAnswers }: UseAssess
     isPendingReview,
     assignmentStatus: formattedAssignmentStatus,
     showCorrectAnswers,
+    showResultsImmediately,
     getQuestionResult,
     assessmentIsActive,
   };
