@@ -123,8 +123,8 @@ export default function Show({ enrollment, subjects, overallStats }: StudentEnro
         render: (item: SubjectGrade) => (
           <div className="flex items-center justify-start space-x-2">
             <span className={`${getGradeColor(item.average)}`}>
-              {item.average !== null
-                ? `${item.average.toFixed(2)}/20`
+              {item.average != null
+                ? `${Number(item.average).toFixed(2)}/20`
                 : translations.noGrade}
             </span>
             {getGradeLabel(item.average)}
