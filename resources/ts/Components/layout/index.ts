@@ -1,4 +1,3 @@
-export * from './AcademicYearBadge';
 export * from './AcademicYearSelector';
 export * from './AuthenticatedLayout';
 export * from './Breadcrumb';
