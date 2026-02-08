@@ -88,15 +88,17 @@ class GradeCalculationService
 
         foreach ($classSubjects as $classSubject) {
             $subjectGrade = $this->calculateSubjectGrade($student, $classSubject);
-            $assessmentDetails = $this->getAssessmentGrades($student, $classSubject);
+            $assessmentStats = $this->getAssessmentStatsForStudent($student, $classSubject);
 
             $subjectGrades[] = [
+                'id' => $classSubject->id,
                 'class_subject_id' => $classSubject->id,
-                'subject_name' => $classSubject->subject->name,
-                'teacher_name' => $classSubject->teacher->name,
+                'subject_name' => $classSubject->subject?->name ?? '-',
+                'teacher_name' => $classSubject->teacher?->name ?? '-',
                 'coefficient' => $classSubject->coefficient,
-                'grade' => $subjectGrade,
-                'assessments' => $assessmentDetails->toArray(),
+                'average' => $subjectGrade,
+                'assessments_count' => $assessmentStats['total'],
+                'completed_count' => $assessmentStats['completed'],
             ];
 
             if ($subjectGrade !== null) {
@@ -115,6 +117,31 @@ class GradeCalculationService
             'subjects' => $subjectGrades,
             'annual_average' => $annualAverage,
             'total_coefficient' => $totalCoefficients,
+        ];
+    }
+
+    /**
+     * Get assessment statistics for a student in a class-subject
+     *
+     * @return array{total: int, completed: int}
+     */
+    private function getAssessmentStatsForStudent(User $student, ClassSubject $classSubject): array
+    {
+        $totalAssessments = $classSubject->assessments()
+            ->whereRaw("JSON_EXTRACT(settings, '$.is_published') = true")
+            ->count();
+
+        $completedAssessments = AssessmentAssignment::whereHas('assessment', function ($query) use ($classSubject) {
+            $query->where('class_subject_id', $classSubject->id)
+                ->whereRaw("JSON_EXTRACT(settings, '$.is_published') = true");
+        })
+            ->where('student_id', $student->id)
+            ->whereNotNull('submitted_at')
+            ->count();
+
+        return [
+            'total' => $totalAssessments,
+            'completed' => $completedAssessments,
         ];
     }
 
