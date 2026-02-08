@@ -39,11 +39,14 @@ class StudentEnrollmentQueryService
                 'subject',
                 'teacher',
                 'assessments' => function ($query) use ($student) {
-                    $query->select('id', 'class_subject_id', 'coefficient', 'total_points')
-                        ->with(['assignments' => function ($q) use ($student) {
-                            $q->where('student_id', $student->id)
-                                ->select('id', 'assessment_id', 'student_id', 'score', 'submitted_at');
-                        }]);
+                    $query->select('id', 'class_subject_id', 'coefficient')
+                        ->with([
+                            'questions:id,assessment_id,points',
+                            'assignments' => function ($q) use ($student) {
+                                $q->where('student_id', $student->id)
+                                    ->select('id', 'assessment_id', 'student_id', 'score', 'submitted_at');
+                            },
+                        ]);
                 },
             ])
             ->when($filters['search'] ?? null, function ($query, $search) {
