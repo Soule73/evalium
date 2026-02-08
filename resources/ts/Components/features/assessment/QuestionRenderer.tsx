@@ -11,14 +11,13 @@ interface QuestionRendererProps {
     getQuestionResult: (question: Question) => QuestionResult;
     scores?: Record<number, number>;
     isTeacherView?: boolean;
+    isEditMode?: boolean;
     renderScoreInput?: (question: Question) => React.ReactNode;
     showCorrectAnswers?: boolean;
     assignment?: AssessmentAssignment;
 }
 
-/**
- * Composant commun pour le rendu des questions avec leurs réponses
- */
+
 const QuestionRenderer: React.FC<QuestionRendererProps> = ({
     questions,
     getQuestionResult,
@@ -26,6 +25,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
     isTeacherView = true,
     renderScoreInput,
     showCorrectAnswers = false,
+    isEditMode = false,
 }) => {
     return (
         <div className="space-y-6">
@@ -71,13 +71,11 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                             )}
                         </QuestionReadOnlySection>
 
-                        {/* Affichage du feedback du professeur */}
-                        {result.feedback && (
+                        {result.feedback && !isEditMode && (
                             <AlertEntry title={result.feedback} type="info" />
                         )}
 
-                        {/* Interface de notation (seulement en mode correction) */}
-                        {renderScoreInput && renderScoreInput(question)}
+                        {renderScoreInput && isEditMode && renderScoreInput(question)}
                     </div>
                 );
             })}
