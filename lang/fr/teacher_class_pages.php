@@ -67,5 +67,16 @@ return [
         'no_subjects_found_description' => 'Aucune matière ne correspond à vos critères de recherche.',
         'no_assessments_found' => 'Aucune évaluation trouvée',
         'no_assessments_found_description' => 'Aucune évaluation ne correspond à vos critères de recherche.',
+
+        'students_section_title' => 'Etudiants Inscrits',
+        'students_section_subtitle' => ':count etudiant(s) dans cette classe',
+        'student_name' => 'Etudiant',
+        'student_email' => 'Email',
+        'enrolled_at' => 'Inscrit le',
+        'no_students' => 'Aucun etudiant inscrit',
+        'no_students_description' => 'Aucun etudiant n\'est inscrit dans cette classe.',
+        'search_students' => 'Rechercher des etudiants...',
+        'no_students_found' => 'Aucun etudiant trouve',
+        'no_students_found_description' => 'Aucun etudiant ne correspond a vos criteres de recherche.',
     ],
 ];

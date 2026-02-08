@@ -1,21 +1,24 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { ClassModel, Enrollment, ClassSubject, Assessment, PageProps } from '@/types';
+import { ClassModel, Enrollment, ClassSubject, Assessment, PageProps, User } from '@/types';
 import { DataTableConfig, PaginationType } from '@/types/datatable';
-import { breadcrumbs, trans } from '@/utils';
+import { breadcrumbs, trans, formatDate } from '@/utils';
 import { Button, Section, Badge, DataTable } from '@/Components';
 import { route } from 'ziggy-js';
 import { AcademicCapIcon, UserGroupIcon, BookOpenIcon, CalendarIcon } from '@heroicons/react/24/outline';
 
-interface Props extends PageProps {
-  class: ClassModel & {
-    enrollments?: Enrollment[];
-  };
-  subjects: PaginationType<ClassSubject>;
-  assessments: PaginationType<Assessment>;
+interface EnrollmentWithStudent extends Enrollment {
+  student?: User;
 }
 
-export default function TeacherClassShow({ class: classItem, subjects, assessments }: Props) {
+interface Props extends PageProps {
+  class: ClassModel;
+  subjects: PaginationType<ClassSubject>;
+  assessments: PaginationType<Assessment>;
+  students: PaginationType<EnrollmentWithStudent>;
+}
+
+export default function TeacherClassShow({ class: classItem, subjects, assessments, students }: Props) {
   const handleBack = () => {
     router.visit(route('teacher.classes.index'));
   };
@@ -32,8 +35,8 @@ export default function TeacherClassShow({ class: classItem, subjects, assessmen
     router.visit(route('teacher.assessments.show', assessment.id));
   };
 
-  const activeEnrollments = classItem.enrollments || [];
   const mySubjectsCount = subjects.total;
+  const studentsCount = students.total;
 
   const subjectsTableConfig: DataTableConfig<ClassSubject> = {
     columns: [
@@ -175,7 +178,40 @@ export default function TeacherClassShow({ class: classItem, subjects, assessmen
     },
   };
 
-
+  const studentsTableConfig: DataTableConfig<EnrollmentWithStudent> = {
+    columns: [
+      {
+        key: 'student',
+        label: trans('teacher_class_pages.show.student_name'),
+        render: (enrollment) => (
+          <div>
+            <div className="font-medium text-gray-900">{enrollment.student?.name}</div>
+            <div className="text-sm text-gray-500">{enrollment.student?.email}</div>
+          </div>
+        ),
+      },
+      {
+        key: 'enrolled_at',
+        label: trans('teacher_class_pages.show.enrolled_at'),
+        render: (enrollment) => (
+          <span className="text-sm text-gray-600">
+            {enrollment.enrolled_at ? formatDate(enrollment.enrolled_at, 'short') : '-'}
+          </span>
+        ),
+      },
+    ],
+    searchPlaceholder: trans('teacher_class_pages.show.search_students'),
+    perPageOptions: [10, 25, 50],
+    emptyState: {
+      title: trans('teacher_class_pages.show.no_students'),
+      subtitle: trans('teacher_class_pages.show.no_students_description'),
+    },
+    emptySearchState: {
+      title: trans('teacher_class_pages.show.no_students_found'),
+      subtitle: trans('teacher_class_pages.show.no_students_found_description'),
+      resetLabel: trans('teacher_class_pages.index.reset_search'),
+    },
+  };
 
   return (
     <AuthenticatedLayout
@@ -229,7 +265,7 @@ export default function TeacherClassShow({ class: classItem, subjects, assessmen
                   {trans('teacher_class_pages.show.students')}
                 </div>
                 <div className="mt-1 text-sm font-semibold text-gray-900">
-                  {activeEnrollments.length}
+                  {studentsCount}
                 </div>
               </div>
             </div>
@@ -267,6 +303,13 @@ export default function TeacherClassShow({ class: classItem, subjects, assessmen
           }
         >
           <DataTable data={assessments} config={assessmentsTableConfig} />
+        </Section>
+
+        <Section
+          title={trans('teacher_class_pages.show.students_section_title')}
+          subtitle={trans('teacher_class_pages.show.students_section_subtitle', { count: students.total })}
+        >
+          <DataTable data={students} config={studentsTableConfig} />
         </Section>
       </div>
     </AuthenticatedLayout>

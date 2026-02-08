@@ -111,6 +111,30 @@ class TeacherClassQueryService
     }
 
     /**
+     * Get students enrolled in a class with pagination and filtering.
+     */
+    public function getStudentsForClass(
+        ClassModel $class,
+        array $filters,
+        int $perPage
+    ): LengthAwarePaginator {
+        return \App\Models\Enrollment::where('class_id', $class->id)
+            ->where('status', 'active')
+            ->with('student')
+            ->when(
+                $filters['students_search'] ?? null,
+                fn($query, $search) => $query->whereHas(
+                    'student',
+                    fn($q) => $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                )
+            )
+            ->latest('enrolled_at')
+            ->paginate($perPage, ['*'], 'students_page')
+            ->withQueryString();
+    }
+
+    /**
      * Validate that the class belongs to the selected academic year.
      */
     public function validateAcademicYearAccess(ClassModel $class, int $selectedYearId): void

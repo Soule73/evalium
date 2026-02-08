@@ -67,5 +67,16 @@ return [
         'no_subjects_found_description' => 'No subjects match your search criteria.',
         'no_assessments_found' => 'No assessments found',
         'no_assessments_found_description' => 'No assessments match your search criteria.',
+
+        'students_section_title' => 'Enrolled Students',
+        'students_section_subtitle' => ':count student(s) in this class',
+        'student_name' => 'Student',
+        'student_email' => 'Email',
+        'enrolled_at' => 'Enrolled',
+        'no_students' => 'No students enrolled',
+        'no_students_description' => 'No students are enrolled in this class yet.',
+        'search_students' => 'Search students...',
+        'no_students_found' => 'No students found',
+        'no_students_found_description' => 'No students match your search criteria.',
     ],
 ];

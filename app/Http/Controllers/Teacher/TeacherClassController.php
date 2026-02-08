@@ -50,12 +50,14 @@ class TeacherClassController extends Controller
         $selectedYearId = $this->getSelectedAcademicYearId($request);
         $perPageSubjects = (int) $request->input('subjects_per_page', 10);
         $perPageAssessments = (int) $request->input('assessments_per_page', 10);
+        $perPageStudents = (int) $request->input('students_per_page', 10);
 
         $this->classQueryService->validateAcademicYearAccess($class, $selectedYearId);
 
         $filters = [
             'subjects_search' => $request->input('subjects_search'),
             'assessments_search' => $request->input('assessments_search'),
+            'students_search' => $request->input('students_search'),
         ];
 
         $classSubjects = $this->classQueryService->getSubjectsForClass(
@@ -72,16 +74,22 @@ class TeacherClassController extends Controller
             $perPageAssessments
         );
 
+        $students = $this->classQueryService->getStudentsForClass(
+            $class,
+            $filters,
+            $perPageStudents
+        );
+
         $class->load([
             'academicYear',
             'level',
-            'enrollments' => fn($q) => $q->where('status', 'active'),
         ]);
 
         return Inertia::render('Teacher/Classes/Show', [
             'class' => $class,
             'subjects' => $classSubjects,
             'assessments' => $assessments,
+            'students' => $students,
             'filters' => $filters,
         ]);
     }
