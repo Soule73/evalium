@@ -98,6 +98,9 @@ return [
         'attention' => 'ATTENTION',
         'question_number' => 'Question :number',
         'points' => ':points points',
+        'previous_question' => 'Précédent',
+        'next_question' => 'Suivant',
+        'question_progress' => 'Question :current sur :total',
     ],
 
     // Student Assessments - Results

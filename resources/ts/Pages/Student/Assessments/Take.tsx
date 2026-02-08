@@ -1,4 +1,5 @@
 import { Head } from '@inertiajs/react';
+import { useMemo } from 'react';
 import {
   AlertEntry,
   AlertSecurityViolation,
@@ -6,13 +7,14 @@ import {
   CanNotTakeAssessment,
   ConfirmationModal,
   FullscreenModal,
+  QuestionNavigation,
   Section,
   TakeQuestion,
   TextEntry,
 } from '@/Components';
 import { Answer, Assessment, AssessmentAssignment, Question } from '@/types';
 import { ExclamationCircleIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
-import { useTakeAssessment } from '@/hooks/features/assessment';
+import { useTakeAssessment, useQuestionNavigation } from '@/hooks/features/assessment';
 import { formatTime, trans } from '@/utils';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -34,6 +36,7 @@ function Take({ assessment, assignment, questions = [], userAnswers = [] }: Take
     assessmentTerminated,
     terminationReason,
     showFullscreenModal,
+    shuffledQuestionIds,
   } = useAssessmentTakeStore(
     useShallow((state) => ({
       answers: state.answers,
@@ -44,8 +47,33 @@ function Take({ assessment, assignment, questions = [], userAnswers = [] }: Take
       assessmentTerminated: state.assessmentTerminated,
       terminationReason: state.terminationReason,
       showFullscreenModal: state.showFullscreenModal,
+      shuffledQuestionIds: state.shuffledQuestionIds,
     }))
   );
+
+  const {
+    displayedQuestions,
+    currentQuestionIndex,
+    totalQuestions,
+    isFirstQuestion,
+    isLastQuestion,
+    handleNextQuestion,
+    handlePreviousQuestion,
+    goToQuestion,
+    oneQuestionPerPage,
+  } = useQuestionNavigation({
+    questions,
+    shuffleEnabled: assessment.shuffle_questions ?? false,
+    oneQuestionPerPage: assessment.one_question_per_page ?? false,
+  });
+
+  const answeredQuestionIds = useMemo(() => {
+    return new Set(Object.keys(answers).map(Number).filter((id) => {
+      const answer = answers[id];
+      if (Array.isArray(answer)) return answer.length > 0;
+      return answer !== undefined && answer !== '' && answer !== null;
+    }));
+  }, [answers]);
 
   const translations = {
     title: trans('student_assessment_pages.take.title', { assessment: assessment.title }),
@@ -153,9 +181,23 @@ function Take({ assessment, assignment, questions = [], userAnswers = [] }: Take
             </AlertEntry>
           </Section>
 
+          {assessmentCanStart && oneQuestionPerPage && displayedQuestions.length > 0 && (
+            <QuestionNavigation
+              currentIndex={currentQuestionIndex}
+              totalQuestions={totalQuestions}
+              isFirstQuestion={isFirstQuestion}
+              isLastQuestion={isLastQuestion}
+              onPrevious={handlePreviousQuestion}
+              onNext={handleNextQuestion}
+              onGoToQuestion={goToQuestion}
+              answeredQuestions={answeredQuestionIds}
+              questionIds={shuffledQuestionIds}
+            />
+          )}
+
           {assessmentCanStart &&
-            questions.length > 0 &&
-            questions.map((currentQ) => (
+            displayedQuestions.length > 0 &&
+            displayedQuestions.map((currentQ) => (
               <TakeQuestion
                 key={currentQ.id}
                 question={currentQ}
@@ -163,6 +205,27 @@ function Take({ assessment, assignment, questions = [], userAnswers = [] }: Take
                 onAnswerChange={handleAnswerChange}
               />
             ))}
+
+          {assessmentCanStart && oneQuestionPerPage && displayedQuestions.length > 0 && (
+            <div className="flex justify-between mt-6">
+              <Button
+                size="sm"
+                color="secondary"
+                onClick={handlePreviousQuestion}
+                disabled={isFirstQuestion}
+              >
+                {trans('student_assessment_pages.take.previous_question')}
+              </Button>
+              <Button
+                size="sm"
+                color="secondary"
+                onClick={handleNextQuestion}
+                disabled={isLastQuestion}
+              >
+                {trans('student_assessment_pages.take.next_question')}
+              </Button>
+            </div>
+          )}
 
           {!assessmentCanStart && (
             <Section title={translations.fullscreenActivationTitle} collapsible={false}>

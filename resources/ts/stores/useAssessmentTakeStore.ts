@@ -10,6 +10,8 @@ interface AssessmentTakeState {
   showConfirmModal: boolean;
   showFullscreenModal: boolean;
   assessmentCanStart: boolean;
+  currentQuestionIndex: number;
+  shuffledQuestionIds: number[];
 }
 
 interface AssessmentTakeActions {
@@ -21,6 +23,10 @@ interface AssessmentTakeActions {
   setShowConfirmModal: (show: boolean) => void;
   setShowFullscreenModal: (show: boolean) => void;
   setAssessmentCanStart: (canStart: boolean) => void;
+  setCurrentQuestionIndex: (index: number) => void;
+  setShuffledQuestionIds: (ids: number[]) => void;
+  goToNextQuestion: (totalQuestions: number) => void;
+  goToPreviousQuestion: () => void;
   reset: () => void;
 }
 
@@ -33,6 +39,8 @@ const initialState: AssessmentTakeState = {
   showConfirmModal: false,
   showFullscreenModal: false,
   assessmentCanStart: false,
+  currentQuestionIndex: 0,
+  shuffledQuestionIds: [],
 };
 
 export const useAssessmentTakeStore = create<AssessmentTakeState & AssessmentTakeActions>()(
@@ -70,6 +78,26 @@ export const useAssessmentTakeStore = create<AssessmentTakeState & AssessmentTak
 
     setAssessmentCanStart: (canStart) => set((state) => {
       state.assessmentCanStart = canStart;
+    }),
+
+    setCurrentQuestionIndex: (index) => set((state) => {
+      state.currentQuestionIndex = index;
+    }),
+
+    setShuffledQuestionIds: (ids) => set((state) => {
+      state.shuffledQuestionIds = ids;
+    }),
+
+    goToNextQuestion: (totalQuestions) => set((state) => {
+      if (state.currentQuestionIndex < totalQuestions - 1) {
+        state.currentQuestionIndex += 1;
+      }
+    }),
+
+    goToPreviousQuestion: () => set((state) => {
+      if (state.currentQuestionIndex > 0) {
+        state.currentQuestionIndex -= 1;
+      }
     }),
 
     reset: () => set(initialState),

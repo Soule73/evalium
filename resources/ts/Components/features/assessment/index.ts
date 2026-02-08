@@ -3,6 +3,7 @@ export * from './AssessmentHeader';
 export * from './AssessmentInfoSection';
 export * from './FullscreenModal';
 export * from './questionOptions';
+export * from './QuestionNavigation';
 export * from './QuestionReadOnlySection';
 export * from './QuestionRenderer';
 export * from './QuestionResultReadOnly';
