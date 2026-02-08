@@ -68,7 +68,7 @@ class AssessmentService
                 'duration_minutes' => $data['duration_minutes'] ?? null,
                 'scheduled_at' => $data['scheduled_at'] ?? null,
                 'is_published' => $data['is_published'] ?? null,
-            ], fn ($value) => $value !== null);
+            ], fn($value) => $value !== null);
 
             if (isset($data['coefficient']) && $data['coefficient'] <= 0) {
                 throw AssessmentException::invalidCoefficient();
@@ -132,7 +132,8 @@ class AssessmentService
      */
     public function publishAssessment(Assessment $assessment): Assessment
     {
-        $assessment->update(['is_published' => true]);
+        $assessment->is_published = true;
+        $assessment->save();
 
         return $assessment->fresh();
     }
@@ -142,7 +143,8 @@ class AssessmentService
      */
     public function unpublishAssessment(Assessment $assessment): Assessment
     {
-        $assessment->update(['is_published' => false]);
+        $assessment->is_published = false;
+        $assessment->save();
 
         return $assessment->fresh();
     }
@@ -154,7 +156,7 @@ class AssessmentService
     {
         return DB::transaction(function () use ($assessment, $overrides) {
             $newAssessment = $assessment->replicate();
-            $newAssessment->title = $overrides['title'] ?? ($assessment->title.' (Copy)');
+            $newAssessment->title = $overrides['title'] ?? ($assessment->title . ' (Copy)');
             $newAssessment->is_published = false;
             $newAssessment->scheduled_at = $overrides['scheduled_at'] ?? null;
             $newAssessment->save();

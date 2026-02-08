@@ -118,7 +118,9 @@ class Assessment extends Model
      */
     public function getIsPublishedAttribute(): bool
     {
-        return $this->settings['is_published'] ?? false;
+        $settings = $this->settings ?? [];
+
+        return $settings['is_published'] ?? false;
     }
 
     /**
