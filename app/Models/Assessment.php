@@ -216,4 +216,52 @@ class Assessment extends Model
         $settings['one_question_per_page'] = $value;
         $this->settings = $settings;
     }
+
+    /**
+     * Check if the assessment is available for students to take.
+     *
+     * @return array{available: bool, reason: string|null}
+     */
+    public function getAvailabilityStatus(): array
+    {
+        if (! $this->is_published) {
+            return ['available' => false, 'reason' => 'assessment_not_published'];
+        }
+
+        $now = now();
+
+        if ($this->scheduled_at && $now->lt($this->scheduled_at)) {
+            return ['available' => false, 'reason' => 'assessment_not_started'];
+        }
+
+        if ($this->scheduled_at && $this->duration_minutes) {
+            $endsAt = $this->scheduled_at->addMinutes($this->duration_minutes);
+
+            if ($now->gt($endsAt) && ! $this->allow_late_submission) {
+                return ['available' => false, 'reason' => 'assessment_ended'];
+            }
+        }
+
+        return ['available' => true, 'reason' => null];
+    }
+
+    /**
+     * Check if the assessment is available to take.
+     */
+    public function isAvailableToTake(): bool
+    {
+        return $this->getAvailabilityStatus()['available'];
+    }
+
+    /**
+     * Get the end time for this assessment.
+     */
+    public function getEndsAtAttribute(): ?\Carbon\Carbon
+    {
+        if (! $this->scheduled_at || ! $this->duration_minutes) {
+            return null;
+        }
+
+        return $this->scheduled_at->copy()->addMinutes($this->duration_minutes);
+    }
 }

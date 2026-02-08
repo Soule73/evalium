@@ -21,12 +21,15 @@ class AssessmentAssignment extends Model
         'graded_at',
         'score',
         'teacher_notes',
+        'forced_submission',
+        'security_violation',
     ];
 
     protected $casts = [
         'submitted_at' => 'datetime',
         'graded_at' => 'datetime',
         'score' => 'decimal:2',
+        'forced_submission' => 'boolean',
     ];
 
     /**

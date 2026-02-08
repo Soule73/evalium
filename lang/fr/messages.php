@@ -17,6 +17,9 @@ return [
     'assessment_not_accessible' => 'Cette évaluation n\'est pas accessible pour le moment',
     'assessment_not_found_or_submitted' => 'Évaluation introuvable ou déjà soumise',
     'assessment_already_completed' => 'Vous avez déjà terminé cette évaluation',
+    'assessment_not_published' => 'Cette évaluation n\'est pas encore publiée',
+    'assessment_not_started' => 'Cette évaluation n\'a pas encore commencé',
+    'assessment_ended' => 'Cette évaluation est terminée',
 
     // Roles & Permissions
     'role_created' => 'Le rôle a été créé avec succès',

@@ -292,6 +292,7 @@ Route::middleware('auth')->group(function () {
                     Route::get('/{assessment}/take', 'take')->name('take');
                     Route::post('/{assessment}/save-answers', 'saveAnswers')->name('save-answers');
                     Route::post('/{assessment}/submit', 'submit')->name('submit');
+                    Route::post('/{assessment}/security-violation', 'securityViolation')->name('security-violation');
                     Route::get('/{assessment}/results', 'results')->name('results');
                 });
 

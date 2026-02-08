@@ -17,6 +17,9 @@ return [
     'assessment_not_accessible' => 'This assessment is not accessible at this time',
     'assessment_not_found_or_submitted' => 'Assessment not found or already submitted',
     'assessment_already_completed' => 'You have already completed this assessment',
+    'assessment_not_published' => 'This assessment is not published yet',
+    'assessment_not_started' => 'This assessment has not started yet',
+    'assessment_ended' => 'This assessment has ended',
 
     // Roles & Permissions
     'role_created' => 'Role created successfully',

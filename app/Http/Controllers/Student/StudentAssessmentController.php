@@ -88,6 +88,12 @@ class StudentAssessmentController extends Controller
             'You cannot access this assessment.'
         );
 
+        $availability = $assessment->getAvailabilityStatus();
+
+        if (! $availability['available']) {
+            return back()->with('error', __('messages.' . $availability['reason']));
+        }
+
         return redirect()->route('student.assessments.take', $assessment);
     }
 
@@ -106,16 +112,24 @@ class StudentAssessmentController extends Controller
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
+        if ($assignment->submitted_at) {
+            return redirect()->route('student.assessments.show', $assessment);
+        }
+
+        $availability = $assessment->getAvailabilityStatus();
+
+        if (! $availability['available']) {
+            return redirect()
+                ->route('student.assessments.show', $assessment)
+                ->with('error', __('messages.' . $availability['reason']));
+        }
+
         $assignment->load([
             'assessment.classSubject.class',
             'assessment.classSubject.subject',
             'assessment.questions.choices',
             'answers',
         ]);
-
-        if ($assignment->submitted_at) {
-            return redirect()->route('student.assessments.show', $assessment);
-        }
 
         return Inertia::render('Student/Assessments/Take', [
             'assignment' => $assignment,
@@ -198,5 +212,38 @@ class StudentAssessmentController extends Controller
             'assessment' => $assessment,
             'userAnswers' => $userAnswers,
         ]);
+    }
+
+    /**
+     * Handle security violation during assessment.
+     */
+    public function securityViolation(Request $request, Assessment $assessment)
+    {
+        $student = Auth::user();
+
+        $request->validate([
+            'violation_type' => ['required', 'string'],
+            'violation_details' => ['nullable', 'string'],
+            'answers' => ['nullable', 'array'],
+        ]);
+
+        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
+
+        if ($assignment->submitted_at) {
+            return response()->json(['message' => 'Assessment already submitted'], 400);
+        }
+
+        if ($request->has('answers')) {
+            $this->assessmentService->saveAnswers($assignment, $request->input('answers', []));
+        }
+
+        $this->assessmentService->terminateForViolation(
+            $assignment,
+            $assessment,
+            $request->input('violation_type'),
+            $request->input('violation_details')
+        );
+
+        return response()->json(['message' => 'Security violation recorded']);
     }
 }

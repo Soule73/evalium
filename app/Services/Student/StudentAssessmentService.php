@@ -103,6 +103,36 @@ class StudentAssessmentService
     }
 
     /**
+     * Terminate an assessment due to security violation
+     *
+     * @param  AssessmentAssignment  $assignment  The assignment
+     * @param  Assessment  $assessment  The assessment
+     * @param  string  $violationType  Type of violation (e.g., 'tab_switch', 'fullscreen_exit')
+     * @param  string|null  $violationDetails  Additional details about the violation
+     * @return bool Success status
+     */
+    public function terminateForViolation(
+        AssessmentAssignment $assignment,
+        Assessment $assessment,
+        string $violationType,
+        ?string $violationDetails = null
+    ): bool {
+        if ($assignment->submitted_at) {
+            return false;
+        }
+
+        $this->autoScoreAssessment($assignment, $assessment);
+
+        $assignment->update([
+            'submitted_at' => now(),
+            'forced_submission' => true,
+            'security_violation' => $violationType . ($violationDetails ? ': ' . $violationDetails : ''),
+        ]);
+
+        return true;
+    }
+
+    /**
      * Auto-score non-text questions and set graded_at if all questions are auto-gradable
      *
      * @param  AssessmentAssignment  $assignment  The assignment
@@ -151,7 +181,7 @@ class StudentAssessmentService
      */
     public function getAssessmentStatus(?AssessmentAssignment $assignment): string
     {
-        if (! $assignment || ! $assignment->exists) {
+        if (! $assignment) {
             return 'not_submitted';
         }
 
