@@ -1,41 +1,58 @@
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { Subject, ClassSubject, Level } from '@/types';
+import { Subject, ClassSubject, Level, ClassModel } from '@/types';
 import { Badge } from '@examena/ui';
 import { trans } from '@/utils';
 import type { EntityListConfig } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';
 
+interface TeacherSubject extends Subject {
+  classes?: ClassModel[];
+  classes_count?: number;
+  assessments_count?: number;
+}
+
 interface SubjectListProps {
-  data: PaginationType<Subject | ClassSubject>;
-  variant?: 'admin' | 'class-assignment';
+  data: PaginationType<Subject | ClassSubject | TeacherSubject>;
+  variant?: 'admin' | 'teacher' | 'class-assignment';
   levels?: Level[];
-  onView?: (item: Subject) => void;
+  classes?: ClassModel[];
+  onView?: (item: Subject | TeacherSubject) => void;
   onClassClick?: (classSubject: ClassSubject) => void;
 }
 
 /**
  * Unified SubjectList component for displaying subjects and class-subject assignments
  *
- * Supports two variants:
+ * Supports three variants:
  * - admin: Shows subjects with code, name, level, class count (Subject type)
+ * - teacher: Shows subjects with name/code, classes badges, assessments count (TeacherSubject type)
  * - class-assignment: Shows class-subject assignments with class, teacher, coefficient (ClassSubject type)
  */
 export function SubjectList({
   data,
   variant = 'admin',
   levels = [],
+  classes = [],
   onView,
   onClassClick,
 }: SubjectListProps) {
-  type SubjectItem = Subject | ClassSubject;
+  type SubjectItem = Subject | ClassSubject | TeacherSubject;
 
   const levelFilterOptions = [
     { value: '', label: trans('admin_pages.subjects.all_levels') },
     ...levels.map((level) => ({
       value: level.id,
       label: level.name,
+    })),
+  ];
+
+  const classFilterOptions = [
+    { value: '', label: trans('teacher_subject_pages.index.all_classes') },
+    ...classes.map((cls) => ({
+      value: cls.id,
+      label: cls.name,
     })),
   ];
 
@@ -49,6 +66,13 @@ export function SubjectList({
         type: 'select',
         options: levelFilterOptions,
         conditional: (v) => v === 'admin',
+      },
+      {
+        key: 'class_id',
+        labelKey: 'teacher_subject_pages.index.filter_class',
+        type: 'select',
+        options: classFilterOptions,
+        conditional: (v) => v === 'teacher',
       },
     ],
 
@@ -115,6 +139,54 @@ export function SubjectList({
       },
 
       {
+        key: 'teacher_name',
+        labelKey: 'teacher_subject_pages.index.subject',
+        render: (item) => {
+          const subject = item as TeacherSubject;
+          return (
+            <div>
+              <div className="font-medium text-gray-900">{subject.name}</div>
+              <div className="text-sm text-gray-500">{subject.code}</div>
+            </div>
+          );
+        },
+        conditional: (v) => v === 'teacher',
+      },
+
+      {
+        key: 'teacher_classes',
+        labelKey: 'teacher_subject_pages.index.classes',
+        render: (item) => {
+          const subject = item as TeacherSubject;
+          const subjectClasses = subject.classes || [];
+          const classesCount = subject.classes_count || subjectClasses.length;
+          return (
+            <div className="flex flex-wrap gap-1">
+              {subjectClasses.slice(0, 3).map((cls) => (
+                <Badge key={cls.id} label={cls.name} type="info" size="sm" />
+              ))}
+              {classesCount > 3 && (
+                <Badge label={`+${classesCount - 3}`} type="gray" size="sm" />
+              )}
+            </div>
+          );
+        },
+        conditional: (v) => v === 'teacher',
+      },
+
+      {
+        key: 'teacher_assessments',
+        labelKey: 'teacher_subject_pages.index.assessments',
+        render: (item) => {
+          const subject = item as TeacherSubject;
+          return (
+            <Badge label={String(subject.assessments_count || 0)} type="success" size="sm" />
+          );
+        },
+        conditional: (v) => v === 'teacher',
+      },
+
+      {
         key: 'class',
         labelKey: 'admin_pages.subjects.class',
         render: (item) => {
@@ -166,11 +238,14 @@ export function SubjectList({
 
     actions: [
       {
-        labelKey: 'admin_pages.common.view',
+        labelKey: variant === 'teacher' ? 'teacher_subject_pages.index.view' : 'admin_pages.common.view',
         onClick: (item) => {
           if (variant === 'admin') {
             const subject = item as Subject;
             return onView?.(subject) || router.visit(route('admin.subjects.show', subject.id));
+          } else if (variant === 'teacher') {
+            const subject = item as TeacherSubject;
+            return onView?.(subject) || router.visit(route('teacher.subjects.show', subject.id));
           } else {
             const classSubject = item as ClassSubject;
             if (classSubject.class) {
