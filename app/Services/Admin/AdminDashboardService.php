@@ -2,6 +2,9 @@
 
 namespace App\Services\Admin;
 
+use App\Models\ClassModel;
+use App\Models\ClassSubject;
+use App\Models\Enrollment;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -15,8 +18,8 @@ class AdminDashboardService
     /**
      * Get admin dashboard statistics with optimized single query
      *
-     * @param  int|null  $academicYearId  Optional academic year filter
-     * @return array Statistics with user counts by role
+     * @param  int|null  $academicYearId  Academic year filter
+     * @return array Statistics with user counts by role and academic year data
      */
     public function getDashboardStats(?int $academicYearId = null): array
     {
@@ -35,11 +38,24 @@ class AdminDashboardService
             ')
             ->first();
 
+        $classesCount = 0;
+        $enrollmentsCount = 0;
+        $classSubjectsCount = 0;
+
+        if ($academicYearId) {
+            $classesCount = ClassModel::forAcademicYear($academicYearId)->count();
+            $enrollmentsCount = Enrollment::forAcademicYear($academicYearId)->count();
+            $classSubjectsCount = ClassSubject::forAcademicYear($academicYearId)->count();
+        }
+
         return [
             'totalUsers' => $userCounts->total_users ?? 0,
             'studentsCount' => $userCounts->students_count ?? 0,
             'teachersCount' => $userCounts->teachers_count ?? 0,
             'adminsCount' => $userCounts->admins_count ?? 0,
+            'classesCount' => $classesCount,
+            'enrollmentsCount' => $enrollmentsCount,
+            'classSubjectsCount' => $classSubjectsCount,
         ];
     }
 

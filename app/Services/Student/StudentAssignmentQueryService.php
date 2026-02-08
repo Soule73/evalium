@@ -19,17 +19,23 @@ class StudentAssignmentQueryService
      * Get lightweight assignments for a student (without heavy relationships)
      *
      * @param  User  $student  The student user
-     * @param  array  $filters  Optional filters (status, search, etc.)
+     * @param  array  $filters  Optional filters (status, search, academic_year_id, etc.)
      * @return Collection Collection of assignments
      */
     public function getAssignmentsForStudentLight(User $student, array $filters = []): Collection
     {
         $query = AssessmentAssignment::where('student_id', $student->id)
             ->with([
-                'assessment:id,title,subject,duration,total_points',
+                'assessment:id,title,subject,duration,total_points,class_subject_id',
                 'assessment.teacher:id,name',
             ])
             ->orderBy('created_at', 'desc');
+
+        if (isset($filters['academic_year_id']) && $filters['academic_year_id']) {
+            $query->whereHas('assessment.classSubject.class', function ($q) use ($filters) {
+                $q->where('academic_year_id', $filters['academic_year_id']);
+            });
+        }
 
         if (isset($filters['status'])) {
             $this->applyStatusFilter($query, $filters['status']);
@@ -37,8 +43,8 @@ class StudentAssignmentQueryService
 
         if (isset($filters['search']) && $filters['search']) {
             $query->whereHas('assessment', function ($q) use ($filters) {
-                $q->where('title', 'like', '%'.$filters['search'].'%')
-                    ->orWhere('subject', 'like', '%'.$filters['search'].'%');
+                $q->where('title', 'like', '%' . $filters['search'] . '%')
+                    ->orWhere('subject', 'like', '%' . $filters['search'] . '%');
             });
         }
 
@@ -49,7 +55,7 @@ class StudentAssignmentQueryService
      * Get paginated lightweight assignments for a student (without heavy relationships)
      *
      * @param  User  $student  The student user
-     * @param  array  $filters  Optional filters (status, search, etc.)
+     * @param  array  $filters  Optional filters (status, search, academic_year_id, etc.)
      * @param  int  $perPage  Number of items per page
      * @return LengthAwarePaginator Paginated assignments
      */
@@ -57,10 +63,16 @@ class StudentAssignmentQueryService
     {
         $query = AssessmentAssignment::where('student_id', $student->id)
             ->with([
-                'assessment:id,title,subject,duration,total_points',
+                'assessment:id,title,subject,duration,total_points,class_subject_id',
                 'assessment.teacher:id,name',
             ])
             ->orderBy('created_at', 'desc');
+
+        if (isset($filters['academic_year_id']) && $filters['academic_year_id']) {
+            $query->whereHas('assessment.classSubject.class', function ($q) use ($filters) {
+                $q->where('academic_year_id', $filters['academic_year_id']);
+            });
+        }
 
         if (isset($filters['status'])) {
             $this->applyStatusFilter($query, $filters['status']);
@@ -68,8 +80,8 @@ class StudentAssignmentQueryService
 
         if (isset($filters['search']) && $filters['search']) {
             $query->whereHas('assessment', function ($q) use ($filters) {
-                $q->where('title', 'like', '%'.$filters['search'].'%')
-                    ->orWhere('subject', 'like', '%'.$filters['search'].'%');
+                $q->where('title', 'like', '%' . $filters['search'] . '%')
+                    ->orWhere('subject', 'like', '%' . $filters['search'] . '%');
             });
         }
 

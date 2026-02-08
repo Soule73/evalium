@@ -25,24 +25,28 @@ class StudentDashboardService
      * Get comprehensive dashboard statistics for a student
      *
      * @param  User  $student  The student
+     * @param  int|null  $academicYearId  Academic year filter
      * @return array Dashboard statistics
      */
-    public function getDashboardStats(User $student): array
+    public function getDashboardStats(User $student, ?int $academicYearId = null): array
     {
-        $assignments = $this->studentAssignmentQueryService->getAssignmentsForStudentLight($student);
+        $filters = $academicYearId ? ['academic_year_id' => $academicYearId] : [];
+        $assignments = $this->studentAssignmentQueryService->getAssignmentsForStudentLight($student, $filters);
 
         $studentProgress = $this->assessmentStatsService->calculateStudentProgress($student);
 
-        $activeClasses = $student->classes()
-            ->wherePivot('status', 'active')
-            ->count();
+        $activeClassesQuery = $student->classes()->wherePivot('status', 'active');
+        if ($academicYearId) {
+            $activeClassesQuery->where('classes.academic_year_id', $academicYearId);
+        }
+        $activeClasses = $activeClassesQuery->count();
 
         $upcomingAssessments = $assignments
-            ->filter(fn ($assignment) => $assignment->submitted_at === null)
+            ->filter(fn($assignment) => $assignment->submitted_at === null)
             ->take(5);
 
         $recentAssessments = $assignments
-            ->filter(fn ($assignment) => $assignment->submitted_at !== null)
+            ->filter(fn($assignment) => $assignment->submitted_at !== null)
             ->sortByDesc('submitted_at')
             ->take(5);
 
@@ -55,14 +59,14 @@ class StudentDashboardService
         })->count();
 
         return [
-            'totalAssessments' => $studentProgress['total_assessments'],
+            'totalAssessments' => $assignments->count(),
             'completedAssessments' => $studentProgress['completed_assessments'],
             'pendingAssessments' => $notSubmitted,
             'submittedAssessments' => $submitted,
             'averageScore' => $studentProgress['average_score'],
-            'completionRate' => $studentProgress['total_assessments'] > 0
-              ? round(($studentProgress['completed_assessments'] / $studentProgress['total_assessments']) * 100, 2)
-              : 0.0,
+            'completionRate' => $assignments->count() > 0
+                ? round(($studentProgress['completed_assessments'] / $assignments->count()) * 100, 2)
+                : 0.0,
             'activeClasses' => $activeClasses,
             'upcomingAssessments' => $upcomingAssessments->values()->toArray(),
             'recentAssessments' => $recentAssessments->values()->toArray(),
@@ -95,7 +99,7 @@ class StudentDashboardService
 
         $scores = $gradedAssignments->pluck('score');
         $passingThreshold = 50;
-        $passingCount = $scores->filter(fn ($score) => $score >= $passingThreshold)->count();
+        $passingCount = $scores->filter(fn($score) => $score >= $passingThreshold)->count();
 
         return [
             'totalGraded' => $gradedAssignments->count(),
@@ -103,8 +107,8 @@ class StudentDashboardService
             'highestScore' => round($scores->max(), 2),
             'lowestScore' => round($scores->min(), 2),
             'passingRate' => $gradedAssignments->count() > 0
-              ? round(($passingCount / $gradedAssignments->count()) * 100, 2)
-              : 0,
+                ? round(($passingCount / $gradedAssignments->count()) * 100, 2)
+                : 0,
         ];
     }
 
@@ -245,8 +249,8 @@ class StudentDashboardService
             });
 
             $averageScore = $gradedAssignments->isEmpty()
-              ? null
-              : round($gradedAssignments->pluck('score')->avg(), 2);
+                ? null
+                : round($gradedAssignments->pluck('score')->avg(), 2);
 
             return [
                 'classId' => $class->id,
@@ -255,8 +259,8 @@ class StudentDashboardService
                 'completedAssessments' => $completedAssignments->count(),
                 'averageScore' => $averageScore,
                 'completionRate' => $classAssessmentIds->count() > 0
-                  ? round(($completedAssignments->count() / $classAssessmentIds->count()) * 100, 2)
-                  : 0,
+                    ? round(($completedAssignments->count() / $classAssessmentIds->count()) * 100, 2)
+                    : 0,
             ];
         })->toArray();
     }
