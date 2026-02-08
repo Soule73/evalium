@@ -46,20 +46,20 @@ export function UserList({
 
   const handleViewUser = (userId: number, role: string) => {
     if (role === 'student') {
-      router.visit(route('users.show.student', { user: userId }));
+      router.visit(route('admin.users.show.student', { user: userId }));
     } else if (role === 'teacher') {
-      router.visit(route('users.show.teacher', { user: userId }));
+      router.visit(route('admin.users.show.teacher', { user: userId }));
     }
   };
 
   const handleToggleStatus = (userId: number) => {
-    router.patch(route('users.toggle-status', { user: userId }), {}, {
+    router.patch(route('admin.users.toggle-status', { user: userId }), {}, {
       preserveScroll: true,
     });
   };
 
   const handleRestoreUser = (userId: number) => {
-    router.post(route('users.restore', { id: userId }), {}, {
+    router.post(route('admin.users.restore', { id: userId }), {}, {
       preserveScroll: true,
     });
   };

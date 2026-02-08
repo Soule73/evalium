@@ -1,7 +1,7 @@
 import AuthenticatedLayout from "@/Components/layout/AuthenticatedLayout";
 import { User } from "@/types";
 import { formatDate, getRoleLabel } from "@/utils";
-import EditUser from "../Users/Edit";
+import EditUser from "../Admin/Users/Edit";
 import { Button, LanguageSelector, Section, TextEntry, UserAvatar } from "@/Components";
 import { route } from "ziggy-js";
 import { trans } from '@/utils';

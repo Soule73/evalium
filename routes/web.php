@@ -55,41 +55,6 @@ Route::middleware('auth')->group(function () {
     ])->name('api.academic-years.set-current');
 
     /**
-     * User Management operations
-     */
-    Route::prefix('users')
-        ->name('users.')
-        ->controller(UserController::class)
-        ->group(function () {
-            Route::get('/', 'index')
-                ->name('index');
-
-            Route::get('/students/{user}', 'showStudent')
-                ->name('show.student');
-
-            Route::get('/teachers/{user}', 'showTeacher')
-                ->name('show.teacher');
-
-            Route::post('/', 'store')
-                ->name('store');
-
-            Route::put('/{user}', 'update')
-                ->name('update');
-
-            Route::delete('/{user}', 'destroy')
-                ->name('destroy');
-
-            Route::patch('/{user}/toggle-status', 'toggleStatus')
-                ->name('toggle-status');
-
-            Route::post('/{id}/restore', 'restore')
-                ->name('restore');
-
-            Route::delete('/{id}/force', 'forceDelete')
-                ->name('force-delete');
-        });
-
-    /**
      * Level Management operations
      */
     Route::prefix('levels')
@@ -154,6 +119,41 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')
         ->name('admin.')
         ->group(function () {
+
+            /**
+             * User Management operations
+             */
+            Route::prefix('users')
+                ->name('users.')
+                ->controller(UserController::class)
+                ->group(function () {
+                    Route::get('/', 'index')
+                        ->name('index');
+
+                    Route::get('/students/{user}', 'showStudent')
+                        ->name('show.student');
+
+                    Route::get('/teachers/{user}', 'showTeacher')
+                        ->name('show.teacher');
+
+                    Route::post('/', 'store')
+                        ->name('store');
+
+                    Route::put('/{user}', 'update')
+                        ->name('update');
+
+                    Route::delete('/{user}', 'destroy')
+                        ->name('destroy');
+
+                    Route::patch('/{user}/toggle-status', 'toggleStatus')
+                        ->name('toggle-status');
+
+                    Route::post('/{id}/restore', 'restore')
+                        ->name('restore');
+
+                    Route::delete('/{id}/force', 'forceDelete')
+                        ->name('force-delete');
+                });
 
             /**
              * Academic Year Management

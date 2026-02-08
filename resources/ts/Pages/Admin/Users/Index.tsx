@@ -35,14 +35,14 @@ export default function UserIndex({ users, roles }: Props) {
 
     const handleDeleteUser = (userId: number) => {
         if (!deleteModal.data) return;
-        router.delete(route('users.destroy', { user: userId }), {
+        router.delete(route('admin.users.destroy', { user: userId }), {
             onFinish: () => deleteModal.closeModal()
         });
     };
 
     const handleForceDeleteUser = (userId: number) => {
         if (!forceDeleteModal.data) return;
-        router.delete(route('users.force-delete', { id: userId }), {
+        router.delete(route('admin.users.force-delete', { id: userId }), {
             onFinish: () => forceDeleteModal.closeModal()
         });
     };

@@ -52,7 +52,7 @@ class UserController extends Controller
 
         $availableRoles = $this->userService->getAvailableRoles($currentUser);
 
-        return Inertia::render('Users/Index', [
+        return Inertia::render('Admin/Users/Index', [
             'users' => $users,
             'roles' => $availableRoles,
             'canManageAdmins' => $currentUser->hasRole('super_admin'),
@@ -77,7 +77,7 @@ class UserController extends Controller
 
             $this->userService->store($validated);
 
-            return $this->redirectWithSuccess('users.index', __('messages.user_created'));
+            return $this->redirectWithSuccess('admin.users.index', __('messages.user_created'));
         } catch (\Exception $e) {
             Log::error('Error creating user', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
 
@@ -117,7 +117,7 @@ class UserController extends Controller
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
-        return Inertia::render('Users/ShowTeacher', [
+        return Inertia::render('Admin/Users/ShowTeacher', [
             'user' => $user,
             'canDelete' => $currentUser->hasRole('super_admin'),
             'canToggleStatus' => $currentUser->can('toggle user status'),
@@ -149,7 +149,7 @@ class UserController extends Controller
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
-        return Inertia::render('Users/ShowStudent', [
+        return Inertia::render('Admin/Users/ShowUser', [
             'user' => $user,
             'canDelete' => $currentUser->hasRole('super_admin'),
             'canToggleStatus' => $currentUser->can('toggle user status'),
@@ -196,7 +196,7 @@ class UserController extends Controller
 
         $this->userService->delete($user);
 
-        return $this->redirectWithSuccess('users.index', __('messages.user_deleted'));
+        return $this->redirectWithSuccess('admin.users.index', __('messages.user_deleted'));
     }
 
     /**
@@ -215,7 +215,7 @@ class UserController extends Controller
 
         $messageKey = $user->is_active ? 'messages.user_activated' : 'messages.user_deactivated';
 
-        return $this->redirectWithSuccess('users.index', __($messageKey));
+        return $this->redirectWithSuccess('admin.users.index', __($messageKey));
     }
 
     /**
@@ -228,7 +228,7 @@ class UserController extends Controller
         try {
             $user = $this->userService->restoreUser($id);
 
-            return $this->redirectWithSuccess('users.index', __('messages.user_restored'));
+            return $this->redirectWithSuccess('admin.users.index', __('messages.user_restored'));
         } catch (\Exception $e) {
             Log::error('Error restoring user', ['user_id' => $id, 'error' => $e->getMessage()]);
 
@@ -253,7 +253,7 @@ class UserController extends Controller
 
             $this->userService->forceDeleteUser($id);
 
-            return $this->redirectWithSuccess('users.index', __('messages.user_deleted'));
+            return $this->redirectWithSuccess('admin.users.index', __('messages.user_deleted'));
         } catch (\Exception $e) {
             Log::error('Error permanently deleting user', ['user_id' => $id, 'error' => $e->getMessage()]);
 
