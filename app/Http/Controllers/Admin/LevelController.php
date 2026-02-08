@@ -41,7 +41,7 @@ class LevelController extends Controller
 
         $levels = $this->levelService->getLevelsWithPagination($filters);
 
-        return Inertia::render('Levels/Index', [
+        return Inertia::render('Admin/Levels/Index', [
             'levels' => $levels,
             'filters' => $filters,
         ]);
@@ -56,7 +56,7 @@ class LevelController extends Controller
     {
         $this->authorize('create', Level::class);
 
-        return Inertia::render('Levels/Create');
+        return Inertia::render('Admin/Levels/Create');
     }
 
     /**
@@ -73,7 +73,7 @@ class LevelController extends Controller
             $this->levelService->createLevel($request->validated());
 
             return $this->redirectWithSuccess(
-                'levels.index',
+                'admin.levels.index',
                 __('messages.level_created')
             );
         } catch (\Exception $e) {
@@ -93,7 +93,7 @@ class LevelController extends Controller
     {
         $this->authorize('update', $level);
 
-        return Inertia::render('Levels/Edit', [
+        return Inertia::render('Admin/Levels/Edit', [
             'level' => $level,
         ]);
     }
@@ -113,7 +113,7 @@ class LevelController extends Controller
             $this->levelService->updateLevel($level, $request->validated());
 
             return $this->redirectWithSuccess(
-                'levels.index',
+                'admin.levels.index',
                 __('messages.level_updated')
             );
         } catch (\Exception $e) {
@@ -139,7 +139,7 @@ class LevelController extends Controller
             $this->levelService->deleteLevel($level);
 
             return $this->redirectWithSuccess(
-                'levels.index',
+                'admin.levels.index',
                 __('messages.level_deleted')
             );
         } catch (\Exception $e) {

@@ -15,21 +15,21 @@ export const useListLevels = () => {
   const canDeleteLevels = auth.permissions?.includes('delete levels') || false;
 
   const handleCreate = () => {
-    router.visit(route('levels.create'));
+    router.visit(route('admin.levels.create'));
   };
 
   const handleEdit = (level: Level) => {
-    router.visit(route('levels.edit', level.id));
+    router.visit(route('admin.levels.edit', level.id));
   };
 
   const handleToggleStatus = (level: Level) => {
-    router.post(route('levels.toggle-status', level.id), {}, {
+    router.post(route('admin.levels.toggle-status', level.id), {}, {
       preserveScroll: true
     });
   };
 
   const handleDelete = (id: number) => {
-    router.delete(route('levels.destroy', id), {
+    router.delete(route('admin.levels.destroy', id), {
       onSuccess: () => setDeleteModal({ isOpen: false, data: null })
     });
   };

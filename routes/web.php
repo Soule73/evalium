@@ -55,35 +55,6 @@ Route::middleware('auth')->group(function () {
     ])->name('api.academic-years.set-current');
 
     /**
-     * Level Management operations
-     */
-    Route::prefix('levels')
-        ->name('levels.')
-        ->controller(LevelController::class)
-        ->group(function () {
-            Route::get('/', 'index')
-                ->name('index');
-
-            Route::get('/create', 'create')
-                ->name('create');
-
-            Route::post('/', 'store')
-                ->name('store');
-
-            Route::get('/{level}/edit', 'edit')
-                ->name('edit');
-
-            Route::put('/{level}', 'update')
-                ->name('update');
-
-            Route::delete('/{level}', 'destroy')
-                ->name('destroy');
-
-            Route::patch('/{level}/toggle-status', 'toggleStatus')
-                ->name('toggle-status');
-        });
-
-    /**
      * Role and Permission Management operations
      */
     Route::prefix('roles')
@@ -238,6 +209,22 @@ Route::middleware('auth')->group(function () {
                     Route::post('/{class_subject}/update-coefficient', 'updateCoefficient')->name('update-coefficient');
                     Route::post('/{class_subject}/terminate', 'terminate')->name('terminate');
                     Route::delete('/{class_subject}', 'destroy')->name('destroy');
+                });
+
+            /**
+             * Level Management
+             */
+            Route::prefix('levels')
+                ->name('levels.')
+                ->controller(LevelController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{level}/edit', 'edit')->name('edit');
+                    Route::put('/{level}', 'update')->name('update');
+                    Route::delete('/{level}', 'destroy')->name('destroy');
+                    Route::patch('/{level}/toggle-status', 'toggleStatus')->name('toggle-status');
                 });
         });
 

@@ -18,7 +18,7 @@ const userIndex = (): BreadcrumbItem[] => [
 // Breadcrumb index des niveaux
 const levelIndex = (): BreadcrumbItem[] => [
     dashboardBreadcrumb(),
-    { label: trans('breadcrumbs.levels'), href: route('levels.index') },
+    { label: trans('breadcrumbs.levels'), href: route('admin.levels.index') },
 ];
 
 // Breadcrumb index des rôles et permissions
@@ -268,7 +268,7 @@ export const navRoutes = {
 
     // System Routes
     users: () => route('admin.users.index'),
-    levels: () => route('levels.index'),
+    levels: () => route('admin.levels.index'),
     roles: () => route('roles.index'),
 
     // Profile & Auth

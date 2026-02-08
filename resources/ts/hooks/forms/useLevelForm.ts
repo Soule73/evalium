@@ -33,9 +33,9 @@ export const useLevelForm = ({ level }: UseLevelFormProps = {}) => {
     e.preventDefault();
 
     if (isEditing) {
-      form.put(route('levels.update', level.id));
+      form.put(route('admin.levels.update', level.id));
     } else {
-      form.post(route('levels.store'));
+      form.post(route('admin.levels.store'));
     }
   };
 
