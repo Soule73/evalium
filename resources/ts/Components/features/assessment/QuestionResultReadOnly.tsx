@@ -10,9 +10,11 @@ import {
   getChoiceStyles,
   getStatusLabelText,
   getChoiceBorder,
+} from '@/utils/assessment/components/choiceUtils';
+import {
   questionIndexLabel,
   getIndexBgClass,
-} from '@/utils/assessment/components';
+} from '@/utils/assessment/components/questionLabelUtils';
 
 interface QuestionResultReadOnlyTextProps {
   userText?: string;
