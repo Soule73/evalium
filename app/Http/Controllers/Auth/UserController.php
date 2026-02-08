@@ -120,7 +120,7 @@ class UserController extends Controller
         return Inertia::render('Admin/Users/ShowTeacher', [
             'user' => $user,
             'canDelete' => $currentUser->hasRole('super_admin'),
-            'canToggleStatus' => $currentUser->can('toggle user status'),
+            'canToggleStatus' => $currentUser->can('update users'),
         ]);
     }
 
@@ -152,7 +152,7 @@ class UserController extends Controller
         return Inertia::render('Admin/Users/ShowUser', [
             'user' => $user,
             'canDelete' => $currentUser->hasRole('super_admin'),
-            'canToggleStatus' => $currentUser->can('toggle user status'),
+            'canToggleStatus' => $currentUser->can('update users'),
         ]);
     }
 

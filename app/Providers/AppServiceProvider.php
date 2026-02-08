@@ -24,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\ClassModel::class => \App\Policies\ClassPolicy::class,
         \App\Models\Enrollment::class => \App\Policies\EnrollmentPolicy::class,
         \App\Models\ClassSubject::class => \App\Policies\ClassSubjectPolicy::class,
+        \Spatie\Permission\Models\Role::class => \App\Policies\RolePolicy::class,
     ];
 
     /**
@@ -74,11 +75,11 @@ class AppServiceProvider extends ServiceProvider
                     'canManageAssessments' => $user->can('view assessments'),
 
                     'canCreateAssessments' => $user->can('create assessments'),
-                    'canAssignAssessments' => $user->can('assign assessments'),
-                    'canCorrectAssessments' => $user->can('correct assessments'),
-                    'canViewReports' => $user->can('view assessment results'),
+                    'canAssignAssessments' => $user->can('update assessments'),
+                    'canCorrectAssessments' => $user->can('grade assessments'),
+                    'canViewReports' => $user->can('grade assessments'),
                     'canPublishAssessments' => $user->can('update assessments'),
-                    'canGradeAnswers' => $user->can('correct assessments'),
+                    'canGradeAnswers' => $user->can('grade assessments'),
 
                     'canCreateUsers' => $user->can('create users'),
                     'canUpdateUsers' => $user->can('update users'),
@@ -94,9 +95,9 @@ class AppServiceProvider extends ServiceProvider
                     'canUpdateLevels' => $user->can('update levels'),
                     'canDeleteLevels' => $user->can('delete levels'),
 
-                    'canCreateRoles' => $user->can('create roles'),
+                    'canCreateRoles' => false,
                     'canUpdateRoles' => $user->can('update roles'),
-                    'canDeleteRoles' => $user->can('delete roles'),
+                    'canDeleteRoles' => false,
                 ];
             },
         ]);

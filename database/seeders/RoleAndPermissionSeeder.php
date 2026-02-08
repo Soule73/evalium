@@ -35,9 +35,7 @@ class RoleAndPermissionSeeder extends Seeder
 
             // Role & Permission Management
             'view roles',
-            'create roles',
             'update roles',
-            'delete roles',
 
             // Academic Year Management
             'view academic years',
@@ -107,11 +105,9 @@ class RoleAndPermissionSeeder extends Seeder
             'update levels',
             'delete levels',
 
-            // Roles
+            // Roles (view and update only - roles are predefined)
             'view roles',
-            'create roles',
             'update roles',
-            'delete roles',
 
             // Academic Years
             'view academic years',

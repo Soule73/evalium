@@ -28,7 +28,9 @@ class RoleService
     private const CATEGORY_MAPPINGS = [
         'category_users' => ['user', 'student', 'teacher', 'admin'],
         'category_assessments' => ['assessment', 'result'],
-        'category_classes' => ['class', 'enrollment'],
+        'category_class_subjects' => ['class subject'],
+        'category_classes' => ['class'],
+        'category_enrollments' => ['enrollment'],
         'category_levels' => ['level'],
         'category_subjects' => ['subject'],
         'category_academic_years' => ['academic year'],
@@ -107,7 +109,7 @@ class RoleService
             }
         }
 
-        return array_filter($grouped, fn ($items) => ! empty($items));
+        return array_filter($grouped, fn($items) => ! empty($items));
     }
 
     /**

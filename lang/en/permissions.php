@@ -5,6 +5,8 @@ return [
     'category_users' => 'Users',
     'category_assessments' => 'Assessments',
     'category_classes' => 'Classes',
+    'category_enrollments' => 'Enrollments',
+    'category_class_subjects' => 'Class Subjects',
     'category_levels' => 'Levels',
     'category_subjects' => 'Subjects',
     'category_academic_years' => 'Academic Years',
@@ -42,4 +44,45 @@ return [
     'create roles' => 'Create roles',
     'update roles' => 'Update roles',
     'delete roles' => 'Delete roles',
+
+    // Academic Year Management
+    'view academic years' => 'View academic years',
+    'create academic years' => 'Create academic years',
+    'update academic years' => 'Update academic years',
+    'delete academic years' => 'Delete academic years',
+    'archive academic years' => 'Archive academic years',
+
+    // Subject Management
+    'view subjects' => 'View subjects',
+    'create subjects' => 'Create subjects',
+    'update subjects' => 'Update subjects',
+    'delete subjects' => 'Delete subjects',
+
+    // Class Management
+    'view classes' => 'View classes',
+    'create classes' => 'Create classes',
+    'update classes' => 'Update classes',
+    'delete classes' => 'Delete classes',
+
+    // Enrollment Management
+    'view enrollments' => 'View enrollments',
+    'create enrollments' => 'Create enrollments',
+    'update enrollments' => 'Update enrollments',
+    'delete enrollments' => 'Delete enrollments',
+    'transfer enrollments' => 'Transfer enrollments',
+
+    // Class Subject Management
+    'view class subjects' => 'View class subjects',
+    'create class subjects' => 'Create class subjects',
+    'update class subjects' => 'Update class subjects',
+    'delete class subjects' => 'Delete class subjects',
+    'replace teacher class subjects' => 'Replace teacher class subjects',
+
+    // Assessment Management
+    'view assessments' => 'View assessments',
+    'create assessments' => 'Create assessments',
+    'update assessments' => 'Update assessments',
+    'delete assessments' => 'Delete assessments',
+    'publish assessments' => 'Publish assessments',
+    'grade assessments' => 'Grade assessments',
 ];

@@ -30,10 +30,11 @@ class RolePolicy
 
     /**
      * Determine whether the user can create roles.
+     * Roles are predefined - creation is disabled.
      */
     public function create(User $user): bool
     {
-        return $user->can('create roles');
+        return false;
     }
 
     /**
@@ -46,10 +47,11 @@ class RolePolicy
 
     /**
      * Determine whether the user can delete the role.
+     * Roles are predefined - deletion is disabled.
      */
     public function delete(User $user, Role $role): bool
     {
-        return $user->can('delete roles');
+        return false;
     }
 
     /**
@@ -62,9 +64,10 @@ class RolePolicy
 
     /**
      * Determine whether the user can permanently delete the role.
+     * Roles are predefined - force deletion is disabled.
      */
     public function forceDelete(User $user, Role $role): bool
     {
-        return $user->can('delete roles');
+        return false;
     }
 }
