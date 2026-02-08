@@ -5,7 +5,7 @@ import { BaseEntityList } from './BaseEntityList';
 import { Assessment, AssessmentAssignment } from '@/types';
 import { Badge, MarkdownRenderer, Toggle } from '@examena/ui';
 import { ClockIcon } from '@heroicons/react/24/outline';
-import { formatDate, formatDuration } from '@/utils';
+import { formatDate, formatDuration, trans } from '@/utils';
 import type { EntityListConfig } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';
 
@@ -208,6 +208,13 @@ export function AssessmentList({
           const assessment = item as Assessment;
           return (
             <div className="flex items-center space-x-2">
+              <Badge
+                label={assessment.is_published
+                  ? trans('components.assessment_list.status_published')
+                  : trans('components.assessment_list.status_unpublished')}
+                type={assessment.is_published ? 'success' : 'gray'}
+                size="sm"
+              />
               <Toggle
                 checked={assessment.is_published}
                 onChange={() => handleToggleStatus(assessment.id, assessment.is_published)}
