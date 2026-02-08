@@ -278,49 +278,27 @@ return [
     // AssessmentHeader
     'assessment_header' => [
         'questions_count' => ':count question|:count questions',
-        'created_on' => 'Créé le :date',
+        'created_on' => 'Cree le :date',
     ],
 
     // AssessmentList
     'assessment_list' => [
         'view_assessment' => 'Voir',
-        'view_assessment_title' => 'Voir l\'évaluation',
-        'assessment_label' => 'Évaluation',
-        'duration_label' => 'Durée',
+        'view_assessment_title' => 'Voir l\'evaluation',
+        'assessment_label' => 'Evaluation',
+        'duration_label' => 'Duree',
+        'class_label' => 'Classe',
         'status_label' => 'Statut',
-        'created_on' => 'Créé le',
+        'created_on' => 'Cree le',
         'actions_label' => 'Actions',
-        'status_active' => 'Actif',
-        'status_inactive' => 'Inactif',
+        'status_published' => 'Publie',
+        'status_unpublished' => 'Non publie',
         'search_placeholder' => 'Rechercher par titre ou description...',
-        'empty_title' => 'Aucune évaluation créée',
-        'empty_subtitle' => 'Commencez par créer votre première évaluation pour vos étudiants.',
-        'empty_search_title' => 'Aucune évaluation trouvée',
-        'empty_search_subtitle' => 'Essayez de modifier vos critères de recherche ou de filtrage.',
-        'reset_filters' => 'Réinitialiser les filtres',
-    ],
-
-    'assessment_list' => [
-        'view_assessment' => 'Voir',
-        'view_assessment_title' => 'Voir l\'évaluation',
-        'assessment_label' => 'Évaluation',
-        'duration_label' => 'Durée',
-        'status_label' => 'Statut',
-        'created_on' => 'Créé le',
-        'actions_label' => 'Actions',
-        'status_published' => 'Publié',
-        'status_unpublished' => 'Non publié',
-        'search_placeholder' => 'Rechercher par titre ou description...',
-        'empty_title' => 'Aucune évaluation créée',
-        'empty_subtitle' => 'Commencez par créer votre première évaluation.',
-        'empty_search_title' => 'Aucune évaluation trouvée',
-        'empty_search_subtitle' => 'Essayez de modifier vos critères de recherche ou de filtrage.',
-        'reset_filters' => 'Réinitialiser les filtres',
-    ],
-
-    'assessment_header' => [
-        'questions_count' => ':count questions',
-        'created_on' => 'Créé le :date',
+        'empty_title' => 'Aucune evaluation creee',
+        'empty_subtitle' => 'Commencez par creer votre premiere evaluation.',
+        'empty_search_title' => 'Aucune evaluation trouvee',
+        'empty_search_subtitle' => 'Essayez de modifier vos criteres de recherche ou de filtrage.',
+        'reset_filters' => 'Reinitialiser les filtres',
     ],
 
     'assessment_general_config' => [

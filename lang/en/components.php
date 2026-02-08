@@ -268,6 +268,7 @@ return [
         'view_assessment_title' => 'View assessment',
         'assessment_label' => 'Assessment',
         'duration_label' => 'Duration',
+        'class_label' => 'Class',
         'status_label' => 'Status',
         'created_on' => 'Created on',
         'actions_label' => 'Actions',

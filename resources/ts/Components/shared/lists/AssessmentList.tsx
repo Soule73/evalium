@@ -188,6 +188,20 @@ export function AssessmentList({
       },
 
       {
+        key: 'class',
+        labelKey: 'components.assessment_list.class_label',
+        render: (item: AssessmentItem) => {
+          const assessment = item as Assessment;
+          return (
+            <span className="text-sm text-gray-700">
+              {assessment.class_subject?.class?.name || '-'}
+            </span>
+          );
+        },
+        conditional: (currentVariant) => currentVariant === 'teacher',
+      },
+
+      {
         key: 'is_published',
         labelKey: 'components.assessment_list.status_label',
         render: (item: AssessmentItem) => {
