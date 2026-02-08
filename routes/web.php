@@ -242,6 +242,9 @@ Route::middleware('auth')->group(function () {
                     Route::post('/{assessment}/publish', 'publish')->name('publish');
                     Route::post('/{assessment}/unpublish', 'unpublish')->name('unpublish');
                     Route::post('/{assessment}/duplicate', 'duplicate')->name('duplicate');
+                    Route::get('/{assessment}/assignments/{assignment}/grade', 'grade')->name('grade');
+                    Route::post('/{assessment}/assignments/{assignment}/grade', 'saveGrade')->name('saveGrade');
+                    Route::get('/{assessment}/assignments/{assignment}/review', 'review')->name('review');
                 });
 
             /**
@@ -256,16 +259,14 @@ Route::middleware('auth')->group(function () {
                 });
 
             /**
-             * Grading
+             * Teacher Subjects
              */
-            Route::prefix('grading')
-                ->name('grading.')
-                ->controller(\App\Http\Controllers\Teacher\GradingController::class)
+            Route::prefix('subjects')
+                ->name('subjects.')
+                ->controller(\App\Http\Controllers\Teacher\TeacherSubjectController::class)
                 ->group(function () {
-                    Route::get('/assessments/{assessment}', 'index')->name('index');
-                    Route::get('/assessments/{assessment}/students/{student}', 'show')->name('show');
-                    Route::post('/assessments/{assessment}/students/{student}', 'save')->name('save');
-                    Route::get('/students/{student}/classes/{class}/breakdown', 'breakdown')->name('breakdown');
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{subject}', 'show')->name('show');
                 });
         });
 

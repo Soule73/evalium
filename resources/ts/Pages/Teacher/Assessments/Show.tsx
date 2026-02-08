@@ -1,23 +1,28 @@
 import React, { useState, useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { formatDuration } from '@/utils';
-import { Button, ConfirmationModal, Section, Stat } from '@/Components';
+import { formatDuration, formatDate } from '@/utils';
+import { Button, ConfirmationModal, Section, Stat, DataTable, Badge } from '@/Components';
 import { Toggle } from '@examena/ui';
-import { Assessment } from '@/types';
-import { ClockIcon, QuestionMarkCircleIcon, StarIcon, DocumentDuplicateIcon, UserGroupIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
+import { Assessment, AssessmentAssignment } from '@/types';
+import { DataTableConfig, PaginationType } from '@/types/datatable';
+import { ClockIcon, QuestionMarkCircleIcon, StarIcon, DocumentDuplicateIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
-import { breadcrumbs } from '@/utils';
-import { trans } from '@/utils';
+import { breadcrumbs, trans } from '@/utils';
 import { QuestionReadOnlySection } from '@/Components';
 import { QuestionResultReadOnlyText, QuestionTeacherReadOnlyChoices } from '@/Components/features/assessment/QuestionResultReadOnly';
 import { AssessmentHeader } from '@/Components/features/assessment/AssessmentHeader';
 
-interface Props {
-  assessment: Assessment;
+interface AssignmentWithVirtual extends AssessmentAssignment {
+  is_virtual?: boolean;
 }
 
-const AssessmentShow: React.FC<Props> = ({ assessment }) => {
+interface Props {
+  assessment: Assessment;
+  assignments: PaginationType<AssignmentWithVirtual>;
+}
+
+const AssessmentShow: React.FC<Props> = ({ assessment, assignments }) => {
   const [isToggling, setIsToggling] = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
@@ -27,40 +32,140 @@ const AssessmentShow: React.FC<Props> = ({ assessment }) => {
     [assessment.questions]
   );
 
-  const totalStudents = assessment.class_subject?.class?.active_enrollments_count || 0;
-
+  const totalStudents = assignments.total;
   const questionsCount = (assessment.questions ?? []).length;
 
   const handleToggleStatus = () => {
     if (isToggling) return;
-
     setIsToggling(true);
     const routeName = assessment.is_published ? 'teacher.assessments.unpublish' : 'teacher.assessments.publish';
-
-    router.post(
-      route(routeName, assessment.id),
-      {},
-      {
-        preserveScroll: true,
-        onFinish: () => setIsToggling(false),
-      }
-    );
+    router.post(route(routeName, assessment.id), {}, {
+      preserveScroll: true,
+      onFinish: () => setIsToggling(false),
+    });
   };
 
   const handleDuplicate = () => {
     if (isDuplicating) return;
-
     setIsDuplicating(true);
-    router.post(
-      route('teacher.assessments.duplicate', assessment.id),
-      {},
+    router.post(route('teacher.assessments.duplicate', assessment.id), {}, {
+      onFinish: () => {
+        setIsDuplicating(false);
+        setShowDuplicateModal(false);
+      },
+    });
+  };
+
+  const handleGradeStudent = (assignment: AssignmentWithVirtual) => {
+    if (!assignment.submitted_at) return;
+    router.visit(route('teacher.assessments.grade', {
+      assessment: assessment.id,
+      assignment: assignment.id,
+    }));
+  };
+
+  const handleViewResult = (assignment: AssignmentWithVirtual) => {
+    router.visit(route('teacher.assessments.review', {
+      assessment: assessment.id,
+      assignment: assignment.id,
+    }));
+  };
+
+  const getAssignmentStatus = (assignment: AssignmentWithVirtual): { label: string; type: 'gray' | 'info' | 'warning' | 'success' } => {
+    if (assignment.is_virtual) {
+      return { label: trans('assessment_pages.show.status_not_started'), type: 'gray' };
+    }
+    if (!assignment.submitted_at) {
+      return { label: trans('assessment_pages.show.status_in_progress'), type: 'info' };
+    }
+    if (assignment.score === null || assignment.score === undefined) {
+      return { label: trans('assessment_pages.show.status_pending_grading'), type: 'warning' };
+    }
+    return { label: trans('assessment_pages.show.status_graded'), type: 'success' };
+  };
+
+  const assignmentsTableConfig: DataTableConfig<AssignmentWithVirtual> = {
+    columns: [
       {
-        onFinish: () => {
-          setIsDuplicating(false);
-          setShowDuplicateModal(false);
+        key: 'student',
+        label: trans('assessment_pages.show.student'),
+        render: (assignment) => (
+          <div>
+            <div className="font-medium text-gray-900">{assignment.student?.name}</div>
+            <div className="text-sm text-gray-500">{assignment.student?.email}</div>
+          </div>
+        ),
+      },
+      {
+        key: 'status',
+        label: trans('assessment_pages.show.status'),
+        render: (assignment) => {
+          const status = getAssignmentStatus(assignment);
+          return <Badge label={status.label} type={status.type} size="sm" />;
         },
-      }
-    );
+      },
+      {
+        key: 'score',
+        label: trans('assessment_pages.show.score'),
+        render: (assignment) => {
+          if (assignment.score !== null && assignment.score !== undefined) {
+            const percentage = totalPoints > 0 ? Math.round((assignment.score / totalPoints) * 100) : 0;
+            return (
+              <div>
+                <div className="text-sm font-medium text-gray-900">{assignment.score} / {totalPoints}</div>
+                <div className="text-xs text-gray-500">{percentage}%</div>
+              </div>
+            );
+          }
+          return <span className="text-gray-400">-</span>;
+        },
+      },
+      {
+        key: 'submitted_at',
+        label: trans('assessment_pages.show.submitted_at'),
+        render: (assignment) => assignment.submitted_at
+          ? <span className="text-sm text-gray-600">{formatDate(assignment.submitted_at, 'datetime')}</span>
+          : <span className="text-gray-400">-</span>,
+      },
+      {
+        key: 'actions',
+        label: trans('assessment_pages.show.actions'),
+        className: 'text-right',
+        render: (assignment) => (
+          <div className="flex items-center justify-end space-x-2">
+            {assignment.submitted_at && !assignment.is_virtual && (
+              <>
+                {(assignment.score === null || assignment.score === undefined) ? (
+                  <Button size="sm" variant="solid" color="primary" onClick={() => handleGradeStudent(assignment)}>
+                    {trans('assessment_pages.show.grade')}
+                  </Button>
+                ) : (
+                  <>
+                    <Button size="sm" variant="outline" color="secondary" onClick={() => handleGradeStudent(assignment)}>
+                      {trans('assessment_pages.show.edit_grade')}
+                    </Button>
+                    <Button size="sm" variant="outline" color="secondary" onClick={() => handleViewResult(assignment)}>
+                      {trans('assessment_pages.show.view_result')}
+                    </Button>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        ),
+      },
+    ],
+    searchPlaceholder: trans('assessment_pages.show.search_students'),
+    perPageOptions: [10, 25, 50],
+    emptyState: {
+      title: trans('assessment_pages.show.no_students'),
+      subtitle: trans('assessment_pages.show.no_students_description'),
+    },
+    emptySearchState: {
+      title: trans('assessment_pages.show.no_students_found'),
+      subtitle: trans('assessment_pages.show.no_students_found_description'),
+      resetLabel: trans('assessment_pages.show.reset_search'),
+    },
   };
 
   return (
@@ -101,14 +206,6 @@ const AssessmentShow: React.FC<Props> = ({ assessment }) => {
               >
                 {trans('assessment_pages.common.edit')}
               </Button>
-              <Button
-                onClick={() => router.visit(route('teacher.grading.index', assessment.id))}
-                color="secondary"
-                variant='outline'
-                size="sm"
-              >
-                {trans('assessment_pages.common.view_assignments')}
-              </Button>
             </div>
           }
         >
@@ -133,23 +230,20 @@ const AssessmentShow: React.FC<Props> = ({ assessment }) => {
                   icon={ClockIcon}
                 />
                 <Stat.Item
-                  title={trans('assessment_pages.common.assigned_classes')}
-                  value={1}
+                  title={trans('assessment_pages.common.concerned_students')}
+                  value={totalStudents}
                   icon={UserGroupIcon}
                 />
               </Stat.Group>
-
-              {totalStudents > 0 && (
-                <Stat.Group columns={1} className="mt-4">
-                  <Stat.Item
-                    title={trans('assessment_pages.common.concerned_students')}
-                    value={totalStudents}
-                    icon={AcademicCapIcon}
-                  />
-                </Stat.Group>
-              )}
             </div>
           </div>
+        </Section>
+
+        <Section
+          title={trans('assessment_pages.show.students_section_title')}
+          subtitle={trans('assessment_pages.show.students_section_subtitle', { count: totalStudents })}
+        >
+          <DataTable data={assignments} config={assignmentsTableConfig} />
         </Section>
 
         <Section
@@ -160,7 +254,9 @@ const AssessmentShow: React.FC<Props> = ({ assessment }) => {
             <div className="text-center py-8 text-gray-500">
               <p>{trans('assessment_pages.common.no_questions')}</p>
               <div className="mt-4">
-                <Button>{trans('assessment_pages.common.add_questions')}</Button>
+                <Button onClick={() => router.visit(route('teacher.assessments.edit', assessment.id))}>
+                  {trans('assessment_pages.common.add_questions')}
+                </Button>
               </div>
             </div>
           ) : (
@@ -180,7 +276,6 @@ const AssessmentShow: React.FC<Props> = ({ assessment }) => {
                       </div>
                     </div>
                   )}
-
                   {question.type === 'text' && (
                     <QuestionResultReadOnlyText
                       userText={trans('assessment_pages.common.free_text_info')}

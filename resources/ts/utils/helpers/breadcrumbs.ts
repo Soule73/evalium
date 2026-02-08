@@ -131,6 +131,18 @@ const teacherClassesBc = {
     ]
 };
 
+const teacherSubjectsBc = {
+    index: (): BreadcrumbItem[] => [
+        dashboard(),
+        { label: trans('breadcrumbs.subjects'), href: route('teacher.subjects.index') }
+    ],
+    show: (subject: { id: number; name?: string }): BreadcrumbItem[] => [
+        dashboard(),
+        { label: trans('breadcrumbs.subjects'), href: route('teacher.subjects.index') },
+        { label: subject.name || '' }
+    ]
+};
+
 const assessmentsBc = createEntityBreadcrumbs<{ id: number; title: string }>({
     labelKey: 'breadcrumbs.assessments',
     indexRoute: 'teacher.assessments.index',
@@ -188,6 +200,8 @@ export const breadcrumbs = {
     teacher: {
         classes: teacherClassesBc.index,
         showClass: teacherClassesBc.show,
+        subjects: teacherSubjectsBc.index,
+        showSubject: teacherSubjectsBc.show,
     },
 
     // Teacher assessments (legacy naming)
@@ -196,16 +210,23 @@ export const breadcrumbs = {
     showTeacherAssessment: assessmentsBc.show,
     editTeacherAssessment: assessmentsBc.edit,
 
-    // Grading (nested under assessment)
-    gradingIndex: (assessment: { id: number; title: string }): BreadcrumbItem[] => [
-        ...assessmentsBc.show(assessment),
-        { label: trans('breadcrumbs.grading') }
-    ],
-    gradingShow: (assessment: { id: number; title: string }, student: { name: string }): BreadcrumbItem[] => [
-        ...assessmentsBc.show(assessment),
-        { label: trans('breadcrumbs.grading'), href: route('teacher.grading.index', assessment.id) },
-        { label: student.name }
-    ],
+    // Assessment grading/review (nested under assessment)
+    assessmentGrade: (
+        assessment: { id: number; title: string },
+        _assignment: { id: number },
+        student: { name: string }
+    ): BreadcrumbItem[] => [
+            ...assessmentsBc.show(assessment),
+            { label: trans('breadcrumbs.grading') + ': ' + student.name }
+        ],
+    assessmentReview: (
+        assessment: { id: number; title: string },
+        _assignment: { id: number },
+        student: { name: string }
+    ): BreadcrumbItem[] => [
+            ...assessmentsBc.show(assessment),
+            { label: trans('breadcrumbs.review') + ': ' + student.name }
+        ],
 
     // Legacy alias
     adminAcademicYears: (): BreadcrumbItem[] => [
@@ -225,7 +246,7 @@ export const navRoutes = {
     teacherDashboard: () => route('teacher.dashboard'),
     teacherAssessments: () => route('teacher.assessments.index'),
     teacherClasses: () => route('teacher.classes.index'),
-    teacherGrading: () => route('teacher.grading.index', { assessment: '__assessment__' }),
+    teacherSubjects: () => route('teacher.subjects.index'),
 
     // Admin Routes
     adminAcademicYears: () => route('admin.academic-years.index'),

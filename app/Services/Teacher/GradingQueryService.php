@@ -4,8 +4,10 @@ namespace App\Services\Teacher;
 
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
+use App\Models\Enrollment;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 
 class GradingQueryService
 {
@@ -17,6 +19,83 @@ class GradingQueryService
         return AssessmentAssignment::where('assessment_id', $assessment->id)
             ->with(['student', 'answers.question'])
             ->paginate($perPage);
+    }
+
+    /**
+     * Get all enrolled students with their assignment status (including those who haven't started).
+     */
+    public function getAssignmentsWithEnrolledStudents(
+        Assessment $assessment,
+        array $filters,
+        int $perPage
+    ): LengthAwarePaginator {
+        $classId = $assessment->classSubject->class_id;
+
+        $enrolledStudents = Enrollment::where('class_id', $classId)
+            ->where('status', 'active')
+            ->with('student')
+            ->get()
+            ->pluck('student')
+            ->filter();
+
+        $existingAssignments = AssessmentAssignment::where('assessment_id', $assessment->id)
+            ->with('student')
+            ->get()
+            ->keyBy('student_id');
+
+        $allStudentData = $enrolledStudents->map(function ($student) use ($assessment, $existingAssignments) {
+            $assignment = $existingAssignments->get($student->id);
+
+            if ($assignment) {
+                return $assignment;
+            }
+
+            return (object) [
+                'id' => null,
+                'assessment_id' => $assessment->id,
+                'student_id' => $student->id,
+                'student' => $student,
+                'submitted_at' => null,
+                'score' => null,
+                'is_virtual' => true,
+            ];
+        });
+
+        if ($search = $filters['search'] ?? null) {
+            $search = strtolower($search);
+            $allStudentData = $allStudentData->filter(function ($item) use ($search) {
+                $student = $item->student ?? $item;
+                $name = is_object($student) ? ($student->name ?? '') : '';
+                $email = is_object($student) ? ($student->email ?? '') : '';
+
+                return str_contains(strtolower($name), $search) ||
+                    str_contains(strtolower($email), $search);
+            });
+        }
+
+        $allStudentData = $allStudentData->sortBy(function ($item) {
+            if ($item->submitted_at && $item->score === null) {
+                return 0;
+            }
+            if ($item->submitted_at && $item->score !== null) {
+                return 1;
+            }
+
+            return 2;
+        })->values();
+
+        $page = request()->input('page', 1);
+        $offset = ($page - 1) * $perPage;
+        $total = $allStudentData->count();
+        $items = $allStudentData->slice($offset, $perPage)->values();
+
+        return new Paginator(
+            $items,
+            $total,
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
     }
 
     /**

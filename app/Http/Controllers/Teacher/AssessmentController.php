@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Teacher\SaveManualGradeRequest;
 use App\Http\Requests\Teacher\StoreAssessmentRequest;
 use App\Http\Requests\Teacher\UpdateAssessmentRequest;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\Assessment;
+use App\Models\AssessmentAssignment;
 use App\Services\Core\AssessmentService;
+use App\Services\Core\Scoring\ScoringService;
+use App\Services\Teacher\GradingQueryService;
 use App\Services\Teacher\TeacherAssessmentQueryService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -23,7 +27,9 @@ class AssessmentController extends Controller
 
     public function __construct(
         private readonly AssessmentService $assessmentService,
-        private readonly TeacherAssessmentQueryService $assessmentQueryService
+        private readonly TeacherAssessmentQueryService $assessmentQueryService,
+        private readonly GradingQueryService $gradingQueryService,
+        private readonly ScoringService $scoringService
     ) {}
 
     /**
@@ -94,14 +100,22 @@ class AssessmentController extends Controller
     /**
      * Display the specified assessment.
      */
-    public function show(Assessment $assessment): Response
+    public function show(Request $request, Assessment $assessment): Response
     {
         $this->authorize('view', $assessment);
+        $perPage = (int) $request->input('per_page', 10);
 
         $assessment = $this->assessmentQueryService->loadAssessmentDetails($assessment);
 
+        $assignments = $this->gradingQueryService->getAssignmentsWithEnrolledStudents(
+            $assessment,
+            $request->only(['search']),
+            $perPage
+        );
+
         return Inertia::render('Teacher/Assessments/Show', [
             'assessment' => $assessment,
+            'assignments' => $assignments,
         ]);
     }
 
@@ -193,5 +207,63 @@ class AssessmentController extends Controller
         return redirect()
             ->route('teacher.assessments.show', $newAssessment)
             ->flashSuccess(__('messages.assessment_duplicated'));
+    }
+
+    /**
+     * Display the grading interface for a specific student assignment.
+     */
+    public function grade(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response
+    {
+        $this->authorize('view', $assessment);
+
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+        $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
+        $this->validateAcademicYearAccess($assessment->classSubject->class, $selectedYearId);
+
+        $assignment->load('student');
+        $userAnswers = $this->gradingQueryService->transformUserAnswers($assignment);
+
+        return Inertia::render('Teacher/Assessments/Grade', [
+            'assignment' => $assignment,
+            'assessment' => $assessment,
+            'student' => $assignment->student,
+            'userAnswers' => $userAnswers,
+        ]);
+    }
+
+    /**
+     * Display the review interface for a graded assignment (read-only).
+     */
+    public function review(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response
+    {
+        $this->authorize('view', $assessment);
+
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+        $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
+        $this->validateAcademicYearAccess($assessment->classSubject->class, $selectedYearId);
+
+        $assignment->load('student');
+        $userAnswers = $this->gradingQueryService->transformUserAnswers($assignment);
+
+        return Inertia::render('Teacher/Assessments/Review', [
+            'assignment' => $assignment,
+            'assessment' => $assessment,
+            'student' => $assignment->student,
+            'userAnswers' => $userAnswers,
+        ]);
+    }
+
+    /**
+     * Save the grading for a specific student assignment.
+     */
+    public function saveGrade(SaveManualGradeRequest $request, Assessment $assessment, AssessmentAssignment $assignment): RedirectResponse
+    {
+        $this->scoringService->saveManualGrades(
+            $assignment,
+            $request->input('scores', []),
+            $request->input('teacher_notes')
+        );
+
+        return back()->flashSuccess(__('messages.grade_saved'));
     }
 }
