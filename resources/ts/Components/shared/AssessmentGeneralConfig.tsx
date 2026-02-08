@@ -13,6 +13,10 @@ interface AssessmentGeneralConfigProps {
     type: AssessmentType;
     class_subject_id: number;
     is_published: boolean;
+    shuffle_questions: boolean;
+    show_results_immediately: boolean;
+    allow_late_submission: boolean;
+    one_question_per_page: boolean;
   };
   errors: {
     title?: string;
@@ -131,6 +135,34 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
           error={errors.description}
           helpText={trans('components.assessment_general_config.description_help')}
         />
+      </div>
+
+      <div className="border-t border-gray-200 pt-6">
+        <h4 className="text-md font-medium text-gray-900 mb-4">
+          {trans('components.assessment_general_config.options_title')}
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Checkbox
+            label={trans('components.assessment_general_config.shuffle_questions_label')}
+            checked={data.shuffle_questions}
+            onChange={(e) => onFieldChange('shuffle_questions', e.target.checked)}
+          />
+          <Checkbox
+            label={trans('components.assessment_general_config.show_results_immediately_label')}
+            checked={data.show_results_immediately}
+            onChange={(e) => onFieldChange('show_results_immediately', e.target.checked)}
+          />
+          <Checkbox
+            label={trans('components.assessment_general_config.allow_late_submission_label')}
+            checked={data.allow_late_submission}
+            onChange={(e) => onFieldChange('allow_late_submission', e.target.checked)}
+          />
+          <Checkbox
+            label={trans('components.assessment_general_config.one_question_per_page_label')}
+            checked={data.one_question_per_page}
+            onChange={(e) => onFieldChange('one_question_per_page', e.target.checked)}
+          />
+        </div>
       </div>
     </div>
   );

@@ -14,6 +14,10 @@ export interface Assessment {
   duration_minutes: number;
   scheduled_at: string;
   is_published: boolean;
+  shuffle_questions: boolean;
+  show_results_immediately: boolean;
+  allow_late_submission: boolean;
+  one_question_per_page: boolean;
   created_at: string;
   updated_at: string;
 
@@ -37,6 +41,10 @@ export interface AssessmentFormData {
   duration: number;
   assessment_date: string;
   is_published?: boolean;
+  shuffle_questions?: boolean;
+  show_results_immediately?: boolean;
+  allow_late_submission?: boolean;
+  one_question_per_page?: boolean;
   questions?: QuestionFormData[];
   deletedQuestionIds?: number[];
   deletedChoiceIds?: number[];

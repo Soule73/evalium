@@ -1,17 +1,18 @@
 import React, { useState, useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { formatDuration, formatDate } from '@/utils';
-import { Button, ConfirmationModal, Section, Stat, DataTable, Badge } from '@/Components';
-import { Toggle } from '@examena/ui';
+import { formatDuration } from '@/utils';
+import { Button, ConfirmationModal, Section, Stat } from '@/Components';
+import { TextEntry, Toggle } from '@examena/ui';
 import { Assessment, AssessmentAssignment } from '@/types';
-import { DataTableConfig, PaginationType } from '@/types/datatable';
+import { PaginationType } from '@/types/datatable';
 import { ClockIcon, QuestionMarkCircleIcon, StarIcon, DocumentDuplicateIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
 import { breadcrumbs, trans } from '@/utils';
 import { QuestionReadOnlySection } from '@/Components';
 import { QuestionResultReadOnlyText, QuestionTeacherReadOnlyChoices } from '@/Components/features/assessment/QuestionResultReadOnly';
 import { AssessmentHeader } from '@/Components/features/assessment/AssessmentHeader';
+import { AssignmentList } from '@/Components/shared/lists';
 
 interface AssignmentWithVirtual extends AssessmentAssignment {
   is_virtual?: boolean;
@@ -56,119 +57,8 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments }) => {
     });
   };
 
-  const handleGradeStudent = (assignment: AssignmentWithVirtual) => {
-    if (!assignment.id || !assignment.submitted_at || assignment.is_virtual) return;
-    router.visit(route('teacher.assessments.grade', {
-      assessment: assessment.id,
-      assignment: assignment.id,
-    }));
-  };
 
-  const handleViewResult = (assignment: AssignmentWithVirtual) => {
-    if (!assignment.id || assignment.is_virtual) return;
-    router.visit(route('teacher.assessments.review', {
-      assessment: assessment.id,
-      assignment: assignment.id,
-    }));
-  };
-
-  const getAssignmentStatus = (assignment: AssignmentWithVirtual): { label: string; type: 'gray' | 'info' | 'warning' | 'success' } => {
-    if (assignment.is_virtual) {
-      return { label: trans('assessment_pages.show.status_not_started'), type: 'gray' };
-    }
-    if (!assignment.submitted_at) {
-      return { label: trans('assessment_pages.show.status_in_progress'), type: 'info' };
-    }
-    if (assignment.score === null || assignment.score === undefined) {
-      return { label: trans('assessment_pages.show.status_pending_grading'), type: 'warning' };
-    }
-    return { label: trans('assessment_pages.show.status_graded'), type: 'success' };
-  };
-
-  const assignmentsTableConfig: DataTableConfig<AssignmentWithVirtual> = {
-    columns: [
-      {
-        key: 'student',
-        label: trans('assessment_pages.show.student'),
-        render: (assignment) => (
-          <div>
-            <div className="font-medium text-gray-900">{assignment.student?.name}</div>
-            <div className="text-sm text-gray-500">{assignment.student?.email}</div>
-          </div>
-        ),
-      },
-      {
-        key: 'status',
-        label: trans('assessment_pages.show.status'),
-        render: (assignment) => {
-          const status = getAssignmentStatus(assignment);
-          return <Badge label={status.label} type={status.type} size="sm" />;
-        },
-      },
-      {
-        key: 'score',
-        label: trans('assessment_pages.show.score'),
-        render: (assignment) => {
-          if (assignment.score !== null && assignment.score !== undefined) {
-            const percentage = totalPoints > 0 ? Math.round((assignment.score / totalPoints) * 100) : 0;
-            return (
-              <div>
-                <div className="text-sm font-medium text-gray-900">{assignment.score} / {totalPoints}</div>
-                <div className="text-xs text-gray-500">{percentage}%</div>
-              </div>
-            );
-          }
-          return <span className="text-gray-400">-</span>;
-        },
-      },
-      {
-        key: 'submitted_at',
-        label: trans('assessment_pages.show.submitted_at'),
-        render: (assignment) => assignment.submitted_at
-          ? <span className="text-sm text-gray-600">{formatDate(assignment.submitted_at, 'datetime')}</span>
-          : <span className="text-gray-400">-</span>,
-      },
-      {
-        key: 'actions',
-        label: trans('assessment_pages.show.actions'),
-        className: 'text-right',
-        render: (assignment) => (
-          <div className="flex items-center justify-end space-x-2">
-            {assignment.submitted_at && !assignment.is_virtual && (
-              <>
-                {(assignment.score === null || assignment.score === undefined) ? (
-                  <Button size="sm" variant="solid" color="primary" onClick={() => handleGradeStudent(assignment)}>
-                    {trans('assessment_pages.show.grade')}
-                  </Button>
-                ) : (
-                  <>
-                    <Button size="sm" variant="outline" color="secondary" onClick={() => handleGradeStudent(assignment)}>
-                      {trans('assessment_pages.show.edit_grade')}
-                    </Button>
-                    <Button size="sm" variant="outline" color="secondary" onClick={() => handleViewResult(assignment)}>
-                      {trans('assessment_pages.show.view_result')}
-                    </Button>
-                  </>
-                )}
-              </>
-            )}
-          </div>
-        ),
-      },
-    ],
-    searchPlaceholder: trans('assessment_pages.show.search_students'),
-    perPageOptions: [10, 25, 50],
-    emptyState: {
-      title: trans('assessment_pages.show.no_students'),
-      subtitle: trans('assessment_pages.show.no_students_description'),
-    },
-    emptySearchState: {
-      title: trans('assessment_pages.show.no_students_found'),
-      subtitle: trans('assessment_pages.show.no_students_found_description'),
-      resetLabel: trans('assessment_pages.show.reset_search'),
-    },
-  };
-
+  const levelNameDescription = `${assessment?.class_subject?.class?.level?.name} (${assessment?.class_subject?.class?.level?.description})`;
   return (
     <AuthenticatedLayout
       title={assessment.title}
@@ -210,46 +100,64 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments }) => {
             </div>
           }
         >
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <AssessmentHeader assessment={assessment} showDescription={true} showMetadata={false} />
+          <AssessmentHeader assessment={assessment} showDescription={true} showMetadata={false} />
+          <Stat.Group columns={3} className='border-b border-b-gray-300 pb-3'>
+            <TextEntry
+              label={trans('assessment_pages.common.class')}
+              value={assessment?.class_subject?.class?.name || '-'}
+            />
+            <TextEntry
+              label={trans('assessment_pages.common.level')}
+              value={assessment?.class_subject?.class?.level ? levelNameDescription : '-'}
+            />
+            <TextEntry
+              label={trans('assessment_pages.common.subject')}
+              value={assessment?.class_subject?.subject?.name || '-'}
+            />
 
-              <Stat.Group columns={4} className="mt-6">
-                <Stat.Item
-                  title={trans('assessment_pages.common.questions')}
-                  value={questionsCount}
-                  icon={QuestionMarkCircleIcon}
-                />
-                <Stat.Item
-                  title={trans('assessment_pages.common.total_points')}
-                  value={totalPoints}
-                  icon={StarIcon}
-                />
-                <Stat.Item
-                  title={trans('assessment_pages.common.duration')}
-                  value={formatDuration(assessment.duration_minutes)}
-                  icon={ClockIcon}
-                />
-                <Stat.Item
-                  title={trans('assessment_pages.common.concerned_students')}
-                  value={totalStudents}
-                  icon={UserGroupIcon}
-                />
-              </Stat.Group>
-            </div>
-          </div>
+          </Stat.Group>
+
+          <Stat.Group columns={4} className="mt-6">
+            <Stat.Item
+              title={trans('assessment_pages.common.questions')}
+              value={questionsCount}
+              icon={QuestionMarkCircleIcon}
+            />
+            <Stat.Item
+              title={trans('assessment_pages.common.total_points')}
+              value={totalPoints}
+              icon={StarIcon}
+            />
+            <Stat.Item
+              title={trans('assessment_pages.common.duration')}
+              value={formatDuration(assessment.duration_minutes)}
+              icon={ClockIcon}
+            />
+            <Stat.Item
+              title={trans('assessment_pages.common.concerned_students')}
+              value={totalStudents}
+              icon={UserGroupIcon}
+            />
+          </Stat.Group>
         </Section>
 
         <Section
           title={trans('assessment_pages.show.students_section_title')}
           subtitle={trans('assessment_pages.show.students_section_subtitle', { count: totalStudents })}
+          collapsible
+          defaultOpen={false}
         >
-          <DataTable data={assignments} config={assignmentsTableConfig} />
+          <AssignmentList
+            data={assignments}
+            assessment={assessment}
+            totalPoints={totalPoints}
+          />
         </Section>
 
         <Section
           title={trans('assessment_pages.common.assessment_questions')}
           collapsible
+          defaultOpen={false}
         >
           {(assessment.questions ?? []).length === 0 ? (
             <div className="text-center py-8 text-gray-500">

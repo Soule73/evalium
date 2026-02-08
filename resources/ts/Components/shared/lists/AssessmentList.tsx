@@ -13,10 +13,6 @@ interface AssessmentListProps {
   data: PaginationType<Assessment | (AssessmentAssignment & { assessment: Assessment })>;
   variant?: 'admin' | 'teacher' | 'student';
   onView?: (item: Assessment | AssessmentAssignment) => void;
-  onEdit?: (item: Assessment | AssessmentAssignment) => void;
-  onDelete?: (item: Assessment | AssessmentAssignment) => void;
-  onViewDetails?: (item: AssessmentAssignment & { assessment: Assessment }) => void;
-  onViewResults?: (item: AssessmentAssignment & { assessment: Assessment }) => void;
 }
 
 /**
@@ -30,10 +26,6 @@ export function AssessmentList({
   data,
   variant = 'teacher',
   onView,
-  onEdit,
-  onDelete,
-  onViewDetails,
-  onViewResults,
 }: AssessmentListProps) {
   const [togglingAssessments, setTogglingAssessments] = useState<Set<number>>(new Set());
 
@@ -186,16 +178,21 @@ export function AssessmentList({
         },
         conditional: (currentVariant) => currentVariant !== 'student',
       },
-
       {
-        key: 'class',
+        key: 'class_subject',
         labelKey: 'components.assessment_list.class_label',
         render: (item: AssessmentItem) => {
           const assessment = item as Assessment;
+          const levelNameDescription = `${assessment.class_subject?.class?.level?.name} (${assessment.class_subject?.class?.level?.description})`;
           return (
-            <span className="text-sm text-gray-700">
-              {assessment.class_subject?.class?.name || '-'}
-            </span>
+            <div>
+              <div className="font-medium text-gray-900">
+                {assessment.class_subject?.class?.name || '-'}, {levelNameDescription}
+              </div>
+              <div className="text-sm text-gray-500">
+                {trans('student_assessment_pages.index.subject')}: {assessment.class_subject?.subject?.name || '-'}
+              </div>
+            </div>
           );
         },
         conditional: (currentVariant) => currentVariant === 'teacher',
@@ -242,36 +239,6 @@ export function AssessmentList({
 
     actions: [
       {
-        labelKey: 'student_assessment_pages.index.view_results',
-        onClick: (item) => {
-          const assignment = item as AssessmentAssignment & { assessment: Assessment };
-          return onViewResults?.(assignment) ||
-            router.visit(route('student.assessments.results', assignment.assessment_id));
-        },
-        color: 'secondary',
-        variant: 'outline',
-        conditional: (item, currentVariant) => {
-          if (currentVariant !== 'student') return false;
-          const assignment = item as AssessmentAssignment;
-          return assignment.status === 'graded' || assignment.status === 'submitted';
-        },
-      },
-      {
-        labelKey: 'student_assessment_pages.index.view_details',
-        onClick: (item) => {
-          const assignment = item as AssessmentAssignment & { assessment: Assessment };
-          return onViewDetails?.(assignment) ||
-            router.visit(route('student.assessments.show', assignment.assessment_id));
-        },
-        color: 'primary',
-        variant: 'solid',
-        conditional: (item, currentVariant) => {
-          if (currentVariant !== 'student') return false;
-          const assignment = item as AssessmentAssignment;
-          return assignment.status !== 'graded' && assignment.status !== 'submitted';
-        },
-      },
-      {
         labelKey: 'components.assessment_list.view_assessment',
         onClick: (item) => {
           const assessment = item as Assessment;
@@ -281,29 +248,7 @@ export function AssessmentList({
         color: 'secondary',
         variant: 'outline',
         conditional: (_item, currentVariant) => currentVariant !== 'student',
-      },
-      {
-        labelKey: 'admin_pages.common.edit',
-        onClick: (item) => {
-          const assessment = item as Assessment;
-          return onEdit?.(assessment) || router.visit(route('teacher.assessments.edit', assessment.id));
-        },
-        permission: 'update assessments',
-        color: 'primary',
-        variant: 'outline',
-        conditional: (_item, currentVariant) => currentVariant === 'teacher',
-      },
-      {
-        labelKey: 'admin_pages.common.delete',
-        onClick: (item) => {
-          const assessment = item as Assessment;
-          return onDelete?.(assessment);
-        },
-        permission: 'delete assessments',
-        color: 'danger',
-        variant: 'outline',
-        conditional: (_item, currentVariant) => currentVariant === 'teacher',
-      },
+      }
     ],
   };
 

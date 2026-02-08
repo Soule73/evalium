@@ -52,15 +52,15 @@ class AssessmentController extends Controller
             $perPage
         );
 
-        $classSubjects = $this->assessmentQueryService->getClassSubjectsForTeacher(
-            $teacherId,
-            $selectedYearId
-        );
+        // $classSubjects = $this->assessmentQueryService->getClassSubjectsForTeacher(
+        //     $teacherId,
+        //     $selectedYearId
+        // );
 
         return Inertia::render('Teacher/Assessments/Index', [
             'assessments' => $assessments,
             'filters' => $filters,
-            'classSubjects' => $classSubjects,
+            // 'classSubjects' => $classSubjects,
         ]);
     }
 

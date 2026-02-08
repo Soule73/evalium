@@ -3,7 +3,7 @@ import { formatDuration } from '@/utils';
 import { ClockIcon, QuestionMarkCircleIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { formatDate } from '@/utils';
 import { trans } from '@/utils';
-import { MarkdownRenderer } from '@examena/ui';
+import { MarkdownRenderer, Stat } from '@examena/ui';
 
 interface AssessmentHeaderProps {
   assessment: Assessment;
@@ -36,28 +36,30 @@ export function AssessmentHeader({
       </div>
 
       {showMetadata && (
-        <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+        <Stat.Group columns={3}>
           {assessment.duration_minutes && (
-            <div className="flex items-center gap-2">
-              <ClockIcon className="w-4 h-4" />
-              <span>{formatDuration(assessment.duration_minutes)}</span>
-            </div>
+            <Stat.Item
+              title={trans('components.assessment_header.duration')}
+              value={formatDuration(assessment.duration_minutes)}
+              icon={ClockIcon}
+            />
           )}
           {assessment.questions && assessment.questions.length > 0 && (
-            <div className="flex items-center gap-2">
-              <QuestionMarkCircleIcon className="w-4 h-4" />
-              <span>
-                {trans('components.assessment_header.questions_count', { count: assessment.questions.length })}
-              </span>
-            </div>
+            <Stat.Item
+              title={trans('components.assessment_header.questions_count')}
+              value={assessment.questions.length}
+              icon={QuestionMarkCircleIcon}
+            />
           )}
           {assessment.created_at && (
-            <div className="flex items-center gap-2">
-              <CalendarIcon className="w-4 h-4" />
-              <span>{trans('components.assessment_header.created_on', { date: formatDate(assessment.created_at) })}</span>
-            </div>
+            <Stat.Item
+              title={trans('components.assessment_header.created_on')}
+              value={formatDate(assessment.created_at)}
+              icon={CalendarIcon}
+            />
+
           )}
-        </div>
+        </Stat.Group>
       )}
     </div>
   );

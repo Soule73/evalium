@@ -13,6 +13,10 @@ interface AssessmentEditData {
   type: AssessmentType;
   class_subject_id: number;
   is_published: boolean;
+  shuffle_questions: boolean;
+  show_results_immediately: boolean;
+  allow_late_submission: boolean;
+  one_question_per_page: boolean;
   questions: QuestionFormData[];
   deletedQuestionIds: number[];
   deletedChoiceIds: number[];
@@ -51,6 +55,10 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
     type: assessment.type,
     class_subject_id: assessment.class_subject_id || 0,
     is_published: assessment.is_published ?? false,
+    shuffle_questions: assessment.shuffle_questions ?? false,
+    show_results_immediately: assessment.show_results_immediately ?? true,
+    allow_late_submission: assessment.allow_late_submission ?? false,
+    one_question_per_page: assessment.one_question_per_page ?? false,
     questions: [],
     deletedQuestionIds: [],
     deletedChoiceIds: []

@@ -19,7 +19,7 @@ class TeacherAssessmentQueryService
         int $perPage
     ): LengthAwarePaginator {
         return Assessment::query()
-            ->with(['classSubject.class', 'classSubject.subject', 'questions'])
+            ->with(['classSubject.class.academicYear', 'classSubject.class.level', 'classSubject.subject', 'questions'])
             ->forAcademicYear($selectedYearId)
             ->whereHas('classSubject', fn ($query) => $query->where('teacher_id', $teacherId))
             ->when(

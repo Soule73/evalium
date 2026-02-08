@@ -38,6 +38,10 @@ class Assessment extends Model
     protected $appends = [
         'duration',
         'is_published',
+        'shuffle_questions',
+        'show_results_immediately',
+        'allow_late_submission',
+        'one_question_per_page',
     ];
 
     /**
@@ -130,6 +134,86 @@ class Assessment extends Model
     {
         $settings = $this->settings ?? [];
         $settings['is_published'] = $value;
+        $this->settings = $settings;
+    }
+
+    /**
+     * Get whether questions should be shuffled.
+     */
+    public function getShuffleQuestionsAttribute(): bool
+    {
+        $settings = $this->settings ?? [];
+
+        return $settings['shuffle_questions'] ?? false;
+    }
+
+    /**
+     * Set whether questions should be shuffled.
+     */
+    public function setShuffleQuestionsAttribute(bool $value): void
+    {
+        $settings = $this->settings ?? [];
+        $settings['shuffle_questions'] = $value;
+        $this->settings = $settings;
+    }
+
+    /**
+     * Get whether results should be shown immediately after submission.
+     */
+    public function getShowResultsImmediatelyAttribute(): bool
+    {
+        $settings = $this->settings ?? [];
+
+        return $settings['show_results_immediately'] ?? true;
+    }
+
+    /**
+     * Set whether results should be shown immediately after submission.
+     */
+    public function setShowResultsImmediatelyAttribute(bool $value): void
+    {
+        $settings = $this->settings ?? [];
+        $settings['show_results_immediately'] = $value;
+        $this->settings = $settings;
+    }
+
+    /**
+     * Get whether late submission is allowed.
+     */
+    public function getAllowLateSubmissionAttribute(): bool
+    {
+        $settings = $this->settings ?? [];
+
+        return $settings['allow_late_submission'] ?? false;
+    }
+
+    /**
+     * Set whether late submission is allowed.
+     */
+    public function setAllowLateSubmissionAttribute(bool $value): void
+    {
+        $settings = $this->settings ?? [];
+        $settings['allow_late_submission'] = $value;
+        $this->settings = $settings;
+    }
+
+    /**
+     * Get whether to show one question per page.
+     */
+    public function getOneQuestionPerPageAttribute(): bool
+    {
+        $settings = $this->settings ?? [];
+
+        return $settings['one_question_per_page'] ?? false;
+    }
+
+    /**
+     * Set whether to show one question per page.
+     */
+    public function setOneQuestionPerPageAttribute(bool $value): void
+    {
+        $settings = $this->settings ?? [];
+        $settings['one_question_per_page'] = $value;
         $this->settings = $settings;
     }
 }

@@ -282,9 +282,30 @@ return [
         'reset_filters' => 'Reset filters',
     ],
 
+    'assignment_list' => [
+        'student' => 'Student',
+        'status' => 'Status',
+        'score' => 'Score',
+        'submitted_at' => 'Submitted at',
+        'actions' => 'Actions',
+        'status_not_started' => 'Not started',
+        'status_in_progress' => 'In progress',
+        'status_pending_grading' => 'Pending grading',
+        'status_graded' => 'Graded',
+        'grade' => 'Grade',
+        'edit_grade' => 'Edit grade',
+        'view_result' => 'View result',
+        'search_students' => 'Search students...',
+        'no_students' => 'No students assigned',
+        'no_students_description' => 'Students will appear here once enrolled in this class.',
+    ],
+
     'assessment_header' => [
-        'questions_count' => ':count questions',
-        'created_on' => 'Created on :date',
+        'questions_count' => 'Questions',
+        'created_on' => 'Created at',
+        'duration' => 'Duration',
+        'subject' => 'Subject',
+        'class' => 'Class',
     ],
 
     'assessment_general_config' => [
@@ -307,6 +328,11 @@ return [
         'description_label' => 'Description',
         'description_placeholder' => 'Enter assessment description...',
         'description_help' => 'Markdown formatting supported',
+        'options_title' => 'Options',
+        'shuffle_questions_label' => 'Shuffle questions',
+        'show_results_immediately_label' => 'Show results immediately',
+        'allow_late_submission_label' => 'Allow late submission',
+        'one_question_per_page_label' => 'One question per page',
     ],
 
     // FullscreenModal

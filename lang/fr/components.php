@@ -277,8 +277,11 @@ return [
 
     // AssessmentHeader
     'assessment_header' => [
-        'questions_count' => ':count question|:count questions',
-        'created_on' => 'Cree le :date',
+        'questions_count' => 'Questions',
+        'created_on' => 'Créé le',
+        'duration' => 'Durée',
+        'subject' => 'Matière',
+        'class' => 'Classe',
     ],
 
     // AssessmentList
@@ -289,7 +292,7 @@ return [
         'duration_label' => 'Duree',
         'class_label' => 'Classe',
         'status_label' => 'Statut',
-        'created_on' => 'Cree le',
+        'created_on' => 'Créé le',
         'actions_label' => 'Actions',
         'status_published' => 'Publie',
         'status_unpublished' => 'Non publie',
@@ -299,6 +302,25 @@ return [
         'empty_search_title' => 'Aucune evaluation trouvee',
         'empty_search_subtitle' => 'Essayez de modifier vos criteres de recherche ou de filtrage.',
         'reset_filters' => 'Reinitialiser les filtres',
+    ],
+
+    // AssignmentList
+    'assignment_list' => [
+        'student' => 'Etudiant',
+        'status' => 'Statut',
+        'score' => 'Note',
+        'submitted_at' => 'Soumis le',
+        'actions' => 'Actions',
+        'status_not_started' => 'Non commence',
+        'status_in_progress' => 'En cours',
+        'status_pending_grading' => 'En attente de correction',
+        'status_graded' => 'Corrige',
+        'grade' => 'Corriger',
+        'edit_grade' => 'Modifier la note',
+        'view_result' => 'Voir le resultat',
+        'search_students' => 'Rechercher des etudiants...',
+        'no_students' => 'Aucun etudiant assigne',
+        'no_students_description' => 'Les etudiants apparaitront ici une fois inscrits dans cette classe.',
     ],
 
     'assessment_general_config' => [
@@ -321,6 +343,11 @@ return [
         'description_label' => 'Description',
         'description_placeholder' => 'Entrez la description de l\'évaluation...',
         'description_help' => 'Formatage Markdown supporté',
+        'options_title' => 'Options',
+        'shuffle_questions_label' => 'Mélanger les questions',
+        'show_results_immediately_label' => 'Afficher les résultats immédiatement',
+        'allow_late_submission_label' => 'Autoriser les soumissions tardives',
+        'one_question_per_page_label' => 'Une question par page',
     ],
 
     // FullscreenModal

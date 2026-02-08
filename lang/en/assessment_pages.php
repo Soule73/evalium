@@ -71,6 +71,9 @@ return [
             'assignments' => 'Assignments',
             'statistics' => 'Statistics',
         ],
+        'class' => 'Class',
+        'subject' => 'Subject',
+        'level' => 'Level',
     ],
 
     'assign' => [

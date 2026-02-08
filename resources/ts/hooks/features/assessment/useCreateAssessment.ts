@@ -13,6 +13,10 @@ interface AssessmentCreateData {
   type: AssessmentType;
   class_subject_id: number;
   is_published: boolean;
+  shuffle_questions: boolean;
+  show_results_immediately: boolean;
+  allow_late_submission: boolean;
+  one_question_per_page: boolean;
   questions: QuestionFormData[];
 }
 
@@ -30,6 +34,10 @@ export const useCreateAssessment = () => {
     type: 'devoir',
     class_subject_id: 0,
     is_published: false,
+    shuffle_questions: false,
+    show_results_immediately: true,
+    allow_late_submission: false,
+    one_question_per_page: false,
     questions: []
   });
 

@@ -4,6 +4,7 @@ export { ClassSubjectList } from './ClassSubjectList';
 export { ClassSubjectHistoryList } from './ClassSubjectHistoryList';
 export { SubjectList } from './SubjectList';
 export { AssessmentList } from './AssessmentList';
+export { AssignmentList } from './AssignmentList';
 export { UserList } from './UserList';
 export { EnrollmentList } from './EnrollmentList';
 export { RoleList } from './RoleList';

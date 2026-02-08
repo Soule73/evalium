@@ -40,8 +40,14 @@ class AssessmentService
                 'coefficient' => $data['coefficient'],
                 'duration_minutes' => $data['duration_minutes'],
                 'scheduled_at' => $data['scheduled_at'] ?? null,
-                'is_published' => $data['is_published'] ?? false,
             ]);
+
+            $assessment->is_published = $data['is_published'] ?? false;
+            $assessment->shuffle_questions = $data['shuffle_questions'] ?? false;
+            $assessment->show_results_immediately = $data['show_results_immediately'] ?? true;
+            $assessment->allow_late_submission = $data['allow_late_submission'] ?? false;
+            $assessment->one_question_per_page = $data['one_question_per_page'] ?? false;
+            $assessment->save();
 
             if (isset($data['questions']) && is_array($data['questions'])) {
                 foreach ($data['questions'] as $questionData) {
@@ -67,14 +73,30 @@ class AssessmentService
                 'coefficient' => $data['coefficient'] ?? null,
                 'duration_minutes' => $data['duration_minutes'] ?? null,
                 'scheduled_at' => $data['scheduled_at'] ?? null,
-                'is_published' => $data['is_published'] ?? null,
-            ], fn($value) => $value !== null);
+            ], fn ($value) => $value !== null);
 
             if (isset($data['coefficient']) && $data['coefficient'] <= 0) {
                 throw AssessmentException::invalidCoefficient();
             }
 
             $assessment->update($updateData);
+
+            if (array_key_exists('is_published', $data)) {
+                $assessment->is_published = $data['is_published'];
+            }
+            if (array_key_exists('shuffle_questions', $data)) {
+                $assessment->shuffle_questions = $data['shuffle_questions'];
+            }
+            if (array_key_exists('show_results_immediately', $data)) {
+                $assessment->show_results_immediately = $data['show_results_immediately'];
+            }
+            if (array_key_exists('allow_late_submission', $data)) {
+                $assessment->allow_late_submission = $data['allow_late_submission'];
+            }
+            if (array_key_exists('one_question_per_page', $data)) {
+                $assessment->one_question_per_page = $data['one_question_per_page'];
+            }
+            $assessment->save();
 
             if (isset($data['deletedChoiceIds']) && ! empty($data['deletedChoiceIds'])) {
                 $this->choiceManagementService->deleteChoicesByIds($data['deletedChoiceIds']);
@@ -156,7 +178,7 @@ class AssessmentService
     {
         return DB::transaction(function () use ($assessment, $overrides) {
             $newAssessment = $assessment->replicate();
-            $newAssessment->title = $overrides['title'] ?? ($assessment->title . ' (Copy)');
+            $newAssessment->title = $overrides['title'] ?? ($assessment->title.' (Copy)');
             $newAssessment->is_published = false;
             $newAssessment->scheduled_at = $overrides['scheduled_at'] ?? null;
             $newAssessment->save();
