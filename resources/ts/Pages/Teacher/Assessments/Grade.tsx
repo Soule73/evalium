@@ -21,19 +21,19 @@ export default function GradeAssignment({ assessment, student, assignment, userA
 
   const [scores, setScores] = useState<Record<number, number>>(() => {
     const initialScores: Record<number, number> = {};
-    Object.values(userAnswers || {}).forEach(answer => {
-      if (answer.question_id && answer.score !== null && answer.score !== undefined) {
-        initialScores[answer.question_id] = answer.score;
-      }
+    (assessment.questions ?? []).forEach(question => {
+      const answer = userAnswers[question.id];
+      initialScores[question.id] = answer?.score ?? 0;
     });
     return initialScores;
   });
 
   const [feedbacks, setFeedbacks] = useState<Record<number, string>>(() => {
     const initialFeedbacks: Record<number, string> = {};
-    Object.values(userAnswers || {}).forEach(answer => {
-      if (answer.question_id && answer.feedback) {
-        initialFeedbacks[answer.question_id] = answer.feedback;
+    (assessment.questions ?? []).forEach(question => {
+      const answer = userAnswers[question.id];
+      if (answer?.feedback) {
+        initialFeedbacks[question.id] = answer.feedback;
       }
     });
     return initialFeedbacks;

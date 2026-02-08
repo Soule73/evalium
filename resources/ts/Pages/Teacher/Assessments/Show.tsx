@@ -57,7 +57,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments }) => {
   };
 
   const handleGradeStudent = (assignment: AssignmentWithVirtual) => {
-    if (!assignment.submitted_at) return;
+    if (!assignment.id || !assignment.submitted_at || assignment.is_virtual) return;
     router.visit(route('teacher.assessments.grade', {
       assessment: assessment.id,
       assignment: assignment.id,
@@ -65,6 +65,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments }) => {
   };
 
   const handleViewResult = (assignment: AssignmentWithVirtual) => {
+    if (!assignment.id || assignment.is_virtual) return;
     router.visit(route('teacher.assessments.review', {
       assessment: assessment.id,
       assignment: assignment.id,

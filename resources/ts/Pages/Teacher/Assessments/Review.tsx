@@ -128,7 +128,7 @@ export default function ReviewAssignment({ assessment, student, assignment, user
             />
             <Stat.Item
               title={trans('grading_pages.review.graded_at')}
-              value={assignment.graded_at ? formatDate(assignment.graded_at, 'time') : '-'}
+              value={assignment.graded_at ? formatDate(assignment.graded_at, 'datetime') : '-'}
               icon={DocumentTextIcon}
             />
           </Stat.Group>
