@@ -6,7 +6,7 @@ use App\Models\Assessment;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 class TeacherClassQueryService
 {
@@ -25,13 +25,26 @@ class TeacherClassQueryService
             ->with([
                 'class.academicYear',
                 'class.level',
-                'class.students',
                 'subject',
-                'assessments',
             ])
             ->get();
 
-        $classes = $classSubjects->unique('class_id')->pluck('class')->values();
+        $classSubjectsByClassId = $classSubjects->groupBy('class_id');
+
+        $classIds = $classSubjectsByClassId->keys();
+
+        $classes = ClassModel::whereIn('id', $classIds)
+            ->with(['academicYear', 'level'])
+            ->withCount(['enrollments as active_enrollments_count' => function ($query) {
+                $query->where('status', 'active');
+            }])
+            ->get();
+
+        $classes = $classes->map(function ($class) use ($classSubjectsByClassId) {
+            $class->setRelation('class_subjects', $classSubjectsByClassId->get($class->id, collect()));
+
+            return $class;
+        });
 
         $classes = $this->applyClassFilters($classes, $filters);
 
@@ -95,26 +108,6 @@ class TeacherClassQueryService
             ->latest('scheduled_at')
             ->paginate($perPage, ['*'], 'assessments_page')
             ->withQueryString();
-    }
-
-    /**
-     * Get all class subjects for a teacher (for full class list on index).
-     */
-    public function getClassSubjectsForTeacher(
-        int $teacherId,
-        int $selectedYearId
-    ): Collection {
-        return ClassSubject::where('teacher_id', $teacherId)
-            ->forAcademicYear($selectedYearId)
-            ->active()
-            ->with([
-                'class.academicYear',
-                'class.level',
-                'class.students',
-                'subject',
-                'assessments',
-            ])
-            ->get();
     }
 
     /**

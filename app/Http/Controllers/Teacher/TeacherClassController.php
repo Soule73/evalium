@@ -35,14 +35,8 @@ class TeacherClassController extends Controller
             $perPage
         );
 
-        $classSubjects = $this->classQueryService->getClassSubjectsForTeacher(
-            $teacherId,
-            $selectedYearId
-        );
-
         return Inertia::render('Teacher/Classes/Index', [
             'classes' => $paginatedClasses->withQueryString(),
-            'classSubjects' => $classSubjects,
             'filters' => $filters,
         ]);
     }
@@ -81,7 +75,7 @@ class TeacherClassController extends Controller
         $class->load([
             'academicYear',
             'level',
-            'enrollments' => fn ($q) => $q->where('status', 'active'),
+            'enrollments' => fn($q) => $q->where('status', 'active'),
         ]);
 
         return Inertia::render('Teacher/Classes/Show', [
