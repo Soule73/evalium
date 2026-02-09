@@ -26,8 +26,9 @@ class StudentAssignmentQueryService
     {
         $query = AssessmentAssignment::where('student_id', $student->id)
             ->with([
-                'assessment:id,title,subject,duration,total_points,class_subject_id',
+                'assessment:id,title,duration_minutes,class_subject_id,teacher_id',
                 'assessment.teacher:id,name',
+                'assessment.classSubject.subject:id,name',
             ])
             ->orderBy('created_at', 'desc');
 
@@ -43,8 +44,10 @@ class StudentAssignmentQueryService
 
         if (isset($filters['search']) && $filters['search']) {
             $query->whereHas('assessment', function ($q) use ($filters) {
-                $q->where('title', 'like', '%' . $filters['search'] . '%')
-                    ->orWhere('subject', 'like', '%' . $filters['search'] . '%');
+                $q->where('title', 'like', '%'.$filters['search'].'%')
+                    ->orWhereHas('classSubject.subject', function ($sq) use ($filters) {
+                        $sq->where('name', 'like', '%'.$filters['search'].'%');
+                    });
             });
         }
 
@@ -63,8 +66,9 @@ class StudentAssignmentQueryService
     {
         $query = AssessmentAssignment::where('student_id', $student->id)
             ->with([
-                'assessment:id,title,subject,duration,total_points,class_subject_id',
+                'assessment:id,title,duration_minutes,class_subject_id,teacher_id',
                 'assessment.teacher:id,name',
+                'assessment.classSubject.subject:id,name',
             ])
             ->orderBy('created_at', 'desc');
 
@@ -80,8 +84,10 @@ class StudentAssignmentQueryService
 
         if (isset($filters['search']) && $filters['search']) {
             $query->whereHas('assessment', function ($q) use ($filters) {
-                $q->where('title', 'like', '%' . $filters['search'] . '%')
-                    ->orWhere('subject', 'like', '%' . $filters['search'] . '%');
+                $q->where('title', 'like', '%'.$filters['search'].'%')
+                    ->orWhereHas('classSubject.subject', function ($sq) use ($filters) {
+                        $sq->where('name', 'like', '%'.$filters['search'].'%');
+                    });
             });
         }
 
@@ -123,7 +129,10 @@ class StudentAssignmentQueryService
     {
         return AssessmentAssignment::where('student_id', $student->id)
             ->whereNull('submitted_at')
-            ->with('assessment:id,title,subject,duration,total_points')
+            ->with([
+                'assessment:id,title,duration_minutes,class_subject_id',
+                'assessment.questions:id,assessment_id,points',
+            ])
             ->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get();
@@ -140,7 +149,10 @@ class StudentAssignmentQueryService
     {
         return AssessmentAssignment::where('student_id', $student->id)
             ->whereNotNull('submitted_at')
-            ->with('assessment:id,title,subject,total_points')
+            ->with([
+                'assessment:id,title,class_subject_id',
+                'assessment.questions:id,assessment_id,points',
+            ])
             ->orderBy('submitted_at', 'desc')
             ->limit($limit)
             ->get();
