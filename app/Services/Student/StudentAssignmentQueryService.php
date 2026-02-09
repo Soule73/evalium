@@ -44,9 +44,9 @@ class StudentAssignmentQueryService
 
         if (isset($filters['search']) && $filters['search']) {
             $query->whereHas('assessment', function ($q) use ($filters) {
-                $q->where('title', 'like', '%'.$filters['search'].'%')
+                $q->where('title', 'like', '%' . $filters['search'] . '%')
                     ->orWhereHas('classSubject.subject', function ($sq) use ($filters) {
-                        $sq->where('name', 'like', '%'.$filters['search'].'%');
+                        $sq->where('name', 'like', '%' . $filters['search'] . '%');
                     });
             });
         }
@@ -84,9 +84,9 @@ class StudentAssignmentQueryService
 
         if (isset($filters['search']) && $filters['search']) {
             $query->whereHas('assessment', function ($q) use ($filters) {
-                $q->where('title', 'like', '%'.$filters['search'].'%')
+                $q->where('title', 'like', '%' . $filters['search'] . '%')
                     ->orWhereHas('classSubject.subject', function ($sq) use ($filters) {
-                        $sq->where('name', 'like', '%'.$filters['search'].'%');
+                        $sq->where('name', 'like', '%' . $filters['search'] . '%');
                     });
             });
         }

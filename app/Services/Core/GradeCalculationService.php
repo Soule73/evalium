@@ -225,6 +225,105 @@ class GradeCalculationService
             }
         }
 
-        return $studentCount > 0 ? $totalGrade / $studentCount : null;
+        return $studentCount > 0 ? round($totalGrade / $studentCount, 2) : null;
+    }
+
+    /**
+     * Get overall statistics for a student (centralized for dashboard)
+     *
+     * @param  User  $student  The student
+     * @param  int|null  $academicYearId  Filter by academic year
+     * @return array{overall_average: float|null, total_assessments: int, graded_assessments: int, pending_assessments: int, subjects_breakdown: array}
+     */
+    public function getStudentOverallStats(User $student, ?int $academicYearId = null): array
+    {
+        $query = $student->enrollments()->where('status', 'active');
+
+        if ($academicYearId) {
+            $query->whereHas('class', function ($q) use ($academicYearId) {
+                $q->where('academic_year_id', $academicYearId);
+            });
+        }
+
+        $enrollment = $query->with('class')->first();
+
+        if (! $enrollment) {
+            return [
+                'overall_average' => null,
+                'total_assessments' => 0,
+                'graded_assessments' => 0,
+                'pending_assessments' => 0,
+                'subjects_breakdown' => [],
+            ];
+        }
+
+        $gradeBreakdown = $this->getGradeBreakdown($student, $enrollment->class);
+
+        $assignmentsQuery = AssessmentAssignment::where('student_id', $student->id);
+        if ($academicYearId) {
+            $assignmentsQuery->whereHas('assessment.classSubject.class', function ($q) use ($academicYearId) {
+                $q->where('academic_year_id', $academicYearId);
+            });
+        }
+
+        $totalAssessments = $assignmentsQuery->count();
+        $gradedAssessments = (clone $assignmentsQuery)->whereNotNull('score')->count();
+        $pendingAssessments = (clone $assignmentsQuery)->whereNull('submitted_at')->count();
+
+        return [
+            'overall_average' => $gradeBreakdown['annual_average'],
+            'total_assessments' => $totalAssessments,
+            'graded_assessments' => $gradedAssessments,
+            'pending_assessments' => $pendingAssessments,
+            'subjects_breakdown' => $gradeBreakdown['subjects'],
+        ];
+    }
+
+    /**
+     * Get detailed assessment summary with normalized grades
+     *
+     * @param  User  $student  The student
+     * @param  int|null  $academicYearId  Filter by academic year
+     * @return array[] List of assessments with raw score, max points, and normalized grade on /20
+     */
+    public function getStudentAssessmentSummary(User $student, ?int $academicYearId = null): array
+    {
+        $query = AssessmentAssignment::where('student_id', $student->id)
+            ->with([
+                'assessment.questions',
+                'assessment.classSubject.subject',
+                'assessment.classSubject.class',
+            ]);
+
+        if ($academicYearId) {
+            $query->whereHas('assessment.classSubject.class', function ($q) use ($academicYearId) {
+                $q->where('academic_year_id', $academicYearId);
+            });
+        }
+
+        return $query->get()->map(function ($assignment) {
+            $maxPoints = $assignment->assessment->questions->sum('points');
+            $normalizedGrade = null;
+
+            if ($assignment->score !== null && $maxPoints > 0) {
+                $normalizedGrade = round(($assignment->score / $maxPoints) * 20, 2);
+            }
+
+            return [
+                'id' => $assignment->id,
+                'assessment_id' => $assignment->assessment_id,
+                'title' => $assignment->assessment->title,
+                'type' => $assignment->assessment->type,
+                'subject_name' => $assignment->assessment->classSubject->subject->name ?? null,
+                'class_name' => $assignment->assessment->classSubject->class->name ?? null,
+                'coefficient' => $assignment->assessment->coefficient,
+                'raw_score' => $assignment->score,
+                'max_points' => $maxPoints,
+                'normalized_grade' => $normalizedGrade,
+                'status' => $assignment->status,
+                'submitted_at' => $assignment->submitted_at?->toISOString(),
+                'graded_at' => $assignment->graded_at?->toISOString(),
+            ];
+        })->toArray();
     }
 }

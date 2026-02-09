@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\Student\StudentAssignmentResource;
+use App\Http\Resources\Student\StudentDashboardStatsResource;
 use App\Services\Admin\AdminDashboardService;
 use App\Services\Core\RoleBasedRedirectService;
 use App\Services\Student\StudentAssignmentQueryService;
@@ -70,9 +72,13 @@ class DashboardController extends Controller
             $request->input('per_page', 10)
         );
 
+        $assessmentAssignments->through(
+            fn($assignment) => (new StudentAssignmentResource($assignment))->resolve()
+        );
+
         return Inertia::render('Dashboard/Student', [
             'user' => $user,
-            'stats' => $stats,
+            'stats' => (new StudentDashboardStatsResource($stats))->resolve(),
             'assessmentAssignments' => $assessmentAssignments,
         ]);
     }
