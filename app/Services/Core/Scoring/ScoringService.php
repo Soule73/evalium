@@ -37,45 +37,38 @@ class ScoringService
     /**
      * Calculate the total score for an exam assignment.
      *
-     * Iterates through all questions and calculates the score for each.
      *
      * @param  AssessmentAssignment  $assignment  The assignment to evaluate
      * @return float The total earned score
      */
     public function calculateAssignmentScore(AssessmentAssignment $assignment): float
     {
+        $assignment->loadMissing([
+            'assessment.questions.choices',
+            'answers',
+        ]);
+
+        $answersByQuestionId = $assignment->answers->groupBy('question_id');
+
         $totalScore = 0.0;
 
-        $assessment = $assignment->assessment()->with('questions.choices')->first();
+        foreach ($assignment->assessment->questions as $question) {
+            $questionAnswers = $answersByQuestionId->get($question->id, collect());
 
-        foreach ($assessment->questions as $question) {
-            $totalScore += $this->calculateQuestionScore($assignment, $question);
+            if ($questionAnswers->isEmpty()) {
+                continue;
+            }
+
+            $strategy = $this->getStrategyForQuestionType($question->type);
+
+            if (! $strategy) {
+                continue;
+            }
+
+            $totalScore += $strategy->calculateScore($question, $questionAnswers);
         }
 
         return round($totalScore, 2);
-    }
-
-    /**
-     * Calculate the score for a specific question.
-     *
-     * @param  AssessmentAssignment  $assignment  The assignment being evaluated
-     * @param  Question  $question  The question to score
-     * @return float The earned score for this question
-     */
-    public function calculateQuestionScore(AssessmentAssignment $assignment, Question $question): float
-    {
-        $answers = $assignment->answers()
-            ->where('question_id', $question->id)
-            ->with('choice')
-            ->get();
-
-        $strategy = $this->getStrategyForQuestionType($question->type);
-
-        if (! $strategy) {
-            return 0.0;
-        }
-
-        return $strategy->calculateScore($question, $answers);
     }
 
     /**
@@ -106,16 +99,41 @@ class ScoringService
      */
     public function calculateAutoCorrectableScore(AssessmentAssignment $assignment): float
     {
-        $totalScore = 0.0;
+        $assignment->loadMissing([
+            'assessment.questions.choices',
+            'answers',
+        ]);
 
         $autoCorrectableTypes = ['one_choice', 'multiple', 'boolean'];
 
-        $assessment = $assignment->assessment()->with('questions.choices')->first();
+        $autoCorrectableQuestions = $assignment->assessment->questions
+            ->whereIn('type', $autoCorrectableTypes)
+            ->keyBy('id');
 
-        foreach ($assessment->questions as $question) {
-            if (in_array($question->type, $autoCorrectableTypes)) {
-                $totalScore += $this->calculateQuestionScore($assignment, $question);
+        if ($autoCorrectableQuestions->isEmpty()) {
+            return 0.0;
+        }
+
+        $answersByQuestionId = $assignment->answers
+            ->whereIn('question_id', $autoCorrectableQuestions->keys())
+            ->groupBy('question_id');
+
+        $totalScore = 0.0;
+
+        foreach ($autoCorrectableQuestions as $questionId => $question) {
+            $questionAnswers = $answersByQuestionId->get($questionId, collect());
+
+            if ($questionAnswers->isEmpty()) {
+                continue;
             }
+
+            $strategy = $this->getStrategyForQuestionType($question->type);
+
+            if (! $strategy) {
+                continue;
+            }
+
+            $totalScore += $strategy->calculateScore($question, $questionAnswers);
         }
 
         return round($totalScore, 2);
@@ -188,21 +206,21 @@ class ScoringService
      */
     public function saveManualGrades(AssessmentAssignment $assignment, array $scores, ?string $teacherNotes = null): array
     {
+        $assignment->loadMissing('answers');
+
+        $answersByQuestionId = $assignment->answers->groupBy('question_id');
+
         $updatedCount = 0;
 
         foreach ($scores as $scoreData) {
-            $answers = $assignment->answers()
-                ->where('question_id', $scoreData['question_id'])
-                ->get();
+            $answers = $answersByQuestionId->get($scoreData['question_id'], collect());
 
             if ($answers->isNotEmpty()) {
-                // Update the first answer with the score
                 $answers->first()->update([
                     'score' => $scoreData['score'],
                     'feedback' => $scoreData['feedback'] ?? null,
                 ]);
 
-                // Update remaining answers (for multiple choice) with 0 score but same feedback
                 $answers->skip(1)->each(function ($answer) use ($scoreData) {
                     $answer->update([
                         'score' => 0,
@@ -214,10 +232,8 @@ class ScoringService
             }
         }
 
-        // Recalculate total score
         $totalScore = $this->calculateAssignmentScore($assignment);
 
-        // Update assignment
         $assignment->update([
             'score' => $totalScore,
             'teacher_notes' => $teacherNotes,

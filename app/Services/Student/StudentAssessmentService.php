@@ -140,22 +140,37 @@ class StudentAssessmentService
      */
     public function autoScoreAssessment(AssessmentAssignment $assignment, Assessment $assessment): void
     {
-        $assessment->load('questions.choices');
+        $assessment->loadMissing('questions.choices');
+        $assignment->loadMissing('answers');
 
-        $hasTextQuestions = $assessment->questions->contains('type', 'text');
+        $autoScorableQuestions = $assessment->questions
+            ->whereNotIn('type', ['text'])
+            ->keyBy('id');
 
-        foreach ($assessment->questions as $question) {
-            if ($question->type === 'text') {
-                continue;
-            }
+        if ($autoScorableQuestions->isEmpty()) {
+            return;
+        }
 
-            $answers = $assignment->answers()->where('question_id', $question->id)->get();
+        $answersByQuestionId = $assignment->answers
+            ->whereIn('question_id', $autoScorableQuestions->keys())
+            ->groupBy('question_id');
+
+        foreach ($autoScorableQuestions as $questionId => $question) {
+            $answers = $answersByQuestionId->get($questionId, collect());
 
             if ($answers->isEmpty()) {
                 continue;
             }
 
-            $score = $this->scoringService->calculateQuestionScore($assignment, $question);
+            $strategy = $this->scoringService->getStrategies();
+            $score = 0.0;
+
+            foreach ($strategy as $scoringStrategy) {
+                if ($scoringStrategy->supports($question->type)) {
+                    $score = $scoringStrategy->calculateScore($question, $answers);
+                    break;
+                }
+            }
 
             $answers->first()->update(['score' => $score]);
 
@@ -163,6 +178,8 @@ class StudentAssessmentService
                 $answer->update(['score' => 0]);
             });
         }
+
+        $hasTextQuestions = $assessment->questions->contains('type', 'text');
 
         if (! $hasTextQuestions) {
             $totalScore = $this->scoringService->calculateAssignmentScore($assignment);

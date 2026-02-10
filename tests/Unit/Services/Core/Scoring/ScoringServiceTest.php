@@ -2,15 +2,16 @@
 
 namespace Tests\Unit\Services\Core\Scoring;
 
+use Tests\TestCase;
 use App\Models\Answer;
-use App\Models\AssessmentAssignment;
 use App\Models\Choice;
 use App\Models\Question;
+use Illuminate\Support\Facades\DB;
+use App\Models\AssessmentAssignment;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Traits\InteractsWithTestData;
 use App\Services\Core\Scoring\ScoringService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
-use Tests\Traits\InteractsWithTestData;
 
 class ScoringServiceTest extends TestCase
 {
@@ -74,7 +75,8 @@ class ScoringServiceTest extends TestCase
 
         $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice->id]);
 
-        $score = $this->scoringService->calculateQuestionScore($assignment, $question);
+        $assignment->loadMissing(['assessment.questions.choices', 'answers']);
+        $score = $this->scoringService->calculateAssignmentScore($assignment);
 
         $this->assertEquals(10, $score);
     }
@@ -101,7 +103,8 @@ class ScoringServiceTest extends TestCase
 
         $this->createAnswer($assignment, $question, ['choice_id' => $incorrectChoice->id]);
 
-        $score = $this->scoringService->calculateQuestionScore($assignment, $question);
+        $assignment->loadMissing(['assessment.questions.choices', 'answers']);
+        $score = $this->scoringService->calculateAssignmentScore($assignment);
 
         $this->assertEquals(0, $score);
     }
@@ -132,7 +135,8 @@ class ScoringServiceTest extends TestCase
             'choice_id' => $correctChoice2->id,
         ]);
 
-        $score = $this->scoringService->calculateQuestionScore($assignment, $question);
+        $assignment->loadMissing(['assessment.questions.choices', 'answers']);
+        $score = $this->scoringService->calculateAssignmentScore($assignment);
 
         $this->assertEquals(15, $score);
     }
@@ -159,7 +163,8 @@ class ScoringServiceTest extends TestCase
 
         $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice1->id]);
 
-        $score = $this->scoringService->calculateQuestionScore($assignment, $question);
+        $assignment->loadMissing(['assessment.questions.choices', 'answers']);
+        $score = $this->scoringService->calculateAssignmentScore($assignment);
 
         $this->assertEquals(0, $score);
     }
@@ -187,7 +192,8 @@ class ScoringServiceTest extends TestCase
         $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice->id]);
         $this->createAnswer($assignment, $question, ['choice_id' => $incorrectChoice->id]);
 
-        $score = $this->scoringService->calculateQuestionScore($assignment, $question);
+        $assignment->loadMissing(['assessment.questions.choices', 'answers']);
+        $score = $this->scoringService->calculateAssignmentScore($assignment);
 
         $this->assertEquals(0, $score);
     }
@@ -216,7 +222,8 @@ class ScoringServiceTest extends TestCase
 
         $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice->id]);
 
-        $score = $this->scoringService->calculateQuestionScore($assignment, $question);
+        $assignment->loadMissing(['assessment.questions.choices', 'answers']);
+        $score = $this->scoringService->calculateAssignmentScore($assignment);
 
         $this->assertEquals(5, $score);
     }
@@ -233,7 +240,8 @@ class ScoringServiceTest extends TestCase
 
         $this->createAnswer($assignment, $question, ['answer_text' => 'Réponse de l\'étudiant', 'score' => null]);
 
-        $score = $this->scoringService->calculateQuestionScore($assignment, $question);
+        $assignment->loadMissing(['assessment.questions.choices', 'answers']);
+        $score = $this->scoringService->calculateAssignmentScore($assignment);
 
         $this->assertEquals(0, $score);
     }
@@ -250,7 +258,8 @@ class ScoringServiceTest extends TestCase
 
         $this->createAnswer($assignment, $question, ['answer_text' => 'Réponse de l\'étudiant', 'score' => 15]);
 
-        $score = $this->scoringService->calculateQuestionScore($assignment, $question);
+        $assignment->loadMissing(['assessment.questions.choices', 'answers']);
+        $score = $this->scoringService->calculateAssignmentScore($assignment);
 
         $this->assertEquals(15, $score);
     }
@@ -340,7 +349,8 @@ class ScoringServiceTest extends TestCase
             'is_correct' => true,
         ]);
 
-        $score = $this->scoringService->calculateQuestionScore($assignment, $question);
+        $assignment->loadMissing(['assessment.questions.choices', 'answers']);
+        $score = $this->scoringService->calculateAssignmentScore($assignment);
 
         $this->assertEquals(0, $score);
     }
@@ -499,5 +509,139 @@ class ScoringServiceTest extends TestCase
 
         $this->assertEquals(0, $result['updated_count']);
         $this->assertEquals(0.0, $result['total_score']);
+    }
+
+    #[Test]
+    public function calculateAssignmentScore_does_not_cause_n_plus_one(): void
+    {
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $assessment = $this->createAssessmentWithQuestions(
+            questionCount: 20,
+            assessmentAttributes: ['title' => 'Performance Test', 'duration_minutes' => 60]
+        );
+
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
+
+        foreach ($assessment->questions as $question) {
+            $correctChoice = $question->choices()->where('is_correct', true)->first();
+            if ($correctChoice) {
+                $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice->id]);
+            }
+        }
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $score = $this->scoringService->calculateAssignmentScore($assignment);
+
+        $queryCount = count(DB::getQueryLog());
+
+        $this->assertIsFloat($score);
+        $this->assertGreaterThan(0, $score);
+        $this->assertLessThanOrEqual(25, $queryCount, "Expected <= 25 queries for scoring 20 questions (would be 60+ with N+1), but got {$queryCount}");
+    }
+
+    #[Test]
+    public function scoring_performance_with_50_questions(): void
+    {
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $assessment = $this->createAssessmentWithQuestions(
+            questionCount: 50,
+            assessmentAttributes: ['title' => 'Performance Test 50', 'duration_minutes' => 120]
+        );
+
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
+
+        foreach ($assessment->questions as $question) {
+            $correctChoice = $question->choices()->where('is_correct', true)->first();
+            if ($correctChoice) {
+                $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice->id]);
+            }
+        }
+
+        $assignment->refresh();
+        $start = microtime(true);
+
+        $score = $this->scoringService->calculateAssignmentScore($assignment);
+
+        $duration = (microtime(true) - $start) * 1000;
+
+        $this->assertIsFloat($score);
+        $this->assertGreaterThan(0, $score);
+        $this->assertLessThan(150, $duration, "Scoring 50 questions took {$duration}ms (expected < 150ms)");
+    }
+
+    #[Test]
+    public function calculateAutoCorrectableScore_does_not_cause_n_plus_one(): void
+    {
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $assessment = $this->createAssessmentWithQuestions(
+            questionCount: 15,
+            assessmentAttributes: ['title' => 'Auto Score Test', 'duration_minutes' => 60]
+        );
+
+        $assessment->questions->take(5)->each(fn($q) => $q->update(['type' => 'text', 'points' => 10]));
+
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
+
+        foreach ($assessment->fresh()->questions as $question) {
+            if ($question->type === 'one_choice') {
+                $correctChoice = $question->choices()->where('is_correct', true)->first();
+                if ($correctChoice) {
+                    $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice->id]);
+                }
+            } else {
+                $this->createAnswer($assignment, $question, ['answer_text' => 'Student text answer']);
+            }
+        }
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $score = $this->scoringService->calculateAutoCorrectableScore($assignment);
+
+        $queryCount = count(DB::getQueryLog());
+
+        $this->assertIsFloat($score);
+        $this->assertGreaterThan(0, $score);
+        $this->assertLessThanOrEqual(10, $queryCount, "Expected <= 10 queries for auto-scoring (would be 30+ with N+1), but got {$queryCount}");
+    }
+
+    #[Test]
+    public function saveManualGrades_does_not_cause_n_plus_one(): void
+    {
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $assessment = $this->createAssessmentWithQuestions(
+            questionCount: 10,
+            assessmentAttributes: ['title' => 'Manual Grade Test', 'duration_minutes' => 60]
+        );
+
+        $assessment->questions->each(fn($q) => $q->update(['type' => 'text', 'points' => 10]));
+        $questions = $assessment->fresh()->questions;
+
+        $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
+
+        foreach ($questions as $question) {
+            $this->createAnswer($assignment, $question, ['answer_text' => 'Student answer']);
+        }
+
+        $scores = [];
+        foreach ($questions as $question) {
+            $scores[] = [
+                'question_id' => $question->id,
+                'score' => 8.5,
+                'feedback' => 'Good answer',
+            ];
+        }
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $result = $this->scoringService->saveManualGrades($assignment, $scores, 'Well done');
+
+        $queryCount = count(DB::getQueryLog());
+
+        $this->assertEquals(10, $result['updated_count']);
+        $this->assertLessThanOrEqual(25, $queryCount, "Expected reasonable query count for manual grading 10 questions, but got {$queryCount}");
     }
 }
