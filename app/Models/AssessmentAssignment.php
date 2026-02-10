@@ -32,6 +32,10 @@ class AssessmentAssignment extends Model
         'forced_submission' => 'boolean',
     ];
 
+    protected $appends = [
+        'status',
+    ];
+
     /**
      * Get the assessment this assignment belongs to.
      */
