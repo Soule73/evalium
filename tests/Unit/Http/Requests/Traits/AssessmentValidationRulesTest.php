@@ -238,7 +238,7 @@ class AssessmentValidationRulesTest extends TestCase
                 $this->data = array_merge($this->data, $data);
             }
 
-            public function test_prepare_assessment_for_validation()
+            public function testPrepareAssessmentForValidation()
             {
                 $this->prepareAssessmentForValidation();
             }

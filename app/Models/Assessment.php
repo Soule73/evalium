@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasAcademicYearThroughClass;
+use App\Traits\HasJsonSettings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Assessment extends Model
 {
-    use HasAcademicYearThroughClass, HasFactory, SoftDeletes;
+    use HasAcademicYearThroughClass, HasFactory, HasJsonSettings, SoftDeletes;
 
     protected $fillable = [
         'class_subject_id',
@@ -122,9 +123,7 @@ class Assessment extends Model
      */
     public function getIsPublishedAttribute(): bool
     {
-        $settings = $this->settings ?? [];
-
-        return $settings['is_published'] ?? false;
+        return $this->getBooleanSetting('is_published', false);
     }
 
     /**
@@ -132,9 +131,7 @@ class Assessment extends Model
      */
     public function setIsPublishedAttribute(bool $value): void
     {
-        $settings = $this->settings ?? [];
-        $settings['is_published'] = $value;
-        $this->settings = $settings;
+        $this->setSettingValue('is_published', $value);
     }
 
     /**
@@ -142,9 +139,7 @@ class Assessment extends Model
      */
     public function getShuffleQuestionsAttribute(): bool
     {
-        $settings = $this->settings ?? [];
-
-        return $settings['shuffle_questions'] ?? false;
+        return $this->getBooleanSetting('shuffle_questions', false);
     }
 
     /**
@@ -152,9 +147,7 @@ class Assessment extends Model
      */
     public function setShuffleQuestionsAttribute(bool $value): void
     {
-        $settings = $this->settings ?? [];
-        $settings['shuffle_questions'] = $value;
-        $this->settings = $settings;
+        $this->setSettingValue('shuffle_questions', $value);
     }
 
     /**
@@ -162,9 +155,7 @@ class Assessment extends Model
      */
     public function getShowResultsImmediatelyAttribute(): bool
     {
-        $settings = $this->settings ?? [];
-
-        return $settings['show_results_immediately'] ?? true;
+        return $this->getBooleanSetting('show_results_immediately', true);
     }
 
     /**
@@ -172,9 +163,7 @@ class Assessment extends Model
      */
     public function setShowResultsImmediatelyAttribute(bool $value): void
     {
-        $settings = $this->settings ?? [];
-        $settings['show_results_immediately'] = $value;
-        $this->settings = $settings;
+        $this->setSettingValue('show_results_immediately', $value);
     }
 
     /**
@@ -182,9 +171,7 @@ class Assessment extends Model
      */
     public function getAllowLateSubmissionAttribute(): bool
     {
-        $settings = $this->settings ?? [];
-
-        return $settings['allow_late_submission'] ?? false;
+        return $this->getBooleanSetting('allow_late_submission', false);
     }
 
     /**
@@ -192,9 +179,7 @@ class Assessment extends Model
      */
     public function setAllowLateSubmissionAttribute(bool $value): void
     {
-        $settings = $this->settings ?? [];
-        $settings['allow_late_submission'] = $value;
-        $this->settings = $settings;
+        $this->setSettingValue('allow_late_submission', $value);
     }
 
     /**
@@ -202,9 +187,7 @@ class Assessment extends Model
      */
     public function getOneQuestionPerPageAttribute(): bool
     {
-        $settings = $this->settings ?? [];
-
-        return $settings['one_question_per_page'] ?? false;
+        return $this->getBooleanSetting('one_question_per_page', false);
     }
 
     /**
@@ -212,9 +195,7 @@ class Assessment extends Model
      */
     public function setOneQuestionPerPageAttribute(bool $value): void
     {
-        $settings = $this->settings ?? [];
-        $settings['one_question_per_page'] = $value;
-        $this->settings = $settings;
+        $this->setSettingValue('one_question_per_page', $value);
     }
 
     /**
