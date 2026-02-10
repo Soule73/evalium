@@ -187,7 +187,7 @@ export function DataTable<T extends { id: number | string }>({
                 )}
             </div>
 
-            {!showEmptyState && (
+            {!showEmptyState && config.showPagination !== false && (
                 <DataTablePagination
                     data={data}
                     onPageChange={actions.goToPage}

@@ -13,6 +13,7 @@ interface AssessmentListProps {
   data: PaginationType<Assessment | (AssessmentAssignment & { assessment: Assessment })>;
   variant?: 'admin' | 'teacher' | 'student';
   onView?: (item: Assessment | AssessmentAssignment) => void;
+  showPagination?: boolean;
 }
 
 /**
@@ -26,6 +27,7 @@ export function AssessmentList({
   data,
   variant = 'teacher',
   onView,
+  showPagination = true,
 }: AssessmentListProps) {
   const [togglingAssessments, setTogglingAssessments] = useState<Set<number>>(new Set());
 
@@ -52,13 +54,13 @@ export function AssessmentList({
 
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { label: string; type: 'warning' | 'info' | 'success' | 'gray' }> = {
-      not_submitted: { label: 'student_assessment_pages.index.not_started', type: 'warning' },
-      submitted: { label: 'student_assessment_pages.index.completed', type: 'info' },
-      graded: { label: 'student_assessment_pages.index.graded', type: 'success' },
+      not_submitted: { label: trans('student_assessment_pages.index.not_started'), type: 'warning' },
+      submitted: { label: trans('student_assessment_pages.index.completed'), type: 'info' },
+      graded: { label: trans('student_assessment_pages.index.graded'), type: 'success' },
     };
 
     const config = statusMap[status] || { label: status, type: 'gray' as const };
-    return <Badge label={config.label} type={config.type} />;
+    return <Badge label={config.label} type={config.type} size='sm' />;
   };
 
   type AssessmentItem = Assessment | (AssessmentAssignment & { assessment: Assessment });
@@ -107,20 +109,6 @@ export function AssessmentList({
           return (
             <span className="text-gray-700">
               {assignment.assessment.class_subject?.subject?.name || '-'}
-            </span>
-          );
-        },
-        conditional: (currentVariant) => currentVariant === 'student',
-      },
-
-      {
-        key: 'class',
-        labelKey: 'student_assessment_pages.index.class',
-        render: (item: AssessmentItem) => {
-          const assignment = item as AssessmentAssignment & { assessment: Assessment };
-          return (
-            <span className="text-gray-700">
-              {assignment.assessment.class_subject?.class?.name || '-'}
             </span>
           );
         },
@@ -244,13 +232,40 @@ export function AssessmentList({
           const assessment = item as Assessment;
           return onView?.(assessment) || router.visit(route('teacher.assessments.show', assessment.id));
         },
-        permission: 'view assessments',
         color: 'secondary',
         variant: 'outline',
         conditional: (_item, currentVariant) => currentVariant !== 'student',
-      }
+      },
+      {
+        labelKey: 'student_assessment_pages.index.take_assessment',
+        onClick: (item) => {
+          const assignment = item as AssessmentAssignment & { assessment: Assessment };
+          router.visit(route('student.assessments.show', assignment.assessment.id));
+        },
+        color: 'primary',
+        variant: 'solid',
+        conditional: (item, currentVariant) => {
+          if (currentVariant !== 'student') return false;
+          const assignment = item as AssessmentAssignment & { assessment: Assessment };
+          return assignment.status === 'not_submitted';
+        },
+      },
+      {
+        labelKey: 'student_assessment_pages.index.view_results',
+        onClick: (item) => {
+          const assignment = item as AssessmentAssignment & { assessment: Assessment };
+          router.visit(route('student.assessments.results', assignment.assessment.id));
+        },
+        color: 'secondary',
+        variant: 'outline',
+        conditional: (item, currentVariant) => {
+          if (currentVariant !== 'student') return false;
+          const assignment = item as AssessmentAssignment & { assessment: Assessment };
+          return assignment.status === 'submitted' || assignment.status === 'graded';
+        },
+      },
     ],
   };
 
-  return <BaseEntityList data={data} config={config} variant={variant} />;
+  return <BaseEntityList data={data} config={config} variant={variant} showPagination={showPagination} />;
 }

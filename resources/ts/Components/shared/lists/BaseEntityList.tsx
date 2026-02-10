@@ -19,6 +19,7 @@ export function BaseEntityList<T>({
   showSearch = true,
   searchPlaceholder,
   emptyMessage,
+  showPagination = true,
 }: BaseEntityListProps<T>) {
   const { auth } = usePage<PageProps>().props;
 
@@ -58,6 +59,7 @@ export function BaseEntityList<T>({
     filters: visibleFilters,
     searchable: showSearch,
     searchPlaceholder: searchPlaceholder ?? trans('common.search'),
+    showPagination,
     emptyState: {
       title: emptyMessage ?? trans('common.no_data'),
       subtitle: trans('common.no_results_subtitle'),

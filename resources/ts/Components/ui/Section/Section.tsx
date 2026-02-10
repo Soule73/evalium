@@ -1,5 +1,5 @@
 import { ChevronUpIcon } from "@heroicons/react/24/outline";
-import React from "react";
+import { useState, useId } from "react";
 
 interface SectionProps {
     title: React.ReactNode;
@@ -9,12 +9,12 @@ interface SectionProps {
     collapsible?: boolean;
     defaultOpen?: boolean;
     className?: string;
-    centerHeaderItems?: boolean;
+    variant?: 'elevated' | 'flat';
 }
 
 /**
- * Section component with optional collapsible functionality
- * Provides a consistent layout for content sections with title, subtitle, and actions
+ * Reusable section component with optional collapsible functionality.
+ * Provides consistent layout for content sections with title, subtitle, and actions.
  */
 const Section = ({
     title,
@@ -24,77 +24,56 @@ const Section = ({
     collapsible = false,
     defaultOpen = true,
     className = '',
-    centerHeaderItems = true
+    variant = 'elevated'
 }: SectionProps) => {
-    const [isOpen, setIsOpen] = React.useState(defaultOpen);
-    const isStringTitle = typeof title === 'string';
-    const shouldShowContent = !collapsible || isOpen;
+    const [isOpen, setIsOpen] = useState(defaultOpen);
+    const contentId = useId();
+    const isVisible = !collapsible || isOpen;
 
-    const toggleSection = () => {
-        if (collapsible) {
-            setIsOpen(prev => !prev);
-        }
+    const variantStyles = {
+        elevated: 'bg-white rounded-lg',
+        flat: 'bg-transparent'
     };
 
-    const headerClasses = [
-        'text-gray-800 transition-all duration-200',
-        shouldShowContent ? 'mb-4 border-b pb-2 border-gray-300' : 'mb-0'
-    ].join(' ');
-
-    const containerClasses = [
-        centerHeaderItems ? 'md:items-center' : '',
-        actions ? 'flex space-y-4 flex-col md:flex-row md:justify-between mb-2' : 'mb-2'
-    ].join(' ');
-
-    const titleWrapperClasses = [
-        'flex items-center space-x-2',
-        collapsible ? 'cursor-pointer select-none hover:text-blue-600 transition-colors duration-150' : ''
-    ].join(' ');
-
-    const sectionClasses = [
-        'bg-white rounded-lg mb-6 transition-all duration-200',
-        shouldShowContent ? 'p-2 md:p-6' : 'p-2 md:px-6 md:py-4',
-        className
-    ].join(' ');
-
-    const chevronClasses = [
-        'h-5 w-5 transition-transform duration-200',
-        isOpen ? 'rotate-0' : 'rotate-180'
-    ].join(' ');
+    const paddingStyles = {
+        elevated: isVisible ? 'p-4 md:p-6' : 'px-4 py-3 md:px-6',
+        flat: isVisible ? 'py-4' : 'py-3'
+    };
 
     return (
-        <section className={sectionClasses}>
-            <div className={headerClasses}>
-                <div className={containerClasses}>
-                    <div onClick={toggleSection} className={titleWrapperClasses}>
+        <section className={`mb-6 ${variantStyles[variant]} ${paddingStyles[variant]} ${className}`.trim()}>
+            <header className={`${isVisible ? 'mb-4 border-b border-gray-200 pb-3' : ''}`}>
+                <div className={`${actions ? 'flex flex-col gap-3 md:flex-row md:items-center md:justify-between' : ''}`}>
+                    <div
+                        role={collapsible ? 'button' : undefined}
+                        tabIndex={collapsible ? 0 : undefined}
+                        aria-expanded={collapsible ? isOpen : undefined}
+                        aria-controls={collapsible ? contentId : undefined}
+                        onClick={collapsible ? () => setIsOpen(prev => !prev) : undefined}
+                        onKeyDown={collapsible ? (e) => e.key === 'Enter' && setIsOpen(prev => !prev) : undefined}
+                        className={`flex items-center gap-2 ${collapsible ? 'cursor-pointer select-none hover:text-blue-600 transition-colors' : ''}`}
+                    >
                         {collapsible && (
-                            <ChevronUpIcon className={chevronClasses} aria-hidden="true" />
+                            <ChevronUpIcon
+                                className={`size-5 transition-transform duration-200 ${isOpen ? '' : 'rotate-180'}`}
+                                aria-hidden="true"
+                            />
                         )}
-                        {isStringTitle ? (
-                            <h2 className="text-xl font-semibold text-gray-800">
-                                {title}
-                            </h2>
+                        {typeof title === 'string' ? (
+                            <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
                         ) : (
                             title
                         )}
                     </div>
-
-                    {actions && (
-                        <div className="shrink-0">
-                            {actions}
-                        </div>
-                    )}
+                    {actions && <div className="shrink-0">{actions}</div>}
                 </div>
-
-                {shouldShowContent && subtitle && (
-                    <div className="text-sm text-gray-600 mt-2">
-                        {subtitle}
-                    </div>
+                {isVisible && subtitle && (
+                    <p className="mt-1 text-sm text-gray-500">{subtitle}</p>
                 )}
-            </div>
+            </header>
 
-            {shouldShowContent && (
-                <div className="space-y-6 animate-in fade-in duration-200">
+            {isVisible && (
+                <div id={contentId} className="space-y-4">
                     {children}
                 </div>
             )}

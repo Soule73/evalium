@@ -142,8 +142,7 @@ const TakeQuestion: React.FC<TakeQuestionProps> = ({ question, answers, onAnswer
     return (
         <Section
             key={question.id}
-            className="justify-start! items-start! relative"
-            centerHeaderItems={false}
+            className="relative"
             title={<MarkdownRenderer>{question.content}</MarkdownRenderer>}
             actions={
                 <div className="flex space-x-2 top-5 right-5 absolute">

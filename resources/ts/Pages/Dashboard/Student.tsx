@@ -2,104 +2,40 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { ChartBarIcon, CheckIcon, ClockIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
-import {
-    Badge, Button, DataTable, Section, Stat
-} from '@/Components';
-import {
-    AssessmentAssignment,
-    User
-} from '@/types';
+import { Button, Section, Stat } from '@/Components';
+import { AssessmentList } from '@/Components/shared/lists';
+import { Assessment, AssessmentAssignment, User } from '@/types';
 import { PaginationType } from '@/types/datatable';
-import { breadcrumbs, formatDate, trans } from '@/utils';
+import { breadcrumbs, trans } from '@/utils';
 
-interface Stats {
+interface DashboardStats {
     totalAssessments: number;
     completedAssessments: number;
     pendingAssessments: number;
-    inProgressAssessments: number;
     averageScore: number | null;
-    completionRate: number;
 }
 
 interface Props {
     user: User;
-    stats: Stats;
-    assessmentAssignments: PaginationType<AssessmentAssignment>;
+    stats: DashboardStats;
+    assessmentAssignments: PaginationType<AssessmentAssignment & { assessment: Assessment }>;
 }
 
 export default function StudentDashboard({ user, stats, assessmentAssignments }: Props) {
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case 'not_submitted':
-                return <Badge label={trans('dashboard.student.status.not_submitted')} type="warning" />;
-            case 'submitted':
-                return <Badge label={trans('dashboard.student.status.submitted')} type="info" />;
-            case 'graded':
-                return <Badge label={trans('dashboard.student.status.graded')} type="success" />;
-            default:
-                return <Badge label={status} type="gray" />;
-        }
-    };
-
-    const columns = [
-        {
-            key: 'title',
-            label: trans('dashboard.student.table.title'),
-            render: (assignment: AssessmentAssignment) => (
-                <div className="font-medium text-gray-900">
-                    {assignment.assessment?.title || '-'}
-                </div>
-            ),
-        },
-        {
-            key: 'subject',
-            label: trans('dashboard.student.table.subject'),
-            render: (assignment: AssessmentAssignment) => (
-                <span className="text-gray-700">
-                    {assignment.assessment?.class_subject?.subject?.name || '-'}
-                </span>
-            ),
-        },
-        {
-            key: 'submitted_at',
-            label: trans('dashboard.student.table.submitted_at'),
-            render: (assignment: AssessmentAssignment) => (
-                <span className="text-gray-700">
-                    {assignment.submitted_at ? formatDate(assignment.submitted_at) : '-'}
-                </span>
-            ),
-        },
-        {
-            key: 'status',
-            label: trans('dashboard.student.table.status'),
-            render: (assignment: AssessmentAssignment) => getStatusBadge(assignment.status),
-        },
-        {
-            key: 'actions',
-            label: trans('dashboard.student.table.actions'),
-            render: (assignment: AssessmentAssignment) => (
-                <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => router.visit(route('student.assessments.show', assignment.assessment_id))}
-                >
-                    {trans('dashboard.student.table.view')}
-                </Button>
-            ),
-        },
-    ];
-
     return (
-        <AuthenticatedLayout title={trans('dashboard.title.student')}
-            breadcrumb={breadcrumbs.dashboard()}>
-
-            <Section title={trans('dashboard.student.greeting', { name: user.name })}
+        <AuthenticatedLayout
+            title={trans('dashboard.title.student')}
+            breadcrumb={breadcrumbs.dashboard()}
+        >
+            <Section
+                title={trans('dashboard.student.greeting', { name: user.name })}
                 actions={
                     <Button
-                        size='sm'
-                        variant='outline'
-                        className=' w-max'
-                        onClick={() => router.visit(route('student.assessments.index'))}>
+                        size="sm"
+                        variant="outline"
+                        className="w-max"
+                        onClick={() => router.visit(route('student.assessments.index'))}
+                    >
                         {trans('dashboard.student.view_my_assessments')}
                     </Button>
                 }
@@ -128,27 +64,20 @@ export default function StudentDashboard({ user, stats, assessmentAssignments }:
                 </Stat.Group>
             </Section>
 
-            <Section title={trans('dashboard.student.assigned_assessments')}
+            <Section
+                title={trans('dashboard.student.assigned_assessments')}
                 actions={
                     <Button
-                        size='sm'
-                        variant='outline'
-                        className=' w-max'
-                        onClick={() => router.visit(route('student.assessments.index'))}>
+                        size="sm"
+                        variant="outline"
+                        className="w-max"
+                        onClick={() => router.visit(route('student.assessments.index'))}
+                    >
                         {trans('dashboard.student.view_all_assessments')}
                     </Button>
                 }
             >
-                <DataTable
-                    data={assessmentAssignments}
-                    config={{
-                        columns,
-                        emptyState: {
-                            title: trans('dashboard.student.no_assessments'),
-                            subtitle: trans('dashboard.student.no_assessments_subtitle'),
-                        },
-                    }}
-                />
+                <AssessmentList data={assessmentAssignments} variant="student" showPagination={false} />
             </Section>
         </AuthenticatedLayout>
     );

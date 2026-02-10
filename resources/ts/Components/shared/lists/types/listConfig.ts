@@ -72,4 +72,5 @@ export interface BaseEntityListProps<T> {
   showSearch?: boolean;
   searchPlaceholder?: string;
   emptyMessage?: string;
+  showPagination?: boolean;
 }

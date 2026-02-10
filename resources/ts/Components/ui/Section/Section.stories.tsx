@@ -16,8 +16,9 @@ const meta = {
         defaultOpen: {
             control: "boolean",
         },
-        centerHeaderItems: {
-            control: "boolean",
+        variant: {
+            control: "select",
+            options: ["elevated", "flat"],
         },
     },
 } satisfies Meta<typeof Section>;
@@ -142,20 +143,20 @@ export const WithCustomTitle: Story = {
     },
 };
 
-export const NotCentered: Story = {
+export const Flat: Story = {
     args: {
-        title: "Left Aligned Header",
-        subtitle: "This header is not centered",
+        title: "Flat Section",
+        subtitle: "A section without background and shadow",
+        variant: "flat",
         actions: (
             <Button size="sm" color="primary">
                 Action
             </Button>
         ),
-        centerHeaderItems: false,
         children: (
             <div className="space-y-4">
                 <p className="text-gray-600">
-                    Header items are left-aligned instead of centered.
+                    This section has a flat variant without elevation.
                 </p>
             </div>
         ),

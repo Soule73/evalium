@@ -104,6 +104,7 @@ export interface DataTableConfig<T> {
     onSearch?: (search: string) => void;
     pageName?: string;
     perPageName?: string;
+    showPagination?: boolean;
 }
 
 export interface DataTableState {

@@ -24,6 +24,17 @@ export interface AssessmentAssignment {
 
   time_spent?: number;
   progress_percentage?: number;
+
+  title?: string;
+  type?: string;
+  subject_name?: string;
+  class_name?: string;
+  teacher_name?: string;
+  duration_minutes?: number;
+  coefficient?: number;
+  raw_score?: number | null;
+  max_points?: number;
+  normalized_grade?: number | null;
 }
 
 export interface SaveAnswersData {

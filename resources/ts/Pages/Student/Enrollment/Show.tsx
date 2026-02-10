@@ -84,14 +84,20 @@ export default function Show({ enrollment, subjects, overallStats }: StudentEnro
     return 'text-red-600 font-semibold';
   };
 
-  const getGradeLabel = (average: number | null) => {
+  const gradeThresholds = [
+    { threshold: 16, label: translations.excellent, type: 'success' as const },
+    { threshold: 14, label: translations.veryGood, type: 'success' as const },
+    { threshold: 12, label: translations.good, type: 'info' as const },
+    { threshold: 10, label: translations.satisfactory, type: 'warning' as const },
+    { threshold: 0, label: translations.needsImprovement, type: 'error' as const },
+  ];
+
+  const getGradeLabel = useMemo(() => (average: number | null) => {
     if (average === null) return null;
-    if (average >= 16) return <Badge label={translations.excellent} type="success" />;
-    if (average >= 14) return <Badge label={translations.veryGood} type="success" />;
-    if (average >= 12) return <Badge label={translations.good} type="info" />;
-    if (average >= 10) return <Badge label={translations.satisfactory} type="warning" />;
-    return <Badge label={translations.needsImprovement} type="error" />;
-  };
+    const gradeInfo = gradeThresholds.find(({ threshold }) => average >= threshold);
+
+    return gradeInfo ? <Badge label={gradeInfo.label} type={gradeInfo.type} size='sm' /> : null;
+  }, [gradeThresholds]);
 
   const subjectsTableConfig: DataTableConfig<SubjectGrade> = {
     columns: [
@@ -125,7 +131,7 @@ export default function Show({ enrollment, subjects, overallStats }: StudentEnro
             <span className={`${getGradeColor(item.average)}`}>
               {item.average != null
                 ? `${Number(item.average).toFixed(2)}/20`
-                : translations.noGrade}
+                : '-'}
             </span>
             {getGradeLabel(item.average)}
           </div>
@@ -166,52 +172,48 @@ export default function Show({ enrollment, subjects, overallStats }: StudentEnro
           </div>
         }
       >
-        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">{translations.currentClass}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <TextEntry label={translations.className} value={enrollment.class?.name || '-'} />
-            <TextEntry label={translations.level} value={enrollment.class?.level?.name || '-'} />
-            <TextEntry
-              label={translations.academicYear}
-              value={enrollment.class?.academic_year?.name || '-'}
-            />
-          </div>
-          <div className="mt-4">
-            <TextEntry label={translations.enrolledOn} value={formatDate(enrollment.enrolled_at)} />
-          </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">{translations.currentClass}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <TextEntry label={translations.className} value={enrollment.class?.name || '-'} />
+          <TextEntry label={translations.level} value={enrollment.class?.level?.name || '-'} />
+          <TextEntry
+            label={translations.academicYear}
+            value={enrollment.class?.academic_year?.name || '-'}
+          />
+          <TextEntry label={translations.enrolledOn} value={formatDate(enrollment.enrolled_at)} />
         </div>
 
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">{translations.overallStatistics}</h3>
-          <Stat.Group columns={4}>
-            <Stat.Item
-              title={translations.overallAverage}
-              value={overallStats.annual_average !== null ? `${overallStats.annual_average.toFixed(2)}/20` : translations.noGrade}
-              icon={AcademicCapIcon}
-            />
-            <Stat.Item
-              title={translations.totalAssessments}
-              value={totalAssessments || 0}
-              icon={BookOpenIcon}
-            />
-            <Stat.Item
-              title={translations.completedAssessments}
-              value={completedAssessments || 0}
-              icon={BookOpenIcon}
-            />
-            <Stat.Item
-              title={translations.pendingAssessments}
-              value={(totalAssessments - completedAssessments) || 0}
-              icon={BookOpenIcon}
-            />
-          </Stat.Group>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">{translations.gradeBreakdown}</h3>
-          <DataTable data={subjects} config={subjectsTableConfig} />
-        </div>
       </Section>
+      <Section title={translations.overallStatistics}>
+        <Stat.Group columns={4}>
+          <Stat.Item
+            title={translations.overallAverage}
+            value={overallStats.annual_average !== null ? `${overallStats.annual_average.toFixed(2)}/20` : translations.noGrade}
+            icon={AcademicCapIcon}
+          />
+          <Stat.Item
+            title={translations.totalAssessments}
+            value={totalAssessments || 0}
+            icon={BookOpenIcon}
+          />
+          <Stat.Item
+            title={translations.completedAssessments}
+            value={completedAssessments || 0}
+            icon={BookOpenIcon}
+          />
+          <Stat.Item
+            title={translations.pendingAssessments}
+            value={(totalAssessments - completedAssessments) || 0}
+            icon={BookOpenIcon}
+          />
+        </Stat.Group>
+      </Section>
+
+      <Section title={translations.gradeBreakdown}>
+        <DataTable data={subjects} config={subjectsTableConfig} />
+
+      </Section>
+
     </AuthenticatedLayout>
   );
 }
