@@ -7,6 +7,7 @@ use App\Models\ClassSubject;
 use App\Models\Subject;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class TeacherSubjectQueryService
@@ -26,13 +27,32 @@ class TeacherSubjectQueryService
             ->with(['subject', 'class'])
             ->get();
 
+        if ($classSubjects->isEmpty()) {
+            return new \Illuminate\Pagination\LengthAwarePaginator(
+                [],
+                0,
+                $perPage,
+                1,
+                ['path' => request()->url(), 'query' => request()->query()]
+            );
+        }
+
+        $assessmentCounts = DB::table('assessments')
+            ->whereIn('class_subject_id', $classSubjects->pluck('id'))
+            ->select('class_subject_id', DB::raw('COUNT(*) as count'))
+            ->groupBy('class_subject_id')
+            ->pluck('count', 'class_subject_id');
+
         $subjectsBySubjectId = $classSubjects->groupBy('subject_id');
 
-        $subjects = $subjectsBySubjectId->map(function ($classSubjects, $subjectId) {
+        $subjects = $subjectsBySubjectId->map(function ($classSubjects) use ($assessmentCounts) {
             $subject = $classSubjects->first()->subject;
             $subject->classes = $classSubjects->pluck('class')->unique('id');
             $subject->classes_count = $subject->classes->count();
-            $subject->assessments_count = Assessment::whereIn('class_subject_id', $classSubjects->pluck('id'))->count();
+
+            $subject->assessments_count = $classSubjects->sum(
+                fn($cs) => $assessmentCounts->get($cs->id, 0)
+            );
 
             return $subject;
         })->values();
@@ -124,7 +144,7 @@ class TeacherSubjectQueryService
             ->with(['classSubject.class'])
             ->when(
                 $filters['search'] ?? null,
-                fn ($query, $search) => $query->where('title', 'like', "%{$search}%")
+                fn($query, $search) => $query->where('title', 'like', "%{$search}%")
             )
             ->latest('scheduled_at')
             ->paginate($perPage)
@@ -140,7 +160,7 @@ class TeacherSubjectQueryService
             $search = strtolower($search);
             $subjects = $subjects->filter(function ($subject) use ($search) {
                 return str_contains(strtolower($subject->name ?? ''), $search) ||
-                  str_contains(strtolower($subject->code ?? ''), $search);
+                    str_contains(strtolower($subject->code ?? ''), $search);
             })->values();
         }
 
