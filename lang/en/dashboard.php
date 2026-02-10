@@ -58,10 +58,13 @@ return [
         'total_assessments' => 'Total Assessments',
         'pending_assessments' => 'Pending assessments',
         'completed_assessments' => 'Completed assessments',
+        'graded_assessments' => 'Graded assessments',
         'average_score' => 'Average score',
         'assigned_assessments' => 'Assigned assessments',
         'view_my_assessments' => 'View my assessments',
         'view_all_assessments' => 'View all assessments',
+        'subjects_overview' => 'Subjects Overview',
+        'completed' => 'completed',
         'status' => [
             'not_submitted' => 'Not Submitted',
             'submitted' => 'Submitted',
