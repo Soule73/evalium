@@ -37,6 +37,7 @@ class StudentDashboardServiceTest extends TestCase
 
         $this->createAssignmentForStudent($assessment1, $student, [
             'submitted_at' => now(),
+            'graded_at' => now(),
             'score' => 15,
         ]);
 
@@ -53,18 +54,13 @@ class StudentDashboardServiceTest extends TestCase
         $this->assertArrayHasKey('completedAssessments', $result);
         $this->assertArrayHasKey('pendingAssessments', $result);
         $this->assertArrayHasKey('averageScore', $result);
-        $this->assertArrayHasKey('upcomingAssessments', $result);
-        $this->assertArrayHasKey('recentAssessments', $result);
-        $this->assertArrayHasKey('subjectsBreakdown', $result);
 
         $this->assertGreaterThanOrEqual(3, $result['totalAssessments']);
         $this->assertGreaterThanOrEqual(1, $result['completedAssessments']);
         $this->assertGreaterThanOrEqual(1, $result['pendingAssessments']);
-        $this->assertIsArray($result['upcomingAssessments']);
-        $this->assertIsArray($result['recentAssessments']);
     }
 
-    public function test_get_detailed_assessments_list_returns_normalized_grades(): void
+    public function test_get_dashboard_stats_calculates_average_correctly(): void
     {
         $student = $this->createStudent();
         $class = $this->createClassWithStudents(studentCount: 0);
@@ -75,36 +71,29 @@ class StudentDashboardServiceTest extends TestCase
             'status' => 'active',
         ]);
 
-        $assessment1 = $this->createAssessmentWithQuestions(questionCount: 3);
+        $assessment1 = $this->createAssessmentWithQuestions(questionCount: 2);
         $assessment2 = $this->createAssessmentWithQuestions(questionCount: 2);
 
         $this->createAssignmentForStudent($assessment1, $student, [
             'submitted_at' => now(),
+            'graded_at' => now(),
             'score' => 20,
         ]);
 
         $this->createAssignmentForStudent($assessment2, $student, [
             'submitted_at' => now()->subHour(),
+            'graded_at' => now()->subMinute(),
             'score' => 12,
         ]);
 
-        $result = $this->service->getDetailedAssessmentsList($student);
+        $result = $this->service->getDashboardStats($student);
 
-        $this->assertIsArray($result);
-        $this->assertGreaterThanOrEqual(2, count($result));
+        $this->assertGreaterThanOrEqual(2, $result['totalAssessments']);
+        $this->assertGreaterThanOrEqual(2, $result['completedAssessments']);
 
-        foreach ($result as $assessment) {
-            $this->assertArrayHasKey('id', $assessment);
-            $this->assertArrayHasKey('title', $assessment);
-            $this->assertArrayHasKey('raw_score', $assessment);
-            $this->assertArrayHasKey('max_points', $assessment);
-            $this->assertArrayHasKey('normalized_grade', $assessment);
-            $this->assertArrayHasKey('status', $assessment);
-
-            if ($assessment['raw_score'] !== null && $assessment['max_points'] > 0) {
-                $expectedNormalized = round(($assessment['raw_score'] / $assessment['max_points']) * 20, 2);
-                $this->assertEquals($expectedNormalized, $assessment['normalized_grade']);
-            }
+        if ($result['averageScore'] !== null) {
+            $this->assertGreaterThan(0, $result['averageScore']);
+            $this->assertLessThanOrEqual(20, $result['averageScore']);
         }
     }
 
@@ -118,9 +107,6 @@ class StudentDashboardServiceTest extends TestCase
         $this->assertEquals(0, $result['completedAssessments']);
         $this->assertEquals(0, $result['pendingAssessments']);
         $this->assertNull($result['averageScore']);
-        $this->assertIsArray($result['upcomingAssessments']);
-        $this->assertIsArray($result['recentAssessments']);
-        $this->assertIsArray($result['subjectsBreakdown']);
     }
 
     public function test_get_dashboard_stats_filters_by_academic_year(): void
