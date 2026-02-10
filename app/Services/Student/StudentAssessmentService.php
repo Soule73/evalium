@@ -214,10 +214,15 @@ class StudentAssessmentService
      */
     public function getAssessmentsWithAssignments(User $student, Collection $assessments): Collection
     {
-        return $assessments->map(function ($assessment) use ($student) {
-            $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-                ->where('student_id', $student->id)
-                ->first();
+        $assessmentIds = $assessments->pluck('id');
+
+        $assignments = AssessmentAssignment::whereIn('assessment_id', $assessmentIds)
+            ->where('student_id', $student->id)
+            ->get()
+            ->keyBy('assessment_id');
+
+        return $assessments->map(function ($assessment) use ($student, $assignments) {
+            $assignment = $assignments->get($assessment->id);
 
             if (! $assignment) {
                 $assignment = new AssessmentAssignment([
@@ -227,7 +232,6 @@ class StudentAssessmentService
             }
 
             $assignment->assessment = $assessment;
-            $assignment->status = $this->getAssessmentStatus($assignment);
 
             return $assignment;
         });
@@ -270,15 +274,19 @@ class StudentAssessmentService
      * @param  int  $perPage  Items per page
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|array Paginated assignments or empty array
      */
-    public function getStudentAssessmentsForIndex(User $student, int $academicYearId, array $filters, int $perPage)
+    public function getStudentAssessmentsForIndex(User $student, int $academicYearId, array $filters, int $perPage, $enrollment = null)
     {
-        $enrollment = $student->enrollments()
-            ->where('status', 'active')
-            ->whereHas('class', function ($query) use ($academicYearId) {
-                $query->where('academic_year_id', $academicYearId);
-            })
-            ->with(['class.classSubjects'])
-            ->first();
+        if (! $enrollment) {
+            $enrollment = $student->enrollments()
+                ->where('status', 'active')
+                ->whereHas('class', function ($query) use ($academicYearId) {
+                    $query->where('academic_year_id', $academicYearId);
+                })
+                ->with(['class.classSubjects'])
+                ->first();
+        } else {
+            $enrollment->loadMissing('class.classSubjects');
+        }
 
         if (! $enrollment) {
             return [];
@@ -288,11 +296,11 @@ class StudentAssessmentService
 
         $assessmentsQuery = Assessment::whereIn('class_subject_id', $classSubjectIds)
             ->with([
-                'classSubject.class',
-                'classSubject.subject',
-                'classSubject.teacher',
-                'questions',
+                'classSubject:id,subject_id,teacher_id',
+                'classSubject.subject:id,name',
+                'classSubject.teacher:id,name',
             ])
+            ->withCount('questions')
             ->when($filters['search'] ?? null, function ($query, $search) {
                 return $query->where('title', 'like', "%{$search}%");
             })

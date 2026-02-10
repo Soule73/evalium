@@ -2,12 +2,13 @@
 
 namespace App\Services\Core;
 
-use App\Models\AcademicYear;
-use App\Models\AssessmentAssignment;
-use App\Models\ClassModel;
-use App\Models\ClassSubject;
 use App\Models\User;
+use App\Models\ClassModel;
+use App\Models\AcademicYear;
+use App\Models\ClassSubject;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use App\Models\AssessmentAssignment;
 
 /**
  * Grade Calculation Service - Implement double coefficient formula
@@ -82,13 +83,62 @@ class GradeCalculationService
             ->with(['subject', 'teacher'])
             ->get();
 
+        $classSubjectIds = $classSubjects->pluck('id');
+
+        $allAssignments = AssessmentAssignment::whereHas('assessment', function ($query) use ($classSubjectIds) {
+            $query->whereIn('class_subject_id', $classSubjectIds);
+        })
+            ->where('student_id', $student->id)
+            ->with(['assessment' => function ($query) {
+                $query->select('id', 'title', 'type', 'coefficient', 'class_subject_id', 'settings')
+                    ->withCount('questions');
+            }, 'assessment.questions:id,assessment_id,points'])
+            ->get()
+            ->groupBy('assessment.class_subject_id');
+
+        $publishedAssessmentsBySubject = DB::table('assessments')
+            ->whereIn('class_subject_id', $classSubjectIds)
+            ->whereRaw("JSON_EXTRACT(settings, '$.is_published') = true")
+            ->whereNull('deleted_at')
+            ->select('class_subject_id', DB::raw('COUNT(*) as total'))
+            ->groupBy('class_subject_id')
+            ->pluck('total', 'class_subject_id');
+
         $subjectGrades = [];
         $totalWeightedGrade = 0;
         $totalCoefficients = 0;
 
         foreach ($classSubjects as $classSubject) {
-            $subjectGrade = $this->calculateSubjectGrade($student, $classSubject);
-            $assessmentStats = $this->getAssessmentStatsForStudent($student, $classSubject);
+            $assignments = $allAssignments->get($classSubject->id, collect());
+
+            $subjectGrade = null;
+            $completedCount = 0;
+
+            if ($assignments->isNotEmpty()) {
+                $totalWeightedScore = 0;
+                $totalAssessmentCoefficients = 0;
+
+                foreach ($assignments as $assignment) {
+                    if ($assignment->score !== null && $assignment->assessment) {
+                        $maxPoints = $assignment->assessment->questions->sum('points');
+                        if ($maxPoints > 0) {
+                            $normalizedScore = ($assignment->score / $maxPoints) * 20;
+                            $totalWeightedScore += $assignment->assessment->coefficient * $normalizedScore;
+                            $totalAssessmentCoefficients += $assignment->assessment->coefficient;
+                        }
+                    }
+
+                    if ($assignment->submitted_at) {
+                        $completedCount++;
+                    }
+                }
+
+                if ($totalAssessmentCoefficients > 0) {
+                    $subjectGrade = round($totalWeightedScore / $totalAssessmentCoefficients, 2);
+                }
+            }
+
+            $totalAssessments = $publishedAssessmentsBySubject->get($classSubject->id, 0);
 
             $subjectGrades[] = [
                 'id' => $classSubject->id,
@@ -97,8 +147,8 @@ class GradeCalculationService
                 'teacher_name' => $classSubject->teacher?->name ?? '-',
                 'coefficient' => $classSubject->coefficient,
                 'average' => $subjectGrade,
-                'assessments_count' => $assessmentStats['total'],
-                'completed_count' => $assessmentStats['completed'],
+                'assessments_count' => $totalAssessments,
+                'completed_count' => $completedCount,
             ];
 
             if ($subjectGrade !== null) {
@@ -117,31 +167,6 @@ class GradeCalculationService
             'subjects' => $subjectGrades,
             'annual_average' => $annualAverage,
             'total_coefficient' => $totalCoefficients,
-        ];
-    }
-
-    /**
-     * Get assessment statistics for a student in a class-subject
-     *
-     * @return array{total: int, completed: int}
-     */
-    private function getAssessmentStatsForStudent(User $student, ClassSubject $classSubject): array
-    {
-        $totalAssessments = $classSubject->assessments()
-            ->whereRaw("JSON_EXTRACT(settings, '$.is_published') = true")
-            ->count();
-
-        $completedAssessments = AssessmentAssignment::whereHas('assessment', function ($query) use ($classSubject) {
-            $query->where('class_subject_id', $classSubject->id)
-                ->whereRaw("JSON_EXTRACT(settings, '$.is_published') = true");
-        })
-            ->where('student_id', $student->id)
-            ->whereNotNull('submitted_at')
-            ->count();
-
-        return [
-            'total' => $totalAssessments,
-            'completed' => $completedAssessments,
         ];
     }
 
@@ -229,23 +254,26 @@ class GradeCalculationService
     }
 
     /**
-     * Get overall statistics for a student (centralized for dashboard)
+     * Get overall statistics for a student (centralized for dashboard - optimized version)
      *
      * @param  User  $student  The student
      * @param  int|null  $academicYearId  Filter by academic year
+     * @param  \App\Models\Enrollment|null  $enrollment  Pre-loaded enrollment to avoid duplicate query
      * @return array{overall_average: float|null, total_assessments: int, graded_assessments: int, pending_assessments: int, subjects_breakdown: array}
      */
-    public function getStudentOverallStats(User $student, ?int $academicYearId = null): array
+    public function getStudentOverallStats(User $student, ?int $academicYearId = null, $enrollment = null): array
     {
-        $query = $student->enrollments()->where('status', 'active');
+        if (! $enrollment) {
+            $query = $student->enrollments()->where('status', 'active');
 
-        if ($academicYearId) {
-            $query->whereHas('class', function ($q) use ($academicYearId) {
-                $q->where('academic_year_id', $academicYearId);
-            });
+            if ($academicYearId) {
+                $query->whereHas('class', function ($q) use ($academicYearId) {
+                    $q->where('academic_year_id', $academicYearId);
+                });
+            }
+
+            $enrollment = $query->with('class')->first();
         }
-
-        $enrollment = $query->with('class')->first();
 
         if (! $enrollment) {
             return [
@@ -266,15 +294,17 @@ class GradeCalculationService
             });
         }
 
-        $totalAssessments = $assignmentsQuery->count();
-        $gradedAssessments = (clone $assignmentsQuery)->whereNotNull('score')->count();
-        $pendingAssessments = (clone $assignmentsQuery)->whereNull('submitted_at')->count();
+        $stats = $assignmentsQuery->selectRaw('
+            COUNT(*) as total_assessments,
+            SUM(CASE WHEN score IS NOT NULL THEN 1 ELSE 0 END) as graded_assessments,
+            SUM(CASE WHEN submitted_at IS NULL THEN 1 ELSE 0 END) as pending_assessments
+        ')->first();
 
         return [
             'overall_average' => $gradeBreakdown['annual_average'],
-            'total_assessments' => $totalAssessments,
-            'graded_assessments' => $gradedAssessments,
-            'pending_assessments' => $pendingAssessments,
+            'total_assessments' => (int) ($stats->total_assessments ?? 0),
+            'graded_assessments' => (int) ($stats->graded_assessments ?? 0),
+            'pending_assessments' => (int) ($stats->pending_assessments ?? 0),
             'subjects_breakdown' => $gradeBreakdown['subjects'],
         ];
     }
