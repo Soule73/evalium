@@ -6,6 +6,7 @@ use App\Models\Assessment;
 use App\Models\ClassSubject;
 use App\Services\Traits\Paginatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Teacher Dashboard Service
@@ -35,8 +36,8 @@ class TeacherDashboardService
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->whereHas('class', fn ($query) => $query->where('name', 'like', "%{$search}%"))
-                    ->orWhereHas('subject', fn ($query) => $query->where('name', 'like', "%{$search}%"));
+                $q->whereHas('class', fn($query) => $query->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('subject', fn($query) => $query->where('name', 'like', "%{$search}%"));
             });
         }
 
@@ -54,7 +55,7 @@ class TeacherDashboardService
      */
     public function getPastAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 10): LengthAwarePaginator
     {
-        $query = Assessment::whereHas('classSubject', fn ($q) => $q->where('teacher_id', $teacherId))
+        $query = Assessment::whereHas('classSubject', fn($q) => $q->where('teacher_id', $teacherId))
             ->forAcademicYear($academicYearId)
             ->where('scheduled_at', '<', now())
             ->with(['classSubject.class.level', 'classSubject.class.academicYear', 'classSubject.subject'])
@@ -66,7 +67,7 @@ class TeacherDashboardService
 
         $assessments = $this->simplePaginate($query, $perPage);
 
-        $assessments->through(fn ($assessment) => $this->formatAssessmentForDisplay($assessment));
+        $assessments->through(fn($assessment) => $this->formatAssessmentForDisplay($assessment));
 
         return $assessments;
     }
@@ -82,7 +83,7 @@ class TeacherDashboardService
      */
     public function getUpcomingAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 10): LengthAwarePaginator
     {
-        $query = Assessment::whereHas('classSubject', fn ($q) => $q->where('teacher_id', $teacherId))
+        $query = Assessment::whereHas('classSubject', fn($q) => $q->where('teacher_id', $teacherId))
             ->forAcademicYear($academicYearId)
             ->where('scheduled_at', '>=', now())
             ->with(['classSubject.class.level', 'classSubject.class.academicYear', 'classSubject.subject'])
@@ -94,7 +95,7 @@ class TeacherDashboardService
 
         $assessments = $this->simplePaginate($query, $perPage);
 
-        $assessments->through(fn ($assessment) => $this->formatAssessmentForDisplay($assessment));
+        $assessments->through(fn($assessment) => $this->formatAssessmentForDisplay($assessment));
 
         return $assessments;
     }
@@ -110,18 +111,25 @@ class TeacherDashboardService
      */
     public function getDashboardStats(int $teacherId, int $academicYearId, int $pastAssessmentsTotal, int $upcomingAssessmentsTotal): array
     {
-        $totalActiveAssignments = ClassSubject::where('teacher_id', $teacherId)
-            ->forAcademicYear($academicYearId)
-            ->active()
-            ->get();
+        $stats = DB::table('class_subjects')
+            ->join('classes', 'class_subjects.class_id', '=', 'classes.id')
+            ->where('class_subjects.teacher_id', $teacherId)
+            ->where('classes.academic_year_id', $academicYearId)
+            ->whereNull('class_subjects.valid_to')
+            ->selectRaw('
+                COUNT(DISTINCT class_subjects.class_id) as total_classes,
+                COUNT(DISTINCT class_subjects.subject_id) as total_subjects
+            ')
+            ->first();
 
-        $totalAssessmentsCount = Assessment::whereHas('classSubject', fn ($query) => $query->where('teacher_id', $teacherId))
-            ->forAcademicYear($academicYearId)
-            ->count();
+        $totalAssessmentsCount = Assessment::whereHas('classSubject', function ($query) use ($teacherId, $academicYearId) {
+            $query->where('teacher_id', $teacherId)
+                ->whereHas('class', fn($q) => $q->where('academic_year_id', $academicYearId));
+        })->count();
 
         return [
-            'total_classes' => $totalActiveAssignments->unique('class_id')->count(),
-            'total_subjects' => $totalActiveAssignments->unique('subject_id')->count(),
+            'total_classes' => (int) ($stats->total_classes ?? 0),
+            'total_subjects' => (int) ($stats->total_subjects ?? 0),
             'total_assessments' => $totalAssessmentsCount,
             'past_assessments' => $pastAssessmentsTotal,
             'upcoming_assessments' => $upcomingAssessmentsTotal,
