@@ -53,7 +53,7 @@ class LevelServiceTest extends TestCase
 
         $items = collect($result->items());
         $this->assertTrue($items->every(
-            fn($level) => str_contains($level->name, 'Licence')
+            fn ($level) => str_contains($level->name, 'Licence')
         ));
     }
 
@@ -71,7 +71,7 @@ class LevelServiceTest extends TestCase
 
         $this->assertCount(2, $activeResult->items());
         $activeItems = collect($activeResult->items());
-        $this->assertTrue($activeItems->every(fn($level) => $level->is_active));
+        $this->assertTrue($activeItems->every(fn ($level) => $level->is_active));
 
         $inactiveResult = $this->levelService->getLevelsWithPagination([
             'status' => '0',

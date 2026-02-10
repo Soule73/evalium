@@ -27,9 +27,9 @@ class Subject extends Model
 
     protected static function booted(): void
     {
-        static::created(fn() => Cache::forget('subjects:all'));
-        static::updated(fn() => Cache::forget('subjects:all'));
-        static::deleted(fn() => Cache::forget('subjects:all'));
+        static::created(fn () => Cache::forget('subjects:all'));
+        static::updated(fn () => Cache::forget('subjects:all'));
+        static::deleted(fn () => Cache::forget('subjects:all'));
     }
 
     /**

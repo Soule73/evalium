@@ -25,17 +25,17 @@ class ClassSubjectQueryService
             ->with(['class.academicYear', 'class.level', 'subject', 'teacher', 'semester'])
             ->when(
                 $filters['class_id'] ?? null,
-                fn($query, $classId) => $query->where('class_id', $classId)
+                fn ($query, $classId) => $query->where('class_id', $classId)
             )
             ->when(
                 $filters['subject_id'] ?? null,
-                fn($query, $subjectId) => $query->where('subject_id', $subjectId)
+                fn ($query, $subjectId) => $query->where('subject_id', $subjectId)
             )
             ->when(
                 $filters['teacher_id'] ?? null,
-                fn($query, $teacherId) => $query->where('teacher_id', $teacherId)
+                fn ($query, $teacherId) => $query->where('teacher_id', $teacherId)
             )
-            ->when($activeOnly, fn($query) => $query->active())
+            ->when($activeOnly, fn ($query) => $query->active())
             ->orderBy('valid_from', 'desc')
             ->paginate($perPage)
             ->withQueryString();
@@ -120,7 +120,7 @@ class ClassSubjectQueryService
     {
         return ClassSubject::where('class_id', $classId)
             ->where('subject_id', $subjectId)
-            ->when($excludeId, fn($query) => $query->where('id', '!=', $excludeId))
+            ->when($excludeId, fn ($query) => $query->where('id', '!=', $excludeId))
             ->with(['teacher', 'semester'])
             ->orderByDesc('valid_from')
             ->paginate($perPage, ['*'], 'history_page')

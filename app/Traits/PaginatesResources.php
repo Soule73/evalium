@@ -13,73 +13,73 @@ use Illuminate\Database\Eloquent\Builder;
  */
 trait PaginatesResources
 {
-  /**
-   * Paginate a query with standard filters
-   */
-  protected function paginateQuery(
-    Builder $query,
-    array $filters = [],
-    ?int $perPage = null
-  ): LengthAwarePaginator {
-    $perPage = $perPage ?? $this->getDefaultPerPage();
+    /**
+     * Paginate a query with standard filters
+     */
+    protected function paginateQuery(
+        Builder $query,
+        array $filters = [],
+        ?int $perPage = null
+    ): LengthAwarePaginator {
+        $perPage = $perPage ?? $this->getDefaultPerPage();
 
-    $this->applyStandardFilters($query, $filters);
+        $this->applyStandardFilters($query, $filters);
 
-    return $query->paginate($perPage)->withQueryString();
-  }
-
-  /**
-   * Apply standard filters (search, sort)
-   */
-  protected function applyStandardFilters(Builder $query, array $filters): void
-  {
-    if (! empty($filters['search'])) {
-      $this->applySearchFilter($query, $filters['search']);
+        return $query->paginate($perPage)->withQueryString();
     }
 
-    if (! empty($filters['sort'])) {
-      $direction = $filters['direction'] ?? 'asc';
-      $this->applySortFilter($query, $filters['sort'], $direction);
-    }
-  }
+    /**
+     * Apply standard filters (search, sort)
+     */
+    protected function applyStandardFilters(Builder $query, array $filters): void
+    {
+        if (! empty($filters['search'])) {
+            $this->applySearchFilter($query, $filters['search']);
+        }
 
-  /**
-   * Get default per page value from config
-   */
-  protected function getDefaultPerPage(): int
-  {
-    $entityName = $this->getEntityName();
-
-    $entityDefault = config("app.pagination.entities.{$entityName}.default");
-
-    if ($entityDefault !== null) {
-      return $entityDefault;
+        if (! empty($filters['sort'])) {
+            $direction = $filters['direction'] ?? 'asc';
+            $this->applySortFilter($query, $filters['sort'], $direction);
+        }
     }
 
-    return config('app.pagination.default_per_page', 15);
-  }
+    /**
+     * Get default per page value from config
+     */
+    protected function getDefaultPerPage(): int
+    {
+        $entityName = $this->getEntityName();
 
-  /**
-   * Get entity name for configuration lookup
-   */
-  protected function getEntityName(): string
-  {
-    return 'default';
-  }
+        $entityDefault = config("app.pagination.entities.{$entityName}.default");
 
-  /**
-   * Apply search filter to query
-   * Must be implemented by concrete service
-   */
-  abstract protected function applySearchFilter(Builder $query, string $search): void;
+        if ($entityDefault !== null) {
+            return $entityDefault;
+        }
 
-  /**
-   * Apply sort filter to query
-   */
-  protected function applySortFilter(Builder $query, string $sort, string $direction = 'asc'): void
-  {
-    if (in_array($direction, ['asc', 'desc'])) {
-      $query->orderBy($sort, $direction);
+        return config('app.pagination.default_per_page', 15);
     }
-  }
+
+    /**
+     * Get entity name for configuration lookup
+     */
+    protected function getEntityName(): string
+    {
+        return 'default';
+    }
+
+    /**
+     * Apply search filter to query
+     * Must be implemented by concrete service
+     */
+    abstract protected function applySearchFilter(Builder $query, string $search): void;
+
+    /**
+     * Apply sort filter to query
+     */
+    protected function applySortFilter(Builder $query, string $sort, string $direction = 'asc'): void
+    {
+        if (in_array($direction, ['asc', 'desc'])) {
+            $query->orderBy($sort, $direction);
+        }
+    }
 }
