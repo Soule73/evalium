@@ -47,7 +47,7 @@ abstract class AbstractScoringStrategy implements ScoringStrategyInterface
      */
     protected function hasValidChoice(Collection $answers): bool
     {
-        return $answers->first()?->choice !== null;
+        return $answers->first()?->choice_id !== null;
     }
 
     /**
@@ -65,7 +65,7 @@ abstract class AbstractScoringStrategy implements ScoringStrategyInterface
      */
     protected function getCorrectChoices(Question $question): Collection
     {
-        return $question->choices()->where('is_correct', true)->get();
+        return $question->choices->where('is_correct', true);
     }
 
     /**
@@ -73,10 +73,10 @@ abstract class AbstractScoringStrategy implements ScoringStrategyInterface
      */
     protected function isChoiceCorrect(Question $question, int $choiceId): bool
     {
-        return $question->choices()
+        return $question->choices
             ->where('id', $choiceId)
             ->where('is_correct', true)
-            ->exists();
+            ->isNotEmpty();
     }
 
     /**

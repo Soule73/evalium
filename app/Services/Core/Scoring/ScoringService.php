@@ -45,7 +45,7 @@ class ScoringService
     {
         $assignment->loadMissing([
             'assessment.questions.choices',
-            'answers',
+            'answers.choice',
         ]);
 
         $answersByQuestionId = $assignment->answers->groupBy('question_id');
@@ -101,7 +101,7 @@ class ScoringService
     {
         $assignment->loadMissing([
             'assessment.questions.choices',
-            'answers',
+            'answers.choice',
         ]);
 
         $autoCorrectableTypes = ['one_choice', 'multiple', 'boolean'];
