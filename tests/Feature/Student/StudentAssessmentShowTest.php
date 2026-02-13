@@ -1,0 +1,150 @@
+<?php
+
+namespace Tests\Feature\Student;
+
+use App\Models\AcademicYear;
+use App\Models\Assessment;
+use App\Models\ClassModel;
+use App\Models\ClassSubject;
+use App\Models\Level;
+use App\Models\Question;
+use App\Models\Semester;
+use App\Models\Subject;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use Tests\Traits\InteractsWithTestData;
+
+class StudentAssessmentShowTest extends TestCase
+{
+    use InteractsWithTestData, RefreshDatabase;
+
+    private User $student;
+
+    private User $teacher;
+
+    private ClassModel $class;
+
+    private AcademicYear $academicYear;
+
+    private ClassSubject $classSubject;
+
+    private Assessment $assessment;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seedRolesAndPermissions();
+
+        config()->set('inertia.testing.page_paths', [resource_path('ts/Pages')]);
+
+        $this->academicYear = AcademicYear::firstOrCreate(
+            ['is_current' => true],
+            ['name' => '2025/2026', 'start_date' => '2025-09-01', 'end_date' => '2026-06-30']
+        );
+
+        $level = Level::factory()->create();
+        $this->class = ClassModel::factory()->create([
+            'academic_year_id' => $this->academicYear->id,
+            'level_id' => $level->id,
+        ]);
+
+        $this->student = $this->createStudent();
+        $this->class->enrollments()->create([
+            'student_id' => $this->student->id,
+            'enrolled_at' => now(),
+            'status' => 'active',
+        ]);
+
+        $this->teacher = $this->createTeacher();
+        $subject = Subject::factory()->create(['level_id' => $level->id]);
+
+        $semester = Semester::firstOrCreate(
+            ['academic_year_id' => $this->academicYear->id, 'order_number' => 1],
+            ['name' => 'Semester 1', 'start_date' => '2025-09-01', 'end_date' => '2026-01-31']
+        );
+
+        $this->classSubject = ClassSubject::create([
+            'class_id' => $this->class->id,
+            'subject_id' => $subject->id,
+            'teacher_id' => $this->teacher->id,
+            'semester_id' => $semester->id,
+            'coefficient' => 2,
+            'valid_from' => now(),
+        ]);
+
+        $this->assessment = Assessment::factory()->create([
+            'class_subject_id' => $this->classSubject->id,
+            'teacher_id' => $this->teacher->id,
+            'coefficient' => 1,
+            'settings' => ['is_published' => true],
+        ]);
+
+        Question::factory()->count(2)->create([
+            'assessment_id' => $this->assessment->id,
+            'points' => 10,
+        ]);
+    }
+
+    public function test_enrolled_student_can_view_assessment(): void
+    {
+        $response = $this->actingAs($this->student)
+            ->get(route('student.assessments.show', $this->assessment));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn($page) => $page
+                ->component('Student/Assessments/Show')
+                ->has('assessment')
+                ->has('assignment')
+        );
+    }
+
+    public function test_unenrolled_student_cannot_view_assessment(): void
+    {
+        $otherStudent = $this->createStudent();
+
+        $response = $this->actingAs($otherStudent)
+            ->get(route('student.assessments.show', $this->assessment));
+
+        $response->assertForbidden();
+    }
+
+    public function test_show_loads_assessment_relationships(): void
+    {
+        $response = $this->actingAs($this->student)
+            ->get(route('student.assessments.show', $this->assessment));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn($page) => $page
+                ->component('Student/Assessments/Show')
+                ->has('assessment.class_subject')
+                ->has('assessment.questions', 2)
+        );
+    }
+
+    public function test_show_creates_assignment_if_not_exists(): void
+    {
+        $this->assertDatabaseMissing('assessment_assignments', [
+            'assessment_id' => $this->assessment->id,
+            'student_id' => $this->student->id,
+        ]);
+
+        $this->actingAs($this->student)
+            ->get(route('student.assessments.show', $this->assessment));
+
+        $this->assertDatabaseHas('assessment_assignments', [
+            'assessment_id' => $this->assessment->id,
+            'student_id' => $this->student->id,
+        ]);
+    }
+
+    public function test_non_student_role_cannot_access_student_assessment_route(): void
+    {
+        $response = $this->actingAs($this->teacher)
+            ->get(route('student.assessments.show', $this->assessment));
+
+        $response->assertForbidden();
+    }
+}

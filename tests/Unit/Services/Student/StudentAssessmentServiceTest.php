@@ -430,4 +430,293 @@ class StudentAssessmentServiceTest extends TestCase
 
         $this->assertEquals('graded', $status);
     }
+
+    public function test_save_answers_stores_multiple_choice_as_separate_rows(): void
+    {
+        $classSubject = ClassSubject::factory()->create([
+            'class_id' => $this->classModel->id,
+            'subject_id' => $this->subject->id,
+            'teacher_id' => $this->teacher->id,
+        ]);
+        $assessment = Assessment::create([
+            'class_subject_id' => $classSubject->id,
+            'teacher_id' => $this->teacher->id,
+            'title' => 'Test',
+            'type' => 'examen',
+            'duration_minutes' => 60,
+            'coefficient' => 1.0,
+            'scheduled_at' => now()->addDay(),
+        ]);
+        $question = $assessment->questions()->create([
+            'content' => 'Pick all correct',
+            'type' => 'multiple',
+            'points' => 5,
+            'order_index' => 1,
+        ]);
+        $choices = [];
+        foreach (['A', 'B', 'C'] as $idx => $label) {
+            $choices[] = $question->choices()->create([
+                'content' => $label,
+                'is_correct' => $idx < 2,
+                'order_index' => $idx,
+            ]);
+        }
+        $student = User::factory()->create();
+        $student->assignRole('student');
+        $assignment = AssessmentAssignment::create([
+            'assessment_id' => $assessment->id,
+            'student_id' => $student->id,
+        ]);
+
+        $result = $this->service->saveAnswers($assignment, [
+            $question->id => [$choices[0]->id, $choices[1]->id],
+        ]);
+
+        $this->assertTrue($result);
+        $this->assertCount(2, $assignment->answers);
+        $savedChoiceIds = $assignment->answers->pluck('choice_id')->sort()->values()->all();
+        $this->assertEquals([$choices[0]->id, $choices[1]->id], $savedChoiceIds);
+    }
+
+    public function test_save_answers_stores_single_choice(): void
+    {
+        $classSubject = ClassSubject::factory()->create([
+            'class_id' => $this->classModel->id,
+            'subject_id' => $this->subject->id,
+            'teacher_id' => $this->teacher->id,
+        ]);
+        $assessment = Assessment::create([
+            'class_subject_id' => $classSubject->id,
+            'teacher_id' => $this->teacher->id,
+            'title' => 'Test',
+            'type' => 'examen',
+            'duration_minutes' => 60,
+            'coefficient' => 1.0,
+            'scheduled_at' => now()->addDay(),
+        ]);
+        $question = $assessment->questions()->create([
+            'content' => 'Pick one',
+            'type' => 'one_choice',
+            'points' => 3,
+            'order_index' => 1,
+        ]);
+        $choice = $question->choices()->create([
+            'content' => 'Answer A',
+            'is_correct' => true,
+            'order_index' => 0,
+        ]);
+        $student = User::factory()->create();
+        $student->assignRole('student');
+        $assignment = AssessmentAssignment::create([
+            'assessment_id' => $assessment->id,
+            'student_id' => $student->id,
+        ]);
+
+        $result = $this->service->saveAnswers($assignment, [
+            $question->id => $choice->id,
+        ]);
+
+        $this->assertTrue($result);
+        $this->assertCount(1, $assignment->answers()->get());
+        $this->assertEquals($choice->id, $assignment->answers()->first()->choice_id);
+    }
+
+    public function test_save_answers_stores_text_answer(): void
+    {
+        $classSubject = ClassSubject::factory()->create([
+            'class_id' => $this->classModel->id,
+            'subject_id' => $this->subject->id,
+            'teacher_id' => $this->teacher->id,
+        ]);
+        $assessment = Assessment::create([
+            'class_subject_id' => $classSubject->id,
+            'teacher_id' => $this->teacher->id,
+            'title' => 'Test',
+            'type' => 'examen',
+            'duration_minutes' => 60,
+            'coefficient' => 1.0,
+            'scheduled_at' => now()->addDay(),
+        ]);
+        $question = $assessment->questions()->create([
+            'content' => 'Explain',
+            'type' => 'text',
+            'points' => 10,
+            'order_index' => 1,
+        ]);
+        $student = User::factory()->create();
+        $student->assignRole('student');
+        $assignment = AssessmentAssignment::create([
+            'assessment_id' => $assessment->id,
+            'student_id' => $student->id,
+        ]);
+
+        $result = $this->service->saveAnswers($assignment, [
+            $question->id => 'My detailed answer',
+        ]);
+
+        $this->assertTrue($result);
+        $this->assertEquals('My detailed answer', $assignment->answers()->first()->answer_text);
+    }
+
+    public function test_save_answers_replaces_previous_answers(): void
+    {
+        $classSubject = ClassSubject::factory()->create([
+            'class_id' => $this->classModel->id,
+            'subject_id' => $this->subject->id,
+            'teacher_id' => $this->teacher->id,
+        ]);
+        $assessment = Assessment::create([
+            'class_subject_id' => $classSubject->id,
+            'teacher_id' => $this->teacher->id,
+            'title' => 'Test',
+            'type' => 'examen',
+            'duration_minutes' => 60,
+            'coefficient' => 1.0,
+            'scheduled_at' => now()->addDay(),
+        ]);
+        $question = $assessment->questions()->create([
+            'content' => 'Pick all',
+            'type' => 'multiple',
+            'points' => 5,
+            'order_index' => 1,
+        ]);
+        $choices = [];
+        foreach (['A', 'B', 'C'] as $idx => $label) {
+            $choices[] = $question->choices()->create([
+                'content' => $label,
+                'is_correct' => true,
+                'order_index' => $idx,
+            ]);
+        }
+        $student = User::factory()->create();
+        $student->assignRole('student');
+        $assignment = AssessmentAssignment::create([
+            'assessment_id' => $assessment->id,
+            'student_id' => $student->id,
+        ]);
+
+        $this->service->saveAnswers($assignment, [
+            $question->id => [$choices[0]->id, $choices[1]->id],
+        ]);
+        $this->assertCount(2, $assignment->answers()->get());
+
+        $this->service->saveAnswers($assignment, [
+            $question->id => [$choices[2]->id],
+        ]);
+
+        $answers = $assignment->answers()->get();
+        $this->assertCount(1, $answers);
+        $this->assertEquals($choices[2]->id, $answers->first()->choice_id);
+    }
+
+    public function test_save_answers_returns_false_when_submitted(): void
+    {
+        $student = User::factory()->create();
+        $student->assignRole('student');
+        $classSubject = ClassSubject::factory()->create([
+            'class_id' => $this->classModel->id,
+            'subject_id' => $this->subject->id,
+            'teacher_id' => $this->teacher->id,
+        ]);
+        $assessment = Assessment::create([
+            'class_subject_id' => $classSubject->id,
+            'teacher_id' => $this->teacher->id,
+            'title' => 'Test',
+            'type' => 'examen',
+            'duration_minutes' => 60,
+            'coefficient' => 1.0,
+            'scheduled_at' => now()->addDay(),
+        ]);
+        $assignment = AssessmentAssignment::create([
+            'assessment_id' => $assessment->id,
+            'student_id' => $student->id,
+            'submitted_at' => now(),
+        ]);
+
+        $result = $this->service->saveAnswers($assignment, ['1' => 'test']);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_format_user_answers_groups_multiple_choice_with_choices_property(): void
+    {
+        $classSubject = ClassSubject::factory()->create([
+            'class_id' => $this->classModel->id,
+            'subject_id' => $this->subject->id,
+            'teacher_id' => $this->teacher->id,
+        ]);
+        $assessment = Assessment::create([
+            'class_subject_id' => $classSubject->id,
+            'teacher_id' => $this->teacher->id,
+            'title' => 'Test',
+            'type' => 'examen',
+            'duration_minutes' => 60,
+            'coefficient' => 1.0,
+            'scheduled_at' => now()->addDay(),
+        ]);
+        $question = $assessment->questions()->create([
+            'content' => 'Pick all',
+            'type' => 'multiple',
+            'points' => 5,
+            'order_index' => 1,
+        ]);
+        $choiceA = $question->choices()->create(['content' => 'A', 'is_correct' => true, 'order_index' => 0]);
+        $choiceB = $question->choices()->create(['content' => 'B', 'is_correct' => true, 'order_index' => 1]);
+
+        $student = User::factory()->create();
+        $student->assignRole('student');
+        $assignment = AssessmentAssignment::create([
+            'assessment_id' => $assessment->id,
+            'student_id' => $student->id,
+        ]);
+        $assignment->answers()->create(['question_id' => $question->id, 'choice_id' => $choiceA->id]);
+        $assignment->answers()->create(['question_id' => $question->id, 'choice_id' => $choiceB->id]);
+
+        $answers = $assignment->answers()->with('choice')->get();
+        $result = $this->service->formatUserAnswers($answers);
+
+        $this->assertArrayHasKey($question->id, $result);
+        $formatted = $result[$question->id];
+        $this->assertIsArray($formatted->choices);
+        $this->assertCount(2, $formatted->choices);
+    }
+
+    public function test_format_user_answers_single_answer_returns_directly(): void
+    {
+        $classSubject = ClassSubject::factory()->create([
+            'class_id' => $this->classModel->id,
+            'subject_id' => $this->subject->id,
+            'teacher_id' => $this->teacher->id,
+        ]);
+        $assessment = Assessment::create([
+            'class_subject_id' => $classSubject->id,
+            'teacher_id' => $this->teacher->id,
+            'title' => 'Test',
+            'type' => 'examen',
+            'duration_minutes' => 60,
+            'coefficient' => 1.0,
+            'scheduled_at' => now()->addDay(),
+        ]);
+        $question = $assessment->questions()->create([
+            'content' => 'Pick one',
+            'type' => 'one_choice',
+            'points' => 3,
+            'order_index' => 1,
+        ]);
+        $choice = $question->choices()->create(['content' => 'A', 'is_correct' => true, 'order_index' => 0]);
+
+        $student = User::factory()->create();
+        $student->assignRole('student');
+        $assignment = AssessmentAssignment::create([
+            'assessment_id' => $assessment->id,
+            'student_id' => $student->id,
+        ]);
+        $assignment->answers()->create(['question_id' => $question->id, 'choice_id' => $choice->id]);
+
+        $answers = $assignment->answers()->get();
+        $result = $this->service->formatUserAnswers($answers);
+
+        $this->assertArrayHasKey($question->id, $result);
+        $this->assertEquals($choice->id, $result[$question->id]->choice_id);
+    }
 }
