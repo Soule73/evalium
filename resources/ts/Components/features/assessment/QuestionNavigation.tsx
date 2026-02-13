@@ -26,11 +26,10 @@ export function QuestionNavigation({
   questionIds = [],
 }: QuestionNavigationProps) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-      <div className="flex items-center justify-between mb-4">
+    <div className='fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10 py-4'>
+      <div className="flex items-center justify-around mb-4">
         <Button
           size="sm"
-          color="secondary"
           onClick={onPrevious}
           disabled={isFirstQuestion}
           className="flex items-center gap-1"
@@ -38,17 +37,46 @@ export function QuestionNavigation({
           <ChevronLeftIcon className="h-4 w-4" />
           {trans('student_assessment_pages.take.previous_question')}
         </Button>
+        <div className=' flex flex-col items-center space-y-2'>
+          {totalQuestions <= 20 && (
+            <div className="flex flex-wrap gap-2 justify-center items-center">
+              {Array.from({ length: totalQuestions }, (_, i) => {
+                const questionId = questionIds[i];
+                const isAnswered = questionId !== undefined && answeredQuestions.has(questionId);
+                const isCurrent = i === currentIndex;
 
-        <span className="text-sm font-medium text-gray-700">
-          {trans('student_assessment_pages.take.question_progress', {
-            current: currentIndex + 1,
-            total: totalQuestions,
-          })}
-        </span>
+                return (
+                  <button
+                    key={i}
+                    onClick={() => onGoToQuestion(i)}
+                    className={`
+                        w-8 h-8 rounded-full text-sm font-medium transition-colors cursor-pointer
+                        ${isCurrent
+                        ? 'bg-primary-600 text-white'
+                        : isAnswered
+                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }
+                      `}
+                  >
+                    {i + 1}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          <span className="text-sm font-medium text-gray-700">
+            {trans('student_assessment_pages.take.question_progress', {
+              current: currentIndex + 1,
+              total: totalQuestions,
+            })}
+          </span>
+
+        </div>
+
 
         <Button
           size="sm"
-          color="secondary"
           onClick={onNext}
           disabled={isLastQuestion}
           className="flex items-center gap-1"
@@ -58,33 +86,6 @@ export function QuestionNavigation({
         </Button>
       </div>
 
-      {totalQuestions <= 20 && (
-        <div className="flex flex-wrap gap-2 justify-center">
-          {Array.from({ length: totalQuestions }, (_, i) => {
-            const questionId = questionIds[i];
-            const isAnswered = questionId !== undefined && answeredQuestions.has(questionId);
-            const isCurrent = i === currentIndex;
-
-            return (
-              <button
-                key={i}
-                onClick={() => onGoToQuestion(i)}
-                className={`
-                  w-8 h-8 rounded-full text-sm font-medium transition-colors
-                  ${isCurrent
-                    ? 'bg-primary-600 text-white'
-                    : isAnswered
-                      ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }
-                `}
-              >
-                {i + 1}
-              </button>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 }

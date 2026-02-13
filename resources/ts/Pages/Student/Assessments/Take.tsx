@@ -171,7 +171,7 @@ function Take({ assessment, assignment, questions = [], userAnswers = [] }: Take
 
       <div className="pt-20 max-w-6xl mx-auto">
         <div className="container mx-auto px-4 py-8">
-          <Section title={translations.importantInstructions} collapsible>
+          <Section title={translations.importantInstructions} collapsible defaultOpen={false}>
             <AlertEntry type="warning" title={translations.warningTitle}>
               <p>
                 {translations.warningMessage1}
@@ -181,19 +181,6 @@ function Take({ assessment, assignment, questions = [], userAnswers = [] }: Take
             </AlertEntry>
           </Section>
 
-          {assessmentCanStart && oneQuestionPerPage && displayedQuestions.length > 0 && (
-            <QuestionNavigation
-              currentIndex={currentQuestionIndex}
-              totalQuestions={totalQuestions}
-              isFirstQuestion={isFirstQuestion}
-              isLastQuestion={isLastQuestion}
-              onPrevious={handlePreviousQuestion}
-              onNext={handleNextQuestion}
-              onGoToQuestion={goToQuestion}
-              answeredQuestions={answeredQuestionIds}
-              questionIds={shuffledQuestionIds}
-            />
-          )}
 
           {assessmentCanStart &&
             displayedQuestions.length > 0 &&
@@ -207,24 +194,17 @@ function Take({ assessment, assignment, questions = [], userAnswers = [] }: Take
             ))}
 
           {assessmentCanStart && oneQuestionPerPage && displayedQuestions.length > 0 && (
-            <div className="flex justify-between mt-6">
-              <Button
-                size="sm"
-                color="secondary"
-                onClick={handlePreviousQuestion}
-                disabled={isFirstQuestion}
-              >
-                {trans('student_assessment_pages.take.previous_question')}
-              </Button>
-              <Button
-                size="sm"
-                color="secondary"
-                onClick={handleNextQuestion}
-                disabled={isLastQuestion}
-              >
-                {trans('student_assessment_pages.take.next_question')}
-              </Button>
-            </div>
+            <QuestionNavigation
+              currentIndex={currentQuestionIndex}
+              totalQuestions={totalQuestions}
+              isFirstQuestion={isFirstQuestion}
+              isLastQuestion={isLastQuestion}
+              onPrevious={handlePreviousQuestion}
+              onNext={handleNextQuestion}
+              onGoToQuestion={goToQuestion}
+              answeredQuestions={answeredQuestionIds}
+              questionIds={shuffledQuestionIds}
+            />
           )}
 
           {!assessmentCanStart && (
