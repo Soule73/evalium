@@ -29,7 +29,6 @@ trait HasJsonSettings
      *
      * @param  string  $key  The setting key
      * @param  mixed  $value  The value to set
-     * @return void
      */
     protected function setSettingValue(string $key, mixed $value): void
     {
@@ -67,7 +66,6 @@ trait HasJsonSettings
      * Remove a setting key from the settings JSON column.
      *
      * @param  string  $key  The setting key to remove
-     * @return void
      */
     protected function removeSetting(string $key): void
     {
@@ -90,7 +88,6 @@ trait HasJsonSettings
      * Merge new settings with existing settings.
      *
      * @param  array  $newSettings  Settings to merge
-     * @return void
      */
     protected function mergeSettings(array $newSettings): void
     {
