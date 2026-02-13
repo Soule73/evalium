@@ -54,12 +54,6 @@ class StudentAssessmentController extends Controller
 
         $this->authorize('view', $assessment);
 
-        abort_unless(
-            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
-            403,
-            'You cannot access this assessment.'
-        );
-
         $assessment->load([
             'classSubject.class',
             'classSubject.subject',

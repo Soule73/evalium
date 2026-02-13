@@ -141,10 +141,10 @@ class StudentAssessmentService
     public function autoScoreAssessment(AssessmentAssignment $assignment, Assessment $assessment): void
     {
         $assessment->loadMissing('questions.choices');
-        $assignment->loadMissing('answers');
+        $assignment->loadMissing('answers.choice');
 
         $autoScorableQuestions = $assessment->questions
-            ->whereNotIn('type', ['text'])
+            ->whereNotIn('type', ['text', 'essay'])
             ->keyBy('id');
 
         if ($autoScorableQuestions->isEmpty()) {
@@ -179,7 +179,7 @@ class StudentAssessmentService
             });
         }
 
-        $hasTextQuestions = $assessment->questions->contains('type', 'text');
+        $hasTextQuestions = $assessment->questions->contains(fn($q) => in_array($q->type, ['text', 'essay']));
 
         if (! $hasTextQuestions) {
             $totalScore = $this->scoringService->calculateAssignmentScore($assignment);
