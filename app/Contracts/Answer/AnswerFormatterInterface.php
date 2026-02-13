@@ -21,6 +21,14 @@ interface AnswerFormatterInterface
     public function formatForFrontend(AssessmentAssignment $assignment): array;
 
     /**
+     * Format answers for grading interface (returns Answer objects).
+     *
+     * @param  AssessmentAssignment  $assignment  The assignment containing the answers
+     * @return array Formatted answers as Answer objects keyed by question_id
+     */
+    public function formatForGrading(AssessmentAssignment $assignment): array;
+
+    /**
      * Format a single answer (single choice or text question).
      *
      * @param  mixed  $answer  The answer to format

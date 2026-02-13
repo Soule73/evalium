@@ -127,29 +127,4 @@ class GradingQueryService
     {
         return $assessment->load(['classSubject.class', 'questions.choices']);
     }
-
-    /**
-     * Transform user answers from assignment for display.
-     */
-    public function transformUserAnswers(AssessmentAssignment $assignment): array
-    {
-        $userAnswers = [];
-
-        foreach ($assignment->answers->groupBy('question_id') as $questionId => $answers) {
-            if ($answers->count() === 1) {
-                $userAnswers[$questionId] = $answers->first();
-            } else {
-                $firstAnswer = $answers->first();
-                $firstAnswer->choices = $answers->filter(function ($answer) {
-                    return $answer->choice_id !== null;
-                })->map(function ($answer) {
-                    return ['choice' => $answer->choice];
-                })->values()->all();
-
-                $userAnswers[$questionId] = $firstAnswer;
-            }
-        }
-
-        return $userAnswers;
-    }
 }

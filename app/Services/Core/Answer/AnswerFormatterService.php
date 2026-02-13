@@ -90,6 +90,38 @@ class AnswerFormatterService implements AnswerFormatterInterface
     }
 
     /**
+     * Format answers for grading interface (returns Answer objects).
+     *
+     * @param  AssessmentAssignment  $assignment  The assignment containing the answers
+     * @return array Formatted answers as Answer objects keyed by question_id
+     */
+    public function formatForGrading(AssessmentAssignment $assignment): array
+    {
+        $answers = $assignment->relationLoaded('answers')
+            ? $assignment->answers
+            : $assignment->answers()->with(['choice', 'question'])->get();
+
+        $userAnswers = [];
+
+        foreach ($answers->groupBy('question_id') as $questionId => $questionAnswers) {
+            if ($questionAnswers->count() === 1) {
+                $userAnswers[$questionId] = $questionAnswers->first();
+            } else {
+                $firstAnswer = $questionAnswers->first();
+                $firstAnswer->choices = $questionAnswers->filter(function ($answer) {
+                    return $answer->choice_id !== null;
+                })->map(function ($answer) {
+                    return ['choice' => $answer->choice];
+                })->values()->all();
+
+                $userAnswers[$questionId] = $firstAnswer;
+            }
+        }
+
+        return $userAnswers;
+    }
+
+    /**
      * Check if an assignment has at least one answer.
      *
      * @return bool True if the assignment has any answers

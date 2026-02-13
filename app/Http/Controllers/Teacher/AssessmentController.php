@@ -9,6 +9,7 @@ use App\Http\Requests\Teacher\UpdateAssessmentRequest;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
+use App\Services\Core\Answer\AnswerFormatterService;
 use App\Services\Core\AssessmentService;
 use App\Services\Core\Scoring\ScoringService;
 use App\Services\Teacher\GradingQueryService;
@@ -29,7 +30,8 @@ class AssessmentController extends Controller
         private readonly AssessmentService $assessmentService,
         private readonly TeacherAssessmentQueryService $assessmentQueryService,
         private readonly GradingQueryService $gradingQueryService,
-        private readonly ScoringService $scoringService
+        private readonly ScoringService $scoringService,
+        private readonly AnswerFormatterService $answerFormatterService
     ) {}
 
     /**
@@ -222,7 +224,7 @@ class AssessmentController extends Controller
         $this->validateAcademicYearAccess($assessment->classSubject->class, $selectedYearId);
 
         $assignment->load(['student', 'answers.choice']);
-        $userAnswers = $this->gradingQueryService->transformUserAnswers($assignment);
+        $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
 
         return Inertia::render('Teacher/Assessments/Grade', [
             'assignment' => $assignment,
@@ -245,7 +247,7 @@ class AssessmentController extends Controller
         $this->validateAcademicYearAccess($assessment->classSubject->class, $selectedYearId);
 
         $assignment->load(['student', 'answers.choice']);
-        $userAnswers = $this->gradingQueryService->transformUserAnswers($assignment);
+        $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
 
         return Inertia::render('Teacher/Assessments/Review', [
             'assignment' => $assignment,
