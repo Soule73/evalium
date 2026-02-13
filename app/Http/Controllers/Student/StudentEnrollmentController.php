@@ -9,6 +9,7 @@ use App\Services\Core\GradeCalculationService;
 use App\Services\Student\StudentEnrollmentQueryService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -25,7 +26,7 @@ class StudentEnrollmentController extends Controller
     /**
      * Display the student's current enrollment.
      */
-    public function show(Request $request): Response
+    public function show(Request $request): Response|\Illuminate\Http\RedirectResponse
     {
         $student = $request->user();
         $selectedYearId = $this->getSelectedAcademicYearId($request);
@@ -33,33 +34,35 @@ class StudentEnrollmentController extends Controller
         $currentEnrollment = $this->enrollmentService->getCurrentEnrollment($student, $selectedYearId);
 
         if (! $currentEnrollment) {
-            return Inertia::render('Student/Enrollment/NoEnrollment');
+            return redirect()->route('dashboard')->with('info', 'No active enrollment found for the selected academic year.');
         }
-
-        $currentEnrollment->load([
-            'class.academicYear',
-            'class.level',
-        ]);
 
         $filters = ['search' => $request->input('search')];
         $perPage = (int) $request->input('per_page', 10);
 
-        $subjects = $this->enrollmentQueryService->getSubjectsWithStatsForEnrollment(
+        $allSubjects = $this->enrollmentQueryService->getAllSubjectsWithStats(
             $currentEnrollment,
             $student,
-            $filters,
-            $perPage
+            $filters
         );
 
-        SubjectStatsResource::setGradeService($this->gradeCalculationService);
+        $page = (int) $request->input('page', 1);
+        $paginatedSubjects = new LengthAwarePaginator(
+            $allSubjects->forPage($page, $perPage)->values(),
+            $allSubjects->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
-        $subjectsTransformed = $subjects->through(function ($classSubject) use ($student) {
+        $subjectsTransformed = $paginatedSubjects->through(function ($classSubject) use ($student) {
             return (new SubjectStatsResource($classSubject))->forStudent($student)->resolve();
         });
 
-        $overallStats = $this->gradeCalculationService->getGradeBreakdown(
+        $overallStats = $this->gradeCalculationService->getGradeBreakdownFromLoaded(
             $student,
-            $currentEnrollment->class
+            $currentEnrollment->class,
+            $allSubjects
         );
 
         return Inertia::render('Student/Enrollment/Show', [
@@ -100,11 +103,6 @@ class StudentEnrollmentController extends Controller
         }
 
         $this->enrollmentQueryService->validateAcademicYearAccess($currentEnrollment, $selectedYearId);
-
-        $currentEnrollment->load([
-            'class.academicYear',
-            'class.level',
-        ]);
 
         $classmates = $this->enrollmentQueryService->getClassmates($currentEnrollment, $student);
 

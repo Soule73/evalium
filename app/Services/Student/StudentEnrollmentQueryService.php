@@ -17,6 +17,51 @@ use Illuminate\Support\Collection;
 class StudentEnrollmentQueryService
 {
     /**
+     * Get all subjects with stats for a student's enrollment (non-paginated).
+     *
+     * Loads all class subjects with eager-loaded relationships in a single batch.
+     * Preferred when total subject count per class is small (typically <20).
+     *
+     * @param  Enrollment  $enrollment  The student's enrollment
+     * @param  User  $student  The student user
+     * @param  array  $filters  Search filters
+     * @return Collection<int, ClassSubject> All subjects with stats
+     */
+    public function getAllSubjectsWithStats(
+        Enrollment $enrollment,
+        User $student,
+        array $filters = []
+    ): Collection {
+        return ClassSubject::active()
+            ->where('class_id', $enrollment->class_id)
+            ->with([
+                'subject',
+                'teacher',
+                'assessments' => function ($query) use ($student) {
+                    $query->select('id', 'class_subject_id', 'coefficient', 'settings')
+                        ->with([
+                            'questions:id,assessment_id,points',
+                            'assignments' => function ($q) use ($student) {
+                                $q->where('student_id', $student->id)
+                                    ->select('id', 'assessment_id', 'student_id', 'score', 'submitted_at');
+                            },
+                        ]);
+                },
+            ])
+            ->when($filters['search'] ?? null, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('subject', function ($subjectQuery) use ($search) {
+                        $subjectQuery->where('name', 'like', "%{$search}%");
+                    })
+                        ->orWhereHas('teacher', function ($teacherQuery) use ($search) {
+                            $teacherQuery->where('name', 'like', "%{$search}%");
+                        });
+                });
+            })
+            ->get();
+    }
+
+    /**
      * Get subjects with stats for a student's enrollment.
      *
      * Optimized query that eager loads all necessary relationships to avoid N+1.
@@ -39,7 +84,7 @@ class StudentEnrollmentQueryService
                 'subject',
                 'teacher',
                 'assessments' => function ($query) use ($student) {
-                    $query->select('id', 'class_subject_id', 'coefficient')
+                    $query->select('id', 'class_subject_id', 'coefficient', 'settings')
                         ->with([
                             'questions:id,assessment_id,points',
                             'assignments' => function ($q) use ($student) {

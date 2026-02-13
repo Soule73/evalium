@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\Student;
 
-use App\Services\Core\GradeCalculationService;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -10,33 +10,18 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * Subject Statistics Resource
  *
  * Transforms ClassSubject model into subject statistics for students.
- * Uses eager-loaded relationships to avoid N+1 queries.
+ * Computes grades from eager-loaded relationships to avoid N+1 queries.
  *
  * @property \App\Models\ClassSubject $resource
  */
 class SubjectStatsResource extends JsonResource
 {
-    /**
-     * The student for whom to calculate statistics.
-     *
-     * @var \App\Models\User
-     */
-    private $student;
+    private ?User $student = null;
 
     /**
-     * The grade calculation service.
-     *
-     * @var GradeCalculationService
-     */
-    private static $gradeService;
-
-    /**
-     * Set the student for statistics calculation.
-     *
-     * @param  \App\Models\User  $student
      * @return $this
      */
-    public function forStudent($student)
+    public function forStudent(User $student): static
     {
         $this->student = $student;
 
@@ -44,16 +29,6 @@ class SubjectStatsResource extends JsonResource
     }
 
     /**
-     * Set the grade calculation service (static for collection efficiency).
-     */
-    public static function setGradeService(GradeCalculationService $service): void
-    {
-        self::$gradeService = $service;
-    }
-
-    /**
-     * Transform the resource into an array.
-     *
      * @param  Request  $request
      * @return array<string, mixed>
      */
@@ -72,21 +47,43 @@ class SubjectStatsResource extends JsonResource
     }
 
     /**
-     * Calculate the average grade for this subject.
-     * Uses eager-loaded assessments and assignments.
+     * Calculate subject grade from eager-loaded assessments and assignments.
+     *
+     * Formula: Note = SUM(coef_assessment * normalized_score) / SUM(coef_assessment)
+     * Where normalized_score = (score / max_points) * 20
      */
     private function calculateAverage(): ?float
     {
-        if (! $this->student || ! self::$gradeService) {
+        if (! $this->student) {
             return null;
         }
 
-        return self::$gradeService->calculateSubjectGrade($this->student, $this->resource);
+        $totalWeightedScore = 0;
+        $totalCoefficients = 0;
+
+        foreach ($this->resource->assessments as $assessment) {
+            $assignment = $assessment->assignments->first();
+
+            if (! $assignment || $assignment->score === null) {
+                continue;
+            }
+
+            $maxPoints = $assessment->questions->sum('points');
+
+            if ($maxPoints <= 0) {
+                continue;
+            }
+
+            $normalizedScore = ($assignment->score / $maxPoints) * 20;
+            $totalWeightedScore += $assessment->coefficient * $normalizedScore;
+            $totalCoefficients += $assessment->coefficient;
+        }
+
+        return $totalCoefficients > 0 ? round($totalWeightedScore / $totalCoefficients, 2) : null;
     }
 
     /**
      * Get the total number of assessments for this subject.
-     * Uses eager-loaded assessments relationship.
      */
     private function getAssessmentsCount(): int
     {
@@ -95,7 +92,6 @@ class SubjectStatsResource extends JsonResource
 
     /**
      * Get the number of completed assessments.
-     * Uses eager-loaded assessments.assignments relationship.
      */
     private function getCompletedCount(): int
     {

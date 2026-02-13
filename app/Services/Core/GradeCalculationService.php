@@ -2,13 +2,13 @@
 
 namespace App\Services\Core;
 
-use App\Models\User;
-use App\Models\ClassModel;
 use App\Models\AcademicYear;
+use App\Models\AssessmentAssignment;
+use App\Models\ClassModel;
 use App\Models\ClassSubject;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use App\Models\AssessmentAssignment;
 
 /**
  * Grade Calculation Service - Implement double coefficient formula
@@ -139,6 +139,87 @@ class GradeCalculationService
             }
 
             $totalAssessments = $publishedAssessmentsBySubject->get($classSubject->id, 0);
+
+            $subjectGrades[] = [
+                'id' => $classSubject->id,
+                'class_subject_id' => $classSubject->id,
+                'subject_name' => $classSubject->subject?->name ?? '-',
+                'teacher_name' => $classSubject->teacher?->name ?? '-',
+                'coefficient' => $classSubject->coefficient,
+                'average' => $subjectGrade,
+                'assessments_count' => $totalAssessments,
+                'completed_count' => $completedCount,
+            ];
+
+            if ($subjectGrade !== null) {
+                $totalWeightedGrade += $classSubject->coefficient * $subjectGrade;
+                $totalCoefficients += $classSubject->coefficient;
+            }
+        }
+
+        $annualAverage = $totalCoefficients > 0 ? round($totalWeightedGrade / $totalCoefficients, 2) : null;
+
+        return [
+            'student_id' => $student->id,
+            'student_name' => $student->name,
+            'class_id' => $class->id,
+            'class_name' => $class->name,
+            'subjects' => $subjectGrades,
+            'annual_average' => $annualAverage,
+            'total_coefficient' => $totalCoefficients,
+        ];
+    }
+
+    /**
+     * Compute grade breakdown from pre-loaded class subjects (zero additional queries).
+     *
+     * Expects classSubjects to have eager-loaded: subject, teacher,
+     * assessments (with settings), assessments.questions, assessments.assignments (filtered by student).
+     *
+     * @param  User  $student  The student
+     * @param  ClassModel  $class  The class
+     * @param  Collection  $classSubjects  Pre-loaded class subjects with all relationships
+     * @return array Grade breakdown data
+     */
+    public function getGradeBreakdownFromLoaded(User $student, ClassModel $class, Collection $classSubjects): array
+    {
+        $subjectGrades = [];
+        $totalWeightedGrade = 0;
+        $totalCoefficients = 0;
+
+        foreach ($classSubjects as $classSubject) {
+            $subjectGrade = null;
+            $completedCount = 0;
+            $totalWeightedScore = 0;
+            $totalAssessmentCoefficients = 0;
+
+            foreach ($classSubject->assessments as $assessment) {
+                $assignment = $assessment->assignments->first();
+
+                if ($assignment) {
+                    if ($assignment->score !== null) {
+                        $maxPoints = $assessment->questions->sum('points');
+
+                        if ($maxPoints > 0) {
+                            $normalizedScore = ($assignment->score / $maxPoints) * 20;
+                            $totalWeightedScore += $assessment->coefficient * $normalizedScore;
+                            $totalAssessmentCoefficients += $assessment->coefficient;
+                        }
+                    }
+
+                    if ($assignment->submitted_at) {
+                        $completedCount++;
+                    }
+                }
+            }
+
+            if ($totalAssessmentCoefficients > 0) {
+                $subjectGrade = round($totalWeightedScore / $totalAssessmentCoefficients, 2);
+            }
+
+            $totalAssessments = $classSubject->assessments
+                ->filter(fn($a) => $a->is_published)
+                ->count();
 
             $subjectGrades[] = [
                 'id' => $classSubject->id,
