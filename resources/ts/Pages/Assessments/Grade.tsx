@@ -128,7 +128,7 @@ export default function GradeAssignment({ assessment, student, assignment, userA
     }, {
       onFinish: () => setIsSubmitting(false)
     });
-  }, [assessment, assignment, scores, feedbacks, teacherNotes, saveGradeUrl]);
+  }, [assessment, scores, feedbacks, teacherNotes, saveGradeUrl]);
 
   const renderScoreInput = (question: Question) => {
     const questionScore = scores[question.id] || 0;

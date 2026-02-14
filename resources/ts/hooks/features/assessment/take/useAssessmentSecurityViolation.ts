@@ -83,7 +83,7 @@ export function useAssessmentSecurityViolation({ assessmentId, onViolation }: Us
             onViolation(violationType);
         }
 
-    }, [assessmentId, onViolation, getViolationLabel]);
+    }, [assessmentId, onViolation, getViolationLabel, setAssessmentTerminated]);
 
     const handleViolation = useCallback((
         type: string,

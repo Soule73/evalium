@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { CheckCircleIcon, ExclamationCircleIcon, InformationCircleIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
@@ -74,6 +74,13 @@ const Toast: React.FC<ToastProps> = ({
         return () => clearTimeout(timer);
     }, []);
 
+    const handleClose = useCallback(() => {
+        setIsLeaving(true);
+        setTimeout(() => {
+            onClose(id);
+        }, 300);
+    }, [id, onClose]);
+
     useEffect(() => {
         if (autoClose && duration > 0) {
             const timer = setTimeout(() => {
@@ -81,14 +88,7 @@ const Toast: React.FC<ToastProps> = ({
             }, duration);
             return () => clearTimeout(timer);
         }
-    }, [autoClose, duration, id]);
-
-    const handleClose = () => {
-        setIsLeaving(true);
-        setTimeout(() => {
-            onClose(id);
-        }, 300);
-    };
+    }, [autoClose, duration, id, handleClose]);
 
     return (
         <div

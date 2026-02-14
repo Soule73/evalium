@@ -341,6 +341,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
                 editorRef.current = null;
             }
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         placeholder,
         disabled,

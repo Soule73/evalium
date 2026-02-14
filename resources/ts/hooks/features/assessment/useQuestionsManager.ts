@@ -59,6 +59,13 @@ export const useQuestionsManager = () => {
 
     const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
+    const confirmQuestionDeletion = useCallback((index: number, question: QuestionFormData) => {
+        if (question.id) {
+            addDeletedQuestionToHistory(question.id, index, question);
+        }
+        removeQuestion(index);
+    }, [removeQuestion, addDeletedQuestionToHistory]);
+
     const handleRequestQuestionDeletion = useCallback((index: number, question: QuestionFormData) => {
         setConfirmationModal({
             isOpen: true,
@@ -70,14 +77,14 @@ export const useQuestionsManager = () => {
                 setConfirmationModal(prev => ({ ...prev, isOpen: false }));
             }
         });
-    }, []);
+    }, [confirmQuestionDeletion]);
 
-    const confirmQuestionDeletion = useCallback((index: number, question: QuestionFormData) => {
-        if (question.id) {
-            addDeletedQuestionToHistory(question.id, index, question);
+    const confirmChoiceDeletion = useCallback((questionIndex: number, choiceIndex: number, question: QuestionFormData, choice: ChoiceFormData) => {
+        if (choice.id) {
+            addDeletedChoiceToHistory(choice.id, questionIndex, choiceIndex, choice, question.id || 0);
         }
-        removeQuestion(index);
-    }, [removeQuestion, addDeletedQuestionToHistory]);
+        removeChoice(questionIndex, choiceIndex);
+    }, [removeChoice, addDeletedChoiceToHistory]);
 
     const handleRequestChoiceDeletion = useCallback((questionIndex: number, choiceIndex: number, question: QuestionFormData, choice: ChoiceFormData) => {
         setConfirmationModal({
@@ -90,14 +97,7 @@ export const useQuestionsManager = () => {
                 setConfirmationModal(prev => ({ ...prev, isOpen: false }));
             }
         });
-    }, []);
-
-    const confirmChoiceDeletion = useCallback((questionIndex: number, choiceIndex: number, question: QuestionFormData, choice: ChoiceFormData) => {
-        if (choice.id) {
-            addDeletedChoiceToHistory(choice.id, questionIndex, choiceIndex, choice, question.id || 0);
-        }
-        removeChoice(questionIndex, choiceIndex);
-    }, [removeChoice, addDeletedChoiceToHistory]);
+    }, [confirmChoiceDeletion]);
 
     const handleDragEnd = useCallback((event: DragEndEvent) => {
         const { active, over } = event;

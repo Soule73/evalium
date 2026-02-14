@@ -114,7 +114,7 @@ function Work({ assessment, assignment, questions = [], userAnswers = [], attach
     submitAssessment(useAssessmentTakeStore.getState().answers);
   }, [submitAssessment]);
 
-  const translations = {
+  const translations = useMemo(() => ({
     title: trans('student_assessment_pages.work.title', { assessment: assessment.title }),
     submitWork: trans('student_assessment_pages.work.submit_work'),
     submitting: trans('student_assessment_pages.work.submitting'),
@@ -135,7 +135,7 @@ function Work({ assessment, assignment, questions = [], userAnswers = [], attach
     noQuestionsMessage: trans('student_assessment_pages.work.no_questions_message'),
     modalConfirmText: trans('components.confirmation_modal.confirm'),
     modalCancelText: trans('components.confirmation_modal.cancel'),
-  };
+  }), [assessment.title]);
 
   const saveButtonLabel = useMemo(() => {
     switch (savingStatus) {

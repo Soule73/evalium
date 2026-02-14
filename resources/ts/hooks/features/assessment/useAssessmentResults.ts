@@ -12,7 +12,7 @@ interface UseAssessmentResultParams {
  * Custom React hook to compute and provide assessment result-related data and utilities.
  */
 const useAssessmentResults = ({ assessment, assignment, userAnswers }: UseAssessmentResultParams) => {
-  const questions = assessment?.questions ?? [];
+  const questions = useMemo(() => assessment?.questions ?? [], [assessment?.questions]);
   const assessmentIsActive = assessment.is_published;
   const assignmentScore = assignment.score;
   const assignmentAutoScore = assignment.auto_score;
@@ -130,7 +130,7 @@ const useAssessmentResults = ({ assessment, assignment, userAnswers }: UseAssess
         feedback: null,
       };
     };
-  }, [userAnswers, questions]);
+  }, [userAnswers]);
 
   return {
     totalPoints,

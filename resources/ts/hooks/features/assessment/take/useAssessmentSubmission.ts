@@ -59,7 +59,7 @@ export const useAssessmentSubmission = ({
         }
       );
     },
-    [assessmentId]
+    [assessmentId, setIsSubmitting, setProcessing, setShowConfirmModal]
   );
 
   return {

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { Badge, DataTable, Section, Stat } from '@/Components';
 import type { SubjectGrade, OverallStats, PaginationType } from '@/types';
 import type { DataTableConfig } from '@/types/datatable';
@@ -43,13 +43,13 @@ export function SubjectGradeList({
   const { t } = useTranslations();
   const pendingAssessments = overallStats.total_assessments - overallStats.completed_assessments;
 
-  const getGradeBadge = (average: number | null) => {
+  const getGradeBadge = useCallback((average: number | null) => {
     if (average === null) return null;
     const gradeInfo = GRADE_THRESHOLDS.find(({ threshold }) => average >= threshold);
     return gradeInfo
       ? <Badge label={t(gradeInfo.labelKey)} type={gradeInfo.type} size="sm" />
       : null;
-  };
+  }, [t]);
 
   const subjectsTableConfig: DataTableConfig<SubjectGrade> = useMemo(() => ({
     columns: [
@@ -102,7 +102,7 @@ export function SubjectGradeList({
       title: t('common.no_search_results'),
       subtitle: t('common.try_different_search'),
     },
-  }), [t, showSearch]);
+  }), [t, showSearch, getGradeBadge]);
 
   return (
     <>

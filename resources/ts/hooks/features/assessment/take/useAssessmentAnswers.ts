@@ -53,6 +53,7 @@ export const useAssessmentAnswers = ({ questions, userAnswers }: UseAssessmentAn
 
   useEffect(() => {
     setAnswers(buildInitialAnswers(questions, userAnswers));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateAnswer = (questionId: number, value: string | number | number[]) => {

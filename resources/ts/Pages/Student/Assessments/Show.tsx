@@ -26,7 +26,7 @@ export default function Show({ assessment, assignment, availability }: StudentAs
   const isHomework = assessment.delivery_mode === 'homework';
   const hasStarted = !!assignment.started_at;
 
-  const translations = {
+  const translations = useMemo(() => ({
     title: trans('student_assessment_pages.show.title'),
     backToAssessments: trans('student_assessment_pages.show.back_to_assessments'),
     startAssessment: isHomework
@@ -71,7 +71,7 @@ export default function Show({ assessment, assignment, availability }: StudentAs
     viewResults: trans('student_assessment_pages.show.view_results'),
     startedDate: trans('student_assessment_pages.show.started_date'),
     assessmentUnavailable: trans('student_assessment_pages.show.assessment_unavailable'),
-  };
+  }), [isHomework]);
 
 
   const statusValue = useMemo(() => {

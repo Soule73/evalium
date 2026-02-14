@@ -84,9 +84,9 @@ export function AssignmentList({
     } finally {
       setReopening(false);
     }
-  }, [reopenTarget, reopenReason, assessment.id]);
+  }, [reopenTarget, reopenReason, assessment.id, routeContext?.reopenRoute, t]);
 
-  const getStatusBadge = (assignment: AssignmentWithVirtual): { label: string; type: 'gray' | 'info' | 'warning' | 'success' } => {
+  const getStatusBadge = useCallback((assignment: AssignmentWithVirtual): { label: string; type: 'gray' | 'info' | 'warning' | 'success' } => {
     if (assignment.is_virtual) {
       return { label: t('components.assignment_list.status_not_started'), type: 'gray' };
     }
@@ -97,9 +97,9 @@ export function AssignmentList({
       return { label: t('components.assignment_list.status_pending_grading'), type: 'warning' };
     }
     return { label: t('components.assignment_list.status_graded'), type: 'success' };
-  };
+  }, [t]);
 
-  const handleGradeStudent = (assignment: AssignmentWithVirtual) => {
+  const handleGradeStudent = useCallback((assignment: AssignmentWithVirtual) => {
     if (!assignment.id || !assignment.submitted_at || assignment.is_virtual) return;
 
     if (onGrade) {
@@ -111,9 +111,9 @@ export function AssignmentList({
         assignment: assignment.id,
       }));
     }
-  };
+  }, [onGrade, assessment.id, routeContext?.gradeRoute]);
 
-  const handleViewResult = (assignment: AssignmentWithVirtual) => {
+  const handleViewResult = useCallback((assignment: AssignmentWithVirtual) => {
     if (!assignment.id || assignment.is_virtual) return;
 
     if (onViewResult) {
@@ -125,7 +125,7 @@ export function AssignmentList({
         assignment: assignment.id,
       }));
     }
-  };
+  }, [onViewResult, assessment.id, routeContext?.reviewRoute]);
 
   const config: EntityListConfig<AssignmentWithVirtual> = useMemo(() => ({
     entity: 'assignment',
@@ -218,7 +218,7 @@ export function AssignmentList({
     ],
 
     actions: [],
-  }), [totalPoints, isSupervisedMode, canReopenAssignment, onGrade, onViewResult, assessment.id, routeContext, t]);
+  }), [totalPoints, canReopenAssignment, getStatusBadge, handleGradeStudent, handleViewResult, t]);
 
   return (
     <>
