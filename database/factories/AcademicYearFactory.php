@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class AcademicYearFactory extends Factory
 {
+    private static int $yearSequence = 0;
+
     /**
      * Define the model's default state.
      *
@@ -16,7 +18,7 @@ class AcademicYearFactory extends Factory
      */
     public function definition(): array
     {
-        $startYear = $this->faker->numberBetween(2020, 2030);
+        $startYear = 2000 + (self::$yearSequence++);
         $endYear = $startYear + 1;
 
         return [

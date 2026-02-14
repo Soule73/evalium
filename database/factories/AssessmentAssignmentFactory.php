@@ -21,10 +21,18 @@ class AssessmentAssignmentFactory extends Factory
         return [
             'assessment_id' => Assessment::factory(),
             'student_id' => User::factory()->student(),
+            'started_at' => null,
             'submitted_at' => null,
             'graded_at' => null,
             'score' => null,
         ];
+    }
+
+    public function started(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'started_at' => $this->faker->dateTimeBetween('-1 hour', 'now'),
+        ]);
     }
 
     public function submitted(): static

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\DeliveryMode;
 use App\Traits\HasAcademicYearThroughClass;
 use App\Traits\HasJsonSettings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,16 +24,25 @@ class Assessment extends Model
         'title',
         'description',
         'type',
+        'delivery_mode',
         'coefficient',
         'duration_minutes',
         'scheduled_at',
+        'due_date',
+        'max_file_size',
+        'allowed_extensions',
+        'max_files',
         'settings',
     ];
 
     protected $casts = [
+        'delivery_mode' => DeliveryMode::class,
         'coefficient' => 'decimal:2',
         'duration_minutes' => 'integer',
         'scheduled_at' => 'datetime',
+        'due_date' => 'datetime',
+        'max_file_size' => 'integer',
+        'max_files' => 'integer',
         'settings' => 'array',
     ];
 
@@ -211,6 +221,14 @@ class Assessment extends Model
 
         $now = now();
 
+        if ($this->isHomeworkMode()) {
+            if ($this->due_date && $now->gt($this->due_date) && ! $this->allow_late_submission) {
+                return ['available' => false, 'reason' => 'assessment_due_date_passed'];
+            }
+
+            return ['available' => true, 'reason' => null];
+        }
+
         if ($this->scheduled_at && $now->lt($this->scheduled_at)) {
             return ['available' => false, 'reason' => 'assessment_not_started'];
         }
@@ -244,5 +262,43 @@ class Assessment extends Model
         }
 
         return $this->scheduled_at->copy()->addMinutes($this->duration_minutes);
+    }
+
+    /**
+     * Check if this assessment uses supervised delivery mode.
+     */
+    public function isSupervisedMode(): bool
+    {
+        return $this->delivery_mode === DeliveryMode::Supervised;
+    }
+
+    /**
+     * Check if this assessment uses homework delivery mode.
+     */
+    public function isHomeworkMode(): bool
+    {
+        return $this->delivery_mode === DeliveryMode::Homework;
+    }
+
+    /**
+     * Check if file uploads are enabled for this assessment.
+     */
+    public function hasFileUploads(): bool
+    {
+        return $this->max_files > 0;
+    }
+
+    /**
+     * Get the allowed file extensions as an array.
+     *
+     * @return array<string>
+     */
+    public function getAllowedExtensionsArray(): array
+    {
+        if (! $this->allowed_extensions) {
+            return [];
+        }
+
+        return array_map('trim', explode(',', $this->allowed_extensions));
     }
 }

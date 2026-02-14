@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\DeliveryMode;
 use App\Models\Assessment;
 use App\Models\ClassSubject;
 use Illuminate\Database\Seeder;
@@ -9,36 +10,45 @@ use Illuminate\Database\Seeder;
 class AssessmentSeeder extends Seeder
 {
     /**
-     * Create sample assessments for each class subject.
+     * Create sample assessments for each class subject with both delivery modes.
      */
     public function run(): void
     {
         $classSubjects = ClassSubject::with(['teacher', 'class', 'subject'])->get();
 
         if ($classSubjects->isEmpty()) {
-            $this->command->error('✗ No class subjects found. Run ClassSubjectSeeder first.');
+            $this->command->error('No class subjects found. Run ClassSubjectSeeder first.');
 
             return;
         }
 
         $assessmentTypes = [
-            ['type' => 'devoir', 'coefficient' => 1.0, 'title_suffix' => 'Quiz'],
             ['type' => 'examen', 'coefficient' => 2.0, 'title_suffix' => 'Midterm Exam'],
+            ['type' => 'devoir', 'coefficient' => 1.0, 'title_suffix' => 'Quiz'],
+            ['type' => 'projet', 'coefficient' => 1.5, 'title_suffix' => 'Project'],
         ];
 
         $count = 0;
         $dayCounter = 7;
         foreach ($classSubjects as $classSubject) {
             foreach ($assessmentTypes as $assessmentData) {
+                $deliveryMode = DeliveryMode::defaultForType($assessmentData['type']);
+                $isSupervisedMode = $deliveryMode === DeliveryMode::Supervised;
+
                 $assessment = Assessment::create([
                     'class_subject_id' => $classSubject->id,
                     'teacher_id' => $classSubject->teacher_id,
                     'title' => $classSubject->subject->name.' - '.$assessmentData['title_suffix'],
                     'description' => 'Assessment for '.$classSubject->subject->name,
                     'type' => $assessmentData['type'],
+                    'delivery_mode' => $deliveryMode,
                     'coefficient' => $assessmentData['coefficient'],
-                    'duration_minutes' => $assessmentData['type'] === 'examen' ? 90 : 45,
-                    'scheduled_at' => now()->addDays($dayCounter),
+                    'duration_minutes' => $isSupervisedMode ? 90 : null,
+                    'scheduled_at' => $isSupervisedMode ? now()->addDays($dayCounter) : null,
+                    'due_date' => $isSupervisedMode ? null : now()->addDays($dayCounter + 7),
+                    'max_files' => $isSupervisedMode ? 0 : 3,
+                    'max_file_size' => $isSupervisedMode ? null : 5120,
+                    'allowed_extensions' => $isSupervisedMode ? null : 'pdf,docx,zip',
                     'settings' => [],
                 ]);
 
@@ -49,9 +59,12 @@ class AssessmentSeeder extends Seeder
             }
         }
 
-        $this->command->info("✓ {$count} Assessments created (2 per subject: Quiz + Midterm with sample questions)");
+        $this->command->info("{$count} Assessments created (3 per subject: Exam supervised + Quiz homework + Project homework)");
     }
 
+    /**
+     * Create sample questions with choices for an assessment.
+     */
     private function createSampleQuestions(Assessment $assessment, string $type): void
     {
         $questionsCount = $type === 'examen' ? 5 : 3;

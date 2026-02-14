@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ClassModelFactory extends Factory
 {
+    private static int $nameSequence = 0;
+
     /**
      * Define the model's default state.
      *
@@ -18,12 +20,12 @@ class ClassModelFactory extends Factory
      */
     public function definition(): array
     {
-        $classNames = ['A', 'B', 'C', 'D'];
+        $names = range('A', 'Z');
 
         return [
             'academic_year_id' => AcademicYear::factory(),
             'level_id' => Level::factory(),
-            'name' => $this->faker->randomElement($classNames),
+            'name' => $names[self::$nameSequence++ % 26],
             'description' => $this->faker->optional()->sentence(),
             'max_students' => $this->faker->optional()->numberBetween(20, 40),
         ];
