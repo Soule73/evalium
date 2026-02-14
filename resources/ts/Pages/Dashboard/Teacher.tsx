@@ -2,8 +2,9 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { AcademicCapIcon, BookOpenIcon, ClipboardDocumentListIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
-import { breadcrumbs } from '@/utils';
-import { trans } from '@/utils';
+import { useMemo } from 'react';
+import { breadcrumbs, formatDate } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Section, Stat, DataTable } from '@/Components';
 import { type DataTableConfig, type PaginationType } from '@/types/datatable';
 
@@ -53,6 +54,8 @@ interface Props {
 
 
 export default function TeacherDashboard({ stats, activeAssignments, pastAssessments, upcomingAssessments }: Props) {
+    const { t } = useTranslations();
+
     const handleViewAssessments = () => {
         router.visit(route('teacher.assessments.index'));
     };
@@ -61,21 +64,11 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
         router.visit(route('teacher.classes.index'));
     };
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('fr-FR', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
-    const activeAssignmentsTableConfig: DataTableConfig<ClassSubject> = {
+    const activeAssignmentsTableConfig = useMemo<DataTableConfig<ClassSubject>>(() => ({
         columns: [
             {
                 key: 'class',
-                label: trans('dashboard.teacher.class'),
+                label: t('dashboard.teacher.class'),
                 render: (assignment) => (
                     <div>
                         <div className="font-medium text-gray-900">
@@ -93,7 +86,7 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
             },
             {
                 key: 'subject',
-                label: trans('dashboard.teacher.subject'),
+                label: t('dashboard.teacher.subject'),
                 render: (assignment) => (
                     <div>
                         <div className="font-medium text-gray-900">
@@ -110,16 +103,16 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
         ],
         filters: [],
         emptyState: {
-            title: trans('dashboard.teacher.no_active_assignments'),
+            title: t('dashboard.teacher.no_active_assignments'),
             subtitle: '',
         },
-    };
+    }), [t]);
 
-    const pastAssessmentsTableConfig: DataTableConfig<Assessment> = {
+    const pastAssessmentsTableConfig = useMemo<DataTableConfig<Assessment>>(() => ({
         columns: [
             {
                 key: 'title',
-                label: trans('dashboard.teacher.assessment_title'),
+                label: t('dashboard.teacher.assessment_title'),
                 render: (assessment) => (
                     <div className="font-medium text-gray-900">
                         {assessment.title}
@@ -128,7 +121,7 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
             },
             {
                 key: 'class',
-                label: trans('dashboard.teacher.class'),
+                label: t('dashboard.teacher.class'),
                 render: (assessment) => (
                     <div>
                         <div className="text-sm text-gray-900">
@@ -146,7 +139,7 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
             },
             {
                 key: 'subject',
-                label: trans('dashboard.teacher.subject'),
+                label: t('dashboard.teacher.subject'),
                 render: (assessment) => (
                     <div>
                         <div className="text-sm text-gray-900">
@@ -162,7 +155,7 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
             },
             {
                 key: 'scheduled_at',
-                label: trans('dashboard.teacher.scheduled_at'),
+                label: t('dashboard.teacher.scheduled_at'),
                 render: (assessment) => (
                     <div className="text-sm text-gray-600">
                         {formatDate(assessment.scheduled_at)}
@@ -172,16 +165,16 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
         ],
         filters: [],
         emptyState: {
-            title: trans('dashboard.teacher.no_past_assessments'),
+            title: t('dashboard.teacher.no_past_assessments'),
             subtitle: '',
         },
-    };
+    }), [t]);
 
-    const upcomingAssessmentsTableConfig: DataTableConfig<Assessment> = {
+    const upcomingAssessmentsTableConfig = useMemo<DataTableConfig<Assessment>>(() => ({
         columns: [
             {
                 key: 'title',
-                label: trans('dashboard.teacher.assessment_title'),
+                label: t('dashboard.teacher.assessment_title'),
                 render: (assessment) => (
                     <div className="font-medium text-gray-900">
                         {assessment.title}
@@ -190,7 +183,7 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
             },
             {
                 key: 'class',
-                label: trans('dashboard.teacher.class'),
+                label: t('dashboard.teacher.class'),
                 render: (assessment) => (
                     <div>
                         <div className="text-sm text-gray-900">
@@ -208,7 +201,7 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
             },
             {
                 key: 'subject',
-                label: trans('dashboard.teacher.subject'),
+                label: t('dashboard.teacher.subject'),
                 render: (assessment) => (
                     <div>
                         <div className="text-sm text-gray-900">
@@ -224,7 +217,7 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
             },
             {
                 key: 'scheduled_at',
-                label: trans('dashboard.teacher.scheduled_at'),
+                label: t('dashboard.teacher.scheduled_at'),
                 render: (assessment) => (
                     <div className="text-sm text-gray-600">
                         {formatDate(assessment.scheduled_at)}
@@ -234,34 +227,34 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
         ],
         filters: [],
         emptyState: {
-            title: trans('dashboard.teacher.no_upcoming_assessments'),
+            title: t('dashboard.teacher.no_upcoming_assessments'),
             subtitle: '',
         },
-    };
+    }), [t]);
 
     return (
-        <AuthenticatedLayout title={trans('dashboard.title.teacher')}
+        <AuthenticatedLayout title={t('dashboard.title.teacher')}
             breadcrumb={breadcrumbs.dashboard()}
         >
             {/* Statistiques principales */}
             <Stat.Group columns={4} className="mb-8" data-e2e="dashboard-content">
                 <Stat.Item
-                    title={trans('dashboard.teacher.total_classes')}
+                    title={t('dashboard.teacher.total_classes')}
                     value={stats.total_classes}
                     icon={AcademicCapIcon}
                 />
                 <Stat.Item
-                    title={trans('dashboard.teacher.total_subjects')}
+                    title={t('dashboard.teacher.total_subjects')}
                     value={stats.total_subjects}
                     icon={BookOpenIcon}
                 />
                 <Stat.Item
-                    title={trans('dashboard.teacher.total_assessments')}
+                    title={t('dashboard.teacher.total_assessments')}
                     value={stats.total_assessments}
                     icon={ClipboardDocumentListIcon}
                 />
                 <Stat.Item
-                    title={trans('dashboard.teacher.upcoming_assessments')}
+                    title={t('dashboard.teacher.upcoming_assessments')}
                     value={stats.upcoming_assessments}
                     icon={CalendarDaysIcon}
                 />
@@ -269,8 +262,8 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
 
             {/* Affectations actives */}
             <Section
-                title={trans('dashboard.teacher.active_assignments')}
-                subtitle={trans('dashboard.teacher.active_assignments_subtitle')}
+                title={t('dashboard.teacher.active_assignments')}
+                subtitle={t('dashboard.teacher.active_assignments_subtitle')}
                 actions={
                     <Button
                         onClick={handleViewClasses}
@@ -278,7 +271,7 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
                         variant='outline'
                         size='sm'
                     >
-                        {trans('dashboard.teacher.view_all_classes')}
+                        {t('dashboard.teacher.view_all_classes')}
                     </Button>
                 }
             >
@@ -287,8 +280,8 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
 
             {/* Évaluations passées */}
             <Section
-                title={trans('dashboard.teacher.past_assessments')}
-                subtitle={trans('dashboard.teacher.past_assessments_subtitle')}
+                title={t('dashboard.teacher.past_assessments')}
+                subtitle={t('dashboard.teacher.past_assessments_subtitle')}
                 actions={
                     <Button
                         onClick={handleViewAssessments}
@@ -296,7 +289,7 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
                         variant='outline'
                         size='sm'
                     >
-                        {trans('dashboard.teacher.view_all_assessments')}
+                        {t('dashboard.teacher.view_all_assessments')}
                     </Button>
                 }
             >
@@ -305,8 +298,8 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
 
             {/* Évaluations à venir */}
             <Section
-                title={trans('dashboard.teacher.upcoming_assessments_section')}
-                subtitle={trans('dashboard.teacher.upcoming_assessments_subtitle')}
+                title={t('dashboard.teacher.upcoming_assessments_section')}
+                subtitle={t('dashboard.teacher.upcoming_assessments_subtitle')}
             >
                 <DataTable data={upcomingAssessments} config={upcomingAssessmentsTableConfig} />
             </Section>

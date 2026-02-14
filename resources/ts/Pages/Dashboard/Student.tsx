@@ -6,7 +6,8 @@ import { Button, Section, Stat } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';
 import { type Assessment, type AssessmentAssignment, type User } from '@/types';
 import { type PaginationType } from '@/types/datatable';
-import { breadcrumbs, trans } from '@/utils';
+import { breadcrumbs } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface DashboardStats {
     totalAssessments: number;
@@ -22,13 +23,15 @@ interface Props {
 }
 
 export default function StudentDashboard({ user, stats, assessmentAssignments }: Props) {
+    const { t } = useTranslations();
+
     return (
         <AuthenticatedLayout
-            title={trans('dashboard.title.student')}
+            title={t('dashboard.title.student')}
             breadcrumb={breadcrumbs.dashboard()}
         >
             <Section
-                title={trans('dashboard.student.greeting', { name: user.name })}
+                title={t('dashboard.student.greeting', { name: user.name })}
                 actions={
                     <Button
                         size="sm"
@@ -36,28 +39,28 @@ export default function StudentDashboard({ user, stats, assessmentAssignments }:
                         className="w-max"
                         onClick={() => router.visit(route('student.assessments.index'))}
                     >
-                        {trans('dashboard.student.view_my_assessments')}
+                        {t('dashboard.student.view_my_assessments')}
                     </Button>
                 }
             >
                 <Stat.Group columns={4} className="mb-8" data-e2e="dashboard-content">
                     <Stat.Item
-                        title={trans('dashboard.student.total_assessments')}
+                        title={t('dashboard.student.total_assessments')}
                         value={stats.totalAssessments}
                         icon={DocumentTextIcon}
                     />
                     <Stat.Item
-                        title={trans('dashboard.student.pending_assessments')}
+                        title={t('dashboard.student.pending_assessments')}
                         value={stats.pendingAssessments}
                         icon={ClockIcon}
                     />
                     <Stat.Item
-                        title={trans('dashboard.student.completed_assessments')}
+                        title={t('dashboard.student.completed_assessments')}
                         value={stats.completedAssessments}
                         icon={CheckIcon}
                     />
                     <Stat.Item
-                        title={trans('dashboard.student.average_score')}
+                        title={t('dashboard.student.average_score')}
                         value={stats.averageScore !== null ? `${stats.averageScore} / 20` : 'N/A'}
                         icon={ChartBarIcon}
                     />
@@ -65,7 +68,7 @@ export default function StudentDashboard({ user, stats, assessmentAssignments }:
             </Section>
 
             <Section
-                title={trans('dashboard.student.assigned_assessments')}
+                title={t('dashboard.student.assigned_assessments')}
                 actions={
                     <Button
                         size="sm"
@@ -73,7 +76,7 @@ export default function StudentDashboard({ user, stats, assessmentAssignments }:
                         className="w-max"
                         onClick={() => router.visit(route('student.assessments.index'))}
                     >
-                        {trans('dashboard.student.view_all_assessments')}
+                        {t('dashboard.student.view_all_assessments')}
                     </Button>
                 }
             >
