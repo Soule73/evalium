@@ -1,10 +1,11 @@
+import { useMemo } from 'react';
 import { Badge, Button } from '@/Components';
 import { Toggle } from '@examena/ui';
 import { BaseEntityList } from './BaseEntityList';
 import { EntityListConfig } from './types/listConfig';
 import { Level } from '@/types';
 import { PaginationType } from '@/types/datatable';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks';
 
 interface LevelListProps {
   data: PaginationType<Level & { classes_count: number; active_classes_count: number }>;
@@ -24,7 +25,11 @@ export function LevelList({
   onEdit,
   onDelete,
 }: LevelListProps) {
-  const config: EntityListConfig<Level & { classes_count: number; active_classes_count: number }> = {
+  const { t } = useTranslations();
+
+  type LevelWithCounts = Level & { classes_count: number; active_classes_count: number };
+
+  const config: EntityListConfig<LevelWithCounts> = useMemo(() => ({
     entity: 'level',
     columns: [
       {
@@ -34,7 +39,7 @@ export function LevelList({
           <div>
             <div className="text-sm font-medium text-gray-900">{level.name}</div>
             <div className="text-xs text-gray-500">
-              {trans('admin_pages.levels.code')}: {level.code}
+              {t('admin_pages.levels.code')}: {level.code}
             </div>
           </div>
         ),
@@ -62,7 +67,7 @@ export function LevelList({
           <div className="text-sm">
             <div className="text-gray-900">{level.classes_count}</div>
             <div className="text-xs text-green-600">
-              {trans('admin_pages.levels.active_classes', {
+              {t('admin_pages.levels.active_classes', {
                 active: level.active_classes_count,
               })}
             </div>
@@ -83,8 +88,8 @@ export function LevelList({
             <Badge
               label={
                 level.is_active
-                  ? trans('admin_pages.common.active')
-                  : trans('admin_pages.common.inactive')
+                  ? t('admin_pages.common.active')
+                  : t('admin_pages.common.inactive')
               }
               type={level.is_active ? 'success' : 'gray'}
             />
@@ -98,7 +103,7 @@ export function LevelList({
             <div className="flex gap-2">
               {permissions.canUpdate && onEdit && (
                 <Button onClick={() => onEdit(level)} size="sm" color="primary">
-                  {trans('admin_pages.common.edit')}
+                  {t('admin_pages.common.edit')}
                 </Button>
               )}
               {permissions.canDelete && onDelete && (
@@ -108,14 +113,14 @@ export function LevelList({
                   color="danger"
                   disabled={level.classes_count > 0}
                 >
-                  {trans('admin_pages.common.delete')}
+                  {t('admin_pages.common.delete')}
                 </Button>
               )}
             </div>
           ) : null,
       },
     ],
-  };
+  }), [permissions.canUpdate, permissions.canDelete, onToggleStatus, onEdit, onDelete, t]);
 
   return <BaseEntityList data={data} config={config} variant="admin" />;
 }

@@ -1,9 +1,10 @@
+import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
 import { ClassSubject } from '@/types';
 import { Badge } from '@examena/ui';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';
 
@@ -33,7 +34,9 @@ export function ClassSubjectList({
   onView,
   onCreateAssessment,
 }: ClassSubjectListProps) {
-  const config: EntityListConfig<ClassSubject> = {
+  const { t } = useTranslations();
+
+  const config: EntityListConfig<ClassSubject> = useMemo(() => ({
     entity: 'class-subject',
 
     columns: [
@@ -102,7 +105,7 @@ export function ClassSubjectList({
           <div className="text-sm text-gray-600">
             {classSubject.semester
               ? `S${classSubject.semester.order_number}`
-              : trans('admin_pages.class_subjects.all_year')}
+              : t('admin_pages.class_subjects.all_year')}
           </div>
         ),
       },
@@ -114,7 +117,7 @@ export function ClassSubjectList({
           const isActive = !classSubject.valid_to;
           return (
             <Badge
-              label={isActive ? trans('admin_pages.class_subjects.active') : trans('admin_pages.class_subjects.archived')}
+              label={isActive ? t('admin_pages.class_subjects.active') : t('admin_pages.class_subjects.archived')}
               type={isActive ? 'success' : 'gray'}
               size="sm"
             />
@@ -137,24 +140,24 @@ export function ClassSubjectList({
     actions: [
       {
         labelKey: 'admin_pages.common.view',
-        onClick: (classSubject) => {
+        onClick: (classSubject: ClassSubject) => {
           onView?.(classSubject) || router.visit(route('admin.class-subjects.show', classSubject.id));
         },
-        color: 'secondary',
-        variant: 'outline',
-        conditional: (_item, v) => v === 'admin',
+        color: 'secondary' as const,
+        variant: 'outline' as const,
+        conditional: (_item: ClassSubject, v) => v === 'admin',
       },
       {
         labelKey: 'teacher_class_pages.show.create_assessment',
-        onClick: (classSubject) => {
+        onClick: (classSubject: ClassSubject) => {
           onCreateAssessment?.(classSubject);
         },
-        color: 'primary',
-        variant: 'solid',
-        conditional: (_item, v) => v === 'teacher' && !!onCreateAssessment,
+        color: 'primary' as const,
+        variant: 'solid' as const,
+        conditional: (_item: ClassSubject, v) => v === 'teacher' && !!onCreateAssessment,
       },
     ],
-  };
+  }), [showClassColumn, showTeacherColumn, showAssessmentsColumn, onView, onCreateAssessment, t]);
 
   return <BaseEntityList data={data} config={config} variant={variant} />;
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import axios from 'axios';
 import { route } from 'ziggy-js';
@@ -6,7 +6,8 @@ import { BaseEntityList } from './BaseEntityList';
 import { Assessment, AssessmentAssignment, AssessmentRouteContext } from '@/types';
 import { Badge, Button } from '@examena/ui';
 import { ConfirmationModal, Textarea } from '@/Components';
-import { formatDate, trans } from '@/utils';
+import { formatDate } from '@/utils';
+import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
@@ -42,6 +43,7 @@ export function AssignmentList({
   onGrade,
   onViewResult,
 }: AssignmentListProps) {
+  const { t } = useTranslations();
   const [reopenTarget, setReopenTarget] = useState<AssignmentWithVirtual | null>(null);
   const [reopenReason, setReopenReason] = useState('');
   const [reopening, setReopening] = useState(false);
@@ -77,7 +79,7 @@ export function AssignmentList({
       if (axios.isAxiosError(err) && err.response?.data?.message) {
         setReopenError(err.response.data.message);
       } else {
-        setReopenError(trans('components.assignment_list.reopen_error'));
+        setReopenError(t('components.assignment_list.reopen_error'));
       }
     } finally {
       setReopening(false);
@@ -86,15 +88,15 @@ export function AssignmentList({
 
   const getStatusBadge = (assignment: AssignmentWithVirtual): { label: string; type: 'gray' | 'info' | 'warning' | 'success' } => {
     if (assignment.is_virtual) {
-      return { label: trans('components.assignment_list.status_not_started'), type: 'gray' };
+      return { label: t('components.assignment_list.status_not_started'), type: 'gray' };
     }
     if (!assignment.submitted_at) {
-      return { label: trans('components.assignment_list.status_in_progress'), type: 'info' };
+      return { label: t('components.assignment_list.status_in_progress'), type: 'info' };
     }
     if (assignment.score === null || assignment.score === undefined) {
-      return { label: trans('components.assignment_list.status_pending_grading'), type: 'warning' };
+      return { label: t('components.assignment_list.status_pending_grading'), type: 'warning' };
     }
-    return { label: trans('components.assignment_list.status_graded'), type: 'success' };
+    return { label: t('components.assignment_list.status_graded'), type: 'success' };
   };
 
   const handleGradeStudent = (assignment: AssignmentWithVirtual) => {
@@ -125,7 +127,7 @@ export function AssignmentList({
     }
   };
 
-  const config: EntityListConfig<AssignmentWithVirtual> = {
+  const config: EntityListConfig<AssignmentWithVirtual> = useMemo(() => ({
     entity: 'assignment',
 
     columns: [
@@ -185,25 +187,25 @@ export function AssignmentList({
                   setReopenReason('');
                   setReopenError(null);
                 }}
-                title={trans('components.assignment_list.allow_retry')}
+                title={t('components.assignment_list.allow_retry')}
               >
                 <ArrowPathIcon className="h-4 w-4 mr-1" />
-                {trans('components.assignment_list.allow_retry')}
+                {t('components.assignment_list.allow_retry')}
               </Button>
             )}
             {assignment.submitted_at && !assignment.is_virtual && (
               <>
                 {(assignment.score === null || assignment.score === undefined) ? (
                   <Button size="sm" variant="solid" color="primary" onClick={() => handleGradeStudent(assignment)}>
-                    {trans('components.assignment_list.grade')}
+                    {t('components.assignment_list.grade')}
                   </Button>
                 ) : (
                   <>
                     <Button size="sm" variant="outline" color="secondary" onClick={() => handleGradeStudent(assignment)}>
-                      {trans('components.assignment_list.edit_grade')}
+                      {t('components.assignment_list.edit_grade')}
                     </Button>
                     <Button size="sm" variant="outline" color="secondary" onClick={() => handleViewResult(assignment)}>
-                      {trans('components.assignment_list.view_result')}
+                      {t('components.assignment_list.view_result')}
                     </Button>
                   </>
                 )}
@@ -216,7 +218,7 @@ export function AssignmentList({
     ],
 
     actions: [],
-  };
+  }), [totalPoints, isSupervisedMode, canReopenAssignment, onGrade, onViewResult, assessment.id, routeContext, t]);
 
   return (
     <>
@@ -224,20 +226,20 @@ export function AssignmentList({
         data={data}
         config={config}
         variant="teacher"
-        searchPlaceholder={trans('components.assignment_list.search_students')}
-        emptyMessage={trans('components.assignment_list.no_students')}
+        searchPlaceholder={t('components.assignment_list.search_students')}
+        emptyMessage={t('components.assignment_list.no_students')}
       />
 
       <ConfirmationModal
         isOpen={!!reopenTarget}
         onClose={() => { setReopenTarget(null); setReopenReason(''); setReopenError(null); }}
         onConfirm={handleReopenConfirm}
-        title={trans('components.assignment_list.reopen_modal_title')}
-        message={trans('components.assignment_list.reopen_modal_message', {
+        title={t('components.assignment_list.reopen_modal_title')}
+        message={t('components.assignment_list.reopen_modal_message', {
           student: reopenTarget?.student?.name ?? '',
         })}
-        confirmText={trans('components.assignment_list.reopen_confirm')}
-        cancelText={trans('components.confirmation_modal.cancel')}
+        confirmText={t('components.assignment_list.reopen_confirm')}
+        cancelText={t('components.confirmation_modal.cancel')}
         type="warning"
         loading={reopening}
       >
@@ -245,10 +247,10 @@ export function AssignmentList({
           <p className="text-sm text-red-600 mb-3">{reopenError}</p>
         )}
         <Textarea
-          label={trans('components.assignment_list.reopen_reason_label')}
+          label={t('components.assignment_list.reopen_reason_label')}
           value={reopenReason}
           onChange={(e) => setReopenReason(e.target.value)}
-          placeholder={trans('components.assignment_list.reopen_reason_placeholder')}
+          placeholder={t('components.assignment_list.reopen_reason_placeholder')}
           rows={3}
         />
       </ConfirmationModal>

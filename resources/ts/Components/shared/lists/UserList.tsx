@@ -1,8 +1,10 @@
+import { useMemo, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
 import { User } from '@/types';
-import { formatDate, getRoleColor, getRoleLabel, trans } from '@/utils';
+import { formatDate, getRoleColor, getRoleLabel } from '@/utils';
+import { useTranslations } from '@/hooks';
 import { Button } from '@/Components';
 import { Toggle } from '@examena/ui';
 import { TrashIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
@@ -22,6 +24,10 @@ interface UserListProps {
   onForceDeleteClick?: (user: { id: number; name: string }) => void;
 }
 
+const canViewUser = (role: string) => {
+  return role === 'teacher';
+};
+
 /**
  * Unified UserList component for displaying users
  *
@@ -37,30 +43,26 @@ export function UserList({
   onDeleteClick,
   onForceDeleteClick
 }: UserListProps) {
-  const canViewUser = (role: string) => {
-    return role === 'teacher';
-  };
+  const { t } = useTranslations();
 
-  const handleViewUser = (userId: number) => {
+  const handleViewUser = useCallback((userId: number) => {
     router.visit(route('admin.users.show.teacher', { user: userId }));
-  };
+  }, []);
 
-  const handleToggleStatus = (userId: number) => {
+  const handleToggleStatus = useCallback((userId: number) => {
     router.patch(route('admin.users.toggle-status', { user: userId }), {}, {
       preserveScroll: true,
     });
-  };
+  }, []);
 
-  const handleRestoreUser = (userId: number) => {
+  const handleRestoreUser = useCallback((userId: number) => {
     router.post(route('admin.users.restore', { id: userId }), {}, {
       preserveScroll: true,
     });
-  };
+  }, []);
 
-  const config: EntityListConfig<User> = {
-    entity: variant === 'classmates' ? 'classmate' : 'user',
-
-    columns: [
+  const config: EntityListConfig<User> = useMemo(() => {
+    const columns: EntityListConfig<User>['columns'] = [
       {
         key: 'name',
         labelKey: variant === 'classmates' ? 'student_enrollment_pages.classmates.student_name' : 'admin_pages.users.name',
@@ -93,7 +95,7 @@ export function UserList({
                 <span className="text-sm font-medium text-gray-900">{user.name}</span>
                 {user.deleted_at && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                    {trans('admin_pages.users.deleted')}
+                    {t('admin_pages.users.deleted')}
                   </span>
                 )}
               </div>
@@ -127,7 +129,7 @@ export function UserList({
           <div className="flex items-center gap-2">
             {user.deleted_at ? (
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                {trans('admin_pages.users.deleted')}
+                {t('admin_pages.users.deleted')}
               </span>
             ) : permissions.canToggleStatus ? (
               <Toggle
@@ -136,12 +138,12 @@ export function UserList({
                 size="md"
                 color="green"
                 showLabel={true}
-                activeLabel={trans('admin_pages.common.active')}
-                inactiveLabel={trans('admin_pages.common.inactive')}
+                activeLabel={t('admin_pages.common.active')}
+                inactiveLabel={t('admin_pages.common.inactive')}
               />
             ) : (
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                {user.is_active ? trans('admin_pages.common.active') : trans('admin_pages.common.inactive')}
+                {user.is_active ? t('admin_pages.common.active') : t('admin_pages.common.inactive')}
               </span>
             )}
           </div>
@@ -155,105 +157,108 @@ export function UserList({
           <span className="text-sm text-gray-500">{formatDate(user.created_at)}</span>
         ),
         conditional: (v) => v === 'admin',
-      }
-    ],
-
-    actions: [],
-
-    filters: variant === 'admin' ? [
-      {
-        key: 'role',
-        type: 'select',
-        labelKey: 'admin_pages.users.filter_role',
-        options: [{ label: trans('admin_pages.users.all_roles'), value: '' }].concat(
-          roles.map((role: string) => ({ label: getRoleLabel(role), value: role }))
-        )
       },
-      {
-        key: 'status',
-        type: 'select',
-        labelKey: 'admin_pages.users.filter_status',
-        options: [
-          { label: trans('admin_pages.users.all_status'), value: '' },
-          { label: trans('admin_pages.common.active'), value: 'active' },
-          { label: trans('admin_pages.common.inactive'), value: 'inactive' }
-        ]
-      },
-      {
-        key: 'include_deleted',
-        type: 'select',
-        labelKey: 'admin_pages.common.search',
-        options: [
-          { label: trans('admin_pages.common.active'), value: '' },
-          { label: trans('admin_pages.users.deleted'), value: '1' }
-        ]
-      }
-    ] : undefined
-  };
+    ];
 
-  if (variant === 'admin' && (permissions.canUpdate || permissions.canDelete)) {
-    config.columns.push({
-      key: 'actions',
-      labelKey: 'admin_pages.common.actions',
-      render: (user: User) => {
-        const userRole = user.roles?.length && user.roles[0] ? user.roles[0].name : '';
+    if (variant === 'admin' && (permissions.canUpdate || permissions.canDelete)) {
+      columns.push({
+        key: 'actions',
+        labelKey: 'admin_pages.common.actions',
+        render: (user: User) => {
+          const userRole = user.roles?.length && user.roles[0] ? user.roles[0].name : '';
 
-        return (
-          <div className="flex items-center gap-2">
-            {user.deleted_at ? (
-              <>
-                <Button
-                  onClick={() => handleRestoreUser(user.id)}
-                  color="success"
-                  size="sm"
-                  variant='outline'
-                  title={trans('admin_pages.users.restore')}
-                >
-                  <ArrowPathIcon className="h-4 w-4" />
-                </Button>
-                {permissions.canDelete && onForceDeleteClick && (
+          return (
+            <div className="flex items-center gap-2">
+              {user.deleted_at ? (
+                <>
                   <Button
-                    onClick={() => onForceDeleteClick({ id: user.id, name: user.name })}
-                    color="danger"
+                    onClick={() => handleRestoreUser(user.id)}
+                    color="success"
                     size="sm"
                     variant='outline'
-                    title={trans('admin_pages.users.force_delete')}
+                    title={t('admin_pages.users.restore')}
                   >
-                    <TrashIcon className="h-4 w-4" />
+                    <ArrowPathIcon className="h-4 w-4" />
                   </Button>
-                )}
-              </>
-            ) : (
-              <>
-                {canViewUser(userRole) && permissions.canUpdate && (
-                  <Button
-                    onClick={() => handleViewUser(user.id)}
-                    color="secondary"
-                    size="sm"
-                    variant='outline'
-                  >
-                    {trans('admin_pages.common.view')}
-                  </Button>
-                )}
-                {permissions.canDelete && !canViewUser(userRole) && onDeleteClick && (
-                  <Button
-                    onClick={() => onDeleteClick({ id: user.id, name: user.name })}
-                    color="danger"
-                    size="sm"
-                    variant='outline'
-                    title={trans('admin_pages.common.delete')}
-                  >
-                    <TrashIcon className="h-4 w-4" />
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
-        );
-      },
-      sortable: false
-    });
-  }
+                  {permissions.canDelete && onForceDeleteClick && (
+                    <Button
+                      onClick={() => onForceDeleteClick({ id: user.id, name: user.name })}
+                      color="danger"
+                      size="sm"
+                      variant='outline'
+                      title={t('admin_pages.users.force_delete')}
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <>
+                  {canViewUser(userRole) && permissions.canUpdate && (
+                    <Button
+                      onClick={() => handleViewUser(user.id)}
+                      color="secondary"
+                      size="sm"
+                      variant='outline'
+                    >
+                      {t('admin_pages.common.view')}
+                    </Button>
+                  )}
+                  {permissions.canDelete && !canViewUser(userRole) && onDeleteClick && (
+                    <Button
+                      onClick={() => onDeleteClick({ id: user.id, name: user.name })}
+                      color="danger"
+                      size="sm"
+                      variant='outline'
+                      title={t('admin_pages.common.delete')}
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
+          );
+        },
+        sortable: false
+      });
+    }
+
+    return {
+      entity: variant === 'classmates' ? 'classmate' : 'user',
+      columns,
+      actions: [],
+      filters: variant === 'admin' ? [
+        {
+          key: 'role',
+          type: 'select' as const,
+          labelKey: 'admin_pages.users.filter_role',
+          options: [{ label: t('admin_pages.users.all_roles'), value: '' }].concat(
+            roles.map((role: string) => ({ label: getRoleLabel(role), value: role }))
+          )
+        },
+        {
+          key: 'status',
+          type: 'select' as const,
+          labelKey: 'admin_pages.users.filter_status',
+          options: [
+            { label: t('admin_pages.users.all_status'), value: '' },
+            { label: t('admin_pages.common.active'), value: 'active' },
+            { label: t('admin_pages.common.inactive'), value: 'inactive' }
+          ]
+        },
+        {
+          key: 'include_deleted',
+          type: 'select' as const,
+          labelKey: 'admin_pages.common.search',
+          options: [
+            { label: t('admin_pages.common.active'), value: '' },
+            { label: t('admin_pages.users.deleted'), value: '1' }
+          ]
+        }
+      ] : undefined
+    };
+  }, [variant, permissions.canUpdate, permissions.canDelete, permissions.canToggleStatus, roles, onDeleteClick, onForceDeleteClick, handleViewUser, handleToggleStatus, handleRestoreUser, t]);
 
   return (
     <BaseEntityList
@@ -262,13 +267,13 @@ export function UserList({
       variant={variant}
       searchPlaceholder={
         variant === 'classmates'
-          ? trans('student_enrollment_pages.classmates.search_placeholder')
-          : trans('admin_pages.users.search_placeholder')
+          ? t('student_enrollment_pages.classmates.search_placeholder')
+          : t('admin_pages.users.search_placeholder')
       }
       emptyMessage={
         variant === 'classmates'
-          ? trans('student_enrollment_pages.classmates.empty_subtitle')
-          : trans('admin_pages.users.empty_subtitle')
+          ? t('student_enrollment_pages.classmates.empty_subtitle')
+          : t('admin_pages.users.empty_subtitle')
       }
     />
   );

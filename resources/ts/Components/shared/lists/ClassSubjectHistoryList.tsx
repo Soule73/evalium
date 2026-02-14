@@ -1,9 +1,11 @@
+import { useMemo } from 'react';
 import { Badge } from '@/Components';
 import { BaseEntityList } from './BaseEntityList';
 import { EntityListConfig } from './types/listConfig';
 import { ClassSubject } from '@/types';
 import { PaginationType } from '@/types/datatable';
-import { trans, formatDate } from '@/utils';
+import { formatDate } from '@/utils';
+import { useTranslations } from '@/hooks';
 
 interface ClassSubjectHistoryListProps {
   data: PaginationType<ClassSubject>;
@@ -13,7 +15,9 @@ interface ClassSubjectHistoryListProps {
  * List component for displaying class-subject assignment history (past teachers).
  */
 export function ClassSubjectHistoryList({ data }: ClassSubjectHistoryListProps) {
-  const config: EntityListConfig<ClassSubject> = {
+  const { t } = useTranslations();
+
+  const config: EntityListConfig<ClassSubject> = useMemo(() => ({
     entity: 'class-subject-history',
     columns: [
       {
@@ -54,7 +58,7 @@ export function ClassSubjectHistoryList({ data }: ClassSubjectHistoryListProps) 
           <div className="text-sm text-gray-600">
             {item.semester
               ? `S${item.semester.order_number}`
-              : trans('admin_pages.class_subjects.all_year')}
+              : t('admin_pages.class_subjects.all_year')}
           </div>
         ),
       },
@@ -65,7 +69,7 @@ export function ClassSubjectHistoryList({ data }: ClassSubjectHistoryListProps) 
           const isActive = !item.valid_to;
           return (
             <Badge
-              label={isActive ? trans('admin_pages.class_subjects.current') : trans('admin_pages.class_subjects.past')}
+              label={isActive ? t('admin_pages.class_subjects.current') : t('admin_pages.class_subjects.past')}
               type={isActive ? 'success' : 'gray'}
               size="sm"
             />
@@ -74,7 +78,7 @@ export function ClassSubjectHistoryList({ data }: ClassSubjectHistoryListProps) 
       },
     ],
     actions: [],
-  };
+  }), [t]);
 
   return <BaseEntityList data={data} config={config} variant="admin" />;
 }

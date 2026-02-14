@@ -1,9 +1,10 @@
+import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
 import { ClassModel, Level } from '@/types';
 import { Badge } from '@examena/ui';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks';
 import type { EntityListConfig, EntityListVariant } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';
 
@@ -18,7 +19,7 @@ interface ClassListProps {
  * Unified ClassList component for displaying classes across all roles
  *
  * Supports three variants:
- * - admin: Shows capacity, subject count, full CRUD actions
+ * - admin: Shows capacity, subject count, and all filters
  * - teacher: Shows active students, assigned subjects, view/assessments actions
  * - student: Shows basic info (future implementation)
  */
@@ -28,131 +29,135 @@ export function ClassList({
   levels = [],
   onView,
 }: ClassListProps) {
-  const levelFilterOptions = [
-    { value: '', label: trans('admin_pages.classes.all_levels') },
-    ...levels.map((level) => ({
-      value: level.id,
-      label: level.name,
-    })),
-  ];
+  const { t } = useTranslations();
 
-  const config: EntityListConfig<ClassModel> = {
-    entity: 'class',
+  const config: EntityListConfig<ClassModel> = useMemo(() => {
+    const levelFilterOptions = [
+      { value: '', label: t('admin_pages.classes.all_levels') },
+      ...levels.map((level) => ({
+        value: level.id,
+        label: level.name,
+      })),
+    ];
 
-    filters: [
-      {
-        key: 'level_id',
-        labelKey: 'admin_pages.classes.level',
-        type: 'select',
-        options: levelFilterOptions,
-        conditional: (v) => v === 'admin',
-      },
-    ],
+    return {
+      entity: 'class',
 
-    columns: [
-      {
-        key: 'name',
-        labelKey: variant === 'admin' ? 'admin_pages.classes.name' : 'teacher_class_pages.index.name',
-        render: (classItem) => {
-          const levelNameDescription = `${classItem.level?.name} (${classItem.level?.description})`;
-          return (<div>
-            <div className="font-medium text-gray-900">
-              {classItem.name}
-            </div>
-            <div className="text-sm text-gray-500">
-              {levelNameDescription}
-            </div>
-          </div>)
+      filters: [
+        {
+          key: 'level_id',
+          labelKey: 'admin_pages.classes.level',
+          type: 'select' as const,
+          options: levelFilterOptions,
+          conditional: (v: string) => v === 'admin',
         },
-      },
+      ],
 
-      {
-        key: 'students',
-        labelKey: variant === 'admin' ? 'admin_pages.classes.students' : 'teacher_class_pages.index.students',
-        render: (classItem, currentVariant) => {
-          const activeCount = classItem.active_enrollments_count || 0;
+      columns: [
+        {
+          key: 'name',
+          labelKey: variant === 'admin' ? 'admin_pages.classes.name' : 'teacher_class_pages.index.name',
+          render: (classItem) => {
+            const levelNameDescription = `${classItem.level?.name} (${classItem.level?.description})`;
+            return (<div>
+              <div className="font-medium text-gray-900">
+                {classItem.name}
+              </div>
+              <div className="text-sm text-gray-500">
+                {levelNameDescription}
+              </div>
+            </div>)
+          },
+        },
 
-          if (currentVariant === 'admin') {
-            const maxStudents = classItem.max_students || 0;
-            const percentage = maxStudents > 0 ? (activeCount / maxStudents) * 100 : 0;
+        {
+          key: 'students',
+          labelKey: variant === 'admin' ? 'admin_pages.classes.students' : 'teacher_class_pages.index.students',
+          render: (classItem, currentVariant) => {
+            const activeCount = classItem.active_enrollments_count || 0;
+
+            if (currentVariant === 'admin') {
+              const maxStudents = classItem.max_students || 0;
+              const percentage = maxStudents > 0 ? (activeCount / maxStudents) * 100 : 0;
+
+              return (
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium text-gray-900">
+                    {activeCount} / {maxStudents}
+                  </span>
+                  {percentage >= 90 && (
+                    <Badge
+                      label={t('admin_pages.classes.full')}
+                      type="warning"
+                      size="sm"
+                    />
+                  )}
+                </div>
+              );
+            }
 
             return (
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-900">
-                  {activeCount} / {maxStudents}
+                <span className="text-sm font-medium text-gray-900">{activeCount}</span>
+                <span className="text-xs text-gray-500">
+                  {t('teacher_class_pages.index.active_students')}
                 </span>
-                {percentage >= 90 && (
+              </div>
+            );
+          },
+        },
+
+        {
+          key: 'subjects',
+          labelKey: 'admin_pages.classes.subjects',
+          render: (classItem) => (
+            <div className="text-sm text-gray-600">
+              {classItem.subjects_count || 0}
+            </div>
+          ),
+          conditional: (v) => v === 'admin',
+        },
+
+        {
+          key: 'my_subjects',
+          labelKey: 'teacher_class_pages.index.my_subjects',
+          render: (classItem) => {
+            const subjects = classItem.class_subjects || [];
+            return (
+              <div className="flex flex-wrap gap-1">
+                {subjects.slice(0, 3).map((cs) => (
                   <Badge
-                    label={trans('admin_pages.classes.full')}
-                    type="warning"
+                    key={cs.id}
+                    label={cs.subject?.name || '-'}
+                    type="info"
+                    size="sm"
+                  />
+                ))}
+                {subjects.length > 3 && (
+                  <Badge
+                    label={`+${subjects.length - 3}`}
+                    type="gray"
                     size="sm"
                   />
                 )}
               </div>
             );
-          }
-
-          return (
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-900">{activeCount}</span>
-              <span className="text-xs text-gray-500">
-                {trans('teacher_class_pages.index.active_students')}
-              </span>
-            </div>
-          );
+          },
+          conditional: (v) => v === 'teacher',
         },
-      },
+      ],
 
-      {
-        key: 'subjects',
-        labelKey: 'admin_pages.classes.subjects',
-        render: (classItem) => (
-          <div className="text-sm text-gray-600">
-            {classItem.subjects_count || 0}
-          </div>
-        ),
-        conditional: (v) => v === 'admin',
-      },
-
-      {
-        key: 'my_subjects',
-        labelKey: 'teacher_class_pages.index.my_subjects',
-        render: (classItem) => {
-          const subjects = classItem.class_subjects || [];
-          return (
-            <div className="flex flex-wrap gap-1">
-              {subjects.slice(0, 3).map((cs) => (
-                <Badge
-                  key={cs.id}
-                  label={cs.subject?.name || '-'}
-                  type="info"
-                  size="sm"
-                />
-              ))}
-              {subjects.length > 3 && (
-                <Badge
-                  label={`+${subjects.length - 3}`}
-                  type="gray"
-                  size="sm"
-                />
-              )}
-            </div>
-          );
-        },
-        conditional: (v) => v === 'teacher',
-      },
-    ],
-
-    actions: [
-      {
-        labelKey: variant === 'admin' ? 'admin_pages.common.view' : 'teacher_class_pages.index.view',
-        onClick: (item) =>
-          onView?.(item) || router.visit(route(`${variant}.classes.show`, item.id)),
-        color: 'secondary',
-        variant: 'outline',
-      }
-    ],
-  };
+      actions: [
+        {
+          labelKey: variant === 'admin' ? 'admin_pages.common.view' : 'teacher_class_pages.index.view',
+          onClick: (item: ClassModel) =>
+            onView?.(item) || router.visit(route(`${variant}.classes.show`, item.id)),
+          color: 'secondary' as const,
+          variant: 'outline' as const,
+        }
+      ],
+    };
+  }, [variant, levels, onView, t]);
 
   return <BaseEntityList data={data} config={config} variant={variant} />;
 }
