@@ -1,5 +1,5 @@
 import { ArrowsPointingOutIcon } from "@heroicons/react/24/outline";
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Modal, Button } from "@/Components/ui";
 
 interface FullscreenModalProps {
@@ -8,6 +8,8 @@ interface FullscreenModalProps {
 }
 
 function FullscreenModal({ isOpen, onEnterFullscreen }: FullscreenModalProps) {
+    const { t } = useTranslations();
+
     return (
         <Modal isOpen={isOpen} onClose={() => { }}>
             <div className="p-6">
@@ -20,12 +22,12 @@ function FullscreenModal({ isOpen, onEnterFullscreen }: FullscreenModalProps) {
 
                 <div className="text-center mb-6">
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        {trans('components.fullscreen_modal.title')}
+                        {t('components.fullscreen_modal.title')}
                     </h3>
                     <p className="text-gray-600">
-                        {trans('components.fullscreen_modal.description_line1')}
+                        {t('components.fullscreen_modal.description_line1')}
                         {' '}
-                        {trans('components.fullscreen_modal.description_line2')}
+                        {t('components.fullscreen_modal.description_line2')}
                     </p>
                 </div>
 
@@ -38,7 +40,7 @@ function FullscreenModal({ isOpen, onEnterFullscreen }: FullscreenModalProps) {
                         className="flex items-center"
                     >
                         <ArrowsPointingOutIcon className="w-4 h-4 mr-2" />
-                        {trans('components.fullscreen_modal.button')}
+                        {t('components.fullscreen_modal.button')}
                     </Button>
                 </div>
             </div>

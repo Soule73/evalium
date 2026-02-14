@@ -5,7 +5,7 @@ import {
     InformationCircleIcon,
     ClockIcon
 } from '@heroicons/react/24/outline';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import {
     DndContext,
     closestCenter,
@@ -89,16 +89,18 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
         setConfirmationModal
     } = useQuestionsManager();
 
+    const { t } = useTranslations();
+
     const translations = {
-        title: trans('components.questions_manager.title'),
-        subtitle: trans('components.questions_manager.subtitle'),
-        historyButton: trans('components.questions_manager.history_button', { count: deleteHistory.getDeletedQuestionsCount() + deleteHistory.getDeletedChoicesCount() }),
-        addQuestion: trans('components.questions_manager.add_question'),
-        noQuestionsTitle: trans('components.questions_manager.no_questions_title'),
-        noQuestionsSubtitle: trans('components.questions_manager.no_questions_subtitle'),
-        deleteConfirm: trans('components.questions_manager.delete_confirm'),
-        deleteCancel: trans('components.questions_manager.delete_cancel'),
-        deleteNotice: trans('components.questions_manager.delete_notice'),
+        title: t('components.questions_manager.title'),
+        subtitle: t('components.questions_manager.subtitle'),
+        historyButton: t('components.questions_manager.history_button', { count: deleteHistory.getDeletedQuestionsCount() + deleteHistory.getDeletedChoicesCount() }),
+        addQuestion: t('components.questions_manager.add_question'),
+        noQuestionsTitle: t('components.questions_manager.no_questions_title'),
+        noQuestionsSubtitle: t('components.questions_manager.no_questions_subtitle'),
+        deleteConfirm: t('components.questions_manager.delete_confirm'),
+        deleteCancel: t('components.questions_manager.delete_cancel'),
+        deleteNotice: t('components.questions_manager.delete_notice'),
     };
 
     const sensors = useSensors(

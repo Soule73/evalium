@@ -1,7 +1,7 @@
 import React from 'react';
 import { formatAssessmentScore, formatDate, formatDuration, getAssignmentBadgeLabel, securityViolationLabel } from '@/utils';
 import { type Assessment, type AssessmentAssignment, type User } from '@/types';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { TextEntry, AlertEntry } from '@examena/ui';
 
 interface AssessmentInfoSectionProps {
@@ -51,6 +51,8 @@ const AssessmentInfoSection: React.FC<AssessmentInfoSectionProps> = ({
     isReviewMode = false,
     isStudentView = false
 }) => {
+    const { t } = useTranslations();
+
     return (
         <>
             <div className='space-y-3'>
@@ -59,39 +61,39 @@ const AssessmentInfoSection: React.FC<AssessmentInfoSectionProps> = ({
                     <TextEntry label={assessment.title} value={assessment.description ?? ''} />
                 ) : (
                     <>
-                        <TextEntry label={trans('components.assessment_info_section.assessment_label')} value={assessment.title} />
-                        <TextEntry label={trans('components.assessment_info_section.description_label')} value={assessment.description ?? ''} />
+                        <TextEntry label={t('components.assessment_info_section.assessment_label')} value={assessment.title} />
+                        <TextEntry label={t('components.assessment_info_section.description_label')} value={assessment.description ?? ''} />
                     </>
                 )}
                 {creator && (
-                    <TextEntry label={trans('components.assessment_info_section.teacher_label')} value={creator.name} />
+                    <TextEntry label={t('components.assessment_info_section.teacher_label')} value={creator.name} />
                 )}
             </div>
 
             <div className={`grid grid-cols-1 gap-4 ${student ? 'md:grid-cols-4' : 'md:grid-cols-2'}`}>
                 {student && (
                     <>
-                        <TextEntry label={trans('components.assessment_info_section.student_label')} value={student.name} />
-                        <TextEntry label={trans('components.assessment_info_section.email_label')} value={student.email} />
+                        <TextEntry label={t('components.assessment_info_section.student_label')} value={student.name} />
+                        <TextEntry label={t('components.assessment_info_section.email_label')} value={student.email} />
                     </>
                 )}
                 <TextEntry
-                    label={trans('components.assessment_info_section.submitted_on')}
+                    label={t('components.assessment_info_section.submitted_on')}
                     value={assignment?.submitted_at ? formatDate(assignment.submitted_at, 'datetime') : '-'}
                 />
-                <TextEntry label={trans('components.assessment_info_section.duration_label')} value={formatDuration(assessment?.duration_minutes ?? 0)} />
+                <TextEntry label={t('components.assessment_info_section.duration_label')} value={formatDuration(assessment?.duration_minutes ?? 0)} />
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3 border-t border-gray-300 pt-4 pb-4 mt-4">
                 <TextEntry
                     label={
                         isReviewMode
-                            ? trans('components.assessment_info_section.score_assigned')
+                            ? t('components.assessment_info_section.score_assigned')
                             : isPendingReview
-                                ? trans('components.assessment_info_section.score_pending')
+                                ? t('components.assessment_info_section.score_pending')
                                 : isStudentView
-                                    ? trans('components.assessment_info_section.score_label')
-                                    : trans('components.assessment_info_section.score_final')
+                                    ? t('components.assessment_info_section.score_label')
+                                    : t('components.assessment_info_section.score_final')
                     }
                     value={
                         isReviewMode
@@ -100,27 +102,27 @@ const AssessmentInfoSection: React.FC<AssessmentInfoSectionProps> = ({
                     }
                 />
                 <TextEntry
-                    label={trans('components.assessment_info_section.percentage_label')}
+                    label={t('components.assessment_info_section.percentage_label')}
                     value={`${percentage}%`}
                 />
                 <TextEntry
-                    label={isReviewMode ? trans('components.assessment_info_section.questions_label') : trans('components.assessment_info_section.status_label')}
+                    label={isReviewMode ? t('components.assessment_info_section.questions_label') : t('components.assessment_info_section.status_label')}
                     value={
                         isReviewMode
-                            ? trans('components.assessment_info_section.questions_count', { count: assessment.questions?.length || 0 })
+                            ? t('components.assessment_info_section.questions_count', { count: assessment.questions?.length || 0 })
                             : isStudentView
-                                ? (isPendingReview ? trans('components.assessment_info_section.pending_correction') : trans('components.assessment_info_section.finished'))
+                                ? (isPendingReview ? t('components.assessment_info_section.pending_correction') : t('components.assessment_info_section.finished'))
                                 : getAssignmentBadgeLabel(assignment.status)
                     }
                 />
 
                 {assignment.forced_submission && (
-                    <AlertEntry title={trans('components.assessment_info_section.automatic_submission')} type="error" className="md:col-span-3">
+                    <AlertEntry title={t('components.assessment_info_section.automatic_submission')} type="error" className="md:col-span-3">
                         <p className="text-sm">
-                            {trans('components.assessment_info_section.automatic_submission_message')}
+                            {t('components.assessment_info_section.automatic_submission_message')}
                         </p>
                         <p className="text-sm">
-                            {trans('components.assessment_info_section.violation_detected_label', { violation: securityViolationLabel(assignment.security_violation) })}
+                            {t('components.assessment_info_section.violation_detected_label', { violation: securityViolationLabel(assignment.security_violation) })}
                         </p>
                     </AlertEntry>
                 )}

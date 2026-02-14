@@ -1,6 +1,6 @@
 import React from 'react';
 import { type Choice, type Question } from '@/types';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Checkbox } from '@examena/ui';
 import { MarkdownRenderer, MarkdownEditor } from '@examena/ui';
 import { Section } from '@examena/ui';
@@ -120,7 +120,10 @@ const TakeQuestionText: React.FC<{
     questionId: number;
     answers: Record<number, AnswerValue>;
     onAnswerChange: (questionId: number, value: AnswerValue) => void;
-}> = ({ questionId, answers, onAnswerChange }) => (
+}> = ({ questionId, answers, onAnswerChange }) => {
+    const { t } = useTranslations();
+
+    return (
     <div>
         <MarkdownEditor
             enableGuide={false}
@@ -129,16 +132,19 @@ const TakeQuestionText: React.FC<{
             editorClassName="min-h-[150px] sm:min-h-[200px]"
             value={typeof answers[questionId] === 'string' ? (answers[questionId] as string) : ''}
             onChange={(value) => onAnswerChange(questionId, value)}
-            placeholder={trans('components.take_question.your_answer_placeholder')}
+            placeholder={t('components.take_question.your_answer_placeholder')}
             rows={6}
-            helpText={trans('components.take_question.your_answer_help')}
+            helpText={t('components.take_question.your_answer_help')}
         />
     </div>
-);
+    );
+};
 
 /* ---------- Main Component ---------- */
 
 const TakeQuestion: React.FC<TakeQuestionProps> = ({ question, answers, onAnswerChange }) => {
+    const { t } = useTranslations();
+
     return (
         <Section
             key={question.id}
@@ -147,7 +153,7 @@ const TakeQuestion: React.FC<TakeQuestionProps> = ({ question, answers, onAnswer
             actions={
                 <div className="flex space-x-2 top-5 right-5 absolute">
                     <div className="text-sm min-w-fit font-medium h-max text-blue-600 px-2 py-1 rounded">
-                        {trans('components.take_question.points', { points: question.points })}
+                        {t('components.take_question.points', { points: question.points })}
                     </div>
 
                     <span className={`text-xs px-2 py-1 min-w-fit h-max rounded-full ${getTypeColor(question.type)}`}>

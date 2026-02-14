@@ -12,7 +12,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { type QuestionFormData, type ChoiceFormData } from '@/types';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { MarkdownEditor, ChoiceEditor } from '@examena/ui';
 import { Checkbox, Input } from '@/Components/ui';
 
@@ -45,6 +45,7 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
     getQuestionTypeIcon,
     errors = {}
 }) => {
+    const { t } = useTranslations();
     const [choiceStates, setChoiceStates] = React.useState<Record<number, {
         isMarkdownMode: boolean;
         showPreview: boolean;
@@ -160,11 +161,11 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
                         key={`question-content-${question.id || index}`}
                         value={question.content}
                         onChange={(value) => onUpdateQuestion(index, 'content', value)}
-                        placeholder={trans('components.question_item.question_placeholder')}
+                        placeholder={t('components.question_item.question_placeholder')}
                         required
-                        label={trans('components.question_item.question_statement')}
+                        label={t('components.question_item.question_statement')}
                         rows={4}
-                        helpText={trans('components.question_item.question_help')}
+                        helpText={t('components.question_item.question_help')}
                         error={errors[`questions.${index}.content`]}
                     />
 
@@ -173,7 +174,7 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
                         <div className="space-y-4">
                             <div className="flex justify-between items-center">
                                 <label className="block text-xs font-medium text-gray-700 uppercase tracking-wide">
-                                    {trans('components.question_item.answer_options')}
+                                    {t('components.question_item.answer_options')}
                                 </label>
                                 {question.type !== 'boolean' && (
                                     <button
@@ -182,7 +183,7 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
                                         className="inline-flex items-center px-3 py-1 border border-gray-200 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                                     >
                                         <PlusIcon className="h-3 w-3 mr-1" />
-                                        {trans('components.question_item.add_option')}
+                                        {t('components.question_item.add_option')}
                                     </button>
                                 )}
                             </div>
@@ -273,18 +274,20 @@ const QuestionMultipleItem: React.FC<QuestionMultipleItemProps> = ({
     error,
     onRemoveChoice
 }) => {
+    const { t } = useTranslations();
+
     const translations = {
-        placeholders: trans('components.choice_editor.placeholders'),
-        simple: trans('components.choice_editor.simple'),
-        markdown: trans('components.choice_editor.markdown'),
-        preview: trans('components.choice_editor.preview'),
-        hide: trans('components.choice_editor.hide'),
-        previewLabel: trans('components.choice_editor.preview_label'),
-        noContent: trans('components.choice_editor.no_content'),
-        switchSimple: trans('components.choice_editor.switch_simple'),
-        switchMarkdown: trans('components.choice_editor.switch_markdown'),
-        showPreview: trans('components.choice_editor.show_preview'),
-        hidePreview: trans('components.choice_editor.hide_preview'),
+        placeholders: t('components.choice_editor.placeholders'),
+        simple: t('components.choice_editor.simple'),
+        markdown: t('components.choice_editor.markdown'),
+        preview: t('components.choice_editor.preview'),
+        hide: t('components.choice_editor.hide'),
+        previewLabel: t('components.choice_editor.preview_label'),
+        noContent: t('components.choice_editor.no_content'),
+        switchSimple: t('components.choice_editor.switch_simple'),
+        switchMarkdown: t('components.choice_editor.switch_markdown'),
+        showPreview: t('components.choice_editor.show_preview'),
+        hidePreview: t('components.choice_editor.hide_preview'),
     };
     return (
         <div
@@ -361,6 +364,8 @@ const QuestionSingleItem: React.FC<QuestionSingleItemProps> = ({
     onTogglePreview,
     onRemoveChoice
 }) => {
+    const { t } = useTranslations();
+
     return (
         <div
             className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-100"
@@ -383,17 +388,17 @@ const QuestionSingleItem: React.FC<QuestionSingleItemProps> = ({
                 showPreview={showPreview || false}
                 onToggleMarkdownMode={onToggleMarkdownMode}
                 onTogglePreview={onTogglePreview}
-                placeholder={trans('components.choice_editor.placeholders')}
-                simpleModeLabel={trans('components.choice_editor.simple')}
-                markdownModeLabel={trans('components.choice_editor.markdown')}
-                previewLabel={trans('components.choice_editor.preview')}
-                hideLabel={trans('components.choice_editor.hide')}
-                previewHeaderLabel={trans('components.choice_editor.preview_label')}
-                noContentLabel={trans('components.choice_editor.no_content')}
-                switchToSimpleTitle={trans('components.choice_editor.switch_simple')}
-                switchToMarkdownTitle={trans('components.choice_editor.switch_markdown')}
-                showPreviewTitle={trans('components.choice_editor.show_preview')}
-                hidePreviewTitle={trans('components.choice_editor.hide_preview')}
+                placeholder={t('components.choice_editor.placeholders')}
+                simpleModeLabel={t('components.choice_editor.simple')}
+                markdownModeLabel={t('components.choice_editor.markdown')}
+                previewLabel={t('components.choice_editor.preview')}
+                hideLabel={t('components.choice_editor.hide')}
+                previewHeaderLabel={t('components.choice_editor.preview_label')}
+                noContentLabel={t('components.choice_editor.no_content')}
+                switchToSimpleTitle={t('components.choice_editor.switch_simple')}
+                switchToMarkdownTitle={t('components.choice_editor.switch_markdown')}
+                showPreviewTitle={t('components.choice_editor.show_preview')}
+                hidePreviewTitle={t('components.choice_editor.hide_preview')}
             />
 
             {showDeleteButton && (

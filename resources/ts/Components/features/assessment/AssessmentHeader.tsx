@@ -2,7 +2,7 @@ import { type Assessment } from '@/types';
 import { formatDuration } from '@/utils';
 import { ClockIcon, QuestionMarkCircleIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { formatDate } from '@/utils';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { MarkdownRenderer, Stat } from '@examena/ui';
 
 interface AssessmentHeaderProps {
@@ -22,6 +22,8 @@ export function AssessmentHeader({
   showMetadata = false,
   compact = false
 }: AssessmentHeaderProps) {
+  const { t } = useTranslations();
+
   return (
     <div className="space-y-3">
       <div>
@@ -39,21 +41,21 @@ export function AssessmentHeader({
         <Stat.Group columns={3}>
           {assessment.duration_minutes && (
             <Stat.Item
-              title={trans('components.assessment_header.duration')}
+              title={t('components.assessment_header.duration')}
               value={formatDuration(assessment.duration_minutes)}
               icon={ClockIcon}
             />
           )}
           {assessment.questions && assessment.questions.length > 0 && (
             <Stat.Item
-              title={trans('components.assessment_header.questions_count')}
+              title={t('components.assessment_header.questions_count')}
               value={assessment.questions.length}
               icon={QuestionMarkCircleIcon}
             />
           )}
           {assessment.created_at && (
             <Stat.Item
-              title={trans('components.assessment_header.created_on')}
+              title={t('components.assessment_header.created_on')}
               value={formatDate(assessment.created_at)}
               icon={CalendarIcon}
             />

@@ -1,5 +1,5 @@
 import { type QuestionType } from "@/types";
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 
 export interface QuestionOption {
     key: QuestionType;
@@ -12,11 +12,13 @@ export interface QuestionOption {
 }
 
 export const useQuestionOptions = (): QuestionOption[] => {
+    const { t } = useTranslations();
+
     return [
         {
             key: 'multiple',
-            title: trans('components.question_options.multiple_title'),
-            subtitle: trans('components.question_options.multiple_subtitle'),
+            title: t('components.question_options.multiple_title'),
+            subtitle: t('components.question_options.multiple_subtitle'),
             bg: 'bg-blue-100',
             text: 'text-blue-600',
             hoverBg: 'group-hover:bg-blue-200',
@@ -32,8 +34,8 @@ export const useQuestionOptions = (): QuestionOption[] => {
         },
         {
             key: 'one_choice',
-            title: trans('components.question_options.one_choice_title'),
-            subtitle: trans('components.question_options.one_choice_subtitle'),
+            title: t('components.question_options.one_choice_title'),
+            subtitle: t('components.question_options.one_choice_subtitle'),
             bg: 'bg-green-100',
             text: 'text-green-600',
             hoverBg: 'group-hover:bg-green-200',
@@ -45,8 +47,8 @@ export const useQuestionOptions = (): QuestionOption[] => {
         },
         {
             key: 'boolean',
-            title: trans('components.question_options.boolean_title'),
-            subtitle: trans('components.question_options.boolean_subtitle'),
+            title: t('components.question_options.boolean_title'),
+            subtitle: t('components.question_options.boolean_subtitle'),
             bg: 'bg-purple-100',
             text: 'text-purple-600',
             hoverBg: 'group-hover:bg-purple-200',
@@ -58,8 +60,8 @@ export const useQuestionOptions = (): QuestionOption[] => {
         },
         {
             key: 'text',
-            title: trans('components.question_options.text_title'),
-            subtitle: trans('components.question_options.text_subtitle'),
+            title: t('components.question_options.text_title'),
+            subtitle: t('components.question_options.text_subtitle'),
             bg: 'bg-yellow-100',
             text: 'text-yellow-600',
             hoverBg: 'group-hover:bg-yellow-200',

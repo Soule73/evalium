@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { LockClosedIcon } from '@heroicons/react/24/outline';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface AlertSecurityViolationProps {
     assessment: {
@@ -15,23 +15,24 @@ interface AlertSecurityViolationProps {
 }
 
 function AlertSecurityViolation({ assessment, reason }: AlertSecurityViolationProps) {
+    const { t } = useTranslations();
 
     return (
         <CanNotTakeAssessment
-            title={trans('components.alert_security_violation.title')}
-            subtitle={trans('components.alert_security_violation.subtitle')}
+            title={t('components.alert_security_violation.title')}
+            subtitle={t('components.alert_security_violation.subtitle')}
             icon={<LockClosedIcon className="h-16 w-16 text-red-500 mx-auto" />}
         >
             <TextEntry
                 label={assessment.title}
                 value={assessment.description ? (assessment.description.length > 100 ? assessment.description.substring(0, 100) + '...' : assessment.description) : ''}
             />
-            <AlertEntry type="error" title={trans('components.alert_security_violation.violation_detected', { reason })}>
+            <AlertEntry type="error" title={t('components.alert_security_violation.violation_detected', { reason })}>
                 <div className="text-sm text-red-700 text-start">
                     <ul className="list-disc list-inside space-y-1">
-                        <li>{trans('components.alert_security_violation.teacher_notified')}</li>
-                        <li>{trans('components.alert_security_violation.answers_saved')}</li>
-                        <li>{trans('components.alert_security_violation.will_be_contacted')}</li>
+                        <li>{t('components.alert_security_violation.teacher_notified')}</li>
+                        <li>{t('components.alert_security_violation.answers_saved')}</li>
+                        <li>{t('components.alert_security_violation.will_be_contacted')}</li>
                     </ul>
                 </div>
             </AlertEntry>
@@ -50,6 +51,8 @@ interface CanNotTakeAssessmentProps {
 }
 
 function CanNotTakeAssessment({ title, subtitle, message, icon, children }: CanNotTakeAssessmentProps) {
+    const { t } = useTranslations();
+
     return (
         <AuthenticatedLayout title={title}>
 
@@ -65,7 +68,7 @@ function CanNotTakeAssessment({ title, subtitle, message, icon, children }: CanN
                             onClick={() => router.visit(route('student.assessments.index'))}
 
                         >
-                            {trans('components.alert_security_violation.back_to_assessments')}
+                            {t('components.alert_security_violation.back_to_assessments')}
                         </Button>
                     }
                 >

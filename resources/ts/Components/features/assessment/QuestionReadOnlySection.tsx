@@ -1,6 +1,6 @@
 import { CheckCircleIcon, XMarkIcon } from "@heroicons/react/16/solid";
 import { type Question } from "@/types";
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { MarkdownRenderer } from "@examena/ui";
 import { getTypeColor, getTypeLabel } from '@/utils/assessment/components';
 
@@ -13,6 +13,8 @@ interface QuestionReadOnlySection {
 }
 
 const QuestionReadOnlySection: React.FC<QuestionReadOnlySection> = ({ question, children, isCorrect, score, questionIndex }) => {
+    const { t } = useTranslations();
+
     return (
         <div key={question.id} className="border-b border-gray-200 pb-6 last:border-b-0">
             <div className="flex items-center  justify-between my-3">
@@ -23,13 +25,13 @@ const QuestionReadOnlySection: React.FC<QuestionReadOnlySection> = ({ question, 
                     {isCorrect === true && (
                         <span className="text-green-600 text-sm font-medium flex items-center">
                             <CheckCircleIcon className="w-4 h-4 mr-1" />
-                            {trans('components.question_readonly_section.correct')}
+                            {t('components.question_readonly_section.correct')}
                         </span>
                     )}
                     {isCorrect === false && (
                         <span className="text-red-600 text-sm font-medium flex items-center">
                             <XMarkIcon className="w-4 h-4 mr-1" />
-                            {trans('components.question_readonly_section.incorrect')}
+                            {t('components.question_readonly_section.incorrect')}
                         </span>
                     )}
                     <span className="text-sm text-gray-500 ml-2">

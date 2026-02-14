@@ -1,6 +1,6 @@
 import { Button } from '@examena/ui';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface QuestionNavigationProps {
   currentIndex: number;
@@ -25,6 +25,8 @@ export function QuestionNavigation({
   answeredQuestions = new Set(),
   questionIds = [],
 }: QuestionNavigationProps) {
+  const { t } = useTranslations();
+
   return (
     <div className='fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10 py-4'>
       <div className="flex items-center justify-around mb-4">
@@ -35,7 +37,7 @@ export function QuestionNavigation({
           className="flex items-center gap-1"
         >
           <ChevronLeftIcon className="h-4 w-4" />
-          {trans('student_assessment_pages.take.previous_question')}
+          {t('student_assessment_pages.take.previous_question')}
         </Button>
         <div className=' flex flex-col items-center space-y-2'>
           {totalQuestions <= 20 && (
@@ -66,7 +68,7 @@ export function QuestionNavigation({
             </div>
           )}
           <span className="text-sm font-medium text-gray-700">
-            {trans('student_assessment_pages.take.question_progress', {
+            {t('student_assessment_pages.take.question_progress', {
               current: currentIndex + 1,
               total: totalQuestions,
             })}
@@ -81,7 +83,7 @@ export function QuestionNavigation({
           disabled={isLastQuestion}
           className="flex items-center gap-1"
         >
-          {trans('student_assessment_pages.take.next_question')}
+          {t('student_assessment_pages.take.next_question')}
           <ChevronRightIcon className="h-4 w-4" />
         </Button>
       </div>
