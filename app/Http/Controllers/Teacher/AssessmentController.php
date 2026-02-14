@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Teacher\ReopenAssignmentRequest;
 use App\Http\Requests\Teacher\SaveManualGradeRequest;
 use App\Http\Requests\Teacher\StoreAssessmentRequest;
 use App\Http\Requests\Teacher\UpdateAssessmentRequest;
@@ -12,10 +13,12 @@ use App\Models\AssessmentAssignment;
 use App\Services\Core\Answer\AnswerFormatterService;
 use App\Services\Core\AssessmentService;
 use App\Services\Core\Scoring\ScoringService;
+use App\Services\Teacher\AssignmentExceptionService;
 use App\Services\Teacher\GradingQueryService;
 use App\Services\Teacher\TeacherAssessmentQueryService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +34,8 @@ class AssessmentController extends Controller
         private readonly TeacherAssessmentQueryService $assessmentQueryService,
         private readonly GradingQueryService $gradingQueryService,
         private readonly ScoringService $scoringService,
-        private readonly AnswerFormatterService $answerFormatterService
+        private readonly AnswerFormatterService $answerFormatterService,
+        private readonly AssignmentExceptionService $assignmentExceptionService
     ) {}
 
     /**
@@ -271,5 +275,35 @@ class AssessmentController extends Controller
         );
 
         return back()->flashSuccess(__('messages.grade_saved'));
+    }
+
+    /**
+     * Reopen an interrupted supervised assignment for a student.
+     */
+    public function reopenAssignment(
+        ReopenAssignmentRequest $request,
+        Assessment $assessment,
+        AssessmentAssignment $assignment
+    ): JsonResponse {
+        abort_unless($assignment->assessment_id === $assessment->id, 404);
+
+        $check = $this->assignmentExceptionService->canReopen($assignment, $assessment);
+
+        if (! $check['can_reopen']) {
+            return response()->json([
+                'message' => __('messages.assignment_cannot_reopen_'.$check['reason']),
+            ], 422);
+        }
+
+        $remainingSeconds = $this->assignmentExceptionService->reopenForStudent(
+            $assignment,
+            $assessment,
+            $request->input('reason')
+        );
+
+        return response()->json([
+            'message' => __('messages.assignment_reopened'),
+            'remaining_seconds' => $remainingSeconds,
+        ]);
     }
 }
