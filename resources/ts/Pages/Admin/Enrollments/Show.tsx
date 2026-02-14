@@ -1,19 +1,26 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Enrollment, ClassModel, PageProps } from '@/types';
+import { Enrollment, ClassModel, PageProps, PaginationType, SubjectGrade, OverallStats } from '@/types';
 import { breadcrumbs, trans, formatDate, hasPermission } from '@/utils';
 import { Button, Section, Badge, Stat } from '@/Components';
+import { SubjectGradeList } from '@/Components/shared/lists/SubjectGradeList';
 import { TransferEnrollmentModal, WithdrawEnrollmentModal } from '@/Components/features';
 import { route } from 'ziggy-js';
-import { UserIcon, AcademicCapIcon, CalendarIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import {
+  UserIcon,
+  AcademicCapIcon,
+  CalendarIcon,
+  ArrowPathIcon,
+} from '@heroicons/react/24/outline';
 
 interface Props extends PageProps {
   enrollment: Enrollment;
   classes: ClassModel[];
+  subjects: PaginationType<SubjectGrade>;
+  overallStats: OverallStats;
 }
-
-export default function EnrollmentShow({ enrollment, classes, auth }: Props) {
+export default function EnrollmentShow({ enrollment, classes, subjects, overallStats, auth }: Props) {
   const canUpdate = hasPermission(auth.permissions, 'update enrollments');
 
   const [transferModalOpen, setTransferModalOpen] = useState(false);
@@ -129,6 +136,8 @@ export default function EnrollmentShow({ enrollment, classes, auth }: Props) {
             </div>
           )}
         </Section>
+
+        <SubjectGradeList subjects={subjects} overallStats={overallStats} variant="admin" />
       </div>
 
       <TransferEnrollmentModal

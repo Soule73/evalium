@@ -9,10 +9,12 @@ use App\Http\Traits\HandlesIndexRequests;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\Enrollment;
 use App\Services\Admin\EnrollmentService;
+use App\Services\Core\GradeCalculationService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,7 +23,8 @@ class EnrollmentController extends Controller
     use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests, HasFlashMessages;
 
     public function __construct(
-        private readonly EnrollmentService $enrollmentService
+        private readonly EnrollmentService $enrollmentService,
+        private readonly GradeCalculationService $gradeCalculationService
     ) {}
 
     /**
@@ -75,7 +78,7 @@ class EnrollmentController extends Controller
     }
 
     /**
-     * Display the specified enrollment.
+     * Display the specified enrollment with student grade breakdown.
      */
     public function show(Request $request, Enrollment $enrollment): Response
     {
@@ -84,7 +87,31 @@ class EnrollmentController extends Controller
         $selectedYearId = $this->getSelectedAcademicYearId($request);
         $data = $this->enrollmentService->getShowData($enrollment, $selectedYearId);
 
-        return Inertia::render('Admin/Enrollments/Show', $data);
+        $student = $enrollment->student;
+        $class = $enrollment->class;
+
+        $gradeBreakdown = $this->gradeCalculationService->getGradeBreakdown($student, $class);
+
+        $perPage = (int) $request->input('per_page', 10);
+        $page = (int) $request->input('page', 1);
+        $allSubjects = collect($gradeBreakdown['subjects']);
+
+        $paginatedSubjects = new LengthAwarePaginator(
+            $allSubjects->forPage($page, $perPage)->values(),
+            $allSubjects->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        $overallStats = collect($gradeBreakdown)->except('subjects')->all();
+        $overallStats['total_assessments'] = $allSubjects->sum('assessments_count');
+        $overallStats['completed_assessments'] = $allSubjects->sum('completed_count');
+
+        return Inertia::render('Admin/Enrollments/Show', array_merge($data, [
+            'subjects' => $paginatedSubjects,
+            'overallStats' => $overallStats,
+        ]));
     }
 
     /**

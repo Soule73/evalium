@@ -78,7 +78,7 @@ class StudentEnrollmentControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Enrollment/Show')
                 ->has('enrollment')
                 ->has('subjects')
@@ -118,7 +118,7 @@ class StudentEnrollmentControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Enrollment/Show')
                 ->has('subjects.data', 1)
                 ->where('subjects.data.0.subject_name', $this->classSubject->subject->name)
@@ -148,12 +148,13 @@ class StudentEnrollmentControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Enrollment/Show')
-                ->has('overallStats.subjects', 1)
                 ->has('overallStats.annual_average')
                 ->where('overallStats.student_id', $this->student->id)
                 ->where('overallStats.class_id', $this->class->id)
+                ->has('overallStats.total_assessments')
+                ->has('overallStats.completed_assessments')
         );
     }
 
@@ -164,7 +165,7 @@ class StudentEnrollmentControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Enrollment/Show')
                 ->where('filters.search', 'nonexistent')
         );
@@ -197,7 +198,7 @@ class StudentEnrollmentControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Enrollment/Show')
                 ->has('subjects.data', 5)
                 ->where('subjects.total', 13)
@@ -231,10 +232,11 @@ class StudentEnrollmentControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Enrollment/Show')
                 ->has('subjects.data', 2)
-                ->has('overallStats.subjects', 5)
+                ->where('subjects.total', 5)
+                ->where('overallStats.total_assessments', 0)
         );
     }
 
@@ -252,7 +254,7 @@ class StudentEnrollmentControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Enrollment/Classmates')
                 ->has('enrollment')
                 ->has('classmates', 1)
@@ -266,7 +268,7 @@ class StudentEnrollmentControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Enrollment/History')
                 ->has('enrollments')
         );

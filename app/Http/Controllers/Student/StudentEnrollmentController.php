@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Student\SubjectStatsResource;
 use App\Services\Admin\EnrollmentService;
 use App\Services\Core\GradeCalculationService;
 use App\Services\Student\StudentEnrollmentQueryService;
@@ -46,28 +45,30 @@ class StudentEnrollmentController extends Controller
             $filters
         );
 
-        $page = (int) $request->input('page', 1);
-        $paginatedSubjects = new LengthAwarePaginator(
-            $allSubjects->forPage($page, $perPage)->values(),
-            $allSubjects->count(),
-            $perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
-
-        $subjectsTransformed = $paginatedSubjects->through(function ($classSubject) use ($student) {
-            return (new SubjectStatsResource($classSubject))->forStudent($student)->resolve();
-        });
-
-        $overallStats = $this->gradeCalculationService->getGradeBreakdownFromLoaded(
+        $gradeBreakdown = $this->gradeCalculationService->getGradeBreakdownFromLoaded(
             $student,
             $currentEnrollment->class,
             $allSubjects
         );
 
+        $page = (int) $request->input('page', 1);
+        $subjectItems = collect($gradeBreakdown['subjects']);
+
+        $paginatedSubjects = new LengthAwarePaginator(
+            $subjectItems->forPage($page, $perPage)->values(),
+            $subjectItems->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        $overallStats = collect($gradeBreakdown)->except('subjects')->all();
+        $overallStats['total_assessments'] = $subjectItems->sum('assessments_count');
+        $overallStats['completed_assessments'] = $subjectItems->sum('completed_count');
+
         return Inertia::render('Student/Enrollment/Show', [
             'enrollment' => $currentEnrollment,
-            'subjects' => $subjectsTransformed,
+            'subjects' => $paginatedSubjects,
             'overallStats' => $overallStats,
             'filters' => $filters,
         ]);
