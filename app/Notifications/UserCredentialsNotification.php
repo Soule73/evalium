@@ -37,9 +37,9 @@ class UserCredentialsNotification extends Notification implements ShouldQueue
         $roleName = __($this->role);
 
         return (new MailMessage)
-            ->subject(__('Your Login Credentials - Examena'))
+            ->subject(__('Your Login Credentials - Evalium'))
             ->greeting(__('Hello :name,', ['name' => $notifiable->name]))
-            ->line(__('Your :role account has been successfully created on the Examena platform.', ['role' => $roleName]))
+            ->line(__('Your :role account has been successfully created on the Evalium platform.', ['role' => $roleName]))
             ->line(__('Here are your login credentials:'))
             ->line('**'.__('Email:')."** {$notifiable->email}")
             ->line('**'.__('Temporary Password:')."** {$this->password}")

@@ -1,18 +1,31 @@
 
 interface LogoProps {
-    className?: string
+    className?: string;
 }
 
-export const Logo = ({ className = ' w-12 h-12 ' }: LogoProps) => {
+export const Logo = ({ className = 'w-12 h-12' }: LogoProps) => {
     return (
         <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4" y="8" width="40" height="32" rx="6" fill="#2563eb" />
-            <rect x="10" y="14" width="28" height="20" rx="3" fill="#fff" />
-            <rect x="14" y="18" width="20" height="3" rx="1.5" fill="#2563eb" />
-            <rect x="14" y="24" width="12" height="2.5" rx="1.25" fill="#c7d2fe" />
-            <rect x="14" y="29" width="8" height="2.5" rx="1.25" fill="#c7d2fe" />
-            <circle cx="38" cy="34" r="3" fill="#2563eb" stroke="#fff" strokeWidth="2" />
+            <defs>
+                <linearGradient id="logoGemTop" x1="10" y1="6" x2="38" y2="24" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#818cf8" />
+                    <stop offset="1" stopColor="#6366f1" />
+                </linearGradient>
+                <linearGradient id="logoGemLeft" x1="10" y1="18" x2="24" y2="44" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#4f46e5" />
+                    <stop offset="1" stopColor="#3730a3" />
+                </linearGradient>
+                <linearGradient id="logoGemRight" x1="24" y1="24" x2="38" y2="44" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#6366f1" />
+                    <stop offset="1" stopColor="#4f46e5" />
+                </linearGradient>
+            </defs>
+            <path d="M10 18 L24 6 L38 18 L24 24 Z" fill="url(#logoGemTop)" />
+            <path d="M10 18 L24 24 L24 44 Z" fill="url(#logoGemLeft)" />
+            <path d="M38 18 L24 24 L24 44 Z" fill="url(#logoGemRight)" />
+            <path d="M10 18 L24 6 L24 24 Z" fill="white" opacity="0.15" />
+            <path d="M24 6 L38 18 L24 24 Z" fill="white" opacity="0.06" />
+            <circle cx="17" cy="14" r="1.8" fill="white" opacity="0.5" />
         </svg>
-
     );
 };

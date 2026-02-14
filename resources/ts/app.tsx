@@ -7,7 +7,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { setupZiggy } from '@/utils';
 import { ToastContainer, ToastProvider } from './Components';
 
-const appName = import.meta.env.VITE_APP_NAME || 'ExamENA';
+const appName = import.meta.env.VITE_APP_NAME || 'Evalium';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

@@ -7,7 +7,7 @@ import { useTranslations } from '@/hooks/shared/useTranslations';
 import { NavIcon } from './NavIcon';
 import { RoleBadge } from './RoleBadge';
 import { UserAvatar } from './UserAvatar';
-import { LogoExamena } from '../shared/LogoExamena';
+import { LogoEvalium } from '../shared/LogoExamena';
 import { route } from 'ziggy-js';
 
 interface SidebarProps {
@@ -166,14 +166,14 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                     <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
                         {!isCollapsed && (
                             <Link href={navRoutes.dashboard()} className="flex items-center">
-                                <LogoExamena />
+                                <LogoEvalium />
                                 <span className="ml-2 text-xl font-bold text-indigo-600">{t('sidebar.app_name')}</span>
                             </Link>
                         )}
 
                         {isCollapsed && (
                             <Link href={navRoutes.dashboard()} className="flex items-center justify-center w-full">
-                                <LogoExamena width={32} height={32} />
+                                <LogoEvalium width={32} height={32} />
                             </Link>
                         )}
 

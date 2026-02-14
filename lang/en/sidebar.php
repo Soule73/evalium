@@ -43,5 +43,5 @@ return [
     ],
 
     // App
-    'app_name' => 'Examena',
+    'app_name' => 'Evalium',
 ];
