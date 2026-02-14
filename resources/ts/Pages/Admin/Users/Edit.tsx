@@ -1,7 +1,8 @@
+import { useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import { type User } from '@/types';
 import { getRoleLabel } from '@/utils';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Modal, Select } from '@/Components';
 import { Input } from '@examena/ui';
 
@@ -17,6 +18,8 @@ interface Props {
 }
 
 export default function EditUser({ user, roles, userRole, isOpen, onClose, title, description, route }: Props) {
+    const { t } = useTranslations();
+
     const { data, setData, put, processing, errors } = useForm({
         id: user.id,
         name: user.name,
@@ -47,8 +50,23 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
         });
     };
 
-    const searchPlaceholder = trans('components.select.search_placeholder');
-    const noOptionFound = trans('components.select.no_option_found');
+    const translations = useMemo(() => ({
+        searchPlaceholder: t('components.select.search_placeholder'),
+        noOptionFound: t('components.select.no_option_found'),
+        editTitle: t('admin_pages.users.edit_title'),
+        role: t('admin_pages.users.role'),
+        selectRole: t('admin_pages.users.select_role'),
+        namePlaceholder: t('admin_pages.users.name_placeholder'),
+        emailPlaceholder: t('admin_pages.users.email_placeholder'),
+        passwordChange: t('admin_pages.users.password_change'),
+        passwordKeep: t('admin_pages.users.password_keep'),
+        passwordConfirmPlaceholder: t('admin_pages.users.password_confirm_placeholder'),
+        cancel: t('admin_pages.common.cancel'),
+        updating: t('admin_pages.users.updating'),
+        updateButton: t('admin_pages.users.update_button'),
+    }), [t]);
+
+    const editSubtitle = useMemo(() => t('admin_pages.users.edit_subtitle', { name: user.name }), [t, user.name]);
 
 
     return (
@@ -56,10 +74,10 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
             <div className="p-6 md:min-w-lg lg:min-w-xl w-full ">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold text-gray-900">
-                        {title || trans('admin_pages.users.edit_title')}
+                        {title || translations.editTitle}
                     </h1>
                     <p className="text-gray-600 mt-1">
-                        {description || trans('admin_pages.users.edit_subtitle', { name: user.name })}
+                        {description || editSubtitle}
                     </p>
                 </div>
 
@@ -70,7 +88,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         className="mt-1 block w-full"
                         value={data.name}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('name', e.target.value)}
-                        placeholder={trans('admin_pages.users.name_placeholder')}
+                        placeholder={translations.namePlaceholder}
                         required
                     />
 
@@ -80,14 +98,14 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         type="email"
                         value={data.email}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('email', e.target.value)}
-                        placeholder={trans('admin_pages.users.email_placeholder')}
+                        placeholder={translations.emailPlaceholder}
                         required
                     />
                     {roles && <div>
                         <Select
-                            label={trans('admin_pages.users.role')}
-                            noOptionFound={noOptionFound}
-                            searchPlaceholder={searchPlaceholder}
+                            label={translations.role}
+                            noOptionFound={translations.noOptionFound}
+                            searchPlaceholder={translations.searchPlaceholder}
                             options={roles.map(role => ({
                                 value: role,
                                 label: getRoleLabel(role)
@@ -96,7 +114,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                             onChange={(value) => setData('role', String(value))}
                             error={errors.role}
                             searchable={false}
-                            placeholder={trans('admin_pages.users.select_role')}
+                            placeholder={translations.selectRole}
                         />
                     </div>}
 
@@ -106,7 +124,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         </div>
                         <div className="relative flex justify-center text-sm">
                             <span className="px-2 bg-white text-gray-500">
-                                {trans('admin_pages.users.password_change')}
+                                {translations.passwordChange}
                             </span>
                         </div>
                     </div>
@@ -116,7 +134,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         type="password"
                         value={data.password}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('password', e.target.value)}
-                        placeholder={trans('admin_pages.users.password_keep')}
+                        placeholder={translations.passwordKeep}
                     />
 
                     <Input
@@ -124,7 +142,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         type="password"
                         value={data.password_confirmation}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('password_confirmation', e.target.value)}
-                        placeholder={trans('admin_pages.users.password_confirm_placeholder')}
+                        placeholder={translations.passwordConfirmPlaceholder}
                     />
                     <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
                         <Button
@@ -134,7 +152,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                             size='sm'
                             onClick={handleCancel}
                         >
-                            {trans('admin_pages.common.cancel')}
+                            {translations.cancel}
                         </Button>
                         <Button
                             type="submit"
@@ -144,9 +162,9 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                             disabled={processing}
                         >
                             {processing ? (
-                                trans('admin_pages.users.updating')
+                                translations.updating
                             ) : (
-                                trans('admin_pages.users.update_button')
+                                translations.updateButton
                             )}
                         </Button>
                     </div>

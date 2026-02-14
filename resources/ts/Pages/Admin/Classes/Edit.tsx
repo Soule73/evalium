@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type ClassModel, type Level } from '@/types';
-import { breadcrumbs, trans } from '@/utils';
+import { breadcrumbs } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { ClassForm } from '@/Components/features/classes';
 import { route } from 'ziggy-js';
 
@@ -11,14 +13,21 @@ interface Props {
 }
 
 export default function ClassEdit({ class: classItem, levels }: Props) {
+  const { t } = useTranslations();
+
+  const translations = useMemo(() => ({
+    editTitle: t('admin_pages.classes.edit_title'),
+    editSubtitle: t('admin_pages.classes.edit_subtitle'),
+  }), [t]);
+
   return (
     <AuthenticatedLayout
-      title={trans('admin_pages.classes.edit_title')}
+      title={translations.editTitle}
       breadcrumb={breadcrumbs.admin.editClass(classItem)}
     >
       <ClassForm
-        title={trans('admin_pages.classes.edit_title')}
-        subtitle={trans('admin_pages.classes.edit_subtitle')}
+        title={translations.editTitle}
+        subtitle={translations.editSubtitle}
         classItem={classItem}
         levels={levels}
         onCancel={() => router.visit(route('admin.classes.show', classItem.id))}

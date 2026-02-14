@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type DataTableConfig, type PaginationType } from '@/types/datatable';
 import { CalendarIcon } from '@heroicons/react/24/outline';
 import { type AcademicYear, type PageProps } from '@/types';
-import { breadcrumbs, trans, formatDate, hasPermission } from '@/utils';
+import { breadcrumbs, formatDate, hasPermission } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Badge, Button, ConfirmationModal, DataTable, Section } from '@/Components';
 import { route } from 'ziggy-js';
 
@@ -19,6 +20,8 @@ interface Filters {
 }
 
 export default function AcademicYearIndex({ academicYears, auth }: Props) {
+  const { t } = useTranslations();
+
   const [archiveModal, setArchiveModal] = useState<{ isOpen: boolean; year: AcademicYear | null }>({
     isOpen: false,
     year: null,
@@ -80,24 +83,24 @@ export default function AcademicYearIndex({ academicYears, auth }: Props) {
     }
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm(trans('admin_pages.academic_years.confirm_delete'))) {
+  const handleDelete = useCallback((id: number) => {
+    if (confirm(t('admin_pages.academic_years.confirm_delete'))) {
       router.delete(route('admin.academic-years.destroy', id));
     }
-  };
+  }, [t]);
 
-  const dataTableConfig: DataTableConfig<AcademicYear> = {
+  const dataTableConfig: DataTableConfig<AcademicYear> = useMemo(() => ({
     columns: [
       {
         key: 'name',
-        label: trans('admin_pages.academic_years.name'),
+        label: t('admin_pages.academic_years.name'),
         render: (year) => (
           <div className="flex items-center space-x-2">
             <CalendarIcon className="w-5 h-5 text-gray-400" />
             <div>
               <div className="text-sm font-medium text-gray-900">{year.name}</div>
               {year.is_current && (
-                <Badge label={trans('admin_pages.academic_years.current')} type="success" size="sm" />
+                <Badge label={t('admin_pages.academic_years.current')} type="success" size="sm" />
               )}
             </div>
           </div>
@@ -105,7 +108,7 @@ export default function AcademicYearIndex({ academicYears, auth }: Props) {
       },
       {
         key: 'period',
-        label: trans('admin_pages.academic_years.period'),
+        label: t('admin_pages.academic_years.period'),
         render: (year) => (
           <div className="text-sm text-gray-600">
             <div>{formatDate(year.start_date)}</div>
@@ -115,44 +118,44 @@ export default function AcademicYearIndex({ academicYears, auth }: Props) {
       },
       {
         key: 'semesters',
-        label: trans('admin_pages.academic_years.semesters'),
+        label: t('admin_pages.academic_years.semesters'),
         render: (year) => (
           <div className="text-sm text-gray-600">
-            {year.semesters_count || 0} {trans('admin_pages.academic_years.semesters_count')}
+            {year.semesters_count || 0} {t('admin_pages.academic_years.semesters_count')}
           </div>
         ),
       },
       {
         key: 'classes',
-        label: trans('admin_pages.academic_years.classes'),
+        label: t('admin_pages.academic_years.classes'),
         render: (year) => (
           <div className="text-sm text-gray-600">
-            {year.classes_count || 0} {trans('admin_pages.academic_years.classes_count')}
+            {year.classes_count || 0} {t('admin_pages.academic_years.classes_count')}
           </div>
         ),
       },
       {
         key: 'status',
-        label: trans('admin_pages.academic_years.status'),
+        label: t('admin_pages.academic_years.status'),
         render: (year) => (
           <Badge
-            label={year.is_current ? trans('admin_pages.common.active') : trans('admin_pages.common.inactive')}
+            label={year.is_current ? t('admin_pages.common.active') : t('admin_pages.common.inactive')}
             type={year.is_current ? 'success' : 'info'}
           />
         ),
       },
       {
         key: 'actions',
-        label: trans('admin_pages.common.actions'),
+        label: t('admin_pages.common.actions'),
         render: (year) => (
           <div className="flex space-x-2">
             <Button onClick={() => handleView(year.id)} color="secondary" size="sm" variant="outline">
-              {trans('admin_pages.common.view')}
+              {t('admin_pages.common.view')}
             </Button>
             {canUpdate && (
               <>
                 <Button onClick={() => handleEdit(year.id)} color="primary" size="sm" variant="outline">
-                  {trans('admin_pages.common.edit')}
+                  {t('admin_pages.common.edit')}
                 </Button>
                 {!year.is_current && (
                   <Button
@@ -161,7 +164,7 @@ export default function AcademicYearIndex({ academicYears, auth }: Props) {
                     size="sm"
                     variant="outline"
                   >
-                    {trans('admin_pages.academic_years.set_current')}
+                    {t('admin_pages.academic_years.set_current')}
                   </Button>
                 )}
                 {year.is_current && (
@@ -171,44 +174,55 @@ export default function AcademicYearIndex({ academicYears, auth }: Props) {
                     size="sm"
                     variant="outline"
                   >
-                    {trans('admin_pages.academic_years.archive')}
+                    {t('admin_pages.academic_years.archive')}
                   </Button>
                 )}
               </>
             )}
             {canDelete && (
               <Button onClick={() => handleDelete(year.id)} color="danger" size="sm" variant="outline">
-                {trans('admin_pages.common.delete')}
+                {t('admin_pages.common.delete')}
               </Button>
             )}
           </div>
         ),
       },
     ],
-    searchPlaceholder: trans('admin_pages.academic_years.search_placeholder'),
+    searchPlaceholder: t('admin_pages.academic_years.search_placeholder'),
     filters: [
       {
         key: 'is_current',
         type: 'select',
-        label: trans('admin_pages.academic_years.filter_status'),
+        label: t('admin_pages.academic_years.filter_status'),
         options: [
-          { label: trans('admin_pages.academic_years.all_statuses'), value: '' },
-          { label: trans('admin_pages.academic_years.current'), value: '1' },
-          { label: trans('admin_pages.academic_years.archived'), value: '0' },
+          { label: t('admin_pages.academic_years.all_statuses'), value: '' },
+          { label: t('admin_pages.academic_years.current'), value: '1' },
+          { label: t('admin_pages.academic_years.archived'), value: '0' },
         ],
       },
     ],
-  };
+  }), [t, canUpdate, canDelete, handleDelete]);
+
+  const translations = useMemo(() => ({
+    pageTitle: t('admin_pages.academic_years.page_title'),
+    title: t('admin_pages.academic_years.title'),
+    subtitle: t('admin_pages.academic_years.subtitle'),
+    create: t('admin_pages.academic_years.create'),
+    setCurrentTitle: t('admin_pages.academic_years.set_current_title'),
+    confirm: t('admin_pages.common.confirm'),
+    cancel: t('admin_pages.common.cancel'),
+    archiveTitle: t('admin_pages.academic_years.archive_title'),
+  }), [t]);
 
   return (
-    <AuthenticatedLayout title={trans('admin_pages.academic_years.page_title')} breadcrumb={breadcrumbs.admin.academicYears()}>
+    <AuthenticatedLayout title={translations.pageTitle} breadcrumb={breadcrumbs.admin.academicYears()}>
       <Section
-        title={trans('admin_pages.academic_years.title')}
-        subtitle={trans('admin_pages.academic_years.subtitle')}
+        title={translations.title}
+        subtitle={translations.subtitle}
         actions={
           canCreate && (
             <Button size="sm" variant="solid" color="primary" onClick={handleCreate}>
-              {trans('admin_pages.academic_years.create')}
+              {translations.create}
             </Button>
           )
         }
@@ -220,10 +234,10 @@ export default function AcademicYearIndex({ academicYears, auth }: Props) {
         isOpen={setCurrentModal.isOpen}
         onClose={() => setSetCurrentModal({ isOpen: false, year: null })}
         onConfirm={confirmSetCurrent}
-        title={trans('admin_pages.academic_years.set_current_title')}
-        message={trans('admin_pages.academic_years.set_current_message', { name: setCurrentModal.year?.name || '' })}
-        confirmText={trans('admin_pages.common.confirm')}
-        cancelText={trans('admin_pages.common.cancel')}
+        title={translations.setCurrentTitle}
+        message={t('admin_pages.academic_years.set_current_message', { name: setCurrentModal.year?.name || '' })}
+        confirmText={translations.confirm}
+        cancelText={translations.cancel}
         type="info"
       />
 
@@ -231,10 +245,10 @@ export default function AcademicYearIndex({ academicYears, auth }: Props) {
         isOpen={archiveModal.isOpen}
         onClose={() => setArchiveModal({ isOpen: false, year: null })}
         onConfirm={confirmArchive}
-        title={trans('admin_pages.academic_years.archive_title')}
-        message={trans('admin_pages.academic_years.archive_message', { name: archiveModal.year?.name || '' })}
-        confirmText={trans('admin_pages.common.confirm')}
-        cancelText={trans('admin_pages.common.cancel')}
+        title={translations.archiveTitle}
+        message={t('admin_pages.academic_years.archive_message', { name: archiveModal.year?.name || '' })}
+        confirmText={translations.confirm}
+        cancelText={translations.cancel}
         type="warning"
       />
     </AuthenticatedLayout>

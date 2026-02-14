@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type PaginationType } from '@/types/datatable';
 import { type ClassSubject, type ClassModel, type Subject, type User, type Semester, type PageProps } from '@/types';
-import { breadcrumbs, trans, hasPermission } from '@/utils';
+import { breadcrumbs, hasPermission } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Section, Button } from '@/Components';
 import { ClassSubjectList } from '@/Components/shared/lists';
 import { CreateClassSubjectModal } from '@/Components/features';
@@ -21,17 +22,24 @@ interface Props extends PageProps {
 }
 
 export default function ClassSubjectIndex({ classSubjects, formData, auth }: Props) {
+  const { t } = useTranslations();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const canCreate = hasPermission(auth.permissions, 'create class subjects');
 
+  const translations = useMemo(() => ({
+    title: t('admin_pages.class_subjects.title'),
+    subtitle: t('admin_pages.class_subjects.subtitle'),
+    createButton: t('admin_pages.class_subjects.create_button'),
+  }), [t]);
+
   return (
     <AuthenticatedLayout
-      title={trans('admin_pages.class_subjects.title')}
+      title={translations.title}
       breadcrumb={breadcrumbs.admin.classSubjects()}
     >
       <Section
-        title={trans('admin_pages.class_subjects.title')}
-        subtitle={trans('admin_pages.class_subjects.subtitle')}
+        title={translations.title}
+        subtitle={translations.subtitle}
         actions={
           canCreate && (
             <Button
@@ -41,7 +49,7 @@ export default function ClassSubjectIndex({ classSubjects, formData, auth }: Pro
               onClick={() => setIsCreateModalOpen(true)}
             >
               <PlusIcon className="w-4 h-4 mr-1" />
-              {trans('admin_pages.class_subjects.create_button')}
+              {translations.createButton}
             </Button>
           )
         }

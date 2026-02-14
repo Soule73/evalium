@@ -3,7 +3,8 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type ClassSubject, type PageProps, type User } from '@/types';
 import { type PaginationType } from '@/types/datatable';
-import { breadcrumbs, trans, formatDate, hasPermission } from '@/utils';
+import { breadcrumbs, formatDate, hasPermission } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Section, Badge, Stat, ActionGroup } from '@/Components';
 import { ClassSubjectHistoryList } from '@/Components/shared/lists';
 import {
@@ -21,6 +22,7 @@ interface Props extends PageProps {
 }
 
 export default function ClassSubjectShow({ classSubject, history, teachers = [], auth }: Props) {
+  const { t } = useTranslations();
   const canUpdate = hasPermission(auth.permissions, 'update class subjects');
 
   const [replaceTeacherModal, setReplaceTeacherModal] = useState(false);
@@ -33,6 +35,26 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
 
   const isActive = !classSubject.valid_to;
 
+  const translations = useMemo(() => ({
+    showTitle: t('admin_pages.class_subjects.show_title'),
+    showSubtitle: t('admin_pages.class_subjects.show_subtitle'),
+    back: t('admin_pages.common.back'),
+    replaceTeacher: t('admin_pages.class_subjects.replace_teacher'),
+    updateCoefficient: t('admin_pages.class_subjects.update_coefficient'),
+    terminate: t('admin_pages.class_subjects.terminate'),
+    class: t('admin_pages.class_subjects.class'),
+    subject: t('admin_pages.class_subjects.subject'),
+    teacher: t('admin_pages.class_subjects.teacher'),
+    coefficient: t('admin_pages.class_subjects.coefficient'),
+    status: t('admin_pages.common.status'),
+    active: t('admin_pages.class_subjects.active'),
+    archived: t('admin_pages.class_subjects.archived'),
+    validityPeriod: t('admin_pages.class_subjects.validity_period'),
+    semester: t('admin_pages.class_subjects.semester'),
+    historyTitle: t('admin_pages.class_subjects.history_title'),
+    historySubtitle: t('admin_pages.class_subjects.history_subtitle'),
+  }), [t]);
+
   const levelInfo = useMemo(() =>
     classSubject.class?.level
       ? `${classSubject.class.level.name} (${classSubject.class.level.description})`
@@ -42,23 +64,23 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
 
   return (
     <AuthenticatedLayout
-      title={trans('admin_pages.class_subjects.show_title')}
+      title={translations.showTitle}
       breadcrumb={breadcrumbs.admin.showClassSubject(classSubject)}
     >
       <div className="space-y-6">
         <Section
-          title={trans('admin_pages.class_subjects.show_title')}
-          subtitle={trans('admin_pages.class_subjects.show_subtitle')}
+          title={translations.showTitle}
+          subtitle={translations.showSubtitle}
           actions={
             <ActionGroup
               actions={[
-                { label: trans('admin_pages.common.back'), onClick: handleBack, color: 'secondary', icon: ArrowLeftIcon },
-                ...(canUpdate && isActive ? [{ label: trans('admin_pages.class_subjects.replace_teacher'), onClick: () => setReplaceTeacherModal(true), color: 'primary' as const, icon: UserIcon }] : []),
+                { label: translations.back, onClick: handleBack, color: 'secondary', icon: ArrowLeftIcon },
+                ...(canUpdate && isActive ? [{ label: translations.replaceTeacher, onClick: () => setReplaceTeacherModal(true), color: 'primary' as const, icon: UserIcon }] : []),
               ]}
               dropdownActions={canUpdate && isActive ? [
-                { label: trans('admin_pages.class_subjects.update_coefficient'), onClick: () => setCoefficientModal(true), icon: HashtagIcon, color: 'warning' as const },
+                { label: translations.updateCoefficient, onClick: () => setCoefficientModal(true), icon: HashtagIcon, color: 'warning' as const },
                 'divider',
-                { label: trans('admin_pages.class_subjects.terminate'), onClick: () => setTerminateModal(true), icon: XMarkIcon, color: 'danger' as const },
+                { label: translations.terminate, onClick: () => setTerminateModal(true), icon: XMarkIcon, color: 'danger' as const },
               ] : []}
             />
           }
@@ -66,7 +88,7 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
           <Stat.Group columns={2}>
             <Stat.Item
               icon={AcademicCapIcon}
-              title={trans('admin_pages.class_subjects.class')}
+              title={translations.class}
               value={
                 <div>
                   <div className="text-sm font-semibold text-gray-900">{classSubject.class?.name}</div>
@@ -76,7 +98,7 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
             />
             <Stat.Item
               icon={BookOpenIcon}
-              title={trans('admin_pages.class_subjects.subject')}
+              title={translations.subject}
               value={
                 <div>
                   <span className="text-sm font-semibold text-gray-900">{classSubject.subject?.name}</span>
@@ -86,7 +108,7 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
             />
             <Stat.Item
               icon={UserIcon}
-              title={trans('admin_pages.class_subjects.teacher')}
+              title={translations.teacher}
               value={
                 <div>
                   <div className="text-sm font-semibold text-gray-900">{classSubject.teacher?.name}</div>
@@ -96,15 +118,15 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
             />
             <Stat.Item
               icon={HashtagIcon}
-              title={trans('admin_pages.class_subjects.coefficient')}
+              title={translations.coefficient}
               value={<Badge label={classSubject.coefficient.toString()} type="info" size="sm" />}
             />
             <Stat.Item
               icon={ClockIcon}
-              title={trans('admin_pages.common.status')}
+              title={translations.status}
               value={
                 <Badge
-                  label={isActive ? trans('admin_pages.class_subjects.active') : trans('admin_pages.class_subjects.archived')}
+                  label={isActive ? translations.active : translations.archived}
                   type={isActive ? 'success' : 'gray'}
                   size="sm"
                 />
@@ -116,7 +138,7 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
             <Stat.Group columns={2}>
               <Stat.Item
                 icon={CalendarIcon}
-                title={trans('admin_pages.class_subjects.validity_period')}
+                title={translations.validityPeriod}
                 value={
                   <span className="text-sm text-gray-700">
                     {formatDate(classSubject.valid_from)}
@@ -127,7 +149,7 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
               {classSubject.semester && (
                 <Stat.Item
                   icon={CalendarIcon}
-                  title={trans('admin_pages.class_subjects.semester')}
+                  title={translations.semester}
                   value={<Badge label={`S${classSubject.semester.order_number}`} type="info" size="sm" />}
                 />
               )}
@@ -137,8 +159,8 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
 
         {history.data.length > 0 && (
           <Section
-            title={trans('admin_pages.class_subjects.history_title')}
-            subtitle={trans('admin_pages.class_subjects.history_subtitle')}
+            title={translations.historyTitle}
+            subtitle={translations.historySubtitle}
           >
             <ClassSubjectHistoryList data={history} />
           </Section>

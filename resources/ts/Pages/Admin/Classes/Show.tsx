@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type ClassModel, type Assessment, type Enrollment, type ClassSubject, type PageProps, type PaginationType } from '@/types';
-import { breadcrumbs, trans, hasPermission } from '@/utils';
+import { breadcrumbs, hasPermission } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Section, Badge, ConfirmationModal, Stat } from '@/Components';
 import { EnrollmentList, ClassSubjectList, AssessmentList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
@@ -48,6 +49,7 @@ export default function ClassShow({
   auth,
 }: Props) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { t } = useTranslations();
 
   const canUpdate = hasPermission(auth.permissions, 'update classes');
   const canDelete = hasPermission(auth.permissions, 'delete classes');
@@ -71,6 +73,30 @@ export default function ClassShow({
     ? (statistics.active_students / statistics.max_students) * 100
     : 0;
 
+  const translations = useMemo(() => ({
+    showSubtitle: t('admin_pages.classes.show_subtitle'),
+    back: t('admin_pages.common.back'),
+    edit: t('admin_pages.common.edit'),
+    cannotDeleteHasData: t('admin_pages.classes.cannot_delete_has_data'),
+    delete: t('admin_pages.common.delete'),
+    level: t('admin_pages.classes.level'),
+    academicYear: t('admin_pages.classes.academic_year'),
+    students: t('admin_pages.classes.students'),
+    full: t('admin_pages.classes.full'),
+    subjects: t('admin_pages.classes.subjects'),
+    assessmentsLabel: t('admin_pages.classes.assessments'),
+    enrollmentsSection: t('admin_pages.classes.enrollments_section'),
+    enrollmentsSectionSubtitle: t('admin_pages.classes.enrollments_section_subtitle'),
+    subjectsSection: t('admin_pages.classes.subjects_section'),
+    subjectsSectionSubtitle: t('admin_pages.classes.subjects_section_subtitle'),
+    assessmentsSection: t('admin_pages.classes.assessments_section'),
+    assessmentsSectionSubtitle: t('admin_pages.classes.assessments_section_subtitle'),
+    deleteTitle: t('admin_pages.classes.delete_title'),
+    cancel: t('admin_pages.common.cancel'),
+  }), [t]);
+
+  const deleteMessage = useMemo(() => t('admin_pages.classes.delete_message', { name: classItem.name }), [t, classItem.name]);
+
   return (
     <AuthenticatedLayout
       title={classItem.name || '-'}
@@ -79,15 +105,15 @@ export default function ClassShow({
       <div className="space-y-6">
         <Section
           title={classItem.name || '-'}
-          subtitle={trans('admin_pages.classes.show_subtitle')}
+          subtitle={translations.showSubtitle}
           actions={
             <div className="flex space-x-3">
               <Button size="sm" variant="outline" color="secondary" onClick={handleBack}>
-                {trans('admin_pages.common.back')}
+                {translations.back}
               </Button>
               {canUpdate && (
                 <Button size="sm" variant="solid" color="primary" onClick={handleEdit}>
-                  {trans('admin_pages.common.edit')}
+                  {translations.edit}
                 </Button>
               )}
               {canDelete && (
@@ -97,9 +123,9 @@ export default function ClassShow({
                   color="danger"
                   onClick={() => setIsDeleteModalOpen(true)}
                   disabled={!canBeSafelyDeleted}
-                  title={!canBeSafelyDeleted ? trans('admin_pages.classes.cannot_delete_has_data') : undefined}
+                  title={!canBeSafelyDeleted ? translations.cannotDeleteHasData : undefined}
                 >
-                  {trans('admin_pages.common.delete')}
+                  {translations.delete}
                 </Button>
               )}
             </div>
@@ -108,44 +134,44 @@ export default function ClassShow({
           <Stat.Group columns={4}>
             <Stat.Item
               icon={AcademicCapIcon}
-              title={trans('admin_pages.classes.level')}
+              title={translations.level}
               value={<span className="text-sm text-gray-900">{classItem.level?.name || '-'}</span>}
             />
             <Stat.Item
               icon={CalendarIcon}
-              title={trans('admin_pages.classes.academic_year')}
+              title={translations.academicYear}
               value={<span className="text-sm text-gray-900">{classItem.academic_year?.name || '-'}</span>}
             />
             <Stat.Item
               icon={UserGroupIcon}
-              title={trans('admin_pages.classes.students')}
+              title={translations.students}
               value={
                 <div className="flex items-center space-x-2">
                   <span className="text-sm font-semibold text-gray-900">
                     {statistics.active_students} / {statistics.max_students}
                   </span>
                   {enrollmentPercentage >= 90 && (
-                    <Badge label={trans('admin_pages.classes.full')} type="warning" size="sm" />
+                    <Badge label={translations.full} type="warning" size="sm" />
                   )}
                 </div>
               }
             />
             <Stat.Item
               icon={BookOpenIcon}
-              title={trans('admin_pages.classes.subjects')}
+              title={translations.subjects}
               value={<span className="text-sm font-semibold text-gray-900">{statistics.subjects_count}</span>}
             />
             <Stat.Item
               icon={DocumentTextIcon}
-              title={trans('admin_pages.classes.assessments')}
+              title={translations.assessmentsLabel}
               value={<span className="text-sm font-semibold text-gray-900">{statistics.assessments_count}</span>}
             />
           </Stat.Group>
         </Section>
 
         <Section
-          title={trans('admin_pages.classes.enrollments_section')}
-          subtitle={trans('admin_pages.classes.enrollments_section_subtitle')}
+          title={translations.enrollmentsSection}
+          subtitle={translations.enrollmentsSectionSubtitle}
         >
           <EnrollmentList
             data={enrollments}
@@ -157,8 +183,8 @@ export default function ClassShow({
         </Section>
 
         <Section
-          title={trans('admin_pages.classes.subjects_section')}
-          subtitle={trans('admin_pages.classes.subjects_section_subtitle')}
+          title={translations.subjectsSection}
+          subtitle={translations.subjectsSectionSubtitle}
         >
           <ClassSubjectList
             data={classSubjects}
@@ -169,8 +195,8 @@ export default function ClassShow({
 
         {assessments && (
           <Section
-            title={trans('admin_pages.classes.assessments_section')}
-            subtitle={trans('admin_pages.classes.assessments_section_subtitle')}
+            title={translations.assessmentsSection}
+            subtitle={translations.assessmentsSectionSubtitle}
           >
             <AssessmentList
               data={assessments}
@@ -189,10 +215,10 @@ export default function ClassShow({
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title={trans('admin_pages.classes.delete_title')}
-        message={trans('admin_pages.classes.delete_message', { name: classItem.name })}
-        confirmText={trans('admin_pages.common.delete')}
-        cancelText={trans('admin_pages.common.cancel')}
+        title={translations.deleteTitle}
+        message={deleteMessage}
+        confirmText={translations.delete}
+        cancelText={translations.cancel}
         type="danger"
       />
     </AuthenticatedLayout>

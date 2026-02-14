@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type DataTableConfig, type PaginationType } from '@/types/datatable';
 import { CheckCircleIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 import { type AcademicYear, type PageProps } from '@/types';
-import { breadcrumbs, trans, formatDate, hasPermission } from '@/utils';
+import { breadcrumbs, formatDate, hasPermission } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Badge, Button, ConfirmationModal, DataTable, Section } from '@/Components';
 import { route } from 'ziggy-js';
 
@@ -19,6 +20,8 @@ interface Filters {
 }
 
 export default function AcademicYearArchives({ academicYears, auth }: Props) {
+  const { t } = useTranslations();
+
   const [setCurrentModal, setSetCurrentModal] = useState<{ isOpen: boolean; year: AcademicYear | null }>({
     isOpen: false,
     year: null,
@@ -50,17 +53,17 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
     }
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm(trans('admin_pages.academic_years.confirm_delete'))) {
+  const handleDelete = useCallback((id: number) => {
+    if (confirm(t('admin_pages.academic_years.confirm_delete'))) {
       router.delete(route('admin.academic-years.destroy', id));
     }
-  };
+  }, [t]);
 
-  const dataTableConfig: DataTableConfig<AcademicYear> = {
+  const dataTableConfig: DataTableConfig<AcademicYear> = useMemo(() => ({
     columns: [
       {
         key: 'name',
-        label: trans('admin_pages.academic_years.name'),
+        label: t('admin_pages.academic_years.name'),
         render: (year) => (
           <div className="flex items-center space-x-3">
             {year.is_current ? (
@@ -71,7 +74,7 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
             <div>
               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{year.name}</div>
               {year.is_current && (
-                <Badge label={trans('admin_pages.academic_years.current')} type="success" size="sm" />
+                <Badge label={t('admin_pages.academic_years.current')} type="success" size="sm" />
               )}
             </div>
           </div>
@@ -80,7 +83,7 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
       },
       {
         key: 'start_date',
-        label: trans('admin_pages.academic_years.start_date'),
+        label: t('admin_pages.academic_years.start_date'),
         render: (year) => (
           <span className="text-sm text-gray-600 dark:text-gray-400">
             {formatDate(year.start_date)}
@@ -90,7 +93,7 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
       },
       {
         key: 'end_date',
-        label: trans('admin_pages.academic_years.end_date'),
+        label: t('admin_pages.academic_years.end_date'),
         render: (year) => (
           <span className="text-sm text-gray-600 dark:text-gray-400">
             {formatDate(year.end_date)}
@@ -100,24 +103,24 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
       },
       {
         key: 'status',
-        label: trans('common.status'),
+        label: t('common.status'),
         render: (year) => {
           const endDate = new Date(year.end_date);
           const now = new Date();
           const isArchived = !year.is_current && endDate < now;
 
           return isArchived ? (
-            <Badge label={trans('admin_pages.academic_years.archived')} type="warning" size="sm" />
+            <Badge label={t('admin_pages.academic_years.archived')} type="warning" size="sm" />
           ) : year.is_current ? (
-            <Badge label={trans('admin_pages.academic_years.current')} type="success" size="sm" />
+            <Badge label={t('admin_pages.academic_years.current')} type="success" size="sm" />
           ) : (
-            <Badge label={trans('admin_pages.academic_years.future')} type="info" size="sm" />
+            <Badge label={t('admin_pages.academic_years.future')} type="info" size="sm" />
           );
         },
       },
       {
         key: 'classes_count',
-        label: trans('admin_pages.academic_years.classes_count'),
+        label: t('admin_pages.academic_years.classes_count'),
         render: (year) => (
           <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
             {year.classes_count || 0}
@@ -127,7 +130,7 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
       },
       {
         key: 'semesters_count',
-        label: trans('admin_pages.academic_years.semesters_count'),
+        label: t('admin_pages.academic_years.semesters_count'),
         render: (year) => (
           <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
             {year.semesters_count || 0}
@@ -137,11 +140,11 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
       },
       {
         key: 'actions',
-        label: trans('common.actions'),
+        label: t('common.actions'),
         render: (year) => (
           <div className="flex space-x-2">
             <Button onClick={() => handleView(year)} color="secondary" size="sm" variant="outline">
-              {trans('common.view')}
+              {t('common.view')}
             </Button>
             {!year.is_current && canUpdate && (
               <Button
@@ -150,12 +153,12 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
                 size="sm"
                 variant="outline"
               >
-                {trans('admin_pages.academic_years.activate_year')}
+                {t('admin_pages.academic_years.activate_year')}
               </Button>
             )}
             {canDelete && (year.classes_count === 0 && year.semesters_count === 0) && (
               <Button onClick={() => handleDelete(year.id)} color="danger" size="sm" variant="outline">
-                {trans('common.delete')}
+                {t('common.delete')}
               </Button>
             )}
           </div>
@@ -163,16 +166,24 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
       },
     ],
     emptyState: {
-      title: trans('admin_pages.academic_years.no_years_found'),
-      subtitle: trans('admin_pages.academic_years.no_years_description'),
+      title: t('admin_pages.academic_years.no_years_found'),
+      subtitle: t('admin_pages.academic_years.no_years_description'),
     },
-  };
+  }), [t, canUpdate, canDelete, handleDelete]);
+
+  const translations = useMemo(() => ({
+    archivesTitle: t('admin_pages.academic_years.archives_title'),
+    archivesSubtitle: t('admin_pages.academic_years.archives_subtitle'),
+    activateYearModalTitle: t('admin_pages.academic_years.activate_year_modal_title'),
+    activateAndSwitch: t('admin_pages.academic_years.activate_and_switch'),
+    cancel: t('common.cancel'),
+  }), [t]);
 
   return (
     <AuthenticatedLayout breadcrumb={breadcrumbs.adminAcademicYears()}>
       <Section
-        title={trans('admin_pages.academic_years.archives_title')}
-        subtitle={trans('admin_pages.academic_years.archives_subtitle')}
+        title={translations.archivesTitle}
+        subtitle={translations.archivesSubtitle}
       >
         <DataTable
           config={dataTableConfig}
@@ -182,10 +193,10 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
 
       <ConfirmationModal
         isOpen={setCurrentModal.isOpen}
-        title={trans('admin_pages.academic_years.activate_year_modal_title')}
-        message={trans('admin_pages.academic_years.activate_year_modal_message', { name: setCurrentModal.year?.name || '' })}
-        confirmText={trans('admin_pages.academic_years.activate_and_switch')}
-        cancelText={trans('common.cancel')}
+        title={translations.activateYearModalTitle}
+        message={t('admin_pages.academic_years.activate_year_modal_message', { name: setCurrentModal.year?.name || '' })}
+        confirmText={translations.activateAndSwitch}
+        cancelText={translations.cancel}
         onConfirm={confirmSetCurrent}
         onClose={() => setSetCurrentModal({ isOpen: false, year: null })}
       />

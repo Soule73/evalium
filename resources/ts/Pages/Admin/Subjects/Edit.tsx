@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Subject, type Level } from '@/types';
-import { breadcrumbs, trans } from '@/utils';
+import { breadcrumbs } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { SubjectForm } from '@/Components/features/subjects/SubjectForm';
 import { route } from 'ziggy-js';
 
@@ -11,18 +13,25 @@ interface Props {
 }
 
 export default function SubjectEdit({ subject, levels }: Props) {
+  const { t } = useTranslations();
+
   const handleCancel = () => {
     router.visit(route('admin.subjects.show', subject.id));
   };
 
+  const translations = useMemo(() => ({
+    editTitle: t('admin_pages.subjects.edit_title'),
+    editSubtitle: t('admin_pages.subjects.edit_subtitle'),
+  }), [t]);
+
   return (
     <AuthenticatedLayout
-      title={trans('admin_pages.subjects.edit_title')}
+      title={translations.editTitle}
       breadcrumb={breadcrumbs.admin.editSubject(subject)}
     >
       <SubjectForm
-        title={trans('admin_pages.subjects.edit_title')}
-        subtitle={trans('admin_pages.subjects.edit_subtitle')}
+        title={translations.editTitle}
+        subtitle={translations.editSubtitle}
         subject={subject} levels={levels} onCancel={handleCancel} />
     </AuthenticatedLayout>
   );

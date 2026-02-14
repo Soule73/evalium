@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { getRoleLabel, trans } from '@/utils';
+import { getRoleLabel } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Modal, Select } from '@/Components';
 import { Input } from '@examena/ui';
 
@@ -11,6 +13,8 @@ interface Props {
 }
 
 export default function CreateUser({ roles, isOpen, onClose }: Props) {
+    const { t } = useTranslations();
+
     const { data, setData, post, processing, errors } = useForm<{
         name: string;
         email: string;
@@ -39,8 +43,22 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
         });
     };
 
-    const searchPlaceholder = trans('components.select.search_placeholder');
-    const noOptionFound = trans('components.select.no_option_found');
+    const translations = useMemo(() => ({
+        searchPlaceholder: t('components.select.search_placeholder'),
+        noOptionFound: t('components.select.no_option_found'),
+        createTitle: t('admin_pages.users.create_title'),
+        createSubtitle: t('admin_pages.users.create_subtitle'),
+        nameLabel: t('admin_pages.users.name_label'),
+        namePlaceholder: t('admin_pages.users.name_placeholder'),
+        emailLabel: t('admin_pages.users.email_label'),
+        emailPlaceholder: t('admin_pages.users.email_placeholder'),
+        role: t('admin_pages.users.role'),
+        selectRole: t('admin_pages.users.select_role'),
+        passwordInfo: t('admin_pages.users.password_info'),
+        cancel: t('admin_pages.common.cancel'),
+        loading: t('admin_pages.common.loading'),
+        createButton: t('admin_pages.users.create_button'),
+    }), [t]);
 
 
     return (
@@ -48,39 +66,39 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
             <div className="p-6">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold text-gray-900">
-                        {trans('admin_pages.users.create_title')}
+                        {translations.createTitle}
                     </h1>
                     <p className="text-gray-600 mt-1">
-                        {trans('admin_pages.users.create_subtitle')}
+                        {translations.createSubtitle}
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <Input
-                        label={trans('admin_pages.users.name_label')}
+                        label={translations.nameLabel}
                         type="text"
                         value={data.name}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('name', e.target.value)}
-                        placeholder={trans('admin_pages.users.name_placeholder')}
+                        placeholder={translations.namePlaceholder}
                         required
                         error={errors.name}
                     />
 
                     <Input
-                        label={trans('admin_pages.users.email_label')}
+                        label={translations.emailLabel}
                         type="email"
                         value={data.email}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('email', e.target.value)}
-                        placeholder={trans('admin_pages.users.email_placeholder')}
+                        placeholder={translations.emailPlaceholder}
                         required
                         error={errors.email}
                     />
 
                     <Select
 
-                        label={trans('admin_pages.users.role')}
-                        noOptionFound={noOptionFound}
-                        searchPlaceholder={searchPlaceholder}
+                        label={translations.role}
+                        noOptionFound={translations.noOptionFound}
+                        searchPlaceholder={translations.searchPlaceholder}
                         options={roles.map(role => ({
                             value: role,
                             label: getRoleLabel(role)
@@ -89,7 +107,7 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
                         onChange={(value) => setData('role', String(value))}
                         error={errors.role}
                         searchable={false}
-                        placeholder={trans('admin_pages.users.select_role')}
+                        placeholder={translations.selectRole}
                     />
 
                     <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
@@ -101,7 +119,7 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
                             </div>
                             <div className="ml-3">
                                 <p className="text-sm text-blue-700">
-                                    {trans('admin_pages.users.password_info')}
+                                    {translations.passwordInfo}
                                 </p>
                             </div>
                         </div>
@@ -114,7 +132,7 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
                             variant='outline'
                             onClick={handleCancel}
                         >
-                            {trans('admin_pages.common.cancel')}
+                            {translations.cancel}
                         </Button>
                         <Button
                             type="submit"
@@ -123,9 +141,9 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
                             disabled={processing}
                         >
                             {processing ? (
-                                trans('admin_pages.common.loading')
+                                translations.loading
                             ) : (
-                                trans('admin_pages.users.create_button')
+                                translations.createButton
                             )}
                         </Button>
                     </div>

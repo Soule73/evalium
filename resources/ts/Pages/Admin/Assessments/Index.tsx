@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Assessment, type PageProps, type PaginationType } from '@/types';
-import { breadcrumbs, trans } from '@/utils';
+import { breadcrumbs } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Section } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';
 
@@ -29,15 +31,22 @@ interface Props extends PageProps {
 export default function AdminAssessmentsIndex({
   assessments,
 }: Props) {
+  const { t } = useTranslations();
+
+  const translations = useMemo(() => ({
+    title: t('admin_pages.assessments.title'),
+    subtitle: t('admin_pages.assessments.subtitle'),
+  }), [t]);
+
   return (
     <AuthenticatedLayout
-      title={trans('admin_pages.assessments.title')}
+      title={translations.title}
       breadcrumb={breadcrumbs.admin.assessments()}
     >
       <div className="space-y-6">
         <Section
-          title={trans('admin_pages.assessments.title')}
-          subtitle={trans('admin_pages.assessments.subtitle')}
+          title={translations.title}
+          subtitle={translations.subtitle}
         >
           <AssessmentList
             data={assessments}

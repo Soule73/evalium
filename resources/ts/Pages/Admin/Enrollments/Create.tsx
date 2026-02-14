@@ -3,7 +3,8 @@ import { router } from '@inertiajs/react';
 import { type FormDataConvertible } from '@inertiajs/core';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type EnrollmentFormData, type ClassModel, type User } from '@/types';
-import { breadcrumbs, trans } from '@/utils';
+import { breadcrumbs } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Section, Select } from '@/Components';
 import { route } from 'ziggy-js';
 
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function EnrollmentCreate({ classes, students }: Props) {
+  const { t } = useTranslations();
   const [formData, setFormData] = useState<EnrollmentFormData>({
     class_id: 0,
     student_id: 0,
@@ -50,36 +52,48 @@ export default function EnrollmentCreate({ classes, students }: Props) {
     ? (selectedClass.max_students - (selectedClass.active_enrollments_count || 0))
     : 0;
 
+  const translations = useMemo(() => ({
+    createTitle: t('admin_pages.enrollments.create_title'),
+    createSubtitle: t('admin_pages.enrollments.create_subtitle'),
+    studentLabel: t('admin_pages.enrollments.student'),
+    classLabel: t('admin_pages.enrollments.class'),
+    availableSlots: t('admin_pages.enrollments.available_slots'),
+    classFull: t('admin_pages.enrollments.class_full'),
+    cancel: t('admin_pages.common.cancel'),
+    creating: t('admin_pages.enrollments.creating'),
+    createButton: t('admin_pages.enrollments.create_button'),
+  }), [t]);
+
   const studentsItem = useMemo(() => [
-    { value: 0, label: trans('admin_pages.enrollments.select_student') },
+    { value: 0, label: t('admin_pages.enrollments.select_student') },
     ...students.map((student) => ({
       value: student.id,
       label: `${student.name} (${student.email})`
     }))
-  ], [students]);
+  ], [t, students]);
 
   const classesItem = useMemo(() => [
-    { value: 0, label: trans('admin_pages.enrollments.select_class') },
+    { value: 0, label: t('admin_pages.enrollments.select_class') },
     ...classes.map((classItem) => ({
       value: classItem.id,
       label: `${classItem.name} - ${classItem.level?.name}(${(classItem.level?.description || '')?.substring(0, 30)})`
     }))
-  ], [classes]);
+  ], [t, classes]);
 
 
   return (
     <AuthenticatedLayout
-      title={trans('admin_pages.enrollments.create_title')}
+      title={translations.createTitle}
       breadcrumb={breadcrumbs.admin.createEnrollment()}
     >
       <Section
-        title={trans('admin_pages.enrollments.create_title')}
-        subtitle={trans('admin_pages.enrollments.create_subtitle')}
+        title={translations.createTitle}
+        subtitle={translations.createSubtitle}
       >
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <Select
-              label={trans('admin_pages.enrollments.student')}
+              label={translations.studentLabel}
               name="student_id"
               value={formData.student_id}
               onChange={(value) => handleChange('student_id', value as number)}
@@ -90,7 +104,7 @@ export default function EnrollmentCreate({ classes, students }: Props) {
             />
 
             <Select
-              label={trans('admin_pages.enrollments.class')}
+              label={translations.classLabel}
               name="class_id"
               value={formData.class_id}
               onChange={(value) => handleChange('class_id', value as number)}
@@ -104,7 +118,7 @@ export default function EnrollmentCreate({ classes, students }: Props) {
               <div className={`p-4 rounded-lg ${availableSlots > 0 ? 'bg-blue-50 border border-blue-200' : 'bg-red-50 border border-red-200'}`}>
                 <div className="text-sm">
                   <span className="font-medium">
-                    {trans('admin_pages.enrollments.available_slots')}:
+                    {translations.availableSlots}:
                   </span>
                   <span className={`ml-2 ${availableSlots > 0 ? 'text-blue-900' : 'text-red-900'}`}>
                     {availableSlots} / {selectedClass.max_students}
@@ -112,7 +126,7 @@ export default function EnrollmentCreate({ classes, students }: Props) {
                 </div>
                 {availableSlots === 0 && (
                   <div className="mt-2 text-sm text-red-700">
-                    {trans('admin_pages.enrollments.class_full')}
+                    {translations.classFull}
                   </div>
                 )}
               </div>
@@ -121,7 +135,7 @@ export default function EnrollmentCreate({ classes, students }: Props) {
 
           <div className="flex justify-end space-x-3 pt-6">
             <Button type="button" variant="outline" color="secondary" onClick={handleCancel} disabled={isSubmitting}>
-              {trans('admin_pages.common.cancel')}
+              {translations.cancel}
             </Button>
             <Button
               type="submit"
@@ -129,7 +143,7 @@ export default function EnrollmentCreate({ classes, students }: Props) {
               color="primary"
               disabled={isSubmitting || availableSlots === 0}
             >
-              {isSubmitting ? trans('admin_pages.enrollments.creating') : trans('admin_pages.enrollments.create_button')}
+              {isSubmitting ? translations.creating : translations.createButton}
             </Button>
           </div>
         </form>

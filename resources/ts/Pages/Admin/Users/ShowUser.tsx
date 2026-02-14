@@ -1,12 +1,12 @@
+import { useMemo, useState } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { formatDate, getRoleLabel } from '@/utils';
 import { type User } from '@/types';
-import { useState } from 'react';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import EditUser from './Edit';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/16/solid';
-import { trans } from '@/utils';
 import { ConfirmationModal, Section, Button, TextEntry } from '@/Components';
 import { Toggle } from '@examena/ui';
 import { type BreadcrumbItem } from '@/Components/layout/Breadcrumb';
@@ -21,6 +21,8 @@ interface Props {
 }
 
 export default function ShowUser({ user, children, canDelete, canToggleStatus, breadcrumb }: Props) {
+    const { t } = useTranslations();
+
     const [isShowUpdateModal, setIsShowUpdateModal] = useState(false);
 
     const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
@@ -64,24 +66,46 @@ export default function ShowUser({ user, children, canDelete, canToggleStatus, b
 
     const userRole = (user.roles?.length ?? 0) > 0 ? user.roles![0].name : null;
 
+    const translations = useMemo(() => ({
+        deleteConfirmTitle: t('admin_pages.users.delete_confirm_title'),
+        delete: t('admin_pages.common.delete'),
+        cancel: t('admin_pages.common.cancel'),
+        deleteIrreversible: t('admin_pages.users.delete_irreversible'),
+        userProfile: t('admin_pages.users.user_profile'),
+        userProfileSubtitle: t('admin_pages.users.user_profile_subtitle'),
+        back: t('admin_pages.users.back'),
+        modify: t('admin_pages.users.modify'),
+        fullName: t('admin_pages.users.full_name'),
+        emailAddress: t('admin_pages.users.email_address'),
+        role: t('admin_pages.users.role'),
+        accountStatus: t('admin_pages.users.account_status'),
+        activeStatus: t('admin_pages.users.active_status'),
+        inactiveStatus: t('admin_pages.users.inactive_status'),
+        memberSince: t('admin_pages.users.member_since'),
+        lastModified: t('admin_pages.users.last_modified'),
+    }), [t]);
+
+    const userTitle = useMemo(() => t('admin_pages.users.user_title', { name: user.name }), [t, user.name]);
+    const deleteConfirmMessage = useMemo(() => t('admin_pages.users.delete_confirm_message', { name: user?.name }), [t, user?.name]);
+
     return (
-        <AuthenticatedLayout title={trans('admin_pages.users.user_title', { name: user.name })}
+        <AuthenticatedLayout title={userTitle}
             breadcrumb={breadcrumb}
         >
             <ConfirmationModal
                 isOpen={isShowDeleteModal}
                 isCloseableInside={true}
                 type='danger'
-                title={trans('admin_pages.users.delete_confirm_title')}
-                message={trans('admin_pages.users.delete_confirm_message', { name: user?.name })}
+                title={translations.deleteConfirmTitle}
+                message={deleteConfirmMessage}
                 icon={ExclamationTriangleIcon}
-                confirmText={trans('admin_pages.common.delete')}
-                cancelText={trans('admin_pages.common.cancel')}
+                confirmText={translations.delete}
+                cancelText={translations.cancel}
                 onConfirm={() => onConfirmDeleteUser()}
                 onClose={() => setIsShowDeleteModal(false)}
                 loading={deleteInProgress}
             >
-                <p className='text-sm text-gray-500 mb-6'> {trans('admin_pages.users.delete_irreversible')}</p>
+                <p className='text-sm text-gray-500 mb-6'> {translations.deleteIrreversible}</p>
             </ConfirmationModal>
             {user && (
                 <EditUser
@@ -94,7 +118,7 @@ export default function ShowUser({ user, children, canDelete, canToggleStatus, b
                     userRole={userRole || null}
                 />
             )}
-            <Section title={trans('admin_pages.users.user_profile')} subtitle={trans('admin_pages.users.user_profile_subtitle')}
+            <Section title={translations.userProfile} subtitle={translations.userProfileSubtitle}
                 actions={
                     <div className="flex space-x-3">
                         <Button
@@ -102,20 +126,20 @@ export default function ShowUser({ user, children, canDelete, canToggleStatus, b
                             variant='outline'
                             size='sm'
                             color="secondary">
-                            {trans('admin_pages.users.back')}
+                            {translations.back}
                         </Button>
                         <Button
                             onClick={handleEdit}
                             size='sm'
                             color="primary">
-                            {trans('admin_pages.users.modify')}
+                            {translations.modify}
                         </Button>
                         {canDelete && (
                             <Button
                                 onClick={handleDelete}
                                 size='sm'
                                 color="danger">
-                                {trans('admin_pages.common.delete')}
+                                {translations.delete}
                             </Button>
                         )}
                     </div>
@@ -124,47 +148,47 @@ export default function ShowUser({ user, children, canDelete, canToggleStatus, b
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     <TextEntry
-                        label={trans('admin_pages.users.full_name')}
+                        label={translations.fullName}
                         value={user.name}
                     />
 
                     <TextEntry
-                        label={trans('admin_pages.users.email_address')}
+                        label={translations.emailAddress}
                         value={user.email}
                     />
 
                     <TextEntry
-                        label={trans('admin_pages.users.role')}
+                        label={translations.role}
                         value={userRole ? getRoleLabel(userRole) : '-'}
                     />
 
                     {canToggleStatus ? (
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-medium text-gray-700">
-                                {trans('admin_pages.users.account_status')}
+                                {translations.accountStatus}
                             </label>
                             <Toggle
                                 checked={user.is_active}
                                 onChange={handleToggleStatus}
-                                activeLabel={trans('admin_pages.users.active_status')}
-                                inactiveLabel={trans('admin_pages.users.inactive_status')}
+                                activeLabel={translations.activeStatus}
+                                inactiveLabel={translations.inactiveStatus}
                                 showLabel={true}
                             />
                         </div>
                     ) : (
                         <TextEntry
-                            label={trans('admin_pages.users.account_status')}
-                            value={user.is_active ? trans('admin_pages.users.active_status') : trans('admin_pages.users.inactive_status')}
+                            label={translations.accountStatus}
+                            value={user.is_active ? translations.activeStatus : translations.inactiveStatus}
                         />
                     )}
 
                     <TextEntry
-                        label={trans('admin_pages.users.member_since')}
+                        label={translations.memberSince}
                         value={formatDate(user.created_at)}
                     />
 
                     <TextEntry
-                        label={trans('admin_pages.users.last_modified')}
+                        label={translations.lastModified}
                         value={formatDate(user.updated_at)}
                     />
                 </div>

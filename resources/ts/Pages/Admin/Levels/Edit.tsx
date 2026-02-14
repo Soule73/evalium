@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { breadcrumbs, trans } from '@/utils';
+import { breadcrumbs } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { type Level } from '@/types';
 import { LevelForm } from '@/Components/features/levels';
 
@@ -8,18 +10,26 @@ interface Props {
 }
 
 export default function EditLevel({ level }: Props) {
+    const { t } = useTranslations();
+
+    const translations = useMemo(() => ({
+        edit: t('admin_pages.levels.edit'),
+        editTitle: t('admin_pages.levels.edit_title'),
+        editSubtitle: t('admin_pages.levels.edit_subtitle'),
+    }), [t]);
+
     const handleCancel = () => {
         window.history.back();
     };
 
     return (
         <AuthenticatedLayout
-            title={trans('admin_pages.levels.edit')}
+            title={translations.edit}
             breadcrumb={breadcrumbs.levelEdit(level.name)}
         >
             <LevelForm
-                title={trans('admin_pages.levels.edit_title')}
-                subtitle={trans('admin_pages.levels.edit_subtitle')}
+                title={translations.editTitle}
+                subtitle={translations.editSubtitle}
                 level={level}
                 onCancel={handleCancel}
             />

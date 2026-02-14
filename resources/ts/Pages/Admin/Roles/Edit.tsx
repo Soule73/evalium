@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
-import { breadcrumbs, trans } from '@/utils';
+import { breadcrumbs } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { type Role, type GroupedPermissions } from '@/types/role';
 import { PermissionSelector } from '@/Components';
 import { Section, Badge, Button } from '@examena/ui';
@@ -13,6 +14,8 @@ interface Props {
 }
 
 export default function EditRole({ role, groupedPermissions }: Props) {
+    const { t } = useTranslations();
+
     const allPermissionIds = Object.values(groupedPermissions)
         .flat()
         .map(p => p.id);
@@ -48,15 +51,27 @@ export default function EditRole({ role, groupedPermissions }: Props) {
         );
     };
 
+    const translations = useMemo(() => ({
+        configurePermissions: t('admin_pages.roles.configure_permissions'),
+        configureSubtitle: t('admin_pages.roles.configure_subtitle'),
+        cancel: t('common.cancel'),
+        saving: t('admin_pages.roles.saving'),
+        savePermissions: t('admin_pages.roles.save_permissions'),
+        systemRoleNotice: t('admin_pages.roles.system_role_notice'),
+    }), [t]);
+
+    const configureTitleTranslation = useMemo(() => {
+        return t('admin_pages.roles.configure_title', { role: role.name });
+    }, [t, role.name]);
     return (
         <AuthenticatedLayout
-            title={trans('admin_pages.roles.configure_permissions')}
+            title={translations.configurePermissions}
             breadcrumb={breadcrumbs.roleEdit(role.name)}
         >
             <form onSubmit={handleSync}>
                 <Section
-                    title={trans('admin_pages.roles.configure_title', { role: role.name })}
-                    subtitle={trans('admin_pages.roles.configure_subtitle')}
+                    title={configureTitleTranslation}
+                    subtitle={translations.configureSubtitle}
                     actions={
                         <div className="flex gap-3">
                             <Button
@@ -66,7 +81,7 @@ export default function EditRole({ role, groupedPermissions }: Props) {
                                 variant="outline"
                                 disabled={isSubmitting}
                             >
-                                {trans('common.cancel')}
+                                {translations.cancel}
                             </Button>
                             <Button
                                 type="submit"
@@ -75,8 +90,8 @@ export default function EditRole({ role, groupedPermissions }: Props) {
                                 data-e2e="permission-save-button"
                             >
                                 {isSubmitting
-                                    ? trans('admin_pages.roles.saving')
-                                    : trans('admin_pages.roles.save_permissions')}
+                                    ? translations.saving
+                                    : translations.savePermissions}
                             </Button>
                         </div>
                     }
@@ -85,7 +100,7 @@ export default function EditRole({ role, groupedPermissions }: Props) {
                         <div className="flex items-center gap-2">
                             <Badge label={role.name} type="info" />
                             <span className="text-sm text-blue-800">
-                                {trans('admin_pages.roles.system_role_notice')}
+                                {translations.systemRoleNotice}
                             </span>
                         </div>
                     </div>

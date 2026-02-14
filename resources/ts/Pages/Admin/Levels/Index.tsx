@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type PaginationType } from '@/types/datatable';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import { breadcrumbs, trans } from '@/utils';
+import { breadcrumbs } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, ConfirmationModal, Section } from '@/Components';
 import { useListLevels } from '@/hooks';
 import { type Level } from '@/types';
@@ -12,6 +14,8 @@ interface Props {
 }
 
 export default function LevelIndex({ levels }: Props) {
+    const { t } = useTranslations();
+
     const {
         canCreateLevels,
         canUpdateLevels,
@@ -23,19 +27,33 @@ export default function LevelIndex({ levels }: Props) {
         handleDelete,
     } = useListLevels();
 
+    const translations = useMemo(() => ({
+        title: t('admin_pages.levels.title'),
+        subtitle: t('admin_pages.levels.subtitle'),
+        create: t('admin_pages.levels.create'),
+        deleteTitle: t('admin_pages.levels.delete_title'),
+        delete: t('admin_pages.common.delete'),
+        cancel: t('admin_pages.common.cancel'),
+    }), [t]);
+
+    const deleteMessageTranslation = useMemo(() => {
+        if (!deleteModal.data) return '';
+        return t('admin_pages.levels.delete_message', { name: deleteModal.data.name });
+    }, [t, deleteModal.data]);
+
     return (
         <AuthenticatedLayout
-            title={trans('admin_pages.levels.title')}
+            title={translations.title}
             breadcrumb={breadcrumbs.levels()}
         >
             <Section
-                title={trans('admin_pages.levels.title')}
-                subtitle={trans('admin_pages.levels.subtitle')}
+                title={translations.title}
+                subtitle={translations.subtitle}
                 actions={
                     canCreateLevels && (
                         <Button onClick={handleCreate} size='sm'>
                             <PlusIcon className="w-5 h-5 mr-2" />
-                            {trans('admin_pages.levels.create')}
+                            {translations.create}
                         </Button>
                     )
                 }
@@ -58,13 +76,10 @@ export default function LevelIndex({ levels }: Props) {
                 isOpen={deleteModal.isOpen}
                 onClose={deleteModal.closeModal}
                 onConfirm={() => deleteModal.data && handleDelete(deleteModal.data.id)}
-                title={trans('admin_pages.levels.delete_title')}
-                message={trans(
-                    'admin_pages.levels.delete_message',
-                    { name: deleteModal.data?.name || '' }
-                )}
-                confirmText={trans('admin_pages.common.delete')}
-                cancelText={trans('admin_pages.common.cancel')}
+                title={translations.deleteTitle}
+                message={deleteMessageTranslation}
+                confirmText={translations.delete}
+                cancelText={translations.cancel}
                 type="danger"
             />
         </AuthenticatedLayout>
