@@ -19,11 +19,5 @@ export function useAssessmentFormatters() {
     return t('formatters.score_format', { score: score || 0, total: totalPoints });
   }, [t]);
 
-  const getCorrectionStatus = useCallback((calculatedScore: number): string => {
-    return calculatedScore > 0
-      ? t('formatters.correction_in_progress')
-      : t('formatters.not_graded');
-  }, [t]);
-
-  return { formatAssessmentScore, getCorrectionStatus };
+  return { formatAssessmentScore };
 }

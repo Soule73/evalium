@@ -1,4 +1,4 @@
-export { navRoutes } from './breadcrumbs';
+export { navRoutes } from './navRoutes';
 export {
     hasPermission,
     hasAllPermissions,
