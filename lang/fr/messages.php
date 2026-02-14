@@ -146,7 +146,7 @@ return [
     'subject_name' => 'nom de la matière',
     'subject_code' => 'code de la matière',
     'teacher' => 'enseignant',
-    'student' => 'étudiant',
+    'student' => 'Étudiant',
     'scores' => 'notes',
     'score' => 'note',
     'question' => 'question',
