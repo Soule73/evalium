@@ -3,7 +3,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { type User, type PageProps } from '@/types';
 import { hasPermission } from '@/utils';
 import { navRoutes } from '@/utils';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { NavIcon } from './NavIcon';
 import { RoleBadge } from './RoleBadge';
 import { UserAvatar } from './UserAvatar';
@@ -24,6 +24,7 @@ interface NavItem {
 
 export const Sidebar = ({ currentPath, user }: SidebarProps) => {
     const { auth } = usePage<PageProps>().props;
+    const { t } = useTranslations();
 
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -83,13 +84,13 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
 
     const navItems: NavItem[] = [];
 
-    navItems.push({ name: trans('sidebar.navigation.dashboard'), href: navRoutes.dashboard(), icon: 'dashboard' });
+    navItems.push({ name: t('sidebar.navigation.dashboard'), href: navRoutes.dashboard(), icon: 'dashboard' });
 
     // Student Navigation (MCD Architecture)
     if (isStudent) {
         navItems.push(
-            { name: trans('sidebar.navigation.my_assessments'), href: navRoutes.studentAssessments(), icon: 'assessments' },
-            { name: trans('sidebar.navigation.my_enrollment'), href: navRoutes.studentEnrollment(), icon: 'enrollment' }
+            { name: t('sidebar.navigation.my_assessments'), href: navRoutes.studentAssessments(), icon: 'assessments' },
+            { name: t('sidebar.navigation.my_enrollment'), href: navRoutes.studentEnrollment(), icon: 'enrollment' }
         );
     }
 
@@ -97,9 +98,9 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
     const isTeacher = userRole === 'teacher';
     if (isTeacher) {
         navItems.push(
-            { name: trans('sidebar.navigation.assessments'), href: navRoutes.teacherAssessments(), icon: 'assessments' },
-            { name: trans('sidebar.navigation.my_classes'), href: navRoutes.teacherClasses(), icon: 'classes' },
-            { name: trans('sidebar.navigation.my_subjects'), href: navRoutes.teacherSubjects(), icon: 'subjects' }
+            { name: t('sidebar.navigation.assessments'), href: navRoutes.teacherAssessments(), icon: 'assessments' },
+            { name: t('sidebar.navigation.my_classes'), href: navRoutes.teacherClasses(), icon: 'classes' },
+            { name: t('sidebar.navigation.my_subjects'), href: navRoutes.teacherSubjects(), icon: 'subjects' }
         );
     }
 
@@ -107,24 +108,24 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
     const isAdmin = userRole === 'admin' || userRole === 'super_admin';
     if (isAdmin) {
         navItems.push(
-            // { name: trans('sidebar.navigation.academic_years'), href: route('admin.academic-years.index'), icon: 'academic-years' },
-            { name: trans('sidebar.navigation.assessments'), href: navRoutes.adminAssessments(), icon: 'assessments' },
-            { name: trans('sidebar.navigation.subjects'), href: route('admin.subjects.index'), icon: 'subjects' },
-            { name: trans('sidebar.navigation.classes'), href: route('admin.classes.index'), icon: 'classes' },
-            { name: trans('sidebar.navigation.enrollments'), href: route('admin.enrollments.index'), icon: 'enrollment' },
-            { name: trans('sidebar.navigation.class_subjects'), href: route('admin.class-subjects.index'), icon: 'class-subjects' }
+            // { name: t('sidebar.navigation.academic_years'), href: route('admin.academic-years.index'), icon: 'academic-years' },
+            { name: t('sidebar.navigation.assessments'), href: navRoutes.adminAssessments(), icon: 'assessments' },
+            { name: t('sidebar.navigation.subjects'), href: route('admin.subjects.index'), icon: 'subjects' },
+            { name: t('sidebar.navigation.classes'), href: route('admin.classes.index'), icon: 'classes' },
+            { name: t('sidebar.navigation.enrollments'), href: route('admin.enrollments.index'), icon: 'enrollment' },
+            { name: t('sidebar.navigation.class_subjects'), href: route('admin.class-subjects.index'), icon: 'class-subjects' }
         );
     }
 
     if (canViewUsers) {
-        navItems.push({ name: trans('sidebar.navigation.users'), href: navRoutes.users(), icon: 'users' });
+        navItems.push({ name: t('sidebar.navigation.users'), href: navRoutes.users(), icon: 'users' });
     }
     if (canViewLevels) {
-        navItems.push({ name: trans('sidebar.navigation.levels'), href: navRoutes.levels(), icon: 'levels' });
+        navItems.push({ name: t('sidebar.navigation.levels'), href: navRoutes.levels(), icon: 'levels' });
     }
 
     if (canViewRoles) {
-        navItems.push({ name: trans('sidebar.navigation.roles_permissions'), href: navRoutes.roles(), icon: 'roles' });
+        navItems.push({ name: t('sidebar.navigation.roles_permissions'), href: navRoutes.roles(), icon: 'roles' });
     }
 
     return (
@@ -133,7 +134,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
             <button
                 onClick={toggleMobile}
                 className="lg:hidden fixed top-4 left-4 z-3 p-2 rounded-md bg-white  hover:bg-gray-50"
-                aria-label={trans('sidebar.actions.toggle_menu')}
+                aria-label={t('sidebar.actions.toggle_menu')}
             >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     {isMobileOpen ? (
@@ -166,7 +167,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                         {!isCollapsed && (
                             <Link href={navRoutes.dashboard()} className="flex items-center">
                                 <LogoExamena />
-                                <span className="ml-2 text-xl font-bold text-indigo-600">{trans('sidebar.app_name')}</span>
+                                <span className="ml-2 text-xl font-bold text-indigo-600">{t('sidebar.app_name')}</span>
                             </Link>
                         )}
 
@@ -180,7 +181,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                         <button
                             onClick={toggleCollapse}
                             className="hidden lg:block cursor-pointer p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
-                            aria-label={trans('sidebar.actions.toggle_sidebar')}
+                            aria-label={t('sidebar.actions.toggle_sidebar')}
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {isCollapsed ? (
@@ -256,7 +257,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                         className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
                                     >
                                         <NavIcon type="logout" className="w-4 h-4" />
-                                        <span>{trans('sidebar.actions.logout')}</span>
+                                        <span>{t('sidebar.actions.logout')}</span>
                                     </Link>
                                 </div>
                             </>
@@ -271,7 +272,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                             : 'bg-white hover:bg-indigo-50'
                                         }
                                     `}
-                                    title={`${user.name} - ${trans('sidebar.actions.profile')}`}
+                                    title={`${user.name} - ${t('sidebar.actions.profile')}`}
                                 >
                                     <UserAvatar name={user.name} size="sm" />
                                     {isActive(navRoutes.profile()) && (
@@ -284,7 +285,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                     method="post"
                                     as="button"
                                     className="w-full flex items-center justify-center p-2.5 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
-                                    title={trans('sidebar.actions.logout')}
+                                    title={t('sidebar.actions.logout')}
                                 >
                                     <NavIcon type="logout" className="w-5 h-5" />
                                 </Link>

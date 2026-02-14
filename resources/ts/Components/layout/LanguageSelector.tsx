@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { route } from 'ziggy-js';
 import { Select } from '../ui';
 
@@ -10,6 +10,7 @@ interface LanguageSelectorProps {
 
 export function LanguageSelector({ currentLocale }: LanguageSelectorProps) {
     const [isChanging, setIsChanging] = useState(false);
+    const { t } = useTranslations();
 
     const languages = [
         { value: 'fr', label: 'Français' },
@@ -32,8 +33,8 @@ export function LanguageSelector({ currentLocale }: LanguageSelectorProps) {
         );
     };
 
-    const searchPlaceholder = trans('components.select.search_placeholder');
-    const noOptionFound = trans('components.select.no_option_found');
+    const searchPlaceholder = t('components.select.search_placeholder');
+    const noOptionFound = t('components.select.no_option_found');
 
 
     return (
@@ -41,7 +42,7 @@ export function LanguageSelector({ currentLocale }: LanguageSelectorProps) {
             <Select
                 noOptionFound={noOptionFound}
                 searchPlaceholder={searchPlaceholder}
-                label={trans('auth_pages.profile.language_label')}
+                label={t('auth_pages.profile.language_label')}
                 value={currentLocale}
                 onChange={handleLanguageChange}
                 disabled={isChanging}

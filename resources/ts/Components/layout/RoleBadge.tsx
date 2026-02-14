@@ -1,4 +1,4 @@
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Badge } from '../ui';
 import { type BadgeType } from '../ui/Badge/Badge';
 
@@ -8,6 +8,7 @@ interface RoleBadgeProps {
 }
 
 export const RoleBadge = ({ role }: RoleBadgeProps) => {
+    const { t } = useTranslations();
     const badgeConfig: {
         [key: string]: {
             type: BadgeType;
@@ -16,25 +17,25 @@ export const RoleBadge = ({ role }: RoleBadgeProps) => {
     } = {
         admin: {
             type: "info",
-            label: trans('users.admin')
+            label: t('users.admin')
         },
         teacher: {
             type: "warning",
-            label: trans('users.teacher')
+            label: t('users.teacher')
         },
         student: {
             type: "success",
-            label: trans('users.student')
+            label: t('users.student')
         },
         super_admin: {
             type: "info",
-            label: trans('users.super_admin')
+            label: t('users.super_admin')
         }
     };
 
     const config = role && badgeConfig[role]
         ? badgeConfig[role]
-        : { type: "gray" as BadgeType, label: trans('users.unknown') };
+        : { type: "gray" as BadgeType, label: t('users.unknown') };
 
     return (
         <Badge label={config.label}
