@@ -34,7 +34,7 @@ export default function AcademicYearShow({ academicYear, auth }: Props) {
   };
 
   const handleBack = () => {
-    router.visit(route('admin.academic-years.index'));
+    router.visit(route('admin.academic-years.archives'));
   };
 
   const translations = useMemo(() => ({

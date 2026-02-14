@@ -145,26 +145,6 @@ class AcademicYearService
     }
 
     /**
-     * Get academic years for index page with pagination and filters.
-     */
-    public function getAcademicYearsForIndex(array $filters, int $perPage): LengthAwarePaginator
-    {
-        return AcademicYear::query()
-            ->with(['semesters', 'classes'])
-            ->when(
-                $filters['search'] ?? null,
-                fn ($query, $search) => $query->where('name', 'like', "%{$search}%")
-            )
-            ->when(
-                isset($filters['is_current']),
-                fn ($query) => $query->where('is_current', (bool) $filters['is_current'])
-            )
-            ->orderBy('start_date', 'desc')
-            ->paginate($perPage)
-            ->withQueryString();
-    }
-
-    /**
      * Get academic years for archives page with pagination and filters.
      */
     public function getAcademicYearsForArchives(array $filters, int $perPage): LengthAwarePaginator

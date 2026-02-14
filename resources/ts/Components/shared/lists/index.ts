@@ -1,4 +1,5 @@
 export { BaseEntityList } from './BaseEntityList';
+export { AcademicYearList } from './AcademicYearList';
 export { ClassList } from './ClassList';
 export { ClassSubjectList } from './ClassSubjectList';
 export { ClassSubjectHistoryList } from './ClassSubjectHistoryList';

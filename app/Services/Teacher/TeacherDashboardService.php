@@ -27,7 +27,7 @@ class TeacherDashboardService
      * @param  int  $perPage  Items per page
      * @return LengthAwarePaginator Paginated active assignments
      */
-    public function getActiveAssignments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 10): LengthAwarePaginator
+    public function getActiveAssignments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 5): LengthAwarePaginator
     {
         $query = ClassSubject::where('teacher_id', $teacherId)
             ->forAcademicYear($academicYearId)
@@ -53,23 +53,19 @@ class TeacherDashboardService
      * @param  int  $perPage  Items per page
      * @return LengthAwarePaginator Paginated past assessments
      */
-    public function getPastAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 10): LengthAwarePaginator
+    public function getPastAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 5): LengthAwarePaginator
     {
         $query = Assessment::whereHas('classSubject', fn($q) => $q->where('teacher_id', $teacherId))
             ->forAcademicYear($academicYearId)
             ->where('scheduled_at', '<', now())
-            ->with(['classSubject.class.level', 'classSubject.class.academicYear', 'classSubject.subject'])
+            ->with(['classSubject.class.level', 'classSubject.subject', 'classSubject.teacher'])
             ->orderBy('scheduled_at', 'desc');
 
         if ($search) {
             $query->where('title', 'like', "%{$search}%");
         }
 
-        $assessments = $this->simplePaginate($query, $perPage);
-
-        $assessments->through(fn($assessment) => $this->formatAssessmentForDisplay($assessment));
-
-        return $assessments;
+        return $this->simplePaginate($query, $perPage);
     }
 
     /**
@@ -81,23 +77,19 @@ class TeacherDashboardService
      * @param  int  $perPage  Items per page
      * @return LengthAwarePaginator Paginated upcoming assessments
      */
-    public function getUpcomingAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 10): LengthAwarePaginator
+    public function getUpcomingAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 5): LengthAwarePaginator
     {
         $query = Assessment::whereHas('classSubject', fn($q) => $q->where('teacher_id', $teacherId))
             ->forAcademicYear($academicYearId)
             ->where('scheduled_at', '>=', now())
-            ->with(['classSubject.class.level', 'classSubject.class.academicYear', 'classSubject.subject'])
+            ->with(['classSubject.class.level', 'classSubject.subject', 'classSubject.teacher'])
             ->orderBy('scheduled_at', 'asc');
 
         if ($search) {
             $query->where('title', 'like', "%{$search}%");
         }
 
-        $assessments = $this->simplePaginate($query, $perPage);
-
-        $assessments->through(fn($assessment) => $this->formatAssessmentForDisplay($assessment));
-
-        return $assessments;
+        return $this->simplePaginate($query, $perPage);
     }
 
     /**
@@ -133,33 +125,6 @@ class TeacherDashboardService
             'total_assessments' => $totalAssessmentsCount,
             'past_assessments' => $pastAssessmentsTotal,
             'upcoming_assessments' => $upcomingAssessmentsTotal,
-        ];
-    }
-
-    /**
-     * Format an assessment for display
-     *
-     * @param  Assessment  $assessment  The assessment
-     * @return array Formatted assessment data
-     */
-    protected function formatAssessmentForDisplay(Assessment $assessment): array
-    {
-        return [
-            'id' => $assessment->id,
-            'title' => $assessment->title,
-            'scheduled_at' => $assessment->scheduled_at,
-            'classSubject' => [
-                'class' => [
-                    'name' => $assessment->classSubject?->class?->name,
-                    'description' => $assessment->classSubject?->class?->description,
-                    'level' => $assessment->classSubject?->class?->level ? ['name' => $assessment->classSubject->class->level->name] : null,
-                    'academic_year' => $assessment->classSubject?->class?->academicYear ? ['name' => $assessment->classSubject->class->academicYear->name] : null,
-                ],
-                'subject' => [
-                    'name' => $assessment->classSubject?->subject?->name,
-                    'code' => $assessment->classSubject?->subject?->code,
-                ],
-            ],
         ];
     }
 }

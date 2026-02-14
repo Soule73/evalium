@@ -94,8 +94,7 @@ Route::middleware('auth')->group(function () {
                 ->name('academic-years.')
                 ->controller(\App\Http\Controllers\Admin\AcademicYearController::class)
                 ->group(function () {
-                    Route::get('/', 'index')->name('index');
-                    Route::get('/archives', 'archives')->name('archives');
+                    Route::get('/', 'archives')->name('archives');
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
                     Route::get('/{academic_year}', 'show')->name('show');

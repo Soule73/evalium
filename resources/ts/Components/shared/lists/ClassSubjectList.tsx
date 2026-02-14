@@ -14,6 +14,7 @@ interface ClassSubjectListProps {
   showClassColumn?: boolean;
   showTeacherColumn?: boolean;
   showAssessmentsColumn?: boolean;
+  showPagination?: boolean;
   onView?: (classSubject: ClassSubject) => void;
   onCreateAssessment?: (classSubject: ClassSubject) => void;
 }
@@ -31,6 +32,7 @@ export function ClassSubjectList({
   showClassColumn = true,
   showTeacherColumn = true,
   showAssessmentsColumn = true,
+  showPagination = true,
   onView,
   onCreateAssessment,
 }: ClassSubjectListProps) {
@@ -163,5 +165,5 @@ export function ClassSubjectList({
     ],
   }), [showClassColumn, showTeacherColumn, showAssessmentsColumn, onView, onCreateAssessment, t]);
 
-  return <BaseEntityList data={data} config={config} variant={variant} />;
+  return <BaseEntityList data={data} config={config} variant={variant} showPagination={showPagination} />;
 }

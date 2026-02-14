@@ -79,7 +79,7 @@ function createBreadcrumbs(t: TranslateFn) {
 
   const academicYearsBc = createEntityBreadcrumbs<{ id: number; name: string }>({
     labelKey: 'breadcrumbs.academic_years',
-    indexRoute: 'admin.academic-years.index',
+    indexRoute: 'admin.academic-years.archives',
     showRoute: 'admin.academic-years.show',
   });
 

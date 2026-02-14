@@ -44,7 +44,7 @@ export default function AcademicYearCreate() {
   };
 
   const handleCancel = () => {
-    router.visit(route('admin.academic-years.index'));
+    router.visit(route('admin.academic-years.archives'));
   };
 
   const translations = useMemo(() => ({

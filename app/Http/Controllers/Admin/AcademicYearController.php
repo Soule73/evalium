@@ -22,25 +22,7 @@ class AcademicYearController extends Controller
     ) {}
 
     /**
-     * Display a listing of academic years.
-     */
-    public function index(Request $request): Response
-    {
-        $this->authorize('viewAny', AcademicYear::class);
-
-        $filters = $request->only(['search', 'is_current']);
-        $perPage = $request->input('per_page', 15);
-
-        $academicYears = $this->academicYearService->getAcademicYearsForIndex($filters, $perPage);
-
-        return Inertia::render('Admin/AcademicYears/Index', [
-            'academicYears' => $academicYears,
-            'filters' => $filters,
-        ]);
-    }
-
-    /**
-     * Display all academic years in archives view.
+     * Display all academic years.
      */
     public function archives(Request $request): Response
     {
@@ -128,7 +110,7 @@ class AcademicYearController extends Controller
             $this->academicYearService->deleteYear($academicYear);
 
             return redirect()
-                ->route('admin.academic-years.index')
+                ->route('admin.academic-years.archives')
                 ->flashSuccess(__('messages.academic_year_deleted'));
         } catch (\InvalidArgumentException $e) {
             return back()->flashError($e->getMessage());
