@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreClassRequest;
 use App\Http\Requests\Admin\UpdateClassRequest;
 use App\Http\Traits\HandlesIndexRequests;
-use App\Http\Traits\HasFlashMessages;
 use App\Models\ClassModel;
 use App\Services\Admin\AdminAssessmentQueryService;
 use App\Services\Admin\ClassQueryService;
@@ -20,7 +19,7 @@ use Inertia\Response;
 
 class ClassController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests;
 
     public function __construct(
         private readonly ClassService $classService,

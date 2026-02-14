@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LevelRequest;
 use App\Http\Traits\HandlesIndexRequests;
-use App\Http\Traits\HasFlashMessages;
 use App\Models\Level;
 use App\Services\Admin\LevelService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -17,7 +16,7 @@ use Inertia\Response;
 
 class LevelController extends Controller
 {
-    use AuthorizesRequests, HandlesIndexRequests, HasFlashMessages;
+    use AuthorizesRequests, HandlesIndexRequests;
 
     public function __construct(
         private readonly LevelService $levelService
@@ -72,14 +71,13 @@ class LevelController extends Controller
         try {
             $this->levelService->createLevel($request->validated());
 
-            return $this->redirectWithSuccess(
-                'admin.levels.index',
+            return redirect()->route('admin.levels.index')->flashSuccess(
                 __('messages.level_created')
             );
         } catch (\Exception $e) {
             Log::error('Error creating level', ['error' => $e->getMessage()]);
 
-            return $this->flashError(__('messages.operation_failed'));
+            return back()->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -112,14 +110,13 @@ class LevelController extends Controller
         try {
             $this->levelService->updateLevel($level, $request->validated());
 
-            return $this->redirectWithSuccess(
-                'admin.levels.index',
+            return redirect()->route('admin.levels.index')->flashSuccess(
                 __('messages.level_updated')
             );
         } catch (\Exception $e) {
             Log::error('Error updating level', ['level_id' => $level->id, 'error' => $e->getMessage()]);
 
-            return $this->flashError(__('messages.operation_failed'));
+            return back()->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -138,12 +135,11 @@ class LevelController extends Controller
         try {
             $this->levelService->deleteLevel($level);
 
-            return $this->redirectWithSuccess(
-                'admin.levels.index',
+            return redirect()->route('admin.levels.index')->flashSuccess(
                 __('messages.level_deleted')
             );
         } catch (\Exception $e) {
-            return $this->flashError($e->getMessage());
+            return back()->flashError($e->getMessage());
         }
     }
 
@@ -164,11 +160,11 @@ class LevelController extends Controller
 
             $messageKey = $level->is_active ? 'messages.level_activated' : 'messages.level_deactivated';
 
-            return $this->flashSuccess(__($messageKey));
+            return back()->flashSuccess(__($messageKey));
         } catch (\Exception $e) {
             Log::error('Error toggling level status', ['level_id' => $level->id, 'error' => $e->getMessage()]);
 
-            return $this->flashError(__('messages.operation_failed'));
+            return back()->flashError(__('messages.operation_failed'));
         }
     }
 }

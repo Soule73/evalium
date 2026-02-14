@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CreateUserRequest;
 use App\Http\Requests\Admin\EditUserRequest;
 use App\Http\Traits\HandlesIndexRequests;
-use App\Http\Traits\HasFlashMessages;
 use App\Models\User;
 use App\Services\Admin\AdminAssessmentQueryService;
 use App\Services\Admin\UserManagementService;
@@ -18,7 +17,7 @@ use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    use AuthorizesRequests, HandlesIndexRequests, HasFlashMessages;
+    use AuthorizesRequests, HandlesIndexRequests;
 
     public function __construct(
         public readonly UserManagementService $userService,
@@ -81,11 +80,11 @@ class UserController extends Controller
 
             $this->userService->store($validated);
 
-            return $this->redirectWithSuccess('admin.users.index', __('messages.user_created'));
+            return redirect()->route('admin.users.index')->flashSuccess(__('messages.user_created'));
         } catch (\Exception $e) {
             Log::error('Error creating user', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
 
-            return $this->flashError(__('messages.operation_failed'));
+            return back()->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -104,7 +103,7 @@ class UserController extends Controller
         $this->authorize('view', $user);
 
         if (! $this->userService->isTeacher($user)) {
-            return $this->flashError(__('messages.unauthorized'));
+            return back()->flashError(__('messages.unauthorized'));
         }
 
         $this->userService->ensureRolesLoaded($user);
@@ -151,11 +150,11 @@ class UserController extends Controller
 
             $this->userService->update($user, $validated);
 
-            return $this->flashSuccess(__('messages.user_updated'));
+            return back()->flashSuccess(__('messages.user_updated'));
         } catch (\Exception $e) {
             Log::error('Error updating user', ['user_id' => $user->id, 'error' => $e->getMessage()]);
 
-            return $this->flashError(__('messages.operation_failed'));
+            return back()->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -173,7 +172,7 @@ class UserController extends Controller
 
         $this->userService->delete($user);
 
-        return $this->redirectWithSuccess('admin.users.index', __('messages.user_deleted'));
+        return redirect()->route('admin.users.index')->flashSuccess(__('messages.user_deleted'));
     }
 
     /**
@@ -192,7 +191,7 @@ class UserController extends Controller
 
         $messageKey = $user->is_active ? 'messages.user_activated' : 'messages.user_deactivated';
 
-        return $this->redirectWithSuccess('admin.users.index', __($messageKey));
+        return redirect()->route('admin.users.index')->flashSuccess(__($messageKey));
     }
 
     /**
@@ -205,11 +204,11 @@ class UserController extends Controller
         try {
             $user = $this->userService->restoreUser($id);
 
-            return $this->redirectWithSuccess('admin.users.index', __('messages.user_restored'));
+            return redirect()->route('admin.users.index')->flashSuccess(__('messages.user_restored'));
         } catch (\Exception $e) {
             Log::error('Error restoring user', ['user_id' => $id, 'error' => $e->getMessage()]);
 
-            return $this->flashError(__('messages.operation_failed'));
+            return back()->flashError(__('messages.operation_failed'));
         }
     }
 
@@ -225,16 +224,16 @@ class UserController extends Controller
             $currentUser = Auth::user();
 
             if (! $this->userService->canForceDeleteUser($currentUser, $id)) {
-                return $this->flashError(__('messages.unauthorized'));
+                return back()->flashError(__('messages.unauthorized'));
             }
 
             $this->userService->forceDeleteUser($id);
 
-            return $this->redirectWithSuccess('admin.users.index', __('messages.user_deleted'));
+            return redirect()->route('admin.users.index')->flashSuccess(__('messages.user_deleted'));
         } catch (\Exception $e) {
             Log::error('Error permanently deleting user', ['user_id' => $id, 'error' => $e->getMessage()]);
 
-            return $this->flashError(__('messages.operation_failed'));
+            return back()->flashError(__('messages.operation_failed'));
         }
     }
 }

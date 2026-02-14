@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SyncRolePermissionsRequest;
 use App\Http\Traits\HandlesIndexRequests;
-use App\Http\Traits\HasFlashMessages;
 use App\Services\Admin\RoleService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -22,7 +21,7 @@ use Spatie\Permission\Models\Role;
  */
 class RoleController extends Controller
 {
-    use AuthorizesRequests, HandlesIndexRequests, HasFlashMessages;
+    use AuthorizesRequests, HandlesIndexRequests;
 
     public function __construct(
         private readonly RoleService $roleService
@@ -80,6 +79,6 @@ class RoleController extends Controller
     {
         $this->roleService->syncRolePermissions($role, $request->validated()['permissions']);
 
-        return $this->redirectWithSuccess('admin.roles.index', __('messages.permissions_updated'));
+        return redirect()->route('admin.roles.index')->flashSuccess(__('messages.permissions_updated'));
     }
 }

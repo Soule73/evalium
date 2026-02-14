@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Traits\HasFlashMessages;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
 class LocaleController extends Controller
 {
-    use HasFlashMessages;
-
     /**
      * Update the user's locale preference.
      *
@@ -35,6 +32,6 @@ class LocaleController extends Controller
             ]);
         }
 
-        return $this->flashInfo(__('messages.locale_updated'));
+        return back()->flashInfo(__('messages.locale_updated'));
     }
 }

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\HandlesAssessmentViewing;
 use App\Http\Traits\HandlesIndexRequests;
-use App\Http\Traits\HasFlashMessages;
 use App\Models\Assessment;
 use App\Models\ClassModel;
 use App\Models\Subject;
@@ -29,7 +28,7 @@ use Inertia\Response;
  */
 class AdminAssessmentController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear, HandlesAssessmentViewing, HandlesIndexRequests, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear, HandlesAssessmentViewing, HandlesIndexRequests;
 
     public function __construct(
         private readonly AdminAssessmentQueryService $assessmentQueryService,

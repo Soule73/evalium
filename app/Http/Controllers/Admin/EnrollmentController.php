@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreEnrollmentRequest;
 use App\Http\Requests\Admin\TransferStudentRequest;
 use App\Http\Traits\HandlesIndexRequests;
-use App\Http\Traits\HasFlashMessages;
 use App\Models\Enrollment;
 use App\Services\Admin\EnrollmentService;
 use App\Services\Core\GradeCalculationService;
@@ -20,7 +19,7 @@ use Inertia\Response;
 
 class EnrollmentController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests;
 
     public function __construct(
         private readonly EnrollmentService $enrollmentService,

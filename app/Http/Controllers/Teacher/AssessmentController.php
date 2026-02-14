@@ -7,7 +7,6 @@ use App\Http\Requests\Teacher\ReopenAssignmentRequest;
 use App\Http\Requests\Teacher\StoreAssessmentRequest;
 use App\Http\Requests\Teacher\UpdateAssessmentRequest;
 use App\Http\Traits\HandlesAssessmentViewing;
-use App\Http\Traits\HasFlashMessages;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Services\Core\Answer\AnswerFormatterService;
@@ -33,7 +32,7 @@ use Inertia\Response;
  */
 class AssessmentController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear, HandlesAssessmentViewing, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear, HandlesAssessmentViewing;
 
     public function __construct(
         private readonly AssessmentService $assessmentService,
@@ -224,7 +223,7 @@ class AssessmentController extends Controller
 
         if (! $check['can_reopen']) {
             return response()->json([
-                'message' => __('messages.assignment_cannot_reopen_' . $check['reason']),
+                'message' => __('messages.assignment_cannot_reopen_'.$check['reason']),
             ], 422);
         }
 

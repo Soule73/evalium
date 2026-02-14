@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreAcademicYearRequest;
 use App\Http\Requests\Admin\UpdateAcademicYearRequest;
-use App\Http\Traits\HasFlashMessages;
 use App\Models\AcademicYear;
 use App\Services\Admin\AcademicYearService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -16,7 +15,7 @@ use Inertia\Response;
 
 class AcademicYearController extends Controller
 {
-    use AuthorizesRequests, HasFlashMessages;
+    use AuthorizesRequests;
 
     public function __construct(
         private readonly AcademicYearService $academicYearService

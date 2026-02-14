@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreSubjectRequest;
 use App\Http\Requests\Admin\UpdateSubjectRequest;
 use App\Http\Traits\HandlesIndexRequests;
-use App\Http\Traits\HasFlashMessages;
 use App\Models\Subject;
 use App\Services\Admin\SubjectService;
 use App\Traits\FiltersAcademicYear;
@@ -18,7 +17,7 @@ use Inertia\Response;
 
 class SubjectController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests;
 
     public function __construct(
         private readonly SubjectService $subjectService

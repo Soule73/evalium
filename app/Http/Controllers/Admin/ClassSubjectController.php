@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ReplaceTeacherRequest;
 use App\Http\Requests\Admin\StoreClassSubjectRequest;
-use App\Http\Traits\HasFlashMessages;
 use App\Models\ClassSubject;
 use App\Services\Admin\ClassSubjectQueryService;
 use App\Services\Core\ClassSubjectService;
@@ -18,7 +17,7 @@ use Inertia\Response;
 
 class ClassSubjectController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear;
 
     public function __construct(
         private readonly ClassSubjectService $classSubjectService,

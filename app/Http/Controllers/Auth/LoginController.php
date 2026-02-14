@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\EditUserRequest;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Traits\HasFlashMessages;
 use App\Services\Admin\UserManagementService;
 use App\Services\Core\RoleBasedRedirectService;
 use Illuminate\Http\Request;
@@ -23,8 +22,6 @@ use Inertia\Inertia;
  */
 class LoginController extends Controller
 {
-    use HasFlashMessages;
-
     public function __construct(
         public readonly UserManagementService $userService,
         private readonly RoleBasedRedirectService $redirectService
@@ -100,14 +97,14 @@ class LoginController extends Controller
 
             $this->userService->update($user, $data);
 
-            return $this->flashSuccess(__('messages.profile_updated'));
+            return back()->flashSuccess(__('messages.profile_updated'));
         } catch (\Exception $e) {
             Log::error('Error updating user profile', [
                 'user_id' => Auth::id(),
                 'error' => $e->getMessage(),
             ]);
 
-            return $this->flashError('error', __('messages.error_updating_profile'));
+            return back()->flashError(__('messages.error_updating_profile'));
         }
     }
 
