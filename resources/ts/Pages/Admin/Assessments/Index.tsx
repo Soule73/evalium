@@ -1,0 +1,48 @@
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
+import { Assessment, PageProps, PaginationType } from '@/types';
+import { breadcrumbs, trans } from '@/utils';
+import { Section } from '@/Components';
+import { AssessmentList } from '@/Components/shared/lists';
+
+interface FilterOption {
+  id: number;
+  name: string;
+}
+
+interface Props extends PageProps {
+  assessments: PaginationType<Assessment>;
+  filters: {
+    search?: string;
+    class_id?: string;
+    subject_id?: string;
+    teacher_id?: string;
+    type?: string;
+    delivery_mode?: string;
+  };
+  classes: FilterOption[];
+  subjects: FilterOption[];
+  teachers: FilterOption[];
+}
+
+export default function AdminAssessmentsIndex({
+  assessments,
+}: Props) {
+  return (
+    <AuthenticatedLayout
+      title={trans('admin_pages.assessments.title')}
+      breadcrumb={breadcrumbs.admin.assessments()}
+    >
+      <div className="space-y-6">
+        <Section
+          title={trans('admin_pages.assessments.title')}
+          subtitle={trans('admin_pages.assessments.subtitle')}
+        >
+          <AssessmentList
+            data={assessments}
+            variant="admin"
+          />
+        </Section>
+      </div>
+    </AuthenticatedLayout>
+  );
+}

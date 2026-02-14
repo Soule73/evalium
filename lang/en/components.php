@@ -269,6 +269,7 @@ return [
         'assessment_label' => 'Assessment',
         'duration_label' => 'Duration',
         'class_label' => 'Class',
+        'teacher_label' => 'Teacher',
         'status_label' => 'Status',
         'created_on' => 'Created on',
         'actions_label' => 'Actions',

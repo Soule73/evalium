@@ -149,6 +149,13 @@ const assessmentsBc = createEntityBreadcrumbs<{ id: number; title: string }>({
     showRoute: 'teacher.assessments.show'
 });
 
+const adminAssessmentsBc = {
+    index: (): BreadcrumbItem[] => [
+        dashboard(),
+        { label: trans('breadcrumbs.assessments'), href: route('admin.assessments.index') }
+    ],
+};
+
 export const breadcrumbs = {
     dashboard: (): BreadcrumbItem[] => [dashboard()],
 
@@ -156,7 +163,6 @@ export const breadcrumbs = {
     users: usersBc.index,
     userCreate: usersBc.create,
     userEdit: usersBc.edit,
-    studentShow: (user: { name: string }): BreadcrumbItem[] => [...usersBc.index(), { label: user.name }],
     teacherShow: (user: { name: string }): BreadcrumbItem[] => [...usersBc.index(), { label: user.name }],
 
     // Levels (simple: index, create, edit by name)
@@ -194,6 +200,8 @@ export const breadcrumbs = {
 
         classSubjects: classSubjectsBc.index,
         showClassSubject: classSubjectsBc.show,
+
+        assessments: adminAssessmentsBc.index,
     },
 
     // Teacher entities

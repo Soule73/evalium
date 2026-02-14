@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { ClassModel, Enrollment, ClassSubject, PageProps, PaginationType } from '@/types';
+import { ClassModel, Assessment, Enrollment, ClassSubject, PageProps, PaginationType } from '@/types';
 import { breadcrumbs, trans, hasPermission } from '@/utils';
 import { Button, Section, Badge, ConfirmationModal, Stat } from '@/Components';
-import { EnrollmentList, ClassSubjectList } from '@/Components/shared/lists';
+import { EnrollmentList, ClassSubjectList, AssessmentList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
-import { AcademicCapIcon, UserGroupIcon, BookOpenIcon, CalendarIcon } from '@heroicons/react/24/outline';
+import { AcademicCapIcon, UserGroupIcon, BookOpenIcon, CalendarIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 
 interface ClassStatistics {
   total_students: number;
@@ -22,6 +22,7 @@ interface Props extends PageProps {
   class: ClassModel;
   enrollments: PaginationType<Enrollment>;
   classSubjects: PaginationType<ClassSubject>;
+  assessments?: PaginationType<Assessment>;
   statistics: ClassStatistics;
   studentsFilters?: {
     search?: string;
@@ -29,12 +30,20 @@ interface Props extends PageProps {
   subjectsFilters?: {
     search?: string;
   };
+  assessmentsFilters?: {
+    search?: string;
+    subject_id?: string;
+    teacher_id?: string;
+    type?: string;
+    delivery_mode?: string;
+  };
 }
 
 export default function ClassShow({
   class: classItem,
   enrollments,
   classSubjects,
+  assessments,
   statistics,
   auth,
 }: Props) {
@@ -126,6 +135,11 @@ export default function ClassShow({
               title={trans('admin_pages.classes.subjects')}
               value={<span className="text-sm font-semibold text-gray-900">{statistics.subjects_count}</span>}
             />
+            <Stat.Item
+              icon={DocumentTextIcon}
+              title={trans('admin_pages.classes.assessments')}
+              value={<span className="text-sm font-semibold text-gray-900">{statistics.assessments_count}</span>}
+            />
           </Stat.Group>
         </Section>
 
@@ -152,6 +166,19 @@ export default function ClassShow({
             showClassColumn={false}
           />
         </Section>
+
+        {assessments && (
+          <Section
+            title={trans('admin_pages.classes.assessments_section')}
+            subtitle={trans('admin_pages.classes.assessments_section_subtitle')}
+          >
+            <AssessmentList
+              data={assessments}
+              variant="admin"
+              showClassColumn={false}
+            />
+          </Section>
+        )}
       </div>
 
       <ConfirmationModal

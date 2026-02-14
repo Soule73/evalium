@@ -1,6 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { UserGroupIcon, AcademicCapIcon, BookOpenIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, BookOpenIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
 import { useState } from 'react';
 import CreateUser from './Create';
@@ -57,16 +57,11 @@ export default function UserIndex({ users, roles }: Props) {
                 isOpen={isShowCreateModal}
                 onClose={() => setIsShowCreateModal(false)}
             />
-            <Stat.Group columns={4} className="mb-6">
+            <Stat.Group columns={3} className="mb-6">
                 <Stat.Item
                     title={trans('admin_pages.users.all_users')}
                     value={users.total}
                     icon={UserGroupIcon}
-                />
-                <Stat.Item
-                    title={trans('admin_pages.roles.role_labels.student')}
-                    value={users.data.filter(user => user.roles?.some(role => role.name === 'student')).length}
-                    icon={AcademicCapIcon}
                 />
                 <Stat.Item
                     title={trans('admin_pages.roles.role_labels.teacher')}

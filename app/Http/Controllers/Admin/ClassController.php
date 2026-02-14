@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateClassRequest;
 use App\Http\Traits\HandlesIndexRequests;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\ClassModel;
+use App\Services\Admin\AdminAssessmentQueryService;
 use App\Services\Admin\ClassQueryService;
 use App\Services\Admin\ClassService;
 use App\Traits\FiltersAcademicYear;
@@ -23,7 +24,8 @@ class ClassController extends Controller
 
     public function __construct(
         private readonly ClassService $classService,
-        private readonly ClassQueryService $classQueryService
+        private readonly ClassQueryService $classQueryService,
+        private readonly AdminAssessmentQueryService $assessmentQueryService
     ) {}
 
     /**
@@ -107,11 +109,35 @@ class ClassController extends Controller
             'per_page' => $request->input('subjects_per_page', 10),
         ];
 
+        $assessmentsFilters = [
+            'search' => $request->input('assessments_search'),
+            'subject_id' => $request->input('assessments_subject_id'),
+            'teacher_id' => $request->input('assessments_teacher_id'),
+            'type' => $request->input('assessments_type'),
+            'delivery_mode' => $request->input('assessments_delivery_mode'),
+            'page' => $request->input('assessments_page', 1),
+        ];
+
         $data = $this->classQueryService->getClassDetailsWithPagination(
             $class,
             $studentsFilters,
             $subjectsFilters
         );
+
+        $assessments = $this->assessmentQueryService->getAssessmentsForClass(
+            $class,
+            $assessmentsFilters,
+            $request->input('assessments_per_page', 10)
+        );
+
+        $data['assessments'] = $assessments;
+        $data['assessmentsFilters'] = array_filter([
+            'search' => $assessmentsFilters['search'],
+            'subject_id' => $assessmentsFilters['subject_id'],
+            'teacher_id' => $assessmentsFilters['teacher_id'],
+            'type' => $assessmentsFilters['type'],
+            'delivery_mode' => $assessmentsFilters['delivery_mode'],
+        ]);
 
         return Inertia::render('Admin/Classes/Show', $data);
     }

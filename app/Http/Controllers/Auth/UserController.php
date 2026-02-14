@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\EditUserRequest;
 use App\Http\Traits\HandlesIndexRequests;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\User;
+use App\Services\Admin\AdminAssessmentQueryService;
 use App\Services\Admin\UserManagementService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -20,7 +21,8 @@ class UserController extends Controller
     use AuthorizesRequests, HandlesIndexRequests, HasFlashMessages;
 
     public function __construct(
-        public readonly UserManagementService $userService
+        public readonly UserManagementService $userService,
+        private readonly AdminAssessmentQueryService $assessmentQueryService
     ) {}
 
     /**
@@ -44,8 +46,10 @@ class UserController extends Controller
             ['search', 'role', 'status', 'include_deleted']
         );
 
+        $filters['exclude_roles'] = ['student'];
+
         if (! $currentUser->hasRole('super_admin')) {
-            $filters['exclude_roles'] = ['admin', 'super_admin'];
+            $filters['exclude_roles'] = array_merge($filters['exclude_roles'], ['admin', 'super_admin']);
         }
 
         $users = $this->userService->getUserWithPagination($filters, $perPage, $currentUser);
@@ -103,54 +107,27 @@ class UserController extends Controller
             return $this->flashError(__('messages.unauthorized'));
         }
 
-        $perPage = $request->input('per_page', 10);
-        $status = null;
-
-        if ($request->has('status') && $request->input('status') !== '') {
-            $status = $request->input('status') === '1' ? true : false;
-        }
-
-        $search = $request->input('search');
-
         $this->userService->ensureRolesLoaded($user);
+
+        $filters = $request->only(['search', 'type', 'delivery_mode']);
+        $filters['page'] = $request->input('page', 1);
+        $perPage = $this->getPerPageFromRequest($request);
+
+        $assessments = $this->assessmentQueryService->getAssessmentsForTeacher(
+            $user,
+            $filters,
+            $perPage
+        );
+
+        $stats = $this->assessmentQueryService->getTeacherAssessmentStats($user);
 
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
         return Inertia::render('Admin/Users/ShowTeacher', [
             'user' => $user,
-            'canDelete' => $currentUser->hasRole('super_admin'),
-            'canToggleStatus' => $currentUser->can('update users'),
-        ]);
-    }
-
-    /**
-     * Display the specified student details with groups and exam assignments.
-     *
-     * Delegates to ExamQueryService to load paginated assignments.
-     * Uses eager loading for groups, levels, and exams optimization.
-     *
-     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request instance.
-     * @param  \App\Models\User  $user  The user instance representing the student.
-     * @return \Illuminate\Http\Response
-     */
-    public function showStudent(Request $request, User $user)
-    {
-        $this->authorize('view', $user);
-
-        if (! $this->userService->isStudent($user)) {
-            return $this->flashError(__('messages.unauthorized'));
-        }
-
-        $perPage = $request->input('per_page', 10);
-        $status = $request->input('status') ? $request->input('status') : null;
-        $search = $request->input('search');
-
-        /** @var \App\Models\User $currentUser */
-        $currentUser = Auth::user();
-
-        return Inertia::render('Admin/Users/ShowUser', [
-            'user' => $user,
+            'assessments' => $assessments,
+            'stats' => $stats,
             'canDelete' => $currentUser->hasRole('super_admin'),
             'canToggleStatus' => $currentUser->can('update users'),
         ]);

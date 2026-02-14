@@ -14,6 +14,7 @@ interface AssessmentListProps {
   variant?: 'admin' | 'teacher' | 'student';
   onView?: (item: Assessment | AssessmentAssignment) => void;
   showPagination?: boolean;
+  showClassColumn?: boolean;
 }
 
 /**
@@ -28,6 +29,7 @@ export function AssessmentList({
   variant = 'teacher',
   onView,
   showPagination = true,
+  showClassColumn = true,
 }: AssessmentListProps) {
   const [togglingAssessments, setTogglingAssessments] = useState<Set<number>>(new Set());
 
@@ -109,7 +111,10 @@ export function AssessmentList({
           const assessment = item as Assessment;
           return (
             <div>
-              <div className="text-sm font-medium text-gray-900">{assessment.title}</div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-900">{assessment.title}</span>
+                {getDeliveryModeBadge(assessment.delivery_mode)}
+              </div>
               {assessment.description && (
                 <div className="text-sm text-gray-500 truncate max-w-sm line-clamp-2">
                   <MarkdownRenderer>{assessment.description}</MarkdownRenderer>
@@ -205,7 +210,21 @@ export function AssessmentList({
             </div>
           );
         },
-        conditional: (currentVariant) => currentVariant === 'teacher',
+        conditional: (currentVariant) => (currentVariant === 'teacher' || currentVariant === 'admin') && showClassColumn,
+      },
+
+      {
+        key: 'teacher_name',
+        labelKey: 'components.assessment_list.teacher_label',
+        render: (item: AssessmentItem) => {
+          const assessment = item as Assessment;
+          return (
+            <span className="text-sm text-gray-700">
+              {assessment.class_subject?.teacher?.name || assessment.teacher?.name || '-'}
+            </span>
+          );
+        },
+        conditional: (currentVariant) => currentVariant === 'admin',
       },
 
       {

@@ -72,9 +72,6 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'index')
                         ->name('index');
 
-                    Route::get('/students/{user}', 'showStudent')
-                        ->name('show.student');
-
                     Route::get('/teachers/{user}', 'showTeacher')
                         ->name('show.teacher');
 
@@ -209,6 +206,12 @@ Route::middleware('auth')->group(function () {
                     Route::get('/{role}/edit', 'edit')->name('edit');
                     Route::post('/{role}/sync-permissions', 'syncPermissions')->name('sync-permissions');
                 });
+
+            /**
+             * Assessment Consultation (read-only)
+             */
+            Route::get('/assessments', [\App\Http\Controllers\Admin\AdminAssessmentController::class, 'index'])
+                ->name('assessments.index');
         });
 
     /**

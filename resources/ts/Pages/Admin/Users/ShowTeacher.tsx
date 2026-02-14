@@ -2,29 +2,28 @@ import { Assessment, PageProps, User } from '@/types';
 import { PaginationType } from '@/types/datatable';
 import ShowUser from './ShowUser';
 import { DocumentTextIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
-import { breadcrumbs } from '@/utils';
-import { trans } from '@/utils';
-import { hasPermission } from '@/utils';
+import { breadcrumbs, trans, hasPermission } from '@/utils';
 import { usePage } from '@inertiajs/react';
 import { Section, Stat } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';
 
+interface TeacherStats {
+    total: number;
+    published: number;
+    unpublished: number;
+}
 
 interface Props {
     user: User;
     assessments: PaginationType<Assessment>;
+    stats: TeacherStats;
 }
 
-export default function ShowTeacher({ user, assessments }: Props) {
+export default function ShowTeacher({ user, assessments, stats }: Props) {
     const { auth } = usePage<PageProps>().props;
-
-    const totalAssessments = assessments.total || 0;
-    const activeAssessments = assessments.data.filter(assessment => assessment.is_published).length;
-    const inactiveAssessments = totalAssessments - activeAssessments;
 
     const canDeleteUsers = hasPermission(auth.permissions, 'delete users');
     const canToggleStatus = hasPermission(auth.permissions, 'update users');
-
 
     return (
         <ShowUser user={user} canDelete={canDeleteUsers} canToggleStatus={canToggleStatus}
@@ -34,17 +33,17 @@ export default function ShowTeacher({ user, assessments }: Props) {
                 <Stat.Group columns={3}>
                     <Stat.Item
                         title={trans('admin_pages.users.total_assessments')}
-                        value={totalAssessments}
+                        value={stats.total}
                         icon={DocumentTextIcon}
                     />
                     <Stat.Item
                         title={trans('admin_pages.users.active_assessments')}
-                        value={activeAssessments}
+                        value={stats.published}
                         icon={CheckCircleIcon}
                     />
                     <Stat.Item
                         title={trans('admin_pages.users.inactive_assessments')}
-                        value={inactiveAssessments}
+                        value={stats.unpublished}
                         icon={ClockIcon}
                     />
                 </Stat.Group>
@@ -56,6 +55,6 @@ export default function ShowTeacher({ user, assessments }: Props) {
                     variant="admin"
                 />
             </Section>
-        </ShowUser >
+        </ShowUser>
     );
 }

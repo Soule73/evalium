@@ -89,9 +89,25 @@ return [
         'show_teacher_stats_subtitle' => "Aperçu de l'activité de l'enseignant",
         'show_teacher_exams' => 'Examens créés',
         'show_teacher_exams_subtitle' => "Liste des examens créés par l'enseignant",
+        'show_teacher_assessments' => 'Évaluations créées',
+        'show_teacher_assessments_subtitle' => 'Liste des évaluations créées par cet enseignant',
         'total_exams' => "Total d'examens",
         'active_exams' => 'Examens actifs',
         'inactive_exams' => 'Examens inactifs',
+        'total_assessments' => "Total d'évaluations",
+        'active_assessments' => ' Évaluations publiées',
+        'inactive_assessments' => ' Évaluations non publiées',
+
+        // Student show page
+        'show_student_stats' => 'Statistiques des évaluations',
+        'show_student_stats_subtitle' => "Aperçu de l'activité de l'étudiant",
+        'show_student_assessments' => 'Évaluations de l\'étudiant',
+        'show_student_assessments_subtitle' => 'Toutes les évaluations et notes de cet étudiant',
+        'total_assignments' => "Total d'évaluations",
+        'in_progress_assignments' => 'En cours',
+        'completed_assignments' => 'Terminées',
+        'graded_assignments' => 'Notées',
+        'average_score' => 'Moyenne',
         'user_profile' => 'Profil utilisateur',
         'user_profile_subtitle' => "Informations personnelles de l'utilisateur",
         'full_name' => 'Nom complet',
@@ -356,6 +372,10 @@ return [
         'no_subjects' => 'Aucune affectation pour le moment',
         'add_subject' => 'Nouvelle affectation',
         'add_subject_title' => 'Ajouter une affectation',
+        // Assessments section
+        'assessments' => 'Évaluations',
+        'assessments_section' => 'Évaluations',
+        'assessments_section_subtitle' => 'Toutes les évaluations créées pour cette classe',
     ],
 
     // Enrollments Management
@@ -443,7 +463,7 @@ return [
         'archived' => 'Archivé',
         'current' => 'Actuel',
         'past' => 'Passé',
-        'assessments' => 'évaluations',
+        'assessments' => 'Évaluations',
         'replace_teacher' => 'Remplacer l\'enseignant',
         'replace_button' => 'Remplacer l\'enseignant',
         'replacing' => 'Remplacement...',
@@ -473,5 +493,10 @@ return [
         'history_title' => 'Historique des enseignants',
         'history_subtitle' => 'Historique complet des enseignants pour cette affectation',
         'replaced_by' => 'Remplacé par',
+    ],
+    // Admin Assessments Management
+    'assessments' => [
+        'title' => 'Gestion des évaluations',
+        'subtitle' => 'Parcourir toutes les évaluations de la plateforme',
     ],
 ];

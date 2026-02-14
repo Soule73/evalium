@@ -291,6 +291,7 @@ return [
         'assessment_label' => 'Évaluation',
         'duration_label' => 'Durée',
         'class_label' => 'Classe',
+        'teacher_label' => 'Enseignant',
         'status_label' => 'Statut',
         'created_on' => 'Créé le',
         'actions_label' => 'Actions',

@@ -88,9 +88,25 @@ return [
         'show_teacher_stats_subtitle' => 'Teacher activity overview',
         'show_teacher_exams' => 'Created Exams',
         'show_teacher_exams_subtitle' => 'List of exams created by the teacher',
+        'show_teacher_assessments' => 'Created Assessments',
+        'show_teacher_assessments_subtitle' => 'List of assessments created by this teacher',
         'total_exams' => 'Total Exams',
         'active_exams' => 'Active Exams',
         'inactive_exams' => 'Inactive Exams',
+        'total_assessments' => 'Total Assessments',
+        'active_assessments' => 'Published Assessments',
+        'inactive_assessments' => 'Unpublished Assessments',
+
+        // Student show page
+        'show_student_stats' => 'Assessment Statistics',
+        'show_student_stats_subtitle' => 'Overview of student assessment activity',
+        'show_student_assessments' => 'Student Assessments',
+        'show_student_assessments_subtitle' => 'All assessments and grades for this student',
+        'total_assignments' => 'Total Assessments',
+        'in_progress_assignments' => 'In Progress',
+        'completed_assignments' => 'Completed',
+        'graded_assignments' => 'Graded',
+        'average_score' => 'Average Score',
         'user_profile' => 'User Profile',
         'user_profile_subtitle' => 'User personal information',
         'full_name' => 'Full Name',
@@ -353,6 +369,11 @@ return [
         'no_subjects' => 'No assignments yet',
         'add_subject' => 'New Assignment',
         'add_subject_title' => 'Add Assignment',
+
+        // Assessments section
+        'assessments' => 'Assessments',
+        'assessments_section' => 'Assessments',
+        'assessments_section_subtitle' => 'All assessments created for this class',
     ],
 
     // Enrollments Management
@@ -470,5 +491,11 @@ return [
         'history_title' => 'Teacher History',
         'history_subtitle' => 'Complete history of teachers for this assignment',
         'replaced_by' => 'Replaced by',
+    ],
+
+    // Admin Assessments Management
+    'assessments' => [
+        'title' => 'Assessment Management',
+        'subtitle' => 'Browse all assessments across the platform',
     ],
 ];

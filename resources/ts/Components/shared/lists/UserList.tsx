@@ -38,15 +38,11 @@ export function UserList({
   onForceDeleteClick
 }: UserListProps) {
   const canViewUser = (role: string) => {
-    return ['student', 'teacher'].includes(role);
+    return role === 'teacher';
   };
 
-  const handleViewUser = (userId: number, role: string) => {
-    if (role === 'student') {
-      router.visit(route('admin.users.show.student', { user: userId }));
-    } else if (role === 'teacher') {
-      router.visit(route('admin.users.show.teacher', { user: userId }));
-    }
+  const handleViewUser = (userId: number) => {
+    router.visit(route('admin.users.show.teacher', { user: userId }));
   };
 
   const handleToggleStatus = (userId: number) => {
@@ -231,7 +227,7 @@ export function UserList({
               <>
                 {canViewUser(userRole) && permissions.canUpdate && (
                   <Button
-                    onClick={() => handleViewUser(user.id, userRole)}
+                    onClick={() => handleViewUser(user.id)}
                     color="secondary"
                     size="sm"
                     variant='outline'
