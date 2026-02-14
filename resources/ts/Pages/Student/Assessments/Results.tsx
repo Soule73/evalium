@@ -6,6 +6,7 @@ import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { AlertEntry, Badge, Button, Section, QuestionRenderer, TextEntry } from '@/Components';
 import { trans, formatDate } from '@/utils';
+import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 
 interface Props {
   assessment: Assessment;
@@ -48,7 +49,7 @@ const AssessmentResults: React.FC<Props> = ({ assessment, assignment, userAnswer
   };
 
   return (
-    <AuthenticatedLayout title={translations.title}>
+    <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.student.assessmentResults(assessment)}>
       <Section
         title={translations.sectionTitle}
         subtitle={

@@ -4,6 +4,7 @@ import type { PaginationType } from '@/types/datatable';
 import { Section } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';
 import { trans } from '@/utils';
+import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 
 interface StudentAssessmentsIndexProps extends PageProps {
   assignments: PaginationType<AssessmentAssignment & { assessment: Assessment }>;
@@ -20,7 +21,7 @@ export default function Index({ assignments }: StudentAssessmentsIndexProps) {
   };
 
   return (
-    <AuthenticatedLayout title={translations.title}>
+    <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.student.assessments()}>
       <Section title={translations.title} subtitle={translations.subtitle}>
         <AssessmentList data={assignments} variant="student" />
       </Section>

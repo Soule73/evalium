@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Assessment, AssessmentAssignment, PageProps } from '@/types';
+import { Assessment, AssessmentAssignment, AvailabilityStatus, PageProps } from '@/types';
 import {
   AlertEntry,
   Button,
@@ -12,24 +12,38 @@ import {
   TextEntry,
 } from '@/Components';
 import { trans, formatDate } from '@/utils';
-import { ClockIcon, DocumentTextIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
+import { ClockIcon, DocumentTextIcon, QuestionMarkCircleIcon, EyeIcon } from '@heroicons/react/24/outline';
 
 interface StudentAssessmentShowProps extends PageProps {
   assessment: Assessment;
   assignment: AssessmentAssignment;
+  availability: AvailabilityStatus;
 }
 
-export default function Show({ assessment, assignment }: StudentAssessmentShowProps) {
+export default function Show({ assessment, assignment, availability }: StudentAssessmentShowProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const isHomework = assessment.delivery_mode === 'homework';
+  const hasStarted = !!assignment.started_at;
 
   const translations = {
     title: trans('student_assessment_pages.show.title'),
     backToAssessments: trans('student_assessment_pages.show.back_to_assessments'),
-    startAssessment: trans('student_assessment_pages.show.start_assessment'),
-    continueAssessment: trans('student_assessment_pages.show.continue_assessment'),
-    startModalTitle: trans('student_assessment_pages.show.start_modal_title'),
-    startModalQuestion: trans('student_assessment_pages.show.start_modal_question'),
-    startModalConfirm: trans('student_assessment_pages.show.start_modal_confirm'),
+    startAssessment: isHomework
+      ? trans('student_assessment_pages.show.start_working')
+      : trans('student_assessment_pages.show.start_assessment'),
+    continueAssessment: isHomework
+      ? trans('student_assessment_pages.show.continue_working')
+      : trans('student_assessment_pages.show.continue_assessment'),
+    startModalTitle: isHomework
+      ? trans('student_assessment_pages.show.start_modal_title_homework')
+      : trans('student_assessment_pages.show.start_modal_title'),
+    startModalQuestion: isHomework
+      ? trans('student_assessment_pages.show.start_modal_question_homework')
+      : trans('student_assessment_pages.show.start_modal_question'),
+    startModalConfirm: isHomework
+      ? trans('student_assessment_pages.show.start_modal_confirm_homework')
+      : trans('student_assessment_pages.show.start_modal_confirm'),
     subject: trans('student_assessment_pages.show.subject'),
     class: trans('student_assessment_pages.show.class'),
     teacher: trans('student_assessment_pages.show.teacher'),
@@ -41,6 +55,7 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
     graded: trans('student_assessment_pages.show.status_graded'),
     statusNotStarted: trans('student_assessment_pages.show.status_not_started'),
     importantDates: trans('student_assessment_pages.show.important_dates'),
+    scheduledDate: trans('student_assessment_pages.show.scheduled_date'),
     dueDate: trans('student_assessment_pages.show.due_date'),
     submittedDate: trans('student_assessment_pages.show.submitted_date'),
     importantTitle: trans('student_assessment_pages.show.important_title'),
@@ -49,20 +64,48 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
     alertCheating: trans('student_assessment_pages.show.alert_cheating'),
     alertAutoSave: trans('student_assessment_pages.show.alert_auto_save'),
     alertTimeLimit: trans('student_assessment_pages.show.alert_time_limit'),
+    alertHomeworkMultiSession: trans('student_assessment_pages.show.alert_homework_multi_session'),
+    alertHomeworkDueDate: trans('student_assessment_pages.show.alert_homework_due_date'),
     description: trans('student_assessment_pages.show.description'),
     noDescription: trans('student_assessment_pages.show.no_description'),
+    viewResults: trans('student_assessment_pages.show.view_results'),
+    startedDate: trans('student_assessment_pages.show.started_date'),
+    assessmentUnavailable: trans('student_assessment_pages.show.assessment_unavailable'),
   };
 
 
   const statusValue = useMemo(() => {
     if (assignment.status === 'graded') return translations.graded;
     if (assignment.status === 'submitted') return translations.completed;
+    if (assignment.status === 'in_progress') return trans('student_assessment_pages.show.status_in_progress');
     return translations.statusNotStarted;
   }, [assignment.status, translations]);
 
-  const canTake = !assignment.submitted_at;
+  const isSubmitted = !!assignment.submitted_at;
+  const canTake = !isSubmitted && availability.available;
 
-  const alertMessage = (
+  const unavailabilityReasonMap: Record<string, string> = {
+    assessment_not_published: trans('messages.assessment_not_published'),
+    assessment_due_date_passed: trans('messages.assessment_due_date_passed'),
+    assessment_not_started: trans('messages.assessment_not_started'),
+    assessment_ended: trans('messages.assessment_ended'),
+  };
+
+
+  const unavailabilityMessage = !isSubmitted && !availability.available && availability.reason
+    ? unavailabilityReasonMap[availability.reason] || translations.assessmentUnavailable
+    : null;
+
+  const alertMessage = isHomework ? (
+    <AlertEntry type="info" title={translations.importantTitle}>
+      <ul className="list-disc list-inside space-y-1 text-sm">
+        <li>{translations.alertStableConnection}</li>
+        <li>{translations.alertHomeworkMultiSession}</li>
+        <li>{translations.alertAutoSave}</li>
+        {assessment.due_date && <li>{translations.alertHomeworkDueDate}</li>}
+      </ul>
+    </AlertEntry>
+  ) : (
     <AlertEntry type="warning" title={translations.importantTitle}>
       <ul className="list-disc list-inside space-y-1 text-sm">
         <li>{translations.alertStableConnection}</li>
@@ -73,6 +116,12 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
       </ul>
     </AlertEntry>
   );
+
+  const ctaLabel = canTake
+    ? (hasStarted ? translations.continueAssessment : translations.startAssessment)
+    : null;
+
+  const showViewResults = isSubmitted;
 
   const handleStartAssessment = () => {
     setIsModalOpen(false);
@@ -88,7 +137,7 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
   };
 
   return (
-    <AuthenticatedLayout title={assessment.title}>
+    <AuthenticatedLayout title={assessment.title} breadcrumb={breadcrumbs.student.showAssessment(assessment)}>
       <Modal size="xl" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <div className="flex flex-col justify-between">
           <div className="mx-auto my-4 flex flex-col items-center">
@@ -126,9 +175,20 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
               {translations.backToAssessments}
             </Button>
 
-            {canTake && (
+            {canTake && ctaLabel && (
               <Button color="primary" size="sm" onClick={() => setIsModalOpen(true)}>
-                {translations.startAssessment}
+                {ctaLabel}
+              </Button>
+            )}
+
+            {showViewResults && (
+              <Button
+                color="primary"
+                size="sm"
+                onClick={() => router.visit(route('student.assessments.results', assessment.id))}
+              >
+                <EyeIcon className="w-4 h-4 mr-1" />
+                {translations.viewResults}
               </Button>
             )}
           </div>
@@ -155,11 +215,19 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
           </div>
 
           <Stat.Group columns={3}>
-            <Stat.Item
-              title={translations.duration}
-              value={`${assessment.duration_minutes} ${translations.minutes}`}
-              icon={ClockIcon}
-            />
+            {isHomework && assessment.due_date ? (
+              <Stat.Item
+                title={translations.dueDate}
+                value={formatDate(assessment.due_date, 'datetime')}
+                icon={ClockIcon}
+              />
+            ) : (
+              <Stat.Item
+                title={translations.duration}
+                value={`${assessment.duration_minutes} ${translations.minutes}`}
+                icon={ClockIcon}
+              />
+            )}
             <Stat.Item
               title={translations.questions}
               value={assessment.questions?.length || 0}
@@ -176,7 +244,16 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
             <h2 className="text-lg font-semibold text-gray-900 mb-3">{translations.importantDates}</h2>
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextEntry label={translations.dueDate} value={formatDate(assessment.scheduled_at)} />
+                <TextEntry
+                  label={isHomework ? translations.dueDate : translations.scheduledDate}
+                  value={formatDate((isHomework ? assessment.due_date : assessment.scheduled_at) ?? '')}
+                />
+                {assignment.started_at && (
+                  <TextEntry
+                    label={translations.startedDate}
+                    value={formatDate(assignment.started_at)}
+                  />
+                )}
                 {assignment.submitted_at && (
                   <TextEntry
                     label={translations.submittedDate}
@@ -186,6 +263,12 @@ export default function Show({ assessment, assignment }: StudentAssessmentShowPr
               </div>
             </div>
           </div>
+
+          {unavailabilityMessage && (
+            <AlertEntry type="error" title={translations.assessmentUnavailable}>
+              <p className="text-sm">{unavailabilityMessage}</p>
+            </AlertEntry>
+          )}
 
           {alertMessage}
         </div>
