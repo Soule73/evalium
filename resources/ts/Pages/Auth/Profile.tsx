@@ -1,6 +1,7 @@
 import AuthenticatedLayout from "@/Components/layout/AuthenticatedLayout";
 import { type User } from "@/types";
-import { formatDate, getRoleLabel } from "@/utils";
+import { formatDate } from "@/utils";
+import { useFormatters } from '@/hooks/shared/useFormatters';
 import EditUser from "../Admin/Users/Edit";
 import { Button, LanguageSelector, Section, TextEntry, UserAvatar } from "@/Components";
 import { route } from "ziggy-js";
@@ -15,6 +16,7 @@ export default function Profile({ user }: Props) {
 
     const { isShowUpdateModal, setIsShowUpdateModal, locale, handleEdit, userRole } = useProfile({ user });
     const { t } = useTranslations();
+    const { getRoleLabel } = useFormatters();
 
 
     return (

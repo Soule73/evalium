@@ -21,7 +21,7 @@ import {
 } from '@dnd-kit/sortable';
 import { type QuestionType } from '@/types';
 import { useAssessmentFormStore } from '@/stores';
-import { getQuestionTypeLabel } from '@/utils';
+import { useFormatters } from '@/hooks/shared/useFormatters';
 import { useQuestionOptions } from './questionOptions';
 import { SortableQuestionItem } from './SortableQuestionItem';
 import { Section, Button, ConfirmationModal } from '@examena/ui';
@@ -67,6 +67,7 @@ function QuestionMenu({ addQuestion }: Props) {
 const QuestionsManager: React.FC<QuestionsManagerProps> = ({
     errors = {}
 }) => {
+    const { getQuestionTypeLabel } = useFormatters();
     const questions = useAssessmentFormStore((state) => state.questions);
 
     const {

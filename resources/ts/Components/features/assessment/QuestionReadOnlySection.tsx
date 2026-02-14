@@ -1,8 +1,9 @@
 import { CheckCircleIcon, XMarkIcon } from "@heroicons/react/16/solid";
 import { type Question } from "@/types";
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useQuestionTypeUtils } from '@/hooks/shared/useQuestionTypeUtils';
 import { MarkdownRenderer } from "@examena/ui";
-import { getTypeColor, getTypeLabel } from '@/utils/assessment/components';
+import { getTypeColor } from '@/utils/assessment/components';
 
 interface QuestionReadOnlySection {
     question: Question;
@@ -14,6 +15,7 @@ interface QuestionReadOnlySection {
 
 const QuestionReadOnlySection: React.FC<QuestionReadOnlySection> = ({ question, children, isCorrect, score, questionIndex }) => {
     const { t } = useTranslations();
+    const { getTypeLabel } = useQuestionTypeUtils();
 
     return (
         <div key={question.id} className="border-b border-gray-200 pb-6 last:border-b-0">

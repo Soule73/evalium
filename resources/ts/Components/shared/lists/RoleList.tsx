@@ -4,8 +4,8 @@ import { BaseEntityList } from './BaseEntityList';
 import { type EntityListConfig } from './types/listConfig';
 import { type Role } from '@/types';
 import { type PaginationType } from '@/types/datatable';
-import { getRoleLabel } from '@/utils';
 import { useTranslations } from '@/hooks';
+import { useFormatters } from '@/hooks/shared/useFormatters';
 import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 interface RoleListProps {
@@ -26,6 +26,7 @@ export function RoleList({
   onDelete
 }: RoleListProps) {
   const { t } = useTranslations();
+  const { getRoleLabel } = useFormatters();
 
   const config: EntityListConfig<Role> = useMemo(() => {
     const isSystemRole = (roleName: string) => {

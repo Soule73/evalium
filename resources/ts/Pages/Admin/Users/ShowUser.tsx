@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { formatDate, getRoleLabel } from '@/utils';
+import { formatDate } from '@/utils';
 import { type User } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useFormatters } from '@/hooks/shared/useFormatters';
 import EditUser from './Edit';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
@@ -22,6 +23,7 @@ interface Props {
 
 export default function ShowUser({ user, children, canDelete, canToggleStatus, breadcrumb }: Props) {
     const { t } = useTranslations();
+    const { getRoleLabel } = useFormatters();
 
     const [isShowUpdateModal, setIsShowUpdateModal] = useState(false);
 

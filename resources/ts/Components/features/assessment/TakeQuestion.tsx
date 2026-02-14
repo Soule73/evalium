@@ -1,15 +1,14 @@
 import React from 'react';
 import { type Choice, type Question } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useQuestionTypeUtils } from '@/hooks/shared/useQuestionTypeUtils';
+import { useChoiceUtils } from '@/hooks/shared/useChoiceUtils';
 import { Checkbox } from '@examena/ui';
 import { MarkdownRenderer, MarkdownEditor } from '@examena/ui';
 import { Section } from '@examena/ui';
 import {
     getTypeColor,
-    getTypeLabel,
     getBooleanDisplay,
-    getBooleanLabel,
-    getBooleanShortLabel,
     getBooleanBadgeClass,
     questionIndexLabel,
 } from '@/utils/assessment/components';
@@ -84,6 +83,7 @@ const TakeQuestionOneChoice: React.FC<BaseChoiceProps> = ({ questionId, choices,
 };
 
 const TakeQuestionBoolean: React.FC<BaseChoiceProps> = ({ questionId, choices, answers, onAnswerChange }) => {
+    const { getBooleanLabel, getBooleanShortLabel } = useChoiceUtils();
     const onChange = (value: number) => onAnswerChange(questionId, value);
 
     return (
@@ -144,6 +144,7 @@ const TakeQuestionText: React.FC<{
 
 const TakeQuestion: React.FC<TakeQuestionProps> = ({ question, answers, onAnswerChange }) => {
     const { t } = useTranslations();
+    const { getTypeLabel } = useQuestionTypeUtils();
 
     return (
         <Section

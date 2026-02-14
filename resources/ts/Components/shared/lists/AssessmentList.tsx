@@ -5,8 +5,9 @@ import { BaseEntityList } from './BaseEntityList';
 import { type Assessment, type AssessmentAssignment } from '@/types';
 import { Badge, MarkdownRenderer, Toggle } from '@examena/ui';
 import { ClockIcon } from '@heroicons/react/24/outline';
-import { formatDate, formatDuration } from '@/utils';
+import { formatDate } from '@/utils';
 import { useTranslations } from '@/hooks';
+import { useFormatters } from '@/hooks/shared/useFormatters';
 import type { EntityListConfig } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';
 
@@ -35,6 +36,7 @@ export function AssessmentList({
   showClassColumn = true,
 }: AssessmentListProps) {
   const { t } = useTranslations();
+  const { formatDuration } = useFormatters();
   const [, setTogglingAssessments] = useState<Set<number>>(new Set());
 
   const handleToggleStatus = useCallback((assessmentId: number, isPublished: boolean) => {

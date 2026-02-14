@@ -1,8 +1,8 @@
 import { type Assessment } from '@/types';
-import { formatDuration } from '@/utils';
-import { ClockIcon, QuestionMarkCircleIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { formatDate } from '@/utils';
+import { ClockIcon, QuestionMarkCircleIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useFormatters } from '@/hooks/shared/useFormatters';
 import { MarkdownRenderer, Stat } from '@examena/ui';
 
 interface AssessmentHeaderProps {
@@ -23,6 +23,7 @@ export function AssessmentHeader({
   compact = false
 }: AssessmentHeaderProps) {
   const { t } = useTranslations();
+  const { formatDuration } = useFormatters();
 
   return (
     <div className="space-y-3">

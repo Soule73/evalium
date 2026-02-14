@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { getRoleLabel } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useFormatters } from '@/hooks/shared/useFormatters';
 import { Button, Modal, Select } from '@/Components';
 import { Input } from '@examena/ui';
 
@@ -14,6 +14,7 @@ interface Props {
 
 export default function CreateUser({ roles, isOpen, onClose }: Props) {
     const { t } = useTranslations();
+    const { getRoleLabel } = useFormatters();
 
     const { data, setData, post, processing, errors } = useForm<{
         name: string;

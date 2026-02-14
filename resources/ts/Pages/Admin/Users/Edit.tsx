@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import { type User } from '@/types';
-import { getRoleLabel } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useFormatters } from '@/hooks/shared/useFormatters';
 import { Button, Modal, Select } from '@/Components';
 import { Input } from '@examena/ui';
 
@@ -19,6 +19,7 @@ interface Props {
 
 export default function EditUser({ user, roles, userRole, isOpen, onClose, title, description, route }: Props) {
     const { t } = useTranslations();
+    const { getRoleLabel } = useFormatters();
 
     const { data, setData, put, processing, errors } = useForm({
         id: user.id,

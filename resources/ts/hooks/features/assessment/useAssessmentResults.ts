@@ -1,5 +1,6 @@
 import { type Assessment, type AssessmentAssignment, type Question, type Answer, type Choice } from '@/types';
-import { canShowAssessmentResults, formatAssessmentAssignmentStatus } from '@/utils';
+import { canShowAssessmentResults } from '@/utils';
+import { useFormatters } from '@/hooks/shared/useFormatters';
 import { useMemo } from 'react';
 
 interface UseAssessmentResultParams {
@@ -12,6 +13,7 @@ interface UseAssessmentResultParams {
  * Custom React hook to compute and provide assessment result-related data and utilities.
  */
 const useAssessmentResults = ({ assessment, assignment, userAnswers }: UseAssessmentResultParams) => {
+  const { formatAssessmentAssignmentStatus } = useFormatters();
   const questions = useMemo(() => assessment?.questions ?? [], [assessment?.questions]);
   const assessmentIsActive = assessment.is_published;
   const assignmentScore = assignment.score;

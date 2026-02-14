@@ -1,7 +1,9 @@
 import React from 'react';
-import { formatAssessmentScore, formatDate, formatDuration, getAssignmentBadgeLabel, securityViolationLabel } from '@/utils';
+import { formatDate } from '@/utils';
 import { type Assessment, type AssessmentAssignment, type User } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useFormatters } from '@/hooks/shared/useFormatters';
+import { useAssessmentFormatters } from '@/hooks/shared/useAssessmentFormatters';
 import { TextEntry, AlertEntry } from '@examena/ui';
 
 interface AssessmentInfoSectionProps {
@@ -52,6 +54,8 @@ const AssessmentInfoSection: React.FC<AssessmentInfoSectionProps> = ({
     isStudentView = false
 }) => {
     const { t } = useTranslations();
+    const { formatDuration, getAssignmentBadgeLabel, securityViolationLabel } = useFormatters();
+    const { formatAssessmentScore } = useAssessmentFormatters();
 
     return (
         <>

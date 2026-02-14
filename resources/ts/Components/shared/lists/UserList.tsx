@@ -3,8 +3,9 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
 import { type User } from '@/types';
-import { formatDate, getRoleColor, getRoleLabel } from '@/utils';
+import { formatDate, getRoleColor } from '@/utils';
 import { useTranslations } from '@/hooks';
+import { useFormatters } from '@/hooks/shared/useFormatters';
 import { Button } from '@/Components';
 import { Toggle } from '@examena/ui';
 import { TrashIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
@@ -44,6 +45,7 @@ export function UserList({
   onForceDeleteClick
 }: UserListProps) {
   const { t } = useTranslations();
+  const { getRoleLabel } = useFormatters();
 
   const handleViewUser = useCallback((userId: number) => {
     router.visit(route('admin.users.show.teacher', { user: userId }));

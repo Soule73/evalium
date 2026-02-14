@@ -1,14 +1,12 @@
 import { type Choice } from "@/types";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useChoiceUtils } from '@/hooks/shared/useChoiceUtils';
 import { MarkdownRenderer } from "@examena/ui";
 import {
   getBooleanDisplay,
-  getBooleanLabel,
-  getBooleanShortLabel,
   getBooleanBadgeClass,
   getChoiceStyles,
-  getStatusLabelText,
   getChoiceBorder,
 } from '@/utils/assessment/components/choiceUtils';
 import {
@@ -45,6 +43,7 @@ interface ChoiceItemProps {
 }
 
 const ChoiceItem: React.FC<ChoiceItemProps> = ({ choice, index, type, isSelected, shouldShowCorrect, isTeacherView }) => {
+  const { getBooleanLabel, getBooleanShortLabel, getStatusLabelText } = useChoiceUtils();
   const isCorrect = choice.is_correct;
   const styles = getChoiceStyles(isSelected, isCorrect, shouldShowCorrect);
   const border = getChoiceBorder(type);
