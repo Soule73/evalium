@@ -2,7 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useShallow } from 'zustand/react/shallow';
-import { QuestionFormData, Assessment, AssessmentType } from '@/types';
+import { QuestionFormData, Assessment, AssessmentType, DeliveryMode } from '@/types';
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
 
 interface AssessmentEditData {
@@ -10,6 +10,8 @@ interface AssessmentEditData {
   description: string;
   duration: number;
   scheduled_date: string;
+  due_date: string;
+  delivery_mode: DeliveryMode;
   type: AssessmentType;
   class_subject_id: number;
   is_published: boolean;
@@ -52,6 +54,8 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
     description: assessment.description || '',
     duration: assessment.duration_minutes || 60,
     scheduled_date: assessment.scheduled_at ? assessment.scheduled_at.slice(0, 16) : '',
+    due_date: assessment.due_date ? assessment.due_date.slice(0, 16) : '',
+    delivery_mode: assessment.delivery_mode || 'homework',
     type: assessment.type,
     class_subject_id: assessment.class_subject_id || 0,
     is_published: assessment.is_published ?? false,

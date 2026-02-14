@@ -17,7 +17,10 @@ class AssessmentResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'scheduled_at' => $this->scheduled_at,
+            'type' => $this->type,
+            'delivery_mode' => $this->delivery_mode?->value,
+            'scheduled_at' => $this->scheduled_at?->toISOString(),
+            'due_date' => $this->due_date?->toISOString(),
             'classSubject' => $this->whenLoaded('classSubject', function () {
                 return [
                     'class' => [

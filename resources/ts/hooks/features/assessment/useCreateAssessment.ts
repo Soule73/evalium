@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useShallow } from 'zustand/react/shallow';
-import { QuestionFormData, AssessmentType } from '@/types';
+import { QuestionFormData, AssessmentType, DeliveryMode } from '@/types';
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
 
 interface AssessmentCreateData {
@@ -10,6 +10,8 @@ interface AssessmentCreateData {
   description: string;
   duration: number;
   scheduled_date: string;
+  due_date: string;
+  delivery_mode: DeliveryMode;
   type: AssessmentType;
   class_subject_id: number;
   is_published: boolean;
@@ -31,6 +33,8 @@ export const useCreateAssessment = () => {
     description: '',
     duration: 60,
     scheduled_date: '',
+    due_date: '',
+    delivery_mode: 'homework',
     type: 'devoir',
     class_subject_id: 0,
     is_published: false,

@@ -1,12 +1,13 @@
 import { User, Answer } from './shared';
 import type { Assessment } from './assessment';
 
-export type AssessmentAssignmentStatus = 'not_submitted' | 'submitted' | 'graded';
+export type AssessmentAssignmentStatus = 'not_submitted' | 'in_progress' | 'submitted' | 'graded';
 
 export interface AssessmentAssignment {
   id: number;
   assessment_id: number;
   student_id: number;
+  started_at?: string;
   submitted_at?: string;
   graded_at?: string;
   score?: number;

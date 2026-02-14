@@ -4,15 +4,22 @@ import { User, Question } from '@/types';
 
 export type AssessmentType = 'devoir' | 'examen' | 'tp' | 'controle' | 'projet';
 
+export type DeliveryMode = 'supervised' | 'homework';
+
 export interface Assessment {
   id: number;
   class_subject_id: number;
   title: string;
   description?: string;
   type: AssessmentType;
+  delivery_mode: DeliveryMode;
   coefficient: number;
-  duration_minutes: number;
-  scheduled_at: string;
+  duration_minutes: number | null;
+  scheduled_at: string | null;
+  due_date?: string;
+  max_file_size?: number;
+  allowed_extensions?: string;
+  max_files?: number;
   is_published: boolean;
   shuffle_questions: boolean;
   show_results_immediately: boolean;
@@ -37,9 +44,14 @@ export interface AssessmentFormData {
   title: string;
   description?: string;
   type: AssessmentType;
+  delivery_mode: DeliveryMode;
   coefficient: number;
   duration: number;
   assessment_date: string;
+  due_date?: string;
+  max_file_size?: number;
+  allowed_extensions?: string;
+  max_files?: number;
   is_published?: boolean;
   shuffle_questions?: boolean;
   show_results_immediately?: boolean;
@@ -74,4 +86,9 @@ export interface AssessmentStatistics {
   average_score?: number;
   highest_score?: number;
   lowest_score?: number;
+}
+
+export interface AvailabilityStatus {
+  available: boolean;
+  reason: string | null;
 }

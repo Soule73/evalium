@@ -1,11 +1,15 @@
+import { useState, useCallback } from 'react';
 import { router } from '@inertiajs/react';
+import axios from 'axios';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
 import { Assessment, AssessmentAssignment } from '@/types';
 import { Badge, Button } from '@examena/ui';
+import { ConfirmationModal, Textarea } from '@/Components';
 import { formatDate, trans } from '@/utils';
 import type { EntityListConfig } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 interface AssignmentWithVirtual extends AssessmentAssignment {
   is_virtual?: boolean;
@@ -36,6 +40,43 @@ export function AssignmentList({
   onGrade,
   onViewResult,
 }: AssignmentListProps) {
+  const [reopenTarget, setReopenTarget] = useState<AssignmentWithVirtual | null>(null);
+  const [reopenReason, setReopenReason] = useState('');
+  const [reopening, setReopening] = useState(false);
+  const [reopenError, setReopenError] = useState<string | null>(null);
+
+  const isSupervisedMode = assessment.delivery_mode === 'supervised';
+
+  const canReopenAssignment = useCallback((assignment: AssignmentWithVirtual): boolean => {
+    if (!isSupervisedMode || assignment.is_virtual || !assignment.started_at) return false;
+    if (!assignment.submitted_at) return false;
+    if (assignment.forced_submission || assignment.security_violation) return true;
+    return false;
+  }, [isSupervisedMode]);
+
+  const handleReopenConfirm = useCallback(async () => {
+    if (!reopenTarget || !reopenReason.trim()) return;
+    setReopening(true);
+    setReopenError(null);
+
+    try {
+      await axios.post(
+        route('teacher.assessments.reopen', { assessment: assessment.id, assignment: reopenTarget.id }),
+        { reason: reopenReason }
+      );
+      setReopenTarget(null);
+      setReopenReason('');
+      router.visit(window.location.href, { preserveState: true, preserveScroll: true });
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.data?.message) {
+        setReopenError(err.response.data.message);
+      } else {
+        setReopenError(trans('components.assignment_list.reopen_error'));
+      }
+    } finally {
+      setReopening(false);
+    }
+  }, [reopenTarget, reopenReason, assessment.id]);
 
   const getStatusBadge = (assignment: AssignmentWithVirtual): { label: string; type: 'gray' | 'info' | 'warning' | 'success' } => {
     if (assignment.is_virtual) {
@@ -126,6 +167,22 @@ export function AssignmentList({
         labelKey: 'components.assignment_list.actions',
         render: (assignment) => (
           <div className="flex items-center justify-end space-x-2">
+            {canReopenAssignment(assignment) && (
+              <Button
+                size="sm"
+                variant="outline"
+                color="warning"
+                onClick={() => {
+                  setReopenTarget(assignment);
+                  setReopenReason('');
+                  setReopenError(null);
+                }}
+                title={trans('components.assignment_list.allow_retry')}
+              >
+                <ArrowPathIcon className="h-4 w-4 mr-1" />
+                {trans('components.assignment_list.allow_retry')}
+              </Button>
+            )}
             {assignment.submitted_at && !assignment.is_virtual && (
               <>
                 {(assignment.score === null || assignment.score === undefined) ? (
@@ -154,12 +211,39 @@ export function AssignmentList({
   };
 
   return (
-    <BaseEntityList
-      data={data}
-      config={config}
-      variant="teacher"
-      searchPlaceholder={trans('components.assignment_list.search_students')}
-      emptyMessage={trans('components.assignment_list.no_students')}
-    />
+    <>
+      <BaseEntityList
+        data={data}
+        config={config}
+        variant="teacher"
+        searchPlaceholder={trans('components.assignment_list.search_students')}
+        emptyMessage={trans('components.assignment_list.no_students')}
+      />
+
+      <ConfirmationModal
+        isOpen={!!reopenTarget}
+        onClose={() => { setReopenTarget(null); setReopenReason(''); setReopenError(null); }}
+        onConfirm={handleReopenConfirm}
+        title={trans('components.assignment_list.reopen_modal_title')}
+        message={trans('components.assignment_list.reopen_modal_message', {
+          student: reopenTarget?.student?.name ?? '',
+        })}
+        confirmText={trans('components.assignment_list.reopen_confirm')}
+        cancelText={trans('components.confirmation_modal.cancel')}
+        type="warning"
+        loading={reopening}
+      >
+        {reopenError && (
+          <p className="text-sm text-red-600 mb-3">{reopenError}</p>
+        )}
+        <Textarea
+          label={trans('components.assignment_list.reopen_reason_label')}
+          value={reopenReason}
+          onChange={(e) => setReopenReason(e.target.value)}
+          placeholder={trans('components.assignment_list.reopen_reason_placeholder')}
+          rows={3}
+        />
+      </ConfirmationModal>
+    </>
   );
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services\Core;
 
+use App\Enums\DeliveryMode;
 use App\Exceptions\AssessmentException;
 use App\Exceptions\ValidationException;
 use App\Models\Assessment;
@@ -37,9 +38,14 @@ class AssessmentService
                 'title' => $data['title'],
                 'description' => $data['description'] ?? null,
                 'type' => $data['type'],
+                'delivery_mode' => $data['delivery_mode'] ?? DeliveryMode::defaultForType($data['type'])->value,
                 'coefficient' => $data['coefficient'],
-                'duration_minutes' => $data['duration_minutes'],
+                'duration_minutes' => $data['duration_minutes'] ?? null,
                 'scheduled_at' => $data['scheduled_at'] ?? null,
+                'due_date' => $data['due_date'] ?? null,
+                'max_file_size' => $data['max_file_size'] ?? null,
+                'allowed_extensions' => $data['allowed_extensions'] ?? null,
+                'max_files' => $data['max_files'] ?? 0,
             ]);
 
             $assessment->is_published = $data['is_published'] ?? false;
@@ -66,14 +72,26 @@ class AssessmentService
     public function updateAssessment(Assessment $assessment, array $data): Assessment
     {
         return DB::transaction(function () use ($assessment, $data) {
-            $updateData = array_filter([
-                'title' => $data['title'] ?? null,
-                'description' => $data['description'] ?? null,
-                'type' => $data['type'] ?? null,
-                'coefficient' => $data['coefficient'] ?? null,
-                'duration_minutes' => $data['duration_minutes'] ?? null,
-                'scheduled_at' => $data['scheduled_at'] ?? null,
-            ], fn ($value) => $value !== null);
+            $updatableFields = [
+                'title',
+                'description',
+                'type',
+                'delivery_mode',
+                'coefficient',
+                'duration_minutes',
+                'scheduled_at',
+                'due_date',
+                'max_file_size',
+                'allowed_extensions',
+                'max_files',
+            ];
+
+            $updateData = [];
+            foreach ($updatableFields as $field) {
+                if (array_key_exists($field, $data)) {
+                    $updateData[$field] = $data[$field];
+                }
+            }
 
             if (isset($data['coefficient']) && $data['coefficient'] <= 0) {
                 throw AssessmentException::invalidCoefficient();
@@ -197,19 +215,23 @@ class AssessmentService
      */
     private function validateAssessmentData(array $data): void
     {
-        $required = ['class_subject_id', 'title', 'type', 'coefficient', 'duration_minutes'];
+        $required = ['class_subject_id', 'title', 'type', 'coefficient'];
         foreach ($required as $field) {
             if (! isset($data[$field])) {
                 throw ValidationException::missingRequiredField($field);
             }
         }
 
-        if ($data['coefficient'] <= 0) {
-            throw AssessmentException::invalidCoefficient();
+        $deliveryMode = $data['delivery_mode'] ?? DeliveryMode::defaultForType($data['type'])->value;
+
+        if ($deliveryMode === DeliveryMode::Supervised->value || $deliveryMode === DeliveryMode::Supervised) {
+            if (! isset($data['duration_minutes']) || $data['duration_minutes'] <= 0) {
+                throw AssessmentException::invalidDuration();
+            }
         }
 
-        if ($data['duration_minutes'] <= 0) {
-            throw AssessmentException::invalidDuration();
+        if ($data['coefficient'] <= 0) {
+            throw AssessmentException::invalidCoefficient();
         }
 
         $validTypes = ['devoir', 'examen', 'tp', 'controle', 'projet'];

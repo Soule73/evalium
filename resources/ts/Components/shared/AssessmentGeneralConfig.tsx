@@ -2,7 +2,15 @@ import React from 'react';
 import { trans } from '@/utils';
 import { Checkbox, Input, Select } from '@examena/ui';
 import { MarkdownEditor } from '@examena/ui';
-import { ClassSubject, AssessmentType } from '@/types';
+import { ClassSubject, AssessmentType, DeliveryMode } from '@/types';
+
+const DEFAULT_DELIVERY_MODES: Record<string, DeliveryMode> = {
+  examen: 'supervised',
+  controle: 'supervised',
+  devoir: 'homework',
+  tp: 'homework',
+  projet: 'homework',
+};
 
 interface AssessmentGeneralConfigProps {
   data: {
@@ -10,6 +18,8 @@ interface AssessmentGeneralConfigProps {
     description: string;
     duration: number;
     scheduled_date?: string;
+    due_date?: string;
+    delivery_mode: DeliveryMode;
     type: AssessmentType;
     class_subject_id: number;
     is_published: boolean;
@@ -17,15 +27,25 @@ interface AssessmentGeneralConfigProps {
     show_results_immediately: boolean;
     allow_late_submission: boolean;
     one_question_per_page: boolean;
+    max_files?: number | null;
+    max_file_size?: number | null;
+    allowed_extensions?: string | null;
   };
   errors: {
     title?: string;
     description?: string;
     duration?: string;
+    duration_minutes?: string;
     scheduled_date?: string;
+    scheduled_at?: string;
+    due_date?: string;
+    delivery_mode?: string;
     type?: string;
     class_subject_id?: string;
     is_published?: string;
+    max_files?: string;
+    max_file_size?: string;
+    allowed_extensions?: string;
   };
   onFieldChange: (field: string, value: string | number | boolean) => void;
   classSubjects: ClassSubject[];
@@ -37,6 +57,8 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
   onFieldChange,
   classSubjects
 }) => {
+  const isSupervised = data.delivery_mode === 'supervised';
+
   const assessmentTypeOptions = [
     { value: 'devoir', label: trans('components.assessment_general_config.type_devoir') },
     { value: 'examen', label: trans('components.assessment_general_config.type_examen') },
@@ -45,10 +67,21 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
     { value: 'projet', label: trans('components.assessment_general_config.type_projet') }
   ];
 
+  const deliveryModeOptions = [
+    { value: 'supervised', label: trans('components.assessment_general_config.delivery_mode_supervised') },
+    { value: 'homework', label: trans('components.assessment_general_config.delivery_mode_homework') }
+  ];
+
   const classSubjectOptions = classSubjects.map(cs => ({
     value: cs.id.toString(),
     label: `${cs.class?.name} - ${cs.subject?.name}`
   }));
+
+  const handleTypeChange = (value: string) => {
+    onFieldChange('type', value);
+    const suggestedMode = DEFAULT_DELIVERY_MODES[value] || 'homework';
+    onFieldChange('delivery_mode', suggestedMode);
+  };
 
   return (
     <div className="space-y-6">
@@ -78,7 +111,7 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
           <Select
             label={trans('components.assessment_general_config.type_label')}
             value={data.type}
-            onChange={(value) => onFieldChange('type', value)}
+            onChange={handleTypeChange}
             error={errors.type}
             options={assessmentTypeOptions}
             required
@@ -86,16 +119,29 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
         </div>
 
         <div>
-          <Input
-            label={trans('components.assessment_general_config.duration_label')}
-            type="number"
-            value={data.duration?.toString() || ''}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFieldChange('duration', parseInt(e.target.value))}
-            error={errors.duration}
-            min="1"
+          <Select
+            label={trans('components.assessment_general_config.delivery_mode_label')}
+            value={data.delivery_mode}
+            onChange={(value) => onFieldChange('delivery_mode', value)}
+            error={errors.delivery_mode}
+            options={deliveryModeOptions}
             required
           />
         </div>
+
+        {isSupervised && (
+          <div>
+            <Input
+              label={trans('components.assessment_general_config.duration_label')}
+              type="number"
+              value={data.duration?.toString() || ''}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFieldChange('duration', parseInt(e.target.value))}
+              error={errors.duration || errors.duration_minutes}
+              min="1"
+              required
+            />
+          </div>
+        )}
 
         <div>
           <Select
@@ -114,16 +160,76 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
           />
         </div>
 
-        <div className="md:col-span-2 lg:col-span-1">
-          <Input
-            label={trans('components.assessment_general_config.scheduled_date_label')}
-            type="datetime-local"
-            value={data.scheduled_date || ''}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFieldChange('scheduled_date', e.target.value)}
-            error={errors.scheduled_date}
-          />
-        </div>
+        {isSupervised && (
+          <div className="md:col-span-2 lg:col-span-1">
+            <Input
+              label={trans('components.assessment_general_config.scheduled_date_label')}
+              type="datetime-local"
+              value={data.scheduled_date || ''}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFieldChange('scheduled_date', e.target.value)}
+              error={errors.scheduled_date || errors.scheduled_at}
+            />
+          </div>
+        )}
+
+        {!isSupervised && (
+          <div className="md:col-span-2 lg:col-span-1">
+            <Input
+              label={trans('components.assessment_general_config.due_date_label')}
+              type="datetime-local"
+              value={data.due_date || ''}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFieldChange('due_date', e.target.value)}
+              error={errors.due_date}
+              required
+            />
+          </div>
+        )}
       </div>
+
+      {!isSupervised && (
+        <div className="border-t border-gray-200 pt-6">
+          <h4 className="text-md font-medium text-gray-900 mb-4">
+            {trans('components.assessment_general_config.file_upload_title')}
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <Input
+                label={trans('components.assessment_general_config.max_files_label')}
+                type="number"
+                value={data.max_files?.toString() || ''}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFieldChange('max_files', e.target.value ? parseInt(e.target.value) : 0)}
+                error={errors.max_files}
+                min="0"
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                {trans('components.assessment_general_config.max_files_help')}
+              </p>
+            </div>
+            <div>
+              <Input
+                label={trans('components.assessment_general_config.max_file_size_label')}
+                type="number"
+                value={data.max_file_size?.toString() || ''}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFieldChange('max_file_size', e.target.value ? parseInt(e.target.value) : 0)}
+                error={errors.max_file_size}
+                min="0"
+              />
+            </div>
+            <div>
+              <Input
+                label={trans('components.assessment_general_config.allowed_extensions_label')}
+                type="text"
+                value={data.allowed_extensions || ''}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFieldChange('allowed_extensions', e.target.value)}
+                error={errors.allowed_extensions}
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                {trans('components.assessment_general_config.allowed_extensions_help')}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div>
         <MarkdownEditor

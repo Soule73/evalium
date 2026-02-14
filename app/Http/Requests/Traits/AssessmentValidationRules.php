@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Traits;
 
+use App\Enums\DeliveryMode;
 use App\Strategies\Validation\QuestionValidationContext;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 /**
@@ -40,6 +42,10 @@ trait AssessmentValidationRules
             $data['coefficient'] = 1.0;
         }
 
+        if ($this->has('type') && ! $this->has('delivery_mode')) {
+            $data['delivery_mode'] = DeliveryMode::defaultForType($this->type)->value;
+        }
+
         if (! empty($data)) {
             $this->merge($data);
         }
@@ -54,14 +60,22 @@ trait AssessmentValidationRules
     protected function getAssessmentValidationRules(bool $isUpdate = false): array
     {
         $requiredOrSometimes = $isUpdate ? 'sometimes' : 'required';
+        $deliveryMode = $this->input('delivery_mode');
+        $isSupervised = $deliveryMode === DeliveryMode::Supervised->value;
+        $isHomework = $deliveryMode === DeliveryMode::Homework->value;
 
         $rules = [
             'title' => [$requiredOrSometimes, 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'type' => [$requiredOrSometimes, 'in:devoir,examen,tp,controle,projet'],
-            'scheduled_at' => [$requiredOrSometimes, 'date'],
-            'duration_minutes' => [$requiredOrSometimes, 'integer', 'min:1'],
+            'delivery_mode' => [$requiredOrSometimes, Rule::in(DeliveryMode::values())],
+            'scheduled_at' => [$isSupervised ? $requiredOrSometimes : 'nullable', 'date'],
+            'duration_minutes' => [$isSupervised ? $requiredOrSometimes : 'nullable', 'integer', 'min:1'],
+            'due_date' => [$isHomework ? $requiredOrSometimes : 'nullable', 'date'],
             'coefficient' => [$requiredOrSometimes, 'numeric', 'min:0.01'],
+            'max_file_size' => ['nullable', 'integer', 'min:1'],
+            'allowed_extensions' => ['nullable', 'string', 'max:255'],
+            'max_files' => ['nullable', 'integer', 'min:0'],
             'is_published' => ['sometimes', 'boolean'],
             'shuffle_questions' => ['sometimes', 'boolean'],
             'show_results_immediately' => ['sometimes', 'boolean'],
@@ -120,7 +134,9 @@ trait AssessmentValidationRules
         $messages = [
             'title.string' => __('validation.string', ['attribute' => __('messages.assessment_title')]),
             'type.in' => __('validation.in', ['attribute' => __('messages.assessment_type')]),
+            'delivery_mode.in' => __('validation.in', ['attribute' => __('messages.delivery_mode')]),
             'duration_minutes.min' => __('validation.min.numeric', ['attribute' => __('messages.duration'), 'min' => 1]),
+            'due_date.date' => __('validation.date', ['attribute' => __('messages.due_date')]),
             'coefficient.min' => __('validation.min.numeric', ['attribute' => __('messages.coefficient'), 'min' => 0.01]),
         ];
 
@@ -128,8 +144,10 @@ trait AssessmentValidationRules
             $messages['class_subject_id.required'] = __('validation.required', ['attribute' => __('messages.class_subject')]);
             $messages['title.required'] = __('validation.required', ['attribute' => __('messages.assessment_title')]);
             $messages['type.required'] = __('validation.required', ['attribute' => __('messages.assessment_type')]);
+            $messages['delivery_mode.required'] = __('validation.required', ['attribute' => __('messages.delivery_mode')]);
             $messages['scheduled_at.required'] = __('validation.required', ['attribute' => __('messages.scheduled_date')]);
             $messages['duration_minutes.required'] = __('validation.required', ['attribute' => __('messages.duration')]);
+            $messages['due_date.required'] = __('validation.required', ['attribute' => __('messages.due_date')]);
             $messages['coefficient.required'] = __('validation.required', ['attribute' => __('messages.coefficient')]);
         }
 

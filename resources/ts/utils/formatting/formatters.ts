@@ -404,3 +404,14 @@ export const getBooleanStatusInfo = (isActive: boolean): { label: string; type: 
         ? { label: trans('formatters.active'), type: 'success' }
         : { label: trans('formatters.inactive'), type: 'gray' };
 };
+
+/**
+ * Formats a file size in bytes to a human-readable string (B, KB, MB, GB).
+ */
+export const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    const index = Math.floor(Math.log(bytes) / Math.log(1024));
+    const size = bytes / Math.pow(1024, index);
+    return `${size.toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+};

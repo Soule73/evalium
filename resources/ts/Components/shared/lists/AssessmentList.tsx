@@ -55,12 +55,26 @@ export function AssessmentList({
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { label: string; type: 'warning' | 'info' | 'success' | 'gray' }> = {
       not_submitted: { label: trans('student_assessment_pages.index.not_started'), type: 'warning' },
-      submitted: { label: trans('student_assessment_pages.index.completed'), type: 'info' },
+      in_progress: { label: trans('student_assessment_pages.index.in_progress'), type: 'info' },
+      submitted: { label: trans('student_assessment_pages.index.completed'), type: 'success' },
       graded: { label: trans('student_assessment_pages.index.graded'), type: 'success' },
     };
 
     const config = statusMap[status] || { label: status, type: 'gray' as const };
     return <Badge label={config.label} type={config.type} size='sm' />;
+  };
+
+  const getDeliveryModeBadge = (deliveryMode: string) => {
+    const isHomework = deliveryMode === 'homework';
+    return (
+      <Badge
+        label={isHomework
+          ? trans('student_assessment_pages.index.delivery_mode_homework')
+          : trans('student_assessment_pages.index.delivery_mode_supervised')}
+        type={isHomework ? 'info' : 'gray'}
+        size='sm'
+      />
+    );
   };
 
   type AssessmentItem = Assessment | (AssessmentAssignment & { assessment: Assessment });
@@ -77,10 +91,15 @@ export function AssessmentList({
             const assignment = item as AssessmentAssignment & { assessment: Assessment };
             return (
               <div>
-                <div className="font-medium text-gray-900">{assignment.assessment.title}</div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-gray-900">{assignment.assessment.title}</span>
+                  {getDeliveryModeBadge(assignment.assessment.delivery_mode)}
+                </div>
                 <div className="text-sm text-gray-500">
                   <ClockIcon className="inline w-4 h-4 mr-1" />
-                  {formatDuration(assignment.assessment.duration_minutes)} -{' '}
+                  {assignment.assessment.delivery_mode === 'homework' && assignment.assessment.due_date
+                    ? formatDate(assignment.assessment.due_date, 'datetime')
+                    : formatDuration(assignment.assessment.duration_minutes ?? 0)} -{' '}
                   {assignment.assessment.questions_count || 0} questions
                 </div>
               </div>
@@ -131,12 +150,15 @@ export function AssessmentList({
 
       {
         key: 'assessment_date',
-        labelKey: 'student_assessment_pages.index.due_date',
+        labelKey: 'student_assessment_pages.index.assessment_date',
         render: (item: AssessmentItem) => {
           const assignment = item as AssessmentAssignment & { assessment: Assessment };
+          const dateValue = assignment.assessment.delivery_mode === 'homework' && assignment.assessment.due_date
+            ? assignment.assessment.due_date
+            : assignment.assessment.scheduled_at;
           return (
             <span className="text-gray-700">
-              {formatDate(assignment.assessment.scheduled_at)}
+              {formatDate(dateValue ?? '', 'datetime')}
             </span>
           );
         },
@@ -160,7 +182,7 @@ export function AssessmentList({
           const assessment = item as Assessment;
           return (
             <span className="text-sm text-gray-900">
-              {formatDuration(assessment.duration_minutes)}
+              {formatDuration(assessment.duration_minutes || 0)}
             </span>
           );
         },
@@ -247,7 +269,7 @@ export function AssessmentList({
         conditional: (item, currentVariant) => {
           if (currentVariant !== 'student') return false;
           const assignment = item as AssessmentAssignment & { assessment: Assessment };
-          return assignment.status === 'not_submitted';
+          return assignment.status === 'not_submitted' || assignment.status === 'in_progress';
         },
       },
       {
