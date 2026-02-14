@@ -33,7 +33,7 @@ describe('Button Component', () => {
 
     it('renders with different sizes', () => {
         const { rerender } = render(<Button size="sm">Small</Button>);
-        expect(screen.getByRole('button')).toHaveClass('px-3', 'py-2', 'text-sm');
+        expect(screen.getByRole('button')).toHaveClass('px-2', 'py-1', 'text-sm');
 
         rerender(<Button size="lg">Large</Button>);
         expect(screen.getByRole('button')).toHaveClass('px-6', 'py-3', 'text-lg');

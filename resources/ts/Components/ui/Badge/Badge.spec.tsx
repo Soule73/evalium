@@ -36,6 +36,11 @@ describe('Badge Component', () => {
 
     it('applies correct base styles', () => {
         const { container } = render(<Badge label="Badge" type="info" />);
-        expect(container.firstChild).toHaveClass('text-xs', 'w-max', 'font-medium', 'rounded-lg', 'px-2', 'py-1');
+        expect(container.firstChild).toHaveClass('w-max', 'font-medium', 'rounded-lg', 'text-sm', 'px-3', 'py-1.5');
+    });
+
+    it('applies correct sm size styles', () => {
+        const { container } = render(<Badge label="Badge" type="info" size="sm" />);
+        expect(container.firstChild).toHaveClass('w-max', 'font-medium', 'rounded-lg', 'text-xs', 'px-1.5', 'py-0.5');
     });
 });
