@@ -50,9 +50,11 @@ export function translateKey(
 /**
  * Get a translation by key using dot notation (React hook - calls usePage).
  *
- * WARNING: This function calls usePage() internally, making it a React hook.
- * Do NOT call inside useMemo, useCallback, useEffect, or loops/conditions.
- * For those contexts, use the useTranslations() hook instead.
+ * @deprecated Use the `useTranslations()` hook instead:
+ * ```ts
+ * const { t } = useTranslations();
+ * t('assessment.created');
+ * ```
  *
  * @param key - Translation key in dot notation (e.g., 'assessment.created')
  * @param replacements - Object with replacement values for :placeholder syntax
@@ -70,7 +72,12 @@ export function trans(
 }
 
 /**
- * Get the current locale (React hook - calls usePage)
+ * Get the current locale (React hook - calls usePage).
+ *
+ * @deprecated Use the `useTranslations()` hook instead:
+ * ```ts
+ * const { currentLocale } = useTranslations();
+ * ```
  */
 export function locale(): string {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -79,14 +86,26 @@ export function locale(): string {
 }
 
 /**
- * Check if current locale matches given locale (React hook - calls usePage)
+ * Check if current locale matches given locale (React hook - calls usePage).
+ *
+ * @deprecated Use the `useTranslations()` hook instead:
+ * ```ts
+ * const { currentLocale } = useTranslations();
+ * const isFrench = currentLocale === 'fr';
+ * ```
  */
 export function isLocale(loc: string): boolean {
     return locale() === loc;
 }
 
 /**
- * Get all translations for a namespace (React hook - calls usePage)
+ * Get all translations for a namespace (React hook - calls usePage).
+ *
+ * @deprecated Use the `useTranslations()` hook instead:
+ * ```ts
+ * const { tAll } = useTranslations();
+ * tAll('assessment');
+ * ```
  *
  * @param namespace - Translation namespace (e.g., 'assessment', 'groups')
  * @returns Object with all translations in that namespace
@@ -98,7 +117,13 @@ export function transAll(namespace: string): Record<string, any> {
 }
 
 /**
- * Choice translation with pluralization (React hook - calls usePage)
+ * Choice translation with pluralization (React hook - calls usePage).
+ *
+ * @deprecated Use the `useTranslations()` hook instead:
+ * ```ts
+ * const { tChoice } = useTranslations();
+ * tChoice('items.count', 5);
+ * ```
  *
  * @param key - Translation key
  * @param count - Count for pluralization
