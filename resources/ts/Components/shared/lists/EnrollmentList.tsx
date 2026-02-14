@@ -108,7 +108,7 @@ export function EnrollmentList({
             <div className="text-sm text-gray-500">{enrollment.student?.email}</div>
           </div>
         ),
-        conditional: (v) => v === 'admin',
+        conditional: (v) => v === 'admin' || v === 'teacher',
       },
       {
         key: 'class',

@@ -131,23 +131,12 @@ export function AssessmentList({
         render: (item: AssessmentItem) => {
           const assignment = item as AssessmentAssignment & { assessment: Assessment };
           return (
-            <span className="text-gray-700">
-              {assignment.assessment.class_subject?.subject?.name || '-'}
-            </span>
-          );
-        },
-        conditional: (currentVariant) => currentVariant === 'student',
-      },
-
-      {
-        key: 'teacher',
-        labelKey: 'student_assessment_pages.index.teacher',
-        render: (item: AssessmentItem) => {
-          const assignment = item as AssessmentAssignment & { assessment: Assessment };
-          return (
-            <span className="text-gray-700">
-              {assignment.assessment.class_subject?.teacher?.name || '-'}
-            </span>
+            <div>
+              <span className="text-sm font-medium">{assignment.assessment.class_subject?.subject?.name || '-'}</span>
+              <div className="text-sm text-gray-500 truncate max-w-sm line-clamp-2">
+                {trans('student_assessment_pages.index.teacher')}: {assignment.assessment.class_subject?.teacher?.name || '-'}
+              </div>
+            </div>
           );
         },
         conditional: (currentVariant) => currentVariant === 'student',

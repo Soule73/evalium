@@ -11,8 +11,10 @@ interface ClassSubjectListProps {
   data: PaginationType<ClassSubject>;
   variant?: 'admin' | 'teacher';
   showClassColumn?: boolean;
+  showTeacherColumn?: boolean;
   showAssessmentsColumn?: boolean;
   onView?: (classSubject: ClassSubject) => void;
+  onCreateAssessment?: (classSubject: ClassSubject) => void;
 }
 
 /**
@@ -20,14 +22,16 @@ interface ClassSubjectListProps {
  *
  * Supports variants:
  * - admin: View assignments with link to detail page
- * - teacher: Read-only view for teachers
+ * - teacher: View with create assessment action
  */
 export function ClassSubjectList({
   data,
   variant = 'admin',
   showClassColumn = true,
+  showTeacherColumn = true,
   showAssessmentsColumn = true,
   onView,
+  onCreateAssessment,
 }: ClassSubjectListProps) {
   const config: EntityListConfig<ClassSubject> = {
     entity: 'class-subject',
@@ -80,6 +84,7 @@ export function ClassSubjectList({
             )}
           </>
         ),
+        conditional: () => showTeacherColumn,
       },
 
       {
@@ -137,6 +142,16 @@ export function ClassSubjectList({
         },
         color: 'secondary',
         variant: 'outline',
+        conditional: (_item, v) => v === 'admin',
+      },
+      {
+        labelKey: 'teacher_class_pages.show.create_assessment',
+        onClick: (classSubject) => {
+          onCreateAssessment?.(classSubject);
+        },
+        color: 'primary',
+        variant: 'solid',
+        conditional: (_item, v) => v === 'teacher' && !!onCreateAssessment,
       },
     ],
   };

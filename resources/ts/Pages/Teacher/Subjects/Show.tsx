@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Subject, ClassModel, ClassSubject, Assessment, PageProps } from '@/types';
 import { PaginationType } from '@/types/datatable';
 import { breadcrumbs, trans } from '@/utils';
-import { Button, Section } from '@/Components';
+import { Button, Section, Stat } from '@/Components';
 import { route } from 'ziggy-js';
 import { BookOpenIcon, AcademicCapIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { AssessmentList } from '@/Components/shared/lists';
@@ -42,43 +42,23 @@ export default function TeacherSubjectShow({ subject, assessments }: Props) {
             </Button>
           }
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex items-start space-x-3">
-              <BookOpenIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('teacher_subject_pages.show.code')}
-                </div>
-                <div className="mt-1 text-sm text-gray-900">
-                  {subject.code || '-'}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <AcademicCapIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('teacher_subject_pages.show.classes_count')}
-                </div>
-                <div className="mt-1 text-sm font-semibold text-gray-900">
-                  {subject.classes?.length || 0}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <DocumentTextIcon className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  {trans('teacher_subject_pages.show.total_assessments')}
-                </div>
-                <div className="mt-1 text-sm font-semibold text-gray-900">
-                  {subject.total_assessments || 0}
-                </div>
-              </div>
-            </div>
-          </div>
+          <Stat.Group columns={3}>
+            <Stat.Item
+              icon={BookOpenIcon}
+              title={trans('teacher_subject_pages.show.code')}
+              value={<span className="text-sm text-gray-900">{subject.code || '-'}</span>}
+            />
+            <Stat.Item
+              icon={AcademicCapIcon}
+              title={trans('teacher_subject_pages.show.classes_count')}
+              value={<span className="text-sm font-semibold text-gray-900">{subject.classes?.length || 0}</span>}
+            />
+            <Stat.Item
+              icon={DocumentTextIcon}
+              title={trans('teacher_subject_pages.show.total_assessments')}
+              value={<span className="text-sm font-semibold text-gray-900">{subject.total_assessments || 0}</span>}
+            />
+          </Stat.Group>
         </Section>
 
         <Section
