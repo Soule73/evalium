@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\ReopenAssignmentRequest;
-use App\Http\Requests\Teacher\SaveManualGradeRequest;
 use App\Http\Requests\Teacher\StoreAssessmentRequest;
 use App\Http\Requests\Teacher\UpdateAssessmentRequest;
+use App\Http\Traits\HandlesAssessmentViewing;
 use App\Http\Traits\HasFlashMessages;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
@@ -25,9 +25,15 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * Teacher Assessment Controller
+ *
+ * Handles CRUD, publishing, duplication, and assignment reopening for teacher assessments.
+ * Show/review/grade/saveGrade are handled by HandlesAssessmentViewing trait.
+ */
 class AssessmentController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear, HasFlashMessages;
+    use AuthorizesRequests, FiltersAcademicYear, HandlesAssessmentViewing, HasFlashMessages;
 
     public function __construct(
         private readonly AssessmentService $assessmentService,
@@ -37,6 +43,17 @@ class AssessmentController extends Controller
         private readonly AnswerFormatterService $answerFormatterService,
         private readonly AssignmentExceptionService $assignmentExceptionService
     ) {}
+
+    protected function resolveAssessmentQueryService(): TeacherAssessmentQueryService
+    {
+        return $this->assessmentQueryService;
+    }
+
+    protected function afterGradingLoad(Request $request, Assessment $assessment): void
+    {
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+        $this->validateAcademicYearAccess($assessment->classSubject->class, $selectedYearId);
+    }
 
     /**
      * Display a listing of teacher's assessments.
@@ -101,29 +118,6 @@ class AssessmentController extends Controller
         return redirect()
             ->route('teacher.assessments.show', $assessment)
             ->flashSuccess(__('messages.assessment_created'));
-    }
-
-    /**
-     * Display the specified assessment.
-     */
-    public function show(Request $request, Assessment $assessment): Response
-    {
-        $this->authorize('view', $assessment);
-        $perPage = (int) $request->input('per_page', 10);
-
-        $assessment = $this->assessmentQueryService->loadAssessmentDetails($assessment);
-
-        $assignments = $this->gradingQueryService->getAssignmentsWithEnrolledStudents(
-            $assessment,
-            $request->only(['search']),
-            $perPage
-        );
-
-        return Inertia::render('Assessments/Show', [
-            'assessment' => $assessment,
-            'assignments' => $assignments,
-            'routeContext' => $this->buildRouteContext(),
-        ]);
     }
 
     /**
@@ -217,70 +211,6 @@ class AssessmentController extends Controller
     }
 
     /**
-     * Display the grading interface for a specific student assignment.
-     */
-    public function grade(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response
-    {
-        $this->authorize('view', $assessment);
-        abort_unless($assignment->assessment_id === $assessment->id, 404);
-
-        $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
-        $this->validateAcademicYearAccess($assessment->classSubject->class, $selectedYearId);
-
-        $assignment->load(['student', 'answers.choice']);
-        $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
-
-        return Inertia::render('Assessments/Grade', [
-            'assignment' => $assignment,
-            'assessment' => $assessment,
-            'student' => $assignment->student,
-            'userAnswers' => $userAnswers,
-            'routeContext' => $this->buildRouteContext(),
-        ]);
-    }
-
-    /**
-     * Display the review interface for a graded assignment (read-only).
-     */
-    public function review(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response
-    {
-        $this->authorize('view', $assessment);
-        abort_unless($assignment->assessment_id === $assessment->id, 404);
-
-        $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
-        $this->validateAcademicYearAccess($assessment->classSubject->class, $selectedYearId);
-
-        $assignment->load(['student', 'answers.choice']);
-        $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
-
-        return Inertia::render('Assessments/Review', [
-            'assignment' => $assignment,
-            'assessment' => $assessment,
-            'student' => $assignment->student,
-            'userAnswers' => $userAnswers,
-            'routeContext' => $this->buildRouteContext(),
-        ]);
-    }
-
-    /**
-     * Save the grading for a specific student assignment.
-     */
-    public function saveGrade(SaveManualGradeRequest $request, Assessment $assessment, AssessmentAssignment $assignment): RedirectResponse
-    {
-        abort_unless($assignment->assessment_id === $assessment->id, 404);
-
-        $this->scoringService->saveManualGrades(
-            $assignment,
-            $request->input('scores', []),
-            $request->input('teacher_notes')
-        );
-
-        return back()->flashSuccess(__('messages.grade_saved'));
-    }
-
-    /**
      * Reopen an interrupted supervised assignment for a student.
      */
     public function reopenAssignment(
@@ -294,7 +224,7 @@ class AssessmentController extends Controller
 
         if (! $check['can_reopen']) {
             return response()->json([
-                'message' => __('messages.assignment_cannot_reopen_'.$check['reason']),
+                'message' => __('messages.assignment_cannot_reopen_' . $check['reason']),
             ], 422);
         }
 
@@ -315,7 +245,7 @@ class AssessmentController extends Controller
      *
      * @return array<string, string|null>
      */
-    private function buildRouteContext(): array
+    protected function buildRouteContext(): array
     {
         return [
             'role' => 'teacher',
