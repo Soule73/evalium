@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Assessment, AssessmentAssignment, Answer, User, Question, QuestionResult, Choice, AssessmentRouteContext } from '@/types';
+import { type Assessment, type AssessmentAssignment, type Answer, type User, type Question, type QuestionResult, type Choice, type AssessmentRouteContext } from '@/types';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { Badge, Button, Section, QuestionRenderer, Stat } from '@/Components';

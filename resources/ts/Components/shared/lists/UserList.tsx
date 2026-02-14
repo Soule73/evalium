@@ -2,7 +2,7 @@ import { useMemo, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { User } from '@/types';
+import { type User } from '@/types';
 import { formatDate, getRoleColor, getRoleLabel } from '@/utils';
 import { useTranslations } from '@/hooks';
 import { Button } from '@/Components';

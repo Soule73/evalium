@@ -4,8 +4,8 @@ import { route } from 'ziggy-js';
 import { ChartBarIcon, CheckIcon, ClockIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { Button, Section, Stat } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';
-import { Assessment, AssessmentAssignment, User } from '@/types';
-import { PaginationType } from '@/types/datatable';
+import { type Assessment, type AssessmentAssignment, type User } from '@/types';
+import { type PaginationType } from '@/types/datatable';
 import { breadcrumbs, trans } from '@/utils';
 
 interface DashboardStats {

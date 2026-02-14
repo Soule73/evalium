@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Question, Assessment, AssessmentAssignment } from '@/types';
+import { type Question, type Assessment, type AssessmentAssignment } from '@/types';
 
 interface UseAssessmentScoringParams {
     assessment: Assessment;

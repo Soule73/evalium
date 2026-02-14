@@ -1,9 +1,9 @@
-import { useState, FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { breadcrumbs, trans } from '@/utils';
-import { Role, GroupedPermissions } from '@/types/role';
+import { type Role, type GroupedPermissions } from '@/types/role';
 import { PermissionSelector } from '@/Components';
 import { Section, Badge, Button } from '@examena/ui';
 

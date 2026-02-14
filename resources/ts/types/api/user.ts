@@ -1,5 +1,5 @@
-import { User } from '../index';
-import { PaginatedResponse, ApiResponse } from './common';
+import { type User } from '../index';
+import { type PaginatedResponse, type ApiResponse } from './common';
 
 export interface GetUsersResponse extends PaginatedResponse<User> { }
 

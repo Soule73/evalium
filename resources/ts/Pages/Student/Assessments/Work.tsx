@@ -11,7 +11,7 @@ import {
   TextEntry,
 } from '@/Components';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Answer, Assessment, AssessmentAssignment, AssignmentAttachment, Question } from '@/types';
+import { type Answer, type Assessment, type AssessmentAssignment, type AssignmentAttachment, type Question } from '@/types';
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { useAssessmentAnswers, useAssessmentAnswerSave, useAssessmentSubmission, useQuestionNavigation } from '@/hooks/features/assessment';
 import { formatDate, trans } from '@/utils';

@@ -6,7 +6,7 @@ import { useCreateAssessment } from '@/hooks/features/assessment';
 import { useAssessmentFormStore } from '@/stores';
 import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
-import { ClassSubject } from '@/types';
+import { type ClassSubject } from '@/types';
 
 interface Props {
   classSubjects: ClassSubject[];

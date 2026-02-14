@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { User } from '@/types';
+import { type User } from '@/types';
 import { getRoleLabel } from '@/utils';
 import { trans } from '@/utils';
 import { Button, Modal, Select } from '@/Components';

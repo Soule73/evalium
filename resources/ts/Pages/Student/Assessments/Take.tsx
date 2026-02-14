@@ -12,7 +12,7 @@ import {
   TakeQuestion,
   TextEntry,
 } from '@/Components';
-import { Answer, Assessment, AssessmentAssignment, Question } from '@/types';
+import { type Answer, type Assessment, type AssessmentAssignment, type Question } from '@/types';
 import { ExclamationCircleIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { useTakeAssessment, useQuestionNavigation } from '@/hooks/features/assessment';
 import { formatTime, trans } from '@/utils';

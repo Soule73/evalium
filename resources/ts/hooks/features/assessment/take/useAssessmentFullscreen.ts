@@ -82,8 +82,7 @@ export function useAssessmentFullscreen({ security }: UseAssessmentFullscreenOpt
         if (security?.exitFullscreen) {
             try {
                 await security.exitFullscreen();
-            } catch (error) {
-            }
+            } catch { /* fullscreen exit may fail silently */ }
         }
     }, [security]);
 

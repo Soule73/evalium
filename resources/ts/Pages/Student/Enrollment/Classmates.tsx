@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Enrollment, User, PageProps } from '@/types';
+import { type Enrollment, type User, type PageProps } from '@/types';
 import type { PaginationType } from '@/types/datatable';
 import { Button, Section } from '@/Components';
 import { trans } from '@/utils';

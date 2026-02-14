@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatAssessmentScore, formatDate, formatDuration, getAssignmentBadgeLabel, securityViolationLabel } from '@/utils';
-import { Assessment, AssessmentAssignment, User } from '@/types';
+import { type Assessment, type AssessmentAssignment, type User } from '@/types';
 import { trans } from '@/utils';
 import { TextEntry, AlertEntry } from '@examena/ui';
 

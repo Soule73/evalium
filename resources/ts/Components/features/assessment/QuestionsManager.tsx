@@ -19,7 +19,7 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { QuestionType } from '@/types';
+import { type QuestionType } from '@/types';
 import { useAssessmentFormStore } from '@/stores';
 import { getQuestionTypeLabel } from '@/utils';
 import { useQuestionOptions } from './questionOptions';

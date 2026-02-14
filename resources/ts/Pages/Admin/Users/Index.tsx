@@ -4,13 +4,13 @@ import { UserGroupIcon, BookOpenIcon, ShieldCheckIcon } from '@heroicons/react/2
 import { route } from 'ziggy-js';
 import { useState } from 'react';
 import CreateUser from './Create';
-import { User, PageProps } from '@/types';
+import { type User, type PageProps } from '@/types';
 import { breadcrumbs } from '@/utils';
 import { hasPermission } from '@/utils';
 import { trans } from '@/utils';
 import { Stat, Section, ConfirmationModal, Button } from '@/Components';
 import { useConfirmationModal } from '@/hooks';
-import { PaginationType } from '@/types/datatable';
+import { type PaginationType } from '@/types/datatable';
 import { UserList } from '@/Components/shared/lists';
 import { router } from '@inertiajs/react';
 

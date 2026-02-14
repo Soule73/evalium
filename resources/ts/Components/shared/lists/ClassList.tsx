@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { ClassModel, Level } from '@/types';
+import { type ClassModel, type Level } from '@/types';
 import { Badge } from '@examena/ui';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig, EntityListVariant } from './types/listConfig';

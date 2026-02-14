@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { formatDate, getRoleLabel } from '@/utils';
-import { User } from '@/types';
+import { type User } from '@/types';
 import { useState } from 'react';
 import EditUser from './Edit';
 import { route } from 'ziggy-js';
@@ -9,7 +9,7 @@ import { ExclamationTriangleIcon } from '@heroicons/react/16/solid';
 import { trans } from '@/utils';
 import { ConfirmationModal, Section, Button, TextEntry } from '@/Components';
 import { Toggle } from '@examena/ui';
-import { BreadcrumbItem } from '@/Components/layout/Breadcrumb';
+import { type BreadcrumbItem } from '@/Components/layout/Breadcrumb';
 
 
 interface Props {

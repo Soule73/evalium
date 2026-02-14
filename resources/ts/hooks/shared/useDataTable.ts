@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { router } from '@inertiajs/react';
-import { DataTableState, PaginationType, FilterConfig } from '@/types/datatable';
+import { type DataTableState, type PaginationType, type FilterConfig } from '@/types/datatable';
 import {
     buildDataTableUrl,
     areAllSelectableItemsSelected,

@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { NavIcon, NavIconType } from './NavIcon';
+import { NavIcon, type NavIconType } from './NavIcon';
 
 interface NavLinkProps {
     href: string;

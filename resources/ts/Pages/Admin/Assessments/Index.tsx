@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Assessment, PageProps, PaginationType } from '@/types';
+import { type Assessment, type PageProps, type PaginationType } from '@/types';
 import { breadcrumbs, trans } from '@/utils';
 import { Section } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';

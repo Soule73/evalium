@@ -1,5 +1,5 @@
 import { Badge } from '@/Components';
-import { Enrollment } from '@/types';
+import { type Enrollment } from '@/types';
 import { trans, formatDate } from '@/utils';
 import { UserIcon, AcademicCapIcon, CalendarIcon } from '@heroicons/react/24/outline';
 

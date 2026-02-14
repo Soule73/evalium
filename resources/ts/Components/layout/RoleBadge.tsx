@@ -1,6 +1,6 @@
 import { trans } from '@/utils';
 import { Badge } from '../ui';
-import { BadgeType } from '../ui/Badge/Badge';
+import { type BadgeType } from '../ui/Badge/Badge';
 
 interface RoleBadgeProps {
     role: 'super_admin' | 'admin' | 'teacher' | 'student' | undefined;

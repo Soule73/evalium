@@ -1,4 +1,4 @@
-import { AcademicYear } from '@/types';
+import { type AcademicYear } from '@/types';
 import { Badge } from '@/Components/ui';
 import { formatDate } from '@/utils';
 import { router } from '@inertiajs/react';

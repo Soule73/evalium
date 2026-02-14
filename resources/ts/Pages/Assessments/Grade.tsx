@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Assessment, AssessmentAssignment, Answer, User, Question, PageProps, QuestionResult, Choice, AssessmentRouteContext } from '@/types';
+import { type Assessment, type AssessmentAssignment, type Answer, type User, type Question, type PageProps, type QuestionResult, type Choice, type AssessmentRouteContext } from '@/types';
 import { requiresManualGrading } from '@/utils';
 import { route } from 'ziggy-js';
 import { router, usePage } from '@inertiajs/react';

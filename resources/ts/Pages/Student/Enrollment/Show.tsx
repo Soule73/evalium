@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Enrollment, PageProps, PaginationType, SubjectGrade, OverallStats } from '@/types';
+import { type Enrollment, type PageProps, type PaginationType, type SubjectGrade, type OverallStats } from '@/types';
 import { Button, Section, TextEntry } from '@/Components';
 import { SubjectGradeList } from '@/Components/shared/lists/SubjectGradeList';
 import { trans, formatDate } from '@/utils';

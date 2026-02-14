@@ -1,10 +1,10 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { PaginationType } from '@/types/datatable';
+import { type PaginationType } from '@/types/datatable';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { breadcrumbs, trans } from '@/utils';
 import { Button, ConfirmationModal, Section } from '@/Components';
 import { useListLevels } from '@/hooks';
-import { Level } from '@/types';
+import { type Level } from '@/types';
 import { LevelList } from '@/Components/shared/lists';
 
 interface Props {

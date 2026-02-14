@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useShallow } from 'zustand/react/shallow';
-import { QuestionFormData, AssessmentType, DeliveryMode } from '@/types';
+import { type QuestionFormData, type AssessmentType, type DeliveryMode } from '@/types';
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
 
 interface AssessmentCreateData {

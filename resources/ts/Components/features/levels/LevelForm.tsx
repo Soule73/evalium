@@ -1,6 +1,6 @@
-import { FormEvent, useState } from 'react';
+import { type FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
-import { Level } from '@/types';
+import { type Level } from '@/types';
 import { trans } from '@/utils';
 import { Button, Input, Toggle } from '@examena/ui';
 import { Section, Textarea } from '@/Components';

@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Subject, ClassModel, ClassSubject, Assessment, PageProps } from '@/types';
-import { PaginationType } from '@/types/datatable';
+import { type Subject, type ClassModel, type ClassSubject, type Assessment, type PageProps } from '@/types';
+import { type PaginationType } from '@/types/datatable';
 import { breadcrumbs, trans } from '@/utils';
 import { Button, Section, Stat } from '@/Components';
 import { route } from 'ziggy-js';

@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { PaginationType } from '@/types/datatable';
-import { ClassModel, PageProps } from '@/types';
+import { type PaginationType } from '@/types/datatable';
+import { type ClassModel, type PageProps } from '@/types';
 import { breadcrumbs, trans } from '@/utils';
 import { Section } from '@/Components';
 import { ClassList } from '@/Components/shared/lists';

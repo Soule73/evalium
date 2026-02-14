@@ -1,5 +1,5 @@
 import React from 'react';
-import { Choice, Question } from '@/types';
+import { type Choice, type Question } from '@/types';
 import { trans } from '@/utils';
 import { Checkbox } from '@examena/ui';
 import { MarkdownRenderer, MarkdownEditor } from '@examena/ui';

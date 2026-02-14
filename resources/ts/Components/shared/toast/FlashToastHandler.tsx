@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { FlashMessageObject, FlashMessages } from '@/types';
+import { type FlashMessageObject, type FlashMessages } from '@/types';
 import { trans } from '@/utils';
 import { useToast } from './ToastContext';
 

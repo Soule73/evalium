@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { Select } from '@/Components';
 import { Input } from '@examena/ui';
 import { FunnelIcon } from '@heroicons/react/24/outline';
-import { FilterConfig } from '@/types/datatable';
+import { type FilterConfig } from '@/types/datatable';
 import { trans } from '@/utils';
 
 interface DataTableFiltersProps {

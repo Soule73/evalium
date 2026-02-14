@@ -1,7 +1,7 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { type FormEvent, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { EnrollmentFormData, ClassModel, User } from '@/types';
+import { type EnrollmentFormData, type ClassModel, type User } from '@/types';
 import { breadcrumbs, trans } from '@/utils';
 import { Button, Section, Select } from '@/Components';
 import { route } from 'ziggy-js';

@@ -3,12 +3,12 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { Badge } from '@/Components';
 import { BaseEntityList } from './BaseEntityList';
-import { EntityListConfig } from './types/listConfig';
-import { Enrollment, ClassModel } from '@/types';
-import { PaginationType } from '@/types/datatable';
+import { type EntityListConfig } from './types/listConfig';
+import { type Enrollment, type ClassModel } from '@/types';
+import { type PaginationType } from '@/types/datatable';
 import { formatDate } from '@/utils';
 import { useTranslations } from '@/hooks';
-import { EntityListVariant } from './types/listConfig';
+import { type EntityListVariant } from './types/listConfig';
 
 interface EnrollmentListProps {
   data: PaginationType<Enrollment>;

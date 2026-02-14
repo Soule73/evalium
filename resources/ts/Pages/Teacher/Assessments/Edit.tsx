@@ -3,7 +3,7 @@ import { Button, QuestionsManager, Section } from '@/Components';
 import { AssessmentGeneralConfig } from '@/Components/shared/AssessmentGeneralConfig';
 import { useEditAssessment } from '@/hooks/features/assessment';
 // import { useAssessmentFormStore } from '@/stores';
-import { Assessment, ClassSubject } from '@/types';
+import { type Assessment, type ClassSubject } from '@/types';
 import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
 

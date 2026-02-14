@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { DataTableConfig, PaginationType } from '@/types/datatable';
+import { type DataTableConfig, type PaginationType } from '@/types/datatable';
 import { CheckCircleIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
-import { AcademicYear, PageProps } from '@/types';
+import { type AcademicYear, type PageProps } from '@/types';
 import { breadcrumbs, trans, formatDate, hasPermission } from '@/utils';
 import { Badge, Button, ConfirmationModal, DataTable, Section } from '@/Components';
 import { route } from 'ziggy-js';

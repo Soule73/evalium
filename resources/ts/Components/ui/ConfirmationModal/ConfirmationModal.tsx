@@ -1,5 +1,5 @@
 import React from 'react';
-import Modal, { ModalSize } from '../Modal/Modal';
+import Modal, { type ModalSize } from '../Modal/Modal';
 import Button from '../Button/Button';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 

@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { Badge, Button } from '@/Components';
 import { BaseEntityList } from './BaseEntityList';
-import { EntityListConfig } from './types/listConfig';
-import { Role } from '@/types';
-import { PaginationType } from '@/types/datatable';
+import { type EntityListConfig } from './types/listConfig';
+import { type Role } from '@/types';
+import { type PaginationType } from '@/types/datatable';
 import { getRoleLabel } from '@/utils';
 import { useTranslations } from '@/hooks';
 import { ShieldCheckIcon } from '@heroicons/react/24/outline';

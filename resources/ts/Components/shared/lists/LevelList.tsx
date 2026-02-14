@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 import { Badge, Button } from '@/Components';
 import { Toggle } from '@examena/ui';
 import { BaseEntityList } from './BaseEntityList';
-import { EntityListConfig } from './types/listConfig';
-import { Level } from '@/types';
-import { PaginationType } from '@/types/datatable';
+import { type EntityListConfig } from './types/listConfig';
+import { type Level } from '@/types';
+import { type PaginationType } from '@/types/datatable';
 import { useTranslations } from '@/hooks';
 
 interface LevelListProps {

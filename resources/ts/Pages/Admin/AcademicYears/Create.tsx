@@ -1,7 +1,7 @@
-import { FormEvent, useState } from 'react';
+import { type FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { AcademicYearFormData } from '@/types';
+import { type AcademicYearFormData } from '@/types';
 import { breadcrumbs, trans } from '@/utils';
 import { Button, Section } from '@/Components';
 import { Input, Checkbox } from '@/Components';

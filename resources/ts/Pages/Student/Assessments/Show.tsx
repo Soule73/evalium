@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Assessment, AssessmentAssignment, AvailabilityStatus, PageProps } from '@/types';
+import { type Assessment, type AssessmentAssignment, type AvailabilityStatus, type PageProps } from '@/types';
 import {
   AlertEntry,
   Button,

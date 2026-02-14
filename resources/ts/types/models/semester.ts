@@ -1,4 +1,4 @@
-import { ClassSubject } from '.';
+import { type ClassSubject } from '.';
 import type { AcademicYear } from './academicYear';
 
 export interface Semester {

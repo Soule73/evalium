@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { PaginationType } from '@/types/datatable';
+import { type ReactNode } from 'react';
+import { type PaginationType } from '@/types/datatable';
 
 /**
  * Configuration for a column in an entity list

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Question, QuestionResult, AssessmentAssignment } from '@/types';
+import { type Question, type QuestionResult, type AssessmentAssignment } from '@/types';
 import { hasUserResponse } from '@/utils';
 import { trans } from '@/utils';
 import { AlertEntry } from '@examena/ui';

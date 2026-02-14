@@ -1,4 +1,4 @@
-import { Assessment } from '@/types';
+import { type Assessment } from '@/types';
 import { formatDuration } from '@/utils';
 import { ClockIcon, QuestionMarkCircleIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { formatDate } from '@/utils';

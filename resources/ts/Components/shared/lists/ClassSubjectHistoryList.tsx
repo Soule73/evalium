@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { Badge } from '@/Components';
 import { BaseEntityList } from './BaseEntityList';
-import { EntityListConfig } from './types/listConfig';
-import { ClassSubject } from '@/types';
-import { PaginationType } from '@/types/datatable';
+import { type EntityListConfig } from './types/listConfig';
+import { type ClassSubject } from '@/types';
+import { type PaginationType } from '@/types/datatable';
 import { formatDate } from '@/utils';
 import { useTranslations } from '@/hooks';
 

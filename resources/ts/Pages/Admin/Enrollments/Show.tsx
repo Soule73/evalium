@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Enrollment, ClassModel, PageProps, PaginationType, SubjectGrade, OverallStats } from '@/types';
+import { type Enrollment, type ClassModel, type PageProps, type PaginationType, type SubjectGrade, type OverallStats } from '@/types';
 import { breadcrumbs, trans, formatDate, hasPermission } from '@/utils';
 import { Button, Section, Badge, Stat } from '@/Components';
 import { SubjectGradeList } from '@/Components/shared/lists/SubjectGradeList';

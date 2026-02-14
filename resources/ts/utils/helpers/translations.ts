@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { PageProps as InertiaPageProps } from '@inertiajs/core';
+import { type PageProps as InertiaPageProps } from '@inertiajs/core';
 
 interface PageProps extends InertiaPageProps {
     locale: string;
@@ -64,6 +64,7 @@ export function trans(
     replacements: Record<string, string | number> = {},
     fallback?: string
 ): string {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const { language } = usePage<PageProps>().props;
     return translateKey(language, key, replacements, fallback);
 }
@@ -72,6 +73,7 @@ export function trans(
  * Get the current locale (React hook - calls usePage)
  */
 export function locale(): string {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const { locale } = usePage<PageProps>().props;
     return locale;
 }
@@ -90,6 +92,7 @@ export function isLocale(loc: string): boolean {
  * @returns Object with all translations in that namespace
  */
 export function transAll(namespace: string): Record<string, any> {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const { language } = usePage<PageProps>().props;
     return language[namespace] || {};
 }

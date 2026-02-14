@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 import { ArrowUpTrayIcon, TrashIcon, PaperClipIcon } from '@heroicons/react/24/outline';
-import { AssignmentAttachment } from '@/types';
+import { type AssignmentAttachment } from '@/types';
 import { formatFileSize, trans } from '@/utils';
 import { AlertEntry, Button } from '@/Components';
 

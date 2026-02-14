@@ -10,7 +10,7 @@ import { formatDate } from '@/utils';
 import { MarkdownRenderer } from '@examena/ui';
 import { trans } from '@/utils';
 import { Button } from '../ui';
-import { DeletedChoice, DeletedQuestion } from '@/stores/useAssessmentFormStore';
+import { type DeletedChoice, type DeletedQuestion } from '@/stores/useAssessmentFormStore';
 
 interface DeleteHistoryModalProps {
     isOpen: boolean;

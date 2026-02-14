@@ -11,7 +11,7 @@ import {
     useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { QuestionFormData, ChoiceFormData } from '@/types';
+import { type QuestionFormData, type ChoiceFormData } from '@/types';
 import { trans } from '@/utils';
 import { MarkdownEditor, ChoiceEditor } from '@examena/ui';
 import { Checkbox, Input } from '@/Components/ui';

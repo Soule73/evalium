@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { PaginationType } from '@/types/datatable';
-import { Subject, PageProps, Level } from '@/types';
+import { type PaginationType } from '@/types/datatable';
+import { type Subject, type PageProps, type Level } from '@/types';
 import { breadcrumbs, trans, hasPermission } from '@/utils';
 import { Button, Section } from '@/Components';
 import { SubjectList } from '@/Components/shared/lists';

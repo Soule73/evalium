@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { ClassSubject } from '@/types';
+import { type ClassSubject } from '@/types';
 import { Badge } from '@examena/ui';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
@@ -141,7 +141,11 @@ export function ClassSubjectList({
       {
         labelKey: 'admin_pages.common.view',
         onClick: (classSubject: ClassSubject) => {
-          onView?.(classSubject) || router.visit(route('admin.class-subjects.show', classSubject.id));
+          if (onView) {
+            onView(classSubject);
+          } else {
+            router.visit(route('admin.class-subjects.show', classSubject.id));
+          }
         },
         color: 'secondary' as const,
         variant: 'outline' as const,

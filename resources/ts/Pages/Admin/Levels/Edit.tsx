@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { breadcrumbs, trans } from '@/utils';
-import { Level } from '@/types';
+import { type Level } from '@/types';
 import { LevelForm } from '@/Components/features/levels';
 
 interface Props {

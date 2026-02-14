@@ -1,5 +1,5 @@
-import { Assessment, PageProps, User } from '@/types';
-import { PaginationType } from '@/types/datatable';
+import { type Assessment, type PageProps, type User } from '@/types';
+import { type PaginationType } from '@/types/datatable';
 import ShowUser from './ShowUser';
 import { DocumentTextIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { breadcrumbs, trans, hasPermission } from '@/utils';

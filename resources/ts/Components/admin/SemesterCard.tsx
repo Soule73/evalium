@@ -1,4 +1,4 @@
-import { Semester } from '@/types';
+import { type Semester } from '@/types';
 import { Badge } from '@/Components/ui';
 import { formatDate } from '@/utils';
 

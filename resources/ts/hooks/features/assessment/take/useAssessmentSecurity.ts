@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAssessmentConfig, isSecurityEnabled, isFeatureEnabled } from '../useAssessmentConfig';
-import { isInFullscreen, AssessmentViolationType } from '@/utils/assessment/take';
+import { isInFullscreen, type AssessmentViolationType } from '@/utils/assessment/take';
 
 interface SecurityConfig {
     maxAttempts?: number;
@@ -102,8 +102,7 @@ export function useAssessmentSecurity(config: SecurityConfig = {}): UseAssessmen
         try {
             await document.documentElement.requestFullscreen();
             setIsFullscreen(true);
-        } catch (error) {
-        }
+        } catch { /* fullscreen request may fail silently */ }
     }, []);
 
     const exitFullscreen = useCallback(async () => {

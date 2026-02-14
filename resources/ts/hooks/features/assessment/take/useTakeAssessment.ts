@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { Answer, Assessment, Question } from '@/types';
+import { type Answer, type Assessment, type Question } from '@/types';
 import { useAssessmentSecurity } from './useAssessmentSecurity';
 import { useAssessmentTimer } from './useAssessmentTimer';
 import { useAssessmentAnswers } from './useAssessmentAnswers';

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Answer, Question } from '@/types';
+import { type Answer, type Question } from '@/types';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 

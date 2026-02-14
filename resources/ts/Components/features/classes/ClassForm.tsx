@@ -1,6 +1,6 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { type FormEvent, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
-import { ClassModel, Level } from '@/types';
+import { type ClassModel, type Level } from '@/types';
 import { trans } from '@/utils';
 import { Button, Input, Section, Select } from '@examena/ui';
 import { route } from 'ziggy-js';

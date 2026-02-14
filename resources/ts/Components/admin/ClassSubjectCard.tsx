@@ -1,5 +1,5 @@
 import { Badge } from '@/Components';
-import { ClassSubject } from '@/types';
+import { type ClassSubject } from '@/types';
 import { trans, formatDate } from '@/utils';
 import { AcademicCapIcon, UserIcon, HashtagIcon, CalendarIcon } from '@heroicons/react/24/outline';
 

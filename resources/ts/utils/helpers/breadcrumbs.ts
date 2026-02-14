@@ -1,7 +1,7 @@
 import { route } from 'ziggy-js';
 import { trans } from './translations';
-import { BreadcrumbItem } from '@/Components/layout/Breadcrumb';
-import { ClassSubject, AssessmentRouteContext } from '@/types';
+import { type BreadcrumbItem } from '@/Components/layout/Breadcrumb';
+import { type ClassSubject, type AssessmentRouteContext } from '@/types';
 
 const dashboard = (): BreadcrumbItem => ({
     label: trans('breadcrumbs.dashboard'),

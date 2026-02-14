@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Subject, Level } from '@/types';
+import { type Subject, type Level } from '@/types';
 import { breadcrumbs, trans } from '@/utils';
 import { SubjectForm } from '@/Components/features/subjects/SubjectForm';
 import { route } from 'ziggy-js';

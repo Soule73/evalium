@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { User, PageProps } from '@/types';
+import { type User, type PageProps } from '@/types';
 import { hasPermission } from '@/utils';
 import { navRoutes } from '@/utils';
 import { trans } from '@/utils';

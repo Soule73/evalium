@@ -2,7 +2,7 @@ import React from 'react';
 import { trans } from '@/utils';
 import { Checkbox, Input, Select } from '@examena/ui';
 import { MarkdownEditor } from '@examena/ui';
-import { ClassSubject, AssessmentType, DeliveryMode } from '@/types';
+import { type ClassSubject, type AssessmentType, type DeliveryMode } from '@/types';
 
 const DEFAULT_DELIVERY_MODES: Record<string, DeliveryMode> = {
   examen: 'supervised',

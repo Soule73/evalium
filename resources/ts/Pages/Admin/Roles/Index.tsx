@@ -1,9 +1,9 @@
 import { router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { PaginationType } from '@/types/datatable';
+import { type PaginationType } from '@/types/datatable';
 import { route } from 'ziggy-js';
 import { breadcrumbs, hasPermission, trans } from '@/utils';
-import { PageProps, Role } from '@/types';
+import { type PageProps, type Role } from '@/types';
 import { Section } from '@/Components';
 import { RoleList } from '@/Components/shared/lists';
 

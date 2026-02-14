@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { ToastType } from './Toast';
+import React, { createContext, useContext, useReducer, type ReactNode } from 'react';
+import { type ToastType } from './Toast';
 
 export type ToastPosition =
     | 'top-right'
@@ -49,12 +49,13 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 const toastReducer = (state: ToastState, action: ToastAction): ToastState => {
     switch (action.type) {
-        case 'ADD_TOAST':
+        case 'ADD_TOAST': {
             const newState = {
                 ...state,
                 toasts: [...state.toasts, action.payload]
             };
             return newState;
+        }
         case 'REMOVE_TOAST':
             return {
                 ...state,

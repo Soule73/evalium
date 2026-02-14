@@ -1,4 +1,4 @@
-import { PageProps } from '@/types';
+import { type PageProps } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import {

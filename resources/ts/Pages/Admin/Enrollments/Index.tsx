@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { PaginationType } from '@/types/datatable';
-import { Enrollment, ClassModel, PageProps } from '@/types';
+import { type PaginationType } from '@/types/datatable';
+import { type Enrollment, type ClassModel, type PageProps } from '@/types';
 import { breadcrumbs, trans, hasPermission } from '@/utils';
 import { Button, Section } from '@/Components';
 import { EnrollmentList } from '@/Components/shared/lists';

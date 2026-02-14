@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { QuestionFormData, ChoiceFormData, QuestionType } from '@/types';
+import { type QuestionFormData, type ChoiceFormData, type QuestionType } from '@/types';
 import { createDefaultQuestion } from '@/utils/assessment';
 import { arrayMove } from '@dnd-kit/sortable';
 

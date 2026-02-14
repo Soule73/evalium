@@ -32,7 +32,8 @@ export const useAssessmentAnswerSave = ({ assessmentId }: UseAssessmentAnswerSav
       try {
         await axios.post(route('student.assessments.save-answers', assessmentId), { answers });
       } catch (error) {
-        throw new Error('Failed to save answers');
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        throw new Error(`Failed to save answers: ${message}`);
       }
     },
     [assessmentId]

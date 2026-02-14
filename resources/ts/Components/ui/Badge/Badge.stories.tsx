@@ -18,7 +18,6 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CustomStory = any;
 
 export const Success: Story = {

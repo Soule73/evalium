@@ -1,7 +1,7 @@
 import { router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { route } from 'ziggy-js';
-import { Level } from '@/types';
+import { type Level } from '@/types';
 
 export const useListLevels = () => {
   const { auth } = usePage<{ auth: { permissions: string[] } }>().props;

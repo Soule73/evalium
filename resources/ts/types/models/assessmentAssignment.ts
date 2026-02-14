@@ -1,4 +1,4 @@
-import { User, Answer } from './shared';
+import { type User, type Answer } from './shared';
 import type { Assessment } from './assessment';
 
 export type AssessmentAssignmentStatus = 'not_submitted' | 'in_progress' | 'submitted' | 'graded';

@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { User } from '@/types';
+import { type User } from '@/types';
 import { BookOpenIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';

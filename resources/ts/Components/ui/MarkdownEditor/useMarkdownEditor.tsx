@@ -118,11 +118,11 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
     const isInternalChangeRef = useRef(false);
     const isInitializedRef = useRef(false);
 
-    const debounce = (func: Function, delay: number) => {
+    const debounce = <A extends unknown[]>(func: (...args: A) => void, delay: number) => {
         let timeoutId: NodeJS.Timeout;
-        return (...args: unknown[]) => {
+        return (...args: A) => {
             clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => func.apply(null, args), delay);
+            timeoutId = setTimeout(() => func(...args), delay);
         };
     };
 

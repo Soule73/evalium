@@ -1,5 +1,5 @@
 import { CheckCircleIcon, XMarkIcon } from "@heroicons/react/16/solid";
-import { Question } from "@/types";
+import { type Question } from "@/types";
 import { trans } from '@/utils';
 import { MarkdownRenderer } from "@examena/ui";
 import { getTypeColor, getTypeLabel } from '@/utils/assessment/components';

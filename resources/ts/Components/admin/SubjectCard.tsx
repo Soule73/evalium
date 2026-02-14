@@ -1,4 +1,4 @@
-import { Subject } from '@/types';
+import { type Subject } from '@/types';
 import { Badge } from '@/Components/ui';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';

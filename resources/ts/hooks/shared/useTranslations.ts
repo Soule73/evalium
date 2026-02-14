@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { usePage } from '@inertiajs/react';
-import { PageProps as InertiaPageProps } from '@inertiajs/core';
+import { type PageProps as InertiaPageProps } from '@inertiajs/core';
 import { translateKey, type LanguageData } from '@/utils';
 
 interface TranslationPageProps extends InertiaPageProps {

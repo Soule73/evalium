@@ -1,4 +1,4 @@
-import { Assessment, AssessmentAssignment, Question } from '@/types';
+import { type Assessment, type AssessmentAssignment, type Question } from '@/types';
 import { canShowAssessmentResults, formatAssessmentAssignmentStatus } from '@/utils';
 import { useMemo } from 'react';
 

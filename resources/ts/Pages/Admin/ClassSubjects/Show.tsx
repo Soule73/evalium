@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { ClassSubject, PageProps, User } from '@/types';
-import { PaginationType } from '@/types/datatable';
+import { type ClassSubject, type PageProps, type User } from '@/types';
+import { type PaginationType } from '@/types/datatable';
 import { breadcrumbs, trans, formatDate, hasPermission } from '@/utils';
 import { Section, Badge, Stat, ActionGroup } from '@/Components';
 import { ClassSubjectHistoryList } from '@/Components/shared/lists';

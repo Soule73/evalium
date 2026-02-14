@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { ClassModel, Enrollment, ClassSubject, Assessment, AssessmentAssignment, PageProps, User } from '@/types';
-import { PaginationType } from '@/types/datatable';
+import { type ClassModel, type Enrollment, type ClassSubject, type Assessment, type AssessmentAssignment, type PageProps, type User } from '@/types';
+import { type PaginationType } from '@/types/datatable';
 import { breadcrumbs, trans } from '@/utils';
 import { Button, Section, Stat } from '@/Components';
 import { ClassSubjectList, AssessmentList, EnrollmentList } from '@/Components/shared/lists';

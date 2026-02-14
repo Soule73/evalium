@@ -1,6 +1,6 @@
 import { Checkbox, Section } from '@examena/ui';
 import { Button } from '@examena/ui';
-import { GroupedPermissions } from '@/types/role';
+import { type GroupedPermissions } from '@/types/role';
 import { trans } from '@/utils';
 
 interface Props {

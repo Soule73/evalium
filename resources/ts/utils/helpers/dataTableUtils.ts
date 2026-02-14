@@ -1,4 +1,4 @@
-import { DataTableState } from '@/types/datatable';
+import { type DataTableState } from '@/types/datatable';
 
 /**
  * Builds a URL with query parameters based on the current data table state

@@ -1,5 +1,5 @@
 
-import { BadgeType } from '@/Components/ui/Badge/Badge';
+import { type BadgeType } from '@/Components/ui/Badge/Badge';
 import { trans } from '../helpers/translations';
 
 
@@ -119,7 +119,7 @@ export function formatGrade(score: number, total: number): { text: string; color
     const limitedScore = Math.min(score, total);
     const percentage = total > 0 ? Math.round((limitedScore / total) * 100) : 0;
 
-    let colorClass = '';
+    let colorClass: string;
     if (percentage >= 90) colorClass = 'text-green-600';
     else if (percentage >= 70) colorClass = 'text-blue-600';
     else if (percentage >= 50) colorClass = 'text-yellow-600';
@@ -282,7 +282,7 @@ export function formatUserRole(role: string): string {
  *
  * @param value - The number to format.
  * @param locale - The locale to use for formatting (default is 'fr-FR').
- * @returns The formatted number as a string, using 'fr-FR' locale (e.g., "1 234,56").
+ * @returns The formatted number as a string, using 'fr-FR' locale (e.g., "1 234,56").
  */
 export const formatNumber = (value: number, locale: string = 'fr-FR'): string => {
     return value.toLocaleString(locale);

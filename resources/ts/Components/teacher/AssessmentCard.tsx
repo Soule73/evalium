@@ -1,4 +1,4 @@
-import { Assessment } from '@/types';
+import { type Assessment } from '@/types';
 import { trans, formatDate } from '@/utils';
 import {
   DocumentTextIcon,

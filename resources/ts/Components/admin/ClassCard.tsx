@@ -1,4 +1,4 @@
-import { ClassModel } from '@/types';
+import { type ClassModel } from '@/types';
 import { Badge } from '@/Components/ui';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';

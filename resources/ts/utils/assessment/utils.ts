@@ -1,4 +1,4 @@
-import { Question, AssessmentAssignment } from '@/types';
+import { type Question, type AssessmentAssignment } from '@/types';
 import { trans } from '../helpers/translations';
 
 
@@ -138,7 +138,7 @@ export const calculateScoreDisplay = (assignment: AssessmentAssignment): { text:
 
         const percentage = Math.round((limitedScore / totalPoints) * 100);
 
-        let colorClass = '';
+        let colorClass: string;
         if (percentage >= 90) colorClass = 'text-green-600';
         else if (percentage >= 70) colorClass = 'text-blue-600';
         else if (percentage >= 50) colorClass = 'text-yellow-600';

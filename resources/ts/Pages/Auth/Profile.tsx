@@ -1,5 +1,5 @@
 import AuthenticatedLayout from "@/Components/layout/AuthenticatedLayout";
-import { User } from "@/types";
+import { type User } from "@/types";
 import { formatDate, getRoleLabel } from "@/utils";
 import EditUser from "../Admin/Users/Edit";
 import { Button, LanguageSelector, Section, TextEntry, UserAvatar } from "@/Components";

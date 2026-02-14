@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { PaginationType } from '@/types/datatable';
-import { ClassSubject, ClassModel, Subject, User, Semester, PageProps } from '@/types';
+import { type PaginationType } from '@/types/datatable';
+import { type ClassSubject, type ClassModel, type Subject, type User, type Semester, type PageProps } from '@/types';
 import { breadcrumbs, trans, hasPermission } from '@/utils';
 import { Section, Button } from '@/Components';
 import { ClassSubjectList } from '@/Components/shared/lists';

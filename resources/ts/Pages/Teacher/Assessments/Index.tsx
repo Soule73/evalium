@@ -1,9 +1,9 @@
 import React from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { PaginationType } from '@/types/datatable';
+import { type PaginationType } from '@/types/datatable';
 import { Button, Section } from '@/Components';
-import { Assessment, PageProps } from '@/types';
+import { type Assessment, type PageProps } from '@/types';
 import { route } from 'ziggy-js';
 import { hasPermission } from '@/utils';
 import { trans } from '@/utils';

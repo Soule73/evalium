@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { Assessment, AssessmentAssignment, AssessmentRouteContext } from '@/types';
+import { type Assessment, type AssessmentAssignment, type AssessmentRouteContext } from '@/types';
 import { Badge, Button } from '@examena/ui';
 import { ConfirmationModal, Textarea } from '@/Components';
 import { formatDate } from '@/utils';

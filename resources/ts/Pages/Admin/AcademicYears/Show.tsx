@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { AcademicYear, Semester, ClassModel, PageProps } from '@/types';
+import { type AcademicYear, type Semester, type ClassModel, type PageProps } from '@/types';
 import { breadcrumbs, trans, formatDate, hasPermission } from '@/utils';
 import { Button, Section, Badge, SemesterCard } from '@/Components';
 import { route } from 'ziggy-js';

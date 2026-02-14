@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { Subject, ClassSubject, Level, ClassModel } from '@/types';
+import { type Subject, type ClassSubject, type Level, type ClassModel } from '@/types';
 import { Badge } from '@examena/ui';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
@@ -253,7 +253,11 @@ export function SubjectList({
             } else {
               const classSubject = item as ClassSubject;
               if (classSubject.class) {
-                onClassClick?.(classSubject) || router.visit(route('admin.classes.show', classSubject.class.id));
+                if (onClassClick) {
+                  onClassClick(classSubject);
+                } else {
+                  router.visit(route('admin.classes.show', classSubject.class.id));
+                }
               }
             }
           },

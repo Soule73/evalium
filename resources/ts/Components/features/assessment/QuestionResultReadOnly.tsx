@@ -1,4 +1,4 @@
-import { Choice } from "@/types";
+import { type Choice } from "@/types";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import { trans } from '@/utils';
 import { MarkdownRenderer } from "@examena/ui";

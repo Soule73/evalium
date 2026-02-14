@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Assessment, AssessmentAssignment, PageProps } from '@/types';
+import { type Assessment, type AssessmentAssignment, type PageProps } from '@/types';
 import type { PaginationType } from '@/types/datatable';
 import { Section } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';

@@ -1,7 +1,7 @@
 import { forwardRef, useImperativeHandle } from 'react';
 import 'easymde/dist/easymde.min.css';
 import 'katex/dist/katex.min.css';
-import { MarkdownEditorHandle, useMarkdownEditor } from './useMarkdownEditor';
+import { type MarkdownEditorHandle, useMarkdownEditor } from './useMarkdownEditor';
 
 export type { MarkdownEditorHandle } from './useMarkdownEditor';
 

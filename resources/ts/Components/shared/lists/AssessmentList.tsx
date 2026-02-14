@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { Assessment, AssessmentAssignment } from '@/types';
+import { type Assessment, type AssessmentAssignment } from '@/types';
 import { Badge, MarkdownRenderer, Toggle } from '@examena/ui';
 import { ClockIcon } from '@heroicons/react/24/outline';
 import { formatDate, formatDuration } from '@/utils';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { useToast, ToastPosition } from './ToastContext';
+import { useToast, type ToastPosition } from './ToastContext';
 import { Toast } from './Toast';
 
 const positionClasses: Record<ToastPosition, string> = {

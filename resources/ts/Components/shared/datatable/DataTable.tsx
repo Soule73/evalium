@@ -1,5 +1,5 @@
 import { useMemo, useCallback, memo } from 'react';
-import { DataTableProps } from '@/types/datatable';
+import { type DataTableProps } from '@/types/datatable';
 import { DataTableFilters } from './DataTableFilters';
 import { DataTablePagination } from './DataTablePagination';
 import { EmptyState } from '../EmptyState';

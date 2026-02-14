@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from 'react';
 import { usePage } from '@inertiajs/react';
 import { DataTable } from '@/Components/shared';
-import { DataTableConfig } from '@/types/datatable';
+import { type DataTableConfig } from '@/types/datatable';
 import { Button } from '@examena/ui';
 import { useTranslations } from '@/hooks';
 import type { PageProps } from '@/types';

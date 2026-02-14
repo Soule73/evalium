@@ -1,6 +1,6 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-import { PaginationType } from '@/types/datatable';
+import { type PaginationType } from '@/types/datatable';
 import { trans } from '@/utils';
 
 interface DataTablePaginationProps<T> {

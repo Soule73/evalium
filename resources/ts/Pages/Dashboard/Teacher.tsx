@@ -5,7 +5,7 @@ import { AcademicCapIcon, BookOpenIcon, ClipboardDocumentListIcon, CalendarDaysI
 import { breadcrumbs } from '@/utils';
 import { trans } from '@/utils';
 import { Button, Section, Stat, DataTable } from '@/Components';
-import { DataTableConfig, PaginationType } from '@/types/datatable';
+import { type DataTableConfig, type PaginationType } from '@/types/datatable';
 
 interface ClassSubject {
     id: number;

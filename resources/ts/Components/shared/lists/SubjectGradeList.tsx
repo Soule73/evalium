@@ -81,7 +81,7 @@ export function SubjectGradeList({
         render: (item: SubjectGrade) => (
           <div className="flex items-center justify-start space-x-2">
             <span className={getGradeColor(item.average)}>
-              {item.average != null ? `${Number(item.average).toFixed(2)}/20` : '-'}
+              {item.average !== null && item.average !== undefined ? `${Number(item.average).toFixed(2)}/20` : '-'}
             </span>
             {getGradeBadge(item.average)}
           </div>
