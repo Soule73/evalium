@@ -1,5 +1,6 @@
 import { type FormEvent, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
+import { type FormDataConvertible } from '@inertiajs/core';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type EnrollmentFormData, type ClassModel, type User } from '@/types';
 import { breadcrumbs, trans } from '@/utils';
@@ -29,9 +30,9 @@ export default function EnrollmentCreate({ classes, students }: Props) {
     e.preventDefault();
     setIsSubmitting(true);
 
-    router.post(route('admin.enrollments.store'), formData as any, {
+    router.post(route('admin.enrollments.store'), formData as unknown as unknown as Record<string, FormDataConvertible>, {
       onError: (errors) => {
-        setErrors(errors as any);
+        setErrors(errors as Partial<Record<keyof EnrollmentFormData, string>>);
         setIsSubmitting(false);
       },
       onSuccess: () => {

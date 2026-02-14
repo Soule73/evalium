@@ -13,7 +13,7 @@ import type { BaseEntityListProps } from './types/listConfig';
  * This component provides a standardized way to display paginated lists
  * with support for different variants (admin, teacher, student).
  */
-export function BaseEntityList<T extends { id?: number | string }>({
+export function BaseEntityList<T extends { id: number | string }>({
   data,
   config,
   variant = 'admin',

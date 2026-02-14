@@ -17,7 +17,7 @@ interface AssessmentConfig {
     };
 }
 
-interface PageProps extends Record<string, any> {
+interface PageProps extends Record<string, unknown> {
     assessmentConfig?: AssessmentConfig;
 }
 

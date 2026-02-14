@@ -8,7 +8,7 @@ import { trans } from '@/utils';
 import { Checkbox } from '@examena/ui';
 import { useDataTable } from '@/hooks';
 
-function DataTableInner<T extends { id?: number | string }>({
+function DataTableInner<T extends { id: number | string }>({
     data,
     config,
     onStateChange,
@@ -158,7 +158,7 @@ function DataTableInner<T extends { id?: number | string }>({
                                                         column.render(item, index)
                                                     ) : (
                                                         <span className="text-sm text-gray-900">
-                                                            {String((item as any)[column.key] || '')}
+                                                            {String((item as Record<string, unknown>)[column.key] || '')}
                                                         </span>
                                                     )}
                                                 </td>

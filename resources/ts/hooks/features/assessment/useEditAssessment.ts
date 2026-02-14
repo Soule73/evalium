@@ -128,7 +128,7 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
       onSuccess: () => {
         clearDeletedHistory();
       },
-      onError: (errors: any) => {
+      onError: (errors: Record<string, string>) => {
         console.error('Submission errors:', errors);
       }
     });

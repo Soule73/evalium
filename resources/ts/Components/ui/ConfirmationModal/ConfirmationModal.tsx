@@ -3,6 +3,7 @@ import Modal, { type ModalSize } from '../Modal/Modal';
 import Button from '../Button/Button';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
+type ButtonColor = 'primary' | 'secondary' | 'danger' | 'success' | 'warning';
 type ModalType = 'danger' | 'warning' | 'info';
 
 interface ConfirmationModalProps {
@@ -30,25 +31,25 @@ const getTypeStyles = (type: ModalType) => {
             return {
                 iconColor: 'text-red-600',
                 iconBg: 'bg-red-100',
-                confirmButton: 'danger'
+                confirmButton: 'danger' as ButtonColor
             };
         case 'warning':
             return {
                 iconColor: 'text-yellow-600',
                 iconBg: 'bg-yellow-100',
-                confirmButton: 'warning'
+                confirmButton: 'warning' as ButtonColor
             };
         case 'info':
             return {
                 iconColor: 'text-blue-600',
                 iconBg: 'bg-blue-100',
-                confirmButton: 'primary'
+                confirmButton: 'primary' as ButtonColor
             };
         default:
             return {
                 iconColor: 'text-yellow-600',
                 iconBg: 'bg-yellow-100',
-                confirmButton: 'warning'
+                confirmButton: 'warning' as ButtonColor
             };
     }
 };
@@ -100,7 +101,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                     </Button>
                     <Button
                         size="md"
-                        color={styles.confirmButton as any}
+                        color={styles.confirmButton}
                         onClick={onConfirm}
                         loading={loading}
                         disabled={loading}

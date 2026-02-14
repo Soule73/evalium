@@ -28,12 +28,12 @@ interface AssessmentFormState {
   deletedChoicesHistory: DeletedChoice[];
 
   setQuestions: (questions: QuestionFormData[]) => void;
-  updateQuestion: (index: number, field: keyof QuestionFormData, value: any) => void;
+  updateQuestion: (index: number, field: keyof QuestionFormData, value: QuestionFormData[keyof QuestionFormData]) => void;
   addQuestion: (type: QuestionType) => void;
   removeQuestion: (index: number) => void;
   reorderQuestions: (oldIndex: number, newIndex: number) => void;
 
-  updateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: any) => void;
+  updateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: ChoiceFormData[keyof ChoiceFormData]) => void;
   addChoice: (questionIndex: number) => void;
   removeChoice: (questionIndex: number, choiceIndex: number) => void;
 
@@ -62,7 +62,7 @@ export const useAssessmentFormStore = create<AssessmentFormState>()(
       const question = state.questions[index];
       if (!question) return;
 
-      (question as any)[field] = value;
+      Object.assign(question, { [field]: value });
 
       if (field === 'type' && value === 'boolean') {
         question.choices = [
@@ -107,7 +107,7 @@ export const useAssessmentFormStore = create<AssessmentFormState>()(
       if (!question?.choices?.[choiceIndex]) return;
 
       const choice = question.choices[choiceIndex];
-      (choice as any)[field] = value;
+      Object.assign(choice, { [field]: value });
 
       if (field === 'is_correct') {
         if (question.type === 'one_choice' && value === true) {

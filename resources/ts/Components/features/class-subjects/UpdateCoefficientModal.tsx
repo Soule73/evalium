@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
+import { type FormDataConvertible } from '@inertiajs/core';
 import { type ClassSubject } from '@/types';
 import { trans } from '@/utils';
 import { Button, Modal, Input } from '@/Components';
@@ -30,7 +31,7 @@ export function UpdateCoefficientModal({
 
     router.post(
       route('admin.class-subjects.update-coefficient', classSubject.id),
-      { coefficient } as any,
+      { coefficient } as unknown as unknown as Record<string, FormDataConvertible>,
       {
         onError: (errors) => {
           setFormErrors(errors);

@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 
-interface AutoSaveConfig {
-    interval?: number; // Auto-save interval in milliseconds
-    debounceTime?: number; // Debounce time for changes
-    maxRetries?: number; // Maximum retry attempts
-    onSave?: (data: any) => Promise<void>;
+interface AutoSaveConfig<T> {
+    interval?: number;
+    debounceTime?: number;
+    maxRetries?: number;
+    onSave?: (data: T) => Promise<void>;
     onError?: (error: Error) => void;
 }
 
@@ -19,9 +19,9 @@ interface UseAutoSaveReturn<T> {
     resetModified: () => void;
 }
 
-export function useAutoSave<T extends Record<string, any>>(
+export function useAutoSave<T extends Record<string, unknown>>(
     initialData: T,
-    config: AutoSaveConfig = {}
+    config: AutoSaveConfig<T> = {}
 ): UseAutoSaveReturn<T> {
     const {
         interval = 30000, // 30 seconds

@@ -4,14 +4,14 @@ import { isInFullscreen, type AssessmentViolationType } from '@/utils/assessment
 
 interface SecurityConfig {
     maxAttempts?: number;
-    onViolation?: (type: string, details?: any) => void;
+    onViolation?: (type: string, details?: Record<string, unknown>) => void;
     onBlocked?: () => void;
 }
 
 interface SecurityEvent {
     type: AssessmentViolationType | string;
     timestamp: Date;
-    details?: any;
+    details?: Record<string, unknown>;
 }
 
 interface UseAssessmentSecurityReturn {
@@ -69,7 +69,7 @@ export function useAssessmentSecurity(config: SecurityConfig = {}): UseAssessmen
 
     const [attemptCount, setAttemptCount] = useState(0);
 
-    const addViolation = useCallback((type: SecurityEvent['type'], details?: any) => {
+    const addViolation = useCallback((type: SecurityEvent['type'], details?: Record<string, unknown>) => {
         if (!securityEnabled) return;
 
         const violation: SecurityEvent = {

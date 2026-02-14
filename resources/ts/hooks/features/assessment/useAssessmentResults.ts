@@ -1,11 +1,11 @@
-import { type Assessment, type AssessmentAssignment, type Question } from '@/types';
+import { type Assessment, type AssessmentAssignment, type Question, type Answer, type Choice } from '@/types';
 import { canShowAssessmentResults, formatAssessmentAssignmentStatus } from '@/utils';
 import { useMemo } from 'react';
 
 interface UseAssessmentResultParams {
   assessment: Assessment;
   assignment: AssessmentAssignment;
-  userAnswers: Record<number, any>;
+  userAnswers: Record<number, Answer>;
 }
 
 /**
@@ -45,12 +45,12 @@ const useAssessmentResults = ({ assessment, assignment, userAnswers }: UseAssess
       if (question.type === 'multiple') {
         if (userAnswer.choices && Array.isArray(userAnswer.choices)) {
           const selectedChoices = userAnswer.choices
-            .map((c: any) => c.choice)
-            .filter((choice: any) => choice !== null && choice !== undefined);
+            .map((c) => c.choice)
+            .filter((choice): choice is Choice => choice !== null && choice !== undefined);
 
           const correctChoices = (question.choices ?? []).filter((c) => c.is_correct);
 
-          const selectedChoiceIds = new Set(selectedChoices.map((choice: any) => choice.id));
+          const selectedChoiceIds = new Set(selectedChoices.map((choice) => choice.id));
           const correctChoiceIds = new Set(correctChoices.map((choice) => choice.id));
 
           const hasAllCorrectChoices =

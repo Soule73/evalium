@@ -103,9 +103,9 @@ export function getViolationSeverity(violationType: string): 'critical' | 'high'
 export function isFullscreenSupported(): boolean {
     return (
         document.fullscreenEnabled ||
-        (document as any).webkitFullscreenEnabled ||
-        (document as any).mozFullScreenEnabled ||
-        (document as any).msFullscreenEnabled
+        (document as unknown as Record<string, boolean>).webkitFullscreenEnabled ||
+        (document as unknown as Record<string, boolean>).mozFullScreenEnabled ||
+        (document as unknown as Record<string, boolean>).msFullscreenEnabled
     );
 }
 
@@ -120,8 +120,8 @@ export function isFullscreenSupported(): boolean {
 export function isInFullscreen(): boolean {
     return Boolean(
         document.fullscreenElement ||
-        (document as any).webkitFullscreenElement ||
-        (document as any).mozFullScreenElement ||
-        (document as any).msFullscreenElement
+        (document as unknown as Record<string, Element | null>).webkitFullscreenElement ||
+        (document as unknown as Record<string, Element | null>).mozFullScreenElement ||
+        (document as unknown as Record<string, Element | null>).msFullscreenElement
     );
 }

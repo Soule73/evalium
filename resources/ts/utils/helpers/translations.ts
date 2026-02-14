@@ -27,11 +27,11 @@ export function translateKey(
     fallback?: string
 ): string {
     const keys = key.split('.');
-    let translation: any = language;
+    let translation: unknown = language;
 
     for (const k of keys) {
         if (translation && typeof translation === 'object' && k in translation) {
-            translation = translation[k];
+            translation = (translation as Record<string, unknown>)[k];
         } else {
             return fallback || key;
         }
@@ -110,7 +110,7 @@ export function isLocale(loc: string): boolean {
  * @param namespace - Translation namespace (e.g., 'assessment', 'groups')
  * @returns Object with all translations in that namespace
  */
-export function transAll(namespace: string): Record<string, any> {
+export function transAll(namespace: string): Record<string, string | Record<string, string>> {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const { language } = usePage<PageProps>().props;
     return language[namespace] || {};

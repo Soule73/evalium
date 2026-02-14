@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
-import { type Question, type Assessment, type AssessmentAssignment } from '@/types';
+import { type Question, type Assessment, type AssessmentAssignment, type Answer, type QuestionResult } from '@/types';
 
 interface UseAssessmentScoringParams {
     assessment: Assessment;
     assignment: AssessmentAssignment;
-    userAnswers: Record<number, any>;
+    userAnswers: Record<number, Answer>;
     totalPoints: number;
-    getQuestionResult: (question: Question) => any;
+    getQuestionResult: (question: Question) => QuestionResult;
 }
 
 /**

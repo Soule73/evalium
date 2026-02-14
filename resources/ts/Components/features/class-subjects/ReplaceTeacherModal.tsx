@@ -1,5 +1,6 @@
 import { type FormEvent, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
+import { type FormDataConvertible } from '@inertiajs/core';
 import { type ClassSubject, type User } from '@/types';
 import { trans } from '@/utils';
 import { Button, Modal, Select } from '@/Components';
@@ -56,7 +57,7 @@ export function ReplaceTeacherModal({
     setIsSubmitting(true);
     setFormErrors({});
 
-    router.post(route('admin.class-subjects.replace-teacher', classSubject.id), formValues as any, {
+    router.post(route('admin.class-subjects.replace-teacher', classSubject.id), formValues as unknown as unknown as Record<string, FormDataConvertible>, {
       onError: (errors) => {
         setFormErrors(errors);
         setIsSubmitting(false);

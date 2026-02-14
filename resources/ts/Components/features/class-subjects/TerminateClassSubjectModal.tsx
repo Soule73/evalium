@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
+import { type FormDataConvertible } from '@inertiajs/core';
 import { type ClassSubject } from '@/types';
 import { trans } from '@/utils';
 import { Button, Modal } from '@/Components';
@@ -32,7 +33,7 @@ export function TerminateClassSubjectModal({
 
     router.post(
       route('admin.class-subjects.terminate', classSubject.id),
-      { end_date: endDate } as any,
+      { end_date: endDate } as unknown as unknown as Record<string, FormDataConvertible>,
       {
         onError: (errors) => {
           setFormErrors(errors);

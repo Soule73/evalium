@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { router } from '@inertiajs/react';
+import { type FormDataConvertible } from '@inertiajs/core';
 
 interface BulkActionOptions {
     onSuccess?: () => void;
@@ -16,7 +17,7 @@ export function useBulkActions() {
         options?: BulkActionOptions
     ) => {
         setIsLoading(true);
-        router.post(routeName, data as any, {
+        router.post(routeName, data as unknown as unknown as Record<string, FormDataConvertible>, {
             onSuccess: () => {
                 setSelectedIds([]);
                 setIsLoading(false);

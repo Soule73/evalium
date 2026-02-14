@@ -1,5 +1,6 @@
 import { type FormEvent, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
+import { type FormDataConvertible } from '@inertiajs/core';
 import { type ClassModel, type Level } from '@/types';
 import { trans } from '@/utils';
 import { Button, Input, Section, Select } from '@examena/ui';
@@ -54,9 +55,9 @@ export function ClassForm({
     };
 
     if (isEditMode) {
-      router.put(route('admin.classes.update', classItem.id), formData as any, submitOptions);
+      router.put(route('admin.classes.update', classItem.id), formData as unknown as unknown as Record<string, FormDataConvertible>, submitOptions);
     } else {
-      router.post(route('admin.classes.store'), formData as any, submitOptions);
+      router.post(route('admin.classes.store'), formData as unknown as unknown as Record<string, FormDataConvertible>, submitOptions);
     }
   };
 

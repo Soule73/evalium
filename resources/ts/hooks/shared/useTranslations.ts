@@ -33,7 +33,7 @@ export function useTranslations() {
     );
 
     const tAll = useCallback(
-        (namespace: string): Record<string, any> => {
+        (namespace: string): Record<string, string | Record<string, string>> => {
             return language[namespace] || {};
         },
         [language],

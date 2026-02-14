@@ -13,6 +13,6 @@ export interface QuestionResult {
   userChoices: Choice[];
   hasMultipleAnswers: boolean;
   userText?: string;
-  feedback: string | null;
+  feedback: string | null | undefined;
   score?: number;
 }

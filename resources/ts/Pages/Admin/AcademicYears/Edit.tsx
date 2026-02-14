@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
+import { type FormDataConvertible } from '@inertiajs/core';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type AcademicYear, type AcademicYearFormData, type PageProps } from '@/types';
 import { breadcrumbs, trans } from '@/utils';
@@ -31,9 +32,9 @@ export default function AcademicYearEdit({ academicYear }: Props) {
     e.preventDefault();
     setIsSubmitting(true);
 
-    router.put(route('admin.academic-years.update', academicYear.id), formData as any, {
+    router.put(route('admin.academic-years.update', academicYear.id), formData as unknown as unknown as Record<string, FormDataConvertible>, {
       onError: (errors) => {
-        setErrors(errors as any);
+        setErrors(errors as Partial<Record<keyof AcademicYearFormData, string>>);
         setIsSubmitting(false);
       },
       onSuccess: () => {

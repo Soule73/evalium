@@ -212,7 +212,7 @@ export const createImageActionsHandler = () => {
  */
 export const disableTextSelection = (): void => {
     document.body.style.userSelect = 'none';
-    (document.body.style as any).mozUserSelect = 'none';
+    (document.body.style as unknown as Record<string, string>).mozUserSelect = 'none';
 };
 
 /**
@@ -220,7 +220,7 @@ export const disableTextSelection = (): void => {
  */
 export const enableTextSelection = (): void => {
     document.body.style.userSelect = '';
-    (document.body.style as any).mozUserSelect = '';
+    (document.body.style as unknown as Record<string, string>).mozUserSelect = '';
 };
 
 /**

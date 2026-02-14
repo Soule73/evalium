@@ -1,5 +1,6 @@
 import { type FormEvent, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
+import { type FormDataConvertible } from '@inertiajs/core';
 import { type Enrollment, type ClassModel } from '@/types';
 import { trans } from '@/utils';
 import { Button, Modal, Select } from '@/Components';
@@ -64,7 +65,7 @@ export function TransferEnrollmentModal({
     setIsSubmitting(true);
     setFormErrors({});
 
-    router.post(route('admin.enrollments.transfer', enrollment.id), formValues as any, {
+    router.post(route('admin.enrollments.transfer', enrollment.id), formValues as unknown as unknown as Record<string, FormDataConvertible>, {
       onError: (errors) => {
         setFormErrors(errors);
         setIsSubmitting(false);
@@ -122,8 +123,8 @@ export function TransferEnrollmentModal({
         {selectedClass && (
           <div
             className={`p-4 rounded-lg ${availableSlots > 0
-                ? 'bg-green-50 border border-green-200'
-                : 'bg-red-50 border border-red-200'
+              ? 'bg-green-50 border border-green-200'
+              : 'bg-red-50 border border-red-200'
               }`}
           >
             <div className="text-sm">

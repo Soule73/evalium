@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
+import { type FormDataConvertible } from '@inertiajs/core';
 import { type SubjectFormData, type Level, type Subject } from '@/types';
 import { trans } from '@/utils';
 import { Button, Input, Section, Select } from '@examena/ui';
@@ -49,9 +50,9 @@ export function SubjectForm({ title, subtitle, subject, levels, onCancel }: Subj
     };
 
     if (isEditMode) {
-      router.put(route('admin.subjects.update', subject.id), formData as any, submitOptions);
+      router.put(route('admin.subjects.update', subject.id), formData as unknown as unknown as Record<string, FormDataConvertible>, submitOptions);
     } else {
-      router.post(route('admin.subjects.store'), formData as any, submitOptions);
+      router.post(route('admin.subjects.store'), formData as unknown as unknown as Record<string, FormDataConvertible>, submitOptions);
     }
   };
 

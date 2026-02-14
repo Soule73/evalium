@@ -1,9 +1,11 @@
-import { route as ziggyRoute } from 'ziggy-js';
+import { route as ziggyRoute, type Config as ZiggyConfig } from 'ziggy-js';
 
-export function setupZiggy(ziggy: any) {
-    (window as any).route = (name: string, params?: any, absolute = false) => {
-        return ziggyRoute(name, params, absolute, ziggy);
+export function setupZiggy(ziggy: Partial<ZiggyConfig>) {
+    const routeFn = (name: string, params?: Record<string, unknown>, absolute = false) => {
+        return ziggyRoute(name, params, absolute, ziggy as ZiggyConfig);
     };
 
-    return (window as any).route;
+    (window as unknown as Record<string, typeof routeFn>).route = routeFn;
+
+    return routeFn;
 }

@@ -10,13 +10,13 @@ import {
     selectAllItems
 } from '@/utils';
 
-interface UseDataTableOptions {
+interface UseDataTableOptions<T> {
     initialState?: Partial<DataTableState>;
     preserveState?: boolean;
     debounceMs?: number;
     enableSelection?: boolean;
     maxSelectable?: number;
-    isSelectable?: (item: any) => boolean;
+    isSelectable?: (item: T) => boolean;
     filters?: FilterConfig[];
     onStateChange?: (state: DataTableState) => void;
     onSelectionChange?: (selectedIds: (number | string)[]) => void;
@@ -25,9 +25,9 @@ interface UseDataTableOptions {
 /**
  * Custom hook for managing data table state, navigation, filtering, and selection
  */
-export function useDataTable<T extends { id?: number | string }>(
+export function useDataTable<T extends { id: number | string }>(
     data: PaginationType<T>,
-    options: UseDataTableOptions = {}
+    options: UseDataTableOptions<T> = {}
 ) {
     const {
         initialState = {},
