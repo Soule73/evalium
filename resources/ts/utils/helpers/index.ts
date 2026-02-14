@@ -10,7 +10,8 @@ export {
     ROLES,
 } from './permissions';
 export { setupZiggy } from './ziggy';
-export { trans, locale, isLocale, transAll, transChoice } from './translations';
+export { trans, translateKey, locale, isLocale, transAll, transChoice } from './translations';
+export type { LanguageData } from './translations';
 export {
     buildDataTableUrl,
     getSelectableItems,

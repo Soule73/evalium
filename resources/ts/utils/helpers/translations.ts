@@ -6,31 +6,26 @@ interface PageProps extends InertiaPageProps {
     language: Record<string, Record<string, string | Record<string, string>>>;
 }
 
+export type LanguageData = Record<string, Record<string, string | Record<string, string>>>;
+
 /**
- * Get a translation by key using dot notation
- * 
- * @example
- * // From lang/fr/assessment.php -> 'created' key
- * trans('assessment.created') // "Assessment created successfully!"
- * 
- * // With replacements
- * trans('groups.students_assigned', { count: 5 }) // "5 students assigned"
- * 
- * // From nested keys
- * trans('actions.named.create', { name: 'Assessment' }) // "Assessment created successfully!"
- * 
+ * Pure translation function that resolves a key using dot notation.
+ *
+ * This is NOT a React hook and can safely be called inside useMemo,
+ * useCallback, event handlers, or any non-hook context.
+ *
+ * @param language - The language data object from page props
  * @param key - Translation key in dot notation (e.g., 'assessment.created')
  * @param replacements - Object with replacement values for :placeholder syntax
  * @param fallback - Fallback text if translation not found
  * @returns Translated string
  */
-export function trans(
+export function translateKey(
+    language: LanguageData,
     key: string,
     replacements: Record<string, string | number> = {},
     fallback?: string
 ): string {
-    const { language } = usePage<PageProps>().props;
-
     const keys = key.split('.');
     let translation: any = language;
 
@@ -53,9 +48,28 @@ export function trans(
 }
 
 /**
- * Get the current locale
- * 
- * @returns Current locale (e.g., 'fr', 'en')
+ * Get a translation by key using dot notation (React hook - calls usePage).
+ *
+ * WARNING: This function calls usePage() internally, making it a React hook.
+ * Do NOT call inside useMemo, useCallback, useEffect, or loops/conditions.
+ * For those contexts, use the useTranslations() hook instead.
+ *
+ * @param key - Translation key in dot notation (e.g., 'assessment.created')
+ * @param replacements - Object with replacement values for :placeholder syntax
+ * @param fallback - Fallback text if translation not found
+ * @returns Translated string
+ */
+export function trans(
+    key: string,
+    replacements: Record<string, string | number> = {},
+    fallback?: string
+): string {
+    const { language } = usePage<PageProps>().props;
+    return translateKey(language, key, replacements, fallback);
+}
+
+/**
+ * Get the current locale (React hook - calls usePage)
  */
 export function locale(): string {
     const { locale } = usePage<PageProps>().props;
@@ -63,23 +77,15 @@ export function locale(): string {
 }
 
 /**
- * Check if current locale matches given locale
- * 
- * @param loc - Locale to check (e.g., 'fr', 'en')
- * @returns True if current locale matches
+ * Check if current locale matches given locale (React hook - calls usePage)
  */
 export function isLocale(loc: string): boolean {
     return locale() === loc;
 }
 
 /**
- * Get all translations for a namespace
- * 
- * @example
- * // Get all assessment translations
- * const assessmentTranslations = transAll('assessment');
- * // { created: "Assessment created successfully!", updated: "...", ... }
- * 
+ * Get all translations for a namespace (React hook - calls usePage)
+ *
  * @param namespace - Translation namespace (e.g., 'assessment', 'groups')
  * @returns Object with all translations in that namespace
  */
@@ -89,13 +95,8 @@ export function transAll(namespace: string): Record<string, any> {
 }
 
 /**
- * Choice translation (pluralization)
- * Simple implementation for count-based translations
- * 
- * @example
- * transChoice('groups.students_assigned', 1) // "1 student assigned"
- * transChoice('groups.students_assigned', 5) // "5 students assigned"
- * 
+ * Choice translation with pluralization (React hook - calls usePage)
+ *
  * @param key - Translation key
  * @param count - Count for pluralization
  * @param replacements - Additional replacements
