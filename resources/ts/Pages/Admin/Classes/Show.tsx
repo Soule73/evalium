@@ -176,6 +176,10 @@ export default function ClassShow({
               data={assessments}
               variant="admin"
               showClassColumn={false}
+              onView={(item) => {
+                const assessment = item as Assessment;
+                router.visit(route('admin.assessments.show', assessment.id));
+              }}
             />
           </Section>
         )}

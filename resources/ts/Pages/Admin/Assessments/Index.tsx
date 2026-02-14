@@ -1,3 +1,5 @@
+import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Assessment, PageProps, PaginationType } from '@/types';
 import { breadcrumbs, trans } from '@/utils';
@@ -40,6 +42,10 @@ export default function AdminAssessmentsIndex({
           <AssessmentList
             data={assessments}
             variant="admin"
+            onView={(item) => {
+              const assessment = item as Assessment;
+              router.visit(route('admin.assessments.show', assessment.id));
+            }}
           />
         </Section>
       </div>
