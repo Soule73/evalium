@@ -5,7 +5,8 @@ import { requiresManualGrading } from '@/utils';
 import { route } from 'ziggy-js';
 import { router, usePage } from '@inertiajs/react';
 import { Button, Section, Textarea, QuestionRenderer, ConfirmationModal, Stat } from '@/Components';
-import { hasPermission, breadcrumbs, trans } from '@/utils';
+import { hasPermission, breadcrumbs } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { DocumentTextIcon, ChartPieIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 interface Props {
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export default function GradeAssignment({ assessment, student, assignment, userAnswers = {}, routeContext }: Props) {
+  const { t } = useTranslations();
   const { auth } = usePage<PageProps>().props;
   const canGradeAssessments = hasPermission(auth.permissions, 'grade assessments');
 
@@ -140,16 +142,16 @@ export default function GradeAssignment({ assessment, student, assignment, userA
         <div className="flex items-center justify-between">
           <div>
             <label className="text-sm font-medium text-gray-700">
-              {trans('grading_pages.show.question_score_label', { max: maxScore })}
+              {t('grading_pages.show.question_score_label', { max: maxScore })}
             </label>
             {isAutoGraded && (
               <p className="text-xs text-blue-600 mt-1">
-                {trans('grading_pages.show.auto_graded_info')}
+                {t('grading_pages.show.auto_graded_info')}
               </p>
             )}
             {!isAutoGraded && (
               <p className="text-xs text-orange-600 mt-1">
-                {trans('grading_pages.show.manual_grading_required')}
+                {t('grading_pages.show.manual_grading_required')}
               </p>
             )}
           </div>
@@ -170,10 +172,10 @@ export default function GradeAssignment({ assessment, student, assignment, userA
 
         <div>
           <Textarea
-            label={trans('grading_pages.show.question_comment_label')}
+            label={t('grading_pages.show.question_comment_label')}
             value={feedbacks[question.id] || ''}
             onChange={(e) => handleFeedbackChange(question.id, e.target.value)}
-            placeholder={trans('grading_pages.show.question_comment_placeholder')}
+            placeholder={t('grading_pages.show.question_comment_placeholder')}
             rows={2}
             disabled={!canGradeAssessments}
           />
@@ -192,12 +194,12 @@ export default function GradeAssignment({ assessment, student, assignment, userA
 
   return (
     <AuthenticatedLayout
-      title={trans('grading_pages.show.title', { student: student.name, assessment: assessment.title })}
+      title={t('grading_pages.show.title', { student: student.name, assessment: assessment.title })}
       breadcrumb={pageBreadcrumbs}
     >
       <div className="max-w-6xl mx-auto space-y-6">
         <Section
-          title={trans('grading_pages.show.correction_title', { student: student.name })}
+          title={t('grading_pages.show.correction_title', { student: student.name })}
           actions={
             <div className="flex items-center space-x-4">
               <Button
@@ -205,7 +207,7 @@ export default function GradeAssignment({ assessment, student, assignment, userA
                 variant="outline"
                 size="sm"
               >
-                {trans('grading_pages.show.back_to_assessment')}
+                {t('grading_pages.show.back_to_assessment')}
               </Button>
               {canGradeAssessments && (
                 <Button
@@ -214,7 +216,7 @@ export default function GradeAssignment({ assessment, student, assignment, userA
                   loading={isSubmitting}
                   size="sm"
                 >
-                  {isSubmitting ? trans('grading_pages.show.saving') : trans('grading_pages.show.save_grades')}
+                  {isSubmitting ? t('grading_pages.show.saving') : t('grading_pages.show.save_grades')}
                 </Button>
               )}
             </div>
@@ -222,24 +224,24 @@ export default function GradeAssignment({ assessment, student, assignment, userA
         >
           <Stat.Group columns={3}>
             <Stat.Item
-              title={trans('grading_pages.show.total_score')}
+              title={t('grading_pages.show.total_score')}
               value={`${calculatedTotalScore} / ${totalPoints}`}
               icon={DocumentTextIcon}
             />
             <Stat.Item
-              title={trans('grading_pages.show.percentage')}
+              title={t('grading_pages.show.percentage')}
               value={`${percentage}%`}
               icon={ChartPieIcon}
             />
             <Stat.Item
-              title={trans('grading_pages.show.status')}
-              value={assignment.submitted_at ? trans('grading_pages.show.submitted') : trans('grading_pages.show.not_submitted')}
+              title={t('grading_pages.show.status')}
+              value={assignment.submitted_at ? t('grading_pages.show.submitted') : t('grading_pages.show.not_submitted')}
               icon={assignment.submitted_at ? CheckCircleIcon : XCircleIcon}
             />
           </Stat.Group>
         </Section>
 
-        <Section title={trans('grading_pages.show.questions_correction')}>
+        <Section title={t('grading_pages.show.questions_correction')}>
           <div className="space-y-6">
             {(assessment.questions ?? []).map((question) => (
               <div key={question.id} className="pb-6 border-b border-gray-200 last:border-0">
@@ -256,14 +258,14 @@ export default function GradeAssignment({ assessment, student, assignment, userA
           </div>
         </Section>
 
-        <Section title={trans('grading_pages.show.teacher_notes_label')}>
+        <Section title={t('grading_pages.show.teacher_notes_label')}>
           <Textarea
             value={teacherNotes}
             onChange={(e) => setTeacherNotes(e.target.value)}
-            placeholder={trans('grading_pages.show.teacher_notes_placeholder')}
+            placeholder={t('grading_pages.show.teacher_notes_placeholder')}
             rows={4}
             disabled={!canGradeAssessments}
-            helperText={trans('grading_pages.show.teacher_notes_help')}
+            helperText={t('grading_pages.show.teacher_notes_help')}
           />
         </Section>
       </div>
@@ -272,10 +274,10 @@ export default function GradeAssignment({ assessment, student, assignment, userA
         isOpen={showConfirmModal}
         onClose={() => setShowConfirmModal(false)}
         onConfirm={handleConfirmSubmit}
-        title={trans('grading_pages.show.confirm_save_title')}
-        message={trans('grading_pages.show.confirm_save_message', { student: student.name })}
-        confirmText={trans('grading_pages.show.confirm_save')}
-        cancelText={trans('grading_pages.show.cancel')}
+        title={t('grading_pages.show.confirm_save_title')}
+        message={t('grading_pages.show.confirm_save_message', { student: student.name })}
+        confirmText={t('grading_pages.show.confirm_save')}
+        cancelText={t('grading_pages.show.cancel')}
         type="info"
         loading={isSubmitting}
       />

@@ -12,7 +12,7 @@ import { getViolationTranslationKey } from '@/utils/assessment/take';
 import { useAssessmentConfig, isSecurityEnabled, isFeatureEnabled } from '../useAssessmentConfig';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface UseAssessmentSecurityViolationOptions {
     assessmentId: number;
@@ -30,11 +30,12 @@ export function useAssessmentSecurityViolation({ assessmentId, onViolation }: Us
 
     const assessmentConfig = useAssessmentConfig();
     const securityEnabled = isSecurityEnabled(assessmentConfig);
+    const { t } = useTranslations();
 
     const getViolationLabel = useCallback((violationType: string): string => {
         const translationKey = getViolationTranslationKey(violationType);
-        return trans(translationKey);
-    }, []);
+        return t(translationKey);
+    }, [t]);
 
 
     useEffect(() => {

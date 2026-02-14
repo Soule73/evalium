@@ -8,7 +8,8 @@ import { type Assessment, type AssessmentAssignment, type AssessmentRouteContext
 import { type PaginationType } from '@/types/datatable';
 import { ClockIcon, QuestionMarkCircleIcon, StarIcon, DocumentDuplicateIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
-import { breadcrumbs, trans } from '@/utils';
+import { breadcrumbs } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { QuestionReadOnlySection } from '@/Components';
 import { QuestionResultReadOnlyText, QuestionTeacherReadOnlyChoices } from '@/Components/features/assessment/QuestionResultReadOnly';
 import { AssessmentHeader } from '@/Components/features/assessment/AssessmentHeader';
@@ -25,6 +26,7 @@ interface Props {
 }
 
 const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext }) => {
+  const { t } = useTranslations();
   const [isToggling, setIsToggling] = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
@@ -97,7 +99,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
     >
       <div className="max-w-6xl mx-auto space-y-6">
         <Section
-          title={trans('assessment_pages.common.subtitle')}
+          title={t('assessment_pages.common.subtitle')}
           actions={
             (canToggle || canDuplicate || canEdit) ? (
               <div className="flex flex-col md:flex-row space-y-2 md:space-x-3 md:space-y-0">
@@ -109,8 +111,8 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
                     color="green"
                     size="sm"
                     showLabel
-                    activeLabel={trans('assessment_pages.common.toggle_published')}
-                    inactiveLabel={trans('assessment_pages.common.toggle_unpublished')}
+                    activeLabel={t('assessment_pages.common.toggle_published')}
+                    inactiveLabel={t('assessment_pages.common.toggle_unpublished')}
                   />
                 )}
                 {canDuplicate && (
@@ -122,7 +124,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
                     disabled={isDuplicating}
                   >
                     <DocumentDuplicateIcon className="h-4 w-4 mr-1" />
-                    {trans('assessment_pages.common.duplicate')}
+                    {t('assessment_pages.common.duplicate')}
                   </Button>
                 )}
                 {canEdit && (
@@ -132,7 +134,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
                     variant='outline'
                     size="sm"
                   >
-                    {trans('assessment_pages.common.edit')}
+                    {t('assessment_pages.common.edit')}
                   </Button>
                 )}
               </div>
@@ -142,37 +144,37 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
           <AssessmentHeader assessment={assessment} showDescription={true} showMetadata={false} />
           <Stat.Group columns={3} className='border-b border-b-gray-300 pb-3'>
             <TextEntry
-              label={trans('assessment_pages.common.class')}
+              label={t('assessment_pages.common.class')}
               value={assessment?.class_subject?.class?.name || '-'}
             />
             <TextEntry
-              label={trans('assessment_pages.common.level')}
+              label={t('assessment_pages.common.level')}
               value={assessment?.class_subject?.class?.level ? levelNameDescription : '-'}
             />
             <TextEntry
-              label={trans('assessment_pages.common.subject')}
+              label={t('assessment_pages.common.subject')}
               value={assessment?.class_subject?.subject?.name || '-'}
             />
           </Stat.Group>
 
           <Stat.Group columns={4} className="mt-6">
             <Stat.Item
-              title={trans('assessment_pages.common.questions')}
+              title={t('assessment_pages.common.questions')}
               value={questionsCount}
               icon={QuestionMarkCircleIcon}
             />
             <Stat.Item
-              title={trans('assessment_pages.common.total_points')}
+              title={t('assessment_pages.common.total_points')}
               value={totalPoints}
               icon={StarIcon}
             />
             <Stat.Item
-              title={trans('assessment_pages.common.duration')}
+              title={t('assessment_pages.common.duration')}
               value={formatDuration(assessment.duration_minutes ?? 0)}
               icon={ClockIcon}
             />
             <Stat.Item
-              title={trans('assessment_pages.common.concerned_students')}
+              title={t('assessment_pages.common.concerned_students')}
               value={totalStudents}
               icon={UserGroupIcon}
             />
@@ -180,8 +182,8 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
         </Section>
 
         <Section
-          title={trans('assessment_pages.show.students_section_title')}
-          subtitle={trans('assessment_pages.show.students_section_subtitle', { count: totalStudents })}
+          title={t('assessment_pages.show.students_section_title')}
+          subtitle={t('assessment_pages.show.students_section_subtitle', { count: totalStudents })}
           collapsible
           defaultOpen={false}
         >
@@ -196,17 +198,17 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
         </Section>
 
         <Section
-          title={trans('assessment_pages.common.assessment_questions')}
+          title={t('assessment_pages.common.assessment_questions')}
           collapsible
           defaultOpen={false}
         >
           {(assessment.questions ?? []).length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              <p>{trans('assessment_pages.common.no_questions')}</p>
+              <p>{t('assessment_pages.common.no_questions')}</p>
               {canEdit && (
                 <div className="mt-4">
                   <Button onClick={handleEditNavigation}>
-                    {trans('assessment_pages.common.add_questions')}
+                    {t('assessment_pages.common.add_questions')}
                   </Button>
                 </div>
               )}
@@ -218,7 +220,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
                   {question.type !== 'text' && (question.choices ?? []).length > 0 && (
                     <div className="ml-4">
                       <h5 className="text-sm font-medium text-gray-700 mb-2">
-                        {trans('assessment_pages.common.answer_choices')}
+                        {t('assessment_pages.common.answer_choices')}
                       </h5>
                       <div className="space-y-2">
                         <QuestionTeacherReadOnlyChoices
@@ -230,7 +232,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
                   )}
                   {question.type === 'text' && (
                     <QuestionResultReadOnlyText
-                      userText={trans('assessment_pages.common.free_text_info')}
+                      userText={t('assessment_pages.common.free_text_info')}
                       label=""
                     />
                   )}
@@ -246,10 +248,10 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
           isOpen={showDuplicateModal}
           onClose={() => setShowDuplicateModal(false)}
           onConfirm={handleDuplicate}
-          title={trans('assessment_pages.common.duplicate_modal_title')}
-          message={trans('assessment_pages.common.duplicate_modal_message', { title: assessment.title })}
-          confirmText={trans('assessment_pages.common.duplicate_confirm')}
-          cancelText={trans('assessment_pages.create.cancel')}
+          title={t('assessment_pages.common.duplicate_modal_title')}
+          message={t('assessment_pages.common.duplicate_modal_message', { title: assessment.title })}
+          confirmText={t('assessment_pages.common.duplicate_confirm')}
+          cancelText={t('assessment_pages.create.cancel')}
           type="info"
           loading={isDuplicating}
         />
