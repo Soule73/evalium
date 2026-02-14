@@ -36,4 +36,11 @@ return [
     'assessments' => 'Évaluations',
     'grading' => 'Correction',
     'review' => 'Consultation',
+    // étudiant
+    'my_assessments' => 'Mes évaluations',
+    'results' => 'Résultats',
+    'homework' => 'Devoir',
+    'my_enrollment' => 'Mon inscription',
+    'enrollment_history' => 'Historique',
+    'classmates' => 'Camarades de classe',
 ];

@@ -20,6 +20,8 @@ return [
     'assessment_not_published' => 'Cette évaluation n\'est pas encore publiée',
     'assessment_not_started' => 'Cette évaluation n\'a pas encore commencé',
     'assessment_ended' => 'Cette évaluation est terminée',
+    'assessment_due_date_passed' => 'La date limite de cette évaluation est dépassée',
+    'assessment_time_expired' => 'Votre temps est écoulé. L\'évaluation a été soumise automatiquement.',
 
     // Roles & Permissions
     'role_created' => 'Le rôle a été créé avec succès',
@@ -79,6 +81,7 @@ return [
     'answers_saved' => 'Réponses enregistrées',
     'error_saving_answers' => 'Erreur lors de l\'enregistrement des réponses',
     'security_violation_processed' => 'Violation de sécurité enregistrée',
+    'security_violations_not_applicable' => 'Les violations de sécurité ne sont pas applicables pour ce mode d\'évaluation',
 
     // Assignments
     'classes_assigned_to_assessment' => 'Assignation terminée : :count classe(s) assignée(s)',
@@ -127,8 +130,10 @@ return [
     // Validation - Form labels
     'assessment_title' => 'titre de l\'évaluation',
     'assessment_type' => 'type d\'évaluation',
+    'delivery_mode' => 'mode de passation',
     'scheduled_date' => 'date planifiée',
     'duration' => 'durée',
+    'due_date' => 'date limite',
     'coefficient' => 'coefficient',
     'class_subject' => 'classe & matière',
     'academic_year' => 'année académique',
@@ -157,4 +162,25 @@ return [
     'student_already_enrolled' => 'Cet étudiant est déjà inscrit dans cette classe',
     'new_class_must_be_different' => 'La nouvelle classe doit être différente de la classe actuelle',
     'new_teacher_must_be_different' => 'Le nouvel enseignant doit être différent de l\'enseignant actuel',
+
+    'file' => 'fichier',
+    'file_too_large' => 'Le fichier est trop volumineux',
+    'file_extension_not_allowed' => 'Ce type de fichier n\'est pas autorisé',
+    'file_upload_limit_reached' => 'Vous avez atteint le nombre maximum de fichiers',
+    'file_uploads_not_allowed' => 'L\'envoi de fichiers n\'est pas autorisé pour cette évaluation',
+    'file_uploaded' => 'Fichier envoyé avec succès',
+    'file_deleted' => 'Fichier supprimé avec succès',
+
+    'assignment_reopened' => 'Copie rouverte avec succès',
+    'assignment_cannot_reopen_not_supervised' => 'Seules les évaluations surveillées peuvent être rouvertes',
+    'assignment_cannot_reopen_not_started' => 'Cette copie n\'a pas encore été commencée',
+    'assignment_cannot_reopen_time_fully_elapsed' => 'Impossible de rouvrir : le temps imparti est entièrement écoulé',
+    'assignment_cannot_reopen_not_interrupted' => 'Cette copie n\'a pas été interrompue',
+
+    'cannot_access_assessment' => 'Vous ne pouvez pas accéder à cette évaluation',
+    'do_not_own_attachment' => 'Ce fichier ne vous appartient pas',
+    'answers_saved' => 'Réponses enregistrées avec succès',
+    'security_violation_recorded' => 'Violation de sécurité enregistrée',
+    'delivery_mode_supervised' => 'Surveillé',
+    'delivery_mode_homework' => 'Devoir maison',
 ];

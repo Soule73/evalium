@@ -321,6 +321,13 @@ return [
         'search_students' => 'Rechercher des étudiants...',
         'no_students' => 'Aucun étudiant assigné',
         'no_students_description' => 'Les étudiants apparaîtront ici une fois inscrits dans cette classe.',
+        'allow_retry' => 'Autoriser la reprise',
+        'reopen_modal_title' => 'Rouvrir la copie',
+        'reopen_modal_message' => 'Vous allez rouvrir l\'évaluation pour :student. L\'étudiant pourra reprendre là où il s\'est arrêté avec le temps restant uniquement.',
+        'reopen_confirm' => 'Rouvrir',
+        'reopen_reason_label' => 'Raison de la réouverture',
+        'reopen_reason_placeholder' => 'ex. : Coupure de courant pendant l\'examen...',
+        'reopen_error' => 'Impossible de rouvrir la copie',
     ],
 
     'assessment_general_config' => [
@@ -337,6 +344,10 @@ return [
         'type_quiz' => 'Quiz',
         'type_assessment' => 'Évaluation',
         'duration_label' => 'Durée (minutes)',
+        'due_date_label' => 'Date limite',
+        'delivery_mode_label' => 'Mode de passation',
+        'delivery_mode_supervised' => 'Supervisé',
+        'delivery_mode_homework' => 'Devoir maison',
         'class_subject_label' => 'Classe & Matière',
         'class_subject_placeholder' => 'Sélectionner classe et matière',
         'scheduled_date_label' => 'Date planifiée',
@@ -348,6 +359,12 @@ return [
         'show_results_immediately_label' => 'Afficher les résultats immédiatement',
         'allow_late_submission_label' => 'Autoriser les soumissions tardives',
         'one_question_per_page_label' => 'Une question par page',
+        'file_upload_title' => 'Paramètres d\'envoi de fichiers',
+        'max_files_label' => 'Nombre maximum de fichiers',
+        'max_files_help' => 'Laissez vide ou 0 pour désactiver l\'envoi de fichiers',
+        'max_file_size_label' => 'Taille maximale du fichier (Ko)',
+        'allowed_extensions_label' => 'Extensions autorisées',
+        'allowed_extensions_help' => 'Liste séparée par des virgules (ex : pdf,docx,jpg)',
     ],
 
     // FullscreenModal

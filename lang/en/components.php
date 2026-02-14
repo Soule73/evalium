@@ -298,6 +298,13 @@ return [
         'search_students' => 'Search students...',
         'no_students' => 'No students assigned',
         'no_students_description' => 'Students will appear here once enrolled in this class.',
+        'allow_retry' => 'Allow Retry',
+        'reopen_modal_title' => 'Reopen Assignment',
+        'reopen_modal_message' => 'You are about to reopen the assessment for :student. The student will be able to continue from where they left off with only the remaining time.',
+        'reopen_confirm' => 'Reopen',
+        'reopen_reason_label' => 'Reason for reopening',
+        'reopen_reason_placeholder' => 'e.g., Student experienced a power outage during the exam...',
+        'reopen_error' => 'Failed to reopen the assignment',
     ],
 
     'assessment_header' => [
@@ -322,6 +329,10 @@ return [
         'type_quiz' => 'Quiz',
         'type_exam' => 'Exam',
         'duration_label' => 'Duration (minutes)',
+        'due_date_label' => 'Due Date',
+        'delivery_mode_label' => 'Delivery Mode',
+        'delivery_mode_supervised' => 'Supervised',
+        'delivery_mode_homework' => 'Homework',
         'class_subject_label' => 'Class & Subject',
         'class_subject_placeholder' => 'Select class and subject',
         'scheduled_date_label' => 'Scheduled Date',
@@ -333,6 +344,12 @@ return [
         'show_results_immediately_label' => 'Show results immediately',
         'allow_late_submission_label' => 'Allow late submission',
         'one_question_per_page_label' => 'One question per page',
+        'file_upload_title' => 'File Upload Settings',
+        'max_files_label' => 'Maximum number of files',
+        'max_files_help' => 'Leave empty or 0 to disable file uploads',
+        'max_file_size_label' => 'Maximum file size (KB)',
+        'allowed_extensions_label' => 'Allowed extensions',
+        'allowed_extensions_help' => 'Comma-separated list (e.g. pdf,docx,jpg)',
     ],
 
     // FullscreenModal

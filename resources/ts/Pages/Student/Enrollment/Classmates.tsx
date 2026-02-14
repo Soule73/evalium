@@ -6,6 +6,7 @@ import { Enrollment, User, PageProps } from '@/types';
 import type { PaginationType } from '@/types/datatable';
 import { Button, Section } from '@/Components';
 import { trans } from '@/utils';
+import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 import { UserList } from '@/Components/shared/lists';
 
 interface StudentEnrollmentClassmatesProps extends PageProps {
@@ -45,7 +46,7 @@ export default function Classmates({ enrollment, classmates }: StudentEnrollment
   };
 
   return (
-    <AuthenticatedLayout title={translations.title}>
+    <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.student.enrollmentClassmates()}>
       <Section
         title={translations.classmatesCount}
         subtitle={translations.subtitle}

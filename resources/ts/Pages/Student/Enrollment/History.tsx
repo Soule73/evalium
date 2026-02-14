@@ -6,6 +6,7 @@ import { Enrollment, PageProps } from '@/types';
 import { Button, EmptyState, Section } from '@/Components';
 import { EnrollmentList } from '@/Components/shared/lists';
 import { trans } from '@/utils';
+import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 import { ClockIcon } from '@heroicons/react/24/outline';
 
 interface StudentEnrollmentHistoryProps extends PageProps {
@@ -25,7 +26,7 @@ export default function History({ enrollments }: StudentEnrollmentHistoryProps) 
   );
 
   return (
-    <AuthenticatedLayout title={translations.title}>
+    <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.student.enrollmentHistory()}>
       <Section
         title={translations.title}
         subtitle={translations.subtitle}

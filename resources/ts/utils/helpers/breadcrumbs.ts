@@ -233,6 +233,45 @@ export const breadcrumbs = {
         dashboard(),
         { label: trans('admin_pages.academic_years.title') }
     ],
+
+    // Student assessments
+    student: {
+        assessments: (): BreadcrumbItem[] => [
+            dashboard(),
+            { label: trans('breadcrumbs.my_assessments'), href: route('student.assessments.index') }
+        ],
+        showAssessment: (assessment: { id: number; title: string }): BreadcrumbItem[] => [
+            dashboard(),
+            { label: trans('breadcrumbs.my_assessments'), href: route('student.assessments.index') },
+            { label: assessment.title, href: route('student.assessments.show', assessment.id) }
+        ],
+        assessmentResults: (assessment: { id: number; title: string }): BreadcrumbItem[] => [
+            dashboard(),
+            { label: trans('breadcrumbs.my_assessments'), href: route('student.assessments.index') },
+            { label: assessment.title, href: route('student.assessments.show', assessment.id) },
+            { label: trans('breadcrumbs.results') }
+        ],
+        assessmentWork: (assessment: { id: number; title: string }): BreadcrumbItem[] => [
+            dashboard(),
+            { label: trans('breadcrumbs.my_assessments'), href: route('student.assessments.index') },
+            { label: assessment.title, href: route('student.assessments.show', assessment.id) },
+            { label: trans('breadcrumbs.homework') }
+        ],
+        enrollment: (): BreadcrumbItem[] => [
+            dashboard(),
+            { label: trans('breadcrumbs.my_enrollment'), href: route('student.enrollment.show') }
+        ],
+        enrollmentHistory: (): BreadcrumbItem[] => [
+            dashboard(),
+            { label: trans('breadcrumbs.my_enrollment'), href: route('student.enrollment.show') },
+            { label: trans('breadcrumbs.enrollment_history') }
+        ],
+        enrollmentClassmates: (): BreadcrumbItem[] => [
+            dashboard(),
+            { label: trans('breadcrumbs.my_enrollment'), href: route('student.enrollment.show') },
+            { label: trans('breadcrumbs.classmates') }
+        ],
+    },
 };
 
 export const navRoutes = {

@@ -36,4 +36,12 @@ return [
     'assessments' => 'Assessments',
     'grading' => 'Grading',
     'review' => 'Review',
+
+    // Student
+    'my_assessments' => 'My Assessments',
+    'results' => 'Results',
+    'homework' => 'Homework',
+    'my_enrollment' => 'My Enrollment',
+    'enrollment_history' => 'History',
+    'classmates' => 'Classmates',
 ];

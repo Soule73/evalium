@@ -3,7 +3,7 @@ import { ButtonHTMLAttributes } from 'react';
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     color?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning';
     variant?: 'solid' | 'outline' | 'ghost';
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'xs' | 'sm' | 'md' | 'lg';
     loading?: boolean;
     children: React.ReactNode;
 }
@@ -53,6 +53,7 @@ function Button({
     const colorClasses = colorClassesMap[variant][color];
 
     const sizeClasses = {
+        xs: 'px-1 py-0.5 text-xs',
         sm: 'px-2 py-1 text-sm',
         md: 'px-4 py-2 text-base',
         lg: 'px-6 py-3 text-lg',

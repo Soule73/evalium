@@ -20,6 +20,8 @@ return [
     'assessment_not_published' => 'This assessment is not published yet',
     'assessment_not_started' => 'This assessment has not started yet',
     'assessment_ended' => 'This assessment has ended',
+    'assessment_due_date_passed' => 'The due date for this assessment has passed',
+    'assessment_time_expired' => 'Your time has expired. The assessment has been automatically submitted.',
 
     // Roles & Permissions
     'role_created' => 'Role created successfully',
@@ -79,6 +81,7 @@ return [
     'answers_saved' => 'Answers saved',
     'error_saving_answers' => 'Error saving answers',
     'security_violation_processed' => 'Security violation processed',
+    'security_violations_not_applicable' => 'Security violations are not applicable for this assessment mode',
 
     // Assignments
     'classes_assigned_to_assessment' => 'Assignment completed: :count class(es) assigned',
@@ -127,8 +130,10 @@ return [
     // Validation - Form labels
     'assessment_title' => 'assessment title',
     'assessment_type' => 'assessment type',
+    'delivery_mode' => 'delivery mode',
     'scheduled_date' => 'scheduled date',
     'duration' => 'duration',
+    'due_date' => 'due date',
     'coefficient' => 'coefficient',
     'class_subject' => 'class & subject',
     'academic_year' => 'academic year',
@@ -157,4 +162,25 @@ return [
     'student_already_enrolled' => 'This student is already enrolled in this class',
     'new_class_must_be_different' => 'The new class must be different from the current class',
     'new_teacher_must_be_different' => 'The new teacher must be different from the current teacher',
+
+    'file' => 'file',
+    'file_too_large' => 'The file is too large',
+    'file_extension_not_allowed' => 'This file type is not allowed',
+    'file_upload_limit_reached' => 'You have reached the maximum number of file uploads',
+    'file_uploads_not_allowed' => 'File uploads are not allowed for this assessment',
+    'file_uploaded' => 'File uploaded successfully',
+    'file_deleted' => 'File deleted successfully',
+
+    'assignment_reopened' => 'Assignment reopened successfully',
+    'assignment_cannot_reopen_not_supervised' => 'Only supervised assessments can be reopened',
+    'assignment_cannot_reopen_not_started' => 'This assignment has not been started yet',
+    'assignment_cannot_reopen_time_fully_elapsed' => 'Cannot reopen: the assessment time has fully elapsed',
+    'assignment_cannot_reopen_not_interrupted' => 'This assignment was not interrupted',
+
+    'cannot_access_assessment' => 'You cannot access this assessment',
+    'do_not_own_attachment' => 'You do not own this attachment',
+    'answers_saved' => 'Answers saved successfully',
+    'security_violation_recorded' => 'Security violation recorded',
+    'delivery_mode_supervised' => 'Supervised',
+    'delivery_mode_homework' => 'Homework',
 ];

@@ -6,6 +6,7 @@ import { Enrollment, PageProps, PaginationType } from '@/types';
 import { Badge, Button, DataTable, Section, Stat, TextEntry } from '@/Components';
 import type { DataTableConfig } from '@/types/datatable';
 import { trans, formatDate } from '@/utils';
+import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 import { AcademicCapIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 
 interface SubjectGrade {
@@ -153,7 +154,7 @@ export default function Show({ enrollment, subjects, overallStats }: StudentEnro
   };
 
   return (
-    <AuthenticatedLayout title={translations.title}>
+    <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.student.enrollment()}>
       <Section
         title={translations.title}
         subtitle={translations.subtitle}
