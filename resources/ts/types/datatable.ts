@@ -1,47 +1,5 @@
 import { ReactNode } from 'react';
 
-
-// export interface PaginationType<T> {
-//     data: T[];
-//     current_page: number;
-//     first_page_url: string;
-//     from: number;
-//     last_page: number;
-//     last_page_url: string;
-//     links: Array<{
-//         url: string | null;
-//         label: string;
-//         active: boolean;
-//     }>;
-//     next_page_url: string | null;
-//     path: string;
-//     per_page: number;
-//     prev_page_url: string | null;
-//     to: number;
-//     total: number;
-// }
-
-
-// export interface Pagination<T> {
-//     data: T[];
-//     current_page: number;
-//     first_page_url: string;
-//     from: number | null;
-//     last_page: number;
-//     last_page_url: string;
-//     links: {
-//         url: string | null;
-//         label: string;
-//         page: number | null;
-//         active: boolean
-//     }[];
-//     next_page_url: string | null;
-//     path: string;
-//     per_page: number;
-//     prev_page_url: string | null;
-//     to: number | null;
-//     total: number;
-// }
 export interface PaginationType<T> {
     data: T[];
     current_page: number;
@@ -102,8 +60,6 @@ export interface DataTableConfig<T> {
     selectionActions?: (selectedIds: (number | string)[]) => ReactNode;
     searchable?: boolean;
     onSearch?: (search: string) => void;
-    pageName?: string;
-    perPageName?: string;
     showPagination?: boolean;
 }
 

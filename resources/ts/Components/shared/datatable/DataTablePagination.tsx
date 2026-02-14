@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { PaginationType } from '@/types/datatable';
 import { trans } from '@/utils';
@@ -11,7 +11,7 @@ interface DataTablePaginationProps<T> {
     perPageOptions?: number[];
 }
 
-export function DataTablePagination<T>({
+function DataTablePaginationInner<T>({
     data,
     onPageChange,
     onPerPageChange,
@@ -27,7 +27,7 @@ export function DataTablePagination<T>({
         per_page
     } = data;
 
-    const getVisiblePages = () => {
+    const visiblePages = useMemo(() => {
         const delta = 2;
         const pages: (number | string)[] = [];
 
@@ -50,21 +50,19 @@ export function DataTablePagination<T>({
         }
 
         return pages;
-    };
+    }, [current_page, last_page]);
 
-    const visiblePages = getVisiblePages();
-
-    const handlePageChange = (page: number) => {
+    const handlePageChange = useCallback((page: number) => {
         if (page !== current_page && page >= 1 && page <= last_page && !isLoading) {
             onPageChange(page);
         }
-    };
+    }, [current_page, last_page, isLoading, onPageChange]);
 
-    const handlePerPageChange = (newPerPage: number) => {
+    const handlePerPageChange = useCallback((newPerPage: number) => {
         if (newPerPage !== per_page && !isLoading) {
             onPerPageChange(newPerPage);
         }
-    };
+    }, [per_page, isLoading, onPerPageChange]);
 
     return (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-6 py-4 bg-white border-t border-gray-200">
@@ -140,3 +138,5 @@ export function DataTablePagination<T>({
         </div>
     );
 }
+
+export const DataTablePagination = memo(DataTablePaginationInner) as typeof DataTablePaginationInner;

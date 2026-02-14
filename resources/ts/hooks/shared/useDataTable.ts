@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { router } from '@inertiajs/react';
 import { DataTableState, PaginationType, FilterConfig } from '@/types/datatable';
 import {
@@ -25,7 +25,7 @@ interface UseDataTableOptions {
 /**
  * Custom hook for managing data table state, navigation, filtering, and selection
  */
-export function useDataTable<T extends { id: number | string }>(
+export function useDataTable<T extends { id?: number | string }>(
     data: PaginationType<T>,
     options: UseDataTableOptions = {}
 ) {
@@ -42,56 +42,53 @@ export function useDataTable<T extends { id: number | string }>(
     } = options;
 
     const [initialized, setInitialized] = useState(false);
-    const [state, setState] = useState<DataTableState>({
-        search: initialState.search || '',
-        filters: initialState.filters || {},
-        page: data.current_page,
-        perPage: data.per_page,
-        ...initialState
+    const [state, setState] = useState<DataTableState>(() => {
+        const base: DataTableState = {
+            search: initialState.search || '',
+            filters: initialState.filters || {},
+            page: data.current_page,
+            perPage: data.per_page,
+            ...initialState
+        };
+
+        if (typeof window === 'undefined') return base;
+
+        const params = new URLSearchParams(window.location.search);
+        const search = params.get('search');
+        if (search) base.search = search;
+
+        if (filters) {
+            filters.forEach((filter) => {
+                const value = params.get(filter.key);
+                if (value !== null) {
+                    base.filters = { ...base.filters, [filter.key]: value };
+                }
+            });
+        }
+
+        const page = params.get('page');
+        if (page && !isNaN(Number(page))) base.page = Number(page);
+
+        const perPage = params.get('per_page');
+        if (perPage && !isNaN(Number(perPage))) base.perPage = Number(perPage);
+
+        return base;
     });
 
     const [isNavigating, setIsNavigating] = useState(false);
     const [selectedItems, setSelectedItems] = useState<Set<number | string>>(new Set());
+    const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const onStateChangeRef = useRef(onStateChange);
+    const onSelectionChangeRef = useRef(onSelectionChange);
+
+    onStateChangeRef.current = onStateChange;
+    onSelectionChangeRef.current = onSelectionChange;
 
     useEffect(() => {
         if (!initialized) {
-            const params = new URLSearchParams(window.location.search);
-            let hasInit = false;
-
-            const search = params.get('search');
-            if (search) {
-                setState(prev => ({ ...prev, search }));
-                hasInit = true;
-            }
-
-            if (filters) {
-                filters.forEach((filter) => {
-                    const value = params.get(filter.key);
-                    if (value !== null) {
-                        setState(prev => ({
-                            ...prev,
-                            filters: { ...prev.filters, [filter.key]: value }
-                        }));
-                        hasInit = true;
-                    }
-                });
-            }
-
-            const page = params.get('page');
-            if (page && !isNaN(Number(page))) {
-                setState(prev => ({ ...prev, page: Number(page) }));
-                hasInit = true;
-            }
-
-            const perPage = params.get('per_page');
-            if (perPage && !isNaN(Number(perPage))) {
-                setState(prev => ({ ...prev, perPage: Number(perPage) }));
-                hasInit = true;
-            }
-
-            if (hasInit) setInitialized(true);
+            setInitialized(true);
         }
-    }, [initialized, filters]);
+    }, [initialized]);
 
     useEffect(() => {
         if (enableSelection) {
@@ -100,46 +97,43 @@ export function useDataTable<T extends { id: number | string }>(
     }, [data.current_page, enableSelection]);
 
     useEffect(() => {
-        setState(prev => ({
-            ...prev,
-            page: data.current_page,
-            perPage: data.per_page
-        }));
+        setState(prev => {
+            if (prev.page === data.current_page && prev.perPage === data.per_page) {
+                return prev;
+            }
+            return { ...prev, page: data.current_page, perPage: data.per_page };
+        });
     }, [data.current_page, data.per_page]);
 
     useEffect(() => {
-        if (onStateChange) {
-            onStateChange(state);
-        }
-    }, [state, onStateChange]);
+        onStateChangeRef.current?.(state);
+    }, [state]);
 
     useEffect(() => {
-        if (onSelectionChange) {
-            onSelectionChange(Array.from(selectedItems));
-        }
-    }, [selectedItems, onSelectionChange]);
+        onSelectionChangeRef.current?.(Array.from(selectedItems));
+    }, [selectedItems]);
 
-    const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+    const dataPath = data.path;
 
     const buildUrl = useCallback((
         newState: Partial<DataTableState> = {},
         basePath?: string
     ) => {
         const finalState = { ...state, ...newState };
-        const path = basePath || data.path;
+        const path = basePath || dataPath;
         return buildDataTableUrl(finalState, path);
-    }, [state, data.path]);
+    }, [state, dataPath]);
 
     const navigate = useCallback((
         newState: Partial<DataTableState> = {},
-        options: { replace?: boolean; preserveState?: boolean } = {}
+        navOptions: { replace?: boolean; preserveState?: boolean } = {}
     ) => {
         const url = buildUrl(newState);
         setIsNavigating(true);
 
         router.get(url, {}, {
-            preserveState: options.preserveState ?? preserveState,
-            replace: options.replace ?? true,
+            preserveState: navOptions.preserveState ?? preserveState,
+            replace: navOptions.replace ?? true,
             onFinish: () => setIsNavigating(false)
         });
     }, [buildUrl, preserveState]);
@@ -148,8 +142,8 @@ export function useDataTable<T extends { id: number | string }>(
         newState: Partial<DataTableState>,
         immediate = false
     ) => {
-        if (debounceTimer) {
-            clearTimeout(debounceTimer);
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
         }
 
         if (immediate) {
@@ -157,12 +151,10 @@ export function useDataTable<T extends { id: number | string }>(
             return;
         }
 
-        const timer = setTimeout(() => {
+        debounceTimerRef.current = setTimeout(() => {
             navigate(newState);
         }, debounceMs);
-
-        setDebounceTimer(timer);
-    }, [navigate, debounceTimer, debounceMs]);
+    }, [navigate, debounceMs]);
 
     /**
      * Returns true if all selectable items on the current page are selected
@@ -215,19 +207,19 @@ export function useDataTable<T extends { id: number | string }>(
     }, [debouncedNavigate]);
 
     const setFilter = useCallback((key: string, value: string) => {
-        setState(prev => ({
-            ...prev,
-            filters: { ...prev.filters, [key]: value }
-        }));
+        setState(prev => {
+            const newFilters = { ...prev.filters, [key]: value };
+            return { ...prev, filters: newFilters };
+        });
         debouncedNavigate({
             filters: { ...state.filters, [key]: value },
             page: 1
         });
     }, [state.filters, debouncedNavigate]);
 
-    const setFilters = useCallback((filters: Record<string, string>) => {
-        setState(prev => ({ ...prev, filters }));
-        debouncedNavigate({ filters, page: 1 });
+    const setFilters = useCallback((newFilters: Record<string, string>) => {
+        setState(prev => ({ ...prev, filters: newFilters }));
+        debouncedNavigate({ filters: newFilters, page: 1 });
     }, [debouncedNavigate]);
 
     const resetFilters = useCallback(() => {
@@ -271,29 +263,18 @@ export function useDataTable<T extends { id: number | string }>(
         getSelectedItems,
         getSelectedCount
     }), [
-        setSearch,
-        setFilter,
-        setFilters,
-        resetFilters,
-        goToPage,
-        setPerPage,
-        navigateToState,
-        toggleItem,
-        toggleAllOnPage,
-        selectAll,
-        deselectAll,
-        isItemSelected,
-        getSelectedItems,
-        getSelectedCount
+        setSearch, setFilter, setFilters, resetFilters, goToPage, setPerPage,
+        navigateToState, toggleItem, toggleAllOnPage, selectAll, deselectAll,
+        isItemSelected, getSelectedItems, getSelectedCount
     ]);
 
     useEffect(() => {
         return () => {
-            if (debounceTimer) {
-                clearTimeout(debounceTimer);
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
             }
         };
-    }, [debounceTimer]);
+    }, []);
 
     return {
         state,

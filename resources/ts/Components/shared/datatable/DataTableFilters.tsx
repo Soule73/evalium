@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Select } from '@/Components';
 import { Input } from '@examena/ui';
 import { FunnelIcon } from '@heroicons/react/24/outline';
@@ -17,10 +17,9 @@ interface DataTableFiltersProps {
     isLoading?: boolean;
     dataTableSearchInputId?: string;
     testIdResetFiltersButton?: string;
-
 }
 
-export const DataTableFilters: React.FC<DataTableFiltersProps> = ({
+export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(({
     filters,
     values,
     searchValue,
@@ -96,4 +95,4 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = ({
             </div>
         </div>
     );
-};
+});
