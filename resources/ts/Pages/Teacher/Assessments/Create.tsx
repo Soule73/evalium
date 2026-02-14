@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, QuestionsManager, Section } from '@/Components';
 import { AssessmentGeneralConfig } from '@/Components/shared/AssessmentGeneralConfig';
 import { useCreateAssessment } from '@/hooks/features/assessment';
 import { useAssessmentFormStore } from '@/stores';
 import { breadcrumbs } from '@/utils';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { type ClassSubject } from '@/types';
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
 }
 
 const AssessmentCreate: React.FC<Props> = ({ classSubjects }) => {
+  const { t } = useTranslations();
   const hasQuestions = useAssessmentFormStore((state) => state.questions.length > 0);
 
   const {
@@ -23,15 +24,22 @@ const AssessmentCreate: React.FC<Props> = ({ classSubjects }) => {
     handleSubmit
   } = useCreateAssessment();
 
+  const translations = useMemo(() => ({
+    title: t('assessment_pages.create.title'),
+    subtitle: t('assessment_pages.create.subtitle'),
+    cancel: t('assessment_pages.create.cancel'),
+    submit: t('assessment_pages.create.submit'),
+  }), [t]);
+
   return (
     <AuthenticatedLayout
-      title={trans('assessment_pages.create.title')}
+      title={translations.title}
       breadcrumb={breadcrumbs.createTeacherAssessment()}
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-6">
         <Section
-          title={trans('assessment_pages.create.title')}
-          subtitle={trans('assessment_pages.create.subtitle')}
+          title={translations.title}
+          subtitle={translations.subtitle}
           actions={
             <div className="flex items-center justify-end space-x-4">
               <Button
@@ -41,7 +49,7 @@ const AssessmentCreate: React.FC<Props> = ({ classSubjects }) => {
                 size="sm"
                 onClick={() => window.history.back()}
               >
-                {trans('assessment_pages.create.cancel')}
+                {translations.cancel}
               </Button>
               <Button
                 type="submit"
@@ -51,7 +59,7 @@ const AssessmentCreate: React.FC<Props> = ({ classSubjects }) => {
                 loading={processing}
                 disabled={!hasQuestions}
               >
-                {trans('assessment_pages.create.submit')}
+                {translations.submit}
               </Button>
             </div>
           }

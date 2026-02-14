@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type PaginationType } from '@/types/datatable';
@@ -6,7 +6,7 @@ import { Button, Section } from '@/Components';
 import { type Assessment, type PageProps } from '@/types';
 import { route } from 'ziggy-js';
 import { hasPermission } from '@/utils';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { breadcrumbs } from '@/utils';
 import { AssessmentList } from '@/Components/shared/lists';
 
@@ -15,17 +15,25 @@ interface Props extends PageProps {
 }
 
 const AssessmentIndex: React.FC<Props> = ({ assessments }) => {
+  const { t } = useTranslations();
   const { auth } = usePage<PageProps>().props;
   const canCreateAssessments = hasPermission(auth.permissions, 'create assessments');
 
+  const translations = useMemo(() => ({
+    pageTitle: t('assessment_pages.page_titles.index'),
+    title: t('assessment_pages.index.title'),
+    subtitle: t('assessment_pages.index.subtitle'),
+    newAssessment: t('assessment_pages.index.new_assessment'),
+  }), [t]);
+
   return (
     <AuthenticatedLayout
-      title={trans('assessment_pages.page_titles.index')}
+      title={translations.pageTitle}
       breadcrumb={breadcrumbs.teacherAssessments()}
     >
       <Section
-        title={trans('assessment_pages.index.title')}
-        subtitle={trans('assessment_pages.index.subtitle')}
+        title={translations.title}
+        subtitle={translations.subtitle}
         actions={canCreateAssessments && (
           <Button
             size='sm'
@@ -33,7 +41,7 @@ const AssessmentIndex: React.FC<Props> = ({ assessments }) => {
             color='secondary'
             onClick={() => router.visit(route('teacher.assessments.create'))}
           >
-            {trans('assessment_pages.index.new_assessment')}
+            {translations.newAssessment}
           </Button>
         )}
       >

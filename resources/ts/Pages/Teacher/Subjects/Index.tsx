@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type PaginationType } from '@/types/datatable';
 import { type Subject, type ClassModel, type PageProps } from '@/types';
-import { breadcrumbs, trans } from '@/utils';
+import { breadcrumbs } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Section } from '@/Components';
 import { SubjectList } from '@/Components/shared/lists';
 
@@ -17,14 +19,23 @@ interface Props extends PageProps {
 }
 
 export default function TeacherSubjectsIndex({ subjects, classes }: Props) {
+  const { t } = useTranslations();
+
+  const translations = useMemo(() => ({
+    title: t('teacher_subject_pages.index.title'),
+    sectionTitle: t('teacher_subject_pages.index.section_title')
+  }), [t]);
+
+  const sectionSubtitleTranslation = useMemo(() => t('teacher_subject_pages.index.section_subtitle', { count: subjects.total }), [t, subjects.total]);
+
   return (
     <AuthenticatedLayout
-      title={trans('teacher_subject_pages.index.title')}
+      title={translations.title}
       breadcrumb={breadcrumbs.teacher.subjects()}
     >
       <Section
-        title={trans('teacher_subject_pages.index.section_title')}
-        subtitle={trans('teacher_subject_pages.index.section_subtitle', { count: subjects.total })}
+        title={translations.sectionTitle}
+        subtitle={sectionSubtitleTranslation}
       >
         <SubjectList data={subjects} variant="teacher" classes={classes} />
       </Section>

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, QuestionsManager, Section } from '@/Components';
 import { AssessmentGeneralConfig } from '@/Components/shared/AssessmentGeneralConfig';
@@ -5,7 +6,7 @@ import { useEditAssessment } from '@/hooks/features/assessment';
 // import { useAssessmentFormStore } from '@/stores';
 import { type Assessment, type ClassSubject } from '@/types';
 import { breadcrumbs } from '@/utils';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface Props {
   assessment: Assessment;
@@ -13,9 +14,7 @@ interface Props {
 }
 
 export default function AssessmentEdit({ assessment, classSubjects }: Props) {
-  // const totalPoints = useAssessmentFormStore((state) =>
-  //   state.questions.reduce((sum, q) => sum + q.points, 0)
-  // );
+  const { t } = useTranslations();
 
   const {
     data,
@@ -25,17 +24,22 @@ export default function AssessmentEdit({ assessment, classSubjects }: Props) {
     handleSubmit
   } = useEditAssessment(assessment);
 
-  // const pointsLabel = totalPoints !== 1 ? trans('assessment_pages.common.s') : '';
+  const translations = useMemo(() => ({
+    title: t('assessment_pages.edit.title'),
+    subtitle: t('assessment_pages.edit.subtitle'),
+    cancel: t('assessment_pages.edit.cancel'),
+    submit: t('assessment_pages.edit.submit'),
+  }), [t]);
 
   return (
     <AuthenticatedLayout
-      title={trans('assessment_pages.edit.title')}
+      title={translations.title}
       breadcrumb={breadcrumbs.editTeacherAssessment(assessment)}
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-6">
         <Section
-          title={trans('assessment_pages.edit.title')}
-          subtitle={trans('assessment_pages.edit.subtitle')}
+          title={translations.title}
+          subtitle={translations.subtitle}
           actions={
             <div className="flex items-center justify-end space-x-4">
               <Button
@@ -45,7 +49,7 @@ export default function AssessmentEdit({ assessment, classSubjects }: Props) {
                 size="sm"
                 onClick={() => window.history.back()}
               >
-                {trans('assessment_pages.edit.cancel')}
+                {translations.cancel}
               </Button>
               <Button
                 type="submit"
@@ -54,7 +58,7 @@ export default function AssessmentEdit({ assessment, classSubjects }: Props) {
                 size="sm"
                 loading={processing}
               >
-                {trans('assessment_pages.edit.submit')}
+                {translations.submit}
               </Button>
             </div>
           }
