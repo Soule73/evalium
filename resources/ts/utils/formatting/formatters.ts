@@ -1,6 +1,4 @@
 
-import { type BadgeType } from '@/Components/ui/Badge/Badge';
-import { trans } from '../helpers/translations';
 
 
 /**
@@ -95,19 +93,6 @@ export const formatDate = (
     return d.toLocaleDateString(local, options);
 };
 
-// Formatage des durées en texte lisible
-export const formatDuration = (minutes: number): string => {
-    if (minutes < 0) return trans('formatters.duration_min', { value: 0 });
-    if (minutes < 60) {
-        return trans('formatters.duration_min', { value: minutes });
-    }
-    const hrs = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return mins === 0
-        ? trans('formatters.duration_hours', { value: hrs })
-        : trans('formatters.duration_hours_min', { hours: hrs, minutes: mins });
-};
-
 export const formatPercentage = (value: number, decimals: number = 1): string => {
     return `${value.toFixed(decimals)}%`;
 };
@@ -133,19 +118,6 @@ export function formatGrade(score: number, total: number): { text: string; color
 
 
 /**
- * Formats the assessment status as a human-readable string.
- *
- * @param status - The boolean status of the assessment. `true` indicates active, `false` indicates inactive.
- * @returns A string representing the assessment status: 'Actif' if active, 'Inactif' if inactive.
- */
-export function formatAssessmentStatus(status: boolean): string {
-    return status
-        ? trans('formatters.assessment_status_active')
-        : trans('formatters.assessment_status_inactive');
-}
-
-
-/**
  * Converts the first character of the given string to uppercase and the rest to lowercase.
  *
  * @param text - The string to capitalize.
@@ -155,26 +127,6 @@ export function capitalize(text: string): string {
     if (!text) return '';
     return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 }
-
-export const getQuestionTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-        'multiple': trans('formatters.question_type_multiple'),
-        'one_choice': trans('formatters.question_type_one_choice'),
-        'boolean': trans('formatters.question_type_boolean'),
-        'text': trans('formatters.question_type_text')
-    };
-    return labels[type] || type;
-};
-
-export const getRoleLabel = (roleName: string) => {
-    const roleMap: Record<string, string> = {
-        'admin': trans('formatters.role_admin'),
-        'super_admin': trans('formatters.role_super_admin'),
-        'teacher': trans('formatters.role_teacher'),
-        'student': trans('formatters.role_student')
-    };
-    return roleMap[roleName] || roleName;
-};
 
 export const getRoleColor = (roleName: string) => {
     switch (roleName) {
@@ -199,83 +151,11 @@ export const getAssignmentBadgeType = (status: string) => {
     }
 };
 
-export const getAssignmentBadgeLabel = (status: string) => {
-    const statusMap: Record<string, string> = {
-        'graded': trans('formatters.assignment_graded'),
-        'submitted': trans('formatters.assignment_submitted')
-    };
-    return statusMap[status] || trans('formatters.assignment_not_started');
-};
-
-export const securityViolationLabel = (violation: string | undefined): string => {
-    const violationMap: Record<string, string> = {
-        'tab_switch': trans('formatters.security_tab_switch'),
-        'fullscreen_exit': trans('formatters.security_fullscreen_exit')
-    };
-    return violationMap[violation || ''] || trans('formatters.security_violation_default');
-}
-
 export const assignmentStatusColors: Record<string, string> = {
     submitted: 'bg-green-100 text-green-800',
     graded: 'bg-purple-100 text-purple-800',
     default: 'bg-gray-100 text-gray-800'
 };
-
-export const getAssignmentStatusLabels = (): Record<string, string> => ({
-    submitted: trans('formatters.assignment_submitted'),
-    graded: trans('formatters.assignment_graded'),
-    default: trans('formatters.assignment_not_started')
-});
-
-
-/**
- * Formats a deadline warning message based on the time remaining until the given end date. 
- */
-export function formatDeadlineWarning(endDate: string): { text: string; urgency: 'low' | 'medium' | 'high' } {
-    const end = new Date(endDate);
-    const now = new Date();
-    const diff = end.getTime() - now.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(hours / 24);
-
-    if (diff <= 0) {
-        return { text: trans('formatters.deadline_assessment_finished'), urgency: 'high' };
-    } else if (hours < 1) {
-        const minutes = Math.floor(diff / (1000 * 60));
-        return { text: trans('formatters.deadline_minutes_remaining', { minutes }), urgency: 'high' };
-    } else if (hours < 24) {
-        return { text: trans('formatters.deadline_hours_remaining', { hours }), urgency: 'high' };
-    } else if (days < 7) {
-        return {
-            text: days === 1
-                ? trans('formatters.deadline_day_remaining', { days })
-                : trans('formatters.deadline_days_remaining', { days }),
-            urgency: 'medium'
-        };
-    } else {
-        return { text: trans('formatters.deadline_days_remaining', { days }), urgency: 'low' };
-    }
-}
-
-/**
- * Formats a user role string into a human-readable label.
- *
- * Maps known role identifiers ('admin', 'teacher', 'student') to their corresponding
- * French labels. If the role is not recognized, it returns the capitalized version
- * of the input role string.
- *
- * @param role - The role identifier to format.
- * @returns The formatted, human-readable role label.
- */
-export function formatUserRole(role: string): string {
-    const roleMap: Record<string, string> = {
-        'admin': trans('formatters.role_admin'),
-        'teacher': trans('formatters.role_teacher'),
-        'student': trans('formatters.role_student'),
-    };
-
-    return roleMap[role] || capitalize(role);
-}
 
 /**
  * Formats a number using French (France) locale conventions.
@@ -298,27 +178,6 @@ export const formatNumber = (value: number, locale: string = 'fr-FR'): string =>
  * @param date - The date to format, as a `Date` object, ISO string, or timestamp.
  * @returns A French relative time string representing the time elapsed since the given date.
  */
-export const formatRelativeTime = (date: Date | string | number): string => {
-    const now = new Date();
-    const target = new Date(date);
-    const diffMs = now.getTime() - target.getTime();
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMinutes / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffMinutes < 1) {
-        return trans('formatters.relative_time_now');
-    } else if (diffMinutes < 60) {
-        return trans('formatters.relative_time_minutes_ago', { minutes: diffMinutes });
-    } else if (diffHours < 24) {
-        return trans('formatters.relative_time_hours_ago', { hours: diffHours });
-    } else if (diffDays < 7) {
-        return trans('formatters.relative_time_days_ago', { days: diffDays });
-    } else {
-        return formatDate(target, 'short');
-    }
-};
-
 /**
  * Truncates a given string to a specified maximum length and appends an ellipsis ("...") if the string exceeds that length.
  *
@@ -340,16 +199,6 @@ export const truncateText = (text: string, maxLength: number): string => {
  * @param status - The status string of the assessment assignment (e.g., 'submitted', 'graded').
  * @returns An object containing the `label` (string) and `color` (string) for the given status.
  */
-export const formatAssessmentAssignmentStatus = (status: string): { label: string; color: string } => {
-    const statusMap: Record<string, { label: string; color: string }> = {
-        'submitted': { label: trans('formatters.assignment_submitted'), color: 'info' },
-        'graded': { label: trans('formatters.assignment_graded'), color: 'success' },
-        'not_assigned': { label: trans('formatters.assignment_not_assigned'), color: 'gray' }
-    };
-
-    return statusMap[status] || { label: status, color: 'gray' };
-};
-
 export const canShowAssessmentResults = (assignmentStatus: string, showResultsImmediately: boolean = false): boolean => {
     if (showResultsImmediately && (assignmentStatus === 'submitted' || assignmentStatus === 'graded')) {
         return true;
@@ -365,44 +214,6 @@ export const canShowAssessmentResults = (assignmentStatus: string, showResultsIm
  */
 export const getAssignmentStatus = () => {
     return ['submitted', 'graded'];
-};
-
-/**
- * Returns an array of assignment status objects, each containing a `value` and a `label`.
- * The labels are provided in French and represent different statuses an assignment can have.
- *
- * @returns {Array<{ value: string; label: string }>} An array of status objects for assignments.
- *
- * Status values include:
- * - 'all': All statuses
- * - 'submitted':  Submitted
- * - 'graded': Graded
- */
-export const getAssignmentStatusWithLabel = (): Array<{ value: string; label: string; }> => {
-    return [
-        { value: 'all', label: trans('formatters.assignment_all_statuses') },
-        { value: 'submitted', label: trans('formatters.assignment_submitted') },
-        { value: 'graded', label: trans('formatters.assignment_graded') },
-    ];
-};
-
-/**
- * Returns the status information for a student based on their active status.
- * @param isActive - A boolean indicating whether the student is currently active (enrolled) or not.
- * @returns An object containing a `label` and a `type` for the student's status.
- *          If the student is active, the label will indicate they are enrolled and the type will be 'success'.
- *          If the student is not active, the label will indicate they have left and the type will be 'gray'.
- */
-export const getStudentStatusInfo = (isActive: boolean): { label: string; type: BadgeType } => {
-    return isActive
-        ? { label: trans('formatters.student_status_enrolled'), type: 'success' }
-        : { label: trans('formatters.student_status_left'), type: 'gray' };
-};
-
-export const getBooleanStatusInfo = (isActive: boolean): { label: string; type: BadgeType } => {
-    return isActive
-        ? { label: trans('formatters.active'), type: 'success' }
-        : { label: trans('formatters.inactive'), type: 'gray' };
 };
 
 /**

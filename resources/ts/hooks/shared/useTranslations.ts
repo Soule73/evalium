@@ -11,8 +11,6 @@ interface TranslationPageProps extends InertiaPageProps {
 /**
  * Hook providing pure translation functions safe for use inside useMemo/useCallback.
  *
- * Unlike the deprecated trans()/locale()/transAll()/transChoice() utilities
- * (which call usePage internally), the functions returned by this hook are NOT
  * React hooks and can be called anywhere: inside useMemo, useCallback, useEffect,
  * event handlers, loops, etc.
  *

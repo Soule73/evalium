@@ -3,7 +3,6 @@ import { useTranslations } from './useTranslations';
 
 /**
  * Hook providing localized choice display labels for assessment questions.
- * Replaces direct trans() calls in choiceUtils for React hook safety.
  */
 export function useChoiceUtils() {
   const { t } = useTranslations();

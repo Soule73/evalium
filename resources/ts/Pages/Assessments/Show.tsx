@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { formatDuration } from '@/utils';
 import { Button, ConfirmationModal, Section, Stat } from '@/Components';
+import { useFormatters } from '@/hooks/shared/useFormatters';
 import { TextEntry, Toggle } from '@examena/ui';
 import { type Assessment, type AssessmentAssignment, type AssessmentRouteContext } from '@/types';
 import { type PaginationType } from '@/types/datatable';
@@ -28,6 +28,7 @@ interface Props {
 const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext }) => {
   const { t } = useTranslations();
   const breadcrumbs = useBreadcrumbs();
+  const { formatDuration } = useFormatters();
   const [isToggling, setIsToggling] = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);

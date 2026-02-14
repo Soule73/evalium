@@ -1,28 +1,4 @@
 import { type Question, type AssessmentAssignment } from '@/types';
-import { trans } from '../helpers/translations';
-
-
-/**
- * Formats the assessment score as a string, optionally indicating if the score is pending review
- * and displaying an automatic score if available.
- *
- * @param score - The obtained score, or `undefined` if not yet graded.
- * @param totalPoints - The total possible points for the assessment.
- * @param isPendingReview - Optional flag indicating if the assessment is pending manual review.
- * @param autoScore - Optional automatic score (e.g., for multiple-choice questions).
- * @returns A formatted string representing the score, including special handling for pending reviews.
- */
-export const formatAssessmentScore = (
-    score: number | undefined,
-    totalPoints: number,
-    isPendingReview?: boolean,
-    autoScore?: number
-): string => {
-    if (isPendingReview && autoScore !== undefined) {
-        return trans('formatters.partial_score_mcq', { score: autoScore, total: totalPoints });
-    }
-    return trans('formatters.score_format', { score: score || 0, total: totalPoints });
-};
 
 
 /**
@@ -73,20 +49,6 @@ export const formatScoresForSave = (scores: Record<number, number>): Array<{ que
     }));
 };
 
-
-/**
- * Returns the correction status based on the calculated score.
- *
- * @param calculatedScore - The score that has been calculated for the assessment.
- * @returns A string indicating the correction status:
- *          - 'En cours de correction' if the score is greater than 0.
- *          - 'Non noté' if the score is 0 or less.
- */
-export const getCorrectionStatus = (calculatedScore: number): string => {
-    return calculatedScore > 0
-        ? trans('formatters.correction_in_progress')
-        : trans('formatters.not_graded');
-};
 
 /**
  * Determines whether the given result object contains a user response.

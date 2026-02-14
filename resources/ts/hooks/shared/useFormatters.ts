@@ -166,7 +166,6 @@ function createTranslatedFormatters(t: TranslateFn) {
 
 /**
  * Hook providing localized formatting functions.
- * Replaces direct trans() calls in formatters.ts for React hook safety.
  */
 export function useFormatters() {
   const { t } = useTranslations();

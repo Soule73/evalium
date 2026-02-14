@@ -3,29 +3,12 @@ import {
     formatTime,
     formatDateForInput,
     formatDate,
-    formatDuration,
     formatPercentage,
     formatGrade,
     capitalize,
     formatNumber,
     truncateText,
 } from './formatters';
-
-vi.mock('@/utils/helpers/translations', () => ({
-    trans: (key: string, params?: Record<string, number | string>) => {
-        const translations: Record<string, string> = {
-            'formatters.duration_min': `${params?.value || 0} min`,
-            'formatters.duration_hours': `${params?.value || 0}h`,
-            'formatters.duration_hours_min': `${params?.hours || 0}h ${params?.minutes || 0}min`,
-            'formatters.deadline_minutes_remaining': `${params?.minutes || 0} minutes restantes`,
-            'formatters.deadline_hours_remaining': `${params?.hours || 0} heures restantes`,
-            'formatters.relative_time_minutes_ago': `Il y a ${params?.minutes || 0} min`,
-            'formatters.relative_time_hours_ago': `Il y a ${params?.hours || 0}h`,
-            'formatters.relative_time_days_ago': `Il y a ${params?.days || 0} jours`,
-        };
-        return translations[key] || key;
-    },
-}));
 
 describe('formatters', () => {
     describe('formatTime', () => {
@@ -73,22 +56,6 @@ describe('formatters', () => {
         it('should format date with time', () => {
             const result = formatDate(testDate, 'datetime');
             expect(result).toContain('14:30');
-        });
-    });
-
-    describe('formatDuration', () => {
-        it('should format minutes', () => {
-            expect(formatDuration(45)).toBe('45 min');
-        });
-
-        it('should format hours', () => {
-            expect(formatDuration(60)).toBe('1h');
-            expect(formatDuration(120)).toBe('2h');
-        });
-
-        it('should format hours and minutes', () => {
-            expect(formatDuration(90)).toBe('1h 30min');
-            expect(formatDuration(150)).toBe('2h 30min');
         });
     });
 

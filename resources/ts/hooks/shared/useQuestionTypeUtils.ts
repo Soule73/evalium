@@ -3,7 +3,6 @@ import { useTranslations } from './useTranslations';
 
 /**
  * Hook providing localized question type labels.
- * Replaces direct trans() calls in questionTypeUtils for React hook safety.
  */
 export function useQuestionTypeUtils() {
   const { t } = useTranslations();

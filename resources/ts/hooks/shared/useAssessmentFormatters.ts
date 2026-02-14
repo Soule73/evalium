@@ -3,7 +3,6 @@ import { useTranslations } from './useTranslations';
 
 /**
  * Hook providing localized assessment score formatting functions.
- * Replaces direct trans() calls in assessment/utils for React hook safety.
  */
 export function useAssessmentFormatters() {
   const { t } = useTranslations();

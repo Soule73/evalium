@@ -1,29 +1,9 @@
-import { trans } from '@/utils';
-
 /**
  * Determines if a boolean choice content represents true
  */
 export const getBooleanDisplay = (content: string): boolean => {
     const normalized = content?.toString().toLowerCase() ?? '';
     return ['true', 'vrai'].includes(normalized);
-};
-
-/**
- * Gets localized boolean label
- */
-export const getBooleanLabel = (isTrue: boolean): string => {
-    return isTrue
-        ? trans('components.take_question.true')
-        : trans('components.take_question.false');
-};
-
-/**
- * Gets localized boolean short label (for badges)
- */
-export const getBooleanShortLabel = (isTrue: boolean): string => {
-    return isTrue
-        ? trans('components.question_result_readonly.boolean_true_short')
-        : trans('components.question_result_readonly.boolean_false_short');
 };
 
 /**
@@ -65,42 +45,6 @@ export const getChoiceStyles = (
         text: isCorrect ? 'text-green-800 font-medium' : 'text-gray-700',
         borderColor: isCorrect ? 'border-green-500 bg-green-500' : 'border-gray-300',
     };
-};
-
-/**
- * Gets the status label for a choice (returns translation key or null)
- */
-export const getStatusLabelText = (
-    isSelected: boolean,
-    isCorrect: boolean,
-    shouldShowCorrect: boolean,
-    isTeacherView: boolean
-): string | null => {
-    if (!shouldShowCorrect) {
-        return isSelected
-            ? isTeacherView
-                ? trans('components.question_result_readonly.student_answer')
-                : trans('components.question_result_readonly.your_answer')
-            : null;
-    }
-
-    if (isSelected && !isCorrect) {
-        return isTeacherView
-            ? trans('components.question_result_readonly.student_answer_incorrect')
-            : trans('components.question_result_readonly.your_answer_incorrect');
-    }
-
-    if (isSelected && isCorrect) {
-        return isTeacherView
-            ? trans('components.question_result_readonly.student_answer_correct')
-            : trans('components.question_result_readonly.your_answer_correct');
-    }
-
-    if (!isSelected && isCorrect) {
-        return trans('components.question_result_readonly.correct_answer');
-    }
-
-    return null;
 };
 
 /**
