@@ -2,7 +2,7 @@ import { type FormEvent, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { type FormDataConvertible } from '@inertiajs/core';
 import { type ClassSubject, type User } from '@/types';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Modal, Select } from '@/Components';
 import { route } from 'ziggy-js';
 
@@ -35,21 +35,22 @@ export function ReplaceTeacherModal({
   const [formValues, setFormValues] = useState<FormValues>(getInitialValues);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslations();
 
   const availableTeachers = useMemo(
-    () => teachers.filter((t) => t.id !== classSubject.teacher_id),
+    () => teachers.filter((teacher) => teacher.id !== classSubject.teacher_id),
     [teachers, classSubject.teacher_id]
   );
 
   const teacherOptions = useMemo(
     () => [
-      { value: 0, label: trans('admin_pages.class_subjects.select_new_teacher') },
+      { value: 0, label: t('admin_pages.class_subjects.select_new_teacher') },
       ...availableTeachers.map((teacher) => ({
         value: teacher.id,
         label: `${teacher.name} (${teacher.email})`,
       })),
     ],
-    [availableTeachers]
+    [availableTeachers, t]
   );
 
   const handleSubmit = (e: FormEvent) => {
@@ -79,26 +80,26 @@ export function ReplaceTeacherModal({
     <Modal
       isOpen={isOpen}
       onClose={resetAndClose}
-      title={trans('admin_pages.class_subjects.replace_teacher_title')}
+      title={t('admin_pages.class_subjects.replace_teacher_title')}
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="text-sm">
             <div className="font-medium text-blue-900 mb-2">
-              {trans('admin_pages.class_subjects.current_assignment')}
+              {t('admin_pages.class_subjects.current_assignment')}
             </div>
             <div className="text-blue-800 space-y-1">
               <div>
-                <span className="font-medium">{trans('admin_pages.class_subjects.class')}:</span>{' '}
+                <span className="font-medium">{t('admin_pages.class_subjects.class')}:</span>{' '}
                 {classSubject.class?.name}
               </div>
               <div>
-                <span className="font-medium">{trans('admin_pages.class_subjects.subject')}:</span>{' '}
+                <span className="font-medium">{t('admin_pages.class_subjects.subject')}:</span>{' '}
                 {classSubject.subject?.code} - {classSubject.subject?.name}
               </div>
               <div>
-                <span className="font-medium">{trans('admin_pages.class_subjects.current_teacher')}:</span>{' '}
+                <span className="font-medium">{t('admin_pages.class_subjects.current_teacher')}:</span>{' '}
                 {classSubject.teacher?.name}
               </div>
             </div>
@@ -106,7 +107,7 @@ export function ReplaceTeacherModal({
         </div>
 
         <Select
-          label={trans('admin_pages.class_subjects.new_teacher')}
+          label={t('admin_pages.class_subjects.new_teacher')}
           name="new_teacher_id"
           value={formValues.new_teacher_id}
           onChange={(value) => setFormValues((prev) => ({ ...prev, new_teacher_id: value as number }))}
@@ -118,7 +119,7 @@ export function ReplaceTeacherModal({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            {trans('admin_pages.class_subjects.effective_date')}
+            {t('admin_pages.class_subjects.effective_date')}
           </label>
           <input
             type="date"
@@ -135,7 +136,7 @@ export function ReplaceTeacherModal({
 
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <div className="text-sm text-yellow-800">
-            {trans('admin_pages.class_subjects.replace_teacher_warning')}
+            {t('admin_pages.class_subjects.replace_teacher_warning')}
           </div>
         </div>
 
@@ -147,7 +148,7 @@ export function ReplaceTeacherModal({
             onClick={resetAndClose}
             disabled={isSubmitting}
           >
-            {trans('admin_pages.common.cancel')}
+            {t('admin_pages.common.cancel')}
           </Button>
           <Button
             type="submit"
@@ -156,8 +157,8 @@ export function ReplaceTeacherModal({
             disabled={isSubmitting || formValues.new_teacher_id === 0}
           >
             {isSubmitting
-              ? trans('admin_pages.class_subjects.replacing')
-              : trans('admin_pages.class_subjects.replace_button')}
+              ? t('admin_pages.class_subjects.replacing')
+              : t('admin_pages.class_subjects.replace_button')}
           </Button>
         </div>
       </form>

@@ -2,7 +2,7 @@ import { type FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { type FormDataConvertible } from '@inertiajs/core';
 import { type ClassSubject } from '@/types';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Modal } from '@/Components';
 import { route } from 'ziggy-js';
 
@@ -25,6 +25,7 @@ export function TerminateClassSubjectModal({
   const [endDate, setEndDate] = useState(getInitialEndDate);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslations();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -57,26 +58,26 @@ export function TerminateClassSubjectModal({
     <Modal
       isOpen={isOpen}
       onClose={resetAndClose}
-      title={trans('admin_pages.class_subjects.terminate_title')}
+      title={t('admin_pages.class_subjects.terminate_title')}
       size="sm"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="text-sm">
             <div className="font-medium text-blue-900 mb-2">
-              {trans('admin_pages.class_subjects.assignment_info')}
+              {t('admin_pages.class_subjects.assignment_info')}
             </div>
             <div className="text-blue-800 space-y-1">
               <div>
-                <span className="font-medium">{trans('admin_pages.class_subjects.class')}:</span>{' '}
+                <span className="font-medium">{t('admin_pages.class_subjects.class')}:</span>{' '}
                 {classSubject.class?.name}
               </div>
               <div>
-                <span className="font-medium">{trans('admin_pages.class_subjects.subject')}:</span>{' '}
+                <span className="font-medium">{t('admin_pages.class_subjects.subject')}:</span>{' '}
                 {classSubject.subject?.code} - {classSubject.subject?.name}
               </div>
               <div>
-                <span className="font-medium">{trans('admin_pages.class_subjects.teacher')}:</span>{' '}
+                <span className="font-medium">{t('admin_pages.class_subjects.teacher')}:</span>{' '}
                 {classSubject.teacher?.name}
               </div>
             </div>
@@ -85,7 +86,7 @@ export function TerminateClassSubjectModal({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            {trans('admin_pages.class_subjects.end_date')}
+            {t('admin_pages.class_subjects.end_date')}
           </label>
           <input
             type="date"
@@ -102,7 +103,7 @@ export function TerminateClassSubjectModal({
 
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="text-sm text-red-800">
-            {trans('admin_pages.class_subjects.terminate_warning')}
+            {t('admin_pages.class_subjects.terminate_warning')}
           </div>
         </div>
 
@@ -114,12 +115,12 @@ export function TerminateClassSubjectModal({
             onClick={resetAndClose}
             disabled={isSubmitting}
           >
-            {trans('admin_pages.common.cancel')}
+            {t('admin_pages.common.cancel')}
           </Button>
           <Button type="submit" variant="solid" color="danger" disabled={isSubmitting}>
             {isSubmitting
-              ? trans('admin_pages.class_subjects.terminating')
-              : trans('admin_pages.class_subjects.terminate_button')}
+              ? t('admin_pages.class_subjects.terminating')
+              : t('admin_pages.class_subjects.terminate_button')}
           </Button>
         </div>
       </form>

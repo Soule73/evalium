@@ -1,7 +1,7 @@
 import { type FormEvent, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { type ClassModel, type Subject, type User, type Semester } from '@/types';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Modal, Select, Input } from '@/Components';
 import { route } from 'ziggy-js';
 
@@ -45,38 +45,39 @@ export function CreateClassSubjectModal({
   const [formValues, setFormValues] = useState<ClassSubjectFormValues>(INITIAL_FORM_VALUES);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslations();
 
   const classOptions = useMemo(() => [
-    { value: 0, label: trans('admin_pages.class_subjects.select_class') },
+    { value: 0, label: t('admin_pages.class_subjects.select_class') },
     ...formData.classes.map((classItem) => ({
       value: classItem.id,
       label: classItem.name
     }))
-  ], [formData.classes]);
+  ], [formData.classes, t]);
 
   const subjectOptions = useMemo(() => [
-    { value: 0, label: trans('admin_pages.class_subjects.select_subject') },
+    { value: 0, label: t('admin_pages.class_subjects.select_subject') },
     ...formData.subjects.map((subject) => ({
       value: subject.id,
       label: `${subject.code} - ${subject.name}`
     }))
-  ], [formData.subjects]);
+  ], [formData.subjects, t]);
 
   const teacherOptions = useMemo(() => [
-    { value: 0, label: trans('admin_pages.class_subjects.select_teacher') },
+    { value: 0, label: t('admin_pages.class_subjects.select_teacher') },
     ...formData.teachers.map((teacher) => ({
       value: teacher.id,
       label: `${teacher.name} (${teacher.email})`
     }))
-  ], [formData.teachers]);
+  ], [formData.teachers, t]);
 
   const semesterOptions = useMemo(() => [
-    { value: 0, label: trans('admin_pages.class_subjects.all_year') },
+    { value: 0, label: t('admin_pages.class_subjects.all_year') },
     ...(formData.semesters?.map((semester) => ({
       value: semester.id,
-      label: `${trans('admin_pages.class_subjects.semester')} ${semester.order_number}`
+      label: `${t('admin_pages.class_subjects.semester')} ${semester.order_number}`
     })) || [])
-  ], [formData.semesters]);
+  ], [formData.semesters, t]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -115,12 +116,12 @@ export function CreateClassSubjectModal({
     <Modal
       isOpen={isOpen}
       onClose={resetAndClose}
-      title={trans('admin_pages.class_subjects.create_title')}
+      title={t('admin_pages.class_subjects.create_title')}
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <Select
-          label={trans('admin_pages.class_subjects.class')}
+          label={t('admin_pages.class_subjects.class')}
           name="class_id"
           value={formValues.class_id}
           onChange={(value) => setFormValues(prev => ({ ...prev, class_id: value as number }))}
@@ -131,7 +132,7 @@ export function CreateClassSubjectModal({
         />
 
         <Select
-          label={trans('admin_pages.class_subjects.subject')}
+          label={t('admin_pages.class_subjects.subject')}
           name="subject_id"
           value={formValues.subject_id}
           onChange={(value) => setFormValues(prev => ({ ...prev, subject_id: value as number }))}
@@ -142,7 +143,7 @@ export function CreateClassSubjectModal({
         />
 
         <Select
-          label={trans('admin_pages.class_subjects.teacher')}
+          label={t('admin_pages.class_subjects.teacher')}
           name="teacher_id"
           value={formValues.teacher_id}
           onChange={(value) => setFormValues(prev => ({ ...prev, teacher_id: value as number }))}
@@ -153,7 +154,7 @@ export function CreateClassSubjectModal({
         />
 
         <Input
-          label={trans('admin_pages.class_subjects.coefficient')}
+          label={t('admin_pages.class_subjects.coefficient')}
           name="coefficient"
           type="number"
           min="0.5"
@@ -167,7 +168,7 @@ export function CreateClassSubjectModal({
 
         {formData.semesters && formData.semesters.length > 0 && (
           <Select
-            label={trans('admin_pages.class_subjects.semester')}
+            label={t('admin_pages.class_subjects.semester')}
             name="semester_id"
             value={formValues.semester_id || 0}
             onChange={(value) => setFormValues(prev => ({ ...prev, semester_id: value === 0 ? undefined : value as number }))}
@@ -178,7 +179,7 @@ export function CreateClassSubjectModal({
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="text-sm text-blue-800">
-            {trans('admin_pages.class_subjects.create_info')}
+            {t('admin_pages.class_subjects.create_info')}
           </div>
         </div>
 
@@ -190,7 +191,7 @@ export function CreateClassSubjectModal({
             onClick={resetAndClose}
             disabled={isSubmitting}
           >
-            {trans('admin_pages.common.cancel')}
+            {t('admin_pages.common.cancel')}
           </Button>
           <Button
             type="submit"
@@ -198,7 +199,7 @@ export function CreateClassSubjectModal({
             color="primary"
             disabled={isSubmitting || !isFormValid}
           >
-            {isSubmitting ? trans('admin_pages.class_subjects.creating') : trans('admin_pages.class_subjects.create_button')}
+            {isSubmitting ? t('admin_pages.class_subjects.creating') : t('admin_pages.class_subjects.create_button')}
           </Button>
         </div>
       </form>

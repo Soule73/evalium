@@ -2,7 +2,7 @@ import { type FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { type FormDataConvertible } from '@inertiajs/core';
 import { type ClassSubject } from '@/types';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Modal, Input } from '@/Components';
 import { route } from 'ziggy-js';
 
@@ -23,6 +23,7 @@ export function UpdateCoefficientModal({
   const [coefficient, setCoefficient] = useState(classSubject.coefficient);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslations();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -55,26 +56,26 @@ export function UpdateCoefficientModal({
     <Modal
       isOpen={isOpen}
       onClose={resetAndClose}
-      title={trans('admin_pages.class_subjects.update_coefficient_title')}
+      title={t('admin_pages.class_subjects.update_coefficient_title')}
       size="sm"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="text-sm">
             <div className="font-medium text-blue-900 mb-2">
-              {trans('admin_pages.class_subjects.assignment_info')}
+              {t('admin_pages.class_subjects.assignment_info')}
             </div>
             <div className="text-blue-800 space-y-1">
               <div>
-                <span className="font-medium">{trans('admin_pages.class_subjects.class')}:</span>{' '}
+                <span className="font-medium">{t('admin_pages.class_subjects.class')}:</span>{' '}
                 {classSubject.class?.name}
               </div>
               <div>
-                <span className="font-medium">{trans('admin_pages.class_subjects.subject')}:</span>{' '}
+                <span className="font-medium">{t('admin_pages.class_subjects.subject')}:</span>{' '}
                 {classSubject.subject?.code} - {classSubject.subject?.name}
               </div>
               <div>
-                <span className="font-medium">{trans('admin_pages.class_subjects.current_coefficient')}:</span>{' '}
+                <span className="font-medium">{t('admin_pages.class_subjects.current_coefficient')}:</span>{' '}
                 {classSubject.coefficient}
               </div>
             </div>
@@ -82,7 +83,7 @@ export function UpdateCoefficientModal({
         </div>
 
         <Input
-          label={trans('admin_pages.class_subjects.new_coefficient')}
+          label={t('admin_pages.class_subjects.new_coefficient')}
           name="coefficient"
           type="number"
           min="0.5"
@@ -96,7 +97,7 @@ export function UpdateCoefficientModal({
 
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <div className="text-sm text-yellow-800">
-            {trans('admin_pages.class_subjects.update_coefficient_warning')}
+            {t('admin_pages.class_subjects.update_coefficient_warning')}
           </div>
         </div>
 
@@ -108,12 +109,12 @@ export function UpdateCoefficientModal({
             onClick={resetAndClose}
             disabled={isSubmitting}
           >
-            {trans('admin_pages.common.cancel')}
+            {t('admin_pages.common.cancel')}
           </Button>
           <Button type="submit" variant="solid" color="primary" disabled={isSubmitting}>
             {isSubmitting
-              ? trans('admin_pages.class_subjects.updating')
-              : trans('admin_pages.class_subjects.update_button')}
+              ? t('admin_pages.class_subjects.updating')
+              : t('admin_pages.class_subjects.update_button')}
           </Button>
         </div>
       </form>
