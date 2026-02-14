@@ -14,6 +14,7 @@ interface UseTakeAssessment {
   assessment: Assessment;
   questions: Question[];
   userAnswers: Answer[];
+  remainingSeconds: number | null;
 }
 
 /**
@@ -46,7 +47,7 @@ interface UseTakeAssessment {
  * - `enterFullscreen`: Function to enter fullscreen mode.
  * - `assessmentCanStart`: Boolean indicating if the assessment can be started.
  */
-const useTakeAssessment = ({ assessment, questions = [], userAnswers = [] }: UseTakeAssessment) => {
+const useTakeAssessment = ({ assessment, questions = [], userAnswers = [], remainingSeconds }: UseTakeAssessment) => {
   const { answers } = useAssessmentTakeStore(
     useShallow((state) => ({
       answers: state.answers,
@@ -115,7 +116,7 @@ const useTakeAssessment = ({ assessment, questions = [], userAnswers = [] }: Use
   }, [forceSave, submitAssessment]);
 
   const { timeLeft } = useAssessmentTimer({
-    duration: assessment.duration_minutes,
+    remainingSeconds,
     onTimeEnd: handleSubmit,
     isSubmitting,
   });

@@ -245,6 +245,7 @@ Route::middleware('auth')->group(function () {
                     Route::get('/{assessment}/assignments/{assignment}/grade', 'grade')->name('grade');
                     Route::post('/{assessment}/assignments/{assignment}/grade', 'saveGrade')->name('saveGrade');
                     Route::get('/{assessment}/assignments/{assignment}/review', 'review')->name('review');
+                    Route::post('/{assessment}/assignments/{assignment}/reopen', 'reopenAssignment')->name('reopen');
                 });
 
             /**
@@ -294,6 +295,8 @@ Route::middleware('auth')->group(function () {
                     Route::post('/{assessment}/submit', 'submit')->name('submit');
                     Route::post('/{assessment}/security-violation', 'securityViolation')->name('security-violation');
                     Route::get('/{assessment}/results', 'results')->name('results');
+                    Route::post('/{assessment}/attachments', 'uploadAttachment')->name('attachments.upload');
+                    Route::delete('/{assessment}/attachments/{attachment}', 'deleteAttachment')->name('attachments.delete');
                 });
 
             /**

@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Student\UploadAttachmentRequest;
 use App\Models\Assessment;
+use App\Models\AssignmentAttachment;
+use App\Services\Student\AttachmentService;
 use App\Services\Student\StudentAssessmentService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +22,8 @@ class StudentAssessmentController extends Controller
     use AuthorizesRequests, FiltersAcademicYear;
 
     public function __construct(
-        private readonly StudentAssessmentService $assessmentService
+        private readonly StudentAssessmentService $assessmentService,
+        private readonly AttachmentService $attachmentService
     ) {}
 
     /**
@@ -66,6 +71,7 @@ class StudentAssessmentController extends Controller
         return Inertia::render('Student/Assessments/Show', [
             'assignment' => $assignment,
             'assessment' => $assessment,
+            'availability' => $assessment->getAvailabilityStatus(),
         ]);
     }
 
@@ -79,14 +85,17 @@ class StudentAssessmentController extends Controller
         abort_unless(
             $this->assessmentService->canStudentAccessAssessment($student, $assessment),
             403,
-            'You cannot access this assessment.'
+            __('messages.cannot_access_assessment')
         );
 
         $availability = $assessment->getAvailabilityStatus();
 
         if (! $availability['available']) {
-            return back()->with('error', __('messages.' . $availability['reason']));
+            return back()->with('error', __('messages.'.$availability['reason']));
         }
+
+        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
+        $this->assessmentService->startAssignment($assignment, $assessment);
 
         return redirect()->route('student.assessments.take', $assessment);
     }
@@ -101,13 +110,24 @@ class StudentAssessmentController extends Controller
         abort_unless(
             $this->assessmentService->canStudentAccessAssessment($student, $assessment),
             403,
-            'You cannot access this assessment.'
+            __('messages.cannot_access_assessment')
         );
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
+        $this->assessmentService->startAssignment($assignment, $assessment);
 
         if ($assignment->submitted_at) {
-            return redirect()->route('student.assessments.show', $assessment);
+            $redirectRoute = $assessment->isSupervisedMode()
+                ? 'student.assessments.results'
+                : 'student.assessments.show';
+
+            return redirect()->route($redirectRoute, $assessment);
+        }
+
+        if ($this->assessmentService->autoSubmitIfExpired($assignment, $assessment)) {
+            return redirect()
+                ->route('student.assessments.results', $assessment)
+                ->with('error', __('messages.assessment_time_expired'));
         }
 
         $availability = $assessment->getAvailabilityStatus();
@@ -115,7 +135,7 @@ class StudentAssessmentController extends Controller
         if (! $availability['available']) {
             return redirect()
                 ->route('student.assessments.show', $assessment)
-                ->with('error', __('messages.' . $availability['reason']));
+                ->with('error', __('messages.'.$availability['reason']));
         }
 
         $assignment->load([
@@ -125,12 +145,25 @@ class StudentAssessmentController extends Controller
             'answers',
         ]);
 
-        return Inertia::render('Student/Assessments/Take', [
+        $remainingSeconds = $this->assessmentService->calculateRemainingSeconds($assignment, $assessment);
+
+        $page = $assessment->isHomeworkMode()
+            ? 'Student/Assessments/Work'
+            : 'Student/Assessments/Take';
+
+        $props = [
             'assignment' => $assignment,
             'assessment' => $assessment->load(['questions.choices']),
             'questions' => $assessment->questions,
             'userAnswers' => $assignment->answers,
-        ]);
+            'remainingSeconds' => $remainingSeconds,
+        ];
+
+        if ($assessment->isHomeworkMode()) {
+            $props['attachments'] = $this->attachmentService->getAttachments($assignment);
+        }
+
+        return Inertia::render($page, $props);
     }
 
     /**
@@ -140,6 +173,12 @@ class StudentAssessmentController extends Controller
     {
         $student = Auth::user();
 
+        abort_unless(
+            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
+            403,
+            __('messages.cannot_access_assessment')
+        );
+
         $request->validate([
             'answers' => ['required', 'array'],
         ]);
@@ -147,12 +186,22 @@ class StudentAssessmentController extends Controller
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
         if ($assignment->submitted_at) {
-            return response()->json(['message' => 'Assessment already submitted'], 400);
+            return response()->json(['message' => __('messages.assessment_already_submitted')], 400);
+        }
+
+        if ($this->assessmentService->isTimeExpired($assignment, $assessment, withGrace: true)) {
+            $this->assessmentService->autoSubmitIfExpired($assignment, $assessment);
+
+            return response()->json(['message' => __('messages.assessment_time_expired')], 409);
+        }
+
+        if ($this->assessmentService->isDueDatePassed($assessment)) {
+            return response()->json(['message' => __('messages.assessment_due_date_passed')], 409);
         }
 
         $this->assessmentService->saveAnswers($assignment, $request->input('answers', []));
 
-        return response()->json(['message' => 'Answers saved successfully']);
+        return response()->json(['message' => __('messages.answers_saved')]);
     }
 
     /**
@@ -162,6 +211,12 @@ class StudentAssessmentController extends Controller
     {
         $student = Auth::user();
 
+        abort_unless(
+            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
+            403,
+            __('messages.cannot_access_assessment')
+        );
+
         $request->validate([
             'answers' => ['required', 'array'],
         ]);
@@ -170,6 +225,20 @@ class StudentAssessmentController extends Controller
 
         if ($assignment->submitted_at) {
             return back()->with('error', __('messages.assessment_already_submitted'));
+        }
+
+        if ($this->assessmentService->isTimeExpired($assignment, $assessment)) {
+            $this->assessmentService->autoSubmitIfExpired($assignment, $assessment);
+
+            return redirect()
+                ->route('student.assessments.show', $assessment)
+                ->with('error', __('messages.assessment_time_expired'));
+        }
+
+        if ($this->assessmentService->isDueDatePassed($assessment)) {
+            return redirect()
+                ->route('student.assessments.show', $assessment)
+                ->with('error', __('messages.assessment_due_date_passed'));
         }
 
         $this->assessmentService->submitAssessment($assignment, $assessment, $request->input('answers', []));
@@ -209,11 +278,92 @@ class StudentAssessmentController extends Controller
     }
 
     /**
+     * Upload a file attachment for a homework assessment.
+     */
+    public function uploadAttachment(UploadAttachmentRequest $request, Assessment $assessment): JsonResponse
+    {
+        $student = Auth::user();
+
+        abort_unless(
+            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
+            403,
+            __('messages.cannot_access_assessment')
+        );
+
+        if (! $assessment->isHomeworkMode()) {
+            return response()->json(['message' => __('messages.file_uploads_not_allowed')], 422);
+        }
+
+        if (! $assessment->hasFileUploads()) {
+            return response()->json(['message' => __('messages.file_uploads_not_allowed')], 422);
+        }
+
+        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
+
+        if ($assignment->submitted_at) {
+            return response()->json(['message' => __('messages.assessment_already_submitted')], 400);
+        }
+
+        if ($this->assessmentService->isDueDatePassed($assessment)) {
+            return response()->json(['message' => __('messages.assessment_due_date_passed')], 409);
+        }
+
+        if ($this->attachmentService->hasReachedFileLimit($assignment, $assessment)) {
+            return response()->json(['message' => __('messages.file_upload_limit_reached')], 422);
+        }
+
+        $attachment = $this->attachmentService->uploadAttachment($assignment, $assessment, $request->file('file'));
+
+        return response()->json([
+            'message' => __('messages.file_uploaded'),
+            'attachment' => $attachment,
+        ], 201);
+    }
+
+    /**
+     * Delete a file attachment from a homework assessment.
+     */
+    public function deleteAttachment(Assessment $assessment, AssignmentAttachment $attachment): JsonResponse
+    {
+        $student = Auth::user();
+
+        abort_unless(
+            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
+            403,
+            __('messages.cannot_access_assessment')
+        );
+
+        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
+
+        if ($attachment->assessment_assignment_id !== $assignment->id) {
+            abort(403, __('messages.do_not_own_attachment'));
+        }
+
+        if ($assignment->submitted_at) {
+            return response()->json(['message' => __('messages.assessment_already_submitted')], 400);
+        }
+
+        $this->attachmentService->deleteAttachment($attachment);
+
+        return response()->json(['message' => __('messages.file_deleted')]);
+    }
+
+    /**
      * Handle security violation during assessment.
      */
     public function securityViolation(Request $request, Assessment $assessment)
     {
         $student = Auth::user();
+
+        abort_unless(
+            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
+            403,
+            __('messages.cannot_access_assessment')
+        );
+
+        if ($assessment->isHomeworkMode()) {
+            return response()->json(['message' => __('messages.security_violations_not_applicable')], 422);
+        }
 
         $request->validate([
             'violation_type' => ['required', 'string'],
@@ -224,7 +374,7 @@ class StudentAssessmentController extends Controller
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
         if ($assignment->submitted_at) {
-            return response()->json(['message' => 'Assessment already submitted'], 400);
+            return response()->json(['message' => __('messages.assessment_already_submitted')], 400);
         }
 
         if ($request->has('answers')) {
@@ -238,6 +388,6 @@ class StudentAssessmentController extends Controller
             $request->input('violation_details')
         );
 
-        return response()->json(['message' => 'Security violation recorded']);
+        return response()->json(['message' => __('messages.security_violation_recorded')]);
     }
 }

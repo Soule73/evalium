@@ -24,9 +24,10 @@ interface TakeAssessmentProps {
   assignment: AssessmentAssignment;
   questions: Question[];
   userAnswers: Answer[];
+  remainingSeconds: number | null;
 }
 
-function Take({ assessment, assignment, questions = [], userAnswers = [] }: TakeAssessmentProps) {
+function Take({ assessment, assignment, questions = [], userAnswers = [], remainingSeconds = null }: TakeAssessmentProps) {
   const {
     answers,
     timeLeft,
@@ -106,10 +107,11 @@ function Take({ assessment, assignment, questions = [], userAnswers = [] }: Take
     assessment,
     questions,
     userAnswers,
+    remainingSeconds,
   });
 
   if (assessmentTerminated) {
-    return <AlertSecurityViolation assessment={assessment} reason={terminationReason || 'Violation de sécurité détectée'} />;
+    return <AlertSecurityViolation assessment={assessment} reason={terminationReason || trans('student_assessment_pages.take.assessment_terminated_title')} />;
   }
 
   if (assignment.submitted_at) {

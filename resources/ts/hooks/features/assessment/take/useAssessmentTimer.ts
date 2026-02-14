@@ -3,16 +3,19 @@ import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 
 interface UseAssessmentTimerParams {
-  duration: number;
+  remainingSeconds: number | null;
   onTimeEnd: () => void;
   isSubmitting: boolean;
 }
 
 /**
  * Custom hook to manage the assessment timer countdown.
- * Automatically submits the assessment when time runs out.
+ *
+ * Uses server-provided remaining seconds as source of truth
+ * instead of computing from duration_minutes on the client.
+ * Returns early for homework mode (remainingSeconds is null).
  */
-export const useAssessmentTimer = ({ duration, onTimeEnd, isSubmitting }: UseAssessmentTimerParams) => {
+export const useAssessmentTimer = ({ remainingSeconds, onTimeEnd, isSubmitting }: UseAssessmentTimerParams) => {
   const { timeLeft, setTimeLeft } = useAssessmentTakeStore(useShallow((state) => ({
     timeLeft: state.timeLeft,
     setTimeLeft: state.setTimeLeft,
@@ -26,9 +29,11 @@ export const useAssessmentTimer = ({ duration, onTimeEnd, isSubmitting }: UseAss
   }, [onTimeEnd]);
 
   useEffect(() => {
-    setTimeLeft(duration * 60);
+    if (remainingSeconds !== null && remainingSeconds >= 0) {
+      setTimeLeft(remainingSeconds);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [duration]);
+  }, [remainingSeconds]);
 
   const tick = useCallback(() => {
     setTimeLeft((prev) => {
