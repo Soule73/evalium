@@ -5,8 +5,8 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Enrollment, type PageProps } from '@/types';
 import { Button, EmptyState, Section } from '@/Components';
 import { EnrollmentList } from '@/Components/shared/lists';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 import { ClockIcon } from '@heroicons/react/24/outline';
 
 interface StudentEnrollmentHistoryProps extends PageProps {
@@ -15,6 +15,7 @@ interface StudentEnrollmentHistoryProps extends PageProps {
 
 export default function History({ enrollments }: StudentEnrollmentHistoryProps) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const translations = useMemo(
     () => ({

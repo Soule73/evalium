@@ -14,9 +14,9 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Answer, type Assessment, type AssessmentAssignment, type AssignmentAttachment, type Question } from '@/types';
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { useAssessmentAnswers, useAssessmentAnswerSave, useAssessmentSubmission, useQuestionNavigation } from '@/hooks/features/assessment';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { formatDate } from '@/utils';
-import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 import { route } from 'ziggy-js';
@@ -32,6 +32,7 @@ interface WorkProps {
 
 function Work({ assessment, assignment, questions = [], userAnswers = [], attachments: initialAttachments = [] }: WorkProps) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
   const [savingStatus, setSavingStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [fileAttachments, setFileAttachments] = useState<AssignmentAttachment[]>(initialAttachments);
 

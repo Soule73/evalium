@@ -5,9 +5,9 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Enrollment, type PageProps, type PaginationType, type SubjectGrade, type OverallStats } from '@/types';
 import { Button, Section, TextEntry } from '@/Components';
 import { SubjectGradeList } from '@/Components/shared/lists/SubjectGradeList';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { formatDate } from '@/utils';
-import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 
 interface StudentEnrollmentShowProps extends PageProps {
   enrollment: Enrollment;
@@ -17,6 +17,7 @@ interface StudentEnrollmentShowProps extends PageProps {
 
 export default function Show({ enrollment, subjects, overallStats }: StudentEnrollmentShowProps) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const translations = useMemo(() => ({
     title: t('student_enrollment_pages.show.title'),

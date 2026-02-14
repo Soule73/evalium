@@ -5,7 +5,8 @@ import { requiresManualGrading } from '@/utils';
 import { route } from 'ziggy-js';
 import { router, usePage } from '@inertiajs/react';
 import { Button, Section, Textarea, QuestionRenderer, ConfirmationModal, Stat } from '@/Components';
-import { hasPermission, breadcrumbs } from '@/utils';
+import { hasPermission } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { DocumentTextIcon, ChartPieIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
@@ -19,6 +20,7 @@ interface Props {
 
 export default function GradeAssignment({ assessment, student, assignment, userAnswers = {}, routeContext }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
   const { auth } = usePage<PageProps>().props;
   const canGradeAssessments = hasPermission(auth.permissions, 'grade assessments');
 

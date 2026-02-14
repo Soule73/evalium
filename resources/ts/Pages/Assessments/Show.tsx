@@ -8,7 +8,7 @@ import { type Assessment, type AssessmentAssignment, type AssessmentRouteContext
 import { type PaginationType } from '@/types/datatable';
 import { ClockIcon, QuestionMarkCircleIcon, StarIcon, DocumentDuplicateIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
-import { breadcrumbs } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { QuestionReadOnlySection } from '@/Components';
 import { QuestionResultReadOnlyText, QuestionTeacherReadOnlyChoices } from '@/Components/features/assessment/QuestionResultReadOnly';
@@ -27,6 +27,7 @@ interface Props {
 
 const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext }) => {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
   const [isToggling, setIsToggling] = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);

@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Level } from '@/types';
-import { breadcrumbs } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { SubjectForm } from '@/Components/features/subjects/SubjectForm';
 import { route } from 'ziggy-js';
 
@@ -13,6 +13,7 @@ interface Props {
 
 export default function SubjectCreate({ levels }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const handleCancel = () => {
     router.visit(route('admin.subjects.index'));

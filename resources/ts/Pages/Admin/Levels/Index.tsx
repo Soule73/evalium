@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type PaginationType } from '@/types/datatable';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import { breadcrumbs } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, ConfirmationModal, Section } from '@/Components';
 import { useListLevels } from '@/hooks';
 import { type Level } from '@/types';
@@ -15,6 +15,7 @@ interface Props {
 
 export default function LevelIndex({ levels }: Props) {
     const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
 
     const {
         canCreateLevels,

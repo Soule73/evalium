@@ -3,7 +3,8 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { AcademicCapIcon, BookOpenIcon, ClipboardDocumentListIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 import { useMemo } from 'react';
-import { breadcrumbs, formatDate } from '@/utils';
+import { formatDate } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Section, Stat, DataTable } from '@/Components';
 import { type DataTableConfig, type PaginationType } from '@/types/datatable';
@@ -55,6 +56,7 @@ interface Props {
 
 export default function TeacherDashboard({ stats, activeAssignments, pastAssessments, upcomingAssessments }: Props) {
     const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
 
     const handleViewAssessments = () => {
         router.visit(route('teacher.assessments.index'));

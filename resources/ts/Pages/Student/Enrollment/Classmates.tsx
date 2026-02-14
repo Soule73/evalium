@@ -5,8 +5,8 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Enrollment, type User, type PageProps } from '@/types';
 import type { PaginationType } from '@/types/datatable';
 import { Button, Section } from '@/Components';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 import { UserList } from '@/Components/shared/lists';
 
 interface StudentEnrollmentClassmatesProps extends PageProps {
@@ -16,6 +16,7 @@ interface StudentEnrollmentClassmatesProps extends PageProps {
 
 export default function Classmates({ enrollment, classmates }: StudentEnrollmentClassmatesProps) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const translations = useMemo(
     () => ({

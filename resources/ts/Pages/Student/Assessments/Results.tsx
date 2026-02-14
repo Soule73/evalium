@@ -6,9 +6,9 @@ import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { useMemo } from 'react';
 import { AlertEntry, Badge, Button, Section, QuestionRenderer, TextEntry } from '@/Components';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { formatDate } from '@/utils';
-import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 
 interface Props {
   assessment: Assessment;
@@ -18,6 +18,7 @@ interface Props {
 
 const AssessmentResults: React.FC<Props> = ({ assessment, assignment, userAnswers }) => {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const { isPendingReview, assignmentStatus, showCorrectAnswers, showResultsImmediately, assessmentIsActive, totalPoints, getQuestionResult } =
     useAssessmentResults({ assessment, assignment, userAnswers });

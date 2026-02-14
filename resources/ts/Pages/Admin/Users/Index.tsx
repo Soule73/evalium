@@ -5,8 +5,8 @@ import { route } from 'ziggy-js';
 import { useMemo, useState } from 'react';
 import CreateUser from './Create';
 import { type User, type PageProps } from '@/types';
-import { breadcrumbs } from '@/utils';
 import { hasPermission } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Stat, Section, ConfirmationModal, Button } from '@/Components';
 import { useConfirmationModal } from '@/hooks';
@@ -24,6 +24,7 @@ interface Props extends PageProps {
 export default function UserIndex({ users, roles }: Props) {
     const { auth } = usePage<PageProps>().props;
     const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
 
     const canCreateUsers = hasPermission(auth.permissions, 'create users');
     const canUpdateUsers = hasPermission(auth.permissions, 'update users');

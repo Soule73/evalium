@@ -6,7 +6,7 @@ import { Button, Section, Stat } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';
 import { type Assessment, type AssessmentAssignment, type User } from '@/types';
 import { type PaginationType } from '@/types/datatable';
-import { breadcrumbs } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface DashboardStats {
@@ -24,6 +24,7 @@ interface Props {
 
 export default function StudentDashboard({ user, stats, assessmentAssignments }: Props) {
     const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
 
     return (
         <AuthenticatedLayout

@@ -2,8 +2,8 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
-import { breadcrumbs } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { type Role, type GroupedPermissions } from '@/types/role';
 import { PermissionSelector } from '@/Components';
 import { Section, Badge, Button } from '@examena/ui';
@@ -15,6 +15,7 @@ interface Props {
 
 export default function EditRole({ role, groupedPermissions }: Props) {
     const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
 
     const allPermissionIds = Object.values(groupedPermissions)
         .flat()

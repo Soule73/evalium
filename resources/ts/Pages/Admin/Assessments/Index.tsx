@@ -3,8 +3,8 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Assessment, type PageProps, type PaginationType } from '@/types';
-import { breadcrumbs } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Section } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';
 
@@ -32,6 +32,7 @@ export default function AdminAssessmentsIndex({
   assessments,
 }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const translations = useMemo(() => ({
     title: t('admin_pages.assessments.title'),

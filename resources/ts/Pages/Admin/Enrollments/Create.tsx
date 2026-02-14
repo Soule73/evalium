@@ -3,8 +3,8 @@ import { router } from '@inertiajs/react';
 import { type FormDataConvertible } from '@inertiajs/core';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type EnrollmentFormData, type ClassModel, type User } from '@/types';
-import { breadcrumbs } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section, Select } from '@/Components';
 import { route } from 'ziggy-js';
 
@@ -15,6 +15,7 @@ interface Props {
 
 export default function EnrollmentCreate({ classes, students }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
   const [formData, setFormData] = useState<EnrollmentFormData>({
     class_id: 0,
     student_id: 0,

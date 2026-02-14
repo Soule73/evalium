@@ -7,7 +7,7 @@ import { type Assessment, type PageProps } from '@/types';
 import { route } from 'ziggy-js';
 import { hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { breadcrumbs } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { AssessmentList } from '@/Components/shared/lists';
 
 interface Props extends PageProps {
@@ -16,6 +16,7 @@ interface Props extends PageProps {
 
 const AssessmentIndex: React.FC<Props> = ({ assessments }) => {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
   const { auth } = usePage<PageProps>().props;
   const canCreateAssessments = hasPermission(auth.permissions, 'create assessments');
 

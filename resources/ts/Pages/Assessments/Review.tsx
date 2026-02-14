@@ -4,7 +4,8 @@ import { type Assessment, type AssessmentAssignment, type Answer, type User, typ
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { Badge, Button, Section, QuestionRenderer, Stat } from '@/Components';
-import { breadcrumbs, formatDate } from '@/utils';
+import { formatDate } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { DocumentTextIcon, ChartPieIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
@@ -18,6 +19,7 @@ interface Props {
 
 export default function ReviewAssignment({ assessment, student, assignment, userAnswers = {}, routeContext }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const totalPoints = useMemo(() =>
     (assessment.questions ?? []).reduce((sum, q) => sum + q.points, 0),

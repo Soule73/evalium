@@ -4,7 +4,7 @@ import { Button, QuestionsManager, Section } from '@/Components';
 import { AssessmentGeneralConfig } from '@/Components/shared/AssessmentGeneralConfig';
 import { useCreateAssessment } from '@/hooks/features/assessment';
 import { useAssessmentFormStore } from '@/stores';
-import { breadcrumbs } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { type ClassSubject } from '@/types';
 
@@ -14,6 +14,7 @@ interface Props {
 
 const AssessmentCreate: React.FC<Props> = ({ classSubjects }) => {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
   const hasQuestions = useAssessmentFormStore((state) => state.questions.length > 0);
 
   const {

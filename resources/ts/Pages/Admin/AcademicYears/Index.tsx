@@ -4,8 +4,9 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type DataTableConfig, type PaginationType } from '@/types/datatable';
 import { CalendarIcon } from '@heroicons/react/24/outline';
 import { type AcademicYear, type PageProps } from '@/types';
-import { breadcrumbs, formatDate, hasPermission } from '@/utils';
+import { formatDate, hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Badge, Button, ConfirmationModal, DataTable, Section } from '@/Components';
 import { route } from 'ziggy-js';
 
@@ -21,6 +22,7 @@ interface Filters {
 
 export default function AcademicYearIndex({ academicYears, auth }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const [archiveModal, setArchiveModal] = useState<{ isOpen: boolean; year: AcademicYear | null }>({
     isOpen: false,

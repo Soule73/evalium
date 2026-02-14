@@ -3,8 +3,9 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type PaginationType } from '@/types/datatable';
 import { type ClassModel, type PageProps, type Level } from '@/types';
-import { breadcrumbs, hasPermission } from '@/utils';
+import { hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section } from '@/Components';
 import { ClassList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
@@ -20,6 +21,7 @@ interface Props extends PageProps {
 
 export default function ClassIndex({ classes, levels, auth }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
   const canCreate = hasPermission(auth.permissions, 'create classes');
 
   const handleCreate = () => {

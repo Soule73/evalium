@@ -5,7 +5,7 @@ import { AssessmentGeneralConfig } from '@/Components/shared/AssessmentGeneralCo
 import { useEditAssessment } from '@/hooks/features/assessment';
 // import { useAssessmentFormStore } from '@/stores';
 import { type Assessment, type ClassSubject } from '@/types';
-import { breadcrumbs } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface Props {
@@ -15,6 +15,7 @@ interface Props {
 
 export default function AssessmentEdit({ assessment, classSubjects }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const {
     data,

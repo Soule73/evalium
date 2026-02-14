@@ -11,9 +11,9 @@ import {
   Stat,
   TextEntry,
 } from '@/Components';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { formatDate } from '@/utils';
-import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 import { ClockIcon, DocumentTextIcon, QuestionMarkCircleIcon, EyeIcon } from '@heroicons/react/24/outline';
 
 interface StudentAssessmentShowProps extends PageProps {
@@ -24,6 +24,7 @@ interface StudentAssessmentShowProps extends PageProps {
 
 export default function Show({ assessment, assignment, availability }: StudentAssessmentShowProps) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isHomework = assessment.delivery_mode === 'homework';
   const hasStarted = !!assignment.started_at;

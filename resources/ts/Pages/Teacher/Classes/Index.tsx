@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type PaginationType } from '@/types/datatable';
 import { type ClassModel, type PageProps } from '@/types';
-import { breadcrumbs } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Section } from '@/Components';
 import { ClassList } from '@/Components/shared/lists';
@@ -13,6 +13,7 @@ interface Props extends PageProps {
 
 export default function TeacherClassIndex({ classes }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const translations = useMemo(() => ({
     title: t('teacher_class_pages.index.title'),

@@ -3,8 +3,8 @@ import { router } from '@inertiajs/react';
 import { type FormDataConvertible } from '@inertiajs/core';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type AcademicYear, type AcademicYearFormData, type PageProps } from '@/types';
-import { breadcrumbs } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Checkbox, Input, Section } from '@/Components';
 // import { Input, Checkbox } from '@/Components/forms';
 import { route } from 'ziggy-js';
@@ -15,6 +15,7 @@ interface Props extends PageProps {
 
 export default function AcademicYearEdit({ academicYear }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const [formData, setFormData] = useState<AcademicYearFormData>({
     name: academicYear.name,

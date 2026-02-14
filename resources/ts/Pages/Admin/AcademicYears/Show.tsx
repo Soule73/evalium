@@ -2,8 +2,9 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type AcademicYear, type Semester, type ClassModel, type PageProps } from '@/types';
-import { breadcrumbs, formatDate, hasPermission } from '@/utils';
+import { formatDate, hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section, Badge, SemesterCard } from '@/Components';
 import { route } from 'ziggy-js';
 import { CalendarIcon, AcademicCapIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
@@ -17,6 +18,7 @@ interface Props extends PageProps {
 
 export default function AcademicYearShow({ academicYear, auth }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const canUpdate = hasPermission(auth.permissions, 'update academic years');
   const canDelete = hasPermission(auth.permissions, 'delete academic years');

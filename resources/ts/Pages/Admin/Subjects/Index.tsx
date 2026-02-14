@@ -3,8 +3,9 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type PaginationType } from '@/types/datatable';
 import { type Subject, type PageProps, type Level } from '@/types';
-import { breadcrumbs, hasPermission } from '@/utils';
+import { hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section } from '@/Components';
 import { SubjectList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
@@ -16,6 +17,7 @@ interface Props extends PageProps {
 
 export default function SubjectIndex({ subjects, levels, auth }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
   const canCreate = hasPermission(auth.permissions, 'create subjects');
 
   const handleCreate = () => {

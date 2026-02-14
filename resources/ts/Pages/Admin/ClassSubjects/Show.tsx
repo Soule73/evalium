@@ -3,8 +3,9 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type ClassSubject, type PageProps, type User } from '@/types';
 import { type PaginationType } from '@/types/datatable';
-import { breadcrumbs, formatDate, hasPermission } from '@/utils';
+import { formatDate, hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Section, Badge, Stat, ActionGroup } from '@/Components';
 import { ClassSubjectHistoryList } from '@/Components/shared/lists';
 import {
@@ -23,6 +24,7 @@ interface Props extends PageProps {
 
 export default function ClassSubjectShow({ classSubject, history, teachers = [], auth }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
   const canUpdate = hasPermission(auth.permissions, 'update class subjects');
 
   const [replaceTeacherModal, setReplaceTeacherModal] = useState(false);

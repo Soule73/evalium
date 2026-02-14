@@ -3,8 +3,9 @@ import { type Assessment, type PageProps, type User } from '@/types';
 import { type PaginationType } from '@/types/datatable';
 import ShowUser from './ShowUser';
 import { DocumentTextIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
-import { breadcrumbs, hasPermission } from '@/utils';
+import { hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { usePage } from '@inertiajs/react';
 import { Section, Stat } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';
@@ -24,6 +25,7 @@ interface Props {
 export default function ShowTeacher({ user, assessments, stats }: Props) {
     const { auth } = usePage<PageProps>().props;
     const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
 
     const canDeleteUsers = hasPermission(auth.permissions, 'delete users');
     const canToggleStatus = hasPermission(auth.permissions, 'update users');

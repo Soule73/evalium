@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type ClassModel, type Enrollment, type ClassSubject, type Assessment, type AssessmentAssignment, type PageProps, type User } from '@/types';
 import { type PaginationType } from '@/types/datatable';
-import { breadcrumbs } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Section, Stat } from '@/Components';
 import { ClassSubjectList, AssessmentList, EnrollmentList } from '@/Components/shared/lists';
@@ -23,6 +23,7 @@ interface Props extends PageProps {
 
 export default function TeacherClassShow({ class: classItem, subjects, assessments, students }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const translations = useMemo(() => ({
     showSubtitle: t('teacher_class_pages.show.show_subtitle'),

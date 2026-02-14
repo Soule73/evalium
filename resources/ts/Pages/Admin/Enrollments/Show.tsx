@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Enrollment, type ClassModel, type PageProps, type PaginationType, type SubjectGrade, type OverallStats } from '@/types';
-import { breadcrumbs, formatDate, hasPermission } from '@/utils';
+import { formatDate, hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section, Badge, Stat } from '@/Components';
 import { SubjectGradeList } from '@/Components/shared/lists/SubjectGradeList';
 import { TransferEnrollmentModal, WithdrawEnrollmentModal } from '@/Components/features';
@@ -23,6 +24,7 @@ interface Props extends PageProps {
 }
 export default function EnrollmentShow({ enrollment, classes, subjects, overallStats, auth }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
   const canUpdate = hasPermission(auth.permissions, 'update enrollments');
 
   const [transferModalOpen, setTransferModalOpen] = useState(false);

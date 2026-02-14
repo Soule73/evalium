@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { breadcrumbs } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { type Level } from '@/types';
 import { LevelForm } from '@/Components/features/levels';
 
@@ -11,6 +11,7 @@ interface Props {
 
 export default function EditLevel({ level }: Props) {
     const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
 
     const translations = useMemo(() => ({
         edit: t('admin_pages.levels.edit'),

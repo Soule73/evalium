@@ -3,14 +3,15 @@ import { router } from '@inertiajs/react';
 import { type FormDataConvertible } from '@inertiajs/core';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type AcademicYearFormData } from '@/types';
-import { breadcrumbs } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section } from '@/Components';
 import { Input, Checkbox } from '@/Components';
 import { route } from 'ziggy-js';
 
 export default function AcademicYearCreate() {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const [formData, setFormData] = useState<AcademicYearFormData>({
     name: '',

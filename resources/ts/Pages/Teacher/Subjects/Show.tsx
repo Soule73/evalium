@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Subject, type ClassModel, type ClassSubject, type Assessment, type PageProps } from '@/types';
 import { type PaginationType } from '@/types/datatable';
-import { breadcrumbs } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Section, Stat } from '@/Components';
 import { route } from 'ziggy-js';
@@ -26,6 +26,7 @@ interface Props extends PageProps {
 
 export default function TeacherSubjectShow({ subject, assessments }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const translations = useMemo(() => ({
     back: t('teacher_subject_pages.show.back'),

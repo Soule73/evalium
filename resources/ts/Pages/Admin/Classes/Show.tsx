@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type ClassModel, type Assessment, type Enrollment, type ClassSubject, type PageProps, type PaginationType } from '@/types';
-import { breadcrumbs, hasPermission } from '@/utils';
+import { hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section, Badge, ConfirmationModal, Stat } from '@/Components';
 import { EnrollmentList, ClassSubjectList, AssessmentList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
@@ -50,6 +51,7 @@ export default function ClassShow({
 }: Props) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const canUpdate = hasPermission(auth.permissions, 'update classes');
   const canDelete = hasPermission(auth.permissions, 'delete classes');

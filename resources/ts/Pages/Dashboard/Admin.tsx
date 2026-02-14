@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type User } from '@/types';
 import { BookOpenIcon, UserGroupIcon } from '@heroicons/react/24/outline';
-import { breadcrumbs } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Stat } from '@/Components';
 
@@ -20,6 +20,7 @@ interface Props {
 
 export default function AdminDashboard({ stats }: Props) {
     const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
 
     return (
         <AuthenticatedLayout title={t('dashboard.title.admin')}

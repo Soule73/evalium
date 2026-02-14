@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type ClassModel, type Level } from '@/types';
-import { breadcrumbs } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { ClassForm } from '@/Components/features/classes';
 import { route } from 'ziggy-js';
 
@@ -14,6 +14,7 @@ interface Props {
 
 export default function ClassEdit({ class: classItem, levels }: Props) {
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const translations = useMemo(() => ({
     editTitle: t('admin_pages.classes.edit_title'),

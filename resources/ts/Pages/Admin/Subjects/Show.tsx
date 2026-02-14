@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Subject, type ClassSubject, type PageProps, type PaginationType } from '@/types';
-import { breadcrumbs, hasPermission } from '@/utils';
+import { hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section, ConfirmationModal } from '@/Components';
 import { Badge, Stat } from '@examena/ui';
 import { SubjectList } from '@/Components/shared/lists';
@@ -18,6 +19,7 @@ interface Props extends PageProps {
 export default function SubjectShow({ subject, classSubjects, auth }: Props) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { t } = useTranslations();
+  const breadcrumbs = useBreadcrumbs();
 
   const canUpdate = hasPermission(auth.permissions, 'update subjects');
   const canDelete = hasPermission(auth.permissions, 'delete subjects') && subject.can_delete;
