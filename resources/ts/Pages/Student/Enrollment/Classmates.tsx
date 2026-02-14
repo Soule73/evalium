@@ -5,7 +5,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Enrollment, type User, type PageProps } from '@/types';
 import type { PaginationType } from '@/types/datatable';
 import { Button, Section } from '@/Components';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 import { UserList } from '@/Components/shared/lists';
 
@@ -15,19 +15,19 @@ interface StudentEnrollmentClassmatesProps extends PageProps {
 }
 
 export default function Classmates({ enrollment, classmates }: StudentEnrollmentClassmatesProps) {
+  const { t } = useTranslations();
+
   const translations = useMemo(
     () => ({
-      title: trans('student_enrollment_pages.classmates.title'),
-      subtitle: trans('student_enrollment_pages.classmates.subtitle', {
-        class: enrollment.class?.name || '-',
-      }),
-      backToEnrollment: trans('student_enrollment_pages.classmates.back_to_enrollment'),
-      classmatesCount: trans('student_enrollment_pages.classmates.classmates_count', {
-        count: classmates.length,
-      }),
+      title: t('student_enrollment_pages.classmates.title'),
+      backToEnrollment: t('student_enrollment_pages.classmates.back_to_enrollment'),
     }),
-    [enrollment.class?.name, classmates.length]
+    [t]
   );
+
+  const classmatesCountTranslation = useMemo(() => t('student_enrollment_pages.classmates.classmates_count', { count: classmates.length }), [t, classmates.length]);
+
+  const subtitleTranslation = useMemo(() => t('student_enrollment_pages.classmates.subtitle', { class: enrollment.class?.name || '-' }), [t, enrollment.class?.name]);
 
   const paginatedClassmates: PaginationType<User> = {
     data: classmates,
@@ -48,8 +48,8 @@ export default function Classmates({ enrollment, classmates }: StudentEnrollment
   return (
     <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.student.enrollmentClassmates()}>
       <Section
-        title={translations.classmatesCount}
-        subtitle={translations.subtitle}
+        title={classmatesCountTranslation}
+        subtitle={subtitleTranslation}
         actions={
           <Button
             variant="outline"

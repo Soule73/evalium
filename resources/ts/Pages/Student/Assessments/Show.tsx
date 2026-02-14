@@ -11,7 +11,8 @@ import {
   Stat,
   TextEntry,
 } from '@/Components';
-import { trans, formatDate } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
+import { formatDate } from '@/utils';
 import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 import { ClockIcon, DocumentTextIcon, QuestionMarkCircleIcon, EyeIcon } from '@heroicons/react/24/outline';
 
@@ -22,74 +23,78 @@ interface StudentAssessmentShowProps extends PageProps {
 }
 
 export default function Show({ assessment, assignment, availability }: StudentAssessmentShowProps) {
+  const { t } = useTranslations();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isHomework = assessment.delivery_mode === 'homework';
   const hasStarted = !!assignment.started_at;
 
   const translations = useMemo(() => ({
-    title: trans('student_assessment_pages.show.title'),
-    backToAssessments: trans('student_assessment_pages.show.back_to_assessments'),
+    title: t('student_assessment_pages.show.title'),
+    backToAssessments: t('student_assessment_pages.show.back_to_assessments'),
+    subject: t('student_assessment_pages.show.subject'),
+    class: t('student_assessment_pages.show.class'),
+    teacher: t('student_assessment_pages.show.teacher'),
+    duration: t('student_assessment_pages.show.duration'),
+    minutes: t('student_assessment_pages.show.minutes'),
+    questions: t('student_assessment_pages.show.questions'),
+    status: t('student_assessment_pages.show.status'),
+    completed: t('student_assessment_pages.show.status_completed'),
+    graded: t('student_assessment_pages.show.status_graded'),
+    statusNotStarted: t('student_assessment_pages.show.status_not_started'),
+    importantDates: t('student_assessment_pages.show.important_dates'),
+    scheduledDate: t('student_assessment_pages.show.scheduled_date'),
+    dueDate: t('student_assessment_pages.show.due_date'),
+    submittedDate: t('student_assessment_pages.show.submitted_date'),
+    importantTitle: t('student_assessment_pages.show.important_title'),
+    alertStableConnection: t('student_assessment_pages.show.alert_stable_connection'),
+    alertFullscreen: t('student_assessment_pages.show.alert_fullscreen'),
+    alertCheating: t('student_assessment_pages.show.alert_cheating'),
+    alertAutoSave: t('student_assessment_pages.show.alert_auto_save'),
+    alertTimeLimit: t('student_assessment_pages.show.alert_time_limit'),
+    alertHomeworkMultiSession: t('student_assessment_pages.show.alert_homework_multi_session'),
+    alertHomeworkDueDate: t('student_assessment_pages.show.alert_homework_due_date'),
+    description: t('student_assessment_pages.show.description'),
+    noDescription: t('student_assessment_pages.show.no_description'),
+    viewResults: t('student_assessment_pages.show.view_results'),
+    startedDate: t('student_assessment_pages.show.started_date'),
+    assessmentUnavailable: t('student_assessment_pages.show.assessment_unavailable'),
+  }), [t]);
+
+  const statsTranslations = useMemo(() => ({
     startAssessment: isHomework
-      ? trans('student_assessment_pages.show.start_working')
-      : trans('student_assessment_pages.show.start_assessment'),
+      ? t('student_assessment_pages.show.start_working')
+      : t('student_assessment_pages.show.start_assessment'),
     continueAssessment: isHomework
-      ? trans('student_assessment_pages.show.continue_working')
-      : trans('student_assessment_pages.show.continue_assessment'),
+      ? t('student_assessment_pages.show.continue_working')
+      : t('student_assessment_pages.show.continue_assessment'),
     startModalTitle: isHomework
-      ? trans('student_assessment_pages.show.start_modal_title_homework')
-      : trans('student_assessment_pages.show.start_modal_title'),
+      ? t('student_assessment_pages.show.start_modal_title_homework')
+      : t('student_assessment_pages.show.start_modal_title'),
     startModalQuestion: isHomework
-      ? trans('student_assessment_pages.show.start_modal_question_homework')
-      : trans('student_assessment_pages.show.start_modal_question'),
+      ? t('student_assessment_pages.show.start_modal_question_homework')
+      : t('student_assessment_pages.show.start_modal_question'),
     startModalConfirm: isHomework
-      ? trans('student_assessment_pages.show.start_modal_confirm_homework')
-      : trans('student_assessment_pages.show.start_modal_confirm'),
-    subject: trans('student_assessment_pages.show.subject'),
-    class: trans('student_assessment_pages.show.class'),
-    teacher: trans('student_assessment_pages.show.teacher'),
-    duration: trans('student_assessment_pages.show.duration'),
-    minutes: trans('student_assessment_pages.show.minutes'),
-    questions: trans('student_assessment_pages.show.questions'),
-    status: trans('student_assessment_pages.show.status'),
-    completed: trans('student_assessment_pages.show.status_completed'),
-    graded: trans('student_assessment_pages.show.status_graded'),
-    statusNotStarted: trans('student_assessment_pages.show.status_not_started'),
-    importantDates: trans('student_assessment_pages.show.important_dates'),
-    scheduledDate: trans('student_assessment_pages.show.scheduled_date'),
-    dueDate: trans('student_assessment_pages.show.due_date'),
-    submittedDate: trans('student_assessment_pages.show.submitted_date'),
-    importantTitle: trans('student_assessment_pages.show.important_title'),
-    alertStableConnection: trans('student_assessment_pages.show.alert_stable_connection'),
-    alertFullscreen: trans('student_assessment_pages.show.alert_fullscreen'),
-    alertCheating: trans('student_assessment_pages.show.alert_cheating'),
-    alertAutoSave: trans('student_assessment_pages.show.alert_auto_save'),
-    alertTimeLimit: trans('student_assessment_pages.show.alert_time_limit'),
-    alertHomeworkMultiSession: trans('student_assessment_pages.show.alert_homework_multi_session'),
-    alertHomeworkDueDate: trans('student_assessment_pages.show.alert_homework_due_date'),
-    description: trans('student_assessment_pages.show.description'),
-    noDescription: trans('student_assessment_pages.show.no_description'),
-    viewResults: trans('student_assessment_pages.show.view_results'),
-    startedDate: trans('student_assessment_pages.show.started_date'),
-    assessmentUnavailable: trans('student_assessment_pages.show.assessment_unavailable'),
-  }), [isHomework]);
+      ? t('student_assessment_pages.show.start_modal_confirm_homework')
+      : t('student_assessment_pages.show.start_modal_confirm'),
+  }), [t, isHomework]);
 
 
   const statusValue = useMemo(() => {
     if (assignment.status === 'graded') return translations.graded;
     if (assignment.status === 'submitted') return translations.completed;
-    if (assignment.status === 'in_progress') return trans('student_assessment_pages.show.status_in_progress');
+    if (assignment.status === 'in_progress') return t('student_assessment_pages.show.status_in_progress');
     return translations.statusNotStarted;
-  }, [assignment.status, translations]);
+  }, [assignment.status, translations, t]);
 
   const isSubmitted = !!assignment.submitted_at;
   const canTake = !isSubmitted && availability.available;
 
-  const unavailabilityReasonMap: Record<string, string> = {
-    assessment_not_published: trans('messages.assessment_not_published'),
-    assessment_due_date_passed: trans('messages.assessment_due_date_passed'),
-    assessment_not_started: trans('messages.assessment_not_started'),
-    assessment_ended: trans('messages.assessment_ended'),
-  };
+  const unavailabilityReasonMap: Record<string, string> = useMemo(() => ({
+    assessment_not_published: t('messages.assessment_not_published'),
+    assessment_due_date_passed: t('messages.assessment_due_date_passed'),
+    assessment_not_started: t('messages.assessment_not_started'),
+    assessment_ended: t('messages.assessment_ended'),
+  }), [t]);
 
 
   const unavailabilityMessage = !isSubmitted && !availability.available && availability.reason
@@ -118,7 +123,7 @@ export default function Show({ assessment, assignment, availability }: StudentAs
   );
 
   const ctaLabel = canTake
-    ? (hasStarted ? translations.continueAssessment : translations.startAssessment)
+    ? (hasStarted ? statsTranslations.continueAssessment : statsTranslations.startAssessment)
     : null;
 
   const showViewResults = isSubmitted;
@@ -142,8 +147,8 @@ export default function Show({ assessment, assignment, availability }: StudentAs
         <div className="flex flex-col justify-between">
           <div className="mx-auto my-4 flex flex-col items-center">
             <QuestionMarkCircleIcon className="w-12 h-12 mb-3 text-yellow-500 mx-auto" />
-            <h2 className="text-lg font-semibold mb-2">{translations.startModalTitle}</h2>
-            <p>{translations.startModalQuestion}</p>
+            <h2 className="text-lg font-semibold mb-2">{statsTranslations.startModalTitle}</h2>
+            <p>{statsTranslations.startModalQuestion}</p>
           </div>
           {alertMessage}
           <div className="mt-4 flex justify-end space-x-2">
@@ -153,10 +158,10 @@ export default function Show({ assessment, assignment, availability }: StudentAs
               color="secondary"
               onClick={() => setIsModalOpen(false)}
             >
-              {trans('components.confirmation_modal.cancel')}
+              {t('components.confirmation_modal.cancel')}
             </Button>
             <Button size="sm" color="primary" onClick={handleStartAssessment}>
-              {translations.startModalConfirm}
+              {statsTranslations.startModalConfirm}
             </Button>
           </div>
         </div>

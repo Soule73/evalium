@@ -5,7 +5,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Enrollment, type PageProps } from '@/types';
 import { Button, EmptyState, Section } from '@/Components';
 import { EnrollmentList } from '@/Components/shared/lists';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 import { ClockIcon } from '@heroicons/react/24/outline';
 
@@ -14,15 +14,17 @@ interface StudentEnrollmentHistoryProps extends PageProps {
 }
 
 export default function History({ enrollments }: StudentEnrollmentHistoryProps) {
+  const { t } = useTranslations();
+
   const translations = useMemo(
     () => ({
-      title: trans('student_enrollment_pages.history.title'),
-      subtitle: trans('student_enrollment_pages.history.subtitle'),
-      backToCurrent: trans('student_enrollment_pages.history.back_to_current'),
-      emptyTitle: trans('student_enrollment_pages.history.empty_title'),
-      emptySubtitle: trans('student_enrollment_pages.history.empty_subtitle'),
+      title: t('student_enrollment_pages.history.title'),
+      subtitle: t('student_enrollment_pages.history.subtitle'),
+      backToCurrent: t('student_enrollment_pages.history.back_to_current'),
+      emptyTitle: t('student_enrollment_pages.history.empty_title'),
+      emptySubtitle: t('student_enrollment_pages.history.empty_subtitle'),
     }),
-    []
+    [t]
   );
 
   return (

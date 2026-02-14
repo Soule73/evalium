@@ -4,8 +4,10 @@ import { useAssessmentResults } from '@/hooks/features/assessment';
 import useAssessmentScoring from '@/hooks/features/assessment/useAssessmentScoring';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
+import { useMemo } from 'react';
 import { AlertEntry, Badge, Button, Section, QuestionRenderer, TextEntry } from '@/Components';
-import { trans, formatDate } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
+import { formatDate } from '@/utils';
 import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 
 interface Props {
@@ -15,6 +17,8 @@ interface Props {
 }
 
 const AssessmentResults: React.FC<Props> = ({ assessment, assignment, userAnswers }) => {
+  const { t } = useTranslations();
+
   const { isPendingReview, assignmentStatus, showCorrectAnswers, showResultsImmediately, assessmentIsActive, totalPoints, getQuestionResult } =
     useAssessmentResults({ assessment, assignment, userAnswers });
 
@@ -26,30 +30,31 @@ const AssessmentResults: React.FC<Props> = ({ assessment, assignment, userAnswer
     getQuestionResult,
   });
 
-  const translations = {
-    title: trans('student_assessment_pages.results.title', { assessment: assessment.title }),
-    sectionTitle: trans('student_assessment_pages.results.section_title'),
-    assessmentActive: trans('student_assessment_pages.results.assessment_active'),
-    assessmentDisabled: trans('student_assessment_pages.results.assessment_disabled'),
-    backToAssessments: trans('student_assessment_pages.results.back_to_assessments'),
-    answersDetail: trans('student_assessment_pages.results.answers_detail'),
-    teacherComments: trans('student_assessment_pages.results.teacher_comments'),
-    yourScore: trans('student_assessment_pages.results.your_score'),
-    percentage: trans('student_assessment_pages.results.percentage'),
-    status: trans('student_assessment_pages.results.status'),
-    submittedAt: trans('student_assessment_pages.results.submitted_at'),
-    gradedAt: trans('student_assessment_pages.results.graded_at'),
-    pendingReview: trans('student_assessment_pages.results.pending_review'),
-    graded: trans('student_assessment_pages.results.graded'),
-    subject: trans('student_assessment_pages.results.subject'),
-    class: trans('student_assessment_pages.results.class'),
-    teacher: trans('student_assessment_pages.results.teacher'),
-    resultsHiddenTitle: trans('student_assessment_pages.results.results_hidden_title'),
-    resultsHiddenMessage: trans('student_assessment_pages.results.results_hidden_message'),
-  };
+  const translations = useMemo(() => ({
+    sectionTitle: t('student_assessment_pages.results.section_title'),
+    assessmentActive: t('student_assessment_pages.results.assessment_active'),
+    assessmentDisabled: t('student_assessment_pages.results.assessment_disabled'),
+    backToAssessments: t('student_assessment_pages.results.back_to_assessments'),
+    answersDetail: t('student_assessment_pages.results.answers_detail'),
+    teacherComments: t('student_assessment_pages.results.teacher_comments'),
+    yourScore: t('student_assessment_pages.results.your_score'),
+    percentage: t('student_assessment_pages.results.percentage'),
+    status: t('student_assessment_pages.results.status'),
+    submittedAt: t('student_assessment_pages.results.submitted_at'),
+    gradedAt: t('student_assessment_pages.results.graded_at'),
+    pendingReview: t('student_assessment_pages.results.pending_review'),
+    graded: t('student_assessment_pages.results.graded'),
+    subject: t('student_assessment_pages.results.subject'),
+    class: t('student_assessment_pages.results.class'),
+    teacher: t('student_assessment_pages.results.teacher'),
+    resultsHiddenTitle: t('student_assessment_pages.results.results_hidden_title'),
+    resultsHiddenMessage: t('student_assessment_pages.results.results_hidden_message'),
+  }), [t]);
+
+  const titleTranslation = useMemo(() => t('student_assessment_pages.results.title', { assessment: assessment.title }), [t, assessment.title]);
 
   return (
-    <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.student.assessmentResults(assessment)}>
+    <AuthenticatedLayout title={titleTranslation} breadcrumb={breadcrumbs.student.assessmentResults(assessment)}>
       <Section
         title={translations.sectionTitle}
         subtitle={

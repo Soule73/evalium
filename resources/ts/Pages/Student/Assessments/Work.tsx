@@ -14,7 +14,8 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Answer, type Assessment, type AssessmentAssignment, type AssignmentAttachment, type Question } from '@/types';
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { useAssessmentAnswers, useAssessmentAnswerSave, useAssessmentSubmission, useQuestionNavigation } from '@/hooks/features/assessment';
-import { formatDate, trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
+import { formatDate } from '@/utils';
 import { breadcrumbs } from '@/utils/helpers/breadcrumbs';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -30,6 +31,7 @@ interface WorkProps {
 }
 
 function Work({ assessment, assignment, questions = [], userAnswers = [], attachments: initialAttachments = [] }: WorkProps) {
+  const { t } = useTranslations();
   const [savingStatus, setSavingStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [fileAttachments, setFileAttachments] = useState<AssignmentAttachment[]>(initialAttachments);
 
@@ -115,27 +117,28 @@ function Work({ assessment, assignment, questions = [], userAnswers = [], attach
   }, [submitAssessment]);
 
   const translations = useMemo(() => ({
-    title: trans('student_assessment_pages.work.title', { assessment: assessment.title }),
-    submitWork: trans('student_assessment_pages.work.submit_work'),
-    submitting: trans('student_assessment_pages.work.submitting'),
-    saveProgress: trans('student_assessment_pages.work.save_progress'),
-    saving: trans('student_assessment_pages.work.saving'),
-    saved: trans('student_assessment_pages.work.saved'),
-    saveError: trans('student_assessment_pages.work.save_error'),
-    dueDateLabel: trans('student_assessment_pages.work.due_date_label'),
-    autoSaveNotice: trans('student_assessment_pages.work.auto_save_notice'),
-    homeworkInstructions: trans('student_assessment_pages.work.homework_instructions'),
-    instructionMultiSession: trans('student_assessment_pages.work.instruction_multi_session'),
-    instructionAutoSave: trans('student_assessment_pages.work.instruction_auto_save'),
-    instructionDueDate: trans('student_assessment_pages.work.instruction_due_date'),
-    confirmSubmitTitle: trans('student_assessment_pages.work.confirm_submit_title'),
-    confirmSubmitMessage: trans('student_assessment_pages.work.confirm_submit_message'),
-    confirmSubmitCheck: trans('student_assessment_pages.work.confirm_submit_check'),
-    noQuestionsTitle: trans('student_assessment_pages.work.no_questions_title'),
-    noQuestionsMessage: trans('student_assessment_pages.work.no_questions_message'),
-    modalConfirmText: trans('components.confirmation_modal.confirm'),
-    modalCancelText: trans('components.confirmation_modal.cancel'),
-  }), [assessment.title]);
+    submitWork: t('student_assessment_pages.work.submit_work'),
+    submitting: t('student_assessment_pages.work.submitting'),
+    saveProgress: t('student_assessment_pages.work.save_progress'),
+    saving: t('student_assessment_pages.work.saving'),
+    saved: t('student_assessment_pages.work.saved'),
+    saveError: t('student_assessment_pages.work.save_error'),
+    dueDateLabel: t('student_assessment_pages.work.due_date_label'),
+    autoSaveNotice: t('student_assessment_pages.work.auto_save_notice'),
+    homeworkInstructions: t('student_assessment_pages.work.homework_instructions'),
+    instructionMultiSession: t('student_assessment_pages.work.instruction_multi_session'),
+    instructionAutoSave: t('student_assessment_pages.work.instruction_auto_save'),
+    instructionDueDate: t('student_assessment_pages.work.instruction_due_date'),
+    confirmSubmitTitle: t('student_assessment_pages.work.confirm_submit_title'),
+    confirmSubmitMessage: t('student_assessment_pages.work.confirm_submit_message'),
+    confirmSubmitCheck: t('student_assessment_pages.work.confirm_submit_check'),
+    noQuestionsTitle: t('student_assessment_pages.work.no_questions_title'),
+    noQuestionsMessage: t('student_assessment_pages.work.no_questions_message'),
+    modalConfirmText: t('components.confirmation_modal.confirm'),
+    modalCancelText: t('components.confirmation_modal.cancel'),
+  }), [t]);
+
+  const titleTranslation = useMemo(() => t('student_assessment_pages.work.title', { assessment: assessment.title }), [t, assessment.title]);
 
   const saveButtonLabel = useMemo(() => {
     switch (savingStatus) {
@@ -150,8 +153,8 @@ function Work({ assessment, assignment, questions = [], userAnswers = [], attach
     return (
       <AuthenticatedLayout title={assessment.title} breadcrumb={breadcrumbs.student.assessmentWork(assessment)}>
         <Section title={assessment.title}>
-          <AlertEntry type="info" title={trans('student_assessment_pages.take.assessment_terminated_title')}>
-            <p>{trans('student_assessment_pages.take.assessment_already_submitted')}</p>
+          <AlertEntry type="info" title={t('student_assessment_pages.take.assessment_terminated_title')}>
+            <p>{t('student_assessment_pages.take.assessment_already_submitted')}</p>
           </AlertEntry>
           <div className="mt-4">
             <Button
@@ -160,7 +163,7 @@ function Work({ assessment, assignment, questions = [], userAnswers = [], attach
               variant="outline"
               onClick={() => router.visit(route('student.assessments.index'))}
             >
-              {trans('student_assessment_pages.results.back_to_assessments')}
+              {t('student_assessment_pages.results.back_to_assessments')}
             </Button>
           </div>
         </Section>
@@ -182,7 +185,7 @@ function Work({ assessment, assignment, questions = [], userAnswers = [], attach
 
   return (
     <AuthenticatedLayout title={assessment.title} breadcrumb={breadcrumbs.student.assessmentWork(assessment)}>
-      <Head title={translations.title} />
+      <Head title={titleTranslation} />
 
       <div className="space-y-6">
         <Section
@@ -218,11 +221,11 @@ function Work({ assessment, assignment, questions = [], userAnswers = [], attach
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <TextEntry
-                label={trans('student_assessment_pages.show.subject')}
+                label={t('student_assessment_pages.show.subject')}
                 value={assessment.class_subject?.subject?.name || '-'}
               />
               <TextEntry
-                label={trans('student_assessment_pages.show.teacher')}
+                label={t('student_assessment_pages.show.teacher')}
                 value={assessment.class_subject?.teacher?.name || '-'}
               />
               {assessment.due_date && (
