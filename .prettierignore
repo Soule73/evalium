@@ -1,0 +1,12 @@
+vendor
+node_modules
+public
+storage
+bootstrap/cache
+*.blade.php
+*.md
+*.log
+coverage
+playwright-report
+test-results
+dist
