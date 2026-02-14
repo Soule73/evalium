@@ -1,5 +1,6 @@
 import { type Assessment } from '@/types';
-import { trans, formatDate } from '@/utils';
+import { formatDate } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import {
   DocumentTextIcon,
   ClockIcon,
@@ -13,17 +14,18 @@ interface AssessmentCardProps {
 }
 
 export function AssessmentCard({ assessment, onClick }: AssessmentCardProps) {
+  const { t } = useTranslations();
   const completionRate = assessment.assignments_count && assessment.assignments_count > 0
     ? (assessment.completed_assignments_count || 0) / assessment.assignments_count
     : 0;
 
   const statusBadge = assessment.is_published
-    ? { color: 'bg-green-100 text-green-800', label: trans('teacher_pages.assessments.filters.published') }
-    : { color: 'bg-gray-100 text-gray-800', label: trans('teacher_pages.assessments.filters.draft') };
+    ? { color: 'bg-green-100 text-green-800', label: t('teacher_pages.assessments.filters.published') }
+    : { color: 'bg-gray-100 text-gray-800', label: t('teacher_pages.assessments.filters.draft') };
 
   const typeBadge = {
     color: 'bg-blue-100 text-blue-800',
-    label: trans(`teacher_pages.assessments.types.${assessment.type}`)
+    label: t(`teacher_pages.assessments.types.${assessment.type}`)
   };
 
   return (
@@ -63,18 +65,18 @@ export function AssessmentCard({ assessment, onClick }: AssessmentCardProps) {
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <ClockIcon className="w-4 h-4 mr-2" />
-          <span>{assessment.duration_minutes} {trans('teacher_pages.assessments.minutes')}</span>
+          <span>{assessment.duration_minutes} {t('teacher_pages.assessments.minutes')}</span>
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <DocumentTextIcon className="w-4 h-4 mr-2" />
           <span>
-            {assessment.questions_count || 0} {trans('teacher_pages.assessments.card.questions')}
+            {assessment.questions_count || 0} {t('teacher_pages.assessments.card.questions')}
           </span>
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <CheckCircleIcon className="w-4 h-4 mr-2" />
           <span>
-            {trans('teacher_pages.assessments.card.coefficient')}: {assessment.coefficient}
+            {t('teacher_pages.assessments.card.coefficient')}: {assessment.coefficient}
           </span>
         </div>
       </div>
@@ -82,7 +84,7 @@ export function AssessmentCard({ assessment, onClick }: AssessmentCardProps) {
       <div className="border-t border-gray-200 pt-4">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm text-gray-600">
-            {trans('teacher_pages.assessments.card.completion')}
+            {t('teacher_pages.assessments.card.completion')}
           </span>
           <span className="text-sm font-medium text-gray-900">
             {assessment.completed_assignments_count || 0}/{assessment.assignments_count || 0}

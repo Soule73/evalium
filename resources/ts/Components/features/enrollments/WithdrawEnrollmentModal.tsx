@@ -1,7 +1,7 @@
 import { type FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { type Enrollment } from '@/types';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Modal } from '@/Components';
 import { route } from 'ziggy-js';
 
@@ -20,6 +20,7 @@ export function WithdrawEnrollmentModal({
   enrollment,
 }: WithdrawEnrollmentModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslations();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -45,22 +46,22 @@ export function WithdrawEnrollmentModal({
     <Modal
       isOpen={isOpen}
       onClose={resetAndClose}
-      title={trans('admin_pages.enrollments.withdraw_title')}
+      title={t('admin_pages.enrollments.withdraw_title')}
       size="sm"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="p-4 ">
           <div className="text-sm">
             <div className="font-medium text-blue-900 mb-2">
-              {trans('admin_pages.enrollments.current_enrollment')}
+              {t('admin_pages.enrollments.current_enrollment')}
             </div>
             <div className="text-blue-800 space-y-1">
               <div>
-                <span className="font-medium">{trans('admin_pages.enrollments.student')}:</span>{' '}
+                <span className="font-medium">{t('admin_pages.enrollments.student')}:</span>{' '}
                 {enrollment.student?.name}
               </div>
               <div>
-                <span className="font-medium">{trans('admin_pages.enrollments.class')}:</span>{' '}
+                <span className="font-medium">{t('admin_pages.enrollments.class')}:</span>{' '}
                 {enrollment.class?.name} ({enrollment.class?.level?.name})
               </div>
             </div>
@@ -69,7 +70,7 @@ export function WithdrawEnrollmentModal({
 
         <div className="p-4">
           <p className="text-sm text-red-800">
-            {trans('admin_pages.enrollments.withdraw_confirm_message')}
+            {t('admin_pages.enrollments.withdraw_confirm_message')}
           </p>
         </div>
 
@@ -81,7 +82,7 @@ export function WithdrawEnrollmentModal({
             onClick={resetAndClose}
             disabled={isSubmitting}
           >
-            {trans('admin_pages.common.cancel')}
+            {t('admin_pages.common.cancel')}
           </Button>
           <Button
             type="submit"
@@ -90,8 +91,8 @@ export function WithdrawEnrollmentModal({
             disabled={isSubmitting}
           >
             {isSubmitting
-              ? trans('admin_pages.common.processing')
-              : trans('admin_pages.enrollments.withdraw_confirm')}
+              ? t('admin_pages.common.processing')
+              : t('admin_pages.enrollments.withdraw_confirm')}
           </Button>
         </div>
       </form>

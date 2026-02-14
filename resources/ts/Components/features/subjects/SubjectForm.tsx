@@ -2,7 +2,7 @@ import { type FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { type FormDataConvertible } from '@inertiajs/core';
 import { type SubjectFormData, type Level, type Subject } from '@/types';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Input, Section, Select } from '@examena/ui';
 import { route } from 'ziggy-js';
 
@@ -29,6 +29,7 @@ export function SubjectForm({ title, subtitle, subject, levels, onCancel }: Subj
 
   const [errors, setErrors] = useState<Partial<Record<keyof SubjectFormData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslations();
 
   const handleChange = (field: keyof SubjectFormData, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -57,7 +58,7 @@ export function SubjectForm({ title, subtitle, subject, levels, onCancel }: Subj
   };
 
   const levelOptions = [
-    { value: 0, label: trans('admin_pages.subjects.select_level') },
+    { value: 0, label: t('admin_pages.subjects.select_level') },
     ...levels.map((level) => ({
       value: level.id,
       label: level.name,
@@ -66,11 +67,11 @@ export function SubjectForm({ title, subtitle, subject, levels, onCancel }: Subj
 
   const submitButtonText = isEditMode
     ? isSubmitting
-      ? trans('admin_pages.subjects.updating')
-      : trans('admin_pages.subjects.update_button')
+      ? t('admin_pages.subjects.updating')
+      : t('admin_pages.subjects.update_button')
     : isSubmitting
-      ? trans('admin_pages.subjects.creating')
-      : trans('admin_pages.subjects.create_button');
+      ? t('admin_pages.subjects.creating')
+      : t('admin_pages.subjects.create_button');
 
   return (
     <form onSubmit={handleSubmit}>
@@ -78,7 +79,7 @@ export function SubjectForm({ title, subtitle, subject, levels, onCancel }: Subj
         actions={
           <div className="flex justify-end space-x-3">
             <Button type="button" variant="outline" color="secondary" onClick={onCancel} disabled={isSubmitting}>
-              {trans('admin_pages.common.cancel')}
+              {t('admin_pages.common.cancel')}
             </Button>
             <Button type="submit" variant="solid" color="primary" disabled={isSubmitting}>
               {submitButtonText}
@@ -90,28 +91,28 @@ export function SubjectForm({ title, subtitle, subject, levels, onCancel }: Subj
           <div className="grid grid-cols-1 gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
-                label={trans('admin_pages.subjects.name')}
+                label={t('admin_pages.subjects.name')}
                 name="name"
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
                 error={errors.name}
                 required
-                placeholder={trans('admin_pages.subjects.name_placeholder')}
+                placeholder={t('admin_pages.subjects.name_placeholder')}
               />
 
               <Input
-                label={trans('admin_pages.subjects.code')}
+                label={t('admin_pages.subjects.code')}
                 name="code"
                 value={formData.code}
                 onChange={(e) => handleChange('code', e.target.value)}
                 error={errors.code}
                 required
-                placeholder={trans('admin_pages.subjects.code_placeholder')}
+                placeholder={t('admin_pages.subjects.code_placeholder')}
               />
             </div>
 
             <Select
-              label={trans('admin_pages.subjects.level')}
+              label={t('admin_pages.subjects.level')}
               name="level_id"
               value={formData.level_id}
               onChange={(value) => handleChange('level_id', Number(value))}
@@ -121,13 +122,13 @@ export function SubjectForm({ title, subtitle, subject, levels, onCancel }: Subj
             />
 
             <Input
-              label={trans('admin_pages.subjects.description')}
+              label={t('admin_pages.subjects.description')}
               name="description"
               value={formData.description || ''}
               onChange={(e) => handleChange('description', e.target.value)}
               error={errors.description}
-              placeholder={trans('admin_pages.subjects.description_placeholder')}
-              helperText={trans('admin_pages.subjects.description_helper')}
+              placeholder={t('admin_pages.subjects.description_placeholder')}
+              helperText={t('admin_pages.subjects.description_helper')}
             />
           </div>
         </div>

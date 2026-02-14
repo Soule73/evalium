@@ -2,7 +2,7 @@ import { type FormEvent, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { type FormDataConvertible } from '@inertiajs/core';
 import { type ClassModel, type Level } from '@/types';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Input, Section, Select } from '@examena/ui';
 import { route } from 'ziggy-js';
 
@@ -34,6 +34,7 @@ export function ClassForm({
 
   const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslations();
 
   const handleChange = (field: keyof typeof formData, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -61,7 +62,7 @@ export function ClassForm({
     }
   };
 
-  const selectLevelLabel = trans('admin_pages.classes.select_level');
+  const selectLevelLabel = t('admin_pages.classes.select_level');
 
   const levelOptions = useMemo(() => [
     { value: 0, label: selectLevelLabel },
@@ -73,11 +74,11 @@ export function ClassForm({
 
   const submitButtonText = isEditMode
     ? isSubmitting
-      ? trans('admin_pages.classes.updating')
-      : trans('admin_pages.classes.update_button')
+      ? t('admin_pages.classes.updating')
+      : t('admin_pages.classes.update_button')
     : isSubmitting
-      ? trans('admin_pages.classes.creating')
-      : trans('admin_pages.classes.create_button');
+      ? t('admin_pages.classes.creating')
+      : t('admin_pages.classes.create_button');
 
   return (
     <Section
@@ -86,7 +87,7 @@ export function ClassForm({
       actions={
         <div className="flex justify-end space-x-3">
           <Button type="button" variant="outline" color="secondary" onClick={onCancel} disabled={isSubmitting}>
-            {trans('admin_pages.common.cancel')}
+            {t('admin_pages.common.cancel')}
           </Button>
           <Button type="submit" variant="solid" color="primary" disabled={isSubmitting} form="class-form">
             {submitButtonText}
@@ -97,18 +98,18 @@ export function ClassForm({
       <form id="class-form" onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 gap-6">
           <Input
-            label={trans('admin_pages.classes.name')}
+            label={t('admin_pages.classes.name')}
             name="name"
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
             error={errors.name}
             required
-            placeholder={trans('admin_pages.classes.name_placeholder')}
-            helperText={trans('admin_pages.classes.name_helper')}
+            placeholder={t('admin_pages.classes.name_placeholder')}
+            helperText={t('admin_pages.classes.name_helper')}
           />
 
           <Select
-            label={trans('admin_pages.classes.level')}
+            label={t('admin_pages.classes.level')}
             name="level_id"
             value={formData.level_id}
             onChange={(value) => handleChange('level_id', Number(value))}
@@ -118,7 +119,7 @@ export function ClassForm({
           />
 
           <Input
-            label={trans('admin_pages.classes.max_students')}
+            label={t('admin_pages.classes.max_students')}
             name="max_students"
             type="number"
             value={formData.max_students?.toString() || ''}
@@ -126,7 +127,7 @@ export function ClassForm({
             error={errors.max_students}
             required
             min={1}
-            helperText={trans('admin_pages.classes.max_students_helper')}
+            helperText={t('admin_pages.classes.max_students_helper')}
           />
         </div>
       </form>

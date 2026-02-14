@@ -1,7 +1,7 @@
 import { Checkbox, Section } from '@examena/ui';
 import { Button } from '@examena/ui';
 import { type GroupedPermissions } from '@/types/role';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface Props {
     groupedPermissions: GroupedPermissions;
@@ -26,11 +26,12 @@ export function PermissionSelector({
     onSync,
     isSubmitting = false,
 }: Props) {
+    const { t } = useTranslations();
     return (
         <div className="space-y-3" data-e2e="permission-selector">
             <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-gray-700">
-                    {trans('components.permission_selector.label', { count: selectedPermissions.length })}
+                    {t('components.permission_selector.label', { count: selectedPermissions.length })}
                 </label>
                 <div className="flex gap-2">
                     <Button
@@ -41,7 +42,7 @@ export function PermissionSelector({
                         color="secondary"
                         data-e2e="permission-select-all"
                     >
-                        {trans('components.permission_selector.select_all')}
+                        {t('components.permission_selector.select_all')}
                     </Button>
                     <Button
                         type="button"
@@ -51,7 +52,7 @@ export function PermissionSelector({
                         color="secondary"
                         data-e2e="permission-deselect-all"
                     >
-                        {trans('components.permission_selector.deselect_all')}
+                        {t('components.permission_selector.deselect_all')}
                     </Button>
                     {showSyncButton && onSync && (
                         <Button
@@ -62,7 +63,7 @@ export function PermissionSelector({
                             disabled={isSubmitting}
                             data-e2e="permission-sync-button"
                         >
-                            {trans('components.permission_selector.sync')}
+                            {t('components.permission_selector.sync')}
                         </Button>
                     )}
                 </div>
@@ -83,7 +84,7 @@ export function PermissionSelector({
                                     className="p-2 hover:bg-gray-50 rounded transition-colors"
                                 >
                                     <Checkbox
-                                        label={trans(`permissions.${permission.name}`)}
+                                        label={t(`permissions.${permission.name}`)}
                                         checked={selectedPermissions.includes(permission.id)}
                                         onChange={() => onPermissionToggle(permission.id)}
                                         data-e2e={`permission-checkbox-${permission.id}`}

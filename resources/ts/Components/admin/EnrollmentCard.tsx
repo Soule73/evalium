@@ -1,6 +1,7 @@
 import { Badge } from '@/Components';
 import { type Enrollment } from '@/types';
-import { trans, formatDate } from '@/utils';
+import { formatDate } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { UserIcon, AcademicCapIcon, CalendarIcon } from '@heroicons/react/24/outline';
 
 interface EnrollmentCardProps {
@@ -9,11 +10,12 @@ interface EnrollmentCardProps {
 }
 
 export function EnrollmentCard({ enrollment, onClick }: EnrollmentCardProps) {
+  const { t } = useTranslations();
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { type: 'success' | 'error' | 'warning' | 'info' | 'gray'; label: string }> = {
-      active: { type: 'success', label: trans('admin_pages.enrollments.status_active') },
-      transferred: { type: 'info', label: trans('admin_pages.enrollments.status_transferred') },
-      withdrawn: { type: 'gray', label: trans('admin_pages.enrollments.status_withdrawn') },
+      active: { type: 'success', label: t('admin_pages.enrollments.status_active') },
+      transferred: { type: 'info', label: t('admin_pages.enrollments.status_transferred') },
+      withdrawn: { type: 'gray', label: t('admin_pages.enrollments.status_withdrawn') },
     };
 
     const config = statusMap[status] || statusMap.active;
@@ -52,14 +54,14 @@ export function EnrollmentCard({ enrollment, onClick }: EnrollmentCardProps) {
         <div className="flex items-center space-x-2">
           <CalendarIcon className="w-4 h-4 text-gray-400" />
           <div className="text-sm text-gray-600">
-            {trans('admin_pages.enrollments.enrolled_on')}: {formatDate(enrollment.enrolled_at)}
+            {t('admin_pages.enrollments.enrolled_on')}: {formatDate(enrollment.enrolled_at)}
           </div>
         </div>
 
         {enrollment.status === 'withdrawn' && enrollment.left_date && (
           <div className="pt-3 border-t border-gray-100">
             <div className="text-xs text-gray-500">
-              {trans('admin_pages.enrollments.withdrawn_on')}: {formatDate(enrollment.left_date)}
+              {t('admin_pages.enrollments.withdrawn_on')}: {formatDate(enrollment.left_date)}
             </div>
           </div>
         )}
@@ -67,7 +69,7 @@ export function EnrollmentCard({ enrollment, onClick }: EnrollmentCardProps) {
         {enrollment.status === 'transferred' && enrollment.left_date && (
           <div className="pt-3 border-t border-gray-100">
             <div className="text-xs text-blue-600">
-              {trans('admin_pages.enrollments.transferred_on')}: {formatDate(enrollment.left_date)}
+              {t('admin_pages.enrollments.transferred_on')}: {formatDate(enrollment.left_date)}
             </div>
           </div>
         )}

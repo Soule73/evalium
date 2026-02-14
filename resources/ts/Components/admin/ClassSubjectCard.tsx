@@ -1,6 +1,7 @@
 import { Badge } from '@/Components';
 import { type ClassSubject } from '@/types';
-import { trans, formatDate } from '@/utils';
+import { formatDate } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { AcademicCapIcon, UserIcon, HashtagIcon, CalendarIcon } from '@heroicons/react/24/outline';
 
 interface ClassSubjectCardProps {
@@ -9,6 +10,7 @@ interface ClassSubjectCardProps {
 }
 
 export function ClassSubjectCard({ classSubject, onClick }: ClassSubjectCardProps) {
+  const { t } = useTranslations();
   const isActive = !classSubject.valid_to;
 
   return (
@@ -25,7 +27,7 @@ export function ClassSubjectCard({ classSubject, onClick }: ClassSubjectCardProp
           </h3>
         </div>
         <Badge
-          label={isActive ? trans('admin_pages.class_subjects.active') : trans('admin_pages.class_subjects.archived')}
+          label={isActive ? t('admin_pages.class_subjects.active') : t('admin_pages.class_subjects.archived')}
           type={isActive ? 'success' : 'gray'}
           size="sm"
         />
@@ -55,7 +57,7 @@ export function ClassSubjectCard({ classSubject, onClick }: ClassSubjectCardProp
           <div className="flex items-center space-x-2">
             <HashtagIcon className="w-4 h-4 text-gray-400" />
             <span className="text-sm text-gray-600">
-              {trans('admin_pages.class_subjects.coef')}:
+              {t('admin_pages.class_subjects.coef')}:
             </span>
             <Badge label={classSubject.coefficient.toString()} type="info" size="sm" />
           </div>
@@ -77,7 +79,7 @@ export function ClassSubjectCard({ classSubject, onClick }: ClassSubjectCardProp
 
         {classSubject.assessments_count !== undefined && (
           <div className="text-xs text-gray-500">
-            {classSubject.assessments_count} {trans('admin_pages.class_subjects.assessments')}
+            {classSubject.assessments_count} {t('admin_pages.class_subjects.assessments')}
           </div>
         )}
       </div>

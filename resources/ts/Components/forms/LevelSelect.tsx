@@ -1,4 +1,4 @@
-import { trans } from "@/utils";
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Select } from "../ui";
 
 interface LevelSelectProps {
@@ -16,9 +16,10 @@ export function LevelSelect({
     error,
     required = false
 }: LevelSelectProps) {
-    const label = trans('components.select.select_level');
-    const searchPlaceholder = trans('components.select.level_placeholder');
-    const noOptionFound = trans('components.select.no_option_found');
+    const { t } = useTranslations();
+    const label = t('components.select.select_level');
+    const searchPlaceholder = t('components.select.level_placeholder');
+    const noOptionFound = t('components.select.no_option_found');
 
 
     const levelOptions = [
