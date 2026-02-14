@@ -189,20 +189,6 @@ class LevelServiceTest extends TestCase
     }
 
     #[Test]
-    public function it_can_toggle_level_status(): void
-    {
-        $this->markTestSkipped('is_active column removed from levels table');
-
-        $level = $this->createLevel([]);
-
-        $toggledLevel = $this->levelService->toggleStatus($level);
-        $this->assertFalse($toggledLevel->is_active);
-
-        $toggledAgain = $this->levelService->toggleStatus($toggledLevel);
-        $this->assertTrue($toggledAgain->is_active);
-    }
-
-    #[Test]
     public function it_invalidates_cache_when_toggling_status(): void
     {
         $level = $this->createLevel([]);

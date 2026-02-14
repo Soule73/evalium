@@ -24,18 +24,6 @@ class UserManagementServiceTest extends TestCase
     }
 
     #[Test]
-    public function it_can_get_active_groups_with_levels()
-    {
-        $this->markTestSkipped('is_active column removed from classes table');
-    }
-
-    #[Test]
-    public function it_caches_active_groups_with_levels()
-    {
-        $this->markTestSkipped('is_active column removed from classes table');
-    }
-
-    #[Test]
     public function it_can_restore_a_soft_deleted_user()
     {
         $user = $this->createStudent(['name' => 'Deleted User']);
@@ -176,12 +164,6 @@ class UserManagementServiceTest extends TestCase
     }
 
     #[Test]
-    public function it_can_create_user_with_notification()
-    {
-        $this->markTestSkipped('Test needs refactoring - group_id parameter removed from user creation');
-    }
-
-    #[Test]
     public function it_can_update_user()
     {
         $user = $this->createStudent(['name' => 'Old Name']);
@@ -209,23 +191,5 @@ class UserManagementServiceTest extends TestCase
         $this->service->delete($user);
 
         $this->assertSoftDeleted('users', ['id' => $user->id]);
-    }
-
-    #[Test]
-    public function it_can_toggle_user_status()
-    {
-        $this->markTestSkipped('Test needs refactoring - toggleStatus does not refresh the passed instance');
-    }
-
-    #[Test]
-    public function it_can_change_student_group()
-    {
-        $this->markTestSkipped('changeStudentGroup method has been removed or refactored');
-    }
-
-    #[Test]
-    public function it_throws_exception_when_changing_group_for_non_student()
-    {
-        $this->markTestSkipped('changeStudentGroup method has been removed or refactored');
     }
 }
