@@ -79,7 +79,7 @@ const AssessmentInfoSection: React.FC<AssessmentInfoSectionProps> = ({
                     label={trans('components.assessment_info_section.submitted_on')}
                     value={assignment?.submitted_at ? formatDate(assignment.submitted_at, 'datetime') : '-'}
                 />
-                <TextEntry label={trans('components.assessment_info_section.duration_label')} value={formatDuration(assessment?.duration_minutes)} />
+                <TextEntry label={trans('components.assessment_info_section.duration_label')} value={formatDuration(assessment?.duration_minutes ?? 0)} />
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3 border-t border-gray-300 pt-4 pb-4 mt-4">

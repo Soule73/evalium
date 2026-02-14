@@ -257,4 +257,84 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertRedirect(route('login'));
     }
+
+    public function test_super_admin_can_view_assessment_show(): void
+    {
+        $superAdmin = $this->createSuperAdmin();
+
+        $response = $this->actingAs($superAdmin)
+            ->get(route('admin.assessments.show', $this->assessment));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('Assessments/Show')
+                ->has('assessment')
+                ->has('routeContext')
+                ->where('routeContext.role', 'admin')
+        );
+    }
+
+    public function test_super_admin_can_view_review(): void
+    {
+        $superAdmin = $this->createSuperAdmin();
+        $assignment = AssessmentAssignment::factory()->graded()->create([
+            'assessment_id' => $this->assessment->id,
+            'student_id' => $this->student->id,
+        ]);
+
+        $response = $this->actingAs($superAdmin)
+            ->get(route('admin.assessments.review', [$this->assessment, $assignment]));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('Assessments/Review')
+                ->where('routeContext.role', 'admin')
+        );
+    }
+
+    public function test_super_admin_can_view_grade(): void
+    {
+        $superAdmin = $this->createSuperAdmin();
+        $assignment = AssessmentAssignment::factory()->submitted()->create([
+            'assessment_id' => $this->assessment->id,
+            'student_id' => $this->student->id,
+        ]);
+
+        $response = $this->actingAs($superAdmin)
+            ->get(route('admin.assessments.grade', [$this->assessment, $assignment]));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('Assessments/Grade')
+                ->where('routeContext.role', 'admin')
+        );
+    }
+
+    public function test_super_admin_can_save_grade(): void
+    {
+        $superAdmin = $this->createSuperAdmin();
+        $question = Question::factory()->create([
+            'assessment_id' => $this->assessment->id,
+            'points' => 10,
+        ]);
+
+        $assignment = AssessmentAssignment::factory()->submitted()->create([
+            'assessment_id' => $this->assessment->id,
+            'student_id' => $this->student->id,
+        ]);
+
+        $response = $this->actingAs($superAdmin)
+            ->post(route('admin.assessments.saveGrade', [$this->assessment, $assignment]), [
+                'scores' => [
+                    ['question_id' => $question->id, 'score' => 9, 'feedback' => 'Excellent'],
+                ],
+                'teacher_notes' => 'Great performance',
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+    }
 }

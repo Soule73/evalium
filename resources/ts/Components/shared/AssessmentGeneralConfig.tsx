@@ -77,9 +77,10 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
     label: `${cs.class?.name} - ${cs.subject?.name}`
   }));
 
-  const handleTypeChange = (value: string) => {
-    onFieldChange('type', value);
-    const suggestedMode = DEFAULT_DELIVERY_MODES[value] || 'homework';
+  const handleTypeChange = (value: string | number) => {
+    const stringValue = String(value);
+    onFieldChange('type', stringValue);
+    const suggestedMode = DEFAULT_DELIVERY_MODES[stringValue] || 'homework';
     onFieldChange('delivery_mode', suggestedMode);
   };
 

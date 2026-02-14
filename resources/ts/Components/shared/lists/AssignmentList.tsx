@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { Assessment, AssessmentAssignment } from '@/types';
+import { Assessment, AssessmentAssignment, AssessmentRouteContext } from '@/types';
 import { Badge, Button } from '@examena/ui';
 import { ConfirmationModal, Textarea } from '@/Components';
 import { formatDate, trans } from '@/utils';
@@ -19,6 +19,7 @@ interface AssignmentListProps {
   data: PaginationType<AssignmentWithVirtual>;
   assessment: Assessment;
   totalPoints: number;
+  routeContext?: AssessmentRouteContext;
   onGrade?: (assignment: AssignmentWithVirtual) => void;
   onViewResult?: (assignment: AssignmentWithVirtual) => void;
 }
@@ -37,6 +38,7 @@ export function AssignmentList({
   data,
   assessment,
   totalPoints,
+  routeContext,
   onGrade,
   onViewResult,
 }: AssignmentListProps) {
@@ -47,12 +49,15 @@ export function AssignmentList({
 
   const isSupervisedMode = assessment.delivery_mode === 'supervised';
 
+  const hasReopenRoute = !routeContext || routeContext.reopenRoute;
+
   const canReopenAssignment = useCallback((assignment: AssignmentWithVirtual): boolean => {
+    if (!hasReopenRoute) return false;
     if (!isSupervisedMode || assignment.is_virtual || !assignment.started_at) return false;
     if (!assignment.submitted_at) return false;
     if (assignment.forced_submission || assignment.security_violation) return true;
     return false;
-  }, [isSupervisedMode]);
+  }, [isSupervisedMode, hasReopenRoute]);
 
   const handleReopenConfirm = useCallback(async () => {
     if (!reopenTarget || !reopenReason.trim()) return;
@@ -60,8 +65,9 @@ export function AssignmentList({
     setReopenError(null);
 
     try {
+      const reopenRouteName = routeContext?.reopenRoute || 'teacher.assessments.reopen';
       await axios.post(
-        route('teacher.assessments.reopen', { assessment: assessment.id, assignment: reopenTarget.id }),
+        route(reopenRouteName, { assessment: assessment.id, assignment: reopenTarget.id }),
         { reason: reopenReason }
       );
       setReopenTarget(null);
@@ -97,7 +103,8 @@ export function AssignmentList({
     if (onGrade) {
       onGrade(assignment);
     } else {
-      router.visit(route('teacher.assessments.grade', {
+      const gradeRouteName = routeContext?.gradeRoute || 'teacher.assessments.grade';
+      router.visit(route(gradeRouteName, {
         assessment: assessment.id,
         assignment: assignment.id,
       }));
@@ -110,7 +117,8 @@ export function AssignmentList({
     if (onViewResult) {
       onViewResult(assignment);
     } else {
-      router.visit(route('teacher.assessments.review', {
+      const reviewRouteName = routeContext?.reviewRoute || 'teacher.assessments.review';
+      router.visit(route(reviewRouteName, {
         assessment: assessment.id,
         assignment: assignment.id,
       }));

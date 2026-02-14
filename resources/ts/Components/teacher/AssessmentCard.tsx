@@ -59,7 +59,7 @@ export function AssessmentCard({ assessment, onClick }: AssessmentCardProps) {
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="flex items-center text-sm text-gray-600">
           <CalendarDaysIcon className="w-4 h-4 mr-2" />
-          <span>{formatDate(assessment.scheduled_at)}</span>
+          <span>{formatDate(assessment.scheduled_at ?? '') || '-'}</span>
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <ClockIcon className="w-4 h-4 mr-2" />

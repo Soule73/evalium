@@ -212,7 +212,7 @@ Route::middleware('auth')->group(function () {
              */
             Route::prefix('assessments')
                 ->name('assessments.')
-                ->middleware('role:admin')
+                ->middleware('role:admin,super_admin')
                 ->controller(\App\Http\Controllers\Admin\AdminAssessmentController::class)
                 ->group(function () {
                     Route::get('/', 'index')->name('index');

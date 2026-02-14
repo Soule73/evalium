@@ -31,156 +31,157 @@ use Inertia\Response;
  */
 class AdminAssessmentController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests, HasFlashMessages;
+  use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests, HasFlashMessages;
 
-    public function __construct(
-        private readonly AdminAssessmentQueryService $assessmentQueryService,
-        private readonly TeacherAssessmentQueryService $teacherAssessmentQueryService,
-        private readonly GradingQueryService $gradingQueryService,
-        private readonly AnswerFormatterService $answerFormatterService,
-        private readonly ScoringService $scoringService
-    ) {}
+  public function __construct(
+    private readonly AdminAssessmentQueryService $assessmentQueryService,
+    private readonly TeacherAssessmentQueryService $teacherAssessmentQueryService,
+    private readonly GradingQueryService $gradingQueryService,
+    private readonly AnswerFormatterService $answerFormatterService,
+    private readonly ScoringService $scoringService
+  ) {}
 
-    /**
-     * Display a listing of all assessments across the platform.
-     */
-    public function index(Request $request): Response
-    {
-        $this->authorize('viewAny', Assessment::class);
+  /**
+   * Display a listing of all assessments across the platform.
+   */
+  public function index(Request $request): Response
+  {
+    $this->authorize('viewAny', Assessment::class);
 
-        $selectedYearId = $this->getSelectedAcademicYearId($request);
+    $selectedYearId = $this->getSelectedAcademicYearId($request);
 
-        ['filters' => $filters, 'per_page' => $perPage] = $this->extractIndexParams(
-            $request,
-            ['search', 'class_id', 'subject_id', 'teacher_id', 'type', 'delivery_mode']
-        );
+    ['filters' => $filters, 'per_page' => $perPage] = $this->extractIndexParams(
+      $request,
+      ['search', 'class_id', 'subject_id', 'teacher_id', 'type', 'delivery_mode']
+    );
 
-        $assessments = $this->assessmentQueryService->getAllAssessments(
-            $selectedYearId,
-            $filters,
-            $perPage
-        );
+    $assessments = $this->assessmentQueryService->getAllAssessments(
+      $selectedYearId,
+      $filters,
+      $perPage
+    );
 
-        $classes = ClassModel::query()
-            ->when($selectedYearId, fn ($q, $id) => $q->where('academic_year_id', $id))
-            ->orderBy('name')
-            ->get(['id', 'name']);
+    $classes = ClassModel::query()
+      ->when($selectedYearId, fn($q, $id) => $q->where('academic_year_id', $id))
+      ->orderBy('name')
+      ->get(['id', 'name']);
 
-        $subjects = Subject::orderBy('name')->get(['id', 'name']);
+    $subjects = Subject::orderBy('name')->get(['id', 'name']);
 
-        $teachers = User::role('teacher')
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name']);
+    $teachers = User::role('teacher')
+      ->where('is_active', true)
+      ->orderBy('name')
+      ->get(['id', 'name']);
 
-        return Inertia::render('Admin/Assessments/Index', [
-            'assessments' => $assessments,
-            'filters' => $filters,
-            'classes' => $classes,
-            'subjects' => $subjects,
-            'teachers' => $teachers,
-        ]);
-    }
+    return Inertia::render('Admin/Assessments/Index', [
+      'assessments' => $assessments,
+      'filters' => $filters,
+      'classes' => $classes,
+      'subjects' => $subjects,
+      'teachers' => $teachers,
+    ]);
+  }
 
-    /**
-     * Display the specified assessment with assignments listing.
-     */
-    public function show(Request $request, Assessment $assessment): Response
-    {
-        $this->authorize('view', $assessment);
-        $perPage = (int) $request->input('per_page', 10);
+  /**
+   * Display the specified assessment with assignments listing.
+   */
+  public function show(Request $request, Assessment $assessment): Response
+  {
+    $this->authorize('view', $assessment);
+    $perPage = (int) $request->input('per_page', 10);
 
-        $assessment = $this->teacherAssessmentQueryService->loadAssessmentDetails($assessment);
+    $assessment = $this->teacherAssessmentQueryService->loadAssessmentDetails($assessment);
 
-        $assignments = $this->gradingQueryService->getAssignmentsWithEnrolledStudents(
-            $assessment,
-            $request->only(['search']),
-            $perPage
-        );
+    $assignments = $this->gradingQueryService->getAssignmentsWithEnrolledStudents(
+      $assessment,
+      $request->only(['search']),
+      $perPage
+    );
 
-        return Inertia::render('Assessments/Show', [
-            'assessment' => $assessment,
-            'assignments' => $assignments,
-            'routeContext' => $this->buildRouteContext(),
-        ]);
-    }
+    return Inertia::render('Assessments/Show', [
+      'assessment' => $assessment,
+      'assignments' => $assignments,
+      'routeContext' => $this->buildRouteContext(),
+    ]);
+  }
 
-    /**
-     * Display the review interface for a graded assignment.
-     */
-    public function review(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response
-    {
-        $this->authorize('view', $assessment);
-        abort_unless($assignment->assessment_id === $assessment->id, 404);
+  /**
+   * Display the review interface for a graded assignment.
+   */
+  public function review(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response
+  {
+    $this->authorize('view', $assessment);
+    abort_unless($assignment->assessment_id === $assessment->id, 404);
 
-        $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
-        $assignment->load(['student', 'answers.choice']);
-        $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
+    $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
+    $assignment->load(['student', 'answers.choice']);
+    $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
 
-        return Inertia::render('Assessments/Review', [
-            'assignment' => $assignment,
-            'assessment' => $assessment,
-            'student' => $assignment->student,
-            'userAnswers' => $userAnswers,
-            'routeContext' => $this->buildRouteContext(),
-        ]);
-    }
+    return Inertia::render('Assessments/Review', [
+      'assignment' => $assignment,
+      'assessment' => $assessment,
+      'student' => $assignment->student,
+      'userAnswers' => $userAnswers,
+      'routeContext' => $this->buildRouteContext(),
+    ]);
+  }
 
-    /**
-     * Display the grading interface for a specific student assignment.
-     */
-    public function grade(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response
-    {
-        $this->authorize('update', $assessment);
-        abort_unless($assignment->assessment_id === $assessment->id, 404);
+  /**
+   * Display the grading interface for a specific student assignment.
+   */
+  public function grade(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response
+  {
+    $this->authorize('update', $assessment);
+    abort_unless($assignment->assessment_id === $assessment->id, 404);
 
-        $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
-        $assignment->load(['student', 'answers.choice']);
-        $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
+    $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
+    $assignment->load(['student', 'answers.choice']);
+    $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
 
-        return Inertia::render('Assessments/Grade', [
-            'assignment' => $assignment,
-            'assessment' => $assessment,
-            'student' => $assignment->student,
-            'userAnswers' => $userAnswers,
-            'routeContext' => $this->buildRouteContext(),
-        ]);
-    }
+    return Inertia::render('Assessments/Grade', [
+      'assignment' => $assignment,
+      'assessment' => $assessment,
+      'student' => $assignment->student,
+      'userAnswers' => $userAnswers,
+      'routeContext' => $this->buildRouteContext(),
+    ]);
+  }
 
-    /**
-     * Save the grading for a specific student assignment.
-     */
-    public function saveGrade(SaveManualGradeRequest $request, Assessment $assessment, AssessmentAssignment $assignment): RedirectResponse
-    {
-        abort_unless($assignment->assessment_id === $assessment->id, 404);
+  /**
+   * Save the grading for a specific student assignment.
+   */
+  public function saveGrade(SaveManualGradeRequest $request, Assessment $assessment, AssessmentAssignment $assignment): RedirectResponse
+  {
+    abort_unless($assignment->assessment_id === $assessment->id, 404);
 
-        $this->scoringService->saveManualGrades(
-            $assignment,
-            $request->input('scores', []),
-            $request->input('teacher_notes')
-        );
+    $this->scoringService->saveManualGrades(
+      $assignment,
+      $request->input('scores', []),
+      $request->input('teacher_notes')
+    );
 
-        return back()->flashSuccess(__('messages.grade_saved'));
-    }
+    return back()->flashSuccess(__('messages.grade_saved'));
+  }
 
-    /**
-     * Build route context array for admin role.
-     *
-     * @return array<string, string|null>
-     */
-    private function buildRouteContext(): array
-    {
-        return [
-            'role' => 'admin',
-            'backRoute' => 'admin.assessments.index',
-            'showRoute' => 'admin.assessments.show',
-            'reviewRoute' => 'admin.assessments.review',
-            'gradeRoute' => 'admin.assessments.grade',
-            'saveGradeRoute' => 'admin.assessments.saveGrade',
-            'editRoute' => null,
-            'publishRoute' => null,
-            'unpublishRoute' => null,
-            'duplicateRoute' => null,
-        ];
-    }
+  /**
+   * Build route context array for admin role.
+   *
+   * @return array<string, string|null>
+   */
+  private function buildRouteContext(): array
+  {
+    return [
+      'role' => 'admin',
+      'backRoute' => 'admin.assessments.index',
+      'showRoute' => 'admin.assessments.show',
+      'reviewRoute' => 'admin.assessments.review',
+      'gradeRoute' => 'admin.assessments.grade',
+      'saveGradeRoute' => 'admin.assessments.saveGrade',
+      'editRoute' => null,
+      'publishRoute' => null,
+      'unpublishRoute' => null,
+      'duplicateRoute' => null,
+      'reopenRoute' => null,
+    ];
+  }
 }

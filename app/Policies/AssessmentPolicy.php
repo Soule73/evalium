@@ -8,13 +8,21 @@ use App\Models\User;
 class AssessmentPolicy
 {
     /**
+     * Determine if the user has an admin-level role (admin or super_admin).
+     */
+    private function isAdmin(User $user): bool
+    {
+        return $user->hasAnyRole(['admin', 'super_admin']);
+    }
+
+    /**
      * Determine whether the user can view any assessments.
      * Teachers can view assessments for their assigned class-subjects.
      * Admins can view all assessments.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('teacher');
+        return $this->isAdmin($user) || $user->hasRole('teacher');
     }
 
     /**
@@ -25,7 +33,7 @@ class AssessmentPolicy
      */
     public function view(User $user, Assessment $assessment): bool
     {
-        if ($user->hasRole('admin')) {
+        if ($this->isAdmin($user)) {
             return true;
         }
 
@@ -51,7 +59,7 @@ class AssessmentPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('teacher');
+        return $this->isAdmin($user) || $user->hasRole('teacher');
     }
 
     /**
@@ -61,7 +69,7 @@ class AssessmentPolicy
      */
     public function update(User $user, Assessment $assessment): bool
     {
-        if ($user->hasRole('admin')) {
+        if ($this->isAdmin($user)) {
             return true;
         }
 
@@ -79,7 +87,7 @@ class AssessmentPolicy
      */
     public function delete(User $user, Assessment $assessment): bool
     {
-        if ($user->hasRole('admin')) {
+        if ($this->isAdmin($user)) {
             return true;
         }
 
@@ -95,7 +103,7 @@ class AssessmentPolicy
      */
     public function restore(User $user, Assessment $assessment): bool
     {
-        return $user->hasRole('admin');
+        return $this->isAdmin($user);
     }
 
     /**
@@ -103,6 +111,6 @@ class AssessmentPolicy
      */
     public function forceDelete(User $user, Assessment $assessment): bool
     {
-        return $user->hasRole('admin');
+        return $this->isAdmin($user);
     }
 }

@@ -241,10 +241,12 @@ export function AssessmentList({
                 type={assessment.is_published ? 'success' : 'gray'}
                 size="sm"
               />
-              <Toggle
-                checked={assessment.is_published}
-                onChange={() => handleToggleStatus(assessment.id, assessment.is_published)}
-              />
+              {variant === 'teacher' && (
+                <Toggle
+                  checked={assessment.is_published}
+                  onChange={() => handleToggleStatus(assessment.id, assessment.is_published)}
+                />
+              )}
             </div>
           );
         },
@@ -271,7 +273,11 @@ export function AssessmentList({
         labelKey: 'components.assessment_list.view_assessment',
         onClick: (item) => {
           const assessment = item as Assessment;
-          return onView?.(assessment) || router.visit(route('teacher.assessments.show', assessment.id));
+          if (onView) {
+            onView(assessment);
+            return;
+          }
+          router.visit(route('teacher.assessments.show', assessment.id));
         },
         color: 'secondary',
         variant: 'outline',

@@ -20,6 +20,14 @@ trait CreatesTestUsers
         return $user;
     }
 
+    protected function createSuperAdmin(array $attributes = []): User
+    {
+        $user = User::factory()->create($attributes);
+        $user->assignRole('super_admin');
+
+        return $user;
+    }
+
     protected function createTeacher(array $attributes = []): User
     {
         $user = User::factory()->create($attributes);

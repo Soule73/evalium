@@ -189,6 +189,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
             data={assignments}
             assessment={assessment}
             totalPoints={totalPoints}
+            routeContext={routeContext}
             onGrade={routeContext ? handleGradeStudent : undefined}
             onViewResult={routeContext ? handleViewResult : undefined}
           />
