@@ -335,6 +335,7 @@ export const navRoutes = {
     adminClasses: () => route('admin.classes.index'),
     adminEnrollments: () => route('admin.enrollments.index'),
     adminClassSubjects: () => route('admin.class-subjects.index'),
+    adminAssessments: () => route('admin.assessments.index'),
 
     // System Routes
     users: () => route('admin.users.index'),

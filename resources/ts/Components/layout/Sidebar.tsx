@@ -108,6 +108,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
     if (isAdmin) {
         navItems.push(
             // { name: trans('sidebar.navigation.academic_years'), href: route('admin.academic-years.index'), icon: 'academic-years' },
+            { name: trans('sidebar.navigation.assessments'), href: navRoutes.adminAssessments(), icon: 'assessments' },
             { name: trans('sidebar.navigation.subjects'), href: route('admin.subjects.index'), icon: 'subjects' },
             { name: trans('sidebar.navigation.classes'), href: route('admin.classes.index'), icon: 'classes' },
             { name: trans('sidebar.navigation.enrollments'), href: route('admin.enrollments.index'), icon: 'enrollment' },
