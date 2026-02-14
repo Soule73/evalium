@@ -114,7 +114,7 @@ export function useAssessmentSecurity(config: SecurityConfig = {}): UseAssessmen
             setIsFullscreen(false);
 
             setTimeout(() => setProgrammaticExit(false), 100);
-        } catch (error) {
+        } catch {
             setProgrammaticExit(false);
         }
     }, []);

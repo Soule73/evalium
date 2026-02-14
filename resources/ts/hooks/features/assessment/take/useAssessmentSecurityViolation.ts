@@ -75,7 +75,7 @@ export function useAssessmentSecurityViolation({ assessmentId, onViolation }: Us
                 violation_details: reason,
                 answers: answers
             });
-        } catch (error) {
+        } catch {
             setAssessmentTerminated(true, reason);
         }
 

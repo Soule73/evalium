@@ -419,7 +419,7 @@ const Welcome = () => {
                                     ))}
                                 </div>
                                 <p className="text-gray-700 italic mb-6 leading-relaxed">
-                                    "{testimonial.quote}"
+                                    &ldquo;{testimonial.quote}&rdquo;
                                 </p>
                                 <div>
                                     <p className="font-bold text-gray-900">{testimonial.author}</p>

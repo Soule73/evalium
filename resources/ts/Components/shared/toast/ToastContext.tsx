@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, type ReactNode } from 'react';
+import React, { createContext, useReducer, type ReactNode } from 'react';
 import { type ToastType } from './Toast';
 
 export type ToastPosition =
@@ -31,7 +31,7 @@ type ToastAction =
     | { type: 'CLEAR_ALL_TOASTS' }
     | { type: 'SET_DEFAULT_POSITION'; payload: ToastPosition };
 
-interface ToastContextType {
+export interface ToastContextType {
     toasts: ToastData[];
     defaultPosition: ToastPosition;
     addToast: (toast: Omit<ToastData, 'id'>) => string;
@@ -161,14 +161,6 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
             {children}
         </ToastContext.Provider>
     );
-};
-
-export const useToast = (): ToastContextType => {
-    const context = useContext(ToastContext);
-    if (context === undefined) {
-        throw new Error('useToast must be used within a ToastProvider');
-    }
-    return context;
 };
 
 export { ToastContext };

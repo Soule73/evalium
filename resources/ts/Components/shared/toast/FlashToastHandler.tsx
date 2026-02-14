@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { type FlashMessageObject, type FlashMessages } from '@/types';
 import { trans } from '@/utils';
-import { useToast } from './ToastContext';
+import { useToast } from './useToast';
 
 interface FlashToastHandlerProps {
     flash: FlashMessages;

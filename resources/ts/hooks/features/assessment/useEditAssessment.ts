@@ -104,7 +104,7 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
 
   useEffect(() => {
     if (Object.keys(errors).length > 0) {
-      console.log('Validation errors detected:', errors);
+      console.warn('Validation errors detected:', errors);
     }
   }, [errors]);
 

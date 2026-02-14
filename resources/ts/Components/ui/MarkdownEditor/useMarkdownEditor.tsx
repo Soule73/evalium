@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
 import EasyMDE from 'easymde';
+import type { ToolbarButton } from 'easymde';
 import MarkdownRenderer from '../MarkdownRenderer/MarkdownRenderer';
 
 interface UseMarkdownEditorOptions {
@@ -289,7 +290,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
         const toolbar = disabled ? false : buildToolbar();
         const mathActions = createMathActions();
 
-        let toolbarConfig: false | (string | '|' | import('easymde').ToolbarButton)[] = toolbar;
+        let toolbarConfig: false | (string | '|' | ToolbarButton)[] = toolbar;
         if (toolbar && !disabled) {
             toolbarConfig = (toolbar as string[]).map(item => {
                 if (item === 'math-inline') return mathActions.mathInline;

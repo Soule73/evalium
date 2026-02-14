@@ -67,7 +67,7 @@ export function useAssessmentFullscreen({ security }: UseAssessmentFullscreenOpt
                 await security.enterFullscreen();
                 setShowFullscreenModal(false);
                 setAssessmentCanStart(true);
-            } catch (error) {
+            } catch {
                 setShowFullscreenModal(false);
                 setAssessmentCanStart(true);
             }

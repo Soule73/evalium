@@ -51,7 +51,7 @@ export const useCreateAssessment = () => {
 
   useEffect(() => {
     if (Object.keys(errors).length > 0) {
-      console.log('Validation errors detected:', errors);
+      console.warn('Validation errors detected:', errors);
     }
   }, [errors]);
 
@@ -64,7 +64,7 @@ export const useCreateAssessment = () => {
 
     clearErrors();
 
-    console.log('Submitted data:', { ...data, questions });
+    console.warn('Submitted data:', { ...data, questions });
 
     transform((data) => ({
       ...data,
