@@ -1,7 +1,7 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { type PaginationType } from '@/types/datatable';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface DataTablePaginationProps<T> {
     data: PaginationType<T>;
@@ -18,6 +18,7 @@ function DataTablePaginationInner<T>({
     isLoading = false,
     perPageOptions = [10, 25, 50, 100]
 }: DataTablePaginationProps<T>) {
+    const { t } = useTranslations();
     const {
         current_page,
         last_page,
@@ -68,7 +69,7 @@ function DataTablePaginationInner<T>({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-6 py-4 bg-white border-t border-gray-200">
             <div className="flex items-center gap-4">
                 <div className="text-sm text-gray-700">
-                    {trans('components.datatable.showing_records', {
+                    {t('components.datatable.showing_records', {
                         from: String(from || 0),
                         to: String(to || 0),
                         total: String(total)
@@ -77,7 +78,7 @@ function DataTablePaginationInner<T>({
 
                 <div className="flex items-center gap-2">
                     <label htmlFor="per-page" className="text-sm text-gray-700">
-                        {trans('components.datatable.per_page')}
+                        {t('components.datatable.per_page')}
                     </label>
                     <select
                         id="per-page"
@@ -102,7 +103,7 @@ function DataTablePaginationInner<T>({
                     className="inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <ChevronLeftIcon className="h-4 w-4" />
-                    <span className="sr-only">{trans('components.datatable.previous')}</span>
+                    <span className="sr-only">{t('components.datatable.previous')}</span>
                 </button>
 
                 {visiblePages.map((page, index) => (
@@ -132,7 +133,7 @@ function DataTablePaginationInner<T>({
                     className="inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <ChevronRightIcon className="h-4 w-4" />
-                    <span className="sr-only">{trans('components.datatable.next')}</span>
+                    <span className="sr-only">{t('components.datatable.next')}</span>
                 </button>
             </div>
         </div>

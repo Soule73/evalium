@@ -3,7 +3,7 @@ import { Select } from '@/Components';
 import { Input } from '@examena/ui';
 import { FunnelIcon } from '@heroicons/react/24/outline';
 import { type FilterConfig } from '@/types/datatable';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface DataTableFiltersProps {
     filters: FilterConfig[];
@@ -32,6 +32,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(({
     dataTableSearchInputId = 'datatable-search-input',
     testIdResetFiltersButton = 'datatable-reset-filters-button'
 }) => {
+    const { t } = useTranslations();
     const hasActiveFilters = searchValue || Object.values(values).some(v => v);
 
     return (
@@ -40,7 +41,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(({
                 <div className="flex-1 max-w-sm">
                     <Input
                         type='search'
-                        placeholder={searchPlaceholder ?? trans('admin_pages.common.search_placeholder')}
+                        placeholder={searchPlaceholder ?? t('admin_pages.common.search_placeholder')}
                         value={searchValue}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
                         className="py-2! px-3! text-sm"
@@ -51,7 +52,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(({
                 {isLoading && (
                     <div className="flex items-center gap-2 text-blue-600" data-e2e="datatable-loading-indicator">
                         <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-sm">{trans('admin_pages.common.loading')}</span>
+                        <span className="text-sm">{t('admin_pages.common.loading')}</span>
                     </div>
                 )}
             </div>
@@ -89,7 +90,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(({
                         data-e2e={testIdResetFiltersButton}
                     >
                         <FunnelIcon className="w-4 h-4 mr-1" />
-                        {trans('admin_pages.common.reset')}
+                        {t('admin_pages.common.reset')}
                     </button>
                 )}
             </div>

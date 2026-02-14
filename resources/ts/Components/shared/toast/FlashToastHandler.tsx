@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { type FlashMessageObject, type FlashMessages } from '@/types';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useToast } from './useToast';
 
 interface FlashToastHandlerProps {
@@ -11,12 +11,13 @@ const displayedIds = new Set<string>();
 
 const FlashToastHandler: React.FC<FlashToastHandlerProps> = ({ flash }) => {
     const { success, error, warning, info } = useToast();
+    const { t } = useTranslations();
 
-    const successTitle = trans('components.toast.success');
-    const errorTitle = trans('components.toast.error');
-    const warningTitle = trans('components.toast.warning');
-    const infoTitle = trans('components.toast.info');
-    const closeLabel = trans('components.toast.close');
+    const successTitle = t('components.toast.success');
+    const errorTitle = t('components.toast.error');
+    const warningTitle = t('components.toast.warning');
+    const infoTitle = t('components.toast.info');
+    const closeLabel = t('components.toast.close');
 
     useEffect(() => {
         const showToast = (type: 'success' | 'error' | 'warning' | 'info' | 'message', data?: FlashMessageObject) => {

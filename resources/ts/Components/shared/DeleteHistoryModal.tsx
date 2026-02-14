@@ -8,7 +8,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { formatDate } from '@/utils';
 import { MarkdownRenderer } from '@examena/ui';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button } from '../ui';
 import { type DeletedChoice, type DeletedQuestion } from '@/stores/useAssessmentFormStore';
 
@@ -32,27 +32,28 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
     onClearHistory
 }) => {
     const [activeTab, setActiveTab] = useState<'questions' | 'choices'>('questions');
+    const { t } = useTranslations();
 
     const translations = {
-        historyTitle: trans('components.delete_history_modal.title'),
-        clearHistory: trans('components.delete_history_modal.clear_history'),
-        noItems: trans('components.delete_history_modal.no_items'),
-        questionsTab: trans('components.delete_history_modal.questions_tab'),
-        choicesTab: trans('components.delete_history_modal.choices_tab'),
-        noQuestions: trans('components.delete_history_modal.no_questions'),
-        noChoices: trans('components.delete_history_modal.no_choices'),
-        restore: trans('components.delete_history_modal.restore'),
-        close: trans('components.delete_history_modal.close'),
-        deletedOn: trans('components.delete_history_modal.deleted_on'),
-        point: trans('components.delete_history_modal.point'),
-        points: trans('components.delete_history_modal.points'),
-        correctChoice: trans('components.delete_history_modal.correct_choice'),
-        incorrectChoice: trans('components.delete_history_modal.incorrect_choice'),
+        historyTitle: t('components.delete_history_modal.title'),
+        clearHistory: t('components.delete_history_modal.clear_history'),
+        noItems: t('components.delete_history_modal.no_items'),
+        questionsTab: t('components.delete_history_modal.questions_tab'),
+        choicesTab: t('components.delete_history_modal.choices_tab'),
+        noQuestions: t('components.delete_history_modal.no_questions'),
+        noChoices: t('components.delete_history_modal.no_choices'),
+        restore: t('components.delete_history_modal.restore'),
+        close: t('components.delete_history_modal.close'),
+        deletedOn: t('components.delete_history_modal.deleted_on'),
+        point: t('components.delete_history_modal.point'),
+        points: t('components.delete_history_modal.points'),
+        correctChoice: t('components.delete_history_modal.correct_choice'),
+        incorrectChoice: t('components.delete_history_modal.incorrect_choice'),
         questionTypes: {
-            multiple: trans('formatters.question_type_multiple'),
-            one_choice: trans('formatters.question_type_one_choice'),
-            boolean: trans('formatters.question_type_boolean'),
-            text: trans('formatters.question_type_text'),
+            multiple: t('formatters.question_type_multiple'),
+            one_choice: t('formatters.question_type_one_choice'),
+            boolean: t('formatters.question_type_boolean'),
+            text: t('formatters.question_type_text'),
         }
     };
 

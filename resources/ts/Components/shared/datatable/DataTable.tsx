@@ -4,7 +4,7 @@ import { DataTableFilters } from './DataTableFilters';
 import { DataTablePagination } from './DataTablePagination';
 import { EmptyState } from '../EmptyState';
 import { BulkActions } from './BulkActions';
-import { trans } from '@/utils';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Checkbox } from '@examena/ui';
 import { useDataTable } from '@/hooks';
 
@@ -23,6 +23,7 @@ function DataTableInner<T extends { id: number | string }>({
     dataTableSearchInputId
 
 }: DataTableProps<T>) {
+    const { t } = useTranslations();
     const { state, actions, isNavigating, selection } = useDataTable(data, {
         enableSelection: config.enableSelection,
         maxSelectable: config.maxSelectable,
@@ -87,7 +88,7 @@ function DataTableInner<T extends { id: number | string }>({
                                     onClick={handleResetFilters}
                                     className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
-                                    {config.emptySearchState.resetLabel || trans('components.datatable.reset_filters_default')}
+                                    {config.emptySearchState.resetLabel || t('components.datatable.reset_filters_default')}
                                 </button>
                             }
                         />
@@ -115,7 +116,7 @@ function DataTableInner<T extends { id: number | string }>({
                                                 }}
                                                 onChange={actions.toggleAllOnPage}
                                                 className="cursor-pointer"
-                                                aria-label={trans('components.datatable.select_all')}
+                                                aria-label={t('components.datatable.select_all')}
                                                 data-e2e={testIdSelectAllCheckbox}
                                             />
                                         </th>
@@ -144,7 +145,7 @@ function DataTableInner<T extends { id: number | string }>({
                                                         onChange={() => actions.toggleItem(item.id!)}
                                                         disabled={!isItemSelectable}
                                                         className={isItemSelectable ? "cursor-pointer" : "cursor-not-allowed opacity-50"}
-                                                        aria-label={trans('components.datatable.select_item', { id: String(item.id) })}
+                                                        aria-label={t('components.datatable.select_item', { id: String(item.id) })}
                                                         data-e2e={`datatable-row-checkbox-${item.id}`}
                                                     />
                                                 </td>
