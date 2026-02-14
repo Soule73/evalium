@@ -133,7 +133,7 @@ export default function TeacherClassShow({ class: classItem, subjects, assessmen
         label: trans('teacher_class_pages.show.assessment_date'),
         render: (assessment) => (
           <span className="text-sm text-gray-600">
-            {new Date(assessment.scheduled_at).toLocaleDateString()}
+            {formatDate(assessment.scheduled_at ?? '', 'datetime') || '-'}
           </span>
         ),
       },

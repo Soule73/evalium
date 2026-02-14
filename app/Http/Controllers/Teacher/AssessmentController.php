@@ -119,9 +119,10 @@ class AssessmentController extends Controller
             $perPage
         );
 
-        return Inertia::render('Teacher/Assessments/Show', [
+        return Inertia::render('Assessments/Show', [
             'assessment' => $assessment,
             'assignments' => $assignments,
+            'routeContext' => $this->buildRouteContext(),
         ]);
     }
 
@@ -291,7 +292,7 @@ class AssessmentController extends Controller
 
         if (! $check['can_reopen']) {
             return response()->json([
-                'message' => __('messages.assignment_cannot_reopen_'.$check['reason']),
+                'message' => __('messages.assignment_cannot_reopen_' . $check['reason']),
             ], 422);
         }
 
@@ -305,5 +306,27 @@ class AssessmentController extends Controller
             'message' => __('messages.assignment_reopened'),
             'remaining_seconds' => $remainingSeconds,
         ]);
+    }
+
+    /**
+     * Build route context array for teacher role.
+     *
+     * @return array<string, string|null>
+     */
+    private function buildRouteContext(): array
+    {
+        return [
+            'role' => 'teacher',
+            'backRoute' => 'teacher.assessments.index',
+            'showRoute' => 'teacher.assessments.show',
+            'reviewRoute' => 'teacher.assessments.review',
+            'gradeRoute' => 'teacher.assessments.grade',
+            'saveGradeRoute' => 'teacher.assessments.saveGrade',
+            'editRoute' => 'teacher.assessments.edit',
+            'publishRoute' => 'teacher.assessments.publish',
+            'unpublishRoute' => 'teacher.assessments.unpublish',
+            'duplicateRoute' => 'teacher.assessments.duplicate',
+            'reopenRoute' => 'teacher.assessments.reopen',
+        ];
     }
 }

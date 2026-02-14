@@ -75,7 +75,7 @@ class AdminAssessmentShowTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn($page) => $page
-                ->component('Teacher/Assessments/Show')
+                ->component('Assessments/Show')
                 ->has('assessment')
                 ->has('assignments')
                 ->has('routeContext')

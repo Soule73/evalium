@@ -1,7 +1,7 @@
 import { route } from 'ziggy-js';
 import { trans } from './translations';
 import { BreadcrumbItem } from '@/Components/layout/Breadcrumb';
-import { ClassSubject } from '@/types';
+import { ClassSubject, AssessmentRouteContext } from '@/types';
 
 const dashboard = (): BreadcrumbItem => ({
     label: trans('breadcrumbs.dashboard'),
@@ -156,8 +156,42 @@ const adminAssessmentsBc = {
     ],
 };
 
+/**
+ * Dynamic breadcrumbs based on AssessmentRouteContext for unified pages.
+ */
+const dynamicAssessmentBc = {
+    index: (ctx: AssessmentRouteContext): BreadcrumbItem[] => [
+        dashboard(),
+        { label: trans('breadcrumbs.assessments'), href: route(ctx.backRoute) }
+    ],
+    show: (ctx: AssessmentRouteContext, assessment: { id: number; title: string }): BreadcrumbItem[] => [
+        dashboard(),
+        { label: trans('breadcrumbs.assessments'), href: route(ctx.backRoute) },
+        { label: assessment.title, href: route(ctx.showRoute, assessment.id) }
+    ],
+    grade: (
+        ctx: AssessmentRouteContext,
+        assessment: { id: number; title: string },
+        student: { name: string }
+    ): BreadcrumbItem[] => [
+            ...dynamicAssessmentBc.show(ctx, assessment),
+            { label: trans('breadcrumbs.grading') + ': ' + student.name }
+        ],
+    review: (
+        ctx: AssessmentRouteContext,
+        assessment: { id: number; title: string },
+        student: { name: string }
+    ): BreadcrumbItem[] => [
+            ...dynamicAssessmentBc.show(ctx, assessment),
+            { label: trans('breadcrumbs.review') + ': ' + student.name }
+        ],
+};
+
 export const breadcrumbs = {
     dashboard: (): BreadcrumbItem[] => [dashboard()],
+
+    // Dynamic assessment breadcrumbs (routeContext-based)
+    assessment: dynamicAssessmentBc,
 
     // Users (simple: index, create, edit by name)
     users: usersBc.index,

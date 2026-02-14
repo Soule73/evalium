@@ -98,7 +98,7 @@ class AdminAssessmentController extends Controller
       $perPage
     );
 
-    return Inertia::render('Teacher/Assessments/Show', [
+    return Inertia::render('Assessments/Show', [
       'assessment' => $assessment,
       'assignments' => $assignments,
       'routeContext' => $this->buildRouteContext(),
