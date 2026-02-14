@@ -9,16 +9,21 @@ use App\Models\Choice;
 use App\Models\Question;
 use App\Models\User;
 use App\Services\Core\Answer\AnswerFormatterService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
+use Tests\Traits\CreatesTestUsers;
 
 class AnswerFormatterServiceTest extends TestCase
 {
+    use CreatesTestUsers, RefreshDatabase;
+
     private AnswerFormatterService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seedRolesAndPermissions();
 
         $this->service = new AnswerFormatterService;
     }

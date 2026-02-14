@@ -93,10 +93,12 @@ class AssessmentValidationRulesTest extends TestCase
 
     public function test_get_assessment_validation_rules_for_create_has_required_fields(): void
     {
+        $this->createRequest->merge(['delivery_mode' => 'supervised']);
         $rules = $this->createRequest->rules();
 
         $this->assertContains('required', $rules['title']);
         $this->assertContains('required', $rules['type']);
+        $this->assertContains('required', $rules['delivery_mode']);
         $this->assertContains('required', $rules['scheduled_at']);
         $this->assertContains('required', $rules['duration_minutes']);
         $this->assertContains('required', $rules['coefficient']);
@@ -104,10 +106,12 @@ class AssessmentValidationRulesTest extends TestCase
 
     public function test_get_assessment_validation_rules_for_update_has_sometimes_fields(): void
     {
+        $this->updateRequest->merge(['delivery_mode' => 'supervised']);
         $rules = $this->updateRequest->rules();
 
         $this->assertContains('sometimes', $rules['title']);
         $this->assertContains('sometimes', $rules['type']);
+        $this->assertContains('sometimes', $rules['delivery_mode']);
         $this->assertContains('sometimes', $rules['scheduled_at']);
         $this->assertContains('sometimes', $rules['duration_minutes']);
         $this->assertContains('sometimes', $rules['coefficient']);
@@ -202,13 +206,13 @@ class AssessmentValidationRulesTest extends TestCase
                 $this->data = array_merge($this->data, $data);
             }
 
-            public function testPrepareAssessmentForValidation()
+            public function exposePrepareForValidation()
             {
                 $this->prepareAssessmentForValidation();
             }
         };
 
-        $request->testPrepareAssessmentForValidation();
+        $request->exposePrepareForValidation();
 
         $this->assertEquals('2026-03-15', $request->scheduled_at);
     }
@@ -238,13 +242,13 @@ class AssessmentValidationRulesTest extends TestCase
                 $this->data = array_merge($this->data, $data);
             }
 
-            public function testPrepareAssessmentForValidation()
+            public function exposePrepare()
             {
                 $this->prepareAssessmentForValidation();
             }
         };
 
-        $request->testPrepareAssessmentForValidation();
+        $request->exposePrepare();
 
         $this->assertEquals(60, $request->duration_minutes);
     }
@@ -285,12 +289,14 @@ class AssessmentValidationRulesTest extends TestCase
 
     public function test_validation_passes_with_valid_create_data(): void
     {
+        $this->createRequest->merge(['delivery_mode' => 'supervised']);
         $rules = $this->createRequest->rules();
 
         $validator = Validator::make([
             'class_subject_id' => $this->classSubject->id,
             'title' => 'Test Assessment',
             'type' => 'examen',
+            'delivery_mode' => 'supervised',
             'scheduled_at' => '2026-03-15',
             'duration_minutes' => 60,
             'coefficient' => 2.0,

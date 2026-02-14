@@ -93,7 +93,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Assessments/Show')
                 ->has('assessment')
                 ->has('assignment')
@@ -117,7 +117,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Assessments/Show')
                 ->has('assessment.class_subject')
                 ->has('assessment.questions', 2)
@@ -146,5 +146,94 @@ class StudentAssessmentShowTest extends TestCase
             ->get(route('student.assessments.show', $this->assessment));
 
         $response->assertForbidden();
+    }
+
+    public function test_show_passes_availability_status(): void
+    {
+        $response = $this->actingAs($this->student)
+            ->get(route('student.assessments.show', $this->assessment));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('Student/Assessments/Show')
+                ->has('availability')
+                ->where('availability.available', true)
+                ->where('availability.reason', null)
+        );
+    }
+
+    public function test_show_availability_unavailable_when_not_published(): void
+    {
+        $this->assessment->update(['settings' => ['is_published' => false]]);
+
+        $response = $this->actingAs($this->student)
+            ->get(route('student.assessments.show', $this->assessment));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('Student/Assessments/Show')
+                ->where('availability.available', false)
+                ->where('availability.reason', 'assessment_not_published')
+        );
+    }
+
+    public function test_show_availability_unavailable_when_homework_due_date_passed(): void
+    {
+        $this->assessment->update([
+            'delivery_mode' => 'homework',
+            'due_date' => now()->subDay(),
+            'settings' => ['is_published' => true, 'allow_late_submission' => false],
+        ]);
+
+        $response = $this->actingAs($this->student)
+            ->get(route('student.assessments.show', $this->assessment));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->where('availability.available', false)
+                ->where('availability.reason', 'assessment_due_date_passed')
+        );
+    }
+
+    public function test_show_availability_unavailable_when_supervised_not_started(): void
+    {
+        $this->assessment->update([
+            'delivery_mode' => 'supervised',
+            'scheduled_at' => now()->addDay(),
+            'duration_minutes' => 60,
+            'settings' => ['is_published' => true],
+        ]);
+
+        $response = $this->actingAs($this->student)
+            ->get(route('student.assessments.show', $this->assessment));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->where('availability.available', false)
+                ->where('availability.reason', 'assessment_not_started')
+        );
+    }
+
+    public function test_show_does_not_set_started_at_for_supervised_assessment(): void
+    {
+        $this->assessment->update([
+            'delivery_mode' => 'supervised',
+            'scheduled_at' => now()->subMinutes(5),
+            'duration_minutes' => 60,
+            'settings' => ['is_published' => true],
+        ]);
+
+        $this->actingAs($this->student)
+            ->get(route('student.assessments.show', $this->assessment));
+
+        $this->assertDatabaseHas('assessment_assignments', [
+            'assessment_id' => $this->assessment->id,
+            'student_id' => $this->student->id,
+            'started_at' => null,
+        ]);
     }
 }
