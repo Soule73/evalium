@@ -56,5 +56,6 @@ return [
     'timing' => [
         'min_assessment_duration_minutes' => env('EXAM_MIN_DURATION', 2),
         'auto_submit_on_time_end' => env('EXAM_AUTO_SUBMIT', true),
+        'grace_period_seconds' => env('EXAM_GRACE_PERIOD_SECONDS', 30),
     ],
 ];

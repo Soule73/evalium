@@ -26,7 +26,7 @@ class StudentAssessmentService
     ) {}
 
     /**
-     * Get or create an assignment for a student
+     * Get or create an assignment for a student (without starting the timer).
      *
      * @param  User  $student  The student
      * @param  Assessment  $assessment  The assessment
@@ -41,7 +41,113 @@ class StudentAssessmentService
     }
 
     /**
-     * Save student answers for an assessment
+     * Start a supervised assignment by setting started_at if not already set.
+     *
+     * @param  AssessmentAssignment  $assignment  The assignment
+     * @param  Assessment  $assessment  The assessment
+     * @return AssessmentAssignment The updated assignment
+     */
+    public function startAssignment(AssessmentAssignment $assignment, Assessment $assessment): AssessmentAssignment
+    {
+        if ($assessment->isSupervisedMode() && ! $assignment->started_at) {
+            $assignment->update(['started_at' => now()]);
+            $assignment->refresh();
+        }
+
+        return $assignment;
+    }
+
+    /**     * Calculate the remaining seconds for a supervised assessment.
+     *
+     * Returns null for homework mode or when started_at is not set.
+     *
+     * @param  AssessmentAssignment  $assignment  The assignment
+     * @param  Assessment  $assessment  The assessment
+     * @return int|null Remaining seconds, or null if not applicable
+     */
+    public function calculateRemainingSeconds(AssessmentAssignment $assignment, Assessment $assessment): ?int
+    {
+        if (! $assessment->isSupervisedMode() || ! $assignment->started_at || ! $assessment->duration_minutes) {
+            return null;
+        }
+
+        $elapsed = $assignment->started_at->diffInSeconds(now());
+        $totalSeconds = $assessment->duration_minutes * 60;
+        $remaining = $totalSeconds - (int) $elapsed;
+
+        return max(0, $remaining);
+    }
+
+    /**
+     * Check if a supervised assessment's time has expired.
+     *
+     * Uses a configurable grace period for network latency tolerance.
+     *
+     * @param  AssessmentAssignment  $assignment  The assignment
+     * @param  Assessment  $assessment  The assessment
+     * @param  bool  $withGrace  Whether to include grace period
+     * @return bool True if time has expired
+     */
+    public function isTimeExpired(AssessmentAssignment $assignment, Assessment $assessment, bool $withGrace = false): bool
+    {
+        if (! $assessment->isSupervisedMode() || ! $assignment->started_at || ! $assessment->duration_minutes) {
+            return false;
+        }
+
+        $gracePeriod = $withGrace ? (int) config('assessment.timing.grace_period_seconds', 30) : 0;
+        $deadline = $assignment->started_at->copy()->addMinutes($assessment->duration_minutes)->addSeconds($gracePeriod);
+
+        return now()->greaterThan($deadline);
+    }
+
+    /**
+     * Check if the homework due date has passed.
+     *
+     * @param  Assessment  $assessment  The assessment
+     * @return bool True if due date has passed and late submission is not allowed
+     */
+    public function isDueDatePassed(Assessment $assessment): bool
+    {
+        if (! $assessment->isHomeworkMode() || ! $assessment->due_date) {
+            return false;
+        }
+
+        if ($assessment->settings['allow_late_submission'] ?? false) {
+            return false;
+        }
+
+        return now()->greaterThan($assessment->due_date);
+    }
+
+    /**
+     * Auto-submit an assignment if its supervised time has expired.
+     *
+     * @param  AssessmentAssignment  $assignment  The assignment
+     * @param  Assessment  $assessment  The assessment
+     * @return bool True if auto-submitted, false if time remains or already submitted
+     */
+    public function autoSubmitIfExpired(AssessmentAssignment $assignment, Assessment $assessment): bool
+    {
+        if ($assignment->submitted_at) {
+            return false;
+        }
+
+        if (! $this->isTimeExpired($assignment, $assessment)) {
+            return false;
+        }
+
+        $this->autoScoreAssessment($assignment, $assessment);
+
+        $assignment->update([
+            'submitted_at' => $assignment->started_at->copy()->addMinutes($assessment->duration_minutes),
+            'forced_submission' => true,
+            'security_violation' => 'time_expired',
+        ]);
+
+        return true;
+    }
+
+    /**     * Save student answers for an assessment
      *
      * @param  AssessmentAssignment  $assignment  The assignment
      * @param  array  $answers  The answers array (question_id => value)
@@ -117,6 +223,10 @@ class StudentAssessmentService
         string $violationType,
         ?string $violationDetails = null
     ): bool {
+        if (! $assessment->isSupervisedMode()) {
+            return false;
+        }
+
         if ($assignment->submitted_at) {
             return false;
         }
@@ -126,7 +236,7 @@ class StudentAssessmentService
         $assignment->update([
             'submitted_at' => now(),
             'forced_submission' => true,
-            'security_violation' => $violationType . ($violationDetails ? ': ' . $violationDetails : ''),
+            'security_violation' => $violationType.($violationDetails ? ': '.$violationDetails : ''),
         ]);
 
         return true;
@@ -179,7 +289,7 @@ class StudentAssessmentService
             });
         }
 
-        $hasTextQuestions = $assessment->questions->contains(fn($q) => in_array($q->type, ['text', 'essay']));
+        $hasTextQuestions = $assessment->questions->contains(fn ($q) => in_array($q->type, ['text', 'essay']));
 
         if (! $hasTextQuestions) {
             $totalScore = $this->scoringService->calculateAssignmentScore($assignment);
