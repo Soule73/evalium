@@ -3,6 +3,7 @@ export { ClassList } from './ClassList';
 export { ClassSubjectList } from './ClassSubjectList';
 export { ClassSubjectHistoryList } from './ClassSubjectHistoryList';
 export { SubjectList } from './SubjectList';
+export { SubjectGradeList } from './SubjectGradeList';
 export { AssessmentList } from './AssessmentList';
 export { AssignmentList } from './AssignmentList';
 export { UserList } from './UserList';
