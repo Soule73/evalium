@@ -208,10 +208,19 @@ Route::middleware('auth')->group(function () {
                 });
 
             /**
-             * Assessment Consultation (read-only)
+             * Assessment Consultation
              */
-            Route::get('/assessments', [\App\Http\Controllers\Admin\AdminAssessmentController::class, 'index'])
-                ->name('assessments.index');
+            Route::prefix('assessments')
+                ->name('assessments.')
+                ->middleware('role:admin')
+                ->controller(\App\Http\Controllers\Admin\AdminAssessmentController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{assessment}', 'show')->name('show');
+                    Route::get('/{assessment}/assignments/{assignment}/review', 'review')->name('review');
+                    Route::get('/{assessment}/assignments/{assignment}/grade', 'grade')->name('grade');
+                    Route::post('/{assessment}/assignments/{assignment}/grade', 'saveGrade')->name('saveGrade');
+                });
         });
 
     /**
