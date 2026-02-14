@@ -231,11 +231,12 @@ class AssessmentController extends Controller
         $assignment->load(['student', 'answers.choice']);
         $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
 
-        return Inertia::render('Teacher/Assessments/Grade', [
+        return Inertia::render('Assessments/Grade', [
             'assignment' => $assignment,
             'assessment' => $assessment,
             'student' => $assignment->student,
             'userAnswers' => $userAnswers,
+            'routeContext' => $this->buildRouteContext(),
         ]);
     }
 
@@ -254,11 +255,12 @@ class AssessmentController extends Controller
         $assignment->load(['student', 'answers.choice']);
         $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
 
-        return Inertia::render('Teacher/Assessments/Review', [
+        return Inertia::render('Assessments/Review', [
             'assignment' => $assignment,
             'assessment' => $assessment,
             'student' => $assignment->student,
             'userAnswers' => $userAnswers,
+            'routeContext' => $this->buildRouteContext(),
         ]);
     }
 
@@ -292,7 +294,7 @@ class AssessmentController extends Controller
 
         if (! $check['can_reopen']) {
             return response()->json([
-                'message' => __('messages.assignment_cannot_reopen_' . $check['reason']),
+                'message' => __('messages.assignment_cannot_reopen_'.$check['reason']),
             ], 422);
         }
 
