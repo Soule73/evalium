@@ -16,11 +16,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('assessment_id')->constrained('assessments')->cascadeOnDelete();
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
-            $table->timestamp('assigned_at');
             $table->timestamp('started_at')->nullable();
             $table->timestamp('submitted_at')->nullable();
+            $table->timestamp('graded_at')->nullable();
             $table->decimal('score', 5, 2)->nullable();
             $table->text('teacher_notes')->nullable();
+            $table->boolean('forced_submission')->default(false);
+            $table->string('security_violation')->nullable();
             $table->timestamps();
 
             $table->unique(['assessment_id', 'student_id']);
@@ -30,7 +32,6 @@ return new class extends Migration
 
         if (DB::getDriverName() !== 'sqlite') {
             DB::statement('ALTER TABLE assessment_assignments ADD CONSTRAINT check_score CHECK (score IS NULL OR (score >= 0 AND score <= 20))');
-            DB::statement('ALTER TABLE assessment_assignments ADD CONSTRAINT check_times CHECK (started_at IS NULL OR started_at >= assigned_at)');
         }
     }
 

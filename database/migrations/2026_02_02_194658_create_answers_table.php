@@ -12,17 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('answers', function (Blueprint $table) {
-
             $table->id();
-
             $table->foreignId('assessment_assignment_id')->constrained('assessment_assignments')->onDelete('cascade');
             $table->foreignId('question_id')->constrained()->onDelete('cascade');
             $table->foreignId('choice_id')->nullable()->constrained('choices')->onDelete('cascade');
             $table->text('answer_text')->nullable();
-            $table->float('score')->nullable()->default(null)->comment('Note obtenu pour cette réponse, si applicable');
+            $table->float('score')->nullable()->default(null);
             $table->text('feedback')->nullable();
-
             $table->timestamps();
+
+            $table->index(['assessment_assignment_id', 'question_id'], 'answers_assignment_question_idx');
         });
     }
 

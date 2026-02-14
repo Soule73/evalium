@@ -19,15 +19,21 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('type', ['devoir', 'examen', 'tp', 'controle', 'projet']);
+            $table->enum('delivery_mode', ['supervised', 'homework'])->default('supervised');
             $table->decimal('coefficient', 5, 2);
             $table->integer('duration_minutes')->nullable();
             $table->timestamp('scheduled_at')->nullable();
+            $table->timestamp('due_date')->nullable();
+            $table->unsignedInteger('max_file_size')->nullable();
+            $table->string('allowed_extensions')->nullable();
+            $table->unsignedInteger('max_files')->default(0);
             $table->json('settings')->nullable();
             $table->softDeletes();
             $table->timestamps();
 
             $table->index(['class_subject_id', 'type']);
             $table->index(['teacher_id', 'scheduled_at']);
+            $table->index(['delivery_mode']);
         });
 
         if (DB::getDriverName() !== 'sqlite') {
