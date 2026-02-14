@@ -7,15 +7,8 @@ use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-/**
- * Public Routes
- * Routes accessible without authentication
- */
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('welcome');
+Route::redirect('/', '/login');
 
 /**
  * Authentication Routes
