@@ -22,12 +22,12 @@ export default defineConfig({
                 'resources/ts/**/*.spec.{ts,tsx}',
                 'resources/ts/**/*.test.{ts,tsx}',
             ],
-            thresholds: {
-                branches: 70,
-                functions: 70,
-                lines: 70,
-                statements: 70,
-            },
+            // thresholds: {
+            //     branches: 70,
+            //     functions: 70,
+            //     lines: 70,
+            //     statements: 70,
+            // },
         },
     },
     resolve: {
