@@ -1,8 +1,10 @@
 import type { QuestionFormData, QuestionType, ChoiceFormData } from '@/types';
 
+let questionIdCounter = 0;
+
 export function createDefaultQuestion(type: QuestionType, orderIndex: number): QuestionFormData {
     const question: QuestionFormData = {
-        id: -Date.now(),
+        id: -(Date.now() + ++questionIdCounter),
         content: '',
         type,
         points: 1,
