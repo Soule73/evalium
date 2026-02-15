@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { type AcademicYear } from '@/types';
 import { formatDate } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { Badge, Modal } from '@/Components/ui';
+import { Badge, Modal, Stat } from '@/Components/ui';
 import { CalendarIcon, CheckCircleIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
 
 interface AcademicYearDetailsModalProps {
@@ -42,39 +42,33 @@ export function AcademicYearDetailsModal({ isOpen, onClose, academicYear }: Acad
       : translations.future;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={academicYear.name} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title={academicYear.name} size='xl'>
       <div className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex items-start space-x-3">
-            <CalendarIcon className="w-5 h-5 text-gray-400 mt-0.5" />
-            <div>
-              <div className="text-sm font-medium text-gray-500">{translations.period}</div>
-              <div className="mt-1 text-sm text-gray-900">
+        <Stat.Group columns={3}>
+          <Stat.Item
+            icon={CalendarIcon}
+            title={translations.period}
+            value={
+              <span className="text-sm text-gray-900">
                 {formatDate(academicYear.start_date)} - {formatDate(academicYear.end_date)}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-start space-x-3">
-            <CheckCircleIcon className="w-5 h-5 text-gray-400 mt-0.5" />
-            <div>
-              <div className="text-sm font-medium text-gray-500">{translations.status}</div>
-              <div className="mt-1">
-                <Badge label={statusLabel} type={statusType} />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-start space-x-3">
-            <AcademicCapIcon className="w-5 h-5 text-gray-400 mt-0.5" />
-            <div>
-              <div className="text-sm font-medium text-gray-500">{translations.classesCount}</div>
-              <div className="mt-1 text-sm font-medium text-gray-900">
+              </span>
+            }
+          />
+          <Stat.Item
+            icon={CheckCircleIcon}
+            title={translations.status}
+            value={<Badge label={statusLabel} type={statusType} />}
+          />
+          <Stat.Item
+            icon={AcademicCapIcon}
+            title={translations.classesCount}
+            value={
+              <span className="text-sm font-medium text-gray-900">
                 {academicYear.classes_count ?? 0}
-              </div>
-            </div>
-          </div>
-        </div>
+              </span>
+            }
+          />
+        </Stat.Group>
 
         <div>
           <h4 className="text-sm font-semibold text-gray-700 mb-3">{translations.semestersTitle}</h4>
