@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
             'avatar' => null,
-            'active' => true,
+            'is_active' => true,
         ]);
         $superAdmin->assignRole('super_admin');
 
@@ -30,7 +30,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
             'avatar' => null,
-            'active' => true,
+            'is_active' => true,
         ]);
         $admin->assignRole('admin');
 
@@ -61,7 +61,7 @@ class UserSeeder extends Seeder
             $teacher = \App\Models\User::create(array_merge($teacherData, [
                 'email_verified_at' => now(),
                 'avatar' => null,
-                'active' => true,
+                'is_active' => true,
             ]));
             $teacher->assignRole('teacher');
         }
@@ -79,7 +79,7 @@ class UserSeeder extends Seeder
             $student = \App\Models\User::create(array_merge($studentData, [
                 'email_verified_at' => now(),
                 'avatar' => null,
-                'active' => true,
+                'is_active' => true,
             ]));
             $student->assignRole('student');
         }
@@ -87,8 +87,8 @@ class UserSeeder extends Seeder
         $this->command->info('Utilisateurs créés avec succès !');
         $this->command->info('- 1 super administrateur (superadmin@evalium.com)');
         $this->command->info('- 1 administrateur (admin@evalium.com)');
-        $this->command->info('- ' . count($teachers) . ' enseignants');
-        $this->command->info('- ' . count($students) . ' étudiants');
+        $this->command->info('- '.count($teachers).' enseignants');
+        $this->command->info('- '.count($students).' étudiants');
         $this->command->info('- Mot de passe pour tous: password');
     }
 }

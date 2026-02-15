@@ -105,14 +105,6 @@ class Assessment extends Model
     }
 
     /**
-     * Get the answers for this assessment.
-     */
-    public function answers(): HasMany
-    {
-        return $this->hasMany(Answer::class, 'assessment_id');
-    }
-
-    /**
      * Get the total points for this assessment.
      */
     public function getTotalPointsAttribute(): float

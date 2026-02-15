@@ -33,7 +33,7 @@ class SubjectFactory extends Factory
         return [
             'level_id' => Level::factory(),
             'name' => $subject,
-            'code' => $subjects[$subject],
+            'code' => $subjects[$subject].'-'.$this->faker->unique()->numerify('###'),
             'description' => $this->faker->optional()->sentence(),
         ];
     }

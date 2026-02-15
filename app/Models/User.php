@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -51,7 +52,6 @@ class User extends Authenticatable
         'email',
         'password',
         'avatar',
-        'active',
         'is_active',
         'locale',
     ];
@@ -76,7 +76,6 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'active' => 'boolean',
             'is_active' => 'boolean',
         ];
     }
@@ -92,13 +91,18 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the assessment assignments associated with the user (for students).
+     * Get the assessment assignments for the user (student) through enrollments.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\AssessmentAssignment>
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\App\Models\AssessmentAssignment, \App\Models\Enrollment>
      */
-    public function assessmentAssignments(): HasMany
+    public function assessmentAssignments(): HasManyThrough
     {
-        return $this->hasMany(AssessmentAssignment::class, 'student_id');
+        return $this->hasManyThrough(
+            AssessmentAssignment::class,
+            Enrollment::class,
+            'student_id',
+            'enrollment_id',
+        );
     }
 
     /**

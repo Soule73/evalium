@@ -19,7 +19,6 @@ erDiagram
         varchar email UK
         varchar avatar "nullable"
         varchar locale "default: en"
-        boolean active "default: true"
         timestamp email_verified_at "nullable"
         boolean is_active "default: true"
         varchar password
@@ -176,7 +175,7 @@ erDiagram
     assessment_assignments {
         bigint id PK
         bigint assessment_id FK
-        bigint student_id FK
+        bigint enrollment_id FK
         timestamp started_at "nullable"
         timestamp submitted_at "nullable"
         timestamp graded_at "nullable"
@@ -267,7 +266,7 @@ erDiagram
 
     %% Assessment Lifecycle
     assessments ||--o{ assessment_assignments : "assigned to"
-    users ||--o{ assessment_assignments : "takes"
+    enrollments ||--o{ assessment_assignments : "takes"
     assessments ||--o{ questions : "contains"
 
     %% Questions & Answers

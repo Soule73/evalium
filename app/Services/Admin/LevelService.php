@@ -158,7 +158,7 @@ class LevelService
      */
     private function buildLevelQuery(?string $search, ?string $status): Builder
     {
-        $query = Level::query()->withCount(['classes', 'activeClasses']);
+        $query = Level::query()->withCount(['classes']);
 
         if ($search) {
             $query->where(function ($q) use ($search) {

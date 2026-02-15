@@ -6,6 +6,7 @@ use App\Traits\HasAcademicYearThroughClass;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Enrollment model representing a student's enrollment in a class.
@@ -42,6 +43,16 @@ class Enrollment extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(User::class, 'student_id');
+    }
+
+    /**
+     * Get the assessment assignments for this enrollment.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\AssessmentAssignment>
+     */
+    public function assessmentAssignments(): HasMany
+    {
+        return $this->hasMany(AssessmentAssignment::class);
     }
 
     /**

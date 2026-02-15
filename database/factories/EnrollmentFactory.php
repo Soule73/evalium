@@ -35,10 +35,10 @@ class EnrollmentFactory extends Factory
         ]);
     }
 
-    public function pending(): static
+    public function completed(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'pending',
+            'status' => 'completed',
         ]);
     }
 }

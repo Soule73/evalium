@@ -8,7 +8,7 @@ import { type PaginationType } from '@/types/datatable';
 import { useTranslations } from '@/hooks';
 
 interface LevelListProps {
-  data: PaginationType<Level & { classes_count: number; active_classes_count: number }>;
+  data: PaginationType<Level & { classes_count: number }>;
   permissions?: {
     canUpdate?: boolean;
     canDelete?: boolean;
@@ -27,7 +27,7 @@ export function LevelList({
 }: LevelListProps) {
   const { t } = useTranslations();
 
-  type LevelWithCounts = Level & { classes_count: number; active_classes_count: number };
+  type LevelWithCounts = Level & { classes_count: number };
 
   const config: EntityListConfig<LevelWithCounts> = useMemo(() => ({
     entity: 'level',
@@ -66,11 +66,6 @@ export function LevelList({
         render: (level) => (
           <div className="text-sm">
             <div className="text-gray-900">{level.classes_count}</div>
-            <div className="text-xs text-green-600">
-              {t('admin_pages.levels.active_classes', {
-                active: level.active_classes_count,
-              })}
-            </div>
           </div>
         ),
       },

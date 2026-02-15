@@ -10,7 +10,7 @@ import { type Level } from '@/types';
 import { LevelList } from '@/Components/shared/lists';
 
 interface Props {
-    levels: PaginationType<Level & { classes_count: number; active_classes_count: number }>;
+    levels: PaginationType<Level & { classes_count: number }>;
 }
 
 export default function LevelIndex({ levels }: Props) {
