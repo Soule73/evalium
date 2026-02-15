@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Models;
 
+use App\Enums\AssessmentType;
 use App\Enums\DeliveryMode;
 use App\Models\AcademicYear;
 use App\Models\Assessment;
@@ -256,7 +257,7 @@ class DeliveryModeModelsTest extends TestCase
         $assessment = $this->createAssessment(['examen']);
 
         $this->assertSame(DeliveryMode::Supervised, $assessment->delivery_mode);
-        $this->assertSame('examen', $assessment->type);
+        $this->assertSame(AssessmentType::Examen, $assessment->type);
     }
 
     public function test_devoir_factory_defaults_to_homework(): void
@@ -264,7 +265,7 @@ class DeliveryModeModelsTest extends TestCase
         $assessment = $this->createAssessment(['devoir']);
 
         $this->assertSame(DeliveryMode::Homework, $assessment->delivery_mode);
-        $this->assertSame('devoir', $assessment->type);
+        $this->assertSame(AssessmentType::Devoir, $assessment->type);
     }
 
     public function test_tp_factory_defaults_to_homework(): void
@@ -272,6 +273,6 @@ class DeliveryModeModelsTest extends TestCase
         $assessment = $this->createAssessment(['tp']);
 
         $this->assertSame(DeliveryMode::Homework, $assessment->delivery_mode);
-        $this->assertSame('tp', $assessment->type);
+        $this->assertSame(AssessmentType::Tp, $assessment->type);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\QuestionType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -58,6 +59,20 @@ class Question extends Model
         'points' => 1,
         'order_index' => 1,
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'type' => QuestionType::class,
+            'points' => 'integer',
+            'order_index' => 'integer',
+        ];
+    }
 
     /**
      * Get the assessment that owns the question.

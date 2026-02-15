@@ -22,11 +22,19 @@ class AcademicYear extends Model
         'description',
     ];
 
-    protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
-        'is_current' => 'boolean',
-    ];
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'start_date' => 'date',
+            'end_date' => 'date',
+            'is_current' => 'boolean',
+        ];
+    }
 
     /**
      * Get the semesters for this academic year.

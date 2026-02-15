@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\EnrollmentStatus;
 use App\Traits\HasAcademicYearThroughClass;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,10 +25,19 @@ class Enrollment extends Model
         'status',
     ];
 
-    protected $casts = [
-        'enrolled_at' => 'date',
-        'withdrawn_at' => 'date',
-    ];
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'enrolled_at' => 'date',
+            'withdrawn_at' => 'date',
+            'status' => EnrollmentStatus::class,
+        ];
+    }
 
     /**
      * Get the class this enrollment belongs to.
@@ -60,6 +70,6 @@ class Enrollment extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
+        return $query->where('status', EnrollmentStatus::Active);
     }
 }

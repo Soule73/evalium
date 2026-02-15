@@ -2,6 +2,7 @@
 
 namespace App\Services\Student;
 
+use App\Enums\QuestionType;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\Enrollment;
@@ -242,7 +243,7 @@ class StudentAssessmentService
         $assignment->update([
             'submitted_at' => now(),
             'forced_submission' => true,
-            'security_violation' => $violationType . ($violationDetails ? ': ' . $violationDetails : ''),
+            'security_violation' => $violationType.($violationDetails ? ': '.$violationDetails : ''),
         ]);
 
         return true;
@@ -260,7 +261,7 @@ class StudentAssessmentService
         $assignment->loadMissing('answers.choice');
 
         $autoScorableQuestions = $assessment->questions
-            ->whereNotIn('type', ['text', 'essay'])
+            ->whereNotIn('type', [QuestionType::Text])
             ->keyBy('id');
 
         if ($autoScorableQuestions->isEmpty()) {
@@ -282,7 +283,7 @@ class StudentAssessmentService
             $score = 0.0;
 
             foreach ($strategy as $scoringStrategy) {
-                if ($scoringStrategy->supports($question->type)) {
+                if ($scoringStrategy->supports($question->type->value)) {
                     $score = $scoringStrategy->calculateScore($question, $answers);
                     break;
                 }
@@ -295,7 +296,7 @@ class StudentAssessmentService
             });
         }
 
-        $hasTextQuestions = $assessment->questions->contains(fn($q) => in_array($q->type, ['text', 'essay']));
+        $hasTextQuestions = $assessment->questions->contains(fn ($q) => $q->type->requiresManualGrading());
 
         if (! $hasTextQuestions) {
             $totalScore = $this->scoringService->calculateAssignmentScore($assignment);
@@ -356,7 +357,7 @@ class StudentAssessmentService
 
         $enrollment = $student->enrollments()
             ->where('status', 'active')
-            ->whereHas('class.classSubjects.assessments', fn($q) => $q->whereIn('id', $assessmentIds))
+            ->whereHas('class.classSubjects.assessments', fn ($q) => $q->whereIn('id', $assessmentIds))
             ->first();
 
         return $assessments->map(function ($assessment) use ($enrollment, $assignments) {

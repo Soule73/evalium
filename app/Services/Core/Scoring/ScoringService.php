@@ -3,6 +3,7 @@
 namespace App\Services\Core\Scoring;
 
 use App\Contracts\Scoring\ScoringStrategyInterface;
+use App\Enums\QuestionType;
 use App\Models\AssessmentAssignment;
 use App\Models\Question;
 use App\Strategies\Scoring\BooleanScoringStrategy;
@@ -59,7 +60,7 @@ class ScoringService
                 continue;
             }
 
-            $strategy = $this->getStrategyForQuestionType($question->type);
+            $strategy = $this->getStrategyForQuestionType($question->type->value);
 
             if (! $strategy) {
                 continue;
@@ -80,7 +81,7 @@ class ScoringService
      */
     public function isAnswerCorrect(Question $question, Collection $answers): bool
     {
-        $strategy = $this->getStrategyForQuestionType($question->type);
+        $strategy = $this->getStrategyForQuestionType($question->type->value);
 
         if (! $strategy) {
             return false;
@@ -104,7 +105,7 @@ class ScoringService
             'answers.choice',
         ]);
 
-        $autoCorrectableTypes = ['one_choice', 'multiple', 'boolean'];
+        $autoCorrectableTypes = [QuestionType::OneChoice, QuestionType::Multiple, QuestionType::Boolean];
 
         $autoCorrectableQuestions = $assignment->assessment->questions
             ->whereIn('type', $autoCorrectableTypes)
@@ -127,7 +128,7 @@ class ScoringService
                 continue;
             }
 
-            $strategy = $this->getStrategyForQuestionType($question->type);
+            $strategy = $this->getStrategyForQuestionType($question->type->value);
 
             if (! $strategy) {
                 continue;

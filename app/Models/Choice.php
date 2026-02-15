@@ -54,6 +54,7 @@ class Choice extends Model
     {
         return [
             'is_correct' => 'boolean',
+            'order_index' => 'integer',
         ];
     }
 

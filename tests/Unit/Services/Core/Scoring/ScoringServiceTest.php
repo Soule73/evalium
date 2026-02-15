@@ -2,16 +2,17 @@
 
 namespace Tests\Unit\Services\Core\Scoring;
 
-use Tests\TestCase;
+use App\Enums\QuestionType;
 use App\Models\Answer;
+use App\Models\AssessmentAssignment;
 use App\Models\Choice;
 use App\Models\Question;
-use Illuminate\Support\Facades\DB;
-use App\Models\AssessmentAssignment;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\Traits\InteractsWithTestData;
 use App\Services\Core\Scoring\ScoringService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
+use Tests\Traits\InteractsWithTestData;
 
 class ScoringServiceTest extends TestCase
 {
@@ -512,7 +513,7 @@ class ScoringServiceTest extends TestCase
     }
 
     #[Test]
-    public function calculateAssignmentScore_does_not_cause_n_plus_one(): void
+    public function calculate_assignment_score_does_not_cause_n_plus_one(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
         $assessment = $this->createAssessmentWithQuestions(
@@ -572,7 +573,7 @@ class ScoringServiceTest extends TestCase
     }
 
     #[Test]
-    public function calculateAutoCorrectableScore_does_not_cause_n_plus_one(): void
+    public function calculate_auto_correctable_score_does_not_cause_n_plus_one(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
         $assessment = $this->createAssessmentWithQuestions(
@@ -580,12 +581,12 @@ class ScoringServiceTest extends TestCase
             assessmentAttributes: ['title' => 'Auto Score Test', 'duration_minutes' => 60]
         );
 
-        $assessment->questions->take(5)->each(fn($q) => $q->update(['type' => 'text', 'points' => 10]));
+        $assessment->questions->take(5)->each(fn ($q) => $q->update(['type' => 'text', 'points' => 10]));
 
         $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
         foreach ($assessment->fresh()->questions as $question) {
-            if ($question->type === 'one_choice') {
+            if ($question->type === QuestionType::OneChoice) {
                 $correctChoice = $question->choices()->where('is_correct', true)->first();
                 if ($correctChoice) {
                     $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice->id]);
@@ -608,7 +609,7 @@ class ScoringServiceTest extends TestCase
     }
 
     #[Test]
-    public function saveManualGrades_does_not_cause_n_plus_one(): void
+    public function save_manual_grades_does_not_cause_n_plus_one(): void
     {
         $student = $this->createStudent(['email' => 'student@test.com']);
         $assessment = $this->createAssessmentWithQuestions(
@@ -616,7 +617,7 @@ class ScoringServiceTest extends TestCase
             assessmentAttributes: ['title' => 'Manual Grade Test', 'duration_minutes' => 60]
         );
 
-        $assessment->questions->each(fn($q) => $q->update(['type' => 'text', 'points' => 10]));
+        $assessment->questions->each(fn ($q) => $q->update(['type' => 'text', 'points' => 10]));
         $questions = $assessment->fresh()->questions;
 
         $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);

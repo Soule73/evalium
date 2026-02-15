@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AssessmentType;
 use App\Enums\DeliveryMode;
 use App\Traits\HasAcademicYearThroughClass;
 use App\Traits\HasJsonSettings;
@@ -35,16 +36,25 @@ class Assessment extends Model
         'settings',
     ];
 
-    protected $casts = [
-        'delivery_mode' => DeliveryMode::class,
-        'coefficient' => 'decimal:2',
-        'duration_minutes' => 'integer',
-        'scheduled_at' => 'datetime',
-        'due_date' => 'datetime',
-        'max_file_size' => 'integer',
-        'max_files' => 'integer',
-        'settings' => 'array',
-    ];
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'type' => AssessmentType::class,
+            'delivery_mode' => DeliveryMode::class,
+            'coefficient' => 'decimal:2',
+            'duration_minutes' => 'integer',
+            'scheduled_at' => 'datetime',
+            'due_date' => 'datetime',
+            'max_file_size' => 'integer',
+            'max_files' => 'integer',
+            'settings' => 'array',
+        ];
+    }
 
     protected $appends = [
         'duration',

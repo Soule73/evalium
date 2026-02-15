@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services\Core;
 
+use App\Enums\QuestionType;
 use App\Models\Assessment;
 use App\Models\Choice;
 use App\Models\Question;
@@ -70,7 +71,7 @@ class QuestionCrudServiceTest extends TestCase
 
         $this->assertInstanceOf(Question::class, $question);
         $this->assertEquals('What is 2+2?', $question->content);
-        $this->assertEquals('one_choice', $question->type);
+        $this->assertEquals(QuestionType::OneChoice, $question->type);
         $this->assertEquals(10, $question->points);
         $this->assertEquals(1, $question->order_index);
         $this->assertEquals($assessment->id, $question->assessment_id);

@@ -69,18 +69,6 @@ class Answer extends Model
     }
 
     /**
-     * Get the assessment assignment that this answer belongs to.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\AssessmentAssignment, self>
-     *
-     * @deprecated Use assessmentAssignment() instead
-     */
-    public function assignment(): BelongsTo
-    {
-        return $this->belongsTo(AssessmentAssignment::class);
-    }
-
-    /**
      * Get the question that this answer belongs to.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Question, self>
