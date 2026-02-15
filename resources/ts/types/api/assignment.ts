@@ -1,9 +1,9 @@
 import { type AssessmentAssignment, type Answer } from '../index';
 import { type PaginatedResponse, type ApiResponse } from './common';
 
-export interface GetAssignmentsResponse extends PaginatedResponse<AssessmentAssignment> { }
+export interface GetAssignmentsResponse extends PaginatedResponse<AssessmentAssignment> {}
 
-export interface GetAssignmentResponse extends ApiResponse<AssessmentAssignment> { }
+export interface GetAssignmentResponse extends ApiResponse<AssessmentAssignment> {}
 
 export interface CreateAssignmentRequest {
     enrollment_id: number;

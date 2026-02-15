@@ -6,9 +6,9 @@ import Modal from './Modal';
 describe('Modal Component', () => {
     it('renders when isOpen is true', () => {
         render(
-            <Modal isOpen={true} onClose={() => { }}>
+            <Modal isOpen={true} onClose={() => {}}>
                 <div>Modal Content</div>
-            </Modal>
+            </Modal>,
         );
 
         expect(screen.getByText('Modal Content')).toBeInTheDocument();
@@ -16,9 +16,9 @@ describe('Modal Component', () => {
 
     it('does not render when isOpen is false', () => {
         render(
-            <Modal isOpen={false} onClose={() => { }}>
+            <Modal isOpen={false} onClose={() => {}}>
                 <div>Modal Content</div>
-            </Modal>
+            </Modal>,
         );
 
         expect(screen.queryByText('Modal Content')).not.toBeInTheDocument();
@@ -31,7 +31,7 @@ describe('Modal Component', () => {
         const { container } = render(
             <Modal isOpen={true} onClose={mockOnClose}>
                 <div>Modal Content</div>
-            </Modal>
+            </Modal>,
         );
 
         const backdrop = container.querySelector('.bg-black');
@@ -47,7 +47,7 @@ describe('Modal Component', () => {
         const { container } = render(
             <Modal isOpen={true} onClose={mockOnClose} isCloseableInside={true}>
                 <div>Modal Content</div>
-            </Modal>
+            </Modal>,
         );
 
         const backdrop = container.querySelector('.bg-black');
@@ -64,7 +64,7 @@ describe('Modal Component', () => {
         render(
             <Modal isOpen={true} onClose={mockOnClose}>
                 <div>Modal Content</div>
-            </Modal>
+            </Modal>,
         );
 
         const modalContent = screen.getByText('Modal Content');
@@ -75,18 +75,18 @@ describe('Modal Component', () => {
 
     it('renders with different sizes', () => {
         const { rerender, container } = render(
-            <Modal isOpen={true} onClose={() => { }} size="sm">
+            <Modal isOpen={true} onClose={() => {}} size="sm">
                 <div>Small Modal</div>
-            </Modal>
+            </Modal>,
         );
 
         let dialog = container.querySelector('.max-w-sm');
         expect(dialog).toBeInTheDocument();
 
         rerender(
-            <Modal isOpen={true} onClose={() => { }} size="lg">
+            <Modal isOpen={true} onClose={() => {}} size="lg">
                 <div>Large Modal</div>
-            </Modal>
+            </Modal>,
         );
 
         dialog = container.querySelector('.max-w-lg');
@@ -95,9 +95,9 @@ describe('Modal Component', () => {
 
     it('hides close button when isCloseableInside is false', () => {
         render(
-            <Modal isOpen={true} onClose={() => { }} isCloseableInside={false}>
+            <Modal isOpen={true} onClose={() => {}} isCloseableInside={false}>
                 <div>Modal Content</div>
-            </Modal>
+            </Modal>,
         );
 
         const closeButton = screen.queryByRole('button');

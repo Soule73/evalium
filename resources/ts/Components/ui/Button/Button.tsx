@@ -18,7 +18,8 @@ function Button({
     className = '',
     ...props
 }: ButtonProps) {
-    const baseClasses = 'inline-flex items-center justify-center font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+    const baseClasses =
+        'inline-flex items-center justify-center font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
 
     const variantClasses = {
         solid: 'border border-transparent',
@@ -35,11 +36,15 @@ function Button({
             warning: 'bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500',
         },
         outline: {
-            primary: 'bg-transparent border-indigo-600 text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500',
-            secondary: 'bg-transparent border-gray-200 text-gray-600 hover:bg-gray-50 focus:ring-gray-500',
+            primary:
+                'bg-transparent border-indigo-600 text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500',
+            secondary:
+                'bg-transparent border-gray-200 text-gray-600 hover:bg-gray-50 focus:ring-gray-500',
             danger: 'bg-transparent border-red-600 text-red-600 hover:bg-red-50 focus:ring-red-500',
-            success: 'bg-transparent border-green-600 text-green-600 hover:bg-green-50 focus:ring-green-500',
-            warning: 'bg-transparent border-yellow-600 text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500',
+            success:
+                'bg-transparent border-green-600 text-green-600 hover:bg-green-50 focus:ring-green-500',
+            warning:
+                'bg-transparent border-yellow-600 text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500',
         },
         ghost: {
             primary: 'bg-transparent text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500',

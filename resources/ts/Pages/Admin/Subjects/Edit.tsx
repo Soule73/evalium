@@ -8,32 +8,38 @@ import { SubjectForm } from '@/Components/features/subjects/SubjectForm';
 import { route } from 'ziggy-js';
 
 interface Props {
-  subject: Subject;
-  levels: Level[];
+    subject: Subject;
+    levels: Level[];
 }
 
 export default function SubjectEdit({ subject, levels }: Props) {
-  const { t } = useTranslations();
-  const breadcrumbs = useBreadcrumbs();
+    const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
 
-  const handleCancel = () => {
-    router.visit(route('admin.subjects.show', subject.id));
-  };
+    const handleCancel = () => {
+        router.visit(route('admin.subjects.show', subject.id));
+    };
 
-  const translations = useMemo(() => ({
-    editTitle: t('admin_pages.subjects.edit_title'),
-    editSubtitle: t('admin_pages.subjects.edit_subtitle'),
-  }), [t]);
+    const translations = useMemo(
+        () => ({
+            editTitle: t('admin_pages.subjects.edit_title'),
+            editSubtitle: t('admin_pages.subjects.edit_subtitle'),
+        }),
+        [t],
+    );
 
-  return (
-    <AuthenticatedLayout
-      title={translations.editTitle}
-      breadcrumb={breadcrumbs.admin.editSubject(subject)}
-    >
-      <SubjectForm
-        title={translations.editTitle}
-        subtitle={translations.editSubtitle}
-        subject={subject} levels={levels} onCancel={handleCancel} />
-    </AuthenticatedLayout>
-  );
+    return (
+        <AuthenticatedLayout
+            title={translations.editTitle}
+            breadcrumb={breadcrumbs.admin.editSubject(subject)}
+        >
+            <SubjectForm
+                title={translations.editTitle}
+                subtitle={translations.editSubtitle}
+                subject={subject}
+                levels={levels}
+                onCancel={handleCancel}
+            />
+        </AuthenticatedLayout>
+    );
 }

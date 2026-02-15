@@ -87,11 +87,46 @@ export const LargeSize: Story = {
 export const Colors: Story = {
     render: () => (
         <div className="space-y-3">
-            <Toggle color="blue" label="Blue" checked showLabel activeLabel="Active" inactiveLabel="Inactive" />
-            <Toggle color="green" label="Green" checked showLabel activeLabel="Active" inactiveLabel="Inactive" />
-            <Toggle color="purple" label="Purple" checked showLabel activeLabel="Active" inactiveLabel="Inactive" />
-            <Toggle color="red" label="Red" checked showLabel activeLabel="Active" inactiveLabel="Inactive" />
-            <Toggle color="gray" label="Gray" checked showLabel activeLabel="Active" inactiveLabel="Inactive" />
+            <Toggle
+                color="blue"
+                label="Blue"
+                checked
+                showLabel
+                activeLabel="Active"
+                inactiveLabel="Inactive"
+            />
+            <Toggle
+                color="green"
+                label="Green"
+                checked
+                showLabel
+                activeLabel="Active"
+                inactiveLabel="Inactive"
+            />
+            <Toggle
+                color="purple"
+                label="Purple"
+                checked
+                showLabel
+                activeLabel="Active"
+                inactiveLabel="Inactive"
+            />
+            <Toggle
+                color="red"
+                label="Red"
+                checked
+                showLabel
+                activeLabel="Active"
+                inactiveLabel="Inactive"
+            />
+            <Toggle
+                color="gray"
+                label="Gray"
+                checked
+                showLabel
+                activeLabel="Active"
+                inactiveLabel="Inactive"
+            />
         </div>
     ),
 } as any;
@@ -119,9 +154,7 @@ export const Interactive: Story = {
                     activeLabel="Enabled"
                     inactiveLabel="Disabled"
                 />
-                <p className="text-sm text-gray-600">
-                    Status: {checked ? 'Enabled' : 'Disabled'}
-                </p>
+                <p className="text-sm text-gray-600">Status: {checked ? 'Enabled' : 'Disabled'}</p>
             </div>
         );
     },

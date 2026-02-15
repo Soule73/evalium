@@ -19,18 +19,18 @@ export default function EditRole({ role, groupedPermissions }: Props) {
 
     const allPermissionIds = Object.values(groupedPermissions)
         .flat()
-        .map(p => p.id);
+        .map((p) => p.id);
 
     const [selectedPermissions, setSelectedPermissions] = useState<number[]>(
-        role?.permissions?.map(p => p.id) ?? []
+        role?.permissions?.map((p) => p.id) ?? [],
     );
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handlePermissionToggle = (permissionId: number) => {
-        setSelectedPermissions(prev =>
+        setSelectedPermissions((prev) =>
             prev.includes(permissionId)
-                ? prev.filter(id => id !== permissionId)
-                : [...prev, permissionId]
+                ? prev.filter((id) => id !== permissionId)
+                : [...prev, permissionId],
         );
     };
 
@@ -48,18 +48,21 @@ export default function EditRole({ role, groupedPermissions }: Props) {
             {
                 onFinish: () => setIsSubmitting(false),
                 preserveScroll: true,
-            }
+            },
         );
     };
 
-    const translations = useMemo(() => ({
-        configurePermissions: t('admin_pages.roles.configure_permissions'),
-        configureSubtitle: t('admin_pages.roles.configure_subtitle'),
-        cancel: t('common.cancel'),
-        saving: t('admin_pages.roles.saving'),
-        savePermissions: t('admin_pages.roles.save_permissions'),
-        systemRoleNotice: t('admin_pages.roles.system_role_notice'),
-    }), [t]);
+    const translations = useMemo(
+        () => ({
+            configurePermissions: t('admin_pages.roles.configure_permissions'),
+            configureSubtitle: t('admin_pages.roles.configure_subtitle'),
+            cancel: t('common.cancel'),
+            saving: t('admin_pages.roles.saving'),
+            savePermissions: t('admin_pages.roles.save_permissions'),
+            systemRoleNotice: t('admin_pages.roles.system_role_notice'),
+        }),
+        [t],
+    );
 
     const configureTitleTranslation = useMemo(() => {
         return t('admin_pages.roles.configure_title', { role: role.name });
@@ -90,9 +93,7 @@ export default function EditRole({ role, groupedPermissions }: Props) {
                                 disabled={isSubmitting}
                                 data-e2e="permission-save-button"
                             >
-                                {isSubmitting
-                                    ? translations.saving
-                                    : translations.savePermissions}
+                                {isSubmitting ? translations.saving : translations.savePermissions}
                             </Button>
                         </div>
                     }

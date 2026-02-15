@@ -1,5 +1,10 @@
-import { CheckCircleIcon, XCircleIcon, ExclamationCircleIcon, InformationCircleIcon } from "@heroicons/react/16/solid";
-import React from "react";
+import {
+    CheckCircleIcon,
+    XCircleIcon,
+    ExclamationCircleIcon,
+    InformationCircleIcon,
+} from '@heroicons/react/16/solid';
+import React from 'react';
 
 interface AlertEntry {
     title: string;
@@ -10,10 +15,10 @@ interface AlertEntry {
 
 const AlertEntry: React.FC<AlertEntry> = ({ title, children, type, className }) => {
     const typeStyles = {
-        success: "text-green-600 bg-green-100 border-green-200",
-        error: "text-red-600 bg-red-100 border-red-200",
-        warning: "text-yellow-600 bg-yellow-100 border-yellow-200",
-        info: "text-blue-600 bg-blue-100 border-blue-200",
+        success: 'text-green-600 bg-green-100 border-green-200',
+        error: 'text-red-600 bg-red-100 border-red-200',
+        warning: 'text-yellow-600 bg-yellow-100 border-yellow-200',
+        info: 'text-blue-600 bg-blue-100 border-blue-200',
     }[type];
 
     const icon = {
@@ -32,7 +37,6 @@ const AlertEntry: React.FC<AlertEntry> = ({ title, children, type, className }) 
             {children && children}
         </div>
     );
-}
-
+};
 
 export default AlertEntry;

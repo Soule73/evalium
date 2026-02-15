@@ -22,12 +22,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             <div className="text-gray-400">
                 {icon || <DocumentTextIcon className="w-12 h-12 mx-auto mb-4" />}
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {title}
-            </h3>
-            <p className="text-gray-600 mb-6 text-sm">
-                {subtitle}
-            </p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
+            <p className="text-gray-600 mb-6 text-sm">{subtitle}</p>
             {actions && <div className="inline-block">{actions}</div>}
         </div>
     );

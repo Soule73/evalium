@@ -34,9 +34,7 @@ export function BulkActions({ selectedCount, onDeselectAll, children }: BulkActi
                     {children && (
                         <>
                             <div className="h-6 w-px bg-indigo-300" />
-                            <div className="flex items-center space-x-2">
-                                {children}
-                            </div>
+                            <div className="flex items-center space-x-2">{children}</div>
                         </>
                     )}
                 </div>

@@ -7,7 +7,7 @@ import {
     areSomeSelectableItemsSelected,
     toggleAllPageSelection,
     toggleItemSelection,
-    selectAllItems
+    selectAllItems,
 } from '@/utils';
 
 interface UseDataTableOptions<T> {
@@ -27,7 +27,7 @@ interface UseDataTableOptions<T> {
  */
 export function useDataTable<T extends { id: number | string }>(
     data: PaginationType<T>,
-    options: UseDataTableOptions<T> = {}
+    options: UseDataTableOptions<T> = {},
 ) {
     const {
         initialState = {},
@@ -38,7 +38,7 @@ export function useDataTable<T extends { id: number | string }>(
         isSelectable,
         filters,
         onStateChange,
-        onSelectionChange
+        onSelectionChange,
     } = options;
 
     const [initialized, setInitialized] = useState(false);
@@ -48,7 +48,7 @@ export function useDataTable<T extends { id: number | string }>(
             filters: initialState.filters || {},
             page: data.current_page,
             perPage: data.per_page,
-            ...initialState
+            ...initialState,
         };
 
         if (typeof window === 'undefined') return base;
@@ -97,7 +97,7 @@ export function useDataTable<T extends { id: number | string }>(
     }, [data.current_page, enableSelection]);
 
     useEffect(() => {
-        setState(prev => {
+        setState((prev) => {
             if (prev.page === data.current_page && prev.perPage === data.per_page) {
                 return prev;
             }
@@ -115,46 +115,53 @@ export function useDataTable<T extends { id: number | string }>(
 
     const dataPath = data.path;
 
-    const buildUrl = useCallback((
-        newState: Partial<DataTableState> = {},
-        basePath?: string
-    ) => {
-        const finalState = { ...state, ...newState };
-        const path = basePath || dataPath;
-        return buildDataTableUrl(finalState, path);
-    }, [state, dataPath]);
+    const buildUrl = useCallback(
+        (newState: Partial<DataTableState> = {}, basePath?: string) => {
+            const finalState = { ...state, ...newState };
+            const path = basePath || dataPath;
+            return buildDataTableUrl(finalState, path);
+        },
+        [state, dataPath],
+    );
 
-    const navigate = useCallback((
-        newState: Partial<DataTableState> = {},
-        navOptions: { replace?: boolean; preserveState?: boolean } = {}
-    ) => {
-        const url = buildUrl(newState);
-        setIsNavigating(true);
+    const navigate = useCallback(
+        (
+            newState: Partial<DataTableState> = {},
+            navOptions: { replace?: boolean; preserveState?: boolean } = {},
+        ) => {
+            const url = buildUrl(newState);
+            setIsNavigating(true);
 
-        router.get(url, {}, {
-            preserveState: navOptions.preserveState ?? preserveState,
-            replace: navOptions.replace ?? true,
-            onFinish: () => setIsNavigating(false)
-        });
-    }, [buildUrl, preserveState]);
+            router.get(
+                url,
+                {},
+                {
+                    preserveState: navOptions.preserveState ?? preserveState,
+                    replace: navOptions.replace ?? true,
+                    onFinish: () => setIsNavigating(false),
+                },
+            );
+        },
+        [buildUrl, preserveState],
+    );
 
-    const debouncedNavigate = useCallback((
-        newState: Partial<DataTableState>,
-        immediate = false
-    ) => {
-        if (debounceTimerRef.current) {
-            clearTimeout(debounceTimerRef.current);
-        }
+    const debouncedNavigate = useCallback(
+        (newState: Partial<DataTableState>, immediate = false) => {
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
 
-        if (immediate) {
-            navigate(newState);
-            return;
-        }
+            if (immediate) {
+                navigate(newState);
+                return;
+            }
 
-        debounceTimerRef.current = setTimeout(() => {
-            navigate(newState);
-        }, debounceMs);
-    }, [navigate, debounceMs]);
+            debounceTimerRef.current = setTimeout(() => {
+                navigate(newState);
+            }, debounceMs);
+        },
+        [navigate, debounceMs],
+    );
 
     /**
      * Returns true if all selectable items on the current page are selected
@@ -169,15 +176,18 @@ export function useDataTable<T extends { id: number | string }>(
         return areSomeSelectableItemsSelected(data.data, selectedItems, isSelectable);
     }, [selectedItems, data.data, enableSelection, isSelectable]);
 
-    const toggleItem = useCallback((id: number | string) => {
-        setSelectedItems(prev =>
-            toggleItemSelection(id, data.data, prev, maxSelectable, isSelectable)
-        );
-    }, [data.data, maxSelectable, isSelectable]);
+    const toggleItem = useCallback(
+        (id: number | string) => {
+            setSelectedItems((prev) =>
+                toggleItemSelection(id, data.data, prev, maxSelectable, isSelectable),
+            );
+        },
+        [data.data, maxSelectable, isSelectable],
+    );
 
     const toggleAllOnPage = useCallback(() => {
-        setSelectedItems(prev =>
-            toggleAllPageSelection(data.data, prev, maxSelectable, isSelectable)
+        setSelectedItems((prev) =>
+            toggleAllPageSelection(data.data, prev, maxSelectable, isSelectable),
         );
     }, [data.data, maxSelectable, isSelectable]);
 
@@ -189,9 +199,12 @@ export function useDataTable<T extends { id: number | string }>(
         setSelectedItems(new Set());
     }, []);
 
-    const isItemSelected = useCallback((id: number | string) => {
-        return selectedItems.has(id);
-    }, [selectedItems]);
+    const isItemSelected = useCallback(
+        (id: number | string) => {
+            return selectedItems.has(id);
+        },
+        [selectedItems],
+    );
 
     const getSelectedItems = useCallback(() => {
         return Array.from(selectedItems);
@@ -201,72 +214,104 @@ export function useDataTable<T extends { id: number | string }>(
         return selectedItems.size;
     }, [selectedItems]);
 
-    const setSearch = useCallback((search: string) => {
-        setState(prev => ({ ...prev, search }));
-        debouncedNavigate({ search, page: 1 });
-    }, [debouncedNavigate]);
+    const setSearch = useCallback(
+        (search: string) => {
+            setState((prev) => ({ ...prev, search }));
+            debouncedNavigate({ search, page: 1 });
+        },
+        [debouncedNavigate],
+    );
 
-    const setFilter = useCallback((key: string, value: string) => {
-        setState(prev => {
-            const newFilters = { ...prev.filters, [key]: value };
-            return { ...prev, filters: newFilters };
-        });
-        debouncedNavigate({
-            filters: { ...state.filters, [key]: value },
-            page: 1
-        });
-    }, [state.filters, debouncedNavigate]);
+    const setFilter = useCallback(
+        (key: string, value: string) => {
+            setState((prev) => {
+                const newFilters = { ...prev.filters, [key]: value };
+                return { ...prev, filters: newFilters };
+            });
+            debouncedNavigate({
+                filters: { ...state.filters, [key]: value },
+                page: 1,
+            });
+        },
+        [state.filters, debouncedNavigate],
+    );
 
-    const setFilters = useCallback((newFilters: Record<string, string>) => {
-        setState(prev => ({ ...prev, filters: newFilters }));
-        debouncedNavigate({ filters: newFilters, page: 1 });
-    }, [debouncedNavigate]);
+    const setFilters = useCallback(
+        (newFilters: Record<string, string>) => {
+            setState((prev) => ({ ...prev, filters: newFilters }));
+            debouncedNavigate({ filters: newFilters, page: 1 });
+        },
+        [debouncedNavigate],
+    );
 
     const resetFilters = useCallback(() => {
         const newState = { search: '', filters: {}, page: 1 };
-        setState(prev => ({ ...prev, ...newState }));
+        setState((prev) => ({ ...prev, ...newState }));
         navigate(newState, { replace: true });
     }, [navigate]);
 
-    const goToPage = useCallback((page: number) => {
-        setState(prev => ({ ...prev, page }));
-        navigate({ page });
-    }, [navigate]);
+    const goToPage = useCallback(
+        (page: number) => {
+            setState((prev) => ({ ...prev, page }));
+            navigate({ page });
+        },
+        [navigate],
+    );
 
-    const setPerPage = useCallback((perPage: number) => {
-        setState(prev => ({ ...prev, perPage, page: 1 }));
-        navigate({ perPage, page: 1 });
-    }, [navigate]);
+    const setPerPage = useCallback(
+        (perPage: number) => {
+            setState((prev) => ({ ...prev, perPage, page: 1 }));
+            navigate({ perPage, page: 1 });
+        },
+        [navigate],
+    );
 
-    const navigateToState = useCallback((newState: Partial<DataTableState>, immediate = false) => {
-        setState(prev => ({ ...prev, ...newState }));
-        if (immediate) {
-            navigate(newState);
-        } else {
-            debouncedNavigate(newState);
-        }
-    }, [navigate, debouncedNavigate]);
+    const navigateToState = useCallback(
+        (newState: Partial<DataTableState>, immediate = false) => {
+            setState((prev) => ({ ...prev, ...newState }));
+            if (immediate) {
+                navigate(newState);
+            } else {
+                debouncedNavigate(newState);
+            }
+        },
+        [navigate, debouncedNavigate],
+    );
 
-    const actions = useMemo(() => ({
-        setSearch,
-        setFilter,
-        setFilters,
-        resetFilters,
-        goToPage,
-        setPerPage,
-        navigateToState,
-        toggleItem,
-        toggleAllOnPage,
-        selectAll,
-        deselectAll,
-        isItemSelected,
-        getSelectedItems,
-        getSelectedCount
-    }), [
-        setSearch, setFilter, setFilters, resetFilters, goToPage, setPerPage,
-        navigateToState, toggleItem, toggleAllOnPage, selectAll, deselectAll,
-        isItemSelected, getSelectedItems, getSelectedCount
-    ]);
+    const actions = useMemo(
+        () => ({
+            setSearch,
+            setFilter,
+            setFilters,
+            resetFilters,
+            goToPage,
+            setPerPage,
+            navigateToState,
+            toggleItem,
+            toggleAllOnPage,
+            selectAll,
+            deselectAll,
+            isItemSelected,
+            getSelectedItems,
+            getSelectedCount,
+        }),
+        [
+            setSearch,
+            setFilter,
+            setFilters,
+            resetFilters,
+            goToPage,
+            setPerPage,
+            navigateToState,
+            toggleItem,
+            toggleAllOnPage,
+            selectAll,
+            deselectAll,
+            isItemSelected,
+            getSelectedItems,
+            getSelectedCount,
+        ],
+    );
 
     useEffect(() => {
         return () => {
@@ -285,7 +330,7 @@ export function useDataTable<T extends { id: number | string }>(
             selectedItems,
             allItemsOnPageSelected,
             someItemsOnPageSelected,
-            selectedCount: selectedItems.size
-        }
+            selectedCount: selectedItems.size,
+        },
     };
 }

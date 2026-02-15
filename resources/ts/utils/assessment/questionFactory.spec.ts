@@ -1,10 +1,9 @@
-
 import { describe, it, expect } from 'vitest';
 import {
     createDefaultQuestion,
     createDefaultChoices,
     createBooleanChoices,
-    createChoice
+    createChoice,
 } from './questionFactory';
 
 describe('questionFactory', () => {
@@ -53,7 +52,7 @@ describe('questionFactory', () => {
 
         it('should generate unique negative IDs', async () => {
             const question1 = createDefaultQuestion('multiple', 1);
-            await new Promise(resolve => setTimeout(resolve, 1));
+            await new Promise((resolve) => setTimeout(resolve, 1));
             const question2 = createDefaultQuestion('multiple', 2);
 
             expect(question1.id).not.toBe(question2.id);

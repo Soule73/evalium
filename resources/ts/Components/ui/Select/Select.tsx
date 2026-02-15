@@ -28,25 +28,27 @@ interface SelectProps {
 }
 
 const Select = forwardRef<HTMLDivElement, SelectProps>(
-    ({
-        id,
-        label,
-        error,
-        helperText,
-        options,
-        placeholder,
-        noOptionFound,
-        searchPlaceholder,
-        value,
-        onChange,
-        onBlur,
-        disabled = false,
-        searchable = true,
-        className = '',
-        required = false,
-        name
-    }, ref) => {
-
+    (
+        {
+            id,
+            label,
+            error,
+            helperText,
+            options,
+            placeholder,
+            noOptionFound,
+            searchPlaceholder,
+            value,
+            onChange,
+            onBlur,
+            disabled = false,
+            searchable = true,
+            className = '',
+            required = false,
+            name,
+        },
+        ref,
+    ) => {
         const [isOpen, setIsOpen] = useState(false);
         const [searchTerm, setSearchTerm] = useState('');
         const [filteredOptions, setFilteredOptions] = useState(options);
@@ -63,8 +65,8 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                 return;
             }
 
-            const filtered = options.filter(option =>
-                option.label.toLowerCase().includes(searchTerm.toLowerCase())
+            const filtered = options.filter((option) =>
+                option.label.toLowerCase().includes(searchTerm.toLowerCase()),
             );
             setFilteredOptions(filtered);
             setHighlightedIndex(-1);
@@ -108,13 +110,13 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                     break;
                 case 'ArrowDown':
                     e.preventDefault();
-                    setHighlightedIndex(prev =>
-                        prev < filteredOptions.length - 1 ? prev + 1 : prev
+                    setHighlightedIndex((prev) =>
+                        prev < filteredOptions.length - 1 ? prev + 1 : prev,
                     );
                     break;
                 case 'ArrowUp':
                     e.preventDefault();
-                    setHighlightedIndex(prev => (prev > 0 ? prev - 1 : prev));
+                    setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : prev));
                     break;
                 case 'Enter':
                     e.preventDefault();
@@ -128,11 +130,13 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
         // Faire défiler l'option en surbrillance dans la vue
         useEffect(() => {
             if (highlightedIndex >= 0 && listRef.current) {
-                const highlightedElement = listRef.current.children[highlightedIndex] as HTMLElement;
+                const highlightedElement = listRef.current.children[
+                    highlightedIndex
+                ] as HTMLElement;
                 if (highlightedElement) {
                     highlightedElement.scrollIntoView({
                         block: 'nearest',
-                        behavior: 'smooth'
+                        behavior: 'smooth',
                     });
                 }
             }
@@ -155,7 +159,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
             }
         };
 
-        const selectedOption = options.find(opt => opt.value === value);
+        const selectedOption = options.find((opt) => opt.value === value);
 
         const baseClasses = 'relative w-full';
         const triggerClasses = `
@@ -163,16 +167,22 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
             focus:outline-none focus:ring-2 focus:ring-indigo-500
             transition-all duration-200 cursor-pointer
             flex items-center justify-between
-            ${error
-                ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:border-indigo-500 hover:border-gray-400'
+            ${
+                error
+                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:border-indigo-500 hover:border-gray-400'
             }
             ${disabled ? 'bg-gray-50 cursor-not-allowed opacity-60' : ''}
             ${isOpen ? 'ring-2 ring-indigo-500 border-indigo-500' : ''}
         `.trim();
 
         return (
-            <div className={`${baseClasses} ${className}`} ref={ref} id={id} data-e2e={id ? `${id}-container` : undefined}>
+            <div
+                className={`${baseClasses} ${className}`}
+                ref={ref}
+                id={id}
+                data-e2e={id ? `${id}-container` : undefined}
+            >
                 {/* Hidden input for form submission */}
                 <input type="hidden" name={name} value={value || ''} />
 
@@ -194,12 +204,15 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                         aria-haspopup="listbox"
                         aria-label={label || 'Select option'}
                     >
-                        <span className={`block truncate ${!selectedOption ? 'text-gray-500' : 'text-gray-900'}`}>
-                            {selectedOption ? selectedOption.label : (placeholder || '')}
+                        <span
+                            className={`block truncate ${!selectedOption ? 'text-gray-500' : 'text-gray-900'}`}
+                        >
+                            {selectedOption ? selectedOption.label : placeholder || ''}
                         </span>
                         <ChevronDownIcon
-                            className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''
-                                }`}
+                            className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${
+                                isOpen ? 'rotate-180' : ''
+                            }`}
                         />
                     </div>
 
@@ -241,11 +254,12 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                                             className={`
                                                 px-3 py-2 text-sm cursor-pointer flex items-center justify-between
                                                 transition-colors duration-150
-                                                ${option.disabled
-                                                    ? 'text-gray-400 cursor-not-allowed'
-                                                    : index === highlightedIndex
-                                                        ? 'bg-indigo-50 text-indigo-900'
-                                                        : 'text-gray-900 hover:bg-gray-50'
+                                                ${
+                                                    option.disabled
+                                                        ? 'text-gray-400 cursor-not-allowed'
+                                                        : index === highlightedIndex
+                                                          ? 'bg-indigo-50 text-indigo-900'
+                                                          : 'text-gray-900 hover:bg-gray-50'
                                                 }
                                                 ${option.value === value ? 'bg-indigo-100' : ''}
                                             `.trim()}
@@ -266,15 +280,11 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                     )}
                 </div>
 
-                {error && (
-                    <p className="mt-1 text-sm text-red-600">{error}</p>
-                )}
-                {helperText && !error && (
-                    <p className="mt-1 text-sm text-gray-500">{helperText}</p>
-                )}
+                {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+                {helperText && !error && <p className="mt-1 text-sm text-gray-500">{helperText}</p>}
             </div>
         );
-    }
+    },
 );
 
 Select.displayName = 'Select';

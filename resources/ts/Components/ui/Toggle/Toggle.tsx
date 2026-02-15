@@ -113,10 +113,7 @@ export default function Toggle({
     return (
         <div className={`flex items-center gap-2 ${className}`}>
             {label && (
-                <label
-                    htmlFor={generatedId}
-                    className="text-sm font-medium text-gray-700 mr-2"
-                >
+                <label htmlFor={generatedId} className="text-sm font-medium text-gray-700 mr-2">
                     {label}
                 </label>
             )}
@@ -147,13 +144,7 @@ export default function Toggle({
                 />
             </button>
 
-            {name && (
-                <input
-                    type="hidden"
-                    name={name}
-                    value={isChecked ? '1' : '0'}
-                />
-            )}
+            {name && <input type="hidden" name={name} value={isChecked ? '1' : '0'} />}
 
             {showLabel && (
                 <span

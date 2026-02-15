@@ -1,7 +1,12 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
-import { AcademicCapIcon, BookOpenIcon, ClipboardDocumentListIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
+import {
+    AcademicCapIcon,
+    BookOpenIcon,
+    ClipboardDocumentListIcon,
+    CalendarDaysIcon,
+} from '@heroicons/react/24/outline';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Section, Stat } from '@/Components';
@@ -24,12 +29,18 @@ interface Props {
     stats: Stats;
 }
 
-export default function TeacherDashboard({ stats, activeAssignments, pastAssessments, upcomingAssessments }: Props) {
+export default function TeacherDashboard({
+    stats,
+    activeAssignments,
+    pastAssessments,
+    upcomingAssessments,
+}: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 
     return (
-        <AuthenticatedLayout title={t('dashboard.title.teacher')}
+        <AuthenticatedLayout
+            title={t('dashboard.title.teacher')}
             breadcrumb={breadcrumbs.dashboard()}
         >
             <Stat.Group columns={4} className="mb-8" data-e2e="dashboard-content">
@@ -62,8 +73,8 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
                     <Button
                         onClick={() => router.visit(route('teacher.classes.index'))}
                         color="secondary"
-                        variant='outline'
-                        size='sm'
+                        variant="outline"
+                        size="sm"
                     >
                         {t('dashboard.teacher.view_all_classes')}
                     </Button>
@@ -85,8 +96,8 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
                     <Button
                         onClick={() => router.visit(route('teacher.assessments.index'))}
                         color="secondary"
-                        variant='outline'
-                        size='sm'
+                        variant="outline"
+                        size="sm"
                     >
                         {t('dashboard.teacher.view_all_assessments')}
                     </Button>
@@ -99,7 +110,11 @@ export default function TeacherDashboard({ stats, activeAssignments, pastAssessm
                 title={t('dashboard.teacher.upcoming_assessments_section')}
                 subtitle={t('dashboard.teacher.upcoming_assessments_subtitle')}
             >
-                <AssessmentList data={upcomingAssessments} variant="teacher" showPagination={false} />
+                <AssessmentList
+                    data={upcomingAssessments}
+                    variant="teacher"
+                    showPagination={false}
+                />
             </Section>
         </AuthenticatedLayout>
     );

@@ -9,72 +9,78 @@ import { AcademicYearForm, buildDefaultSemesters } from '@/Components/features/a
 import { route } from 'ziggy-js';
 
 export default function AcademicYearCreate() {
-  const { t } = useTranslations();
-  const breadcrumbs = useBreadcrumbs();
+    const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
 
-  const [formData, setFormData] = useState<AcademicYearFormData>({
-    name: '',
-    start_date: '',
-    end_date: '',
-    is_current: false,
-    semesters: buildDefaultSemesters('', ''),
-  });
+    const [formData, setFormData] = useState<AcademicYearFormData>({
+        name: '',
+        start_date: '',
+        end_date: '',
+        is_current: false,
+        semesters: buildDefaultSemesters('', ''),
+    });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = useCallback((e: FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+    const handleSubmit = useCallback(
+        (e: FormEvent) => {
+            e.preventDefault();
+            setIsSubmitting(true);
 
-    router.post(
-      route('admin.academic-years.store'),
-      formData as unknown as Record<string, FormDataConvertible>,
-      {
-        onError: (errs) => {
-          setErrors(errs as Record<string, string>);
-          setIsSubmitting(false);
+            router.post(
+                route('admin.academic-years.store'),
+                formData as unknown as Record<string, FormDataConvertible>,
+                {
+                    onError: (errs) => {
+                        setErrors(errs as Record<string, string>);
+                        setIsSubmitting(false);
+                    },
+                    onSuccess: () => setIsSubmitting(false),
+                },
+            );
         },
-        onSuccess: () => setIsSubmitting(false),
-      }
+        [formData],
     );
-  }, [formData]);
 
-  const handleCancel = useCallback(() => {
-    router.visit(route('admin.academic-years.archives'));
-  }, []);
+    const handleCancel = useCallback(() => {
+        router.visit(route('admin.academic-years.archives'));
+    }, []);
 
-  const handleErrorsClear = useCallback((field: string) => {
-    setErrors((prev) => ({ ...prev, [field]: '' }));
-  }, []);
+    const handleErrorsClear = useCallback((field: string) => {
+        setErrors((prev) => ({ ...prev, [field]: '' }));
+    }, []);
 
-  const translations = useMemo(() => ({
-    pageTitle: t('admin_pages.academic_years.create_page_title'),
-    sectionTitle: t('admin_pages.academic_years.create_title'),
-    sectionSubtitle: t('admin_pages.academic_years.create_subtitle'),
-    creating: t('admin_pages.common.creating'),
-    create: t('admin_pages.common.create'),
-  }), [t]);
+    const translations = useMemo(
+        () => ({
+            pageTitle: t('admin_pages.academic_years.create_page_title'),
+            sectionTitle: t('admin_pages.academic_years.create_title'),
+            sectionSubtitle: t('admin_pages.academic_years.create_subtitle'),
+            creating: t('admin_pages.common.creating'),
+            create: t('admin_pages.common.create'),
+        }),
+        [t],
+    );
 
-  return (
-    <AuthenticatedLayout
-      title={translations.pageTitle}
-      breadcrumb={breadcrumbs.admin.createAcademicYear()}
-    >
-      <AcademicYearForm
-        formData={formData}
-        errors={errors}
-        isSubmitting={isSubmitting}
-        sectionTitle={translations.sectionTitle}
-        sectionSubtitle={translations.sectionSubtitle}
-        submitLabel={translations.create}
-        submittingLabel={translations.creating}
-        onFormDataChange={setFormData}
-        onErrorsClear={handleErrorsClear}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        showNameHelper
-      />
-    </AuthenticatedLayout>
-  );
+    return (
+        <AuthenticatedLayout
+            title={translations.pageTitle}
+            breadcrumb={breadcrumbs.admin.createAcademicYear()}
+        >
+            <AcademicYearForm
+                formData={formData}
+                errors={errors}
+                isSubmitting={isSubmitting}
+                sectionTitle={translations.sectionTitle}
+                sectionSubtitle={translations.sectionSubtitle}
+                submitLabel={translations.create}
+                submittingLabel={translations.creating}
+                onFormDataChange={setFormData}
+                onErrorsClear={handleErrorsClear}
+                onSubmit={handleSubmit}
+                onCancel={handleCancel}
+                showNameHelper
+            />
+        </AuthenticatedLayout>
+    );
 }

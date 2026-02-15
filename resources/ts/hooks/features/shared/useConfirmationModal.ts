@@ -8,7 +8,7 @@ interface ConfirmationModalState<T = unknown> {
 export function useConfirmationModal<T = unknown>(initialData: T | null = null) {
     const [modal, setModal] = useState<ConfirmationModalState<T>>({
         isOpen: false,
-        data: initialData
+        data: initialData,
     });
 
     const openModal = useCallback((data: T) => {
@@ -23,6 +23,6 @@ export function useConfirmationModal<T = unknown>(initialData: T | null = null) 
         isOpen: modal.isOpen,
         data: modal.data,
         openModal,
-        closeModal
+        closeModal,
     };
 }

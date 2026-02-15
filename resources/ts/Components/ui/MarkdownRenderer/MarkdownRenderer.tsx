@@ -16,14 +16,12 @@ interface MarkdownRendererProps {
  * Renders Markdown content with custom styling for various elements using ReactMarkdown and remark-gfm.
  * Supports mathematical formulas with KaTeX and syntax highlighting with Prism.
  */
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
-    children,
-    className = ''
-}) => {
+const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ children, className = '' }) => {
     return (
         <div className={`markdown-content prose prose-sm max-w-none ${className}`}>
-            <style dangerouslySetInnerHTML={{
-                __html: `
+            <style
+                dangerouslySetInnerHTML={{
+                    __html: `
                 .markdown-content .katex {
                     font-size: 1.1em;
                 }
@@ -53,8 +51,9 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                     border-radius: 0.25rem;
                     font-size: 0.875rem;
                 }
-                `
-            }} />
+                `,
+                }}
+            />
             <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={[rehypeKatex, rehypePrismPlus]}
@@ -91,9 +90,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                     ),
 
                     p: ({ children }) => (
-                        <p className="text-gray-700 mb-4 leading-relaxed last:mb-0">
-                            {children}
-                        </p>
+                        <p className="text-gray-700 mb-4 leading-relaxed last:mb-0">{children}</p>
                     ),
 
                     ul: ({ children }) => (
@@ -106,11 +103,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                             {children}
                         </ol>
                     ),
-                    li: ({ children }) => (
-                        <li className="leading-relaxed">
-                            {children}
-                        </li>
-                    ),
+                    li: ({ children }) => <li className="leading-relaxed">{children}</li>,
 
                     a: ({ href, children }) => (
                         <a
@@ -132,11 +125,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                                 </code>
                             );
                         }
-                        return (
-                            <code className={className}>
-                                {children}
-                            </code>
-                        );
+                        return <code className={className}>{children}</code>;
                     },
 
                     pre: ({ children }) => (
@@ -158,46 +147,26 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                             </table>
                         </div>
                     ),
-                    thead: ({ children }) => (
-                        <thead className="bg-gray-50">
-                            {children}
-                        </thead>
-                    ),
+                    thead: ({ children }) => <thead className="bg-gray-50">{children}</thead>,
                     tbody: ({ children }) => (
-                        <tbody className="divide-y divide-gray-200">
-                            {children}
-                        </tbody>
+                        <tbody className="divide-y divide-gray-200">{children}</tbody>
                     ),
-                    tr: ({ children }) => (
-                        <tr className="hover:bg-gray-50">
-                            {children}
-                        </tr>
-                    ),
+                    tr: ({ children }) => <tr className="hover:bg-gray-50">{children}</tr>,
                     th: ({ children }) => (
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                             {children}
                         </th>
                     ),
                     td: ({ children }) => (
-                        <td className="px-4 py-2 text-sm text-gray-700 border-b">
-                            {children}
-                        </td>
+                        <td className="px-4 py-2 text-sm text-gray-700 border-b">{children}</td>
                     ),
 
-                    hr: () => (
-                        <hr className="my-6 border-gray-300" />
-                    ),
+                    hr: () => <hr className="my-6 border-gray-300" />,
 
                     strong: ({ children }) => (
-                        <strong className="font-semibold text-gray-900">
-                            {children}
-                        </strong>
+                        <strong className="font-semibold text-gray-900">{children}</strong>
                     ),
-                    em: ({ children }) => (
-                        <em className="italic text-gray-700">
-                            {children}
-                        </em>
-                    ),
+                    em: ({ children }) => <em className="italic text-gray-700">{children}</em>,
 
                     img: ({ src, alt }) => (
                         <div className="mb-4">

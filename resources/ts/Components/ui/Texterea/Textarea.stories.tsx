@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { useState } from "react";
-import Textarea from "./Textarea";
+import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
+import Textarea from './Textarea';
 
 const meta = {
-    title: "UI/Textarea",
+    title: 'UI/Textarea',
     component: Textarea,
     parameters: {
-        layout: "centered",
+        layout: 'centered',
     },
 } satisfies Meta<typeof Textarea>;
 
@@ -15,7 +15,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default = {
     render: () => {
-        const [value, setValue] = useState("");
+        const [value, setValue] = useState('');
         return (
             <div className="w-96">
                 <Textarea
@@ -32,7 +32,7 @@ export const Default = {
 export const WithValue = {
     render: () => {
         const [value, setValue] = useState(
-            "This is a sample text that demonstrates the textarea component with initial content.",
+            'This is a sample text that demonstrates the textarea component with initial content.',
         );
         return (
             <div className="w-96">
@@ -48,7 +48,7 @@ export const WithValue = {
 
 export const WithError = {
     render: () => {
-        const [value, setValue] = useState("");
+        const [value, setValue] = useState('');
         return (
             <div className="w-96">
                 <Textarea
@@ -65,7 +65,7 @@ export const WithError = {
 
 export const WithHelperText = {
     render: () => {
-        const [value, setValue] = useState("");
+        const [value, setValue] = useState('');
         return (
             <div className="w-96">
                 <Textarea
@@ -96,7 +96,7 @@ export const Disabled = {
 
 export const CustomRows = {
     render: () => {
-        const [value, setValue] = useState("");
+        const [value, setValue] = useState('');
         return (
             <div className="w-96">
                 <Textarea
@@ -113,7 +113,7 @@ export const CustomRows = {
 
 export const WithCharacterCount = {
     render: () => {
-        const [value, setValue] = useState("");
+        const [value, setValue] = useState('');
         const maxLength = 500;
 
         return (
@@ -133,7 +133,7 @@ export const WithCharacterCount = {
 
 export const AssessmentAnswer = {
     render: () => {
-        const [value, setValue] = useState("");
+        const [value, setValue] = useState('');
         const wordCount = value.trim().split(/\s+/).filter(Boolean).length;
         const minWords = 50;
         const hasError = value && wordCount < minWords;
@@ -146,16 +146,8 @@ export const AssessmentAnswer = {
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
                     rows={6}
-                    error={
-                        hasError
-                            ? `Minimum ${minWords} words required`
-                            : undefined
-                    }
-                    helperText={
-                        !hasError
-                            ? `Word count: ${wordCount}/${minWords}`
-                            : undefined
-                    }
+                    error={hasError ? `Minimum ${minWords} words required` : undefined}
+                    helperText={!hasError ? `Word count: ${wordCount}/${minWords}` : undefined}
                 />
             </div>
         );
@@ -164,13 +156,11 @@ export const AssessmentAnswer = {
 
 export const FeedbackForm = {
     render: () => {
-        const [feedback, setFeedback] = useState("");
+        const [feedback, setFeedback] = useState('');
 
         return (
             <div className="w-96 space-y-4">
-                <h3 className="text-lg font-bold text-gray-900">
-                    Course Feedback
-                </h3>
+                <h3 className="text-lg font-bold text-gray-900">Course Feedback</h3>
                 <Textarea
                     label="What did you like about this course?"
                     placeholder="Share your positive experiences..."
@@ -196,7 +186,7 @@ export const FeedbackForm = {
 
 export const Required = {
     render: () => {
-        const [value, setValue] = useState("");
+        const [value, setValue] = useState('');
         const [touched, setTouched] = useState(false);
         const hasError = touched && !value.trim();
 
@@ -208,7 +198,7 @@ export const Required = {
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
                     onBlur={() => setTouched(true)}
-                    error={hasError ? "This field is required" : undefined}
+                    error={hasError ? 'This field is required' : undefined}
                     required
                 />
             </div>

@@ -1,9 +1,9 @@
 import { type User } from '../index';
 import { type PaginatedResponse, type ApiResponse } from './common';
 
-export interface GetUsersResponse extends PaginatedResponse<User> { }
+export interface GetUsersResponse extends PaginatedResponse<User> {}
 
-export interface GetUserResponse extends ApiResponse<User> { }
+export interface GetUserResponse extends ApiResponse<User> {}
 
 export interface CreateUserRequest {
     name: string;

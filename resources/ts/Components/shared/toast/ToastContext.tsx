@@ -39,10 +39,22 @@ export interface ToastContextType {
     clearAllToasts: () => void;
     setDefaultPosition: (position: ToastPosition) => void;
 
-    success: (message: string, options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>) => string;
-    error: (message: string, options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>) => string;
-    warning: (message: string, options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>) => string;
-    info: (message: string, options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>) => string;
+    success: (
+        message: string,
+        options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>,
+    ) => string;
+    error: (
+        message: string,
+        options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>,
+    ) => string;
+    warning: (
+        message: string,
+        options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>,
+    ) => string;
+    info: (
+        message: string,
+        options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>,
+    ) => string;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -52,24 +64,24 @@ const toastReducer = (state: ToastState, action: ToastAction): ToastState => {
         case 'ADD_TOAST': {
             const newState = {
                 ...state,
-                toasts: [...state.toasts, action.payload]
+                toasts: [...state.toasts, action.payload],
             };
             return newState;
         }
         case 'REMOVE_TOAST':
             return {
                 ...state,
-                toasts: state.toasts.filter(toast => toast.id !== action.payload)
+                toasts: state.toasts.filter((toast) => toast.id !== action.payload),
             };
         case 'CLEAR_ALL_TOASTS':
             return {
                 ...state,
-                toasts: []
+                toasts: [],
             };
         case 'SET_DEFAULT_POSITION':
             return {
                 ...state,
-                defaultPosition: action.payload
+                defaultPosition: action.payload,
             };
         default:
             return state;
@@ -87,14 +99,12 @@ interface ToastProviderProps {
 
 export const ToastProvider: React.FC<ToastProviderProps> = ({
     children,
-    defaultPosition = 'top-right'
+    defaultPosition = 'top-right',
 }) => {
-
     const [state, dispatch] = useReducer(toastReducer, {
         toasts: [],
-        defaultPosition
+        defaultPosition,
     });
-
 
     const addToast = (toast: Omit<ToastData, 'id'>): string => {
         const id = generateId();
@@ -103,7 +113,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
             position: defaultPosition,
             autoClose: true,
             duration: 5000,
-            ...toast
+            ...toast,
         };
 
         dispatch({ type: 'ADD_TOAST', payload: toastData });
@@ -122,24 +132,36 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
         dispatch({ type: 'SET_DEFAULT_POSITION', payload: position });
     };
 
-    const success = (message: string, options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>): string => {
+    const success = (
+        message: string,
+        options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>,
+    ): string => {
         return addToast({ type: 'success', message, ...options });
     };
 
-    const error = (message: string, options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>): string => {
+    const error = (
+        message: string,
+        options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>,
+    ): string => {
         return addToast({
             type: 'error',
             message,
             autoClose: false,
-            ...options
+            ...options,
         });
     };
 
-    const warning = (message: string, options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>): string => {
+    const warning = (
+        message: string,
+        options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>,
+    ): string => {
         return addToast({ type: 'warning', message, ...options });
     };
 
-    const info = (message: string, options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>): string => {
+    const info = (
+        message: string,
+        options?: Partial<Omit<ToastData, 'id' | 'type' | 'message'>>,
+    ): string => {
         return addToast({ type: 'info', message, ...options });
     };
 
@@ -153,14 +175,10 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
         success,
         error,
         warning,
-        info
+        info,
     };
 
-    return (
-        <ToastContext.Provider value={value}>
-            {children}
-        </ToastContext.Provider>
-    );
+    return <ToastContext.Provider value={value}>{children}</ToastContext.Provider>;
 };
 
 export { ToastContext };

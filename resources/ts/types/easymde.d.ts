@@ -5,7 +5,11 @@ declare module 'easymde' {
         getCursor(): { line: number; ch: number };
         setCursor(line: number, ch: number): void;
         getLine(line: number): string;
-        replaceRange(replacement: string, from: { line: number; ch: number }, to?: { line: number; ch: number }): void;
+        replaceRange(
+            replacement: string,
+            from: { line: number; ch: number },
+            to?: { line: number; ch: number },
+        ): void;
         setValue(value: string): void;
         getValue(): string;
         focus(): void;
@@ -28,11 +32,17 @@ declare module 'easymde' {
         placeholder?: string;
         previewRender?: (plainText: string, preview: HTMLElement) => string;
         toolbar?: (string | '|' | ToolbarButton)[] | false;
-        status?: false | boolean | Array<string | {
-            className: string;
-            defaultValue: (el: HTMLElement) => void;
-            onUpdate: (el: HTMLElement) => void;
-        }>;
+        status?:
+            | false
+            | boolean
+            | Array<
+                  | string
+                  | {
+                        className: string;
+                        defaultValue: (el: HTMLElement) => void;
+                        onUpdate: (el: HTMLElement) => void;
+                    }
+              >;
         spellChecker?: boolean;
         autofocus?: boolean;
         lineNumbers?: boolean;
@@ -41,7 +51,11 @@ declare module 'easymde' {
         minHeight?: string;
         maxHeight?: string;
         uploadImage?: boolean;
-        imageUploadFunction?: (file: File, onSuccess: (url: string) => void, onError: (error: string) => void) => void;
+        imageUploadFunction?: (
+            file: File,
+            onSuccess: (url: string) => void,
+            onError: (error: string) => void,
+        ) => void;
         imageUploadEndpoint?: string;
         imageMaxSize?: number;
         forceSync?: boolean;

@@ -5,7 +5,7 @@ import React from 'react';
  */
 export const questionIndexLabel = (
     idx: number,
-    bgClass: string = 'bg-gray-100 text-gray-800'
+    bgClass: string = 'bg-gray-100 text-gray-800',
 ): React.ReactNode => (
     <span
         className={`inline-flex items-center justify-center h-6 w-6 rounded-full ${bgClass} text-xs font-medium mr-2`}
@@ -27,7 +27,7 @@ export const getChoiceIndexLetter = (index: number): string => {
 export const getIndexBgClass = (
     isCorrect: boolean,
     isSelected: boolean,
-    shouldShowCorrect: boolean
+    shouldShowCorrect: boolean,
 ): string => {
     if (!shouldShowCorrect) {
         return 'bg-gray-100 text-gray-800';

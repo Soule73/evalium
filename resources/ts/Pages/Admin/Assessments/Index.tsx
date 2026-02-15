@@ -9,56 +9,54 @@ import { Section } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';
 
 interface FilterOption {
-  id: number;
-  name: string;
+    id: number;
+    name: string;
 }
 
 interface Props extends PageProps {
-  assessments: PaginationType<Assessment>;
-  filters: {
-    search?: string;
-    class_id?: string;
-    subject_id?: string;
-    teacher_id?: string;
-    type?: string;
-    delivery_mode?: string;
-  };
-  classes: FilterOption[];
-  subjects: FilterOption[];
-  teachers: FilterOption[];
+    assessments: PaginationType<Assessment>;
+    filters: {
+        search?: string;
+        class_id?: string;
+        subject_id?: string;
+        teacher_id?: string;
+        type?: string;
+        delivery_mode?: string;
+    };
+    classes: FilterOption[];
+    subjects: FilterOption[];
+    teachers: FilterOption[];
 }
 
-export default function AdminAssessmentsIndex({
-  assessments,
-}: Props) {
-  const { t } = useTranslations();
-  const breadcrumbs = useBreadcrumbs();
+export default function AdminAssessmentsIndex({ assessments }: Props) {
+    const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
 
-  const translations = useMemo(() => ({
-    title: t('admin_pages.assessments.title'),
-    subtitle: t('admin_pages.assessments.subtitle'),
-  }), [t]);
+    const translations = useMemo(
+        () => ({
+            title: t('admin_pages.assessments.title'),
+            subtitle: t('admin_pages.assessments.subtitle'),
+        }),
+        [t],
+    );
 
-  return (
-    <AuthenticatedLayout
-      title={translations.title}
-      breadcrumb={breadcrumbs.admin.assessments()}
-    >
-      <div className="space-y-6">
-        <Section
-          title={translations.title}
-          subtitle={translations.subtitle}
+    return (
+        <AuthenticatedLayout
+            title={translations.title}
+            breadcrumb={breadcrumbs.admin.assessments()}
         >
-          <AssessmentList
-            data={assessments}
-            variant="admin"
-            onView={(item) => {
-              const assessment = item as Assessment;
-              router.visit(route('admin.assessments.show', assessment.id));
-            }}
-          />
-        </Section>
-      </div>
-    </AuthenticatedLayout>
-  );
+            <div className="space-y-6">
+                <Section title={translations.title} subtitle={translations.subtitle}>
+                    <AssessmentList
+                        data={assessments}
+                        variant="admin"
+                        onView={(item) => {
+                            const assessment = item as Assessment;
+                            router.visit(route('admin.assessments.show', assessment.id));
+                        }}
+                    />
+                </Section>
+            </div>
+        </AuthenticatedLayout>
+    );
 }

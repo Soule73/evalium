@@ -1,5 +1,10 @@
-import { type Question, type Answer, type AssessmentAssignment, type Choice, type QuestionResult } from '@/types';
-
+import {
+    type Question,
+    type Answer,
+    type AssessmentAssignment,
+    type Choice,
+    type QuestionResult,
+} from '@/types';
 
 /**
  * Calculates the total possible points from a list of questions.
@@ -8,7 +13,6 @@ export const calculateTotalPoints = (questions: Question[]): number => {
     return questions.reduce((sum, q) => sum + (q.points || 0), 0);
 };
 
-
 /**
  * Calculates the total score from a record of user answers.
  */
@@ -16,20 +20,18 @@ export const calculateTotalScore = (userAnswers: Record<number, Answer>): number
     return Object.values(userAnswers || {}).reduce((sum, answer) => sum + (answer.score || 0), 0);
 };
 
-
 /**
  * Builds a map of question_id -> score from user answers.
  */
 export const buildScoresMap = (userAnswers: Record<number, Answer>): Record<number, number> => {
     const result: Record<number, number> = {};
-    Object.values(userAnswers || {}).forEach(answer => {
+    Object.values(userAnswers || {}).forEach((answer) => {
         if (answer.question_id) {
             result[answer.question_id] = answer.score || 0;
         }
     });
     return result;
 };
-
 
 /**
  * Builds a QuestionResult from a question and its corresponding answer.
@@ -38,7 +40,7 @@ export const buildScoresMap = (userAnswers: Record<number, Answer>): Record<numb
 export const buildQuestionResult = (
     question: Question,
     answer: Answer | undefined,
-    overrides?: { scores?: Record<number, number>; feedbacks?: Record<number, string> }
+    overrides?: { scores?: Record<number, number>; feedbacks?: Record<number, string> },
 ): QuestionResult => {
     if (!answer) {
         return {
@@ -54,7 +56,7 @@ export const buildQuestionResult = (
     const userChoices: Choice[] = [];
 
     if (isMultipleChoice && answer.choices) {
-        answer.choices.forEach(c => {
+        answer.choices.forEach((c) => {
             if (c.choice) {
                 userChoices.push(c.choice);
             }
@@ -76,7 +78,6 @@ export const calculatePercentage = (score: number, totalPoints: number): number 
     return totalPoints > 0 ? Math.round((score / totalPoints) * 100) : 0;
 };
 
-
 /**
  * Ensures that a given score is within the valid range of 0 to maxScore (inclusive).
  *
@@ -88,7 +89,6 @@ export const validateScore = (score: number, maxScore: number): number => {
     return Math.max(0, Math.min(score, maxScore));
 };
 
-
 /**
  * Determines whether a given question requires manual grading.
  *
@@ -99,20 +99,20 @@ export const requiresManualGrading = (question: Question): boolean => {
     return question.type === 'text';
 };
 
-
 /**
  * Converts a record of question scores into an array of objects suitable for saving.
  *
  * @param scores - An object where the keys are question IDs (as numbers) and the values are the corresponding scores.
  * @returns An array of objects, each containing a `question_id` and its associated `score`.
  */
-export const formatScoresForSave = (scores: Record<number, number>): Array<{ question_id: number, score: number }> => {
+export const formatScoresForSave = (
+    scores: Record<number, number>,
+): Array<{ question_id: number; score: number }> => {
     return Object.entries(scores).map(([questionId, score]) => ({
         question_id: parseInt(questionId),
-        score: score
+        score: score,
     }));
 };
-
 
 /**
  * Determines whether the given result object contains a user response.
@@ -123,7 +123,10 @@ export const formatScoresForSave = (scores: Record<number, number>): Array<{ que
  * @param result - The object to check for user responses. Expected to have `userChoices` (array) and/or `userText` (string) properties.
  * @returns `true` if the user has provided a response; otherwise, `false`.
  */
-export const hasUserResponse = (result: { userChoices?: unknown[]; userText?: string }): boolean => {
+export const hasUserResponse = (result: {
+    userChoices?: unknown[];
+    userText?: string;
+}): boolean => {
     if (result.userChoices && result.userChoices.length > 0) {
         return true;
     }
@@ -149,17 +152,22 @@ export const hasUserResponse = (result: { userChoices?: unknown[]; userText?: st
  * @param assignment - The assessment assignment object containing score and assessment details.
  * @returns An object with the formatted score text and a color class, or `null` if the score is not available or total points is zero.
  */
-export const calculateScoreDisplay = (assignment: AssessmentAssignment): { text: string; colorClass: string } | null => {
+export const calculateScoreDisplay = (
+    assignment: AssessmentAssignment,
+): { text: string; colorClass: string } | null => {
     if (assignment.status !== 'graded') {
         return null;
     }
 
     const finalScore = assignment.score ?? assignment.auto_score;
 
-    const totalPoints = assignment.assessment?.questions?.reduce((sum: number, q: { points: number }) => sum + (q.points || 0), 0) || 20;
+    const totalPoints =
+        assignment.assessment?.questions?.reduce(
+            (sum: number, q: { points: number }) => sum + (q.points || 0),
+            0,
+        ) || 20;
 
     if (finalScore !== null && finalScore !== undefined && totalPoints > 0) {
-
         const limitedScore = Math.min(finalScore, totalPoints);
 
         const percentage = Math.round((limitedScore / totalPoints) * 100);
@@ -172,7 +180,7 @@ export const calculateScoreDisplay = (assignment: AssessmentAssignment): { text:
 
         return {
             text: `${limitedScore}/${totalPoints} (${percentage}%)`,
-            colorClass
+            colorClass,
         };
     }
 

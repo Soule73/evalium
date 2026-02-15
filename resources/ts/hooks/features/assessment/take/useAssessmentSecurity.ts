@@ -34,11 +34,7 @@ export function useAssessmentSecurity(config: SecurityConfig = {}): UseAssessmen
 
     const securityEnabled = isSecurityEnabled(assessmentConfig);
 
-    const {
-        maxAttempts = 3,
-        onViolation,
-        onBlocked,
-    } = config;
+    const { maxAttempts = 3, onViolation, onBlocked } = config;
 
     const onViolationRef = useRef(onViolation);
     const onBlockedRef = useRef(onBlocked);
@@ -48,14 +44,17 @@ export function useAssessmentSecurity(config: SecurityConfig = {}): UseAssessmen
         onBlockedRef.current = onBlocked;
     }, [onViolation, onBlocked]);
 
-    const securityFeatures = useMemo(() => ({
-        devToolsDetection: isFeatureEnabled(assessmentConfig, 'devToolsDetection'),
-        printPrevention: isFeatureEnabled(assessmentConfig, 'printPrevention'),
-        copyPastePrevention: isFeatureEnabled(assessmentConfig, 'copyPastePrevention'),
-        tabSwitchDetection: isFeatureEnabled(assessmentConfig, 'tabSwitchDetection'),
-        contextMenuDisabled: isFeatureEnabled(assessmentConfig, 'contextMenuDisabled'),
-        fullscreenRequired: isFeatureEnabled(assessmentConfig, 'fullscreenRequired'),
-    }), [assessmentConfig]);
+    const securityFeatures = useMemo(
+        () => ({
+            devToolsDetection: isFeatureEnabled(assessmentConfig, 'devToolsDetection'),
+            printPrevention: isFeatureEnabled(assessmentConfig, 'printPrevention'),
+            copyPastePrevention: isFeatureEnabled(assessmentConfig, 'copyPastePrevention'),
+            tabSwitchDetection: isFeatureEnabled(assessmentConfig, 'tabSwitchDetection'),
+            contextMenuDisabled: isFeatureEnabled(assessmentConfig, 'contextMenuDisabled'),
+            fullscreenRequired: isFeatureEnabled(assessmentConfig, 'fullscreenRequired'),
+        }),
+        [assessmentConfig],
+    );
 
     const [isFullscreen, setIsFullscreen] = useState(isInFullscreen());
 
@@ -69,40 +68,45 @@ export function useAssessmentSecurity(config: SecurityConfig = {}): UseAssessmen
 
     const [attemptCount, setAttemptCount] = useState(0);
 
-    const addViolation = useCallback((type: SecurityEvent['type'], details?: Record<string, unknown>) => {
-        if (!securityEnabled) return;
+    const addViolation = useCallback(
+        (type: SecurityEvent['type'], details?: Record<string, unknown>) => {
+            if (!securityEnabled) return;
 
-        const violation: SecurityEvent = {
-            type,
-            timestamp: new Date(),
-            details,
-        };
+            const violation: SecurityEvent = {
+                type,
+                timestamp: new Date(),
+                details,
+            };
 
-        setSecurityViolations(prev => [...prev, violation]);
+            setSecurityViolations((prev) => [...prev, violation]);
 
-        setAttemptCount(prev => {
-            const newCount = prev + 1;
+            setAttemptCount((prev) => {
+                const newCount = prev + 1;
 
-            if (onViolationRef.current) {
-                onViolationRef.current(type, details);
-            }
-
-            if (newCount >= maxAttempts) {
-                setIsBlocked(true);
-                if (onBlockedRef.current) {
-                    onBlockedRef.current();
+                if (onViolationRef.current) {
+                    onViolationRef.current(type, details);
                 }
-            }
 
-            return newCount;
-        });
-    }, [securityEnabled, maxAttempts]);
+                if (newCount >= maxAttempts) {
+                    setIsBlocked(true);
+                    if (onBlockedRef.current) {
+                        onBlockedRef.current();
+                    }
+                }
+
+                return newCount;
+            });
+        },
+        [securityEnabled, maxAttempts],
+    );
 
     const enterFullscreen = useCallback(async () => {
         try {
             await document.documentElement.requestFullscreen();
             setIsFullscreen(true);
-        } catch { /* fullscreen request may fail silently */ }
+        } catch {
+            /* fullscreen request may fail silently */
+        }
     }, []);
 
     const exitFullscreen = useCallback(async () => {
@@ -131,7 +135,7 @@ export function useAssessmentSecurity(config: SecurityConfig = {}): UseAssessmen
 
     const getSecurityScore = useCallback(() => {
         if (securityViolations.length === 0) return 100;
-        return Math.max(0, 100 - (securityViolations.length * 10));
+        return Math.max(0, 100 - securityViolations.length * 10);
     }, [securityViolations.length]);
 
     useEffect(() => {
@@ -139,9 +143,11 @@ export function useAssessmentSecurity(config: SecurityConfig = {}): UseAssessmen
 
         const handleKeyDown = (e: KeyboardEvent) => {
             if (securityFeatures.devToolsDetection) {
-                if (e.key === 'F12' ||
+                if (
+                    e.key === 'F12' ||
                     (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-                    (e.ctrlKey && e.key === 'u')) {
+                    (e.ctrlKey && e.key === 'u')
+                ) {
                     e.preventDefault();
                     return;
                 }
@@ -233,8 +239,7 @@ export function useAssessmentSecurity(config: SecurityConfig = {}): UseAssessmen
         let originalPrint: (() => void) | null = null;
         if (securityFeatures.printPrevention) {
             originalPrint = window.print;
-            window.print = () => {
-            };
+            window.print = () => {};
         }
 
         return () => {

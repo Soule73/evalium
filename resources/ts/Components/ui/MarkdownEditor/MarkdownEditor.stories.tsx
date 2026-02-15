@@ -9,7 +9,8 @@ const meta: Meta<typeof MarkdownEditor> = {
         layout: 'padded',
         docs: {
             description: {
-                component: 'A powerful Markdown editor with live preview, syntax highlighting, and math formula support using EasyMDE.',
+                component:
+                    'A powerful Markdown editor with live preview, syntax highlighting, and math formula support using EasyMDE.',
             },
         },
     },
@@ -85,11 +86,7 @@ function solve(a, b, c) {
 `);
         return (
             <div className="w-full max-w-4xl">
-                <MarkdownEditor
-                    value={value}
-                    onChange={setValue}
-                    label="Question Content"
-                />
+                <MarkdownEditor value={value} onChange={setValue} label="Question Content" />
             </div>
         );
     },
@@ -137,7 +134,7 @@ export const Disabled: Story = {
                 <MarkdownEditor
                     label="Read-Only Content"
                     value={value}
-                    onChange={() => { }}
+                    onChange={() => {}}
                     disabled
                 />
             </div>

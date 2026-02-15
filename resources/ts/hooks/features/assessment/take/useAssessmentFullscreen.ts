@@ -29,13 +29,18 @@ interface UseAssessmentFullscreenOptions {
  * - `exitFullscreen`: Function to trigger exiting fullscreen mode.
  */
 export function useAssessmentFullscreen({ security }: UseAssessmentFullscreenOptions) {
-    const { showFullscreenModal, setShowFullscreenModal, assessmentCanStart, setAssessmentCanStart } = useAssessmentTakeStore(
+    const {
+        showFullscreenModal,
+        setShowFullscreenModal,
+        assessmentCanStart,
+        setAssessmentCanStart,
+    } = useAssessmentTakeStore(
         useShallow((state) => ({
             showFullscreenModal: state.showFullscreenModal,
             setShowFullscreenModal: state.setShowFullscreenModal,
             assessmentCanStart: state.assessmentCanStart,
             setAssessmentCanStart: state.setAssessmentCanStart,
-        }))
+        })),
     );
 
     const [fullscreenRequired, setFullscreenRequired] = useState<boolean>(false);
@@ -45,9 +50,10 @@ export function useAssessmentFullscreen({ security }: UseAssessmentFullscreenOpt
     const fullscreenIsSupported = useMemo(() => isFullscreenSupported(), []);
 
     useEffect(() => {
-        const shouldRequireFullscreen = isFeatureEnabled(assessmentConfig, 'fullscreenRequired')
-            && assessmentConfig.securityEnabled
-            && fullscreenIsSupported;
+        const shouldRequireFullscreen =
+            isFeatureEnabled(assessmentConfig, 'fullscreenRequired') &&
+            assessmentConfig.securityEnabled &&
+            fullscreenIsSupported;
 
         if (shouldRequireFullscreen) {
             setFullscreenRequired(true);
@@ -82,7 +88,9 @@ export function useAssessmentFullscreen({ security }: UseAssessmentFullscreenOpt
         if (security?.exitFullscreen) {
             try {
                 await security.exitFullscreen();
-            } catch { /* fullscreen exit may fail silently */ }
+            } catch {
+                /* fullscreen exit may fail silently */
+            }
         }
     }, [security]);
 
@@ -91,6 +99,6 @@ export function useAssessmentFullscreen({ security }: UseAssessmentFullscreenOpt
         fullscreenRequired,
         assessmentCanStart,
         enterFullscreen,
-        exitFullscreen
+        exitFullscreen,
     };
 }

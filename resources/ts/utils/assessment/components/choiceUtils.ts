@@ -22,7 +22,7 @@ export const getBooleanBadgeClass = (isTrue: boolean, shouldHighlight: boolean =
 export const getChoiceStyles = (
     isSelected: boolean,
     isCorrect: boolean,
-    shouldShowCorrect: boolean
+    shouldShowCorrect: boolean,
 ): { bg: string; text: string; borderColor: string } => {
     if (!shouldShowCorrect) {
         return {

@@ -14,7 +14,7 @@ export function LanguageSelector({ currentLocale }: LanguageSelectorProps) {
 
     const languages = [
         { value: 'fr', label: 'Français' },
-        { value: 'en', label: 'English' }
+        { value: 'en', label: 'English' },
     ];
 
     const handleLanguageChange = (value: string | number) => {
@@ -28,14 +28,13 @@ export function LanguageSelector({ currentLocale }: LanguageSelectorProps) {
                     setIsChanging(false);
                     // Reload the page to apply new translations
                     window.location.reload();
-                }
-            }
+                },
+            },
         );
     };
 
     const searchPlaceholder = t('components.select.search_placeholder');
     const noOptionFound = t('components.select.no_option_found');
-
 
     return (
         <div className="w-full sm:w-64">

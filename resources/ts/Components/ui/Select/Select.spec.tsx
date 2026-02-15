@@ -12,15 +12,15 @@ vi.mock('@inertiajs/react', () => ({
                     select: {
                         placeholder: 'Sélectionner',
                         search_placeholder: 'Rechercher...',
-                        no_option_found: 'Aucune option trouvée'
-                    }
-                }
-            }
-        }
+                        no_option_found: 'Aucune option trouvée',
+                    },
+                },
+            },
+        },
     }),
     router: {
-        visit: vi.fn()
-    }
+        visit: vi.fn(),
+    },
 }));
 
 vi.mock('@heroicons/react/24/outline', () => ({

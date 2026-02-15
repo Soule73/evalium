@@ -1,5 +1,11 @@
 import { useMemo } from 'react';
-import { type Question, type Assessment, type AssessmentAssignment, type Answer, type QuestionResult } from '@/types';
+import {
+    type Question,
+    type Assessment,
+    type AssessmentAssignment,
+    type Answer,
+    type QuestionResult,
+} from '@/types';
 
 interface UseAssessmentScoringParams {
     assessment: Assessment;
@@ -12,10 +18,16 @@ interface UseAssessmentScoringParams {
 /**
  * Hook for score and percentage calculations in assessments
  */
-const useAssessmentScoring = ({ assessment, assignment, userAnswers, totalPoints, getQuestionResult }: UseAssessmentScoringParams) => {
+const useAssessmentScoring = ({
+    assessment,
+    assignment,
+    userAnswers,
+    totalPoints,
+    getQuestionResult,
+}: UseAssessmentScoringParams) => {
     const finalScore = useMemo(
         () => assignment.score ?? assignment.auto_score ?? 0,
-        [assignment.score, assignment.auto_score]
+        [assignment.score, assignment.auto_score],
     );
 
     const calculateQuestionScore = useMemo(() => {
@@ -57,7 +69,7 @@ const useAssessmentScoring = ({ assessment, assignment, userAnswers, totalPoints
     const initializeScores = useMemo(() => {
         return (): Record<number, number> => {
             const initialScores: Record<number, number> = {};
-            assessment.questions?.forEach(question => {
+            assessment.questions?.forEach((question) => {
                 const existingScore = userAnswers[question.id]?.score;
 
                 if (existingScore !== null && existingScore !== undefined) {

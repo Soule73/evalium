@@ -81,7 +81,11 @@ export default function StudentDashboard({ user, stats, assessmentAssignments }:
                     </Button>
                 }
             >
-                <AssessmentList data={assessmentAssignments} variant="student" showPagination={false} />
+                <AssessmentList
+                    data={assessmentAssignments}
+                    variant="student"
+                    showPagination={false}
+                />
             </Section>
         </AuthenticatedLayout>
     );

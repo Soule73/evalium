@@ -1,5 +1,5 @@
-import { useForm } from "@inertiajs/react";
-import { route } from "ziggy-js";
+import { useForm } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 
 const useLogin = () => {
     const { data, setData, post, processing, errors } = useForm({

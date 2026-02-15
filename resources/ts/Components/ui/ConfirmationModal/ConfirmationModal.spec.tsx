@@ -11,15 +11,15 @@ vi.mock('@inertiajs/react', () => ({
                 components: {
                     confirmation_modal: {
                         confirm: 'Confirmer',
-                        cancel: 'Annuler'
-                    }
-                }
-            }
-        }
+                        cancel: 'Annuler',
+                    },
+                },
+            },
+        },
     }),
     router: {
-        visit: vi.fn()
-    }
+        visit: vi.fn(),
+    },
 }));
 
 describe('ConfirmationModal Component', () => {
@@ -45,7 +45,14 @@ describe('ConfirmationModal Component', () => {
     });
 
     it('does not render when isOpen is false', () => {
-        render(<ConfirmationModal {...defaultProps} isOpen={false} confirmText="Confirm" cancelText="Cancel" />);
+        render(
+            <ConfirmationModal
+                {...defaultProps}
+                isOpen={false}
+                confirmText="Confirm"
+                cancelText="Cancel"
+            />,
+        );
 
         expect(screen.queryByText('Confirm Action')).not.toBeInTheDocument();
     });
@@ -54,7 +61,14 @@ describe('ConfirmationModal Component', () => {
         const user = userEvent.setup();
         const mockOnConfirm = vi.fn();
 
-        render(<ConfirmationModal {...defaultProps} onConfirm={mockOnConfirm} confirmText="Confirm" cancelText="Cancel" />);
+        render(
+            <ConfirmationModal
+                {...defaultProps}
+                onConfirm={mockOnConfirm}
+                confirmText="Confirm"
+                cancelText="Cancel"
+            />,
+        );
 
         const confirmButton = screen.getByText('Confirm');
         await user.click(confirmButton);
@@ -66,7 +80,14 @@ describe('ConfirmationModal Component', () => {
         const user = userEvent.setup();
         const mockOnClose = vi.fn();
 
-        render(<ConfirmationModal {...defaultProps} onClose={mockOnClose} confirmText="Confirm" cancelText="Cancel" />);
+        render(
+            <ConfirmationModal
+                {...defaultProps}
+                onClose={mockOnClose}
+                confirmText="Confirm"
+                cancelText="Cancel"
+            />,
+        );
 
         const cancelButton = screen.getByText('Cancel');
         await user.click(cancelButton);
@@ -76,12 +97,7 @@ describe('ConfirmationModal Component', () => {
 
     it('renders with custom labels', () => {
         render(
-            <ConfirmationModal
-                {...defaultProps}
-                confirmText="Yes, delete"
-                cancelText="No, keep"
-
-            />
+            <ConfirmationModal {...defaultProps} confirmText="Yes, delete" cancelText="No, keep" />,
         );
 
         expect(screen.getByText('Yes, delete')).toBeInTheDocument();
@@ -89,21 +105,42 @@ describe('ConfirmationModal Component', () => {
     });
 
     it('renders with danger type', () => {
-        render(<ConfirmationModal {...defaultProps} type="danger" confirmText="Confirm" cancelText="Cancel" />);
+        render(
+            <ConfirmationModal
+                {...defaultProps}
+                type="danger"
+                confirmText="Confirm"
+                cancelText="Cancel"
+            />,
+        );
 
         const confirmButton = screen.getByText('Confirm');
         expect(confirmButton).toHaveClass('bg-red-600');
     });
 
     it('renders with warning type', () => {
-        render(<ConfirmationModal {...defaultProps} type="warning" confirmText="Confirm" cancelText="Cancel" />);
+        render(
+            <ConfirmationModal
+                {...defaultProps}
+                type="warning"
+                confirmText="Confirm"
+                cancelText="Cancel"
+            />,
+        );
 
         const confirmButton = screen.getByText('Confirm');
         expect(confirmButton).toHaveClass('bg-yellow-600');
     });
 
     it('disables buttons when loading', () => {
-        render(<ConfirmationModal {...defaultProps} loading confirmText="Confirm" cancelText="Cancel" />);
+        render(
+            <ConfirmationModal
+                {...defaultProps}
+                loading
+                confirmText="Confirm"
+                cancelText="Cancel"
+            />,
+        );
 
         const confirmButton = screen.getByText('Confirm');
         const cancelButton = screen.getByText('Cancel');
@@ -114,9 +151,9 @@ describe('ConfirmationModal Component', () => {
 
     it('renders children when provided', () => {
         render(
-            <ConfirmationModal {...defaultProps} confirmText="Confirm" cancelText="Cancel" >
+            <ConfirmationModal {...defaultProps} confirmText="Confirm" cancelText="Cancel">
                 <div>Custom content</div>
-            </ConfirmationModal>
+            </ConfirmationModal>,
         );
 
         expect(screen.getByText('Custom content')).toBeInTheDocument();

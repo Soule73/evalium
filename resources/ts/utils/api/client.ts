@@ -49,10 +49,7 @@ function buildUrl(url: string, params?: Record<string, string | number | boolean
 /**
  * Make HTTP request with proper error handling
  */
-async function makeRequest<T>(
-    url: string,
-    options: RequestOptions = {}
-): Promise<T> {
+async function makeRequest<T>(url: string, options: RequestOptions = {}): Promise<T> {
     const { params, headers = {}, ...fetchOptions } = options;
 
     const finalUrl = buildUrl(url, params);
@@ -61,7 +58,7 @@ async function makeRequest<T>(
         'Content-Type': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
         'X-CSRF-TOKEN': getCsrfToken(),
-        ...headers as Record<string, string>,
+        ...(headers as Record<string, string>),
     };
 
     try {
@@ -92,15 +89,12 @@ async function makeRequest<T>(
                 throw new ApiError('Validation error', 422, data);
             }
 
-            const errorMessage = typeof data === 'object' && data !== null && 'message' in data
-                ? String((data as { message: unknown }).message)
-                : `HTTP ${response.status}: ${response.statusText}`;
+            const errorMessage =
+                typeof data === 'object' && data !== null && 'message' in data
+                    ? String((data as { message: unknown }).message)
+                    : `HTTP ${response.status}: ${response.statusText}`;
 
-            throw new ApiError(
-                errorMessage,
-                response.status,
-                data
-            );
+            throw new ApiError(errorMessage, response.status, data);
         }
 
         return data as T;
@@ -149,7 +143,11 @@ export const api = {
     delete: <T>(url: string, options: Omit<RequestOptions, 'method' | 'body'> = {}) =>
         makeRequest<T>(url, { ...options, method: 'DELETE' }),
 
-    upload: <T>(url: string, formData: FormData, options: Omit<RequestOptions, 'method' | 'body'> = {}) => {
+    upload: <T>(
+        url: string,
+        formData: FormData,
+        options: Omit<RequestOptions, 'method' | 'body'> = {},
+    ) => {
         const { headers = {}, ...restOptions } = options;
         return makeRequest<T>(url, {
             ...restOptions,
@@ -158,7 +156,7 @@ export const api = {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-TOKEN': getCsrfToken(),
-                ...headers as Record<string, string>,
+                ...(headers as Record<string, string>),
             },
         });
     },
@@ -171,7 +169,12 @@ export { ApiError };
 
 export function handleApiError(error: unknown): string {
     if (error instanceof ApiError) {
-        if (error.status === 422 && error.data && typeof error.data === 'object' && 'errors' in error.data) {
+        if (
+            error.status === 422 &&
+            error.data &&
+            typeof error.data === 'object' &&
+            'errors' in error.data
+        ) {
             const errors = (error.data as { errors: Record<string, string | string[]> }).errors;
             const firstError = Object.values(errors)[0];
             return Array.isArray(firstError) ? firstError[0] : String(firstError);
@@ -183,7 +186,7 @@ export function handleApiError(error: unknown): string {
         return error.message;
     }
 
-    return 'Une erreur inattendue s\'est produite';
+    return "Une erreur inattendue s'est produite";
 }
 
 /**
@@ -199,7 +202,7 @@ export function isOnline(): boolean {
 export async function withRetry<T>(
     fn: () => Promise<T>,
     maxRetries: number = 3,
-    delay: number = 1000
+    delay: number = 1000,
 ): Promise<T> {
     let lastError: Error;
 
@@ -217,7 +220,7 @@ export async function withRetry<T>(
             }
 
             // Exponential backoff
-            await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
+            await new Promise((resolve) => setTimeout(resolve, delay * Math.pow(2, i)));
         }
     }
 

@@ -24,7 +24,11 @@ export function useTranslations() {
     const { language, locale } = usePage<TranslationPageProps>().props;
 
     const t = useCallback(
-        (key: string, replacements: Record<string, string | number> = {}, fallback?: string): string => {
+        (
+            key: string,
+            replacements: Record<string, string | number> = {},
+            fallback?: string,
+        ): string => {
             return translateKey(language, key, replacements, fallback);
         },
         [language],
@@ -38,7 +42,11 @@ export function useTranslations() {
     );
 
     const tChoice = useCallback(
-        (key: string, count: number, replacements: Record<string, string | number> = {}): string => {
+        (
+            key: string,
+            count: number,
+            replacements: Record<string, string | number> = {},
+        ): string => {
             return translateKey(language, key, { count, ...replacements });
         },
         [language],

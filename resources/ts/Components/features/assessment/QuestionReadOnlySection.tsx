@@ -1,8 +1,8 @@
-import { CheckCircleIcon, XMarkIcon } from "@heroicons/react/16/solid";
-import { type Question } from "@/types";
+import { CheckCircleIcon, XMarkIcon } from '@heroicons/react/16/solid';
+import { type Question } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useQuestionTypeUtils } from '@/hooks/shared/useQuestionTypeUtils';
-import { MarkdownRenderer } from "@evalium/ui";
+import { MarkdownRenderer } from '@evalium/ui';
 import { getTypeColor } from '@/utils/assessment/components';
 
 interface QuestionReadOnlySection {
@@ -13,7 +13,13 @@ interface QuestionReadOnlySection {
     questionIndex?: number;
 }
 
-const QuestionReadOnlySection: React.FC<QuestionReadOnlySection> = ({ question, children, isCorrect, score, questionIndex }) => {
+const QuestionReadOnlySection: React.FC<QuestionReadOnlySection> = ({
+    question,
+    children,
+    isCorrect,
+    score,
+    questionIndex,
+}) => {
     const { t } = useTranslations();
     const { getTypeLabel } = useQuestionTypeUtils();
 
@@ -37,18 +43,19 @@ const QuestionReadOnlySection: React.FC<QuestionReadOnlySection> = ({ question, 
                         </span>
                     )}
                     <span className="text-sm text-gray-500 ml-2">
-                        {score && `${score}/`}{question.points} pts
+                        {score && `${score}/`}
+                        {question.points} pts
                     </span>
-                    <span className={`text-xs ml-2 px-2 py-1 min-w-fit h-max rounded-full ${getTypeColor(question.type)}`}>
+                    <span
+                        className={`text-xs ml-2 px-2 py-1 min-w-fit h-max rounded-full ${getTypeColor(question.type)}`}
+                    >
                         {getTypeLabel(question.type)}
                     </span>
                 </div>
             </div>
 
             <div className="mb-4">
-                <MarkdownRenderer className="text-gray-700">
-                    {question.content}
-                </MarkdownRenderer>
+                <MarkdownRenderer className="text-gray-700">{question.content}</MarkdownRenderer>
             </div>
 
             {children}

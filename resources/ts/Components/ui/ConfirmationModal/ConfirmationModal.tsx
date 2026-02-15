@@ -31,29 +31,28 @@ const getTypeStyles = (type: ModalType) => {
             return {
                 iconColor: 'text-red-600',
                 iconBg: 'bg-red-100',
-                confirmButton: 'danger' as ButtonColor
+                confirmButton: 'danger' as ButtonColor,
             };
         case 'warning':
             return {
                 iconColor: 'text-yellow-600',
                 iconBg: 'bg-yellow-100',
-                confirmButton: 'warning' as ButtonColor
+                confirmButton: 'warning' as ButtonColor,
             };
         case 'info':
             return {
                 iconColor: 'text-blue-600',
                 iconBg: 'bg-blue-100',
-                confirmButton: 'primary' as ButtonColor
+                confirmButton: 'primary' as ButtonColor,
             };
         default:
             return {
                 iconColor: 'text-yellow-600',
                 iconBg: 'bg-yellow-100',
-                confirmButton: 'warning' as ButtonColor
+                confirmButton: 'warning' as ButtonColor,
             };
     }
 };
-
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     isOpen,
@@ -67,26 +66,26 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     icon = ExclamationTriangleIcon,
     loading = false,
     isCloseableInside = true,
-    size = "md",
+    size = 'md',
     children,
-    testIdModal = "confirmation-modal",
-    testIdConfirmButton = "confirm-button",
-    testIdCancelButton = "cancel-button"
+    testIdModal = 'confirmation-modal',
+    testIdConfirmButton = 'confirm-button',
+    testIdCancelButton = 'cancel-button',
 }) => {
-
-
     const styles = getTypeStyles(type);
 
     return (
-        <Modal isOpen={isOpen} size={size} onClose={onClose} isCloseableInside={isCloseableInside && !loading}
+        <Modal
+            isOpen={isOpen}
+            size={size}
+            onClose={onClose}
+            isCloseableInside={isCloseableInside && !loading}
             testIdModal={testIdModal}
         >
-            <div className=' min-h-72 flex flex-col items-center justify-between p-6'>
+            <div className=" min-h-72 flex flex-col items-center justify-between p-6">
                 {React.createElement(icon, { className: `w-12 h-12 mb-4 ${styles.iconColor}` })}
                 <h3 className="text-lg font-bold mb-4">{title}</h3>
-                <p className="text-gray-600 mb-6 text-center ">
-                    {message}
-                </p>
+                <p className="text-gray-600 mb-6 text-center ">{message}</p>
                 {children}
                 <div className="flex justify-end w-full space-x-4">
                     <Button

@@ -1,24 +1,24 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import Section from "./Section";
-import Button from "../Button/Button";
+import type { Meta, StoryObj } from '@storybook/react';
+import Section from './Section';
+import Button from '../Button/Button';
 
 const meta = {
-    title: "UI/Section",
+    title: 'UI/Section',
     component: Section,
     parameters: {
-        layout: "padded",
+        layout: 'padded',
     },
 
     argTypes: {
         collapsible: {
-            control: "boolean",
+            control: 'boolean',
         },
         defaultOpen: {
-            control: "boolean",
+            control: 'boolean',
         },
         variant: {
-            control: "select",
-            options: ["elevated", "flat"],
+            control: 'select',
+            options: ['elevated', 'flat'],
         },
     },
 } satisfies Meta<typeof Section>;
@@ -28,7 +28,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
     args: {
-        title: "Section Title",
+        title: 'Section Title',
         children: (
             <div className="space-y-4">
                 <p className="text-gray-600">This is the section content.</p>
@@ -42,13 +42,11 @@ export const Default: Story = {
 
 export const WithSubtitle: Story = {
     args: {
-        title: "User Settings",
-        subtitle: "Manage your account preferences and settings",
+        title: 'User Settings',
+        subtitle: 'Manage your account preferences and settings',
         children: (
             <div className="space-y-4">
-                <p className="text-gray-600">
-                    Configure your profile information and preferences.
-                </p>
+                <p className="text-gray-600">Configure your profile information and preferences.</p>
             </div>
         ),
     },
@@ -56,8 +54,8 @@ export const WithSubtitle: Story = {
 
 export const WithActions: Story = {
     args: {
-        title: "Assessment Management",
-        subtitle: "Create and manage your assessments",
+        title: 'Assessment Management',
+        subtitle: 'Create and manage your assessments',
         actions: (
             <div className="flex space-x-2">
                 <Button size="sm" variant="outline" color="secondary">
@@ -70,9 +68,7 @@ export const WithActions: Story = {
         ),
         children: (
             <div className="space-y-4">
-                <p className="text-gray-600">
-                    List of all assessments will appear here.
-                </p>
+                <p className="text-gray-600">List of all assessments will appear here.</p>
             </div>
         ),
     },
@@ -80,15 +76,13 @@ export const WithActions: Story = {
 
 export const Collapsible: Story = {
     args: {
-        title: "Advanced Settings",
-        subtitle: "Optional configuration options",
+        title: 'Advanced Settings',
+        subtitle: 'Optional configuration options',
         collapsible: true,
         defaultOpen: true,
         children: (
             <div className="space-y-4">
-                <p className="text-gray-600">
-                    These settings are optional and can be collapsed.
-                </p>
+                <p className="text-gray-600">These settings are optional and can be collapsed.</p>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-gray-50 rounded">Setting 1</div>
                     <div className="p-4 bg-gray-50 rounded">Setting 2</div>
@@ -102,7 +96,7 @@ export const Collapsible: Story = {
 
 export const CollapsibleClosed: Story = {
     args: {
-        title: "Additional Information",
+        title: 'Additional Information',
         collapsible: true,
         defaultOpen: false,
         children: (
@@ -135,9 +129,7 @@ export const WithCustomTitle: Story = {
         ),
         children: (
             <div className="space-y-4">
-                <p className="text-gray-600">
-                    The title can be any React node.
-                </p>
+                <p className="text-gray-600">The title can be any React node.</p>
             </div>
         ),
     },
@@ -145,9 +137,9 @@ export const WithCustomTitle: Story = {
 
 export const Flat: Story = {
     args: {
-        title: "Flat Section",
-        subtitle: "A section without background and shadow",
-        variant: "flat",
+        title: 'Flat Section',
+        subtitle: 'A section without background and shadow',
+        variant: 'flat',
         actions: (
             <Button size="sm" color="primary">
                 Action
@@ -155,9 +147,7 @@ export const Flat: Story = {
         ),
         children: (
             <div className="space-y-4">
-                <p className="text-gray-600">
-                    This section has a flat variant without elevation.
-                </p>
+                <p className="text-gray-600">This section has a flat variant without elevation.</p>
             </div>
         ),
     },
@@ -165,8 +155,8 @@ export const Flat: Story = {
 
 export const WithRichContent: Story = {
     args: {
-        title: "Assessment Questions",
-        subtitle: "5 questions total",
+        title: 'Assessment Questions',
+        subtitle: '5 questions total',
         actions: (
             <Button size="sm" color="primary">
                 Add Question
@@ -175,16 +165,9 @@ export const WithRichContent: Story = {
         children: (
             <div className="space-y-3">
                 {[1, 2, 3, 4, 5].map((num) => (
-                    <div
-                        key={num}
-                        className="p-4 bg-gray-50 rounded-lg border border-gray-200"
-                    >
-                        <h4 className="font-medium text-gray-900 mb-2">
-                            Question {num}
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                            This is a sample question content.
-                        </p>
+                    <div key={num} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h4 className="font-medium text-gray-900 mb-2">Question {num}</h4>
+                        <p className="text-sm text-gray-600">This is a sample question content.</p>
                     </div>
                 ))}
             </div>

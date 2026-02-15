@@ -16,17 +16,10 @@ function DataTablePaginationInner<T>({
     onPageChange,
     onPerPageChange,
     isLoading = false,
-    perPageOptions = [10, 25, 50, 100]
+    perPageOptions = [10, 25, 50, 100],
 }: DataTablePaginationProps<T>) {
     const { t } = useTranslations();
-    const {
-        current_page,
-        last_page,
-        from,
-        to,
-        total,
-        per_page
-    } = data;
+    const { current_page, last_page, from, to, total, per_page } = data;
 
     const visiblePages = useMemo(() => {
         const delta = 2;
@@ -39,7 +32,11 @@ function DataTablePaginationInner<T>({
             }
         }
 
-        for (let i = Math.max(1, current_page - delta); i <= Math.min(last_page, current_page + delta); i++) {
+        for (
+            let i = Math.max(1, current_page - delta);
+            i <= Math.min(last_page, current_page + delta);
+            i++
+        ) {
             pages.push(i);
         }
 
@@ -53,17 +50,23 @@ function DataTablePaginationInner<T>({
         return pages;
     }, [current_page, last_page]);
 
-    const handlePageChange = useCallback((page: number) => {
-        if (page !== current_page && page >= 1 && page <= last_page && !isLoading) {
-            onPageChange(page);
-        }
-    }, [current_page, last_page, isLoading, onPageChange]);
+    const handlePageChange = useCallback(
+        (page: number) => {
+            if (page !== current_page && page >= 1 && page <= last_page && !isLoading) {
+                onPageChange(page);
+            }
+        },
+        [current_page, last_page, isLoading, onPageChange],
+    );
 
-    const handlePerPageChange = useCallback((newPerPage: number) => {
-        if (newPerPage !== per_page && !isLoading) {
-            onPerPageChange(newPerPage);
-        }
-    }, [per_page, isLoading, onPerPageChange]);
+    const handlePerPageChange = useCallback(
+        (newPerPage: number) => {
+            if (newPerPage !== per_page && !isLoading) {
+                onPerPageChange(newPerPage);
+            }
+        },
+        [per_page, isLoading, onPerPageChange],
+    );
 
     return (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-6 py-4 bg-white border-t border-gray-200">
@@ -72,7 +75,7 @@ function DataTablePaginationInner<T>({
                     {t('components.datatable.showing_records', {
                         from: String(from || 0),
                         to: String(to || 0),
-                        total: String(total)
+                        total: String(total),
                     })}
                 </div>
 
@@ -116,10 +119,11 @@ function DataTablePaginationInner<T>({
                             <button
                                 onClick={() => handlePageChange(page as number)}
                                 disabled={isLoading}
-                                className={`inline-flex items-center px-4 py-2 text-sm font-medium border ${page === current_page
-                                    ? 'bg-indigo-50 border-indigo-500 text-indigo-600'
-                                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                className={`inline-flex items-center px-4 py-2 text-sm font-medium border ${
+                                    page === current_page
+                                        ? 'bg-indigo-50 border-indigo-500 text-indigo-600'
+                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                } disabled:opacity-50 disabled:cursor-not-allowed`}
                             >
                                 {page}
                             </button>
@@ -140,4 +144,6 @@ function DataTablePaginationInner<T>({
     );
 }
 
-export const DataTablePagination = memo(DataTablePaginationInner) as typeof DataTablePaginationInner;
+export const DataTablePagination = memo(
+    DataTablePaginationInner,
+) as typeof DataTablePaginationInner;

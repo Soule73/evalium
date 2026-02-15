@@ -34,7 +34,7 @@ const ChoiceEditor: React.FC<ChoiceEditorProps> = ({
     required = false,
     error,
     readOnly = false,
-    className = "",
+    className = '',
     isMarkdownMode = false,
     showPreview = false,
     onToggleMarkdownMode,
@@ -49,9 +49,8 @@ const ChoiceEditor: React.FC<ChoiceEditorProps> = ({
     switchToSimpleTitle = 'Switch to simple editor',
     switchToMarkdownTitle = 'Switch to Markdown editor',
     showPreviewTitle = 'Show preview',
-    hidePreviewTitle = 'Hide preview'
+    hidePreviewTitle = 'Hide preview',
 }) => {
-
     if (readOnly) {
         return (
             <Input
@@ -77,13 +76,18 @@ const ChoiceEditor: React.FC<ChoiceEditorProps> = ({
                             onToggleMarkdownMode();
                         }
                     }}
-                    className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-md transition-colors ${isMarkdownMode
-                        ? 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
+                    className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-md transition-colors ${
+                        isMarkdownMode
+                            ? 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
                     title={isMarkdownMode ? switchToSimpleTitle : switchToMarkdownTitle}
                 >
-                    {isMarkdownMode ? <PencilIcon className="w-3 h-3 mr-1" /> : <PencilIcon className="w-3 h-3 mr-1" />}
+                    {isMarkdownMode ? (
+                        <PencilIcon className="w-3 h-3 mr-1" />
+                    ) : (
+                        <PencilIcon className="w-3 h-3 mr-1" />
+                    )}
                     {isMarkdownMode ? markdownModeLabel : simpleModeLabel}
                 </button>
 
@@ -95,10 +99,11 @@ const ChoiceEditor: React.FC<ChoiceEditorProps> = ({
                                 onTogglePreview();
                             }
                         }}
-                        className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-md transition-colors ${showPreview
-                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                            }`}
+                        className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-md transition-colors ${
+                            showPreview
+                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
                         title={showPreview ? hidePreviewTitle : showPreviewTitle}
                     >
                         <EyeIcon className="w-3 h-3 mr-1" />
@@ -134,12 +139,12 @@ const ChoiceEditor: React.FC<ChoiceEditorProps> = ({
 
                 {showPreview && isMarkdownMode && (
                     <div className="border border-gray-200 rounded-md p-3 bg-gray-50">
-                        <div className="text-xs text-gray-500 mb-2 font-medium">{previewHeaderLabel}</div>
+                        <div className="text-xs text-gray-500 mb-2 font-medium">
+                            {previewHeaderLabel}
+                        </div>
                         <div className="text-sm">
                             {value ? (
-                                <MarkdownRenderer className="text-sm">
-                                    {value}
-                                </MarkdownRenderer>
+                                <MarkdownRenderer className="text-sm">{value}</MarkdownRenderer>
                             ) : (
                                 <span className="text-gray-400 italic">{noContentLabel}</span>
                             )}

@@ -28,14 +28,17 @@ export default function LevelIndex({ levels }: Props) {
         handleDelete,
     } = useListLevels();
 
-    const translations = useMemo(() => ({
-        title: t('admin_pages.levels.title'),
-        subtitle: t('admin_pages.levels.subtitle'),
-        create: t('admin_pages.levels.create'),
-        deleteTitle: t('admin_pages.levels.delete_title'),
-        delete: t('admin_pages.common.delete'),
-        cancel: t('admin_pages.common.cancel'),
-    }), [t]);
+    const translations = useMemo(
+        () => ({
+            title: t('admin_pages.levels.title'),
+            subtitle: t('admin_pages.levels.subtitle'),
+            create: t('admin_pages.levels.create'),
+            deleteTitle: t('admin_pages.levels.delete_title'),
+            delete: t('admin_pages.common.delete'),
+            cancel: t('admin_pages.common.cancel'),
+        }),
+        [t],
+    );
 
     const deleteMessageTranslation = useMemo(() => {
         if (!deleteModal.data) return '';
@@ -43,16 +46,13 @@ export default function LevelIndex({ levels }: Props) {
     }, [t, deleteModal.data]);
 
     return (
-        <AuthenticatedLayout
-            title={translations.title}
-            breadcrumb={breadcrumbs.levels()}
-        >
+        <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.levels()}>
             <Section
                 title={translations.title}
                 subtitle={translations.subtitle}
                 actions={
                     canCreateLevels && (
-                        <Button onClick={handleCreate} size='sm'>
+                        <Button onClick={handleCreate} size="sm">
                             <PlusIcon className="w-5 h-5 mr-2" />
                             {translations.create}
                         </Button>

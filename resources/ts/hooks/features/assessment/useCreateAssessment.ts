@@ -6,87 +6,90 @@ import { type QuestionFormData, type AssessmentType, type DeliveryMode } from '@
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
 
 interface AssessmentCreateData {
-  title: string;
-  description: string;
-  duration: number;
-  scheduled_date: string;
-  due_date: string;
-  delivery_mode: DeliveryMode;
-  type: AssessmentType;
-  class_subject_id: number;
-  is_published: boolean;
-  shuffle_questions: boolean;
-  show_results_immediately: boolean;
-  show_correct_answers: boolean;
-  allow_late_submission: boolean;
-  one_question_per_page: boolean;
-  questions: QuestionFormData[];
+    title: string;
+    description: string;
+    duration: number;
+    scheduled_date: string;
+    due_date: string;
+    delivery_mode: DeliveryMode;
+    type: AssessmentType;
+    class_subject_id: number;
+    is_published: boolean;
+    shuffle_questions: boolean;
+    show_results_immediately: boolean;
+    show_correct_answers: boolean;
+    allow_late_submission: boolean;
+    one_question_per_page: boolean;
+    questions: QuestionFormData[];
 }
 
 export const useCreateAssessment = () => {
-  const { questions, resetStore } = useAssessmentFormStore(useShallow((state) => ({
-    questions: state.questions,
-    resetStore: state.reset,
-  })));
+    const { questions, resetStore } = useAssessmentFormStore(
+        useShallow((state) => ({
+            questions: state.questions,
+            resetStore: state.reset,
+        })),
+    );
 
-  const { data, setData, post, processing, errors, reset, clearErrors, transform } = useForm<AssessmentCreateData>({
-    title: '',
-    description: '',
-    duration: 60,
-    scheduled_date: '',
-    due_date: '',
-    delivery_mode: 'homework',
-    type: 'homework',
-    class_subject_id: 0,
-    is_published: false,
-    shuffle_questions: false,
-    show_results_immediately: true,
-    show_correct_answers: false,
-    allow_late_submission: false,
-    one_question_per_page: false,
-    questions: []
-  });
+    const { data, setData, post, processing, errors, reset, clearErrors, transform } =
+        useForm<AssessmentCreateData>({
+            title: '',
+            description: '',
+            duration: 60,
+            scheduled_date: '',
+            due_date: '',
+            delivery_mode: 'homework',
+            type: 'homework',
+            class_subject_id: 0,
+            is_published: false,
+            shuffle_questions: false,
+            show_results_immediately: true,
+            show_correct_answers: false,
+            allow_late_submission: false,
+            one_question_per_page: false,
+            questions: [],
+        });
 
-  useEffect(() => {
-    resetStore();
-  }, [resetStore]);
-
-  useEffect(() => {
-    if (Object.keys(errors).length > 0) {
-      console.warn('Validation errors detected:', errors);
-    }
-  }, [errors]);
-
-  const handleFieldChange = (field: string, value: string | number | boolean) => {
-    setData(field as keyof AssessmentCreateData, value);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    clearErrors();
-
-    console.warn('Submitted data:', { ...data, questions });
-
-    transform((data) => ({
-      ...data,
-      questions
-    }));
-
-    post(route('teacher.assessments.store'), {
-      onSuccess: () => {
-        reset();
+    useEffect(() => {
         resetStore();
-      }
-    });
-  };
+    }, [resetStore]);
 
-  return {
-    data,
-    errors,
-    processing,
-    handleFieldChange,
-    handleSubmit,
-    reset
-  };
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            console.warn('Validation errors detected:', errors);
+        }
+    }, [errors]);
+
+    const handleFieldChange = (field: string, value: string | number | boolean) => {
+        setData(field as keyof AssessmentCreateData, value);
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        clearErrors();
+
+        console.warn('Submitted data:', { ...data, questions });
+
+        transform((data) => ({
+            ...data,
+            questions,
+        }));
+
+        post(route('teacher.assessments.store'), {
+            onSuccess: () => {
+                reset();
+                resetStore();
+            },
+        });
+    };
+
+    return {
+        data,
+        errors,
+        processing,
+        handleFieldChange,
+        handleSubmit,
+        reset,
+    };
 };

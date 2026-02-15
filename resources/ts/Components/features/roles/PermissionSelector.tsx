@@ -31,14 +31,16 @@ export function PermissionSelector({
         <div className="space-y-3" data-e2e="permission-selector">
             <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-gray-700">
-                    {t('components.permission_selector.label', { count: selectedPermissions.length })}
+                    {t('components.permission_selector.label', {
+                        count: selectedPermissions.length,
+                    })}
                 </label>
                 <div className="flex gap-2">
                     <Button
                         type="button"
                         onClick={onSelectAll}
                         size="sm"
-                        variant='outline'
+                        variant="outline"
                         color="secondary"
                         data-e2e="permission-select-all"
                     >
@@ -48,7 +50,7 @@ export function PermissionSelector({
                         type="button"
                         onClick={onDeselectAll}
                         size="sm"
-                        variant='outline'
+                        variant="outline"
                         color="secondary"
                         data-e2e="permission-deselect-all"
                     >
@@ -70,11 +72,15 @@ export function PermissionSelector({
             </div>
 
             {error && (
-                <p className="text-sm text-red-600" data-e2e="permission-selector-error">{error}</p>
+                <p className="text-sm text-red-600" data-e2e="permission-selector-error">
+                    {error}
+                </p>
             )}
             <div className="space-y-6">
                 {Object.entries(groupedPermissions).map(([category, categoryPermissions]) => (
-                    <Section title={category} key={category}
+                    <Section
+                        title={category}
+                        key={category}
                         className="border border-gray-200 rounded-lg overflow-hidden"
                     >
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-4">
@@ -95,7 +101,6 @@ export function PermissionSelector({
                     </Section>
                 ))}
             </div>
-
         </div>
     );
 }

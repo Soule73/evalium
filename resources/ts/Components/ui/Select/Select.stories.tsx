@@ -1,19 +1,19 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { useState } from "react";
-import Select from "./Select";
+import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
+import Select from './Select';
 
 const meta = {
-    title: "UI/Select",
+    title: 'UI/Select',
     component: Select,
     parameters: {
-        layout: "centered",
+        layout: 'centered',
     },
     argTypes: {
         searchable: {
-            control: "boolean",
+            control: 'boolean',
         },
         disabled: {
-            control: "boolean",
+            control: 'boolean',
         },
     },
 } satisfies Meta<typeof Select>;
@@ -22,27 +22,27 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const countries = [
-    { value: "fr", label: "France" },
-    { value: "us", label: "United States" },
-    { value: "uk", label: "United Kingdom" },
-    { value: "de", label: "Germany" },
-    { value: "es", label: "Spain" },
-    { value: "it", label: "Italy" },
-    { value: "ca", label: "Canada" },
-    { value: "au", label: "Australia" },
-    { value: "jp", label: "Japan" },
-    { value: "cn", label: "China" },
+    { value: 'fr', label: 'France' },
+    { value: 'us', label: 'United States' },
+    { value: 'uk', label: 'United Kingdom' },
+    { value: 'de', label: 'Germany' },
+    { value: 'es', label: 'Spain' },
+    { value: 'it', label: 'Italy' },
+    { value: 'ca', label: 'Canada' },
+    { value: 'au', label: 'Australia' },
+    { value: 'jp', label: 'Japan' },
+    { value: 'cn', label: 'China' },
 ];
 
 const roles = [
-    { value: "admin", label: "Administrator" },
-    { value: "teacher", label: "Teacher" },
-    { value: "student", label: "Student" },
+    { value: 'admin', label: 'Administrator' },
+    { value: 'teacher', label: 'Teacher' },
+    { value: 'student', label: 'Student' },
 ];
 
 export const Default = {
     render: () => {
-        const [value, setValue] = useState<string | number>("");
+        const [value, setValue] = useState<string | number>('');
         return (
             <div className="w-80">
                 <Select
@@ -59,7 +59,7 @@ export const Default = {
 
 export const WithValue = {
     render: () => {
-        const [value, setValue] = useState<string | number>("fr");
+        const [value, setValue] = useState<string | number>('fr');
         return (
             <div className="w-80">
                 <Select
@@ -76,7 +76,7 @@ export const WithValue = {
 
 export const WithError = {
     render: () => {
-        const [value, setValue] = useState<string | number>("");
+        const [value, setValue] = useState<string | number>('');
         return (
             <div className="w-80">
                 <Select
@@ -94,7 +94,7 @@ export const WithError = {
 
 export const WithHelperText = {
     render: () => {
-        const [value, setValue] = useState<string | number>("");
+        const [value, setValue] = useState<string | number>('');
         return (
             <div className="w-80">
                 <Select
@@ -112,7 +112,7 @@ export const WithHelperText = {
 
 export const Disabled = {
     render: () => {
-        const [value, setValue] = useState<string | number>("fr");
+        const [value, setValue] = useState<string | number>('fr');
         return (
             <div className="w-80">
                 <Select
@@ -130,7 +130,7 @@ export const Disabled = {
 
 export const NotSearchable = {
     render: () => {
-        const [value, setValue] = useState<string | number>("");
+        const [value, setValue] = useState<string | number>('');
         return (
             <div className="w-80">
                 <Select
@@ -148,11 +148,11 @@ export const NotSearchable = {
 
 export const WithDisabledOptions = {
     render: () => {
-        const [value, setValue] = useState<string | number>("");
+        const [value, setValue] = useState<string | number>('');
         const optionsWithDisabled = [
-            { value: "admin", label: "Administrator", disabled: true },
-            { value: "teacher", label: "Teacher" },
-            { value: "student", label: "Student" },
+            { value: 'admin', label: 'Administrator', disabled: true },
+            { value: 'teacher', label: 'Teacher' },
+            { value: 'student', label: 'Student' },
         ];
         return (
             <div className="w-80">
@@ -170,7 +170,7 @@ export const WithDisabledOptions = {
 
 export const EmptyOptions = {
     render: () => {
-        const [value, setValue] = useState<string | number>("");
+        const [value, setValue] = useState<string | number>('');
         return (
             <div className="w-80">
                 <Select

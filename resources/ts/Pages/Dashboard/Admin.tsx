@@ -5,7 +5,6 @@ import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Stat } from '@/Components';
 
-
 interface Stats {
     totalUsers: number;
     studentsCount: number;
@@ -23,8 +22,10 @@ export default function AdminDashboard({ stats }: Props) {
     const breadcrumbs = useBreadcrumbs();
 
     return (
-        <AuthenticatedLayout title={t('dashboard.title.admin')}
-            breadcrumb={breadcrumbs.dashboard()}>
+        <AuthenticatedLayout
+            title={t('dashboard.title.admin')}
+            breadcrumb={breadcrumbs.dashboard()}
+        >
             <Stat.Group columns={3} className="mb-8" data-e2e="dashboard-content">
                 <Stat.Item
                     title={t('dashboard.admin.total_users')}
@@ -42,7 +43,6 @@ export default function AdminDashboard({ stats }: Props) {
                     icon={UserGroupIcon}
                 />
             </Stat.Group>
-
-        </AuthenticatedLayout >
+        </AuthenticatedLayout>
     );
 }

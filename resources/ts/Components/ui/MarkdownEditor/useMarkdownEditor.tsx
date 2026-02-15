@@ -49,7 +49,11 @@ interface UseMarkdownEditorOptions {
 
     // Upload d'images
     enableImageUpload?: boolean;
-    imageUploadFunction?: (file: File, onSuccess: (url: string) => void, onError: (error: string) => void) => void;
+    imageUploadFunction?: (
+        file: File,
+        onSuccess: (url: string) => void,
+        onError: (error: string) => void,
+    ) => void;
     imageUploadEndpoint?: string;
     imageMaxSize?: number;
 }
@@ -128,18 +132,19 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
     };
 
     const debouncedOnChange = useMemo(
-        () => debounce((newValue: string) => {
-            if (onChange) {
-                onChange(newValue);
-            }
-        }, 300),
-        [onChange]
+        () =>
+            debounce((newValue: string) => {
+                if (onChange) {
+                    onChange(newValue);
+                }
+            }, 300),
+        [onChange],
     );
 
     const createMathActions = () => {
         return {
             mathInline: {
-                name: "math-inline",
+                name: 'math-inline',
                 action: (editor: EasyMDE) => {
                     const cm = editor.codemirror;
                     const selectedText = cm.getSelection();
@@ -150,24 +155,26 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
                         cm.setCursor(cursor.line, cursor.ch - 1);
                     }
                 },
-                className: "fa fa-calculator",
-                title: "Formule mathématique inline ($...$)",
+                className: 'fa fa-calculator',
+                title: 'Formule mathématique inline ($...$)',
             },
             mathDisplay: {
-                name: "math-display",
+                name: 'math-display',
                 action: (editor: EasyMDE) => {
                     const cm = editor.codemirror;
                     const selectedText = cm.getSelection();
-                    const replaceText = selectedText ? `$$\n${selectedText}\n$$` : '$$\nformule\n$$';
+                    const replaceText = selectedText
+                        ? `$$\n${selectedText}\n$$`
+                        : '$$\nformule\n$$';
                     cm.replaceSelection(replaceText);
                     if (!selectedText) {
                         const cursor = cm.getCursor();
                         cm.setCursor(cursor.line - 1, 7);
                     }
                 },
-                className: "fa fa-superscript",
-                title: "Formule mathématique display ($$...$$)",
-            }
+                className: 'fa fa-superscript',
+                title: 'Formule mathématique display ($$...$$)',
+            },
         };
     };
 
@@ -278,7 +285,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
             root.unmount();
         }, 0);
 
-        return "Chargement...";
+        return 'Chargement...';
     };
 
     /**
@@ -292,7 +299,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
 
         let toolbarConfig: false | (string | '|' | ToolbarButton)[] = toolbar;
         if (toolbar && !disabled) {
-            toolbarConfig = (toolbar as string[]).map(item => {
+            toolbarConfig = (toolbar as string[]).map((item) => {
                 if (item === 'math-inline') return mathActions.mathInline;
                 if (item === 'math-display') return mathActions.mathDisplay;
                 return item;
@@ -319,18 +326,18 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
             imageMaxSize: imageMaxSize,
             previewRender: renderPreview,
             shortcuts: {
-                "toggleBold": enableBold ? "Ctrl-B" : null,
-                "toggleItalic": enableItalic ? "Ctrl-I" : null,
-                "togglePreview": enablePreview ? "Ctrl-P" : null,
-                "toggleSideBySide": enableSideBySide ? "F9" : null,
-                "toggleFullScreen": enableFullscreen ? "F11" : null,
+                toggleBold: enableBold ? 'Ctrl-B' : null,
+                toggleItalic: enableItalic ? 'Ctrl-I' : null,
+                togglePreview: enablePreview ? 'Ctrl-P' : null,
+                toggleSideBySide: enableSideBySide ? 'F9' : null,
+                toggleFullScreen: enableFullscreen ? 'F11' : null,
             },
         });
 
         editorRef.current = editor;
         setIsReady(true);
 
-        editor.codemirror.on("change", () => {
+        editor.codemirror.on('change', () => {
             const newValue = editor.value();
             isInternalChangeRef.current = true;
             debouncedOnChange(newValue);
@@ -427,12 +434,12 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
             if (onChange) {
                 onChange(newValue);
             }
-        }
+        },
     };
 
     return {
         textareaRef,
         editorMethods,
-        isReady
+        isReady,
     };
 };

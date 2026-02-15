@@ -15,11 +15,10 @@ interface UserMenuProps {
 }
 
 export const UserMenu = ({ user, isMobile = false }: UserMenuProps) => {
-
     const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
         router.visit(route('profile'));
-    }
+    };
 
     if (isMobile) {
         return (
@@ -27,12 +26,8 @@ export const UserMenu = ({ user, isMobile = false }: UserMenuProps) => {
                 <div className="flex items-center px-4 cursor-pointer" onClick={handleClick}>
                     <UserAvatar name={user.name} size="lg" />
                     <div className="ml-3">
-                        <div className="text-base font-medium text-gray-800">
-                            {user.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                            {user.email}
-                        </div>
+                        <div className="text-base font-medium text-gray-800">{user.name}</div>
+                        <div className="text-sm text-gray-500">{user.email}</div>
                     </div>
                 </div>
                 <div className="mt-3 space-y-1">

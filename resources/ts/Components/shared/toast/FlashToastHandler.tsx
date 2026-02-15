@@ -20,7 +20,10 @@ const FlashToastHandler: React.FC<FlashToastHandlerProps> = ({ flash }) => {
     const closeLabel = t('components.toast.close');
 
     useEffect(() => {
-        const showToast = (type: 'success' | 'error' | 'warning' | 'info' | 'message', data?: FlashMessageObject) => {
+        const showToast = (
+            type: 'success' | 'error' | 'warning' | 'info' | 'message',
+            data?: FlashMessageObject,
+        ) => {
             if (!data || !data.id || !data.message) return;
 
             if (displayedIds.has(data.id)) return;
@@ -50,7 +53,18 @@ const FlashToastHandler: React.FC<FlashToastHandlerProps> = ({ flash }) => {
         showToast('error', flash.error);
         showToast('warning', flash.warning);
         showToast('info', flash.info);
-    }, [flash, success, error, warning, info, successTitle, errorTitle, warningTitle, infoTitle, closeLabel]);
+    }, [
+        flash,
+        success,
+        error,
+        warning,
+        info,
+        successTitle,
+        errorTitle,
+        warningTitle,
+        infoTitle,
+        closeLabel,
+    ]);
 
     return null;
 };

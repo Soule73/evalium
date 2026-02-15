@@ -10,7 +10,7 @@ const positionClasses: Record<ToastPosition, string> = {
     'top-center': 'top-4 left-1/2 transform -translate-x-1/2 items-center',
     'bottom-right': 'bottom-4 right-4 items-end',
     'bottom-left': 'bottom-4 left-4 items-start',
-    'bottom-center': 'bottom-4 left-1/2 transform -translate-x-1/2 items-center'
+    'bottom-center': 'bottom-4 left-1/2 transform -translate-x-1/2 items-center',
 };
 
 interface ToastContainerProps {
@@ -20,14 +20,17 @@ interface ToastContainerProps {
 const ToastContainer: React.FC<ToastContainerProps> = ({ position }) => {
     const { toasts, removeToast } = useToast();
 
-    const toastsByPosition = toasts.reduce((acc, toast) => {
-        const toastPosition = toast.position || position || 'top-right';
-        if (!acc[toastPosition]) {
-            acc[toastPosition] = [];
-        }
-        acc[toastPosition].push(toast);
-        return acc;
-    }, {} as Record<ToastPosition, typeof toasts>);
+    const toastsByPosition = toasts.reduce(
+        (acc, toast) => {
+            const toastPosition = toast.position || position || 'top-right';
+            if (!acc[toastPosition]) {
+                acc[toastPosition] = [];
+            }
+            acc[toastPosition].push(toast);
+            return acc;
+        },
+        {} as Record<ToastPosition, typeof toasts>,
+    );
 
     if (toasts.length === 0) {
         return null;
@@ -54,10 +57,7 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ position }) => {
                     >
                         <div className="flex flex-col space-y-4 overflow-hidden">
                             {positionToasts.map((toast) => (
-                                <div
-                                    key={toast.id}
-                                    className="pointer-events-auto w-full"
-                                >
+                                <div key={toast.id} className="pointer-events-auto w-full">
                                     <Toast
                                         id={toast.id}
                                         type={toast.type}
@@ -75,7 +75,7 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ position }) => {
                 );
             })}
         </>,
-        document.body
+        document.body,
     );
 };
 

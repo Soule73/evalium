@@ -24,24 +24,21 @@ export default function RoleIndex({ roles }: Props) {
     const { auth } = usePage<PageProps>().props;
     const canUpdateRoles = hasPermission(auth.permissions, 'update roles');
 
-    const translations = useMemo(() => ({
-        title: t('admin_pages.roles.title'),
-        configSubtitle: t('admin_pages.roles.config_subtitle'),
-    }), [t]);
+    const translations = useMemo(
+        () => ({
+            title: t('admin_pages.roles.title'),
+            configSubtitle: t('admin_pages.roles.config_subtitle'),
+        }),
+        [t],
+    );
 
     const handleEdit = (roleId: number) => {
         router.visit(route('admin.roles.edit', { role: roleId }));
     };
 
     return (
-        <AuthenticatedLayout
-            title={translations.title}
-            breadcrumb={breadcrumbs.roles()}
-        >
-            <Section
-                title={translations.title}
-                subtitle={translations.configSubtitle}
-            >
+        <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.roles()}>
+            <Section title={translations.title} subtitle={translations.configSubtitle}>
                 <RoleList
                     data={roles}
                     permissions={{

@@ -17,7 +17,16 @@ interface Props {
     onClose: () => void;
 }
 
-export default function EditUser({ user, roles, userRole, isOpen, onClose, title, description, route }: Props) {
+export default function EditUser({
+    user,
+    roles,
+    userRole,
+    isOpen,
+    onClose,
+    title,
+    description,
+    route,
+}: Props) {
     const { t } = useTranslations();
     const { getRoleLabel } = useFormatters();
 
@@ -35,7 +44,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
         put(route, {
             onSuccess: () => {
                 onClose();
-            }
+            },
         });
     };
 
@@ -51,35 +60,38 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
         });
     };
 
-    const translations = useMemo(() => ({
-        searchPlaceholder: t('components.select.search_placeholder'),
-        noOptionFound: t('components.select.no_option_found'),
-        editTitle: t('admin_pages.users.edit_title'),
-        role: t('admin_pages.users.role'),
-        selectRole: t('admin_pages.users.select_role'),
-        namePlaceholder: t('admin_pages.users.name_placeholder'),
-        emailPlaceholder: t('admin_pages.users.email_placeholder'),
-        passwordChange: t('admin_pages.users.password_change'),
-        passwordKeep: t('admin_pages.users.password_keep'),
-        passwordConfirmPlaceholder: t('admin_pages.users.password_confirm_placeholder'),
-        cancel: t('admin_pages.common.cancel'),
-        updating: t('admin_pages.users.updating'),
-        updateButton: t('admin_pages.users.update_button'),
-    }), [t]);
+    const translations = useMemo(
+        () => ({
+            searchPlaceholder: t('components.select.search_placeholder'),
+            noOptionFound: t('components.select.no_option_found'),
+            editTitle: t('admin_pages.users.edit_title'),
+            role: t('admin_pages.users.role'),
+            selectRole: t('admin_pages.users.select_role'),
+            namePlaceholder: t('admin_pages.users.name_placeholder'),
+            emailPlaceholder: t('admin_pages.users.email_placeholder'),
+            passwordChange: t('admin_pages.users.password_change'),
+            passwordKeep: t('admin_pages.users.password_keep'),
+            passwordConfirmPlaceholder: t('admin_pages.users.password_confirm_placeholder'),
+            cancel: t('admin_pages.common.cancel'),
+            updating: t('admin_pages.users.updating'),
+            updateButton: t('admin_pages.users.update_button'),
+        }),
+        [t],
+    );
 
-    const editSubtitle = useMemo(() => t('admin_pages.users.edit_subtitle', { name: user.name }), [t, user.name]);
-
+    const editSubtitle = useMemo(
+        () => t('admin_pages.users.edit_subtitle', { name: user.name }),
+        [t, user.name],
+    );
 
     return (
-        <Modal isOpen={isOpen} size='2xl' onClose={onClose} isCloseableInside={false}>
+        <Modal isOpen={isOpen} size="2xl" onClose={onClose} isCloseableInside={false}>
             <div className="p-6 md:min-w-lg lg:min-w-xl w-full ">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold text-gray-900">
                         {title || translations.editTitle}
                     </h1>
-                    <p className="text-gray-600 mt-1">
-                        {description || editSubtitle}
-                    </p>
+                    <p className="text-gray-600 mt-1">{description || editSubtitle}</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -88,36 +100,41 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         type="text"
                         className="mt-1 block w-full"
                         value={data.name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('name', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setData('name', e.target.value)
+                        }
                         placeholder={translations.namePlaceholder}
                         required
                     />
-
 
                     <Input
                         id="email"
                         type="email"
                         value={data.email}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('email', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setData('email', e.target.value)
+                        }
                         placeholder={translations.emailPlaceholder}
                         required
                     />
-                    {roles && <div>
-                        <Select
-                            label={translations.role}
-                            noOptionFound={translations.noOptionFound}
-                            searchPlaceholder={translations.searchPlaceholder}
-                            options={roles.map(role => ({
-                                value: role,
-                                label: getRoleLabel(role)
-                            }))}
-                            value={data.role}
-                            onChange={(value) => setData('role', String(value))}
-                            error={errors.role}
-                            searchable={false}
-                            placeholder={translations.selectRole}
-                        />
-                    </div>}
+                    {roles && (
+                        <div>
+                            <Select
+                                label={translations.role}
+                                noOptionFound={translations.noOptionFound}
+                                searchPlaceholder={translations.searchPlaceholder}
+                                options={roles.map((role) => ({
+                                    value: role,
+                                    label: getRoleLabel(role),
+                                }))}
+                                value={data.role}
+                                onChange={(value) => setData('role', String(value))}
+                                error={errors.role}
+                                searchable={false}
+                                placeholder={translations.selectRole}
+                            />
+                        </div>
+                    )}
 
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
@@ -134,7 +151,9 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         id="password"
                         type="password"
                         value={data.password}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('password', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setData('password', e.target.value)
+                        }
                         placeholder={translations.passwordKeep}
                     />
 
@@ -142,15 +161,17 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         id="password_confirmation"
                         type="password"
                         value={data.password_confirmation}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('password_confirmation', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setData('password_confirmation', e.target.value)
+                        }
                         placeholder={translations.passwordConfirmPlaceholder}
                     />
                     <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
                         <Button
                             type="button"
                             color="secondary"
-                            variant='outline'
-                            size='sm'
+                            variant="outline"
+                            size="sm"
                             onClick={handleCancel}
                         >
                             {translations.cancel}
@@ -158,15 +179,11 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         <Button
                             type="submit"
                             color="primary"
-                            size='sm'
+                            size="sm"
                             loading={processing}
                             disabled={processing}
                         >
-                            {processing ? (
-                                translations.updating
-                            ) : (
-                                translations.updateButton
-                            )}
+                            {processing ? translations.updating : translations.updateButton}
                         </Button>
                     </div>
                 </form>

@@ -8,10 +8,13 @@ export default function CreateLevel() {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 
-    const translations = useMemo(() => ({
-        createTitle: t('admin_pages.levels.create_title'),
-        createSubtitle: t('admin_pages.levels.create_subtitle'),
-    }), [t]);
+    const translations = useMemo(
+        () => ({
+            createTitle: t('admin_pages.levels.create_title'),
+            createSubtitle: t('admin_pages.levels.create_subtitle'),
+        }),
+        [t],
+    );
 
     const handleCancel = () => {
         window.history.back();
@@ -27,4 +30,3 @@ export default function CreateLevel() {
         </AuthenticatedLayout>
     );
 }
-

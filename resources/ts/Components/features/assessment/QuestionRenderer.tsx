@@ -4,7 +4,10 @@ import { hasUserResponse } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { AlertEntry } from '@evalium/ui';
 import { QuestionReadOnlySection } from './QuestionReadOnlySection';
-import { QuestionResultReadOnlyText, QuestionResultReadOnlyChoices } from './QuestionResultReadOnly';
+import {
+    QuestionResultReadOnlyText,
+    QuestionResultReadOnlyChoices,
+} from './QuestionResultReadOnly';
 
 interface QuestionRendererProps {
     questions: Question[];
@@ -16,7 +19,6 @@ interface QuestionRendererProps {
     showCorrectAnswers?: boolean;
     assignment?: AssessmentAssignment;
 }
-
 
 const QuestionRenderer: React.FC<QuestionRendererProps> = ({
     questions,
@@ -47,11 +49,17 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                             {question.type === 'text' && (
                                 <QuestionResultReadOnlyText
                                     userText={result.userText}
-                                    label={isTeacherView ? t('components.question_renderer.student_answer_label') : t('components.question_renderer.your_answer_label')}
+                                    label={
+                                        isTeacherView
+                                            ? t('components.question_renderer.student_answer_label')
+                                            : t('components.question_renderer.your_answer_label')
+                                    }
                                 />
                             )}
 
-                            {(question.type === 'one_choice' || question.type === 'multiple' || question.type === 'boolean') && (
+                            {(question.type === 'one_choice' ||
+                                question.type === 'multiple' ||
+                                question.type === 'boolean') && (
                                 <QuestionResultReadOnlyChoices
                                     choices={question.choices ?? []}
                                     userChoices={result.userChoices}
@@ -62,12 +70,14 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                             )}
 
                             {!hasResponse && (
-                                <AlertEntry title={t('components.question_renderer.no_answer')} type="warning">
+                                <AlertEntry
+                                    title={t('components.question_renderer.no_answer')}
+                                    type="warning"
+                                >
                                     <p className="text-sm">
                                         {isTeacherView
                                             ? t('components.question_renderer.no_answer_student')
-                                            : t('components.question_renderer.no_answer_yours')
-                                        }
+                                            : t('components.question_renderer.no_answer_yours')}
                                     </p>
                                 </AlertEntry>
                             )}

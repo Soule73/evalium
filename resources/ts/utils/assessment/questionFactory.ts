@@ -7,7 +7,7 @@ export function createDefaultQuestion(type: QuestionType, orderIndex: number): Q
         type,
         points: 1,
         order_index: orderIndex,
-        choices: []
+        choices: [],
     };
 
     if (type === 'multiple' || type === 'one_choice') {
@@ -24,13 +24,13 @@ export function createDefaultChoices(): ChoiceFormData[] {
         {
             content: '',
             is_correct: true,
-            order_index: 1
+            order_index: 1,
         },
         {
             content: '',
             is_correct: false,
-            order_index: 2
-        }
+            order_index: 2,
+        },
     ];
 }
 
@@ -39,13 +39,13 @@ export function createBooleanChoices(): ChoiceFormData[] {
         {
             content: 'true',
             is_correct: true,
-            order_index: 1
+            order_index: 1,
         },
         {
             content: 'false',
             is_correct: false,
-            order_index: 2
-        }
+            order_index: 2,
+        },
     ];
 }
 
@@ -53,6 +53,6 @@ export function createChoice(orderIndex: number, isCorrect: boolean = false): Ch
     return {
         content: '',
         is_correct: isCorrect,
-        order_index: orderIndex
+        order_index: orderIndex,
     };
 }

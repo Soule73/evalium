@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { CheckCircleIcon, ExclamationCircleIcon, InformationCircleIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import {
+    CheckCircleIcon,
+    ExclamationCircleIcon,
+    InformationCircleIcon,
+    XCircleIcon,
+    XMarkIcon,
+} from '@heroicons/react/24/outline';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -22,7 +28,7 @@ const toastConfig = {
         iconColor: 'text-green-400',
         titleColor: 'text-green-800',
         messageColor: 'text-green-700',
-        closeButtonColor: 'text-green-500 hover:bg-green-100 focus:ring-green-600'
+        closeButtonColor: 'text-green-500 hover:bg-green-100 focus:ring-green-600',
     },
     error: {
         icon: XCircleIcon,
@@ -31,7 +37,7 @@ const toastConfig = {
         iconColor: 'text-red-400',
         titleColor: 'text-red-800',
         messageColor: 'text-red-700',
-        closeButtonColor: 'text-red-500 hover:bg-red-100 focus:ring-red-600'
+        closeButtonColor: 'text-red-500 hover:bg-red-100 focus:ring-red-600',
     },
     warning: {
         icon: ExclamationCircleIcon,
@@ -40,7 +46,7 @@ const toastConfig = {
         iconColor: 'text-yellow-400',
         titleColor: 'text-yellow-800',
         messageColor: 'text-yellow-700',
-        closeButtonColor: 'text-yellow-500 hover:bg-yellow-100 focus:ring-yellow-600'
+        closeButtonColor: 'text-yellow-500 hover:bg-yellow-100 focus:ring-yellow-600',
     },
     info: {
         icon: InformationCircleIcon,
@@ -49,8 +55,8 @@ const toastConfig = {
         iconColor: 'text-blue-400',
         titleColor: 'text-blue-800',
         messageColor: 'text-blue-700',
-        closeButtonColor: 'text-blue-500 hover:bg-blue-100 focus:ring-blue-600'
-    }
+        closeButtonColor: 'text-blue-500 hover:bg-blue-100 focus:ring-blue-600',
+    },
 };
 
 const Toast: React.FC<ToastProps> = ({
@@ -61,7 +67,7 @@ const Toast: React.FC<ToastProps> = ({
     autoClose = true,
     duration = 5000,
     onClose,
-    closeLabel = 'Close'
+    closeLabel = 'Close',
 }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [isLeaving, setIsLeaving] = useState(false);
@@ -95,9 +101,10 @@ const Toast: React.FC<ToastProps> = ({
             className={`
                 w-full ${config.bgColor} ${config.borderColor} border rounded-lg shadow-lg
                 transform transition-all duration-300 ease-in-out overflow-hidden
-                ${isVisible && !isLeaving
-                    ? 'translate-x-0 opacity-100'
-                    : 'translate-x-full opacity-0'
+                ${
+                    isVisible && !isLeaving
+                        ? 'translate-x-0 opacity-100'
+                        : 'translate-x-full opacity-0'
                 }
             `}
         >
@@ -112,11 +119,15 @@ const Toast: React.FC<ToastProps> = ({
 
                     <div className="ml-3 flex-1 min-w-0 overflow-hidden">
                         {title && (
-                            <p className={`text-sm font-medium ${config.titleColor} wrap-break-word word-break`}>
+                            <p
+                                className={`text-sm font-medium ${config.titleColor} wrap-break-word word-break`}
+                            >
                                 {title}
                             </p>
                         )}
-                        <p className={`text-sm ${config.messageColor} ${title ? 'mt-1' : ''} wrap-break-wordwordword word-break leading-relaxed`}>
+                        <p
+                            className={`text-sm ${config.messageColor} ${title ? 'mt-1' : ''} wrap-break-wordwordword word-break leading-relaxed`}
+                        >
                             {message}
                         </p>
                     </div>
@@ -143,7 +154,7 @@ const Toast: React.FC<ToastProps> = ({
                     <div
                         className={`h-full bg-current ${config.iconColor} origin-left`}
                         style={{
-                            animation: `shrink ${duration}ms linear forwards`
+                            animation: `shrink ${duration}ms linear forwards`,
                         }}
                     />
                 </div>

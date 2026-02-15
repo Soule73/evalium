@@ -16,30 +16,27 @@ export const RoleBadge = ({ role }: RoleBadgeProps) => {
         };
     } = {
         admin: {
-            type: "info",
-            label: t('users.admin')
+            type: 'info',
+            label: t('users.admin'),
         },
         teacher: {
-            type: "warning",
-            label: t('users.teacher')
+            type: 'warning',
+            label: t('users.teacher'),
         },
         student: {
-            type: "success",
-            label: t('users.student')
+            type: 'success',
+            label: t('users.student'),
         },
         super_admin: {
-            type: "info",
-            label: t('users.super_admin')
-        }
+            type: 'info',
+            label: t('users.super_admin'),
+        },
     };
 
-    const config = role && badgeConfig[role]
-        ? badgeConfig[role]
-        : { type: "gray" as BadgeType, label: t('users.unknown') };
+    const config =
+        role && badgeConfig[role]
+            ? badgeConfig[role]
+            : { type: 'gray' as BadgeType, label: t('users.unknown') };
 
-    return (
-        <Badge label={config.label}
-            type={config.type}
-        />
-    );
+    return <Badge label={config.label} type={config.type} />;
 };

@@ -72,7 +72,7 @@ describe('formatters', () => {
             const result = formatGrade(15.5, 20);
             expect(result).toEqual({
                 text: '15.5/20 (78%)',
-                colorClass: 'text-blue-600'
+                colorClass: 'text-blue-600',
             });
         });
 
@@ -80,7 +80,7 @@ describe('formatters', () => {
             const result = formatGrade(20, 20);
             expect(result).toEqual({
                 text: '20/20 (100%)',
-                colorClass: 'text-green-600'
+                colorClass: 'text-green-600',
             });
         });
 
@@ -88,7 +88,7 @@ describe('formatters', () => {
             const result = formatGrade(0, 20);
             expect(result).toEqual({
                 text: '0/20 (0%)',
-                colorClass: 'text-red-600'
+                colorClass: 'text-red-600',
             });
         });
     });

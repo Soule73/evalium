@@ -1,4 +1,3 @@
-
 import { useId } from 'react';
 
 interface LogoProps {
@@ -32,7 +31,9 @@ export const Logo = ({
     const isVertical = variant === 'vertical';
 
     return (
-        <div className={`flex ${isVertical ? 'flex-col items-center' : 'items-center'} ${className ?? ''}`}>
+        <div
+            className={`flex ${isVertical ? 'flex-col items-center' : 'items-center'} ${className ?? ''}`}
+        >
             {showIcon && (
                 <svg
                     width={width}
@@ -43,15 +44,36 @@ export const Logo = ({
                     aria-hidden="true"
                 >
                     <defs>
-                        <linearGradient id={topId} x1="10" y1="6" x2="38" y2="24" gradientUnits="userSpaceOnUse">
+                        <linearGradient
+                            id={topId}
+                            x1="10"
+                            y1="6"
+                            x2="38"
+                            y2="24"
+                            gradientUnits="userSpaceOnUse"
+                        >
                             <stop stopColor="#818cf8" />
                             <stop offset="1" stopColor="#6366f1" />
                         </linearGradient>
-                        <linearGradient id={leftId} x1="10" y1="18" x2="24" y2="44" gradientUnits="userSpaceOnUse">
+                        <linearGradient
+                            id={leftId}
+                            x1="10"
+                            y1="18"
+                            x2="24"
+                            y2="44"
+                            gradientUnits="userSpaceOnUse"
+                        >
                             <stop stopColor="#4f46e5" />
                             <stop offset="1" stopColor="#3730a3" />
                         </linearGradient>
-                        <linearGradient id={rightId} x1="24" y1="24" x2="38" y2="44" gradientUnits="userSpaceOnUse">
+                        <linearGradient
+                            id={rightId}
+                            x1="24"
+                            y1="24"
+                            x2="38"
+                            y2="44"
+                            gradientUnits="userSpaceOnUse"
+                        >
                             <stop stopColor="#6366f1" />
                             <stop offset="1" stopColor="#4f46e5" />
                         </linearGradient>
@@ -67,11 +89,11 @@ export const Logo = ({
 
             {(showName || showSlogan) && (
                 <div className={showIcon ? (isVertical ? 'mt-2 text-center' : 'ml-2') : ''}>
-                    {showName && (
-                        <span className="text-xl font-bold text-indigo-600">Evalium</span>
-                    )}
+                    {showName && <span className="text-xl font-bold text-indigo-600">Evalium</span>}
                     {showSlogan && (
-                        <p className={`text-xs italic text-indigo-500 ${isVertical ? '' : 'mt-0.5'}`}>
+                        <p
+                            className={`text-xs italic text-indigo-500 ${isVertical ? '' : 'mt-0.5'}`}
+                        >
                             Where every grade tells a story
                         </p>
                     )}

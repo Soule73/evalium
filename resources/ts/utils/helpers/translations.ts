@@ -16,7 +16,7 @@ export function translateKey(
     language: LanguageData,
     key: string,
     replacements: Record<string, string | number> = {},
-    fallback?: string
+    fallback?: string,
 ): string {
     const keys = key.split('.');
     let translation: unknown = language;
@@ -35,7 +35,6 @@ export function translateKey(
 
     return Object.entries(replacements).reduce(
         (str, [placeholder, value]) => str.replace(`:${placeholder}`, String(value)),
-        translation
+        translation,
     );
 }
-

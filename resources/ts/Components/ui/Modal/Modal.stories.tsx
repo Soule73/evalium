@@ -1,21 +1,21 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { useState } from "react";
-import Modal from "./Modal";
-import Button from "../Button/Button";
+import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
+import Modal from './Modal';
+import Button from '../Button/Button';
 
 const meta = {
-    title: "UI/Modal",
+    title: 'UI/Modal',
     component: Modal,
     parameters: {
-        layout: "centered",
+        layout: 'centered',
     },
     argTypes: {
         size: {
-            control: "select",
-            options: ["sm", "md", "lg", "xl", "2xl", "full"],
+            control: 'select',
+            options: ['sm', 'md', 'lg', 'xl', '2xl', 'full'],
         },
         isCloseableInside: {
-            control: "boolean",
+            control: 'boolean',
         },
     },
 } satisfies Meta<typeof Modal>;
@@ -27,7 +27,7 @@ const ModalWrapper = ({
     size,
     isCloseableInside,
 }: {
-    size?: "sm" | "md" | "lg" | "xl" | "2xl" | "full";
+    size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
     isCloseableInside?: boolean;
 }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -43,15 +43,10 @@ const ModalWrapper = ({
             >
                 <h2 className="text-xl font-bold mb-4">Modal Title</h2>
                 <p className="text-gray-600 mb-4">
-                    This is a modal dialog. It can contain any content you want
-                    to display.
+                    This is a modal dialog. It can contain any content you want to display.
                 </p>
                 <div className="flex justify-end space-x-2">
-                    <Button
-                        color="secondary"
-                        variant="outline"
-                        onClick={() => setIsOpen(false)}
-                    >
+                    <Button color="secondary" variant="outline" onClick={() => setIsOpen(false)}>
                         Cancel
                     </Button>
                     <Button color="primary" onClick={() => setIsOpen(false)}>
@@ -97,31 +92,19 @@ export const WithLongContent = {
 
         return (
             <div>
-                <Button onClick={() => setIsOpen(true)}>
-                    Open Modal with Long Content
-                </Button>
-                <Modal
-                    isOpen={isOpen}
-                    onClose={() => setIsOpen(false)}
-                    size="lg"
-                >
-                    <h2 className="text-xl font-bold mb-4">
-                        Terms and Conditions
-                    </h2>
+                <Button onClick={() => setIsOpen(true)}>Open Modal with Long Content</Button>
+                <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} size="lg">
+                    <h2 className="text-xl font-bold mb-4">Terms and Conditions</h2>
                     <div className="text-gray-600 mb-4 max-h-96 overflow-y-auto">
                         {Array.from({ length: 20 }, (_, i) => (
                             <p key={i} className="mb-2">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipiscing elit. Sed do eiusmod tempor
-                                incididunt ut labore et dolore magna aliqua.
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+                                eiusmod tempor incididunt ut labore et dolore magna aliqua.
                             </p>
                         ))}
                     </div>
                     <div className="flex justify-end">
-                        <Button
-                            color="primary"
-                            onClick={() => setIsOpen(false)}
-                        >
+                        <Button color="primary" onClick={() => setIsOpen(false)}>
                             I Agree
                         </Button>
                     </div>

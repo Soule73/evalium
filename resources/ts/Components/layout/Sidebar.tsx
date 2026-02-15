@@ -34,7 +34,12 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-    const userRole = user.roles?.[0]?.name as 'super_admin' | 'admin' | 'teacher' | 'student' | undefined;
+    const userRole = user.roles?.[0]?.name as
+        | 'super_admin'
+        | 'admin'
+        | 'teacher'
+        | 'student'
+        | undefined;
 
     useEffect(() => {
         const handleResize = () => {
@@ -96,7 +101,11 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
         groups.push({
             key: 'main',
             items: [
-                { name: t('sidebar.navigation.dashboard'), href: navRoutes.dashboard(), icon: 'dashboard' },
+                {
+                    name: t('sidebar.navigation.dashboard'),
+                    href: navRoutes.dashboard(),
+                    icon: 'dashboard',
+                },
             ],
         });
 
@@ -105,8 +114,16 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                 key: 'student',
                 label: t('sidebar.groups.my_space'),
                 items: [
-                    { name: t('sidebar.navigation.my_assessments'), href: navRoutes.studentAssessments(), icon: 'assessments' },
-                    { name: t('sidebar.navigation.my_enrollment'), href: navRoutes.studentEnrollment(), icon: 'enrollment' },
+                    {
+                        name: t('sidebar.navigation.my_assessments'),
+                        href: navRoutes.studentAssessments(),
+                        icon: 'assessments',
+                    },
+                    {
+                        name: t('sidebar.navigation.my_enrollment'),
+                        href: navRoutes.studentEnrollment(),
+                        icon: 'enrollment',
+                    },
                 ],
             });
         }
@@ -116,9 +133,21 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                 key: 'teaching',
                 label: t('sidebar.groups.teaching'),
                 items: [
-                    { name: t('sidebar.navigation.assessments'), href: navRoutes.teacherAssessments(), icon: 'assessments' },
-                    { name: t('sidebar.navigation.my_classes'), href: navRoutes.teacherClasses(), icon: 'classes' },
-                    { name: t('sidebar.navigation.my_subjects'), href: navRoutes.teacherSubjects(), icon: 'subjects' },
+                    {
+                        name: t('sidebar.navigation.assessments'),
+                        href: navRoutes.teacherAssessments(),
+                        icon: 'assessments',
+                    },
+                    {
+                        name: t('sidebar.navigation.my_classes'),
+                        href: navRoutes.teacherClasses(),
+                        icon: 'classes',
+                    },
+                    {
+                        name: t('sidebar.navigation.my_subjects'),
+                        href: navRoutes.teacherSubjects(),
+                        icon: 'subjects',
+                    },
                 ],
             });
         }
@@ -128,25 +157,61 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                 key: 'academic',
                 label: t('sidebar.groups.academic'),
                 items: [
-                    { name: t('sidebar.navigation.archives'), href: navRoutes.adminAcademicYears(), icon: 'academic-years' },
-                    { name: t('sidebar.navigation.assessments'), href: navRoutes.adminAssessments(), icon: 'assessments' },
-                    { name: t('sidebar.navigation.subjects'), href: route('admin.subjects.index'), icon: 'subjects' },
-                    { name: t('sidebar.navigation.classes'), href: route('admin.classes.index'), icon: 'classes' },
-                    { name: t('sidebar.navigation.enrollments'), href: route('admin.enrollments.index'), icon: 'enrollment' },
-                    { name: t('sidebar.navigation.class_subjects'), href: route('admin.class-subjects.index'), icon: 'class-subjects' },
+                    {
+                        name: t('sidebar.navigation.archives'),
+                        href: navRoutes.adminAcademicYears(),
+                        icon: 'academic-years',
+                    },
+                    {
+                        name: t('sidebar.navigation.assessments'),
+                        href: navRoutes.adminAssessments(),
+                        icon: 'assessments',
+                    },
+                    {
+                        name: t('sidebar.navigation.subjects'),
+                        href: route('admin.subjects.index'),
+                        icon: 'subjects',
+                    },
+                    {
+                        name: t('sidebar.navigation.classes'),
+                        href: route('admin.classes.index'),
+                        icon: 'classes',
+                    },
+                    {
+                        name: t('sidebar.navigation.enrollments'),
+                        href: route('admin.enrollments.index'),
+                        icon: 'enrollment',
+                    },
+                    {
+                        name: t('sidebar.navigation.class_subjects'),
+                        href: route('admin.class-subjects.index'),
+                        icon: 'class-subjects',
+                    },
                 ],
             });
         }
 
         const configItems: NavItem[] = [];
         if (hasPermission(auth.permissions, 'view users')) {
-            configItems.push({ name: t('sidebar.navigation.users'), href: navRoutes.users(), icon: 'users' });
+            configItems.push({
+                name: t('sidebar.navigation.users'),
+                href: navRoutes.users(),
+                icon: 'users',
+            });
         }
         if (hasPermission(auth.permissions, 'view levels')) {
-            configItems.push({ name: t('sidebar.navigation.levels'), href: navRoutes.levels(), icon: 'levels' });
+            configItems.push({
+                name: t('sidebar.navigation.levels'),
+                href: navRoutes.levels(),
+                icon: 'levels',
+            });
         }
         if (hasPermission(auth.permissions, 'view roles')) {
-            configItems.push({ name: t('sidebar.navigation.roles_permissions'), href: navRoutes.roles(), icon: 'roles' });
+            configItems.push({
+                name: t('sidebar.navigation.roles_permissions'),
+                href: navRoutes.roles(),
+                icon: 'roles',
+            });
         }
 
         if (configItems.length > 0) {
@@ -169,15 +234,28 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
             >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     {isMobileOpen ? (
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                        />
                     ) : (
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 6h16M4 12h16M4 18h16"
+                        />
                     )}
                 </svg>
             </button>
 
             {isMobileOpen && (
-                <div className="lg:hidden fixed inset-0 bg-gray-600 bg-opacity-75 z-40" onClick={closeMobile} />
+                <div
+                    className="lg:hidden fixed inset-0 bg-gray-600 bg-opacity-75 z-40"
+                    onClick={closeMobile}
+                />
             )}
 
             <aside
@@ -191,9 +269,17 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                     <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
                         <Link
                             href={navRoutes.dashboard()}
-                            className={isCollapsed ? 'flex items-center justify-center w-full' : 'flex items-center'}
+                            className={
+                                isCollapsed
+                                    ? 'flex items-center justify-center w-full'
+                                    : 'flex items-center'
+                            }
                         >
-                            <Logo showName={!isCollapsed} width={isCollapsed ? 32 : 48} height={isCollapsed ? 32 : 48} />
+                            <Logo
+                                showName={!isCollapsed}
+                                width={isCollapsed ? 32 : 48}
+                                height={isCollapsed ? 32 : 48}
+                            />
                         </Link>
 
                         <button
@@ -201,11 +287,26 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                             className="hidden lg:block cursor-pointer p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
                             aria-label={t('sidebar.actions.toggle_sidebar')}
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
                                 {isCollapsed ? (
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                                    />
                                 ) : (
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                                    />
                                 )}
                             </svg>
                         </button>
@@ -214,15 +315,14 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                     <nav className="flex-1 px-3 py-4 space-y-1 custom-scrollbar overflow-y-auto">
                         {navGroups.map((group) => (
                             <div key={group.key}>
-                                {group.label && (
-                                    isCollapsed ? (
+                                {group.label &&
+                                    (isCollapsed ? (
                                         <div className="my-2 mx-1 border-t border-gray-200" />
                                     ) : (
                                         <p className="px-3 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
                                             {group.label}
                                         </p>
-                                    )
-                                )}
+                                    ))}
                                 {group.items.map((item) => {
                                     const active = isActive(item.href);
                                     return (
@@ -241,7 +341,10 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                                 `}
                                                 onClick={closeMobile}
                                             >
-                                                <NavIcon type={item.icon} className={`w-5 h-5 ${!isCollapsed && 'mr-3'}`} />
+                                                <NavIcon
+                                                    type={item.icon}
+                                                    className={`w-5 h-5 ${!isCollapsed && 'mr-3'}`}
+                                                />
                                                 {!isCollapsed && <span>{item.name}</span>}
                                             </Link>
                                         </Tooltip>
@@ -254,7 +357,10 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                     <div className="border-t border-gray-200 bg-gray-50">
                         {isCollapsed ? (
                             <div className="p-2 space-y-2">
-                                <Tooltip content={`${user.name} - ${t('sidebar.actions.profile')}`} position="right">
+                                <Tooltip
+                                    content={`${user.name} - ${t('sidebar.actions.profile')}`}
+                                    position="right"
+                                >
                                     <Link
                                         href={navRoutes.profile()}
                                         className={`
@@ -286,21 +392,26 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                     href={navRoutes.profile()}
                                     className={`
                                         flex items-center space-x-3 p-3 transition-all mb-3
-                                        ${isActive(navRoutes.profile())
-                                            ? 'bg-indigo-50 border-b border-indigo-200'
-                                            : 'bg-white border-b border-gray-200 hover:border-indigo-200 hover:bg-indigo-50'
+                                        ${
+                                            isActive(navRoutes.profile())
+                                                ? 'bg-indigo-50 border-b border-indigo-200'
+                                                : 'bg-white border-b border-gray-200 hover:border-indigo-200 hover:bg-indigo-50'
                                         }
                                     `}
                                 >
                                     <UserAvatar name={user.name} size="md" />
                                     <div className="flex-1 min-w-0">
-                                        <p className={`text-sm font-semibold truncate ${isActive(navRoutes.profile()) ? 'text-indigo-900' : 'text-gray-900'}`}>
+                                        <p
+                                            className={`text-sm font-semibold truncate ${isActive(navRoutes.profile()) ? 'text-indigo-900' : 'text-gray-900'}`}
+                                        >
                                             {user.name}
                                         </p>
                                         <div className="my-1">
                                             <RoleBadge role={userRole} />
                                         </div>
-                                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                                        <p className="text-xs text-gray-500 truncate">
+                                            {user.email}
+                                        </p>
                                     </div>
                                 </Link>
 

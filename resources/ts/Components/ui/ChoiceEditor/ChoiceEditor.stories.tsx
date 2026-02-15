@@ -9,7 +9,8 @@ const meta: Meta<typeof ChoiceEditor> = {
         layout: 'padded',
         docs: {
             description: {
-                component: 'A flexible editor for question choices with support for both simple text and Markdown editing modes, including live preview capability.',
+                component:
+                    'A flexible editor for question choices with support for both simple text and Markdown editing modes, including live preview capability.',
             },
         },
     },
@@ -55,7 +56,9 @@ export const SimpleMode: Story = {
 
 export const MarkdownMode: Story = {
     render: () => {
-        const [value, setValue] = useState('# Title\n\nThis is **bold** and this is *italic*.\n\n$$E = mc^2$$');
+        const [value, setValue] = useState(
+            '# Title\n\nThis is **bold** and this is *italic*.\n\n$$E = mc^2$$',
+        );
         const [isMarkdown, setIsMarkdown] = useState(true);
         const [showPreview, setShowPreview] = useState(false);
 
@@ -76,7 +79,9 @@ export const MarkdownMode: Story = {
 
 export const WithPreview: Story = {
     render: () => {
-        const [value, setValue] = useState('## Mathematical Formula\n\nThe quadratic formula: $x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$\n\n```javascript\nconst solve = (a, b, c) => {\n  return (-b + Math.sqrt(b*b - 4*a*c)) / (2*a);\n};\n```');
+        const [value, setValue] = useState(
+            '## Mathematical Formula\n\nThe quadratic formula: $x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$\n\n```javascript\nconst solve = (a, b, c) => {\n  return (-b + Math.sqrt(b*b - 4*a*c)) / (2*a);\n};\n```',
+        );
         const [isMarkdown, setIsMarkdown] = useState(true);
         const [showPreview, setShowPreview] = useState(true);
 
@@ -124,11 +129,7 @@ export const ReadOnly: Story = {
 
         return (
             <div className="w-full max-w-2xl">
-                <ChoiceEditor
-                    value={value}
-                    onChange={() => { }}
-                    readOnly
-                />
+                <ChoiceEditor value={value} onChange={() => {}} readOnly />
             </div>
         );
     },

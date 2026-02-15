@@ -70,7 +70,10 @@ export function isSecurityEnabled(config: AssessmentConfig): boolean {
     return config.securityEnabled && !config.devMode;
 }
 
-export function isFeatureEnabled(config: AssessmentConfig, feature: keyof AssessmentConfig['features']): boolean {
+export function isFeatureEnabled(
+    config: AssessmentConfig,
+    feature: keyof AssessmentConfig['features'],
+): boolean {
     // Si en mode dev, toutes les fonctionnalités sont désactivées
     if (config.devMode) {
         return false;

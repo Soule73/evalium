@@ -8,7 +8,8 @@ const meta: Meta<typeof MarkdownRenderer> = {
         layout: 'padded',
         docs: {
             description: {
-                component: 'A component for rendering Markdown content with support for GitHub Flavored Markdown, mathematical formulas (KaTeX), and syntax highlighting (Prism.js).',
+                component:
+                    'A component for rendering Markdown content with support for GitHub Flavored Markdown, mathematical formulas (KaTeX), and syntax highlighting (Prism.js).',
             },
         },
     },

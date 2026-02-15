@@ -1,16 +1,16 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import Badge from "./Badge";
+import type { Meta, StoryObj } from '@storybook/react';
+import Badge from './Badge';
 
 const meta = {
-    title: "UI/Badge",
+    title: 'UI/Badge',
     component: Badge,
     parameters: {
-        layout: "centered",
+        layout: 'centered',
     },
     argTypes: {
         type: {
-            control: "select",
-            options: ["success", "error", "warning", "info", "gray"],
+            control: 'select',
+            options: ['success', 'error', 'warning', 'info', 'gray'],
         },
     },
 } satisfies Meta<typeof Badge>;
@@ -22,71 +22,71 @@ type CustomStory = any;
 
 export const Success: Story = {
     args: {
-        label: "Success",
-        type: "success",
+        label: 'Success',
+        type: 'success',
     },
 };
 
 export const Error: Story = {
     args: {
-        label: "Error",
-        type: "error",
+        label: 'Error',
+        type: 'error',
     },
 };
 
 export const Warning: Story = {
     args: {
-        label: "Warning",
-        type: "warning",
+        label: 'Warning',
+        type: 'warning',
     },
 };
 
 export const Info: Story = {
     args: {
-        label: "Info",
-        type: "info",
+        label: 'Info',
+        type: 'info',
     },
 };
 
 export const Gray: Story = {
     args: {
-        label: "Gray",
-        type: "gray",
+        label: 'Gray',
+        type: 'gray',
     },
 };
 
 export const Active: Story = {
     args: {
-        label: "Active",
-        type: "success",
+        label: 'Active',
+        type: 'success',
     },
 };
 
 export const Inactive: Story = {
     args: {
-        label: "Inactive",
-        type: "gray",
+        label: 'Inactive',
+        type: 'gray',
     },
 };
 
 export const Pending: Story = {
     args: {
-        label: "Pending",
-        type: "warning",
+        label: 'Pending',
+        type: 'warning',
     },
 };
 
 export const Completed: Story = {
     args: {
-        label: "Completed",
-        type: "info",
+        label: 'Completed',
+        type: 'info',
     },
 };
 
 export const Failed: Story = {
     args: {
-        label: "Failed",
-        type: "error",
+        label: 'Failed',
+        type: 'error',
     },
 };
 

@@ -12,15 +12,18 @@ export const hasPermission = (permissions: string[], permission: string): boolea
 /**
  * Check if the user has all of the specified permissions
  */
-export const hasAllPermissions = (permissions: string[], requiredPermissions: string[]): boolean => {
-    return requiredPermissions.every(permission => permissions.includes(permission));
+export const hasAllPermissions = (
+    permissions: string[],
+    requiredPermissions: string[],
+): boolean => {
+    return requiredPermissions.every((permission) => permissions.includes(permission));
 };
 
 /**
  * Check if the user has at least one of the specified permissions
  */
 export const hasAnyPermission = (permissions: string[], requiredPermissions: string[]): boolean => {
-    return requiredPermissions.some(permission => permissions.includes(permission));
+    return requiredPermissions.some((permission) => permissions.includes(permission));
 };
 
 /**
@@ -34,14 +37,14 @@ export const hasRole = (roles: string[], role: string): boolean => {
  * Check if the user has all of the specified roles
  */
 export const hasAllRoles = (roles: string[], requiredRoles: string[]): boolean => {
-    return requiredRoles.every(role => roles.includes(role));
+    return requiredRoles.every((role) => roles.includes(role));
 };
 
 /**
  * Check if the user has at least one of the specified roles
  */
 export const hasAnyRole = (roles: string[], requiredRoles: string[]): boolean => {
-    return requiredRoles.some(role => roles.includes(role));
+    return requiredRoles.some((role) => roles.includes(role));
 };
 
 /**

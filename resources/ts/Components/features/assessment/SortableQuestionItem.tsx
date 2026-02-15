@@ -1,15 +1,12 @@
-
 import React from 'react';
 import {
     PlusIcon,
     TrashIcon,
     ChevronDownIcon,
     ChevronRightIcon,
-    Bars3Icon
+    Bars3Icon,
 } from '@heroicons/react/24/outline';
-import {
-    useSortable,
-} from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { type QuestionFormData, type ChoiceFormData } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
@@ -22,12 +19,27 @@ interface SortableQuestionItemProps {
     isCollapsed: boolean;
     onToggleCollapse: (index: number) => void;
     onRemoveQuestion: (index: number) => void;
-    onUpdateQuestion: (index: number, field: keyof QuestionFormData, value: QuestionFormData[keyof QuestionFormData]) => void;
+    onUpdateQuestion: (
+        index: number,
+        field: keyof QuestionFormData,
+        value: QuestionFormData[keyof QuestionFormData],
+    ) => void;
     onAddChoice: (index: number) => void;
     onRemoveChoice: (questionIndex: number, choiceIndex: number) => void;
-    onUpdateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: ChoiceFormData[keyof ChoiceFormData]) => void;
+    onUpdateChoice: (
+        questionIndex: number,
+        choiceIndex: number,
+        field: keyof ChoiceFormData,
+        value: ChoiceFormData[keyof ChoiceFormData],
+    ) => void;
     getQuestionTypeLabel: (type: string) => string;
-    getQuestionTypeIcon: (type: string) => { icon: React.ComponentType<{ className?: string }>; bgColor: string; textColor: string; } | null;
+    getQuestionTypeIcon: (
+        type: string,
+    ) => {
+        icon: React.ComponentType<{ className?: string }>;
+        bgColor: string;
+        textColor: string;
+    } | null;
     errors?: Record<string, string>;
 }
 
@@ -43,41 +55,41 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
     onUpdateChoice,
     getQuestionTypeLabel,
     getQuestionTypeIcon,
-    errors = {}
+    errors = {},
 }) => {
     const { t } = useTranslations();
-    const [choiceStates, setChoiceStates] = React.useState<Record<number, {
-        isMarkdownMode: boolean;
-        showPreview: boolean;
-    }>>({});
+    const [choiceStates, setChoiceStates] = React.useState<
+        Record<
+            number,
+            {
+                isMarkdownMode: boolean;
+                showPreview: boolean;
+            }
+        >
+    >({});
 
     const toggleChoiceMarkdownMode = (choiceIndex: number) => {
-        setChoiceStates(prev => ({
+        setChoiceStates((prev) => ({
             ...prev,
             [choiceIndex]: {
                 isMarkdownMode: !prev[choiceIndex]?.isMarkdownMode,
-                showPreview: false
-            }
+                showPreview: false,
+            },
         }));
     };
 
     const toggleChoicePreview = (choiceIndex: number) => {
-        setChoiceStates(prev => ({
+        setChoiceStates((prev) => ({
             ...prev,
             [choiceIndex]: {
                 ...prev[choiceIndex],
-                showPreview: !prev[choiceIndex]?.showPreview
-            }
+                showPreview: !prev[choiceIndex]?.showPreview,
+            },
         }));
     };
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({ id: index.toString() });
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id: index.toString(),
+    });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -118,7 +130,9 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
                             if (!iconConfig) return null;
                             const { icon: Icon, bgColor, textColor } = iconConfig;
                             return (
-                                <div className={`flex items-center justify-center w-6 h-6 ${bgColor} ${textColor} rounded`}>
+                                <div
+                                    className={`flex items-center justify-center w-6 h-6 ${bgColor} ${textColor} rounded`}
+                                >
                                     <Icon className="w-4 h-4" />
                                 </div>
                             );
@@ -132,12 +146,14 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
                 <div className="flex items-center space-x-2">
                     <div className="flex items-center space-x-2">
                         <Input
-                            label=''
+                            label=""
                             type="number"
                             min="1"
                             max="100"
                             value={question.points}
-                            onChange={(e) => onUpdateQuestion(index, 'points', parseInt(e.target.value))}
+                            onChange={(e) =>
+                                onUpdateQuestion(index, 'points', parseInt(e.target.value))
+                            }
                             className="w-16! p-1! text-sm text-center"
                             error={errors[`questions.${index}.points`]}
                         />
@@ -169,8 +185,9 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
                         error={errors[`questions.${index}.content`]}
                     />
 
-
-                    {(question.type === 'multiple' || question.type === 'one_choice' || question.type === 'boolean') && (
+                    {(question.type === 'multiple' ||
+                        question.type === 'one_choice' ||
+                        question.type === 'boolean') && (
                         <div className="space-y-4">
                             <div className="flex justify-between items-center">
                                 <label className="block text-xs font-medium text-gray-700 uppercase tracking-wide">
@@ -195,7 +212,7 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
                             )}
 
                             <div className="space-y-3">
-                                {question.choices.map((choice, choiceIndex) => (
+                                {question.choices.map((choice, choiceIndex) =>
                                     question.type === 'multiple' ? (
                                         <QuestionMultipleItem
                                             key={choice.id || `choice-${choiceIndex}`}
@@ -205,10 +222,20 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
                                             onUpdateChoice={onUpdateChoice}
                                             onRemoveChoice={onRemoveChoice}
                                             showDeleteButton={question.choices.length > 2}
-                                            error={errors[`questions.${index}.choices.${choiceIndex}.content`]}
-                                            isMarkdownMode={choiceStates[choiceIndex]?.isMarkdownMode || false}
-                                            showPreview={choiceStates[choiceIndex]?.showPreview || false}
-                                            onToggleMarkdownMode={() => toggleChoiceMarkdownMode(choiceIndex)}
+                                            error={
+                                                errors[
+                                                    `questions.${index}.choices.${choiceIndex}.content`
+                                                ]
+                                            }
+                                            isMarkdownMode={
+                                                choiceStates[choiceIndex]?.isMarkdownMode || false
+                                            }
+                                            showPreview={
+                                                choiceStates[choiceIndex]?.showPreview || false
+                                            }
+                                            onToggleMarkdownMode={() =>
+                                                toggleChoiceMarkdownMode(choiceIndex)
+                                            }
                                             onTogglePreview={() => toggleChoicePreview(choiceIndex)}
                                         />
                                     ) : question.type === 'one_choice' ? (
@@ -220,24 +247,39 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
                                             onUpdateChoice={onUpdateChoice}
                                             onRemoveChoice={onRemoveChoice}
                                             showDeleteButton={question.choices.length > 2}
-                                            error={errors[`questions.${index}.choices.${choiceIndex}.content`]}
-                                            isMarkdownMode={choiceStates[choiceIndex]?.isMarkdownMode || false}
-                                            showPreview={choiceStates[choiceIndex]?.showPreview || false}
-                                            onToggleMarkdownMode={() => toggleChoiceMarkdownMode(choiceIndex)}
+                                            error={
+                                                errors[
+                                                    `questions.${index}.choices.${choiceIndex}.content`
+                                                ]
+                                            }
+                                            isMarkdownMode={
+                                                choiceStates[choiceIndex]?.isMarkdownMode || false
+                                            }
+                                            showPreview={
+                                                choiceStates[choiceIndex]?.showPreview || false
+                                            }
+                                            onToggleMarkdownMode={() =>
+                                                toggleChoiceMarkdownMode(choiceIndex)
+                                            }
                                             onTogglePreview={() => toggleChoicePreview(choiceIndex)}
                                         />
-                                    ) : question.type === 'boolean' && (
-                                        <QuestionBooleanItem
-                                            key={choice.id || `choice-${choiceIndex}`}
-                                            choice={choice}
-                                            index={index}
-                                            choiceIndex={choiceIndex}
-                                            onUpdateChoice={onUpdateChoice}
-                                            error={errors[`questions.${index}.choices.${choiceIndex}.content`]}
-
-                                        />
-                                    )
-                                ))}
+                                    ) : (
+                                        question.type === 'boolean' && (
+                                            <QuestionBooleanItem
+                                                key={choice.id || `choice-${choiceIndex}`}
+                                                choice={choice}
+                                                index={index}
+                                                choiceIndex={choiceIndex}
+                                                onUpdateChoice={onUpdateChoice}
+                                                error={
+                                                    errors[
+                                                        `questions.${index}.choices.${choiceIndex}.content`
+                                                    ]
+                                                }
+                                            />
+                                        )
+                                    ),
+                                )}
                             </div>
                         </div>
                     )}
@@ -257,7 +299,12 @@ interface QuestionMultipleItemProps {
     showPreview?: boolean;
     onToggleMarkdownMode?: () => void;
     onTogglePreview?: () => void;
-    onUpdateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: ChoiceFormData[keyof ChoiceFormData]) => void;
+    onUpdateChoice: (
+        questionIndex: number,
+        choiceIndex: number,
+        field: keyof ChoiceFormData,
+        value: ChoiceFormData[keyof ChoiceFormData],
+    ) => void;
     onRemoveChoice: (questionIndex: number, choiceIndex: number) => void;
 }
 
@@ -272,7 +319,7 @@ const QuestionMultipleItem: React.FC<QuestionMultipleItemProps> = ({
     isMarkdownMode,
     showPreview,
     error,
-    onRemoveChoice
+    onRemoveChoice,
 }) => {
     const { t } = useTranslations();
 
@@ -335,7 +382,7 @@ const QuestionMultipleItem: React.FC<QuestionMultipleItemProps> = ({
             )}
         </div>
     );
-}
+};
 
 interface QuestionSingleItemProps {
     choice: ChoiceFormData;
@@ -347,7 +394,12 @@ interface QuestionSingleItemProps {
     showPreview?: boolean;
     onToggleMarkdownMode?: () => void;
     onTogglePreview?: () => void;
-    onUpdateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: ChoiceFormData[keyof ChoiceFormData]) => void;
+    onUpdateChoice: (
+        questionIndex: number,
+        choiceIndex: number,
+        field: keyof ChoiceFormData,
+        value: ChoiceFormData[keyof ChoiceFormData],
+    ) => void;
     onRemoveChoice: (questionIndex: number, choiceIndex: number) => void;
 }
 
@@ -362,14 +414,12 @@ const QuestionSingleItem: React.FC<QuestionSingleItemProps> = ({
     showPreview,
     onToggleMarkdownMode,
     onTogglePreview,
-    onRemoveChoice
+    onRemoveChoice,
 }) => {
     const { t } = useTranslations();
 
     return (
-        <div
-            className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-100"
-        >
+        <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
             <Checkbox
                 checked={choice.is_correct}
                 onChange={(e) => onUpdateChoice(index, choiceIndex, 'is_correct', e.target.checked)}
@@ -412,14 +462,19 @@ const QuestionSingleItem: React.FC<QuestionSingleItemProps> = ({
             )}
         </div>
     );
-}
+};
 
 interface QuestionBooleanItemProps {
     choice: ChoiceFormData;
     index: number;
     choiceIndex: number;
     error?: string;
-    onUpdateChoice: (questionIndex: number, choiceIndex: number, field: keyof ChoiceFormData, value: ChoiceFormData[keyof ChoiceFormData]) => void;
+    onUpdateChoice: (
+        questionIndex: number,
+        choiceIndex: number,
+        field: keyof ChoiceFormData,
+        value: ChoiceFormData[keyof ChoiceFormData],
+    ) => void;
 }
 
 const QuestionBooleanItem: React.FC<QuestionBooleanItemProps> = ({
@@ -427,7 +482,7 @@ const QuestionBooleanItem: React.FC<QuestionBooleanItemProps> = ({
     index,
     choiceIndex,
     onUpdateChoice,
-    error
+    error,
 }) => {
     return (
         <div
@@ -457,7 +512,7 @@ const QuestionBooleanItem: React.FC<QuestionBooleanItemProps> = ({
             />
         </div>
     );
-}
+};
 
 export const SortableQuestionItem = React.memo(SortableQuestion, (prevProps, nextProps) => {
     return (

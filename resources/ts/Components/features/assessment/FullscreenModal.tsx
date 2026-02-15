@@ -1,6 +1,6 @@
-import { ArrowsPointingOutIcon } from "@heroicons/react/24/outline";
+import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { Modal, Button } from "@/Components/ui";
+import { Modal, Button } from '@/Components/ui';
 
 interface FullscreenModalProps {
     isOpen: boolean;
@@ -11,12 +11,11 @@ function FullscreenModal({ isOpen, onEnterFullscreen }: FullscreenModalProps) {
     const { t } = useTranslations();
 
     return (
-        <Modal isOpen={isOpen} onClose={() => { }}>
+        <Modal isOpen={isOpen} onClose={() => {}}>
             <div className="p-6">
                 <div className="flex items-center justify-center mb-4">
                     <div className="flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-full">
-                        <ArrowsPointingOutIcon
-                            className="w-6 h-6 text-indigo-600" />
+                        <ArrowsPointingOutIcon className="w-6 h-6 text-indigo-600" />
                     </div>
                 </div>
 
@@ -25,8 +24,7 @@ function FullscreenModal({ isOpen, onEnterFullscreen }: FullscreenModalProps) {
                         {t('components.fullscreen_modal.title')}
                     </h3>
                     <p className="text-gray-600">
-                        {t('components.fullscreen_modal.description_line1')}
-                        {' '}
+                        {t('components.fullscreen_modal.description_line1')}{' '}
                         {t('components.fullscreen_modal.description_line2')}
                     </p>
                 </div>
@@ -35,7 +33,7 @@ function FullscreenModal({ isOpen, onEnterFullscreen }: FullscreenModalProps) {
                     <Button
                         size="md"
                         color="primary"
-                        variant='outline'
+                        variant="outline"
                         onClick={onEnterFullscreen}
                         className="flex items-center"
                     >

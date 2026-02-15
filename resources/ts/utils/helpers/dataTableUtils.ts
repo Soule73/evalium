@@ -3,10 +3,7 @@ import { type DataTableState } from '@/types/datatable';
 /**
  * Builds a URL with query parameters based on the current data table state
  */
-export function buildDataTableUrl(
-    state: DataTableState,
-    basePath: string
-): string {
+export function buildDataTableUrl(state: DataTableState, basePath: string): string {
     const params = new URLSearchParams();
 
     params.set('page', String(state.page));
@@ -28,10 +25,7 @@ export function buildDataTableUrl(
 /**
  * Filters items that can be selected based on the isSelectable predicate
  */
-export function getSelectableItems<T>(
-    items: T[],
-    isSelectable?: (item: T) => boolean
-): T[] {
+export function getSelectableItems<T>(items: T[], isSelectable?: (item: T) => boolean): T[] {
     if (!isSelectable) {
         return items;
     }
@@ -44,7 +38,7 @@ export function getSelectableItems<T>(
 export function areAllSelectableItemsSelected<T extends { id: number | string }>(
     items: T[],
     selectedIds: Set<number | string>,
-    isSelectable?: (item: T) => boolean
+    isSelectable?: (item: T) => boolean,
 ): boolean {
     const selectableItems = getSelectableItems(items, isSelectable);
 
@@ -52,7 +46,7 @@ export function areAllSelectableItemsSelected<T extends { id: number | string }>
         return false;
     }
 
-    return selectableItems.every(item => selectedIds.has(item.id));
+    return selectableItems.every((item) => selectedIds.has(item.id));
 }
 
 /**
@@ -61,7 +55,7 @@ export function areAllSelectableItemsSelected<T extends { id: number | string }>
 export function areSomeSelectableItemsSelected<T extends { id: number | string }>(
     items: T[],
     selectedIds: Set<number | string>,
-    isSelectable?: (item: T) => boolean
+    isSelectable?: (item: T) => boolean,
 ): boolean {
     const selectableItems = getSelectableItems(items, isSelectable);
 
@@ -69,8 +63,8 @@ export function areSomeSelectableItemsSelected<T extends { id: number | string }
         return false;
     }
 
-    const hasSelected = selectableItems.some(item => selectedIds.has(item.id));
-    const hasUnselected = selectableItems.some(item => !selectedIds.has(item.id));
+    const hasSelected = selectableItems.some((item) => selectedIds.has(item.id));
+    const hasUnselected = selectableItems.some((item) => !selectedIds.has(item.id));
 
     return hasSelected && hasUnselected;
 }
@@ -82,7 +76,7 @@ export function canAddToSelection<T extends { id: number | string }>(
     item: T,
     currentSize: number,
     maxSelectable?: number,
-    isSelectable?: (item: T) => boolean
+    isSelectable?: (item: T) => boolean,
 ): boolean {
     if (isSelectable && !isSelectable(item)) {
         return false;
@@ -102,14 +96,14 @@ export function toggleAllPageSelection<T extends { id: number | string }>(
     items: T[],
     currentSelection: Set<number | string>,
     maxSelectable?: number,
-    isSelectable?: (item: T) => boolean
+    isSelectable?: (item: T) => boolean,
 ): Set<number | string> {
     const newSet = new Set(currentSelection);
     const selectableItems = getSelectableItems(items, isSelectable);
-    const allSelected = selectableItems.every(item => newSet.has(item.id));
+    const allSelected = selectableItems.every((item) => newSet.has(item.id));
 
     if (allSelected) {
-        selectableItems.forEach(item => newSet.delete(item.id));
+        selectableItems.forEach((item) => newSet.delete(item.id));
     } else {
         for (const item of selectableItems) {
             if (maxSelectable && newSet.size >= maxSelectable) {
@@ -128,15 +122,13 @@ export function toggleAllPageSelection<T extends { id: number | string }>(
 export function selectAllItems<T extends { id: number | string }>(
     items: T[],
     maxSelectable?: number,
-    isSelectable?: (item: T) => boolean
+    isSelectable?: (item: T) => boolean,
 ): Set<number | string> {
     const newSet = new Set<number | string>();
     const selectableItems = getSelectableItems(items, isSelectable);
-    const itemsToSelect = maxSelectable
-        ? selectableItems.slice(0, maxSelectable)
-        : selectableItems;
+    const itemsToSelect = maxSelectable ? selectableItems.slice(0, maxSelectable) : selectableItems;
 
-    itemsToSelect.forEach(item => newSet.add(item.id));
+    itemsToSelect.forEach((item) => newSet.add(item.id));
 
     return newSet;
 }
@@ -149,7 +141,7 @@ export function toggleItemSelection<T extends { id: number | string }>(
     items: T[],
     currentSelection: Set<number | string>,
     maxSelectable?: number,
-    isSelectable?: (item: T) => boolean
+    isSelectable?: (item: T) => boolean,
 ): Set<number | string> {
     const newSet = new Set(currentSelection);
 
@@ -158,7 +150,7 @@ export function toggleItemSelection<T extends { id: number | string }>(
         return newSet;
     }
 
-    const item = items.find(i => i.id === itemId);
+    const item = items.find((i) => i.id === itemId);
     if (!item) {
         return currentSelection;
     }

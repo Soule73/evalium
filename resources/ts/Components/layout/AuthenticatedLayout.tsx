@@ -42,10 +42,7 @@ const AuthenticatedLayout = ({ children, title, breadcrumb }: AuthenticatedLayou
 
             <div className="min-h-screen bg-gray-50">
                 {/* Sidebar */}
-                <Sidebar
-                    currentPath={currentPath}
-                    user={auth.user}
-                />
+                <Sidebar currentPath={currentPath} user={auth.user} />
 
                 {/* Main container avec marge ajustée selon l'état de la sidebar */}
                 <div
@@ -62,7 +59,9 @@ const AuthenticatedLayout = ({ children, title, breadcrumb }: AuthenticatedLayou
                                 {breadcrumb ? (
                                     <Breadcrumb items={breadcrumb} />
                                 ) : title ? (
-                                    <h1 className="lg:text-lg font-semibold text-gray-900 hidden sm:block">{title}</h1>
+                                    <h1 className="lg:text-lg font-semibold text-gray-900 hidden sm:block">
+                                        {title}
+                                    </h1>
                                 ) : null}
                             </div>
 
@@ -71,9 +70,19 @@ const AuthenticatedLayout = ({ children, title, breadcrumb }: AuthenticatedLayou
                                 <AcademicYearSelector user={auth.user} />
                                 <UserMenu
                                     user={auth.user}
-                                    isSuperAdmin={auth.user.roles?.some(role => role.name === 'super_admin') || false}
-                                    isAdmin={auth.user.roles?.some(role => role.name === 'admin') || false}
-                                    isTeacher={auth.user.roles?.some(role => role.name === 'teacher') || false}
+                                    isSuperAdmin={
+                                        auth.user.roles?.some(
+                                            (role) => role.name === 'super_admin',
+                                        ) || false
+                                    }
+                                    isAdmin={
+                                        auth.user.roles?.some((role) => role.name === 'admin') ||
+                                        false
+                                    }
+                                    isTeacher={
+                                        auth.user.roles?.some((role) => role.name === 'teacher') ||
+                                        false
+                                    }
                                 />
                             </div>
 
@@ -86,9 +95,7 @@ const AuthenticatedLayout = ({ children, title, breadcrumb }: AuthenticatedLayou
 
                     {/* Main content */}
                     <main className="p-4 lg:p-8 min-h-[calc(100vh-4rem)]">
-                        <div className="max-w-7xl mx-auto">
-                            {children}
-                        </div>
+                        <div className="max-w-7xl mx-auto">{children}</div>
                     </main>
                 </div>
 

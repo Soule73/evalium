@@ -48,10 +48,7 @@ export const isDeveloperToolsShortcut = (e: KeyboardEvent): boolean => {
  * Vérifie si une combinaison de touches est interdite pour le rechargement
  */
 export const isReloadShortcut = (e: KeyboardEvent): boolean => {
-    return (
-        ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'R')) ||
-        e.key === 'F5'
-    );
+    return ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'R')) || e.key === 'F5';
 };
 
 /**
@@ -59,12 +56,15 @@ export const isReloadShortcut = (e: KeyboardEvent): boolean => {
  */
 export const isCopyPasteShortcut = (e: KeyboardEvent): boolean => {
     return (
-        e.ctrlKey && (
-            e.key === 'c' || e.key === 'C' ||
-            e.key === 'v' || e.key === 'V' ||
-            e.key === 'x' || e.key === 'X' ||
-            e.key === 'a' || e.key === 'A'
-        )
+        e.ctrlKey &&
+        (e.key === 'c' ||
+            e.key === 'C' ||
+            e.key === 'v' ||
+            e.key === 'V' ||
+            e.key === 'x' ||
+            e.key === 'X' ||
+            e.key === 'a' ||
+            e.key === 'A')
     );
 };
 
@@ -86,12 +86,7 @@ export const isZoomShortcut = (e: KeyboardEvent): boolean => {
  * Vérifie si une combinaison de touches est interdite pour les nouvelles fenêtres/onglets
  */
 export const isNewWindowShortcut = (e: KeyboardEvent): boolean => {
-    return (
-        e.ctrlKey && (
-            e.key === 't' || e.key === 'T' ||
-            e.key === 'n' || e.key === 'N'
-        )
-    );
+    return e.ctrlKey && (e.key === 't' || e.key === 'T' || e.key === 'n' || e.key === 'N');
 };
 
 /**
@@ -121,7 +116,7 @@ export const createKeyDownHandler = (config?: {
         blockPrint = true,
         blockZoom = true,
         blockNewWindow = true,
-        blockEscape = true
+        blockEscape = true,
     } = config || {};
 
     return (e: KeyboardEvent) => {
@@ -241,7 +236,7 @@ export const applySecurityMeasures = (): SecurityEventHandlers => {
         handleContextMenu: createContextMenuHandler(),
         handleDragStart: createDragHandler(),
         handlePrint: createPrintHandler(),
-        preventImageActions: createImageActionsHandler()
+        preventImageActions: createImageActionsHandler(),
     };
 
     disableTextSelection();
@@ -306,13 +301,13 @@ export const createConfigurableSecurityHandlers = (config: {
             blockReload: true,
             blockZoom: false,
             blockNewWindow: false,
-            blockEscape: false
+            blockEscape: false,
         }),
         handleSelectStart: config.copyPastePrevention ? createSelectStartHandler() : () => true,
         handleContextMenu: config.contextMenuDisabled ? createContextMenuHandler() : () => true,
         handleDragStart: config.copyPastePrevention ? createDragHandler() : () => true,
         handlePrint: config.printPrevention ? createPrintHandler() : () => true,
-        preventImageActions: config.copyPastePrevention ? createImageActionsHandler() : () => true
+        preventImageActions: config.copyPastePrevention ? createImageActionsHandler() : () => true,
     };
 
     return handlers;
@@ -348,7 +343,7 @@ export const attachConfigurableEventListeners = (
         contextMenuDisabled?: boolean;
         printPrevention?: boolean;
         tabSwitchDetection?: boolean;
-    }
+    },
 ): void => {
     if (config.tabSwitchDetection) {
         window.addEventListener('beforeunload', handlers.handleBeforeUnload);
@@ -386,7 +381,7 @@ export const detachConfigurableEventListeners = (
         contextMenuDisabled?: boolean;
         printPrevention?: boolean;
         tabSwitchDetection?: boolean;
-    }
+    },
 ): void => {
     if (config.tabSwitchDetection) {
         window.removeEventListener('beforeunload', handlers.handleBeforeUnload);

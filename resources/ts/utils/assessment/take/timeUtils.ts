@@ -1,9 +1,9 @@
 /**
  * Formats time in seconds to MM:SS format
- * 
+ *
  * @param seconds - Time in seconds
  * @returns Formatted time string (MM:SS)
- * 
+ *
  * @example
  * formatAssessmentTime(125) // "02:05"
  * formatAssessmentTime(3661) // "61:01"
@@ -16,11 +16,11 @@ export function formatAssessmentTime(seconds: number): string {
 
 /**
  * Calculates remaining time percentage
- * 
+ *
  * @param timeLeft - Remaining time in seconds
  * @param duration - Total duration in minutes
  * @returns Percentage of time remaining (0-100)
- * 
+ *
  * @example
  * getTimeRemainingPercentage(900, 30) // 50 (15 min remaining out of 30)
  */
@@ -31,11 +31,11 @@ export function getTimeRemainingPercentage(timeLeft: number, duration: number): 
 
 /**
  * Checks if assessment time is running low (less than 10% remaining)
- * 
+ *
  * @param timeLeft - Remaining time in seconds
  * @param duration - Total duration in minutes
  * @returns True if time is critical
- * 
+ *
  * @example
  * isTimeCritical(120, 30) // true (2 min left out of 30)
  * isTimeCritical(1200, 30) // false (20 min left out of 30)
@@ -46,11 +46,11 @@ export function isTimeCritical(timeLeft: number, duration: number): boolean {
 
 /**
  * Gets color class based on remaining time percentage
- * 
+ *
  * @param timeLeft - Remaining time in seconds
  * @param duration - Total duration in minutes
  * @returns Tailwind color class
- * 
+ *
  * @example
  * getTimeColorClass(900, 30) // "text-yellow-600"
  * getTimeColorClass(120, 30) // "text-red-600"
@@ -69,10 +69,10 @@ export function getTimeColorClass(timeLeft: number, duration: number): string {
 
 /**
  * Converts duration in minutes to seconds
- * 
+ *
  * @param minutes - Duration in minutes
  * @returns Duration in seconds
- * 
+ *
  * @example
  * minutesToSeconds(30) // 1800
  */
@@ -82,10 +82,10 @@ export function minutesToSeconds(minutes: number): number {
 
 /**
  * Converts duration in seconds to minutes (rounded)
- * 
+ *
  * @param seconds - Duration in seconds
  * @returns Duration in minutes
- * 
+ *
  * @example
  * secondsToMinutes(1800) // 30
  * secondsToMinutes(125) // 2

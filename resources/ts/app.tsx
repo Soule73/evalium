@@ -26,7 +26,7 @@ createInertiaApp({
             <ToastProvider defaultPosition="top-right">
                 <App {...props} />
                 <ToastContainer />
-            </ToastProvider>
+            </ToastProvider>,
         );
     },
     progress: {

@@ -21,7 +21,7 @@ interface UseAutoSaveReturn<T> {
 
 export function useAutoSave<T extends Record<string, unknown>>(
     initialData: T,
-    config: AutoSaveConfig<T> = {}
+    config: AutoSaveConfig<T> = {},
 ): UseAutoSaveReturn<T> {
     const {
         interval = 30000, // 30 seconds
@@ -38,7 +38,7 @@ export function useAutoSave<T extends Record<string, unknown>>(
     const [saveCount, setSaveCount] = useState(0);
 
     const updateData = useCallback((updates: Partial<T>) => {
-        setData(prev => ({
+        setData((prev) => ({
             ...prev,
             ...updates,
         }));
@@ -56,7 +56,7 @@ export function useAutoSave<T extends Record<string, unknown>>(
                 await onSave(data);
                 setIsModified(false);
                 setLastSaved(new Date());
-                setSaveCount(prev => prev + 1);
+                setSaveCount((prev) => prev + 1);
                 break;
             } catch (error) {
                 retries++;
@@ -64,7 +64,7 @@ export function useAutoSave<T extends Record<string, unknown>>(
                     onError?.(error as Error);
                     break;
                 }
-                await new Promise(resolve => setTimeout(resolve, Math.pow(2, retries) * 1000));
+                await new Promise((resolve) => setTimeout(resolve, Math.pow(2, retries) * 1000));
             }
         }
 

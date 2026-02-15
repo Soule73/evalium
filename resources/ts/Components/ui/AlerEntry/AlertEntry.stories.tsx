@@ -1,17 +1,17 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import AlertEntry from "./AlertEntry";
+import type { Meta, StoryObj } from '@storybook/react';
+import AlertEntry from './AlertEntry';
 
 const meta = {
-    title: "UI/AlertEntry",
+    title: 'UI/AlertEntry',
     component: AlertEntry,
     parameters: {
-        layout: "padded",
+        layout: 'padded',
     },
 
     argTypes: {
         type: {
-            control: "select",
-            options: ["success", "error", "warning", "info"],
+            control: 'select',
+            options: ['success', 'error', 'warning', 'info'],
         },
     },
 } satisfies Meta<typeof AlertEntry>;
@@ -21,55 +21,52 @@ type Story = StoryObj<typeof meta>;
 
 export const Success: Story = {
     args: {
-        title: "Success",
-        type: "success",
+        title: 'Success',
+        type: 'success',
         children: <p>Your changes have been saved successfully.</p>,
     },
 };
 
 export const Error: Story = {
     args: {
-        title: "Error",
-        type: "error",
+        title: 'Error',
+        type: 'error',
         children: <p>Something went wrong. Please try again.</p>,
     },
 };
 
 export const Warning: Story = {
     args: {
-        title: "Warning",
-        type: "warning",
-        children: (
-            <p>This action cannot be undone. Please proceed with caution.</p>
-        ),
+        title: 'Warning',
+        type: 'warning',
+        children: <p>This action cannot be undone. Please proceed with caution.</p>,
     },
 };
 
 export const Info: Story = {
     args: {
-        title: "Information",
-        type: "info",
+        title: 'Information',
+        type: 'info',
         children: <p>You have 3 pending assessment submissions to review.</p>,
     },
 };
 
 export const WithoutChildren: Story = {
     args: {
-        title: "Simple Alert",
-        type: "info",
+        title: 'Simple Alert',
+        type: 'info',
     },
 };
 
 export const WithLongContent: Story = {
     args: {
-        title: "Detailed Information",
-        type: "info",
+        title: 'Detailed Information',
+        type: 'info',
         children: (
             <div>
                 <p className="mb-2">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+                    incididunt ut labore et dolore magna aliqua.
                 </p>
                 <ul className="list-disc list-inside space-y-1">
                     <li>Point number one</li>
@@ -83,12 +80,11 @@ export const WithLongContent: Story = {
 
 export const AssessmentSubmitted: Story = {
     args: {
-        title: "Assessment Submitted Successfully",
-        type: "success",
+        title: 'Assessment Submitted Successfully',
+        type: 'success',
         children: (
             <p>
-                Your assessment has been submitted. You will receive your results
-                within 48 hours.
+                Your assessment has been submitted. You will receive your results within 48 hours.
             </p>
         ),
     },
@@ -96,8 +92,8 @@ export const AssessmentSubmitted: Story = {
 
 export const ValidationError: Story = {
     args: {
-        title: "Validation Error",
-        type: "error",
+        title: 'Validation Error',
+        type: 'error',
         children: (
             <div>
                 <p className="mb-2">Please fix the following errors:</p>
@@ -113,12 +109,12 @@ export const ValidationError: Story = {
 
 export const TimeWarning: Story = {
     args: {
-        title: "Time Running Out",
-        type: "warning",
+        title: 'Time Running Out',
+        type: 'warning',
         children: (
             <p>
-                You have only <strong>5 minutes</strong> remaining to complete
-                your assessment. Please submit your answers before time runs out.
+                You have only <strong>5 minutes</strong> remaining to complete your assessment.
+                Please submit your answers before time runs out.
             </p>
         ),
     },
@@ -126,8 +122,8 @@ export const TimeWarning: Story = {
 
 export const SystemMaintenance: Story = {
     args: {
-        title: "Scheduled Maintenance",
-        type: "info",
+        title: 'Scheduled Maintenance',
+        type: 'info',
         children: (
             <div>
                 <p className="mb-2">The system will be under maintenance:</p>
@@ -136,9 +132,7 @@ export const SystemMaintenance: Story = {
                     <li>Time: 2:00 AM - 6:00 AM (EST)</li>
                     <li>Expected downtime: 4 hours</li>
                 </ul>
-                <p className="mt-2">
-                    Please plan your assessment schedule accordingly.
-                </p>
+                <p className="mt-2">Please plan your assessment schedule accordingly.</p>
             </div>
         ),
     },

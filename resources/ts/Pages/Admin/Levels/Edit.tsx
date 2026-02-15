@@ -13,11 +13,14 @@ export default function EditLevel({ level }: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 
-    const translations = useMemo(() => ({
-        edit: t('admin_pages.levels.edit'),
-        editTitle: t('admin_pages.levels.edit_title'),
-        editSubtitle: t('admin_pages.levels.edit_subtitle'),
-    }), [t]);
+    const translations = useMemo(
+        () => ({
+            edit: t('admin_pages.levels.edit'),
+            editTitle: t('admin_pages.levels.edit_title'),
+            editSubtitle: t('admin_pages.levels.edit_subtitle'),
+        }),
+        [t],
+    );
 
     const handleCancel = () => {
         window.history.back();

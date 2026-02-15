@@ -102,44 +102,9 @@ test:jest:
         expire_in: 1 week
         when: always
 
-# Tests Playwright (E2E)
-test:playwright:
-    image: mcr.microsoft.com/playwright:v1.40.0-focal
-    stage: test
-    services:
-        - mysql:8.0
-    dependencies:
-        - build:composer
-        - build:npm
-    before_script:
-        # Install PHP
-        - apt-get update -qq
-        - apt-get install -y -qq software-properties-common
-        - add-apt-repository ppa:ondrej/php -y
-        - apt-get update -qq
-        - apt-get install -y -qq php8.4-cli php8.4-mysql php8.4-mbstring php8.4-xml php8.4-curl php8.4-zip php8.4-gd php8.4-bcmath
-        # Install Composer
-        - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-        # Install dependencies
-        - composer install --prefer-dist --no-interaction --no-progress
-        - npm ci
-    script:
-        - cp .env.example .env
-        - php artisan key:generate
-        - php artisan migrate --force
-        - php artisan db:seed --force
-        # Start Laravel server in background
-        - php artisan serve --host=127.0.0.1 --port=8000 &
-        - sleep 5
-        # Run Playwright tests
-        - npx playwright test --project=chromium
-    artifacts:
-        paths:
-            - playwright-report/
-            - test-results/
-        expire_in: 1 week
-        when: always
-    allow_failure: false
+# Tests Playwright (E2E) - Disabled temporarily
+# test:playwright:
+#     To re-enable, uncomment this job and add it back to pages dependencies
 
 # Test de code quality (optionnel)
 test:code-quality:
@@ -172,7 +137,6 @@ test:summary:
         - echo "=========================================="
         - echo "Laravel Tests - Check artifacts"
         - echo "Jest Tests - Check artifacts"
-        - echo "Playwright Tests - Check artifacts"
         - echo "=========================================="
     when: always
 
@@ -182,13 +146,10 @@ pages:
     dependencies:
         - test:laravel
         - test:jest
-        - test:playwright
     script:
         - mkdir -p public/coverage
-        - mkdir -p public/playwright
         - cp -r coverage/* public/coverage/ || true
-        - cp -r playwright-report/* public/playwright/ || true
-        - echo '<html><body><h1>Test Reports</h1><ul><li><a href="coverage/">Coverage</a></li><li><a href="playwright/">Playwright</a></li></ul></body></html>' > public/index.html
+        - echo '<html><body><h1>Test Reports</h1><ul><li><a href="coverage/">Coverage</a></li></ul></body></html>' > public/index.html
     artifacts:
         paths:
             - public

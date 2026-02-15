@@ -20,8 +20,7 @@ function DataTableInner<T extends { id: number | string }>({
     testIdEmptyState = 'datatable-empty-state',
     testIdResetFiltersButton = 'datatable-reset-filters-button',
     testIdEmptyResetFiltersButton,
-    dataTableSearchInputId
-
+    dataTableSearchInputId,
 }: DataTableProps<T>) {
     const { t } = useTranslations();
     const { state, actions, isNavigating, selection } = useDataTable(data, {
@@ -30,12 +29,12 @@ function DataTableInner<T extends { id: number | string }>({
         isSelectable: config.isSelectable,
         filters: config.filters,
         onStateChange,
-        onSelectionChange
+        onSelectionChange,
     });
 
     const hasActiveFilters = useMemo(
-        () => state.search || Object.values(state.filters).some(v => v),
-        [state.search, state.filters]
+        () => state.search || Object.values(state.filters).some((v) => v),
+        [state.search, state.filters],
     );
     const isEmpty = data.data.length === 0;
     const showEmptyState = isEmpty && !isLoading;
@@ -88,7 +87,8 @@ function DataTableInner<T extends { id: number | string }>({
                                     onClick={handleResetFilters}
                                     className="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-md hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                 >
-                                    {config.emptySearchState.resetLabel || t('components.datatable.reset_filters_default')}
+                                    {config.emptySearchState.resetLabel ||
+                                        t('components.datatable.reset_filters_default')}
                                 </button>
                             }
                         />
@@ -111,7 +111,8 @@ function DataTableInner<T extends { id: number | string }>({
                                                 checked={selection.allItemsOnPageSelected}
                                                 ref={(el) => {
                                                     if (el) {
-                                                        el.indeterminate = selection.someItemsOnPageSelected;
+                                                        el.indeterminate =
+                                                            selection.someItemsOnPageSelected;
                                                     }
                                                 }}
                                                 onChange={actions.toggleAllOnPage}
@@ -132,9 +133,13 @@ function DataTableInner<T extends { id: number | string }>({
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200" data-e2e={testIdTableBody}>
+                            <tbody
+                                className="bg-white divide-y divide-gray-200"
+                                data-e2e={testIdTableBody}
+                            >
                                 {data.data.map((item, index) => {
-                                    const isItemSelectable = !config.isSelectable || config.isSelectable(item);
+                                    const isItemSelectable =
+                                        !config.isSelectable || config.isSelectable(item);
 
                                     return (
                                         <tr key={item.id ?? index} className="hover:bg-gray-50">
@@ -142,10 +147,19 @@ function DataTableInner<T extends { id: number | string }>({
                                                 <td className="px-6 py-4 whitespace-nowrap w-12">
                                                     <Checkbox
                                                         checked={actions.isItemSelected(item.id)}
-                                                        onChange={() => actions.toggleItem(item.id!)}
+                                                        onChange={() =>
+                                                            actions.toggleItem(item.id!)
+                                                        }
                                                         disabled={!isItemSelectable}
-                                                        className={isItemSelectable ? "cursor-pointer" : "cursor-not-allowed opacity-50"}
-                                                        aria-label={t('components.datatable.select_item', { id: String(item.id) })}
+                                                        className={
+                                                            isItemSelectable
+                                                                ? 'cursor-pointer'
+                                                                : 'cursor-not-allowed opacity-50'
+                                                        }
+                                                        aria-label={t(
+                                                            'components.datatable.select_item',
+                                                            { id: String(item.id) },
+                                                        )}
                                                         data-e2e={`datatable-row-checkbox-${item.id}`}
                                                     />
                                                 </td>
@@ -159,7 +173,11 @@ function DataTableInner<T extends { id: number | string }>({
                                                         column.render(item, index)
                                                     ) : (
                                                         <span className="text-sm text-gray-900">
-                                                            {String((item as Record<string, unknown>)[column.key] || '')}
+                                                            {String(
+                                                                (item as Record<string, unknown>)[
+                                                                    column.key
+                                                                ] || '',
+                                                            )}
                                                         </span>
                                                     )}
                                                 </td>

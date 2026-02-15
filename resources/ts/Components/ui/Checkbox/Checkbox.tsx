@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef } from 'react';
 
 type CheckboxProps = React.InputHTMLAttributes<HTMLInputElement> & {
     label?: string | React.ReactNode;
@@ -13,7 +13,10 @@ type CheckboxProps = React.InputHTMLAttributes<HTMLInputElement> & {
  * Supports both checkbox and radio types with proper accessibility
  */
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-    ({ label, className = '', labelClassName = '', type = 'checkbox', id, error, ...props }, ref) => {
+    (
+        { label, className = '', labelClassName = '', type = 'checkbox', id, error, ...props },
+        ref,
+    ) => {
         const generatedId = id || `${type}-${Math.random().toString(36).substr(2, 9)}`;
         const errorId = error ? `${generatedId}-error` : undefined;
         const roundedClass = type === 'radio' ? 'rounded-full' : 'rounded-sm';
@@ -70,7 +73,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                 )}
             </div>
         );
-    }
+    },
 );
 
 Checkbox.displayName = 'Checkbox';

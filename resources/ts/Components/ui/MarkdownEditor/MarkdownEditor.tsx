@@ -57,79 +57,82 @@ interface MarkdownEditorProps {
 
     // Upload d'images
     enableImageUpload?: boolean;
-    imageUploadFunction?: (file: File, onSuccess: (url: string) => void, onError: (error: string) => void) => void;
+    imageUploadFunction?: (
+        file: File,
+        onSuccess: (url: string) => void,
+        onError: (error: string) => void,
+    ) => void;
     imageUploadEndpoint?: string;
     imageMaxSize?: number;
 }
 
-export const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorProps>(({
-    value = '',
-    onChange,
-    placeholder = 'Saisissez votre réponse ici...',
-    required = false,
-    id,
-    className = '',
-    rows = 6,
-    disabled = false,
-    error,
-    label,
-    helpText,
+export const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorProps>(
+    (
+        {
+            value = '',
+            onChange,
+            placeholder = 'Saisissez votre réponse ici...',
+            required = false,
+            id,
+            className = '',
+            rows = 6,
+            disabled = false,
+            error,
+            label,
+            helpText,
 
-    // Toutes les autres props seront passées au hook
-    ...editorOptions
-}, ref) => {
-    const componentId = id || `markdown-editor-${Math.random().toString(36).substr(2, 9)}`;
+            // Toutes les autres props seront passées au hook
+            ...editorOptions
+        },
+        ref,
+    ) => {
+        const componentId = id || `markdown-editor-${Math.random().toString(36).substr(2, 9)}`;
 
-    // Utiliser le hook pour gérer toute la logique
-    const { textareaRef, editorMethods } = useMarkdownEditor({
-        value,
-        onChange,
-        placeholder,
-        disabled,
-        ...editorOptions
-    });
+        // Utiliser le hook pour gérer toute la logique
+        const { textareaRef, editorMethods } = useMarkdownEditor({
+            value,
+            onChange,
+            placeholder,
+            disabled,
+            ...editorOptions,
+        });
 
-    // Exposer les méthodes via ref
-    useImperativeHandle(ref, () => editorMethods);
+        // Exposer les méthodes via ref
+        useImperativeHandle(ref, () => editorMethods);
 
-    return (
-        <div className={`markdown-editor-field ${className}`}>
-            {label && (
-                <label
-                    htmlFor={componentId}
-                    className="block text-sm font-medium text-gray-700 mb-2"
+        return (
+            <div className={`markdown-editor-field ${className}`}>
+                {label && (
+                    <label
+                        htmlFor={componentId}
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                        {label}
+                        {required && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                )}
+
+                <div
+                    className={`markdown-editor-container relative ${editorOptions.editorClassName || ''} ${error ? 'ring-2 ring-red-500 rounded-lg' : ''}`}
                 >
-                    {label}
-                    {required && <span className="text-red-500 ml-1">*</span>}
-                </label>
-            )}
+                    <textarea
+                        ref={textareaRef}
+                        id={componentId}
+                        placeholder={placeholder}
+                        rows={rows}
+                        className="block w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"
+                        style={{ display: 'none' }}
+                    />
+                </div>
 
-            <div className={`markdown-editor-container relative ${editorOptions.editorClassName || ''} ${error ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
-                <textarea
-                    ref={textareaRef}
-                    id={componentId}
-                    placeholder={placeholder}
-                    rows={rows}
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"
-                    style={{ display: 'none' }}
-                />
-            </div>
+                {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
-            {error && (
-                <p className="mt-2 text-sm text-red-600">
-                    {error}
-                </p>
-            )}
+                {helpText && !error && <p className="mt-2 text-sm text-gray-500">{helpText}</p>}
 
-            {helpText && !error && (
-                <p className="mt-2 text-sm text-gray-500">
-                    {helpText}
-                </p>
-            )}
-
-            {/* Styles pour l'éditeur */}
-            <style dangerouslySetInnerHTML={{
-                __html: `
+                {/* Styles pour l'éditeur */}
+                <style
+                    dangerouslySetInnerHTML={{
+                        __html: `
                 .EasyMDEContainer .editor-toolbar .fa-calculator:before {
                     content: "∑";
                     font-family: serif;
@@ -140,11 +143,13 @@ export const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorPro
                     font-family: serif;
                     font-weight: bold;
                 }
-                `
-            }} />
-        </div>
-    );
-});
+                `,
+                    }}
+                />
+            </div>
+        );
+    },
+);
 
 MarkdownEditor.displayName = 'MarkdownEditor';
 

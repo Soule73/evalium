@@ -11,10 +11,7 @@ const GuestLayout = ({ children, title }: GuestLayoutProps) => {
             <Head title={title} />
 
             <div className="min-h-screen px-4 pt-6 sm:pt-0 bg-gray-50">
-
-                <div>
-                    {children}
-                </div>
+                <div>{children}</div>
             </div>
         </>
     );

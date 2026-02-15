@@ -30,12 +30,21 @@ interface BaseChoiceProps {
 
 /* ---------- Subcomponents ---------- */
 
-const TakeQuestionMultiple: React.FC<BaseChoiceProps> = ({ questionId, choices, answers, onAnswerChange }) => {
+const TakeQuestionMultiple: React.FC<BaseChoiceProps> = ({
+    questionId,
+    choices,
+    answers,
+    onAnswerChange,
+}) => {
     const current = Array.isArray(answers[questionId]) ? (answers[questionId] as number[]) : [];
 
     const toggleChoice = (choiceId: number, checked: boolean) => {
         if (checked) onAnswerChange(questionId, [...current, choiceId]);
-        else onAnswerChange(questionId, current.filter((id) => id !== choiceId));
+        else
+            onAnswerChange(
+                questionId,
+                current.filter((id) => id !== choiceId),
+            );
     };
 
     return (
@@ -44,10 +53,12 @@ const TakeQuestionMultiple: React.FC<BaseChoiceProps> = ({ questionId, choices, 
                 <Checkbox
                     key={choice.id}
                     type="checkbox"
-                    label={<>
-                        {questionIndexLabel(idx, 'bg-indigo-100 text-indigo-800')}
-                        <MarkdownRenderer>{choice.content}</MarkdownRenderer>
-                    </>}
+                    label={
+                        <>
+                            {questionIndexLabel(idx, 'bg-indigo-100 text-indigo-800')}
+                            <MarkdownRenderer>{choice.content}</MarkdownRenderer>
+                        </>
+                    }
                     checked={current.includes(choice.id)}
                     onChange={(e) => toggleChoice(choice.id, e.target.checked)}
                     value={choice.id}
@@ -58,7 +69,12 @@ const TakeQuestionMultiple: React.FC<BaseChoiceProps> = ({ questionId, choices, 
     );
 };
 
-const TakeQuestionOneChoice: React.FC<BaseChoiceProps> = ({ questionId, choices, answers, onAnswerChange }) => {
+const TakeQuestionOneChoice: React.FC<BaseChoiceProps> = ({
+    questionId,
+    choices,
+    answers,
+    onAnswerChange,
+}) => {
     const onChange = (value: number) => onAnswerChange(questionId, value);
 
     return (
@@ -68,10 +84,12 @@ const TakeQuestionOneChoice: React.FC<BaseChoiceProps> = ({ questionId, choices,
                     key={choice.id}
                     type="radio"
                     name={`question_${questionId}`}
-                    label={<>
-                        {questionIndexLabel(idx)}
-                        <MarkdownRenderer>{choice.content}</MarkdownRenderer>
-                    </>}
+                    label={
+                        <>
+                            {questionIndexLabel(idx)}
+                            <MarkdownRenderer>{choice.content}</MarkdownRenderer>
+                        </>
+                    }
                     checked={answers[questionId] === choice.id}
                     onChange={() => onChange(choice.id)}
                     value={choice.id}
@@ -82,7 +100,12 @@ const TakeQuestionOneChoice: React.FC<BaseChoiceProps> = ({ questionId, choices,
     );
 };
 
-const TakeQuestionBoolean: React.FC<BaseChoiceProps> = ({ questionId, choices, answers, onAnswerChange }) => {
+const TakeQuestionBoolean: React.FC<BaseChoiceProps> = ({
+    questionId,
+    choices,
+    answers,
+    onAnswerChange,
+}) => {
     const { getBooleanLabel, getBooleanShortLabel } = useChoiceUtils();
     const onChange = (value: number) => onAnswerChange(questionId, value);
 
@@ -103,12 +126,16 @@ const TakeQuestionBoolean: React.FC<BaseChoiceProps> = ({ questionId, choices, a
                         onChange={() => onChange(choice.id)}
                         value={choice.id}
                         labelClassName="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors w-full"
-                        label={<>
-                            <span className={`inline-flex items-center justify-center h-6 w-6 rounded-full ${badgeClass} text-xs font-medium mr-2`}>
-                                {shortLabel}
-                            </span>
-                            <span className="text-gray-900">{labelText}</span>
-                        </>}
+                        label={
+                            <>
+                                <span
+                                    className={`inline-flex items-center justify-center h-6 w-6 rounded-full ${badgeClass} text-xs font-medium mr-2`}
+                                >
+                                    {shortLabel}
+                                </span>
+                                <span className="text-gray-900">{labelText}</span>
+                            </>
+                        }
                     />
                 );
             })}
@@ -130,7 +157,9 @@ const TakeQuestionText: React.FC<{
                 enableMathDisplay={true}
                 enableMathInline={true}
                 editorClassName="min-h-[150px] sm:min-h-[200px]"
-                value={typeof answers[questionId] === 'string' ? (answers[questionId] as string) : ''}
+                value={
+                    typeof answers[questionId] === 'string' ? (answers[questionId] as string) : ''
+                }
                 onChange={(value) => onAnswerChange(questionId, value)}
                 placeholder={t('components.take_question.your_answer_placeholder')}
                 rows={6}
@@ -157,29 +186,56 @@ const TakeQuestion: React.FC<TakeQuestionProps> = ({ question, answers, onAnswer
                         {t('components.take_question.points', { points: question.points })}
                     </div>
 
-                    <span className={`text-xs px-2 py-1 min-w-fit h-max rounded-full ${getTypeColor(question.type)}`}>
+                    <span
+                        className={`text-xs px-2 py-1 min-w-fit h-max rounded-full ${getTypeColor(question.type)}`}
+                    >
                         {getTypeLabel(question.type)}
                     </span>
                 </div>
             }
         >
             {question.type === 'multiple' && (
-                <TakeQuestionMultiple questionId={question.id} choices={question.choices ?? []} answers={answers} onAnswerChange={onAnswerChange} />
+                <TakeQuestionMultiple
+                    questionId={question.id}
+                    choices={question.choices ?? []}
+                    answers={answers}
+                    onAnswerChange={onAnswerChange}
+                />
             )}
 
             {question.type === 'one_choice' && (
-                <TakeQuestionOneChoice questionId={question.id} choices={question.choices ?? []} answers={answers} onAnswerChange={onAnswerChange} />
+                <TakeQuestionOneChoice
+                    questionId={question.id}
+                    choices={question.choices ?? []}
+                    answers={answers}
+                    onAnswerChange={onAnswerChange}
+                />
             )}
 
             {question.type === 'boolean' && (
-                <TakeQuestionBoolean questionId={question.id} choices={question.choices ?? []} answers={answers} onAnswerChange={onAnswerChange} />
+                <TakeQuestionBoolean
+                    questionId={question.id}
+                    choices={question.choices ?? []}
+                    answers={answers}
+                    onAnswerChange={onAnswerChange}
+                />
             )}
 
             {question.type === 'text' && (
-                <TakeQuestionText questionId={question.id} answers={answers} onAnswerChange={onAnswerChange} />
+                <TakeQuestionText
+                    questionId={question.id}
+                    answers={answers}
+                    onAnswerChange={onAnswerChange}
+                />
             )}
         </Section>
     );
 };
 
-export { TakeQuestion, TakeQuestionMultiple, TakeQuestionOneChoice, TakeQuestionBoolean, TakeQuestionText };
+export {
+    TakeQuestion,
+    TakeQuestionMultiple,
+    TakeQuestionOneChoice,
+    TakeQuestionBoolean,
+    TakeQuestionText,
+};

@@ -25,9 +25,18 @@ function AlertSecurityViolation({ assessment, reason }: AlertSecurityViolationPr
         >
             <TextEntry
                 label={assessment.title}
-                value={assessment.description ? (assessment.description.length > 100 ? assessment.description.substring(0, 100) + '...' : assessment.description) : ''}
+                value={
+                    assessment.description
+                        ? assessment.description.length > 100
+                            ? assessment.description.substring(0, 100) + '...'
+                            : assessment.description
+                        : ''
+                }
             />
-            <AlertEntry type="error" title={t('components.alert_security_violation.violation_detected', { reason })}>
+            <AlertEntry
+                type="error"
+                title={t('components.alert_security_violation.violation_detected', { reason })}
+            >
                 <div className="text-sm text-red-700 text-start">
                     <ul className="list-disc list-inside space-y-1">
                         <li>{t('components.alert_security_violation.teacher_notified')}</li>
@@ -40,8 +49,6 @@ function AlertSecurityViolation({ assessment, reason }: AlertSecurityViolationPr
     );
 }
 
-
-
 interface CanNotTakeAssessmentProps {
     title: string;
     subtitle?: string;
@@ -50,23 +57,28 @@ interface CanNotTakeAssessmentProps {
     children?: React.ReactNode;
 }
 
-function CanNotTakeAssessment({ title, subtitle, message, icon, children }: CanNotTakeAssessmentProps) {
+function CanNotTakeAssessment({
+    title,
+    subtitle,
+    message,
+    icon,
+    children,
+}: CanNotTakeAssessmentProps) {
     const { t } = useTranslations();
 
     return (
         <AuthenticatedLayout title={title}>
-
             <div className="w-full min-h-[80vh] flex justify-center items-center space-y-8">
-                <Section title={title}
-                    className='max-w-4xl! w-full md:min-w-md '
+                <Section
+                    title={title}
+                    className="max-w-4xl! w-full md:min-w-md "
                     subtitle={subtitle ?? ''}
                     actions={
                         <Button
-                            variant='outline'
-                            color='secondary'
-                            size='sm'
+                            variant="outline"
+                            color="secondary"
+                            size="sm"
                             onClick={() => router.visit(route('student.assessments.index'))}
-
                         >
                             {t('components.alert_security_violation.back_to_assessments')}
                         </Button>
@@ -74,16 +86,9 @@ function CanNotTakeAssessment({ title, subtitle, message, icon, children }: CanN
                 >
                     <div className="px-6 py-8 text-center">
                         {/* Icon de sécurité */}
-                        <div className="mx-auto mb-4">
-                            {icon && icon}
-                        </div>
-                        {message && <TextEntry
-                            label={''}
-                            value={message}
-                        />}
+                        <div className="mx-auto mb-4">{icon && icon}</div>
+                        {message && <TextEntry label={''} value={message} />}
                         {children}
-
-
                     </div>
                 </Section>
             </div>

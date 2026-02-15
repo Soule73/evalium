@@ -13,7 +13,16 @@ interface ModalProps {
     testIdModal?: string;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, size = 'md', className, isCloseableInside = true, testIdModal = "confirmation-modal" }) => {
+const Modal: React.FC<ModalProps> = ({
+    isOpen,
+    onClose,
+    children,
+    title,
+    size = 'md',
+    className,
+    isCloseableInside = true,
+    testIdModal = 'confirmation-modal',
+}) => {
     if (!isOpen) return null;
 
     const sizeClasses = {
@@ -25,11 +34,15 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, size = 
         full: 'w-full h-full',
     };
 
-
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center" data-e2e={testIdModal}>
-            <div className="absolute inset-0 bg-black opacity-50" onClick={isCloseableInside ? onClose : undefined} />
-            <div className={`bg-white rounded-lg shadow-lg z-10 p-6 ${sizeClasses[size]} ${className}`}>
+            <div
+                className="absolute inset-0 bg-black opacity-50"
+                onClick={isCloseableInside ? onClose : undefined}
+            />
+            <div
+                className={`bg-white rounded-lg shadow-lg z-10 p-6 ${sizeClasses[size]} ${className}`}
+            >
                 {title && (
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-900">{title}</h3>

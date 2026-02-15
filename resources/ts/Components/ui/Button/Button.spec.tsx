@@ -68,7 +68,11 @@ describe('Button Component', () => {
     });
 
     it('forwards additional props', () => {
-        render(<Button data-testid="custom-button" type="submit">Submit</Button>);
+        render(
+            <Button data-testid="custom-button" type="submit">
+                Submit
+            </Button>,
+        );
 
         const button = screen.getByRole('button');
         expect(button).toHaveAttribute('data-testid', 'custom-button');
@@ -76,7 +80,11 @@ describe('Button Component', () => {
     });
 
     it('forwards additional props', () => {
-        render(<Button data-testid="custom-button" type="submit">Submit</Button>);
+        render(
+            <Button data-testid="custom-button" type="submit">
+                Submit
+            </Button>,
+        );
 
         const button = screen.getByTestId('custom-button');
         expect(button).toHaveAttribute('type', 'submit');

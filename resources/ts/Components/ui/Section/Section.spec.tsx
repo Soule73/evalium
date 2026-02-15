@@ -7,7 +7,7 @@ describe('Section Component', () => {
         render(
             <Section title="Test Section">
                 <div>Section content</div>
-            </Section>
+            </Section>,
         );
 
         expect(screen.getByText('Test Section')).toBeInTheDocument();
@@ -18,7 +18,7 @@ describe('Section Component', () => {
         render(
             <Section title="Test Section" subtitle="Test subtitle">
                 <div>Content</div>
-            </Section>
+            </Section>,
         );
 
         expect(screen.getByText('Test Section')).toBeInTheDocument();
@@ -29,7 +29,7 @@ describe('Section Component', () => {
         render(
             <Section title="Test Section" actions={<button>Action Button</button>}>
                 <div>Content</div>
-            </Section>
+            </Section>,
         );
 
         expect(screen.getByText('Action Button')).toBeInTheDocument();
@@ -39,7 +39,7 @@ describe('Section Component', () => {
         const { container } = render(
             <Section title="Test Section" className="custom-class">
                 <div>Content</div>
-            </Section>
+            </Section>,
         );
 
         const section = container.querySelector('.custom-class');
@@ -50,7 +50,7 @@ describe('Section Component', () => {
         const { container } = render(
             <Section title="Test Section">
                 <div>Content</div>
-            </Section>
+            </Section>,
         );
 
         const section = container.firstChild;
@@ -62,7 +62,7 @@ describe('Section Component', () => {
             <Section title="Test Section">
                 <div>First child</div>
                 <div>Second child</div>
-            </Section>
+            </Section>,
         );
 
         expect(screen.getByText('First child')).toBeInTheDocument();

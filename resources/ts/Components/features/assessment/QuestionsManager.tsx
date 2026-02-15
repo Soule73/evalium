@@ -3,7 +3,7 @@ import {
     PlusIcon,
     ChevronDownIcon,
     InformationCircleIcon,
-    ClockIcon
+    ClockIcon,
 } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import {
@@ -49,7 +49,9 @@ function QuestionMenu({ addQuestion }: Props) {
                         onClick={() => addQuestion(opt.key)}
                         className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 w-full text-left transition-colors"
                     >
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-lg mr-3 ${opt.bg} ${opt.text} ${opt.hoverBg} transition-colors`}>
+                        <div
+                            className={`flex items-center justify-center w-8 h-8 rounded-lg mr-3 ${opt.bg} ${opt.text} ${opt.hoverBg} transition-colors`}
+                        >
                             {opt.svg}
                         </div>
 
@@ -64,9 +66,7 @@ function QuestionMenu({ addQuestion }: Props) {
     );
 }
 
-const QuestionsManager: React.FC<QuestionsManagerProps> = ({
-    errors = {}
-}) => {
+const QuestionsManager: React.FC<QuestionsManagerProps> = ({ errors = {} }) => {
     const { getQuestionTypeLabel } = useFormatters();
     const questions = useAssessmentFormStore((state) => state.questions);
 
@@ -87,7 +87,7 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
         historyModalOpen,
         setHistoryModalOpen,
         deleteHistory,
-        setConfirmationModal
+        setConfirmationModal,
     } = useQuestionsManager();
 
     const { t } = useTranslations();
@@ -95,7 +95,10 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
     const translations = {
         title: t('components.questions_manager.title'),
         subtitle: t('components.questions_manager.subtitle'),
-        historyButton: t('components.questions_manager.history_button', { count: deleteHistory.getDeletedQuestionsCount() + deleteHistory.getDeletedChoicesCount() }),
+        historyButton: t('components.questions_manager.history_button', {
+            count:
+                deleteHistory.getDeletedQuestionsCount() + deleteHistory.getDeletedChoicesCount(),
+        }),
         addQuestion: t('components.questions_manager.add_question'),
         noQuestionsTitle: t('components.questions_manager.no_questions_title'),
         noQuestionsSubtitle: t('components.questions_manager.no_questions_subtitle'),
@@ -108,17 +111,15 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
-        })
+        }),
     );
 
     return (
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-        >
-            <Section title={translations.title} subtitle={translations.subtitle}
-                className=' relative'
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <Section
+                title={translations.title}
+                subtitle={translations.subtitle}
+                className=" relative"
                 actions={
                     <div className="flex items-center space-x-2">
                         {deleteHistory.hasDeletedItems() && (
@@ -126,8 +127,8 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
                                 type="button"
                                 onClick={() => setHistoryModalOpen(true)}
                                 variant="outline"
-                                size='sm'
-                                color='secondary'
+                                size="sm"
+                                color="secondary"
                             >
                                 <ClockIcon className="-ml-1 mr-2 h-4 w-4" />
                                 {translations.historyButton}
@@ -137,35 +138,35 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
                             type="button"
                             onClick={toggleAddDropdown}
                             variant="outline"
-                            size='sm'
-                            color='secondary'
+                            size="sm"
+                            color="secondary"
                         >
                             <PlusIcon className="-ml-1 mr-2 h-4 w-4" />
                             {translations.addQuestion}
                             <ChevronDownIcon className="-mr-1 ml-2 h-4 w-4" />
                         </Button>
                         <div className="flex justify-end">
-
                             <div className="relative">
-                                {showAddDropdown && (
-                                    <QuestionMenu addQuestion={addQuestion} />
-                                )}
+                                {showAddDropdown && <QuestionMenu addQuestion={addQuestion} />}
                             </div>
                         </div>
                     </div>
                 }
             >
-
-
                 {questions.length === 0 && (
                     <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
                         <InformationCircleIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                        <h3 className="text-sm font-medium text-gray-900 mb-2">{translations.noQuestionsTitle}</h3>
+                        <h3 className="text-sm font-medium text-gray-900 mb-2">
+                            {translations.noQuestionsTitle}
+                        </h3>
                         <p className="text-sm text-gray-500">{translations.noQuestionsSubtitle}</p>
                     </div>
                 )}
 
-                <SortableContext items={questions.map((_, index) => index.toString())} strategy={verticalListSortingStrategy}>
+                <SortableContext
+                    items={questions.map((_, index) => index.toString())}
+                    strategy={verticalListSortingStrategy}
+                >
                     <div className="space-y-4">
                         {questions.map((question, index) => (
                             <SortableQuestionItem
@@ -189,7 +190,7 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
 
                 <ConfirmationModal
                     isOpen={confirmationModal.isOpen}
-                    onClose={() => setConfirmationModal(prev => ({ ...prev, isOpen: false }))}
+                    onClose={() => setConfirmationModal((prev) => ({ ...prev, isOpen: false }))}
                     onConfirm={confirmationModal.onConfirm}
                     title={confirmationModal.title}
                     message={confirmationModal.message}
@@ -197,7 +198,6 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({
                     cancelText={translations.deleteCancel}
                     type="warning"
                 >
-
                     <p className="text-gray-600 text-sm mb-6 text-center ">
                         {translations.deleteNotice}
                     </p>

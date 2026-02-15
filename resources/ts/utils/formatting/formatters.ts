@@ -1,6 +1,3 @@
-
-
-
 /**
  * Formats a given number of seconds into a time string.
  *
@@ -25,13 +22,11 @@ export const formatTime = (seconds: number): string => {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 };
 
-
 // Fonction pour convertir la date ISO en format YYYY-MM-DD
 export const formatDateForInput = (isoDate: string) => {
     if (!isoDate) return '';
     return isoDate.split('T')[0];
 };
-
 
 /**
  * Formats a given date into a string based on the specified format and locale.
@@ -50,7 +45,7 @@ export const formatDateForInput = (isoDate: string) => {
 export const formatDate = (
     date: Date | string | number,
     format: 'short' | 'long' | 'time' | 'datetime' | 'HH:mm:ss' = 'short',
-    local: string = 'fr-FR'
+    local: string = 'fr-FR',
 ): string => {
     const d = new Date(date);
 
@@ -86,7 +81,7 @@ export const formatDate = (
             return d.toLocaleTimeString(local, {
                 hour: '2-digit',
                 minute: '2-digit',
-                second: '2-digit'
+                second: '2-digit',
             });
     }
 
@@ -116,7 +111,6 @@ export function formatGrade(score: number, total: number): { text: string; color
     };
 }
 
-
 /**
  * Converts the first character of the given string to uppercase and the rest to lowercase.
  *
@@ -145,16 +139,19 @@ export const getRoleColor = (roleName: string) => {
 
 export const getAssignmentBadgeType = (status: string) => {
     switch (status) {
-        case 'graded': return 'success';
-        case 'submitted': return 'info';
-        default: return 'error';
+        case 'graded':
+            return 'success';
+        case 'submitted':
+            return 'info';
+        default:
+            return 'error';
     }
 };
 
 export const assignmentStatusColors: Record<string, string> = {
     submitted: 'bg-green-100 text-green-800',
     graded: 'bg-purple-100 text-purple-800',
-    default: 'bg-gray-100 text-gray-800'
+    default: 'bg-gray-100 text-gray-800',
 };
 
 /**
@@ -199,17 +196,23 @@ export const truncateText = (text: string, maxLength: number): string => {
  * @param status - The status string of the assessment assignment (e.g., 'submitted', 'graded').
  * @returns An object containing the `label` (string) and `color` (string) for the given status.
  */
-export const canShowAssessmentResults = (assignmentStatus: string, showResultsImmediately: boolean = false): boolean => {
-    if (showResultsImmediately && (assignmentStatus === 'submitted' || assignmentStatus === 'graded')) {
+export const canShowAssessmentResults = (
+    assignmentStatus: string,
+    showResultsImmediately: boolean = false,
+): boolean => {
+    if (
+        showResultsImmediately &&
+        (assignmentStatus === 'submitted' || assignmentStatus === 'graded')
+    ) {
         return true;
     }
     return assignmentStatus === 'graded';
-}
+};
 
 /**
  * Returns an array of possible assignment status strings.
  *
- * @returns {string[]} An array containing the assignment statuses: 
+ * @returns {string[]} An array containing the assignment statuses:
  * 'submitted' and 'graded'.
  */
 export const getAssignmentStatus = () => {

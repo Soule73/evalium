@@ -11,10 +11,10 @@ import { useShallow } from 'zustand/react/shallow';
 import { useAssessmentFullscreen } from './useAssessmentFullscreen';
 
 interface UseTakeAssessment {
-  assessment: Assessment;
-  questions: Question[];
-  userAnswers: Answer[];
-  remainingSeconds: number | null;
+    assessment: Assessment;
+    questions: Question[];
+    userAnswers: Answer[];
+    remainingSeconds: number | null;
 }
 
 /**
@@ -47,129 +47,140 @@ interface UseTakeAssessment {
  * - `enterFullscreen`: Function to enter fullscreen mode.
  * - `assessmentCanStart`: Boolean indicating if the assessment can be started.
  */
-const useTakeAssessment = ({ assessment, questions = [], userAnswers = [], remainingSeconds }: UseTakeAssessment) => {
-  const { answers } = useAssessmentTakeStore(
-    useShallow((state) => ({
-      answers: state.answers,
-    }))
-  );
-
-  const answersRef = useRef(answers);
-
-  useEffect(() => {
-    answersRef.current = answers;
-  }, [answers]);
-
-  const { updateAnswer } = useAssessmentAnswers({ questions, userAnswers });
-
-  const {
-    isSubmitting,
-    showConfirmModal,
-    setShowConfirmModal,
-    processing,
-    handleSubmit: submitAssessment,
-  } = useAssessmentSubmission({
-    assessmentId: assessment.id,
-    onSubmitSuccess: () => {
-      exitFullscreenRef.current();
-    },
-    onSubmitError: () => {
-      exitFullscreenRef.current();
-    },
-  });
-
-  const {
-    assessmentTerminated: assessmentTerminated,
-    terminationReason,
-    handleViolation,
-  } = useAssessmentSecurityViolation({
-    assessmentId: assessment.id,
-  });
-
-  const handleViolationCallback = useCallback(
-    (type: string) => {
-      handleViolation(type, answersRef.current);
-    },
-    [handleViolation]
-  );
-
-  const security = useAssessmentSecurity({
-    onViolation: handleViolationCallback,
-  });
-
-  const { showFullscreenModal, fullscreenRequired, assessmentCanStart: assessmentCanStart, enterFullscreen, exitFullscreen } = useAssessmentFullscreen({ security });
-
-  const exitFullscreenRef = useRef(exitFullscreen);
-
-  useEffect(() => {
-    exitFullscreenRef.current = exitFullscreen;
-  }, [exitFullscreen]);
-
-  const { saveAnswerIndividual, saveAllAnswers, forceSave, cleanup } = useAssessmentAnswerSave({
-    assessmentId: assessment.id,
-  });
-
-  const handleSubmit = useCallback(() => {
-    forceSave(answersRef.current).then(() => {
-      submitAssessment(answersRef.current);
-    });
-  }, [forceSave, submitAssessment]);
-
-  const { timeLeft } = useAssessmentTimer({
+const useTakeAssessment = ({
+    assessment,
+    questions = [],
+    userAnswers = [],
     remainingSeconds,
-    onTimeEnd: handleSubmit,
-    isSubmitting,
-  });
+}: UseTakeAssessment) => {
+    const { answers } = useAssessmentTakeStore(
+        useShallow((state) => ({
+            answers: state.answers,
+        })),
+    );
 
-  useEffect(() => {
-    const autoSaveInterval = setInterval(() => {
-      saveAllAnswers(answersRef.current);
-    }, 30000);
+    const answersRef = useRef(answers);
 
-    return () => clearInterval(autoSaveInterval);
-  }, [saveAllAnswers]);
+    useEffect(() => {
+        answersRef.current = answers;
+    }, [answers]);
 
-  useEffect(() => {
-    if (assessmentTerminated) {
-      exitFullscreenRef.current();
-    }
-  }, [assessmentTerminated]);
+    const { updateAnswer } = useAssessmentAnswers({ questions, userAnswers });
 
-  const handleAnswerChange = useCallback(
-    (questionId: number, value: string | number | number[]) => {
-      updateAnswer(questionId, value);
+    const {
+        isSubmitting,
+        showConfirmModal,
+        setShowConfirmModal,
+        processing,
+        handleSubmit: submitAssessment,
+    } = useAssessmentSubmission({
+        assessmentId: assessment.id,
+        onSubmitSuccess: () => {
+            exitFullscreenRef.current();
+        },
+        onSubmitError: () => {
+            exitFullscreenRef.current();
+        },
+    });
 
-      const newAnswers = { ...answersRef.current, [questionId]: value };
+    const {
+        assessmentTerminated: assessmentTerminated,
+        terminationReason,
+        handleViolation,
+    } = useAssessmentSecurityViolation({
+        assessmentId: assessment.id,
+    });
 
-      saveAnswerIndividual(questionId, value, newAnswers);
-    },
-    [updateAnswer, saveAnswerIndividual]
-  );
+    const handleViolationCallback = useCallback(
+        (type: string) => {
+            handleViolation(type, answersRef.current);
+        },
+        [handleViolation],
+    );
 
-  useEffect(() => {
-    return () => {
-      cleanup();
+    const security = useAssessmentSecurity({
+        onViolation: handleViolationCallback,
+    });
+
+    const {
+        showFullscreenModal,
+        fullscreenRequired,
+        assessmentCanStart: assessmentCanStart,
+        enterFullscreen,
+        exitFullscreen,
+    } = useAssessmentFullscreen({ security });
+
+    const exitFullscreenRef = useRef(exitFullscreen);
+
+    useEffect(() => {
+        exitFullscreenRef.current = exitFullscreen;
+    }, [exitFullscreen]);
+
+    const { saveAnswerIndividual, saveAllAnswers, forceSave, cleanup } = useAssessmentAnswerSave({
+        assessmentId: assessment.id,
+    });
+
+    const handleSubmit = useCallback(() => {
+        forceSave(answersRef.current).then(() => {
+            submitAssessment(answersRef.current);
+        });
+    }, [forceSave, submitAssessment]);
+
+    const { timeLeft } = useAssessmentTimer({
+        remainingSeconds,
+        onTimeEnd: handleSubmit,
+        isSubmitting,
+    });
+
+    useEffect(() => {
+        const autoSaveInterval = setInterval(() => {
+            saveAllAnswers(answersRef.current);
+        }, 30000);
+
+        return () => clearInterval(autoSaveInterval);
+    }, [saveAllAnswers]);
+
+    useEffect(() => {
+        if (assessmentTerminated) {
+            exitFullscreenRef.current();
+        }
+    }, [assessmentTerminated]);
+
+    const handleAnswerChange = useCallback(
+        (questionId: number, value: string | number | number[]) => {
+            updateAnswer(questionId, value);
+
+            const newAnswers = { ...answersRef.current, [questionId]: value };
+
+            saveAnswerIndividual(questionId, value, newAnswers);
+        },
+        [updateAnswer, saveAnswerIndividual],
+    );
+
+    useEffect(() => {
+        return () => {
+            cleanup();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    return {
+        answers,
+        isSubmitting,
+        showConfirmModal,
+        setShowConfirmModal,
+        timeLeft,
+        security,
+        processing,
+        handleAnswerChange,
+        handleSubmit,
+        assessmentTerminated,
+        terminationReason,
+        showFullscreenModal,
+        fullscreenRequired,
+        enterFullscreen,
+        assessmentCanStart,
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return {
-    answers,
-    isSubmitting,
-    showConfirmModal,
-    setShowConfirmModal,
-    timeLeft,
-    security,
-    processing,
-    handleAnswerChange,
-    handleSubmit,
-    assessmentTerminated,
-    terminationReason,
-    showFullscreenModal,
-    fullscreenRequired,
-    enterFullscreen,
-    assessmentCanStart,
-  };
 };
 
 export default useTakeAssessment;

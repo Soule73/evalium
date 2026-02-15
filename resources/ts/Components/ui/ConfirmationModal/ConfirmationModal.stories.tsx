@@ -1,25 +1,25 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { useState } from "react";
-import ConfirmationModal from "./ConfirmationModal";
-import Button from "../Button/Button";
-import { TrashIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
+import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
+import ConfirmationModal from './ConfirmationModal';
+import Button from '../Button/Button';
+import { TrashIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 
 const meta = {
-    title: "UI/ConfirmationModal",
+    title: 'UI/ConfirmationModal',
     component: ConfirmationModal,
     parameters: {
-        layout: "centered",
+        layout: 'centered',
     },
     argTypes: {
         type: {
-            control: "select",
-            options: ["danger", "warning", "info"],
+            control: 'select',
+            options: ['danger', 'warning', 'info'],
         },
         loading: {
-            control: "boolean",
+            control: 'boolean',
         },
         isCloseableInside: {
-            control: "boolean",
+            control: 'boolean',
         },
     },
 } satisfies Meta<typeof ConfirmationModal>;
@@ -29,7 +29,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Danger = {
     args: {
-        type: "warning"
+        type: 'warning',
     },
     render: () => {
         const [isOpen, setIsOpen] = useState(false);
@@ -43,7 +43,7 @@ export const Danger = {
                     isOpen={isOpen}
                     onClose={() => setIsOpen(false)}
                     onConfirm={() => {
-                        alert("Item deleted!");
+                        alert('Item deleted!');
                         setIsOpen(false);
                     }}
                     title="Delete Item"
@@ -55,7 +55,7 @@ export const Danger = {
                 />
             </div>
         );
-    }
+    },
 } as unknown as Story;
 
 export const Warning = {
@@ -71,7 +71,7 @@ export const Warning = {
                     isOpen={isOpen}
                     onClose={() => setIsOpen(false)}
                     onConfirm={() => {
-                        alert("Assessment submitted!");
+                        alert('Assessment submitted!');
                         setIsOpen(false);
                     }}
                     title="Submit Assessment"
@@ -98,7 +98,7 @@ export const Info = {
                     isOpen={isOpen}
                     onClose={() => setIsOpen(false)}
                     onConfirm={() => {
-                        alert("Changes saved!");
+                        alert('Changes saved!');
                         setIsOpen(false);
                     }}
                     title="Save Changes"
@@ -123,7 +123,7 @@ export const WithLoading = {
             setTimeout(() => {
                 setLoading(false);
                 setIsOpen(false);
-                alert("Action completed!");
+                alert('Action completed!');
             }, 2000);
         };
 
@@ -161,7 +161,7 @@ export const NotCloseable = {
                     isOpen={isOpen}
                     onClose={() => setIsOpen(false)}
                     onConfirm={() => {
-                        alert("Confirmed!");
+                        alert('Confirmed!');
                         setIsOpen(false);
                     }}
                     title="Important Action"
@@ -189,7 +189,7 @@ export const WithCustomContent = {
                     isOpen={isOpen}
                     onClose={() => setIsOpen(false)}
                     onConfirm={() => {
-                        alert("Account deleted!");
+                        alert('Account deleted!');
                         setIsOpen(false);
                     }}
                     title="Delete Account"
@@ -200,9 +200,7 @@ export const WithCustomContent = {
                     size="lg"
                 >
                     <div className="w-full mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-sm text-red-800 font-medium">
-                            Warning:
-                        </p>
+                        <p className="text-sm text-red-800 font-medium">Warning:</p>
                         <ul className="text-sm text-red-700 list-disc list-inside mt-2 space-y-1">
                             <li>All your assessments will be deleted</li>
                             <li>All your grades will be lost</li>
@@ -228,7 +226,7 @@ export const LargeModal = {
                     isOpen={isOpen}
                     onClose={() => setIsOpen(false)}
                     onConfirm={() => {
-                        alert("Confirmed!");
+                        alert('Confirmed!');
                         setIsOpen(false);
                     }}
                     title="Large Confirmation"

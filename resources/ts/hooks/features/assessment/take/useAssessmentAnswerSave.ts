@@ -3,7 +3,7 @@ import { route } from 'ziggy-js';
 import axios from 'axios';
 
 interface UseAssessmentAnswerSaveParams {
-  assessmentId: number;
+    assessmentId: number;
 }
 
 /**
@@ -11,58 +11,67 @@ interface UseAssessmentAnswerSaveParams {
  * Provides methods for saving individual answers or all answers at once.
  */
 export const useAssessmentAnswerSave = ({ assessmentId }: UseAssessmentAnswerSaveParams) => {
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const saveAnswerIndividual = useCallback(
-    (_questionId: number, _value: string | number | number[], allAnswers: Record<number, string | number | number[]>) => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
+    const saveAnswerIndividual = useCallback(
+        (
+            _questionId: number,
+            _value: string | number | number[],
+            allAnswers: Record<number, string | number | number[]>,
+        ) => {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+            }
 
-      saveTimeoutRef.current = setTimeout(() => {
-        axios.post(route('student.assessments.save-answers', assessmentId), { answers: allAnswers })
-          .catch(() => { });
-      }, 500);
-    },
-    [assessmentId]
-  );
+            saveTimeoutRef.current = setTimeout(() => {
+                axios
+                    .post(route('student.assessments.save-answers', assessmentId), {
+                        answers: allAnswers,
+                    })
+                    .catch(() => {});
+            }, 500);
+        },
+        [assessmentId],
+    );
 
-  const saveAllAnswers = useCallback(
-    async (answers: Record<number, string | number | number[]>) => {
-      try {
-        await axios.post(route('student.assessments.save-answers', assessmentId), { answers });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        const wrappedError = new Error(`Failed to save answers: ${message}`);
-        (wrappedError as unknown as Record<string, unknown>).cause = error;
-        throw wrappedError;
-      }
-    },
-    [assessmentId]
-  );
+    const saveAllAnswers = useCallback(
+        async (answers: Record<number, string | number | number[]>) => {
+            try {
+                await axios.post(route('student.assessments.save-answers', assessmentId), {
+                    answers,
+                });
+            } catch (error) {
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                const wrappedError = new Error(`Failed to save answers: ${message}`);
+                (wrappedError as unknown as Record<string, unknown>).cause = error;
+                throw wrappedError;
+            }
+        },
+        [assessmentId],
+    );
 
-  const forceSave = useCallback(
-    async (answers: Record<number, string | number | number[]>) => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-        saveTimeoutRef.current = null;
-      }
-      return saveAllAnswers(answers);
-    },
-    [saveAllAnswers]
-  );
+    const forceSave = useCallback(
+        async (answers: Record<number, string | number | number[]>) => {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+                saveTimeoutRef.current = null;
+            }
+            return saveAllAnswers(answers);
+        },
+        [saveAllAnswers],
+    );
 
-  const cleanup = useCallback(() => {
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-      saveTimeoutRef.current = null;
-    }
-  }, []);
+    const cleanup = useCallback(() => {
+        if (saveTimeoutRef.current) {
+            clearTimeout(saveTimeoutRef.current);
+            saveTimeoutRef.current = null;
+        }
+    }, []);
 
-  return {
-    saveAnswerIndividual,
-    saveAllAnswers,
-    forceSave,
-    cleanup,
-  };
+    return {
+        saveAnswerIndividual,
+        saveAllAnswers,
+        forceSave,
+        cleanup,
+    };
 };
