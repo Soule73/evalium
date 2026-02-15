@@ -3,30 +3,21 @@
 declare(strict_types=1);
 
 return [
-    // Main navigation
     'navigation' => [
         'dashboard' => 'Dashboard',
-
-        // Student Navigation
         'my_assessments' => 'My Assessments',
         'my_enrollment' => 'My Enrollment',
         'my_grades' => 'My Grades',
-
-        // Teacher Navigation
         'teacher_dashboard' => 'Teacher Dashboard',
         'assessments' => 'Assessments',
         'my_classes' => 'My Classes',
         'my_subjects' => 'My Subjects',
         'grading' => 'Grading',
-
-        // Admin Navigation
         'archives' => 'Archives Years',
         'subjects' => 'Subjects',
         'classes' => 'Classes',
         'enrollments' => 'Enrollments',
         'class_subjects' => 'Assignments',
-
-        // Legacy Navigation
         'exams' => 'Exams',
         'users' => 'Users',
         'groups' => 'Groups',
@@ -34,7 +25,13 @@ return [
         'roles_permissions' => 'Roles & Permissions',
     ],
 
-    // Actions
+    'groups' => [
+        'my_space' => 'My Space',
+        'teaching' => 'Teaching',
+        'academic' => 'Academic',
+        'configuration' => 'Configuration',
+    ],
+
     'actions' => [
         'toggle_menu' => 'Toggle menu',
         'toggle_sidebar' => 'Toggle sidebar',
@@ -42,6 +39,5 @@ return [
         'profile' => 'Profile',
     ],
 
-    // App
     'app_name' => 'Evalium',
 ];
