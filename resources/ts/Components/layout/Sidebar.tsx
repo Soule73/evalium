@@ -7,6 +7,7 @@ import { type NavIconType, NavIcon } from './NavIcon';
 import { Logo } from './Logo';
 import { RoleBadge } from './RoleBadge';
 import { UserAvatar } from './UserAvatar';
+import { Tooltip } from '@evalium/ui';
 import { route } from 'ziggy-js';
 
 interface NavItem {
@@ -225,20 +226,25 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                 {group.items.map((item) => {
                                     const active = isActive(item.href);
                                     return (
-                                        <Link
+                                        <Tooltip
                                             key={item.href}
-                                            href={item.href}
-                                            className={`
-                                                flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                                                ${active ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}
-                                                ${isCollapsed ? 'justify-center' : ''}
-                                            `}
-                                            title={isCollapsed ? item.name : undefined}
-                                            onClick={closeMobile}
+                                            content={item.name}
+                                            position="right"
+                                            disabled={!isCollapsed}
                                         >
-                                            <NavIcon type={item.icon} className={`w-5 h-5 ${!isCollapsed && 'mr-3'}`} />
-                                            {!isCollapsed && <span>{item.name}</span>}
-                                        </Link>
+                                            <Link
+                                                href={item.href}
+                                                className={`
+                                                    flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full
+                                                    ${active ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}
+                                                    ${isCollapsed ? 'justify-center' : ''}
+                                                `}
+                                                onClick={closeMobile}
+                                            >
+                                                <NavIcon type={item.icon} className={`w-5 h-5 ${!isCollapsed && 'mr-3'}`} />
+                                                {!isCollapsed && <span>{item.name}</span>}
+                                            </Link>
+                                        </Tooltip>
                                     );
                                 })}
                             </div>
@@ -248,29 +254,31 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                     <div className="border-t border-gray-200 bg-gray-50">
                         {isCollapsed ? (
                             <div className="p-2 space-y-2">
-                                <Link
-                                    href={navRoutes.profile()}
-                                    className={`
-                                        relative flex items-center justify-center p-2 rounded-lg transition-all
-                                        ${isActive(navRoutes.profile()) ? 'bg-indigo-50 ring-2 ring-indigo-600' : 'bg-white hover:bg-indigo-50'}
-                                    `}
-                                    title={`${user.name} - ${t('sidebar.actions.profile')}`}
-                                >
-                                    <UserAvatar name={user.name} size="sm" />
-                                    {isActive(navRoutes.profile()) && (
-                                        <span className="absolute top-1 right-1 w-2 h-2 bg-indigo-600 rounded-full" />
-                                    )}
-                                </Link>
+                                <Tooltip content={`${user.name} - ${t('sidebar.actions.profile')}`} position="right">
+                                    <Link
+                                        href={navRoutes.profile()}
+                                        className={`
+                                            relative flex items-center justify-center p-2 rounded-lg transition-all
+                                            ${isActive(navRoutes.profile()) ? 'bg-indigo-50 ring-2 ring-indigo-600' : 'bg-white hover:bg-indigo-50'}
+                                        `}
+                                    >
+                                        <UserAvatar name={user.name} size="sm" />
+                                        {isActive(navRoutes.profile()) && (
+                                            <span className="absolute top-1 right-1 w-2 h-2 bg-indigo-600 rounded-full" />
+                                        )}
+                                    </Link>
+                                </Tooltip>
 
-                                <Link
-                                    href={navRoutes.logout()}
-                                    method="post"
-                                    as="button"
-                                    className="w-full flex items-center justify-center p-2.5 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
-                                    title={t('sidebar.actions.logout')}
-                                >
-                                    <NavIcon type="logout" className="w-5 h-5" />
-                                </Link>
+                                <Tooltip content={t('sidebar.actions.logout')} position="right">
+                                    <Link
+                                        href={navRoutes.logout()}
+                                        method="post"
+                                        as="button"
+                                        className="w-full flex items-center justify-center p-2.5 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                                    >
+                                        <NavIcon type="logout" className="w-5 h-5" />
+                                    </Link>
+                                </Tooltip>
                             </div>
                         ) : (
                             <>
