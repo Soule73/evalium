@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
 import { type Subject, type ClassSubject, type Level, type ClassModel } from '@/types';
-import { Badge } from '@examena/ui';
+import { Badge } from '@evalium/ui';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';

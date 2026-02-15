@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, ConfirmationModal, Section, Stat } from '@/Components';
 import { useFormatters } from '@/hooks/shared/useFormatters';
-import { TextEntry, Toggle } from '@examena/ui';
+import { TextEntry, Toggle } from '@evalium/ui';
 import { type Assessment, type AssessmentAssignment, type AssessmentRouteContext } from '@/types';
 import { type PaginationType } from '@/types/datatable';
 import { ClockIcon, QuestionMarkCircleIcon, StarIcon, DocumentDuplicateIcon, UserGroupIcon } from '@heroicons/react/24/outline';

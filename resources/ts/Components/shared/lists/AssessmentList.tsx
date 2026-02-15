@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
 import { type Assessment, type AssessmentAssignment } from '@/types';
-import { Badge, MarkdownRenderer, Toggle } from '@examena/ui';
+import { Badge, MarkdownRenderer, Toggle } from '@evalium/ui';
 import { ClockIcon } from '@heroicons/react/24/outline';
 import { formatDate } from '@/utils';
 import { useTranslations } from '@/hooks';

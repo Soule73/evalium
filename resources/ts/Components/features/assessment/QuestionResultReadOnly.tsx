@@ -2,7 +2,7 @@ import { type Choice } from "@/types";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useChoiceUtils } from '@/hooks/shared/useChoiceUtils';
-import { MarkdownRenderer } from "@examena/ui";
+import { MarkdownRenderer } from "@evalium/ui";
 import {
   getBooleanDisplay,
   getBooleanBadgeClass,

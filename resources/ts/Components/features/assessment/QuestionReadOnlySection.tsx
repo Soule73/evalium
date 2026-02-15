@@ -2,7 +2,7 @@ import { CheckCircleIcon, XMarkIcon } from "@heroicons/react/16/solid";
 import { type Question } from "@/types";
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useQuestionTypeUtils } from '@/hooks/shared/useQuestionTypeUtils';
-import { MarkdownRenderer } from "@examena/ui";
+import { MarkdownRenderer } from "@evalium/ui";
 import { getTypeColor } from '@/utils/assessment/components';
 
 interface QuestionReadOnlySection {

@@ -17,7 +17,7 @@ const config: StorybookConfig = {
         if (config.resolve) {
             config.resolve.alias = {
                 ...config.resolve.alias,
-                '@examena/ui': path.resolve(__dirname, '..'),
+                '@evalium/ui': path.resolve(__dirname, '..'),
                 '@': path.resolve(__dirname, '../../../'),
             };
         }

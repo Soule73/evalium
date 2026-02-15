@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import { MarkdownEditor } from '@examena/ui';
+import { MarkdownEditor } from '@evalium/ui';
 
 const meta: Meta<typeof MarkdownEditor> = {
     title: 'UI/Forms/MarkdownEditor',

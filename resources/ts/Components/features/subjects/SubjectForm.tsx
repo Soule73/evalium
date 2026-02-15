@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import { type FormDataConvertible } from '@inertiajs/core';
 import { type SubjectFormData, type Level, type Subject } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { Button, Input, Section, Select } from '@examena/ui';
+import { Button, Input, Section, Select } from '@evalium/ui';
 import { route } from 'ziggy-js';
 
 interface SubjectFormProps {

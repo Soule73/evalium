@@ -1,5 +1,5 @@
-import { Meta, Canvas, Controls } from "@storybook/blocks";
-import * as MarkdownRendererStories from "./MarkdownRenderer.stories";
+import { Meta, Canvas, Controls } from '@storybook/blocks';
+import * as MarkdownRendererStories from './MarkdownRenderer.stories';
 
 <Meta of={MarkdownRendererStories} />
 
@@ -27,10 +27,10 @@ yarn add react-markdown remark-gfm remark-math rehype-katex rehype-prism-plus ka
 ## Basic Usage
 
 ```tsx
-import { MarkdownRenderer } from "@examena/ui";
+import { MarkdownRenderer } from '@evalium/ui';
 
 function MyComponent() {
-    const markdown = "# Hello World\n\nThis is **Markdown**.";
+    const markdown = '# Hello World\n\nThis is **Markdown**.';
 
     return <MarkdownRenderer>{markdown}</MarkdownRenderer>;
 }
@@ -175,21 +175,21 @@ _italic_ or _italic_
 
 ```markdown
 [Link text](https://example.com)
-[Link with title](https://example.com "Title")
+[Link with title](https://example.com 'Title')
 ```
 
 ### Images
 
 ```markdown
 ![Alt text](image-url.jpg)
-![Alt text](image-url.jpg "Image title")
+![Alt text](image-url.jpg 'Image title')
 ```
 
 ### Code Blocks
 
 ````markdown
 ```javascript
-const greeting = "Hello World";
+const greeting = 'Hello World';
 console.log(greeting);
 ```
 ````
@@ -262,9 +262,7 @@ The component uses Tailwind CSS classes. You can customize appearance by:
 1. **Pass className prop:**
 
 ```tsx
-<MarkdownRenderer className="bg-gray-50 p-4 rounded-lg">
-    {content}
-</MarkdownRenderer>
+<MarkdownRenderer className="bg-gray-50 p-4 rounded-lg">{content}</MarkdownRenderer>
 ```
 
 2. **Override styles globally:**
@@ -344,7 +342,7 @@ The component uses Tailwind CSS classes. You can customize appearance by:
 Ensure KaTeX CSS is imported:
 
 ```tsx
-import "katex/dist/katex.min.css";
+import 'katex/dist/katex.min.css';
 ```
 
 ### Code blocks not highlighted
@@ -352,7 +350,7 @@ import "katex/dist/katex.min.css";
 Ensure Prism CSS is imported:
 
 ```tsx
-import "prismjs/themes/prism-tomorrow.css";
+import 'prismjs/themes/prism-tomorrow.css';
 ```
 
 ### Table overflow

@@ -1,4 +1,4 @@
-# E2E Tests for Examena
+# E2E Tests for Evalium
 
 ## Vue d'ensemble
 
@@ -16,14 +16,14 @@ Ce système configure automatiquement l'environnement E2E :
 cd e2e && yarn install && cd ..
 
 # 2. Créer la variable d'environnement (optionnel)
-echo "DB_E2E_DATABASE=examena_e2e_test" >> .env
+echo "DB_E2E_DATABASE=evalium_e2e_test" >> .env
 
 # 3. Lancer tous les tests (setup automatique inclus)
 yarn test:e2e
 ```
 
 Le `globalSetup` s'exécute automatiquement et :
-- Crée la base de données `examena_e2e_test`
+- Crée la base de données `evalium_e2e_test`
 - Exécute les migrations et seeders
 - Lance le serveur Laravel sur le port 8000
 - Prépare les fichiers d'authentification
@@ -54,22 +54,22 @@ yarn test:e2e:report
 
 ### 1. Base de données E2E
 
-Une connexion dédiée `e2e_testing` utilise une base séparée (`examena_e2e_test`) configurée dans [config/database.php](../config/database.php).
+Une connexion dédiée `e2e_testing` utilise une base séparée (`evalium_e2e_test`) configurée dans [config/database.php](../config/database.php).
 
 **Ajoutez dans `.env`** (optionnel, valeur par défaut fournie) :
 ```dotenv
-DB_E2E_DATABASE=examena_e2e_test
+DB_E2E_DATABASE=evalium_e2e_test
 ```
 
 ### 2. Commandes Artisan
 
 **`php artisan e2e:setup`**
-- Supprime et recrée la base `examena_e2e_test`
+- Supprime et recrée la base `evalium_e2e_test`
 - Exécute `migrate:fresh` sur la connexion `e2e_testing`
 - Exécute les seeders (DatabaseSeeder par défaut)
 
 **`php artisan e2e:teardown`**
-- Supprime complètement la base `examena_e2e_test`
+- Supprime complètement la base `evalium_e2e_test`
 
 ### 3. Scripts Playwright
 
@@ -266,7 +266,7 @@ Dans votre workflow GitHub Actions :
   env:
     DB_USERNAME: test
     DB_PASSWORD: test
-    DB_E2E_DATABASE: examena_e2e_test_ci
+    DB_E2E_DATABASE: evalium_e2e_test_ci
 
 - name: Upload Playwright Report
   if: always()

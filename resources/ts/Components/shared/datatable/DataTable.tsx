@@ -5,7 +5,7 @@ import { DataTablePagination } from './DataTablePagination';
 import { EmptyState } from '../EmptyState';
 import { BulkActions } from './BulkActions';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { Checkbox } from '@examena/ui';
+import { Checkbox } from '@evalium/ui';
 import { useDataTable } from '@/hooks';
 
 function DataTableInner<T extends { id: number | string }>({

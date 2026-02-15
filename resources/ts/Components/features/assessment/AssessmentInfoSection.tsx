@@ -4,7 +4,7 @@ import { type Assessment, type AssessmentAssignment, type User } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { useAssessmentFormatters } from '@/hooks/shared/useAssessmentFormatters';
-import { TextEntry, AlertEntry } from '@examena/ui';
+import { TextEntry, AlertEntry } from '@evalium/ui';
 
 interface AssessmentInfoSectionProps {
     assessment: Assessment;

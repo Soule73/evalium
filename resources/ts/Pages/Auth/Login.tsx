@@ -1,7 +1,7 @@
 import { GuestLayout } from '@/Components/layout/GuestLayout';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Logo } from '@/Components';
-import { Checkbox, Input } from '@examena/ui';
+import { Checkbox, Input } from '@evalium/ui';
 import { useLogin } from '@/hooks/shared';
 
 interface LoginProps {

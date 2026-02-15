@@ -1,4 +1,4 @@
-import { Meta } from "@storybook/blocks";
+import { Meta } from '@storybook/blocks';
 
 <Meta title="Components/ActionGroup" />
 
@@ -13,31 +13,27 @@ The ActionGroup component provides a clean way to display multiple action button
 ## Usage
 
 ```tsx
-import { ActionGroup } from "@examena/ui";
-import {
-    PencilIcon,
-    TrashIcon,
-    DocumentDuplicateIcon,
-} from "@heroicons/react/24/outline";
+import { ActionGroup } from '@evalium/ui';
+import { PencilIcon, TrashIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
 
 function MyComponent() {
     return (
         <ActionGroup
             actions={[
-                { label: "Edit", onClick: handleEdit, color: "primary" },
-                { label: "Save", onClick: handleSave, color: "success" },
+                { label: 'Edit', onClick: handleEdit, color: 'primary' },
+                { label: 'Save', onClick: handleSave, color: 'success' },
             ]}
             dropdownActions={[
                 {
-                    label: "Duplicate",
+                    label: 'Duplicate',
                     onClick: handleDuplicate,
                     icon: DocumentDuplicateIcon,
                 },
-                "divider",
+                'divider',
                 {
-                    label: "Delete",
+                    label: 'Delete',
                     onClick: handleDelete,
-                    color: "danger",
+                    color: 'danger',
                     icon: TrashIcon,
                 },
             ]}
@@ -82,8 +78,8 @@ Each action supports:
 ```tsx
 <ActionGroup
     actions={[
-        { label: "Back", onClick: handleBack, color: "secondary" },
-        { label: "Save", onClick: handleSave, color: "primary" },
+        { label: 'Back', onClick: handleBack, color: 'secondary' },
+        { label: 'Save', onClick: handleSave, color: 'primary' },
     ]}
 />
 ```
@@ -92,19 +88,19 @@ Each action supports:
 
 ```tsx
 <ActionGroup
-    actions={[{ label: "Edit", onClick: handleEdit, color: "primary" }]}
+    actions={[{ label: 'Edit', onClick: handleEdit, color: 'primary' }]}
     dropdownActions={[
-        { label: "Replace Teacher", onClick: handleReplace, icon: UserIcon },
+        { label: 'Replace Teacher', onClick: handleReplace, icon: UserIcon },
         {
-            label: "Update Coefficient",
+            label: 'Update Coefficient',
             onClick: handleCoefficient,
             icon: HashtagIcon,
         },
-        "divider",
+        'divider',
         {
-            label: "Terminate",
+            label: 'Terminate',
             onClick: handleTerminate,
-            color: "danger",
+            color: 'danger',
             icon: XMarkIcon,
         },
     ]}
@@ -116,10 +112,10 @@ Each action supports:
 ```tsx
 <ActionGroup
     dropdownActions={[
-        { label: "View", onClick: handleView },
-        { label: "Edit", onClick: handleEdit },
-        "divider",
-        { label: "Delete", onClick: handleDelete, color: "danger" },
+        { label: 'View', onClick: handleView },
+        { label: 'Edit', onClick: handleEdit },
+        'divider',
+        { label: 'Delete', onClick: handleDelete, color: 'danger' },
     ]}
 />
 ```

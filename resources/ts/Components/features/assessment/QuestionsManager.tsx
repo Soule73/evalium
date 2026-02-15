@@ -24,7 +24,7 @@ import { useAssessmentFormStore } from '@/stores';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { useQuestionOptions } from './questionOptions';
 import { SortableQuestionItem } from './SortableQuestionItem';
-import { Section, Button, ConfirmationModal } from '@examena/ui';
+import { Section, Button, ConfirmationModal } from '@evalium/ui';
 import { DeleteHistoryModal } from '@/Components/shared/DeleteHistoryModal';
 import { useQuestionsManager } from '@/hooks/features/assessment/useQuestionsManager';
 

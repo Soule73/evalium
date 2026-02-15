@@ -4,7 +4,7 @@ import axios from 'axios';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
 import { type Assessment, type AssessmentAssignment, type AssessmentRouteContext } from '@/types';
-import { Badge, Button } from '@examena/ui';
+import { Badge, Button } from '@evalium/ui';
 import { ConfirmationModal, Textarea } from '@/Components';
 import { formatDate } from '@/utils';
 import { useTranslations } from '@/hooks';

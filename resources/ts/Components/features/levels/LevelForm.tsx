@@ -2,7 +2,7 @@ import { type FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { type Level } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { Button, Input, Toggle } from '@examena/ui';
+import { Button, Input, Toggle } from '@evalium/ui';
 import { Section, Textarea } from '@/Components';
 import { route } from 'ziggy-js';
 

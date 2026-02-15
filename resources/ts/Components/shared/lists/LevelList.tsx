@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Badge, Button } from '@/Components';
-import { Toggle } from '@examena/ui';
+import { Toggle } from '@evalium/ui';
 import { BaseEntityList } from './BaseEntityList';
 import { type EntityListConfig } from './types/listConfig';
 import { type Level } from '@/types';

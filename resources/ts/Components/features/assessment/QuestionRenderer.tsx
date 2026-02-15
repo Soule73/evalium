@@ -2,7 +2,7 @@ import React from 'react';
 import { type Question, type QuestionResult, type AssessmentAssignment } from '@/types';
 import { hasUserResponse } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { AlertEntry } from '@examena/ui';
+import { AlertEntry } from '@evalium/ui';
 import { QuestionReadOnlySection } from './QuestionReadOnlySection';
 import { QuestionResultReadOnlyText, QuestionResultReadOnlyChoices } from './QuestionResultReadOnly';
 

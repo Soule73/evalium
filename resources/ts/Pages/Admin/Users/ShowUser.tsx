@@ -9,7 +9,7 @@ import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/16/solid';
 import { ConfirmationModal, Section, Button, TextEntry } from '@/Components';
-import { Toggle } from '@examena/ui';
+import { Toggle } from '@evalium/ui';
 import { type BreadcrumbItem } from '@/Components/layout/Breadcrumb';
 
 

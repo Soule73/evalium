@@ -3,7 +3,7 @@ import { formatDate } from '@/utils';
 import { ClockIcon, QuestionMarkCircleIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useFormatters } from '@/hooks/shared/useFormatters';
-import { MarkdownRenderer, Stat } from '@examena/ui';
+import { MarkdownRenderer, Stat } from '@evalium/ui';
 
 interface AssessmentHeaderProps {
   assessment: Assessment;

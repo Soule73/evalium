@@ -33,7 +33,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './resources/ts'),
-            '@examena/ui': path.resolve(__dirname, './resources/ts/Components/ui'),
+            '@evalium/ui': path.resolve(__dirname, './resources/ts/Components/ui'),
         },
     },
 });

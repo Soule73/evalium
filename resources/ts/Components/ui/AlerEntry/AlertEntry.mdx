@@ -1,5 +1,5 @@
-import { Canvas, Meta, Controls } from "@storybook/blocks";
-import * as AlertEntryStories from "./AlertEntry.stories.tsx";
+import { Canvas, Meta, Controls } from '@storybook/blocks';
+import * as AlertEntryStories from './AlertEntry.stories.tsx';
 
 <Meta of={AlertEntryStories} />
 
@@ -14,17 +14,13 @@ The AlertEntry component provides visual feedback about system states, user acti
 ## Usage
 
 ```tsx
-import { AlertEntry } from "@examena/ui";
+import { AlertEntry } from '@evalium/ui';
 
 function MyComponent() {
     return (
         <>
-            <AlertEntry type="success">
-                Your changes have been saved successfully.
-            </AlertEntry>
-            <AlertEntry type="error">
-                An error occurred while processing your request.
-            </AlertEntry>
+            <AlertEntry type="success">Your changes have been saved successfully.</AlertEntry>
+            <AlertEntry type="error">An error occurred while processing your request.</AlertEntry>
         </>
     );
 }

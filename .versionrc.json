@@ -12,7 +12,7 @@
         { "type": "chore", "hidden": true },
         { "type": "revert", "section": "Reverts" }
     ],
-    "commitUrlFormat": "https://github.com/Soule73/examena/commit/{{hash}}",
-    "compareUrlFormat": "https://github.com/Soule73/examena/compare/{{previousTag}}...{{currentTag}}",
+    "commitUrlFormat": "https://github.com/Soule73/evalium/commit/{{hash}}",
+    "compareUrlFormat": "https://github.com/Soule73/evalium/compare/{{previousTag}}...{{currentTag}}",
     "releaseCommitMessageFormat": "chore(release): {{currentTag}}"
 }

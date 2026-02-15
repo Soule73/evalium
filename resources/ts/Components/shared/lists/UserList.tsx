@@ -7,7 +7,7 @@ import { formatDate, getRoleColor } from '@/utils';
 import { useTranslations } from '@/hooks';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { Button } from '@/Components';
-import { Toggle } from '@examena/ui';
+import { Toggle } from '@evalium/ui';
 import { TrashIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import type { EntityListConfig } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';

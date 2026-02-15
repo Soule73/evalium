@@ -19,25 +19,25 @@ A versatile editor component designed for creating and editing question choices 
 ## Usage
 
 ```tsx
-import { ChoiceEditor } from '@examena/ui';
+import { ChoiceEditor } from '@evalium/ui';
 import { useState } from 'react';
 
 function MyComponent() {
-  const [value, setValue] = useState('');
-  const [isMarkdown, setIsMarkdown] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
+    const [value, setValue] = useState('');
+    const [isMarkdown, setIsMarkdown] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
 
-  return (
-    <ChoiceEditor
-      value={value}
-      onChange={setValue}
-      isMarkdownMode={isMarkdown}
-      showPreview={showPreview}
-      onToggleMarkdownMode={() => setIsMarkdown(!isMarkdown)}
-      onTogglePreview={() => setShowPreview(!showPreview)}
-      required
-    />
-  );
+    return (
+        <ChoiceEditor
+            value={value}
+            onChange={setValue}
+            isMarkdownMode={isMarkdown}
+            showPreview={showPreview}
+            onToggleMarkdownMode={() => setIsMarkdown(!isMarkdown)}
+            onTogglePreview={() => setShowPreview(!showPreview)}
+            required
+        />
+    );
 }
 ```
 
@@ -88,15 +88,18 @@ Full example with math, code, tables, and more.
 The editor supports full GitHub Flavored Markdown (GFM) including:
 
 ### Text Formatting
+
 - **Bold**: `**text**` or `__text__`
-- *Italic*: `*text*` or `_text_`
+- _Italic_: `*text*` or `_text_`
 - `Inline code`: `` `code` ``
 
 ### Math (KaTeX)
+
 - Inline: `$E = mc^2$`
 - Display: `$$\int_0^\infty e^{-x^2} dx$$`
 
 ### Code Blocks
+
 ````
 ```javascript
 console.log('Hello World');
@@ -104,6 +107,7 @@ console.log('Hello World');
 ````
 
 ### Tables
+
 ```
 | Header 1 | Header 2 |
 |----------|----------|
@@ -111,10 +115,12 @@ console.log('Hello World');
 ```
 
 ### Lists
+
 - Unordered: `- item` or `* item`
 - Ordered: `1. item`
 
 ### Links & Images
+
 - Link: `[text](url)`
 - Image: `![alt](url)`
 

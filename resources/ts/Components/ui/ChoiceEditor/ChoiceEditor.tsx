@@ -1,6 +1,6 @@
 import React from 'react';
 import { EyeIcon, PencilIcon } from '@heroicons/react/24/outline';
-import { Input } from '@examena/ui';
+import { Input } from '@evalium/ui';
 import MarkdownEditor from '../MarkdownEditor/MarkdownEditor';
 import MarkdownRenderer from '../MarkdownRenderer/MarkdownRenderer';
 

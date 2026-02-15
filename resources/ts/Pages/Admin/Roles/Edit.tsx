@@ -6,7 +6,7 @@ import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { type Role, type GroupedPermissions } from '@/types/role';
 import { PermissionSelector } from '@/Components';
-import { Section, Badge, Button } from '@examena/ui';
+import { Section, Badge, Button } from '@evalium/ui';
 
 interface Props {
     role: Role;

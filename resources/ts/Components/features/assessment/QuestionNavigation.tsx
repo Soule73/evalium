@@ -1,4 +1,4 @@
-import { Button } from '@examena/ui';
+import { Button } from '@evalium/ui';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 

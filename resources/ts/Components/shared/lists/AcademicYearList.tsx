@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
 import { type AcademicYear } from '@/types';
-import { Badge } from '@examena/ui';
+import { Badge } from '@evalium/ui';
 import { CheckCircleIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 import { formatDate } from '@/utils';
 import { useTranslations } from '@/hooks';

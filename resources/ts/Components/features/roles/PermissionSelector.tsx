@@ -1,5 +1,5 @@
-import { Checkbox, Section } from '@examena/ui';
-import { Button } from '@examena/ui';
+import { Checkbox, Section } from '@evalium/ui';
+import { Button } from '@evalium/ui';
 import { type GroupedPermissions } from '@/types/role';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 

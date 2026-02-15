@@ -18,7 +18,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./resources/ts', import.meta.url)),
-            '@examena/ui': fileURLToPath(new URL('./resources/ts/Components/ui', import.meta.url)),
+            '@evalium/ui': fileURLToPath(new URL('./resources/ts/Components/ui', import.meta.url)),
         }
     },
     optimizeDeps: {

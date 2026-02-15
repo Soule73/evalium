@@ -1,4 +1,4 @@
-# 📚 Examena - Plateforme de Gestion d'Examens en Ligne
+# 📚 Evalium - Plateforme de Gestion d'Examens en Ligne
 
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)]()
 [![Coverage](https://img.shields.io/badge/coverage-70%25-green.svg)]()
@@ -86,8 +86,8 @@ Une application web pour la gestion d'examens en ligne, développée avec **Lara
 
 ### Cloner le repository
 ```bash
-git clone https://github.com/Soule73/examena.git
-cd examena
+git clone https://github.com/Soule73/evalium.git
+cd evalium
 ```
 
 ### Installer les dépendances
@@ -105,7 +105,7 @@ php artisan key:generate
 ### Base de données
 ```bash
 # Créer la base de données
-mysql -u root -p -e "CREATE DATABASE examena CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -p -e "CREATE DATABASE evalium CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 # Exécuter les migrations
 php artisan migrate
@@ -172,7 +172,7 @@ npm run test:e2e:report
 ## Structure du projet
 
 ```
-examena/
+evalium/
 ├── app/
 │   ├── Console/           # Commandes Artisan
 │   ├── Helpers/           # Helper functions
@@ -269,7 +269,7 @@ Les contributions sont les bienvenues ! Voici comment contribuer :
 
 ## Rapporter un bug
 
-Ouvrir une [issue](https://github.com/Soule73/examena/issues/new) avec :
+Ouvrir une [issue](https://github.com/Soule73/evalium/issues/new) avec :
 
 - Description claire du problème
 - Étapes pour reproduire
@@ -328,9 +328,9 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 ## Support
 
 - Email: [sourtoumo@gmail.com](mailto:sourtoumo@gmail.com)
-- Discussions: [GitHub Discussions](https://github.com/Soule73/examena/discussions)
-- Issues: [GitHub Issues](https://github.com/Soule73/examena/issues)
-- Wiki: [Documentation](https://github.com/Soule73/examena/wiki)
+- Discussions: [GitHub Discussions](https://github.com/Soule73/evalium/discussions)
+- Issues: [GitHub Issues](https://github.com/Soule73/evalium/issues)
+- Wiki: [Documentation](https://github.com/Soule73/evalium/wiki)
 
 ---
 

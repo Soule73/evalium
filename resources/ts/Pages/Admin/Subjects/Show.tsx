@@ -6,7 +6,7 @@ import { hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section, ConfirmationModal } from '@/Components';
-import { Badge, Stat } from '@examena/ui';
+import { Badge, Stat } from '@evalium/ui';
 import { SubjectList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
 import { AcademicCapIcon, BookOpenIcon } from '@heroicons/react/24/outline';

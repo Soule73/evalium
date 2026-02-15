@@ -7,7 +7,7 @@ import { useTranslations } from '@/hooks/shared/useTranslations';
 import { NavIcon } from './NavIcon';
 import { RoleBadge } from './RoleBadge';
 import { UserAvatar } from './UserAvatar';
-import { LogoEvalium } from '../shared/LogoExamena';
+import { LogoEvalium } from '../shared/LogoEvalium';
 import { route } from 'ziggy-js';
 
 interface SidebarProps {

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Select } from '@/Components';
-import { Input } from '@examena/ui';
+import { Input } from '@evalium/ui';
 import { FunnelIcon } from '@heroicons/react/24/outline';
 import { type FilterConfig } from '@/types/datatable';
 import { useTranslations } from '@/hooks/shared/useTranslations';

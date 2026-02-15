@@ -3,9 +3,9 @@ import { type Choice, type Question } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useQuestionTypeUtils } from '@/hooks/shared/useQuestionTypeUtils';
 import { useChoiceUtils } from '@/hooks/shared/useChoiceUtils';
-import { Checkbox } from '@examena/ui';
-import { MarkdownRenderer, MarkdownEditor } from '@examena/ui';
-import { Section } from '@examena/ui';
+import { Checkbox } from '@evalium/ui';
+import { MarkdownRenderer, MarkdownEditor } from '@evalium/ui';
+import { Section } from '@evalium/ui';
 import {
     getTypeColor,
     getBooleanDisplay,
@@ -124,19 +124,19 @@ const TakeQuestionText: React.FC<{
     const { t } = useTranslations();
 
     return (
-    <div>
-        <MarkdownEditor
-            enableGuide={false}
-            enableMathDisplay={true}
-            enableMathInline={true}
-            editorClassName="min-h-[150px] sm:min-h-[200px]"
-            value={typeof answers[questionId] === 'string' ? (answers[questionId] as string) : ''}
-            onChange={(value) => onAnswerChange(questionId, value)}
-            placeholder={t('components.take_question.your_answer_placeholder')}
-            rows={6}
-            helpText={t('components.take_question.your_answer_help')}
-        />
-    </div>
+        <div>
+            <MarkdownEditor
+                enableGuide={false}
+                enableMathDisplay={true}
+                enableMathInline={true}
+                editorClassName="min-h-[150px] sm:min-h-[200px]"
+                value={typeof answers[questionId] === 'string' ? (answers[questionId] as string) : ''}
+                onChange={(value) => onAnswerChange(questionId, value)}
+                placeholder={t('components.take_question.your_answer_placeholder')}
+                rows={6}
+                helpText={t('components.take_question.your_answer_help')}
+            />
+        </div>
     );
 };
 

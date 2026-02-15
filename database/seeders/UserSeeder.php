@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
         // Créer le Super Admin
         $superAdmin = \App\Models\User::create([
             'name' => 'Super Administrateur',
-            'email' => 'superadmin@examena.com',
+            'email' => 'superadmin@evalium.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
             'avatar' => null,
@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
         // Créer un Admin normal
         $admin = \App\Models\User::create([
             'name' => 'Admin Système',
-            'email' => 'admin@examena.com',
+            'email' => 'admin@evalium.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
             'avatar' => null,
@@ -37,22 +37,22 @@ class UserSeeder extends Seeder
         $teachers = [
             [
                 'name' => 'Prof. Mathematics',
-                'email' => 'math.teacher@examena.com',
+                'email' => 'math.teacher@evalium.com',
                 'password' => Hash::make('password'),
             ],
             [
                 'name' => 'Prof. Physics',
-                'email' => 'physics.teacher@examena.com',
+                'email' => 'physics.teacher@evalium.com',
                 'password' => Hash::make('password'),
             ],
             [
                 'name' => 'Prof. Computer Science',
-                'email' => 'cs.teacher@examena.com',
+                'email' => 'cs.teacher@evalium.com',
                 'password' => Hash::make('password'),
             ],
             [
                 'name' => 'Prof. English',
-                'email' => 'english.teacher@examena.com',
+                'email' => 'english.teacher@evalium.com',
                 'password' => Hash::make('password'),
             ],
         ];
@@ -70,7 +70,7 @@ class UserSeeder extends Seeder
         for ($i = 1; $i <= 20; $i++) {
             $students[] = [
                 'name' => "Student {$i}",
-                'email' => "student{$i}@examena.com",
+                'email' => "student{$i}@evalium.com",
                 'password' => Hash::make('password'),
             ];
         }
@@ -85,10 +85,10 @@ class UserSeeder extends Seeder
         }
 
         $this->command->info('Utilisateurs créés avec succès !');
-        $this->command->info('- 1 super administrateur (superadmin@examena.com)');
-        $this->command->info('- 1 administrateur (admin@examena.com)');
-        $this->command->info('- '.count($teachers).' enseignants');
-        $this->command->info('- '.count($students).' étudiants');
+        $this->command->info('- 1 super administrateur (superadmin@evalium.com)');
+        $this->command->info('- 1 administrateur (admin@evalium.com)');
+        $this->command->info('- ' . count($teachers) . ' enseignants');
+        $this->command->info('- ' . count($students) . ' étudiants');
         $this->command->info('- Mot de passe pour tous: password');
     }
 }

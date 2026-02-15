@@ -4,7 +4,7 @@ import { route } from 'ziggy-js';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { Button, Modal, Select } from '@/Components';
-import { Input } from '@examena/ui';
+import { Input } from '@evalium/ui';
 
 interface Props {
     roles: string[];
