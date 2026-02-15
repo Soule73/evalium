@@ -4,6 +4,7 @@ namespace App\Services\Student;
 
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
+use App\Models\Enrollment;
 use App\Models\User;
 use App\Services\Core\Scoring\ScoringService;
 use App\Services\Traits\Paginatable;
@@ -34,9 +35,11 @@ class StudentAssessmentService
      */
     public function getOrCreateAssignment(User $student, Assessment $assessment): AssessmentAssignment
     {
+        $enrollment = $this->resolveEnrollment($student, $assessment);
+
         return AssessmentAssignment::firstOrCreate([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
     }
 
@@ -236,7 +239,7 @@ class StudentAssessmentService
         $assignment->update([
             'submitted_at' => now(),
             'forced_submission' => true,
-            'security_violation' => $violationType.($violationDetails ? ': '.$violationDetails : ''),
+            'security_violation' => $violationType . ($violationDetails ? ': ' . $violationDetails : ''),
         ]);
 
         return true;
@@ -289,7 +292,7 @@ class StudentAssessmentService
             });
         }
 
-        $hasTextQuestions = $assessment->questions->contains(fn ($q) => in_array($q->type, ['text', 'essay']));
+        $hasTextQuestions = $assessment->questions->contains(fn($q) => in_array($q->type, ['text', 'essay']));
 
         if (! $hasTextQuestions) {
             $totalScore = $this->scoringService->calculateAssignmentScore($assignment);
@@ -344,17 +347,22 @@ class StudentAssessmentService
         $assessmentIds = $assessments->pluck('id');
 
         $assignments = AssessmentAssignment::whereIn('assessment_id', $assessmentIds)
-            ->where('student_id', $student->id)
+            ->forStudent($student)
             ->get()
             ->keyBy('assessment_id');
 
-        return $assessments->map(function ($assessment) use ($student, $assignments) {
+        $enrollment = $student->enrollments()
+            ->where('status', 'active')
+            ->whereHas('class.classSubjects.assessments', fn($q) => $q->whereIn('id', $assessmentIds))
+            ->first();
+
+        return $assessments->map(function ($assessment) use ($enrollment, $assignments) {
             $assignment = $assignments->get($assessment->id);
 
             if (! $assignment) {
                 $assignment = new AssessmentAssignment([
                     'assessment_id' => $assessment->id,
-                    'student_id' => $student->id,
+                    'enrollment_id' => $enrollment?->id,
                 ]);
             }
 
@@ -468,8 +476,21 @@ class StudentAssessmentService
     public function getAssignmentForResults(User $student, Assessment $assessment): ?AssessmentAssignment
     {
         return AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $student->id)
-            ->with(['answers.question', 'answers.choice'])
+            ->forStudent($student)
+            ->with(['answers.question', 'answers.choice', 'enrollment'])
             ->first();
+    }
+
+    /**
+     * Resolve the enrollment for a student in the assessment's class.
+     */
+    private function resolveEnrollment(User $student, Assessment $assessment): Enrollment
+    {
+        $assessment->loadMissing('classSubject');
+
+        return Enrollment::where('student_id', $student->id)
+            ->where('class_id', $assessment->classSubject->class_id)
+            ->where('status', 'active')
+            ->firstOrFail();
     }
 }

@@ -1,12 +1,14 @@
 import { type User, type Answer } from './shared';
 import type { Assessment } from './assessment';
+import type { Enrollment } from './enrollment';
 
 export type AssessmentAssignmentStatus = 'not_submitted' | 'in_progress' | 'submitted' | 'graded';
 
 export interface AssessmentAssignment {
   id: number;
   assessment_id: number;
-  student_id: number;
+  enrollment_id: number;
+  student_id?: number;
   started_at?: string;
   submitted_at?: string;
   graded_at?: string;
@@ -20,6 +22,7 @@ export interface AssessmentAssignment {
   updated_at: string;
 
   assessment?: Assessment;
+  enrollment?: Enrollment;
   student?: User;
   answers?: Answer[];
 

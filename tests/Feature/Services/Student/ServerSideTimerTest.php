@@ -7,6 +7,7 @@ use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
+use App\Models\Enrollment;
 use App\Models\Semester;
 use App\Services\Student\StudentAssessmentService;
 use Carbon\Carbon;
@@ -65,10 +66,21 @@ class ServerSideTimerTest extends TestCase
         ], $attributes));
     }
 
+    private function createEnrolledStudent(): \App\Models\User
+    {
+        $student = $this->createStudent();
+        Enrollment::firstOrCreate(
+            ['student_id' => $student->id, 'class_id' => $this->classSubject->class_id],
+            ['enrolled_at' => now(), 'status' => 'active']
+        );
+
+        return $student;
+    }
+
     public function test_get_or_create_does_not_set_started_at(): void
     {
         $assessment = $this->createSupervisedAssessment();
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         Carbon::setTestNow('2026-02-13 14:00:00');
 
@@ -80,7 +92,7 @@ class ServerSideTimerTest extends TestCase
     public function test_start_assignment_sets_started_at_for_supervised_mode(): void
     {
         $assessment = $this->createSupervisedAssessment();
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         Carbon::setTestNow('2026-02-13 14:00:00');
 
@@ -94,7 +106,7 @@ class ServerSideTimerTest extends TestCase
     public function test_start_assignment_does_not_overwrite_started_at_on_second_call(): void
     {
         $assessment = $this->createSupervisedAssessment();
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         Carbon::setTestNow('2026-02-13 14:00:00');
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
@@ -110,7 +122,7 @@ class ServerSideTimerTest extends TestCase
     public function test_get_or_create_does_not_set_started_at_for_homework_mode(): void
     {
         $assessment = $this->createHomeworkAssessment();
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
 
@@ -120,7 +132,7 @@ class ServerSideTimerTest extends TestCase
     public function test_calculate_remaining_seconds_full_time(): void
     {
         $assessment = $this->createSupervisedAssessment(['duration_minutes' => 60]);
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         Carbon::setTestNow('2026-02-13 14:00:00');
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
@@ -134,7 +146,7 @@ class ServerSideTimerTest extends TestCase
     public function test_calculate_remaining_seconds_decreases_over_time(): void
     {
         $assessment = $this->createSupervisedAssessment(['duration_minutes' => 60]);
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         Carbon::setTestNow('2026-02-13 14:00:00');
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
@@ -149,7 +161,7 @@ class ServerSideTimerTest extends TestCase
     public function test_calculate_remaining_seconds_returns_zero_when_expired(): void
     {
         $assessment = $this->createSupervisedAssessment(['duration_minutes' => 60]);
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         Carbon::setTestNow('2026-02-13 14:00:00');
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
@@ -164,11 +176,16 @@ class ServerSideTimerTest extends TestCase
     public function test_calculate_remaining_seconds_returns_null_for_homework(): void
     {
         $assessment = $this->createHomeworkAssessment();
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
+
+        $enrollment = Enrollment::firstOrCreate(
+            ['student_id' => $student->id, 'class_id' => $this->classSubject->class_id],
+            ['enrolled_at' => now(), 'status' => 'active']
+        );
 
         $assignment = AssessmentAssignment::factory()->create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $remaining = $this->service->calculateRemainingSeconds($assignment, $assessment);
@@ -179,7 +196,7 @@ class ServerSideTimerTest extends TestCase
     public function test_is_time_expired_false_within_duration(): void
     {
         $assessment = $this->createSupervisedAssessment(['duration_minutes' => 60]);
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         Carbon::setTestNow('2026-02-13 14:00:00');
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
@@ -193,7 +210,7 @@ class ServerSideTimerTest extends TestCase
     public function test_is_time_expired_true_after_duration(): void
     {
         $assessment = $this->createSupervisedAssessment(['duration_minutes' => 60]);
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         Carbon::setTestNow('2026-02-13 14:00:00');
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
@@ -209,7 +226,7 @@ class ServerSideTimerTest extends TestCase
         config(['assessment.timing.grace_period_seconds' => 30]);
 
         $assessment = $this->createSupervisedAssessment(['duration_minutes' => 60]);
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         Carbon::setTestNow('2026-02-13 14:00:00');
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
@@ -224,11 +241,16 @@ class ServerSideTimerTest extends TestCase
     public function test_is_time_expired_false_for_homework_mode(): void
     {
         $assessment = $this->createHomeworkAssessment();
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
+
+        $enrollment = Enrollment::firstOrCreate(
+            ['student_id' => $student->id, 'class_id' => $this->classSubject->class_id],
+            ['enrolled_at' => now(), 'status' => 'active']
+        );
 
         $assignment = AssessmentAssignment::factory()->create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $this->assertFalse($this->service->isTimeExpired($assignment, $assessment));
@@ -237,7 +259,7 @@ class ServerSideTimerTest extends TestCase
     public function test_auto_submit_if_expired_submits_when_time_up(): void
     {
         $assessment = $this->createSupervisedAssessment(['duration_minutes' => 60]);
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         Carbon::setTestNow('2026-02-13 14:00:00');
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
@@ -261,7 +283,7 @@ class ServerSideTimerTest extends TestCase
     public function test_auto_submit_if_expired_does_not_submit_when_time_remains(): void
     {
         $assessment = $this->createSupervisedAssessment(['duration_minutes' => 60]);
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         Carbon::setTestNow('2026-02-13 14:00:00');
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
@@ -278,7 +300,7 @@ class ServerSideTimerTest extends TestCase
     public function test_auto_submit_if_expired_does_not_double_submit(): void
     {
         $assessment = $this->createSupervisedAssessment(['duration_minutes' => 60]);
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         Carbon::setTestNow('2026-02-13 14:00:00');
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
@@ -295,7 +317,7 @@ class ServerSideTimerTest extends TestCase
     public function test_auto_submit_sets_submitted_at_to_exact_deadline(): void
     {
         $assessment = $this->createSupervisedAssessment(['duration_minutes' => 30]);
-        $student = $this->createStudent();
+        $student = $this->createEnrolledStudent();
 
         Carbon::setTestNow('2026-02-13 14:00:00');
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);

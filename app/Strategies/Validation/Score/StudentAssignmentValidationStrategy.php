@@ -25,8 +25,8 @@ class StudentAssignmentValidationStrategy implements ScoreValidationStrategy
             return;
         }
 
-        $assignment = AssessmentAssignment::where('student_id', $data['student_id'])
-            ->where('assessment_id', $data['assessment_id'])
+        $assignment = AssessmentAssignment::where('assessment_id', $data['assessment_id'])
+            ->forStudent($student)
             ->first();
 
         if (! $assignment) {

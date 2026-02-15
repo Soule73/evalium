@@ -73,13 +73,13 @@ trait HandlesAssessmentViewing
         $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
         $this->afterGradingLoad($request, $assessment);
 
-        $assignment->load(['student', 'answers.choice']);
+        $assignment->load(['enrollment.student', 'answers.choice']);
         $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
 
         return Inertia::render('Assessments/Review', [
             'assignment' => $assignment,
             'assessment' => $assessment,
-            'student' => $assignment->student,
+            'student' => $assignment->enrollment?->student,
             'userAnswers' => $userAnswers,
             'routeContext' => $this->buildRouteContext(),
         ]);
@@ -96,13 +96,13 @@ trait HandlesAssessmentViewing
         $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
         $this->afterGradingLoad($request, $assessment);
 
-        $assignment->load(['student', 'answers.choice']);
+        $assignment->load(['enrollment.student', 'answers.choice']);
         $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
 
         return Inertia::render('Assessments/Grade', [
             'assignment' => $assignment,
             'assessment' => $assessment,
-            'student' => $assignment->student,
+            'student' => $assignment->enrollment?->student,
             'userAnswers' => $userAnswers,
             'routeContext' => $this->buildRouteContext(),
         ]);

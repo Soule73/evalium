@@ -6,6 +6,7 @@ use App\Models\AcademicYear;
 use App\Models\Assessment;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
+use App\Models\Enrollment;
 use App\Models\Level;
 use App\Models\Question;
 use App\Models\Semester;
@@ -29,6 +30,8 @@ class StudentAssessmentShowTest extends TestCase
 
     private ClassSubject $classSubject;
 
+    private Enrollment $enrollment;
+
     private Assessment $assessment;
 
     protected function setUp(): void
@@ -50,7 +53,7 @@ class StudentAssessmentShowTest extends TestCase
         ]);
 
         $this->student = $this->createStudent();
-        $this->class->enrollments()->create([
+        $this->enrollment = $this->class->enrollments()->create([
             'student_id' => $this->student->id,
             'enrolled_at' => now(),
             'status' => 'active',
@@ -94,7 +97,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Student/Assessments/Show')
                 ->has('assessment')
                 ->has('assignment')
@@ -118,7 +121,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Student/Assessments/Show')
                 ->has('assessment.class_subject')
                 ->has('assessment.questions', 2)
@@ -129,7 +132,7 @@ class StudentAssessmentShowTest extends TestCase
     {
         $this->assertDatabaseMissing('assessment_assignments', [
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
         ]);
 
         $this->actingAs($this->student)
@@ -137,7 +140,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $this->assertDatabaseHas('assessment_assignments', [
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
         ]);
     }
 
@@ -156,7 +159,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Student/Assessments/Show')
                 ->has('availability')
                 ->where('availability.available', true)
@@ -173,7 +176,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Student/Assessments/Show')
                 ->where('availability.available', false)
                 ->where('availability.reason', 'assessment_not_published')
@@ -193,7 +196,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->where('availability.available', false)
                 ->where('availability.reason', 'assessment_due_date_passed')
         );
@@ -213,7 +216,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->where('availability.available', false)
                 ->where('availability.reason', 'assessment_not_started')
         );
@@ -233,7 +236,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $this->assertDatabaseHas('assessment_assignments', [
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
             'started_at' => null,
         ]);
     }

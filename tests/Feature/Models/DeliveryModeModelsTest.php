@@ -9,6 +9,7 @@ use App\Models\AssessmentAssignment;
 use App\Models\AssignmentAttachment;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
+use App\Models\Enrollment;
 use App\Models\Semester;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -186,14 +187,27 @@ class DeliveryModeModelsTest extends TestCase
         $student2 = $this->createStudent();
         $student3 = $this->createStudent();
 
+        $enrollment1 = Enrollment::firstOrCreate(
+            ['student_id' => $student1->id, 'class_id' => $this->classSubject->class_id],
+            ['enrolled_at' => now(), 'status' => 'active']
+        );
+        $enrollment2 = Enrollment::firstOrCreate(
+            ['student_id' => $student2->id, 'class_id' => $this->classSubject->class_id],
+            ['enrolled_at' => now(), 'status' => 'active']
+        );
+        $enrollment3 = Enrollment::firstOrCreate(
+            ['student_id' => $student3->id, 'class_id' => $this->classSubject->class_id],
+            ['enrolled_at' => now(), 'status' => 'active']
+        );
+
         AssessmentAssignment::factory()->started()->create([
             'assessment_id' => $this->sharedAssessment->id,
-            'student_id' => $student1->id,
+            'enrollment_id' => $enrollment1->id,
         ]);
-        $this->createAssignment(['student_id' => $student2->id]);
+        $this->createAssignment(['enrollment_id' => $enrollment2->id]);
         AssessmentAssignment::factory()->submitted()->create([
             'assessment_id' => $this->sharedAssessment->id,
-            'student_id' => $student3->id,
+            'enrollment_id' => $enrollment3->id,
         ]);
 
         $inProgress = AssessmentAssignment::inProgress()->get();

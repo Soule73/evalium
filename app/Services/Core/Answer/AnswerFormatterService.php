@@ -3,7 +3,6 @@
 namespace App\Services\Core\Answer;
 
 use App\Contracts\Answer\AnswerFormatterInterface;
-use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use Illuminate\Support\Collection;
 
@@ -183,12 +182,12 @@ class AnswerFormatterService implements AnswerFormatterInterface
             'answers.question.choices',
             'answers.choice',
             'assessment.questions.choices',
-            'student',
+            'enrollment.student',
         ]);
 
         return [
             'assignment' => $assignment,
-            'student' => $assignment->student,
+            'student' => $assignment->enrollment?->student,
             'assessment' => $assignment->assessment,
             'userAnswers' => $this->formatForFrontend($assignment),
             'stats' => $this->getCompletionStats($assignment),
@@ -197,8 +196,6 @@ class AnswerFormatterService implements AnswerFormatterInterface
 
     /**
      * Prepare answer data based on question type.
-     *
-     * Replaces AssessmentSessionService::prepareAnswerData()
      *
      * @param  string  $questionType  Question type (multiple, one_choice, boolean, text)
      * @param  array  $requestData  Request data containing the answer

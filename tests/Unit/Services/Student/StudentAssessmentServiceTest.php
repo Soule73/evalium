@@ -170,7 +170,7 @@ class StudentAssessmentServiceTest extends TestCase
 
         $class = ClassModel::factory()->create(['academic_year_id' => $this->academicYear->id]);
 
-        Enrollment::create([
+        $enrollment = Enrollment::create([
             'student_id' => $student->id,
             'class_id' => $class->id,
             'status' => 'active',
@@ -205,7 +205,7 @@ class StudentAssessmentServiceTest extends TestCase
 
         AssessmentAssignment::create([
             'assessment_id' => $assessment2->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
             'submitted_at' => now(),
         ]);
 
@@ -242,9 +242,15 @@ class StudentAssessmentServiceTest extends TestCase
             'scheduled_at' => now()->addDay(),
         ]);
 
+        $enrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'class_id' => $this->classModel->id,
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
         $assignment = AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
             'submitted_at' => now(),
         ]);
 
@@ -302,6 +308,13 @@ class StudentAssessmentServiceTest extends TestCase
             'scheduled_at' => now()->addDay(),
         ]);
 
+        Enrollment::create([
+            'student_id' => $student->id,
+            'class_id' => $this->classModel->id,
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
+
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
 
         $this->assertInstanceOf(AssessmentAssignment::class, $assignment);
@@ -330,9 +343,15 @@ class StudentAssessmentServiceTest extends TestCase
             'scheduled_at' => now()->addDay(),
         ]);
 
+        $enrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'class_id' => $this->classModel->id,
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
         $existing = AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
@@ -463,9 +482,15 @@ class StudentAssessmentServiceTest extends TestCase
         }
         $student = User::factory()->create();
         $student->assignRole('student');
+        $enrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'class_id' => $this->classModel->id,
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
         $assignment = AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $result = $this->service->saveAnswers($assignment, [
@@ -507,9 +532,15 @@ class StudentAssessmentServiceTest extends TestCase
         ]);
         $student = User::factory()->create();
         $student->assignRole('student');
+        $enrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'class_id' => $this->classModel->id,
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
         $assignment = AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $result = $this->service->saveAnswers($assignment, [
@@ -545,9 +576,15 @@ class StudentAssessmentServiceTest extends TestCase
         ]);
         $student = User::factory()->create();
         $student->assignRole('student');
+        $enrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'class_id' => $this->classModel->id,
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
         $assignment = AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $result = $this->service->saveAnswers($assignment, [
@@ -590,9 +627,15 @@ class StudentAssessmentServiceTest extends TestCase
         }
         $student = User::factory()->create();
         $student->assignRole('student');
+        $enrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'class_id' => $this->classModel->id,
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
         $assignment = AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $this->service->saveAnswers($assignment, [
@@ -627,9 +670,15 @@ class StudentAssessmentServiceTest extends TestCase
             'coefficient' => 1.0,
             'scheduled_at' => now()->addDay(),
         ]);
+        $enrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'class_id' => $this->classModel->id,
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
         $assignment = AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
             'submitted_at' => now(),
         ]);
 
@@ -665,9 +714,15 @@ class StudentAssessmentServiceTest extends TestCase
 
         $student = User::factory()->create();
         $student->assignRole('student');
+        $enrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'class_id' => $this->classModel->id,
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
         $assignment = AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
         $assignment->answers()->create(['question_id' => $question->id, 'choice_id' => $choiceA->id]);
         $assignment->answers()->create(['question_id' => $question->id, 'choice_id' => $choiceB->id]);
@@ -707,9 +762,15 @@ class StudentAssessmentServiceTest extends TestCase
 
         $student = User::factory()->create();
         $student->assignRole('student');
+        $enrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'class_id' => $this->classModel->id,
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
         $assignment = AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
         $assignment->answers()->create(['question_id' => $question->id, 'choice_id' => $choice->id]);
 

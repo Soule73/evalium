@@ -7,6 +7,7 @@ use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
+use App\Models\Enrollment;
 use App\Models\Level;
 use App\Models\Question;
 use App\Models\Semester;
@@ -32,6 +33,8 @@ class StudentAssessmentTakeTest extends TestCase
 
     private Assessment $assessment;
 
+    private Enrollment $enrollment;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -51,7 +54,7 @@ class StudentAssessmentTakeTest extends TestCase
         ]);
 
         $this->student = $this->createStudent();
-        $this->class->enrollments()->create([
+        $this->enrollment = $this->class->enrollments()->create([
             'student_id' => $this->student->id,
             'enrolled_at' => now(),
             'status' => 'active',
@@ -97,7 +100,7 @@ class StudentAssessmentTakeTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Student/Assessments/Take')
                 ->has('assessment')
                 ->has('assignment')
@@ -120,7 +123,7 @@ class StudentAssessmentTakeTest extends TestCase
     {
         AssessmentAssignment::create([
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
             'submitted_at' => now(),
         ]);
 
@@ -159,7 +162,7 @@ class StudentAssessmentTakeTest extends TestCase
         $response->assertJson(['message' => 'Answers saved successfully']);
 
         $assignment = AssessmentAssignment::where('assessment_id', $this->assessment->id)
-            ->where('student_id', $this->student->id)
+            ->forStudent($this->student)
             ->first();
 
         $this->assertNotNull($assignment);
@@ -185,7 +188,7 @@ class StudentAssessmentTakeTest extends TestCase
         $response->assertOk();
 
         $assignment = AssessmentAssignment::where('assessment_id', $this->assessment->id)
-            ->where('student_id', $this->student->id)
+            ->forStudent($this->student)
             ->first();
 
         $this->assertCount(2, $assignment->answers);
@@ -195,7 +198,7 @@ class StudentAssessmentTakeTest extends TestCase
     {
         AssessmentAssignment::create([
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
             'submitted_at' => now(),
         ]);
 
@@ -235,7 +238,7 @@ class StudentAssessmentTakeTest extends TestCase
         $response->assertRedirect(route('student.assessments.results', $this->assessment));
 
         $assignment = AssessmentAssignment::where('assessment_id', $this->assessment->id)
-            ->where('student_id', $this->student->id)
+            ->forStudent($this->student)
             ->first();
 
         $this->assertNotNull($assignment->submitted_at);
@@ -260,7 +263,7 @@ class StudentAssessmentTakeTest extends TestCase
         $response->assertRedirect();
 
         $assignment = AssessmentAssignment::where('assessment_id', $this->assessment->id)
-            ->where('student_id', $this->student->id)
+            ->forStudent($this->student)
             ->first();
 
         $this->assertNotNull($assignment->graded_at);
@@ -289,7 +292,7 @@ class StudentAssessmentTakeTest extends TestCase
         $response->assertRedirect();
 
         $assignment = AssessmentAssignment::where('assessment_id', $this->assessment->id)
-            ->where('student_id', $this->student->id)
+            ->forStudent($this->student)
             ->first();
 
         $this->assertNull($assignment->graded_at);
@@ -299,7 +302,7 @@ class StudentAssessmentTakeTest extends TestCase
     {
         AssessmentAssignment::create([
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
             'submitted_at' => now(),
         ]);
 
@@ -334,7 +337,7 @@ class StudentAssessmentTakeTest extends TestCase
 
         AssessmentAssignment::create([
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
         ]);
 
         $response = $this->actingAs($this->student)
@@ -347,7 +350,7 @@ class StudentAssessmentTakeTest extends TestCase
         $response->assertOk();
 
         $assignment = AssessmentAssignment::where('assessment_id', $this->assessment->id)
-            ->where('student_id', $this->student->id)
+            ->forStudent($this->student)
             ->first();
 
         $this->assertNotNull($assignment->submitted_at);

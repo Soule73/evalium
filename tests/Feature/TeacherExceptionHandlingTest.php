@@ -74,9 +74,13 @@ class TeacherExceptionHandlingTest extends TestCase
             'points' => 10,
         ]);
 
+        $enrollment = \App\Models\Enrollment::where('student_id', $student->id)
+            ->where('class_id', $this->classSubject->class_id)
+            ->first();
+
         $assignment = AssessmentAssignment::create(array_merge([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
             'started_at' => now()->subMinutes(20),
             'submitted_at' => now()->subMinutes(5),
             'forced_submission' => true,
@@ -143,7 +147,7 @@ class TeacherExceptionHandlingTest extends TestCase
         $this->classSubject->update(['teacher_id' => $teacher->id]);
 
         $student = $this->createStudent();
-        ClassModel::find($this->classSubject->class_id)
+        $enrollment = ClassModel::find($this->classSubject->class_id)
             ->enrollments()
             ->create([
                 'student_id' => $student->id,
@@ -166,7 +170,7 @@ class TeacherExceptionHandlingTest extends TestCase
 
         $assignment = AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
             'started_at' => now()->subMinutes(20),
             'submitted_at' => now()->subMinutes(5),
             'forced_submission' => true,
@@ -242,11 +246,11 @@ class TeacherExceptionHandlingTest extends TestCase
             ]);
 
         Log::shouldHaveReceived('info')
-            ->withArgs(function (string $message, array $context) use ($assignment, $assessment, $student, $teacher) {
+            ->withArgs(function (string $message, array $context) use ($assignment, $assessment, $teacher) {
                 return $message === 'Assignment reopened by teacher'
                     && $context['assignment_id'] === $assignment->id
                     && $context['assessment_id'] === $assessment->id
-                    && $context['student_id'] === $student->id
+                    && $context['enrollment_id'] === $assignment->enrollment_id
                     && $context['teacher_id'] === $teacher->id
                     && $context['reason'] === 'Power outage during exam';
             })

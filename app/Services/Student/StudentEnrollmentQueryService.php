@@ -37,13 +37,13 @@ class StudentEnrollmentQueryService
             ->with([
                 'subject',
                 'teacher',
-                'assessments' => function ($query) use ($student) {
+                'assessments' => function ($query) use ($enrollment) {
                     $query->select('id', 'class_subject_id', 'coefficient', 'settings')
                         ->with([
                             'questions:id,assessment_id,points',
-                            'assignments' => function ($q) use ($student) {
-                                $q->where('student_id', $student->id)
-                                    ->select('id', 'assessment_id', 'student_id', 'score', 'submitted_at');
+                            'assignments' => function ($q) use ($enrollment) {
+                                $q->where('enrollment_id', $enrollment->id)
+                                    ->select('id', 'assessment_id', 'enrollment_id', 'score', 'submitted_at');
                             },
                         ]);
                 },
@@ -83,13 +83,13 @@ class StudentEnrollmentQueryService
             ->with([
                 'subject',
                 'teacher',
-                'assessments' => function ($query) use ($student) {
+                'assessments' => function ($query) use ($enrollment) {
                     $query->select('id', 'class_subject_id', 'coefficient', 'settings')
                         ->with([
                             'questions:id,assessment_id,points',
-                            'assignments' => function ($q) use ($student) {
-                                $q->where('student_id', $student->id)
-                                    ->select('id', 'assessment_id', 'student_id', 'score', 'submitted_at');
+                            'assignments' => function ($q) use ($enrollment) {
+                                $q->where('enrollment_id', $enrollment->id)
+                                    ->select('id', 'assessment_id', 'enrollment_id', 'score', 'submitted_at');
                             },
                         ]);
                 },

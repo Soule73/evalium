@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * AssessmentAssignment model representing a student's assignment to an assessment.
+ *
+ * Linked to an enrollment rather than directly to a student,
+ * preserving class and academic year context.
  */
 class AssessmentAssignment extends Model
 {
@@ -16,7 +20,7 @@ class AssessmentAssignment extends Model
 
     protected $fillable = [
         'assessment_id',
-        'student_id',
+        'enrollment_id',
         'started_at',
         'submitted_at',
         'graded_at',
@@ -47,11 +51,43 @@ class AssessmentAssignment extends Model
     }
 
     /**
-     * Get the student assigned.
+     * Get the enrollment this assignment is linked to.
      */
-    public function student(): BelongsTo
+    public function enrollment(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'student_id');
+        return $this->belongsTo(Enrollment::class);
+    }
+
+    /**
+     * Convenient accessor for student_id via enrollment.
+     */
+    public function getStudentIdAttribute(): ?int
+    {
+        return $this->enrollment?->student_id;
+    }
+
+    /**
+     * Convenient accessor for the student model via enrollment.
+     *
+     * For eager loading, use ->with('enrollment.student') instead.
+     */
+    public function getStudentAttribute(): ?User
+    {
+        return $this->enrollment?->student;
+    }
+
+    /**
+     * Scope to filter assignments by student through enrollment.
+     *
+     * @param  Builder<self>  $query
+     * @param  User|int  $student  The student or student ID
+     * @return Builder<self>
+     */
+    public function scopeForStudent(Builder $query, User|int $student): Builder
+    {
+        $studentId = $student instanceof User ? $student->id : $student;
+
+        return $query->whereHas('enrollment', fn(Builder $q) => $q->where('student_id', $studentId));
     }
 
     /**

@@ -6,7 +6,7 @@ export interface GetAssignmentsResponse extends PaginatedResponse<AssessmentAssi
 export interface GetAssignmentResponse extends ApiResponse<AssessmentAssignment> { }
 
 export interface CreateAssignmentRequest {
-    student_id: number;
+    enrollment_id: number;
     assessment_id: number;
 }
 

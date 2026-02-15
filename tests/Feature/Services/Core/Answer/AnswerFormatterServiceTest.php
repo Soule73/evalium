@@ -6,6 +6,7 @@ use App\Models\Answer;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\Choice;
+use App\Models\Enrollment;
 use App\Models\Question;
 use App\Models\User;
 use App\Services\Core\Answer\AnswerFormatterService;
@@ -32,9 +33,13 @@ class AnswerFormatterServiceTest extends TestCase
     {
         $assessment = Assessment::factory()->create();
         $student = User::factory()->student()->create();
+        $enrollment = Enrollment::firstOrCreate(
+            ['student_id' => $student->id, 'class_id' => $assessment->classSubject->class_id],
+            ['enrolled_at' => now(), 'status' => 'active']
+        );
         $assignment = AssessmentAssignment::factory()->create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $question = Question::factory()->create([
@@ -67,9 +72,13 @@ class AnswerFormatterServiceTest extends TestCase
     {
         $assessment = Assessment::factory()->create();
         $student = User::factory()->student()->create();
+        $enrollment = Enrollment::firstOrCreate(
+            ['student_id' => $student->id, 'class_id' => $assessment->classSubject->class_id],
+            ['enrolled_at' => now(), 'status' => 'active']
+        );
         $assignment = AssessmentAssignment::factory()->create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $question = Question::factory()->create([
@@ -115,9 +124,13 @@ class AnswerFormatterServiceTest extends TestCase
     {
         $assessment = Assessment::factory()->create();
         $student = User::factory()->student()->create();
+        $enrollment = Enrollment::firstOrCreate(
+            ['student_id' => $student->id, 'class_id' => $assessment->classSubject->class_id],
+            ['enrolled_at' => now(), 'status' => 'active']
+        );
         $assignment = AssessmentAssignment::factory()->create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $question = Question::factory()->create([
@@ -147,9 +160,13 @@ class AnswerFormatterServiceTest extends TestCase
     {
         $assessment = Assessment::factory()->create();
         $student = User::factory()->student()->create();
+        $enrollment = Enrollment::firstOrCreate(
+            ['student_id' => $student->id, 'class_id' => $assessment->classSubject->class_id],
+            ['enrolled_at' => now(), 'status' => 'active']
+        );
         $assignment = AssessmentAssignment::factory()->create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $question = Question::factory()->create([

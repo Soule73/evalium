@@ -27,7 +27,7 @@ class AssessmentStatsService
     {
         return $this->cacheService->remember(
             $this->cacheService->studentProgressKey($student->id),
-            fn () => $this->computeStudentProgress($student),
+            fn() => $this->computeStudentProgress($student),
             self::CACHE_TTL
         );
     }
@@ -37,7 +37,7 @@ class AssessmentStatsService
      */
     private function computeStudentProgress(User $student): array
     {
-        $assignments = AssessmentAssignment::where('student_id', $student->id)
+        $assignments = AssessmentAssignment::forStudent($student)
             ->with('assessment')
             ->get();
 
@@ -64,7 +64,7 @@ class AssessmentStatsService
     {
         return $this->cacheService->remember(
             $this->cacheService->assessmentStatsKey($assessmentId),
-            fn () => $this->computeAssessmentStats($assessmentId),
+            fn() => $this->computeAssessmentStats($assessmentId),
             self::CACHE_TTL
         );
     }

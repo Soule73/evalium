@@ -44,7 +44,7 @@ class AssignmentExceptionService
         Log::info('Assignment reopened by teacher', [
             'assignment_id' => $assignment->id,
             'assessment_id' => $assessment->id,
-            'student_id' => $assignment->student_id,
+            'enrollment_id' => $assignment->enrollment_id,
             'teacher_id' => Auth::id(),
             'reason' => $reason,
             'remaining_seconds' => $remainingSeconds,

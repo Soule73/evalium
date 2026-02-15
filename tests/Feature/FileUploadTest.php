@@ -52,7 +52,7 @@ class FileUploadTest extends TestCase
     {
         $student = $this->createStudent();
         $classModel = ClassModel::find($this->classSubject->class_id);
-        $classModel->enrollments()->create([
+        $enrollment = $classModel->enrollments()->create([
             'student_id' => $student->id,
             'enrolled_at' => now(),
             'status' => 'active',
@@ -68,7 +68,7 @@ class FileUploadTest extends TestCase
 
         $assignment = AssessmentAssignment::factory()->create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         return ['student' => $student, 'assessment' => $assessment, 'assignment' => $assignment];
@@ -289,7 +289,7 @@ class FileUploadTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Student/Assessments/Work')
                 ->has('attachments', 2)
         );

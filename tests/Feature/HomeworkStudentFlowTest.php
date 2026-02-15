@@ -44,13 +44,13 @@ class HomeworkStudentFlowTest extends TestCase
     }
 
     /**
-     * @return array{student: \App\Models\User, assessment: Assessment}
+     * @return array{student: \App\Models\User, assessment: Assessment, enrollment: Enrollment}
      */
     private function createEnrolledStudentWithHomework(array $assessmentOverrides = []): array
     {
         $student = $this->createStudent();
         $classModel = ClassModel::find($this->classSubject->class_id);
-        $classModel->enrollments()->create([
+        $enrollment = $classModel->enrollments()->create([
             'student_id' => $student->id,
             'enrolled_at' => now(),
             'status' => 'active',
@@ -70,7 +70,7 @@ class HomeworkStudentFlowTest extends TestCase
             'points' => 10,
         ]);
 
-        return ['student' => $student, 'assessment' => $assessment];
+        return ['student' => $student, 'assessment' => $assessment, 'enrollment' => $enrollment];
     }
 
     public function test_homework_take_renders_work_page(): void
@@ -81,7 +81,7 @@ class HomeworkStudentFlowTest extends TestCase
             ->get(route('student.assessments.take', $assessment));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page->component('Student/Assessments/Work'));
+        $response->assertInertia(fn($page) => $page->component('Student/Assessments/Work'));
     }
 
     public function test_homework_does_not_set_started_at(): void
@@ -92,7 +92,7 @@ class HomeworkStudentFlowTest extends TestCase
             ->get(route('student.assessments.take', $assessment));
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $student->id)
+            ->forStudent($student)
             ->first();
 
         $this->assertNotNull($assignment);
@@ -110,7 +110,7 @@ class HomeworkStudentFlowTest extends TestCase
         $response2 = $this->actingAs($student)
             ->get(route('student.assessments.take', $assessment));
         $response2->assertOk();
-        $response2->assertInertia(fn ($page) => $page->component('Student/Assessments/Work'));
+        $response2->assertInertia(fn($page) => $page->component('Student/Assessments/Work'));
     }
 
     public function test_homework_save_answers_works(): void
@@ -130,7 +130,7 @@ class HomeworkStudentFlowTest extends TestCase
         $response->assertOk();
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $student->id)
+            ->forStudent($student)
             ->first();
 
         $this->assertCount(1, $assignment->answers);
@@ -153,7 +153,7 @@ class HomeworkStudentFlowTest extends TestCase
         $response->assertRedirect(route('student.assessments.results', $assessment));
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $student->id)
+            ->forStudent($student)
             ->first();
 
         $this->assertNotNull($assignment->submitted_at);
@@ -179,7 +179,7 @@ class HomeworkStudentFlowTest extends TestCase
         $response->assertSessionHas('error');
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $student->id)
+            ->forStudent($student)
             ->first();
 
         $this->assertNull($assignment?->submitted_at);
@@ -209,11 +209,11 @@ class HomeworkStudentFlowTest extends TestCase
 
     public function test_homework_submitted_redirects_to_show(): void
     {
-        ['student' => $student, 'assessment' => $assessment] = $this->createEnrolledStudentWithHomework();
+        ['student' => $student, 'assessment' => $assessment, 'enrollment' => $enrollment] = $this->createEnrolledStudentWithHomework();
 
         AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
             'submitted_at' => now()->subHour(),
         ]);
 
@@ -232,7 +232,7 @@ class HomeworkStudentFlowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Student/Assessments/Work')
                 ->where('remainingSeconds', null)
         );
@@ -258,7 +258,7 @@ class HomeworkStudentFlowTest extends TestCase
         $response->assertRedirect(route('student.assessments.results', $assessment));
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $student->id)
+            ->forStudent($student)
             ->first();
 
         $this->assertNotNull($assignment->submitted_at);

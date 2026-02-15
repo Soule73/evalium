@@ -66,7 +66,7 @@ class AdminAssessmentConsultationTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Admin/Assessments/Index')
                 ->has('assessments.data', 3)
                 ->has('classes')
@@ -93,7 +93,7 @@ class AdminAssessmentConsultationTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Admin/Assessments/Index')
                 ->has('assessments.data', 1)
         );
@@ -119,7 +119,7 @@ class AdminAssessmentConsultationTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Admin/Users/ShowTeacher')
                 ->has('assessments.data', 2)
                 ->has('stats')
@@ -141,7 +141,7 @@ class AdminAssessmentConsultationTest extends TestCase
 
         AssessmentAssignment::factory()->graded()->create([
             'assessment_id' => $assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $response = $this->actingAs($this->admin)
@@ -149,7 +149,7 @@ class AdminAssessmentConsultationTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Admin/Enrollments/Show')
                 ->has('enrollment')
                 ->has('subjects')
@@ -171,7 +171,7 @@ class AdminAssessmentConsultationTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Admin/Classes/Show')
                 ->has('assessments.data', 2)
                 ->has('statistics')
@@ -202,7 +202,7 @@ class AdminAssessmentConsultationTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->where('stats.total', 4)
                 ->where('stats.published', 1)
                 ->where('stats.unpublished', 3)
@@ -231,7 +231,7 @@ class AdminAssessmentConsultationTest extends TestCase
 
         AssessmentAssignment::factory()->graded()->create([
             'assessment_id' => $assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $enrollment->id,
             'score' => 15.0,
         ]);
 
@@ -240,10 +240,10 @@ class AdminAssessmentConsultationTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->has('subjects.data', 1)
-                ->where('subjects.data.0.average', fn ($value) => (float) $value === 15.0)
-                ->where('overallStats.annual_average', fn ($value) => (float) $value === 15.0)
+                ->where('subjects.data.0.average', fn($value) => (float) $value === 15.0)
+                ->where('overallStats.annual_average', fn($value) => (float) $value === 15.0)
         );
     }
 
@@ -260,11 +260,11 @@ class AdminAssessmentConsultationTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Admin/Users/Index')
                 ->has('users.data')
-                ->where('users.data', fn ($users) => collect($users)->every(
-                    fn ($user) => collect($user['roles'] ?? [])->doesntContain('name', 'student')
+                ->where('users.data', fn($users) => collect($users)->every(
+                    fn($user) => collect($user['roles'] ?? [])->doesntContain('name', 'student')
                 ))
         );
     }

@@ -6,6 +6,7 @@ namespace Tests\Unit\Validation\Strategies;
 
 use App\Models\Answer;
 use App\Models\AssessmentAssignment;
+use App\Models\Enrollment;
 use App\Models\Question;
 use App\Strategies\Validation\Score\ScoreValidationContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -191,9 +192,14 @@ class ScoreValidationContextTest extends TestCase
         $assessment = $this->createAssessmentWithQuestions($teacher, [], 0);
         $question = Question::factory()->create(['assessment_id' => $assessment->id, 'points' => 10]);
 
+        $enrollment = Enrollment::firstOrCreate(
+            ['student_id' => $student->id, 'class_id' => $assessment->classSubject->class_id],
+            ['enrolled_at' => now(), 'status' => 'active']
+        );
+
         $assignment = AssessmentAssignment::factory()->create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         Answer::factory()->create([
@@ -257,9 +263,14 @@ class ScoreValidationContextTest extends TestCase
         $assessment = $this->createAssessmentWithQuestions($teacher, [], 0);
         $question = Question::factory()->create(['assessment_id' => $assessment->id, 'points' => 10]);
 
+        $enrollment = Enrollment::firstOrCreate(
+            ['student_id' => $student->id, 'class_id' => $assessment->classSubject->class_id],
+            ['enrolled_at' => now(), 'status' => 'active']
+        );
+
         AssessmentAssignment::factory()->create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $data = [

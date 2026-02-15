@@ -88,7 +88,7 @@ class GradeCalculationService
         $allAssignments = AssessmentAssignment::whereHas('assessment', function ($query) use ($classSubjectIds) {
             $query->whereIn('class_subject_id', $classSubjectIds);
         })
-            ->where('student_id', $student->id)
+            ->forStudent($student)
             ->with(['assessment' => function ($query) {
                 $query->select('id', 'title', 'type', 'coefficient', 'class_subject_id', 'settings')
                     ->withCount('questions');
@@ -259,7 +259,7 @@ class GradeCalculationService
         return AssessmentAssignment::whereHas('assessment', function ($query) use ($classSubject) {
             $query->where('class_subject_id', $classSubject->id);
         })
-            ->where('student_id', $student->id)
+            ->forStudent($student)
             ->whereNotNull('score')
             ->with(['assessment.questions'])
             ->get()
@@ -368,7 +368,7 @@ class GradeCalculationService
 
         $gradeBreakdown = $this->getGradeBreakdown($student, $enrollment->class);
 
-        $assignmentsQuery = AssessmentAssignment::where('student_id', $student->id);
+        $assignmentsQuery = AssessmentAssignment::forStudent($student);
         if ($academicYearId) {
             $assignmentsQuery->whereHas('assessment.classSubject.class', function ($q) use ($academicYearId) {
                 $q->where('academic_year_id', $academicYearId);
@@ -399,7 +399,7 @@ class GradeCalculationService
      */
     public function getStudentAssessmentSummary(User $student, ?int $academicYearId = null): array
     {
-        $query = AssessmentAssignment::where('student_id', $student->id)
+        $query = AssessmentAssignment::forStudent($student)
             ->with([
                 'assessment.questions',
                 'assessment.classSubject.subject',

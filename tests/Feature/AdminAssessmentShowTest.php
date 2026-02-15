@@ -34,6 +34,8 @@ class AdminAssessmentShowTest extends TestCase
 
     private Assessment $assessment;
 
+    private Enrollment $enrollment;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -60,21 +62,21 @@ class AdminAssessmentShowTest extends TestCase
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->teacher->id,
         ]);
+
+        $this->enrollment = Enrollment::factory()->create([
+            'class_id' => $this->classModel->id,
+            'student_id' => $this->student->id,
+        ]);
     }
 
     public function test_admin_can_view_assessment_show(): void
     {
-        Enrollment::factory()->create([
-            'class_id' => $this->classModel->id,
-            'student_id' => $this->student->id,
-        ]);
-
         $response = $this->actingAs($this->admin)
             ->get(route('admin.assessments.show', $this->assessment));
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Assessments/Show')
                 ->has('assessment')
                 ->has('assignments')
@@ -96,7 +98,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->where('routeContext.role', 'admin')
                 ->where('routeContext.backRoute', 'admin.assessments.index')
                 ->where('routeContext.saveGradeRoute', 'admin.assessments.saveGrade')
@@ -123,7 +125,7 @@ class AdminAssessmentShowTest extends TestCase
     {
         $assignment = AssessmentAssignment::factory()->graded()->create([
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
         ]);
 
         $response = $this->actingAs($this->admin)
@@ -131,7 +133,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Assessments/Review')
                 ->has('assignment')
                 ->has('assessment')
@@ -146,7 +148,7 @@ class AdminAssessmentShowTest extends TestCase
     {
         $assignment = AssessmentAssignment::factory()->submitted()->create([
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
         ]);
 
         $response = $this->actingAs($this->admin)
@@ -154,7 +156,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Assessments/Grade')
                 ->has('assignment')
                 ->has('assessment')
@@ -174,7 +176,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $assignment = AssessmentAssignment::factory()->submitted()->create([
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
         ]);
 
         $response = $this->actingAs($this->admin)
@@ -198,7 +200,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $assignment = AssessmentAssignment::factory()->graded()->create([
             'assessment_id' => $otherAssessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
         ]);
 
         $response = $this->actingAs($this->admin)
@@ -216,7 +218,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $assignment = AssessmentAssignment::factory()->submitted()->create([
             'assessment_id' => $otherAssessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
         ]);
 
         $response = $this->actingAs($this->admin)
@@ -229,7 +231,7 @@ class AdminAssessmentShowTest extends TestCase
     {
         $assignment = AssessmentAssignment::factory()->graded()->create([
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
         ]);
 
         $response = $this->actingAs($this->student)
@@ -242,7 +244,7 @@ class AdminAssessmentShowTest extends TestCase
     {
         $assignment = AssessmentAssignment::factory()->submitted()->create([
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
         ]);
 
         $response = $this->actingAs($this->student)
@@ -267,7 +269,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Assessments/Show')
                 ->has('assessment')
                 ->has('routeContext')
@@ -280,7 +282,7 @@ class AdminAssessmentShowTest extends TestCase
         $superAdmin = $this->createSuperAdmin();
         $assignment = AssessmentAssignment::factory()->graded()->create([
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
         ]);
 
         $response = $this->actingAs($superAdmin)
@@ -288,7 +290,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Assessments/Review')
                 ->where('routeContext.role', 'admin')
         );
@@ -299,7 +301,7 @@ class AdminAssessmentShowTest extends TestCase
         $superAdmin = $this->createSuperAdmin();
         $assignment = AssessmentAssignment::factory()->submitted()->create([
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
         ]);
 
         $response = $this->actingAs($superAdmin)
@@ -307,7 +309,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Assessments/Grade')
                 ->where('routeContext.role', 'admin')
         );
@@ -323,7 +325,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $assignment = AssessmentAssignment::factory()->submitted()->create([
             'assessment_id' => $this->assessment->id,
-            'student_id' => $this->student->id,
+            'enrollment_id' => $this->enrollment->id,
         ]);
 
         $response = $this->actingAs($superAdmin)

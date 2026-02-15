@@ -44,13 +44,13 @@ class SupervisedModeHardeningTest extends TestCase
     }
 
     /**
-     * @return array{student: \App\Models\User, assessment: Assessment}
+     * @return array{student: \App\Models\User, assessment: Assessment, enrollment: Enrollment}
      */
     private function createEnrolledStudentWithSupervisedAssessment(array $assessmentOverrides = []): array
     {
         $student = $this->createStudent();
         $classModel = ClassModel::find($this->classSubject->class_id);
-        $classModel->enrollments()->create([
+        $enrollment = $classModel->enrollments()->create([
             'student_id' => $student->id,
             'enrolled_at' => now(),
             'status' => 'active',
@@ -70,17 +70,17 @@ class SupervisedModeHardeningTest extends TestCase
             'points' => 10,
         ]);
 
-        return ['student' => $student, 'assessment' => $assessment];
+        return ['student' => $student, 'assessment' => $assessment, 'enrollment' => $enrollment];
     }
 
     /**
-     * @return array{student: \App\Models\User, assessment: Assessment}
+     * @return array{student: \App\Models\User, assessment: Assessment, enrollment: Enrollment}
      */
     private function createEnrolledStudentWithHomeworkAssessment(array $assessmentOverrides = []): array
     {
         $student = $this->createStudent();
         $classModel = ClassModel::find($this->classSubject->class_id);
-        $classModel->enrollments()->create([
+        $enrollment = $classModel->enrollments()->create([
             'student_id' => $student->id,
             'enrolled_at' => now(),
             'status' => 'active',
@@ -99,16 +99,16 @@ class SupervisedModeHardeningTest extends TestCase
             'points' => 10,
         ]);
 
-        return ['student' => $student, 'assessment' => $assessment];
+        return ['student' => $student, 'assessment' => $assessment, 'enrollment' => $enrollment];
     }
 
     public function test_supervised_cannot_retake_after_submission(): void
     {
-        ['student' => $student, 'assessment' => $assessment] = $this->createEnrolledStudentWithSupervisedAssessment();
+        ['student' => $student, 'assessment' => $assessment, 'enrollment' => $enrollment] = $this->createEnrolledStudentWithSupervisedAssessment();
 
         AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
             'started_at' => now()->subMinutes(30),
             'submitted_at' => now()->subMinutes(5),
         ]);
@@ -123,14 +123,14 @@ class SupervisedModeHardeningTest extends TestCase
     {
         Carbon::setTestNow('2026-02-13 14:00:00');
 
-        ['student' => $student, 'assessment' => $assessment] = $this->createEnrolledStudentWithSupervisedAssessment([
+        ['student' => $student, 'assessment' => $assessment, 'enrollment' => $enrollment] = $this->createEnrolledStudentWithSupervisedAssessment([
             'duration_minutes' => 60,
             'scheduled_at' => Carbon::parse('2026-02-13 12:00:00'),
         ]);
 
         AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
             'started_at' => Carbon::parse('2026-02-13 12:30:00'),
         ]);
 
@@ -142,7 +142,7 @@ class SupervisedModeHardeningTest extends TestCase
         $response->assertRedirect(route('student.assessments.results', $assessment));
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $student->id)
+            ->forStudent($student)
             ->first();
 
         $this->assertNotNull($assignment->submitted_at);
@@ -151,11 +151,11 @@ class SupervisedModeHardeningTest extends TestCase
 
     public function test_supervised_security_violation_triggers_auto_submit(): void
     {
-        ['student' => $student, 'assessment' => $assessment] = $this->createEnrolledStudentWithSupervisedAssessment();
+        ['student' => $student, 'assessment' => $assessment, 'enrollment' => $enrollment] = $this->createEnrolledStudentWithSupervisedAssessment();
 
         AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
             'started_at' => now()->subMinutes(10),
         ]);
 
@@ -168,7 +168,7 @@ class SupervisedModeHardeningTest extends TestCase
         $response->assertOk();
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $student->id)
+            ->forStudent($student)
             ->first();
 
         $this->assertNotNull($assignment->submitted_at);
@@ -178,11 +178,11 @@ class SupervisedModeHardeningTest extends TestCase
 
     public function test_security_violation_rejected_for_homework_mode(): void
     {
-        ['student' => $student, 'assessment' => $assessment] = $this->createEnrolledStudentWithHomeworkAssessment();
+        ['student' => $student, 'assessment' => $assessment, 'enrollment' => $enrollment] = $this->createEnrolledStudentWithHomeworkAssessment();
 
         AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $response = $this->actingAs($student)
@@ -193,7 +193,7 @@ class SupervisedModeHardeningTest extends TestCase
         $response->assertStatus(422);
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $student->id)
+            ->forStudent($student)
             ->first();
 
         $this->assertNull($assignment->submitted_at);
@@ -203,14 +203,14 @@ class SupervisedModeHardeningTest extends TestCase
     {
         Carbon::setTestNow('2026-02-13 14:00:00');
 
-        ['student' => $student, 'assessment' => $assessment] = $this->createEnrolledStudentWithSupervisedAssessment([
+        ['student' => $student, 'assessment' => $assessment, 'enrollment' => $enrollment] = $this->createEnrolledStudentWithSupervisedAssessment([
             'duration_minutes' => 60,
             'scheduled_at' => Carbon::parse('2026-02-13 13:30:00'),
         ]);
 
         AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
             'started_at' => Carbon::parse('2026-02-13 13:40:00'),
         ]);
 
@@ -221,7 +221,7 @@ class SupervisedModeHardeningTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Student/Assessments/Take')
                 ->where('remainingSeconds', 2400)
         );
@@ -229,11 +229,11 @@ class SupervisedModeHardeningTest extends TestCase
 
     public function test_terminate_for_violation_ignored_for_homework_mode(): void
     {
-        ['student' => $student, 'assessment' => $assessment] = $this->createEnrolledStudentWithHomeworkAssessment();
+        ['student' => $student, 'assessment' => $assessment, 'enrollment' => $enrollment] = $this->createEnrolledStudentWithHomeworkAssessment();
 
         $assignment = AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
         ]);
 
         $service = app(\App\Services\Student\StudentAssessmentService::class);
@@ -249,14 +249,14 @@ class SupervisedModeHardeningTest extends TestCase
     {
         Carbon::setTestNow('2026-02-13 15:30:00');
 
-        ['student' => $student, 'assessment' => $assessment] = $this->createEnrolledStudentWithSupervisedAssessment([
+        ['student' => $student, 'assessment' => $assessment, 'enrollment' => $enrollment] = $this->createEnrolledStudentWithSupervisedAssessment([
             'duration_minutes' => 60,
             'scheduled_at' => Carbon::parse('2026-02-13 13:00:00'),
         ]);
 
         $assignment = AssessmentAssignment::create([
             'assessment_id' => $assessment->id,
-            'student_id' => $student->id,
+            'enrollment_id' => $enrollment->id,
             'started_at' => Carbon::parse('2026-02-13 14:00:00'),
         ]);
 

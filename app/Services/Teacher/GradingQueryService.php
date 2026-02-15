@@ -17,7 +17,7 @@ class GradingQueryService
     public function getAssignmentsForGrading(Assessment $assessment, int $perPage): LengthAwarePaginator
     {
         return AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->with(['student', 'answers.question'])
+            ->with(['enrollment.student', 'answers.question'])
             ->paginate($perPage);
     }
 
@@ -39,21 +39,25 @@ class GradingQueryService
             ->filter();
 
         $existingAssignments = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->with('student')
+            ->with('enrollment.student')
             ->get()
-            ->keyBy('student_id');
+            ->keyBy(fn($a) => $a->enrollment?->student_id);
 
-        $allStudentData = $enrolledStudents->map(function ($student) use ($assessment, $existingAssignments) {
+        $allStudentData = $enrolledStudents->map(function ($student) use ($assessment, $existingAssignments, $classId) {
             $assignment = $existingAssignments->get($student->id);
 
             if ($assignment) {
                 return $assignment;
             }
 
+            $enrollment = Enrollment::where('student_id', $student->id)
+                ->where('class_id', $classId)
+                ->first();
+
             return (object) [
                 'id' => null,
                 'assessment_id' => $assessment->id,
-                'student_id' => $student->id,
+                'enrollment_id' => $enrollment?->id,
                 'student' => $student,
                 'submitted_at' => null,
                 'score' => null,
@@ -104,8 +108,8 @@ class GradingQueryService
     public function getAssignmentForStudent(Assessment $assessment, User $student): AssessmentAssignment
     {
         return AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->where('student_id', $student->id)
-            ->with(['answers.question', 'answers.choice'])
+            ->forStudent($student)
+            ->with(['answers.question', 'answers.choice', 'enrollment'])
             ->firstOrFail();
     }
 
