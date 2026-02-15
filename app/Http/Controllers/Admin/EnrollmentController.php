@@ -8,10 +8,13 @@ use App\Http\Requests\Admin\TransferStudentRequest;
 use App\Http\Traits\HandlesIndexRequests;
 use App\Models\AssessmentAssignment;
 use App\Models\Enrollment;
+use App\Models\User;
 use App\Services\Admin\EnrollmentService;
+use App\Services\Admin\UserManagementService;
 use App\Services\Core\GradeCalculationService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -24,7 +27,8 @@ class EnrollmentController extends Controller
 
     public function __construct(
         private readonly EnrollmentService $enrollmentService,
-        private readonly GradeCalculationService $gradeCalculationService
+        private readonly GradeCalculationService $gradeCalculationService,
+        private readonly UserManagementService $userManagementService
     ) {}
 
     /**
@@ -75,6 +79,31 @@ class EnrollmentController extends Controller
         } catch (\InvalidArgumentException $e) {
             return back()->flashError($e->getMessage());
         }
+    }
+
+    /**
+     * Quick-create a student for inline enrollment form.
+     */
+    public function storeQuickStudent(Request $request): JsonResponse
+    {
+        $this->authorize('create', User::class);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+        ]);
+
+        $student = $this->userManagementService->store([
+            ...$validated,
+            'role' => 'student',
+        ]);
+
+        return response()->json([
+            'id' => $student->id,
+            'name' => $student->name,
+            'email' => $student->email,
+            'avatar' => $student->avatar,
+        ], 201);
     }
 
     /**

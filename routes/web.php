@@ -146,6 +146,7 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'index')->name('index');
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
+                    Route::post('/quick-student', 'storeQuickStudent')->name('quick-student');
                     Route::get('/{enrollment}', 'show')->name('show');
                     Route::get('/{enrollment}/assignments', 'assignments')->name('assignments');
                     Route::get('/{enrollment}/assignments/{assignment}', 'assignmentShow')->name('assignments.show');
