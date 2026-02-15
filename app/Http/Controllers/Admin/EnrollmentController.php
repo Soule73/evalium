@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreEnrollmentRequest;
 use App\Http\Requests\Admin\TransferStudentRequest;
 use App\Http\Traits\HandlesIndexRequests;
+use App\Models\AssessmentAssignment;
 use App\Models\Enrollment;
 use App\Services\Admin\EnrollmentService;
 use App\Services\Core\GradeCalculationService;
@@ -111,6 +112,62 @@ class EnrollmentController extends Controller
             'subjects' => $paginatedSubjects,
             'overallStats' => $overallStats,
         ]));
+    }
+
+    /**
+     * Display assignments for a specific enrollment, optionally filtered by subject.
+     */
+    public function assignments(Request $request, Enrollment $enrollment): Response
+    {
+        $this->authorize('view', $enrollment);
+
+        $enrollment->loadMissing(['student', 'class.level']);
+
+        $filters = $request->only(['search', 'class_subject_id', 'status']);
+        $perPage = (int) $request->input('per_page', 15);
+
+        $assignments = $this->gradeCalculationService->getEnrollmentAssignments(
+            $enrollment,
+            $filters,
+            $perPage
+        );
+
+        $subjects = $this->enrollmentService->getClassSubjectsForEnrollment($enrollment);
+
+        return Inertia::render('Admin/Enrollments/Assignments/Index', [
+            'enrollment' => $enrollment,
+            'assignments' => $assignments,
+            'subjects' => $subjects,
+            'filters' => $filters,
+        ]);
+    }
+
+    /**
+     * Display a specific assignment detail with answers for admin review.
+     */
+    public function assignmentShow(Enrollment $enrollment, AssessmentAssignment $assignment): Response
+    {
+        $this->authorize('view', $enrollment);
+
+        $enrollment->loadMissing(['student', 'class.level']);
+
+        $assignment->loadMissing([
+            'assessment.questions.choices',
+            'assessment.classSubject.subject',
+            'assessment.classSubject.teacher',
+            'answers.question',
+            'answers.choice',
+            'answers.choices.choice',
+        ]);
+
+        $userAnswers = $assignment->answers->keyBy('question_id');
+
+        return Inertia::render('Admin/Enrollments/Assignments/Show', [
+            'enrollment' => $enrollment,
+            'assignment' => $assignment,
+            'assessment' => $assignment->assessment,
+            'userAnswers' => $userAnswers,
+        ]);
     }
 
     /**

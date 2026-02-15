@@ -14,6 +14,7 @@ return [
     'subjects' => 'Matières',
     'classes' => 'Classes',
     'enrollments' => 'Inscriptions',
+    'enrollment_assignments' => 'Évaluations',
     'class_subjects' => 'Affectations',
 
     // Actions communes

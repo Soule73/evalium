@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Enrollment, type ClassModel, type PageProps, type PaginationType, type SubjectGrade, type OverallStats } from '@/types';
@@ -50,6 +50,13 @@ export default function EnrollmentShow({ enrollment, classes, subjects, overallS
     router.visit(route('admin.enrollments.index'));
   };
 
+  const handleSubjectClick = useCallback((subject: SubjectGrade) => {
+    router.visit(route('admin.enrollments.assignments', {
+      enrollment: enrollment.id,
+      class_subject_id: subject.class_subject_id,
+    }));
+  }, [enrollment.id]);
+
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { type: 'success' | 'error' | 'warning' | 'info' | 'gray'; label: string }> = {
       active: { type: 'success', label: translations.statusActive },
@@ -75,6 +82,14 @@ export default function EnrollmentShow({ enrollment, classes, subjects, overallS
             <div className="flex space-x-3">
               <Button size="sm" variant="outline" color="secondary" onClick={handleBack}>
                 {translations.back}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                color="primary"
+                onClick={() => router.visit(route('admin.enrollments.assignments', enrollment.id))}
+              >
+                {t('admin_pages.enrollments.view_assignments')}
               </Button>
               {canUpdate && enrollment.status === 'active' && (
                 <>
@@ -143,7 +158,12 @@ export default function EnrollmentShow({ enrollment, classes, subjects, overallS
           )}
         </Section>
 
-        <SubjectGradeList subjects={subjects} overallStats={overallStats} variant="admin" />
+        <SubjectGradeList
+          subjects={subjects}
+          overallStats={overallStats}
+          variant="admin"
+          onSubjectClick={handleSubjectClick}
+        />
       </div>
 
       <TransferEnrollmentModal

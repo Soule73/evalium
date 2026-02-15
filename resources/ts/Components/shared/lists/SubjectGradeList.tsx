@@ -10,6 +10,7 @@ interface SubjectGradeListProps {
   overallStats: OverallStats;
   variant?: 'admin' | 'student';
   showSearch?: boolean;
+  onSubjectClick?: (subject: SubjectGrade) => void;
 }
 
 const GRADE_THRESHOLDS = [
@@ -39,6 +40,7 @@ export function SubjectGradeList({
   subjects,
   overallStats,
   showSearch = false,
+  onSubjectClick,
 }: SubjectGradeListProps) {
   const { t } = useTranslations();
   const pendingAssessments = overallStats.total_assessments - overallStats.completed_assessments;
@@ -57,6 +59,17 @@ export function SubjectGradeList({
         key: 'subject_name',
         label: t('student_enrollment_pages.show.subject'),
         sortable: true,
+        render: onSubjectClick
+          ? (item: SubjectGrade) => (
+            <button
+              type="button"
+              className="text-indigo-600 hover:text-indigo-800 hover:underline font-medium text-left"
+              onClick={() => onSubjectClick(item)}
+            >
+              {item.subject_name}
+            </button>
+          )
+          : undefined,
       },
       {
         key: 'teacher_name',
@@ -102,7 +115,7 @@ export function SubjectGradeList({
       title: t('common.no_search_results'),
       subtitle: t('common.try_different_search'),
     },
-  }), [t, showSearch, getGradeBadge]);
+  }), [t, showSearch, getGradeBadge, onSubjectClick]);
 
   return (
     <>

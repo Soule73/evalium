@@ -4,6 +4,7 @@ namespace App\Services\Admin;
 
 use App\Exceptions\EnrollmentException;
 use App\Models\ClassModel;
+use App\Models\ClassSubject;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Services\Traits\Paginatable;
@@ -263,5 +264,24 @@ class EnrollmentService
         if ($existingEnrollment) {
             throw EnrollmentException::alreadyEnrolled();
         }
+    }
+
+    /**
+     * Get class subjects list for an enrollment's class (used as filter options).
+     *
+     * @return array<int, array{id: int, subject_name: string, teacher_name: string}>
+     */
+    public function getClassSubjectsForEnrollment(Enrollment $enrollment): array
+    {
+        return ClassSubject::active()
+            ->where('class_id', $enrollment->class_id)
+            ->with(['subject:id,name', 'teacher:id,name'])
+            ->get()
+            ->map(fn (ClassSubject $cs) => [
+                'id' => $cs->id,
+                'subject_name' => $cs->subject?->name ?? '-',
+                'teacher_name' => $cs->teacher?->name ?? '-',
+            ])
+            ->all();
     }
 }

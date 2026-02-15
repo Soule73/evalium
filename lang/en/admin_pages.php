@@ -442,6 +442,28 @@ return [
         'transfer_info' => 'Transfer Information',
         'withdrawal_info' => 'Withdrawal Information',
         'transfer_warning' => 'The student will be withdrawn from the current class and enrolled in the selected class.',
+
+        // Assignment drill-down
+        'assignments_title' => 'Student Assessments',
+        'assignments_subtitle' => 'View all assessments for :student in :class',
+        'assignment_show_title' => 'Assessment Detail',
+        'assignment_show_subtitle' => 'View student answers and scores',
+        'all_subjects' => 'All Subjects',
+        'all_assignment_statuses' => 'All Statuses',
+        'assessment_title' => 'Assessment',
+        'subject' => 'Subject',
+        'teacher' => 'Teacher',
+        'type' => 'Type',
+        'score' => 'Score',
+        'assignment_status' => 'Status',
+        'submitted_at' => 'Submitted',
+        'graded_at' => 'Graded',
+        'view_details' => 'View',
+        'no_assignments_title' => 'No assessments',
+        'no_assignments_subtitle' => 'This student has no assessments yet.',
+        'back_to_enrollment' => 'Back to enrollment',
+        'back_to_assignments' => 'Back to assessments',
+        'view_assignments' => 'View Assessments',
     ],
 
     // ClassSubjects Management

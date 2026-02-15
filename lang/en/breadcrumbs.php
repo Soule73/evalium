@@ -14,6 +14,7 @@ return [
     'subjects' => 'Subjects',
     'classes' => 'Classes',
     'enrollments' => 'Enrollments',
+    'enrollment_assignments' => 'Assessments',
     'class_subjects' => 'Assignments',
 
     // Common actions

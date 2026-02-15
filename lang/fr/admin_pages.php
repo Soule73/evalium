@@ -444,6 +444,28 @@ return [
         'transfer_info' => 'Information de transfert',
         'withdrawal_info' => 'Information de retrait',
         'transfer_warning' => 'L\'étudiant sera retiré de la classe actuelle et inscrit dans la classe sélectionnée.',
+
+        // Assignment drill-down
+        'assignments_title' => 'Évaluations de l\'étudiant',
+        'assignments_subtitle' => 'Voir toutes les évaluations de :student dans :class',
+        'assignment_show_title' => 'Détail de l\'évaluation',
+        'assignment_show_subtitle' => 'Voir les réponses et scores de l\'étudiant',
+        'all_subjects' => 'Toutes les matières',
+        'all_assignment_statuses' => 'Tous les statuts',
+        'assessment_title' => 'Évaluation',
+        'subject' => 'Matière',
+        'teacher' => 'Enseignant',
+        'type' => 'Type',
+        'score' => 'Score',
+        'assignment_status' => 'Statut',
+        'submitted_at' => 'Soumis le',
+        'graded_at' => 'Noté le',
+        'view_details' => 'Voir',
+        'no_assignments_title' => 'Aucune évaluation',
+        'no_assignments_subtitle' => 'Cet étudiant n\'a aucune évaluation pour le moment.',
+        'back_to_enrollment' => 'Retour à l\'inscription',
+        'back_to_assignments' => 'Retour aux évaluations',
+        'view_assignments' => 'Voir les évaluations',
     ],
 
     // ClassSubjects Management

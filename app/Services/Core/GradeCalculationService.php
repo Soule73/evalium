@@ -6,7 +6,9 @@ use App\Models\AcademicYear;
 use App\Models\AssessmentAssignment;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
+use App\Models\Enrollment;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -218,7 +220,7 @@ class GradeCalculationService
             }
 
             $totalAssessments = $classSubject->assessments
-                ->filter(fn($a) => $a->is_published)
+                ->filter(fn ($a) => $a->is_published)
                 ->count();
 
             $subjectGrades[] = [
@@ -436,5 +438,47 @@ class GradeCalculationService
                 'graded_at' => $assignment->graded_at?->toISOString(),
             ];
         })->toArray();
+    }
+
+    /**
+     * Get paginated assignments for an enrollment with optional filters.
+     *
+     * @param  Enrollment  $enrollment  The enrollment to query
+     * @param  array  $filters  Optional filters (search, class_subject_id, status)
+     * @param  int  $perPage  Items per page
+     * @return LengthAwarePaginator Paginated assignment results
+     */
+    public function getEnrollmentAssignments(Enrollment $enrollment, array $filters = [], int $perPage = 15): LengthAwarePaginator
+    {
+        $query = AssessmentAssignment::where('enrollment_id', $enrollment->id)
+            ->with([
+                'assessment.questions:id,assessment_id,points',
+                'assessment.classSubject.subject',
+                'assessment.classSubject.teacher',
+            ]);
+
+        if (! empty($filters['class_subject_id'])) {
+            $query->whereHas('assessment', function ($q) use ($filters) {
+                $q->where('class_subject_id', $filters['class_subject_id']);
+            });
+        }
+
+        if (! empty($filters['status'])) {
+            match ($filters['status']) {
+                'graded' => $query->whereNotNull('graded_at'),
+                'submitted' => $query->whereNotNull('submitted_at')->whereNull('graded_at'),
+                'in_progress' => $query->whereNotNull('started_at')->whereNull('submitted_at'),
+                'not_submitted' => $query->whereNull('started_at'),
+                default => null,
+            };
+        }
+
+        if (! empty($filters['search'])) {
+            $query->whereHas('assessment', function ($q) use ($filters) {
+                $q->where('title', 'like', "%{$filters['search']}%");
+            });
+        }
+
+        return $query->latest('created_at')->paginate($perPage)->withQueryString();
     }
 }
