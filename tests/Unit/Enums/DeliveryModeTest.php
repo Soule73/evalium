@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Enums;
 
+use App\Enums\AssessmentType;
 use App\Enums\DeliveryMode;
 use Tests\TestCase;
 
@@ -25,27 +26,27 @@ class DeliveryModeTest extends TestCase
 
     public function test_default_for_type_examen_is_supervised(): void
     {
-        $this->assertSame(DeliveryMode::Supervised, DeliveryMode::defaultForType('examen'));
+        $this->assertSame(DeliveryMode::Supervised, DeliveryMode::defaultForType(AssessmentType::Exam));
     }
 
     public function test_default_for_type_controle_is_supervised(): void
     {
-        $this->assertSame(DeliveryMode::Supervised, DeliveryMode::defaultForType('controle'));
+        $this->assertSame(DeliveryMode::Supervised, DeliveryMode::defaultForType(AssessmentType::Quiz));
     }
 
     public function test_default_for_type_devoir_is_homework(): void
     {
-        $this->assertSame(DeliveryMode::Homework, DeliveryMode::defaultForType('devoir'));
+        $this->assertSame(DeliveryMode::Homework, DeliveryMode::defaultForType(AssessmentType::Homework));
     }
 
     public function test_default_for_type_tp_is_homework(): void
     {
-        $this->assertSame(DeliveryMode::Homework, DeliveryMode::defaultForType('tp'));
+        $this->assertSame(DeliveryMode::Homework, DeliveryMode::defaultForType(AssessmentType::Practical));
     }
 
     public function test_default_for_type_projet_is_homework(): void
     {
-        $this->assertSame(DeliveryMode::Homework, DeliveryMode::defaultForType('projet'));
+        $this->assertSame(DeliveryMode::Homework, DeliveryMode::defaultForType(AssessmentType::Project));
     }
 
     public function test_is_supervised_mode_helper(): void

@@ -2,7 +2,7 @@ import type { ClassSubject } from './classSubject';
 import type { AssessmentAssignment } from './assessmentAssignment';
 import { type User, type Question } from '@/types';
 
-export type AssessmentType = 'devoir' | 'examen' | 'tp' | 'controle' | 'projet';
+export type AssessmentType = 'homework' | 'exam' | 'practical' | 'quiz' | 'project';
 
 export type DeliveryMode = 'supervised' | 'homework';
 

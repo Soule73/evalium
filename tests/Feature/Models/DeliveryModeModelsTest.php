@@ -93,7 +93,7 @@ class DeliveryModeModelsTest extends TestCase
     public function test_assessment_default_delivery_mode_is_supervised(): void
     {
         $assessment = $this->createAssessment([], [
-            'type' => 'examen',
+            'type' => 'exam',
             'delivery_mode' => DeliveryMode::Supervised,
         ]);
 
@@ -257,7 +257,7 @@ class DeliveryModeModelsTest extends TestCase
         $assessment = $this->createAssessment(['examen']);
 
         $this->assertSame(DeliveryMode::Supervised, $assessment->delivery_mode);
-        $this->assertSame(AssessmentType::Examen, $assessment->type);
+        $this->assertSame(AssessmentType::Exam, $assessment->type);
     }
 
     public function test_devoir_factory_defaults_to_homework(): void
@@ -265,7 +265,7 @@ class DeliveryModeModelsTest extends TestCase
         $assessment = $this->createAssessment(['devoir']);
 
         $this->assertSame(DeliveryMode::Homework, $assessment->delivery_mode);
-        $this->assertSame(AssessmentType::Devoir, $assessment->type);
+        $this->assertSame(AssessmentType::Homework, $assessment->type);
     }
 
     public function test_tp_factory_defaults_to_homework(): void
@@ -273,6 +273,6 @@ class DeliveryModeModelsTest extends TestCase
         $assessment = $this->createAssessment(['tp']);
 
         $this->assertSame(DeliveryMode::Homework, $assessment->delivery_mode);
-        $this->assertSame(AssessmentType::Tp, $assessment->type);
+        $this->assertSame(AssessmentType::Practical, $assessment->type);
     }
 }

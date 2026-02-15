@@ -16,10 +16,14 @@ enum DeliveryMode: string
     /**
      * Get the default delivery mode for a given assessment type.
      */
-    public static function defaultForType(string $type): self
+    public static function defaultForType(AssessmentType|string $type): self
     {
-        return match ($type) {
-            'examen', 'controle' => self::Supervised,
+        $assessmentType = $type instanceof AssessmentType
+            ? $type
+            : AssessmentType::tryFrom($type);
+
+        return match ($assessmentType) {
+            AssessmentType::Exam, AssessmentType::Quiz => self::Supervised,
             default => self::Homework,
         };
     }

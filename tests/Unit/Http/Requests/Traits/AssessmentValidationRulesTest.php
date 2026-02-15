@@ -295,7 +295,7 @@ class AssessmentValidationRulesTest extends TestCase
         $validator = Validator::make([
             'class_subject_id' => $this->classSubject->id,
             'title' => 'Test Assessment',
-            'type' => 'examen',
+            'type' => 'exam',
             'delivery_mode' => 'supervised',
             'scheduled_at' => '2026-03-15',
             'duration_minutes' => 60,

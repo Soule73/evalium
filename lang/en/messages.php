@@ -130,6 +130,11 @@ return [
     // Validation - Form labels
     'assessment_title' => 'assessment title',
     'assessment_type' => 'assessment type',
+    'assessment_type_homework' => 'Homework',
+    'assessment_type_exam' => 'Exam',
+    'assessment_type_practical' => 'Practical Work',
+    'assessment_type_quiz' => 'Quiz',
+    'assessment_type_project' => 'Project',
     'delivery_mode' => 'delivery mode',
     'scheduled_date' => 'scheduled date',
     'duration' => 'duration',

@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\AssessmentType;
 use App\Enums\DeliveryMode;
+use App\Enums\QuestionType;
 use App\Models\Assessment;
 use App\Models\ClassSubject;
 use Illuminate\Database\Seeder;
@@ -23,9 +25,9 @@ class AssessmentSeeder extends Seeder
         }
 
         $assessmentTypes = [
-            ['type' => 'examen', 'coefficient' => 2.0, 'title_suffix' => 'Midterm Exam'],
-            ['type' => 'devoir', 'coefficient' => 1.0, 'title_suffix' => 'Quiz'],
-            ['type' => 'projet', 'coefficient' => 1.5, 'title_suffix' => 'Project'],
+            ['type' => AssessmentType::Exam, 'coefficient' => 2.0, 'title_suffix' => 'Midterm Exam'],
+            ['type' => AssessmentType::Homework, 'coefficient' => 1.0, 'title_suffix' => 'Quiz'],
+            ['type' => AssessmentType::Project, 'coefficient' => 1.5, 'title_suffix' => 'Project'],
         ];
 
         $count = 0;
@@ -38,8 +40,8 @@ class AssessmentSeeder extends Seeder
                 $assessment = Assessment::create([
                     'class_subject_id' => $classSubject->id,
                     'teacher_id' => $classSubject->teacher_id,
-                    'title' => $classSubject->subject->name.' - '.$assessmentData['title_suffix'],
-                    'description' => 'Assessment for '.$classSubject->subject->name,
+                    'title' => $classSubject->subject->name . ' - ' . $assessmentData['title_suffix'],
+                    'description' => 'Assessment for ' . $classSubject->subject->name,
                     'type' => $assessmentData['type'],
                     'delivery_mode' => $deliveryMode,
                     'coefficient' => $assessmentData['coefficient'],
@@ -65,25 +67,25 @@ class AssessmentSeeder extends Seeder
     /**
      * Create sample questions with choices for an assessment.
      */
-    private function createSampleQuestions(Assessment $assessment, string $type): void
+    private function createSampleQuestions(Assessment $assessment, AssessmentType $type): void
     {
-        $questionsCount = $type === 'examen' ? 5 : 3;
+        $questionsCount = $type === AssessmentType::Exam ? 5 : 3;
 
         for ($i = 1; $i <= $questionsCount; $i++) {
             $question = $assessment->questions()->create([
                 'content' => "Question {$i} for {$assessment->title}",
                 'type' => $i === 1 ? 'text' : ($i === 2 ? 'one_choice' : 'multiple'),
-                'points' => $type === 'examen' ? 4 : 2,
+                'points' => $type === AssessmentType::Exam ? 4 : 2,
                 'order_index' => $i,
             ]);
 
-            if ($question->type === 'one_choice') {
+            if ($question->type === QuestionType::OneChoice) {
                 $question->choices()->createMany([
                     ['content' => 'Option A', 'is_correct' => true, 'order_index' => 1],
                     ['content' => 'Option B', 'is_correct' => false, 'order_index' => 2],
                     ['content' => 'Option C', 'is_correct' => false, 'order_index' => 3],
                 ]);
-            } elseif ($question->type === 'multiple') {
+            } elseif ($question->type === QuestionType::Multiple) {
                 $question->choices()->createMany([
                     ['content' => 'Option A', 'is_correct' => true, 'order_index' => 1],
                     ['content' => 'Option B', 'is_correct' => true, 'order_index' => 2],

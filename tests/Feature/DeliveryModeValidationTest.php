@@ -39,7 +39,7 @@ class DeliveryModeValidationTest extends TestCase
     {
         return array_merge([
             'title' => 'Supervised Exam',
-            'type' => 'examen',
+            'type' => 'exam',
             'delivery_mode' => 'supervised',
             'duration' => 60,
             'scheduled_date' => '2026-03-15T14:00',
@@ -52,7 +52,7 @@ class DeliveryModeValidationTest extends TestCase
     {
         return array_merge([
             'title' => 'Homework Assignment',
-            'type' => 'devoir',
+            'type' => 'homework',
             'delivery_mode' => 'homework',
             'due_date' => '2026-03-20T23:59',
             'coefficient' => 1.0,
@@ -105,7 +105,7 @@ class DeliveryModeValidationTest extends TestCase
             route('teacher.assessments.store'),
             [
                 'title' => 'Project Assignment',
-                'type' => 'projet',
+                'type' => 'project',
                 'due_date' => '2026-04-01T23:59',
                 'coefficient' => 1.0,
                 'class_subject_id' => $this->classSubject->id,
@@ -277,7 +277,7 @@ class DeliveryModeValidationTest extends TestCase
 
         $data = $this->validSupervisedData();
         unset($data['delivery_mode']);
-        $data['type'] = 'examen';
+        $data['type'] = 'exam';
 
         $this->actingAs($teacher)->post(
             route('teacher.assessments.store'),

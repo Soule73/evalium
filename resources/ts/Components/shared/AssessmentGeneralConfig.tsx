@@ -61,11 +61,11 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
   const isSupervised = data.delivery_mode === 'supervised';
 
   const assessmentTypeOptions = [
-    { value: 'devoir', label: t('components.assessment_general_config.type_devoir') },
-    { value: 'examen', label: t('components.assessment_general_config.type_examen') },
-    { value: 'tp', label: t('components.assessment_general_config.type_tp') },
-    { value: 'controle', label: t('components.assessment_general_config.type_controle') },
-    { value: 'projet', label: t('components.assessment_general_config.type_projet') }
+    { value: 'homework', label: t('components.assessment_general_config.type_homework') },
+    { value: 'exam', label: t('components.assessment_general_config.type_exam') },
+    { value: 'practical', label: t('components.assessment_general_config.type_practical') },
+    { value: 'quiz', label: t('components.assessment_general_config.type_quiz') },
+    { value: 'project', label: t('components.assessment_general_config.type_project') }
   ];
 
   const deliveryModeOptions = [

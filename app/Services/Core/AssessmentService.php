@@ -2,6 +2,7 @@
 
 namespace App\Services\Core;
 
+use App\Enums\AssessmentType;
 use App\Enums\DeliveryMode;
 use App\Exceptions\AssessmentException;
 use App\Exceptions\ValidationException;
@@ -38,7 +39,7 @@ class AssessmentService
                 'title' => $data['title'],
                 'description' => $data['description'] ?? null,
                 'type' => $data['type'],
-                'delivery_mode' => $data['delivery_mode'] ?? DeliveryMode::defaultForType($data['type'])->value,
+                'delivery_mode' => $data['delivery_mode'] ?? DeliveryMode::defaultForType($data['type']),
                 'coefficient' => $data['coefficient'],
                 'duration_minutes' => $data['duration_minutes'] ?? null,
                 'scheduled_at' => $data['scheduled_at'] ?? null,
@@ -196,7 +197,7 @@ class AssessmentService
     {
         return DB::transaction(function () use ($assessment, $overrides) {
             $newAssessment = $assessment->replicate();
-            $newAssessment->title = $overrides['title'] ?? ($assessment->title.' (Copy)');
+            $newAssessment->title = $overrides['title'] ?? ($assessment->title . ' (Copy)');
             $newAssessment->is_published = false;
             $newAssessment->scheduled_at = $overrides['scheduled_at'] ?? null;
             $newAssessment->save();
@@ -222,7 +223,7 @@ class AssessmentService
             }
         }
 
-        $deliveryMode = $data['delivery_mode'] ?? DeliveryMode::defaultForType($data['type'])->value;
+        $deliveryMode = $data['delivery_mode'] ?? DeliveryMode::defaultForType($data['type']);
 
         if ($deliveryMode === DeliveryMode::Supervised->value || $deliveryMode === DeliveryMode::Supervised) {
             if (! isset($data['duration_minutes']) || $data['duration_minutes'] <= 0) {
@@ -234,7 +235,7 @@ class AssessmentService
             throw AssessmentException::invalidCoefficient();
         }
 
-        $validTypes = ['devoir', 'examen', 'tp', 'controle', 'projet'];
+        $validTypes = AssessmentType::values();
         if (! in_array($data['type'], $validTypes)) {
             throw AssessmentException::invalidType($data['type']);
         }

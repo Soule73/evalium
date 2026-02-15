@@ -55,11 +55,11 @@ return [
         'no_assessments' => 'Aucune évaluation',
         'no_assessments_description' => 'Créez votre première évaluation pour cette classe.',
 
-        'type_devoir' => 'Devoir',
-        'type_examen' => 'Examen',
-        'type_tp' => 'Travaux Pratiques',
-        'type_controle' => 'Contrôle',
-        'type_projet' => 'Projet',
+        'type_homework' => 'Devoir',
+        'type_exam' => 'Examen',
+        'type_practical' => 'Travaux Pratiques',
+        'type_quiz' => 'Contrôle',
+        'type_project' => 'Projet',
 
         'search_subjects' => 'Rechercher des matières...',
         'search_assessments' => 'Rechercher des évaluations...',

@@ -130,6 +130,11 @@ return [
     // Validation - Form labels
     'assessment_title' => 'titre de l\'évaluation',
     'assessment_type' => 'type d\'évaluation',
+    'assessment_type_homework' => 'Devoir',
+    'assessment_type_exam' => 'Examen',
+    'assessment_type_practical' => 'Travaux Pratiques',
+    'assessment_type_quiz' => 'Contrôle',
+    'assessment_type_project' => 'Projet',
     'delivery_mode' => 'mode de passation',
     'scheduled_date' => 'date planifiée',
     'duration' => 'durée',

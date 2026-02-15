@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Traits;
 
+use App\Enums\AssessmentType;
 use App\Enums\DeliveryMode;
 use App\Strategies\Validation\QuestionValidationContext;
 use Illuminate\Validation\Rule;
@@ -67,7 +68,7 @@ trait AssessmentValidationRules
         $rules = [
             'title' => [$requiredOrSometimes, 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'type' => [$requiredOrSometimes, 'in:devoir,examen,tp,controle,projet'],
+            'type' => [$requiredOrSometimes, Rule::in(AssessmentType::values())],
             'delivery_mode' => [$requiredOrSometimes, Rule::in(DeliveryMode::values())],
             'scheduled_at' => [$isSupervised ? $requiredOrSometimes : 'nullable', 'date'],
             'duration_minutes' => [$isSupervised ? $requiredOrSometimes : 'nullable', 'integer', 'min:1'],

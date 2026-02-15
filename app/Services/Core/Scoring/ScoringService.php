@@ -81,7 +81,7 @@ class ScoringService
      */
     public function isAnswerCorrect(Question $question, Collection $answers): bool
     {
-        $strategy = $this->getStrategyForQuestionType($question->type);
+        $strategy = $this->getStrategyForQuestionType(QuestionType::from($question->type));
 
         if (! $strategy) {
             return false;
@@ -128,7 +128,7 @@ class ScoringService
                 continue;
             }
 
-            $strategy = $this->getStrategyForQuestionType($question->type);
+            $strategy = $this->getStrategyForQuestionType(QuestionType::from($question->type));
 
             if (! $strategy) {
                 continue;

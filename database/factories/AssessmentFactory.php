@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\AssessmentType;
 use App\Enums\DeliveryMode;
 use App\Models\ClassSubject;
 use App\Models\User;
@@ -19,8 +20,7 @@ class AssessmentFactory extends Factory
      */
     public function definition(): array
     {
-        $types = ['devoir', 'examen', 'tp', 'controle', 'projet'];
-        $type = $this->faker->randomElement($types);
+        $type = $this->faker->randomElement(AssessmentType::cases());
 
         return [
             'class_subject_id' => ClassSubject::factory(),
@@ -38,8 +38,8 @@ class AssessmentFactory extends Factory
 
     public function devoir(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'type' => 'devoir',
+        return $this->state(fn(array $attributes) => [
+            'type' => AssessmentType::Homework,
             'delivery_mode' => DeliveryMode::Homework,
             'coefficient' => 1,
         ]);
@@ -47,8 +47,8 @@ class AssessmentFactory extends Factory
 
     public function examen(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'type' => 'examen',
+        return $this->state(fn(array $attributes) => [
+            'type' => AssessmentType::Exam,
             'delivery_mode' => DeliveryMode::Supervised,
             'coefficient' => 2,
             'duration_minutes' => 120,
@@ -57,8 +57,8 @@ class AssessmentFactory extends Factory
 
     public function tp(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'type' => 'tp',
+        return $this->state(fn(array $attributes) => [
+            'type' => AssessmentType::Practical,
             'delivery_mode' => DeliveryMode::Homework,
             'coefficient' => 1.5,
         ]);
@@ -66,7 +66,7 @@ class AssessmentFactory extends Factory
 
     public function supervised(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'delivery_mode' => DeliveryMode::Supervised,
             'duration_minutes' => $attributes['duration_minutes'] ?? 60,
         ]);
@@ -74,7 +74,7 @@ class AssessmentFactory extends Factory
 
     public function homework(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'delivery_mode' => DeliveryMode::Homework,
             'due_date' => $this->faker->dateTimeBetween('+1 day', '+2 weeks'),
         ]);
@@ -82,7 +82,7 @@ class AssessmentFactory extends Factory
 
     public function withFileUploads(int $maxFiles = 3, int $maxSizeKb = 5120): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'max_files' => $maxFiles,
             'max_file_size' => $maxSizeKb,
             'allowed_extensions' => 'pdf,docx,zip',
@@ -91,7 +91,7 @@ class AssessmentFactory extends Factory
 
     public function published(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'settings' => array_merge($attributes['settings'] ?? [], ['is_published' => true]),
         ]);
     }

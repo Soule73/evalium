@@ -35,7 +35,7 @@ export const useCreateAssessment = () => {
     scheduled_date: '',
     due_date: '',
     delivery_mode: 'homework',
-    type: 'devoir',
+    type: 'homework',
     class_subject_id: 0,
     is_published: false,
     shuffle_questions: false,

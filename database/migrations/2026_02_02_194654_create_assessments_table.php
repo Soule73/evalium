@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('teacher_id')->constrained('users')->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('type', ['devoir', 'examen', 'tp', 'controle', 'projet']);
+            $table->enum('type', ['homework', 'exam', 'practical', 'quiz', 'project']);
             $table->enum('delivery_mode', ['supervised', 'homework'])->default('supervised');
             $table->decimal('coefficient', 5, 2);
             $table->integer('duration_minutes')->nullable();

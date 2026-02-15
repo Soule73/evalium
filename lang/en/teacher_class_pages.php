@@ -55,11 +55,11 @@ return [
         'no_assessments' => 'No assessments yet',
         'no_assessments_description' => 'Create your first assessment for this class.',
 
-        'type_devoir' => 'Homework',
-        'type_examen' => 'Exam',
-        'type_tp' => 'Lab Work',
-        'type_controle' => 'Test',
-        'type_projet' => 'Project',
+        'type_homework' => 'Homework',
+        'type_exam' => 'Exam',
+        'type_practical' => 'Lab Work',
+        'type_quiz' => 'Test',
+        'type_project' => 'Project',
 
         'search_subjects' => 'Search subjects...',
         'search_assessments' => 'Search assessments...',
