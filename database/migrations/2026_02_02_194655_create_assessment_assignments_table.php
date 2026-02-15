@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('assessment_assignments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('assessment_id')->constrained('assessments')->cascadeOnDelete();
-            $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('enrollment_id')->constrained('enrollments')->cascadeOnDelete();
             $table->timestamp('started_at')->nullable();
             $table->timestamp('submitted_at')->nullable();
             $table->timestamp('graded_at')->nullable();
@@ -25,8 +25,8 @@ return new class extends Migration
             $table->string('security_violation')->nullable();
             $table->timestamps();
 
-            $table->unique(['assessment_id', 'student_id']);
-            $table->index(['student_id', 'submitted_at']);
+            $table->unique(['assessment_id', 'enrollment_id']);
+            $table->index(['enrollment_id', 'submitted_at']);
             $table->index(['assessment_id', 'score']);
         });
 
