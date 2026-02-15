@@ -55,7 +55,7 @@ class AttachmentService
     public function hasReachedFileLimit(AssessmentAssignment $assignment, Assessment $assessment): bool
     {
         if (! $assessment->max_files || $assessment->max_files <= 0) {
-            return true;
+            return false;
         }
 
         return $assignment->attachments()->count() >= $assessment->max_files;

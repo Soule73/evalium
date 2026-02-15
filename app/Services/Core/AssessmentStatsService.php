@@ -27,7 +27,7 @@ class AssessmentStatsService
     {
         return $this->cacheService->remember(
             $this->cacheService->studentProgressKey($student->id),
-            fn() => $this->computeStudentProgress($student),
+            fn () => $this->computeStudentProgress($student),
             self::CACHE_TTL
         );
     }
@@ -64,7 +64,7 @@ class AssessmentStatsService
     {
         return $this->cacheService->remember(
             $this->cacheService->assessmentStatsKey($assessmentId),
-            fn() => $this->computeAssessmentStats($assessmentId),
+            fn () => $this->computeAssessmentStats($assessmentId),
             self::CACHE_TTL
         );
     }
@@ -112,7 +112,7 @@ class AssessmentStatsService
     public function calculateClassStats(int $classId): array
     {
         $assignments = AssessmentAssignment::whereHas('student.classes', function ($query) use ($classId) {
-            $query->where('class_models.id', $classId);
+            $query->where('classes.id', $classId);
         })->with('assessment')->get();
 
         $totalAssessments = $assignments->count();

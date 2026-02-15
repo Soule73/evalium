@@ -7,7 +7,6 @@ use App\Models\AssessmentAssignment;
 use App\Models\Enrollment;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 
 class GradingQueryService
 {
@@ -31,70 +30,78 @@ class GradingQueryService
     ): LengthAwarePaginator {
         $classId = $assessment->classSubject->class_id;
 
-        $enrollments = Enrollment::where('class_id', $classId)
-            ->where('status', 'active')
-            ->with('student')
-            ->get()
-            ->keyBy('student_id');
-
-        $existingAssignments = AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->with('enrollment.student')
-            ->get()
-            ->keyBy(fn(AssessmentAssignment $a) => $a->enrollment?->student_id);
-
-        $allStudentData = $enrollments->map(function ($enrollment) use ($assessment, $existingAssignments) {
-            $assignment = $existingAssignments->get($enrollment->student_id);
-
-            if ($assignment) {
-                return $assignment;
-            }
-
-            return (object) [
-                'id' => null,
-                'assessment_id' => $assessment->id,
-                'enrollment_id' => $enrollment->id,
-                'student' => $enrollment->student,
-                'submitted_at' => null,
-                'score' => null,
-                'is_virtual' => true,
-            ];
-        })->filter(fn($item) => $item->student !== null);
+        $query = Enrollment::query()
+            ->where('enrollments.class_id', $classId)
+            ->where('enrollments.status', 'active')
+            ->join('users', 'users.id', '=', 'enrollments.student_id')
+            ->leftJoin('assessment_assignments', function ($join) use ($assessment) {
+                $join->on('assessment_assignments.enrollment_id', '=', 'enrollments.id')
+                    ->where('assessment_assignments.assessment_id', '=', $assessment->id);
+            })
+            ->select([
+                'assessment_assignments.id as assignment_id',
+                'assessment_assignments.assessment_id',
+                'assessment_assignments.submitted_at',
+                'assessment_assignments.score',
+                'enrollments.id as enrollment_id',
+                'enrollments.student_id',
+                'users.name as student_name',
+                'users.email as student_email',
+            ]);
 
         if ($search = $filters['search'] ?? null) {
-            $search = strtolower($search);
-            $allStudentData = $allStudentData->filter(function ($item) use ($search) {
-                $student = $item->student ?? $item;
-                $name = is_object($student) ? ($student->name ?? '') : '';
-                $email = is_object($student) ? ($student->email ?? '') : '';
-
-                return str_contains(strtolower($name), $search) ||
-                    str_contains(strtolower($email), $search);
+            $like = '%'.strtolower($search).'%';
+            $query->where(function ($q) use ($like) {
+                $q->whereRaw('LOWER(users.name) LIKE ?', [$like])
+                    ->orWhereRaw('LOWER(users.email) LIKE ?', [$like]);
             });
         }
 
-        $allStudentData = $allStudentData->sortBy(function ($item) {
-            if ($item->submitted_at && $item->score === null) {
-                return 0;
-            }
-            if ($item->submitted_at && $item->score !== null) {
-                return 1;
-            }
-
-            return 2;
-        })->values();
-
-        $page = request()->input('page', 1);
-        $offset = ($page - 1) * $perPage;
-        $total = $allStudentData->count();
-        $items = $allStudentData->slice($offset, $perPage)->values();
-
-        return new Paginator(
-            $items,
-            $total,
-            $perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()]
+        $query->orderByRaw(
+            'CASE
+                WHEN assessment_assignments.submitted_at IS NOT NULL
+                     AND assessment_assignments.score IS NULL THEN 0
+                WHEN assessment_assignments.submitted_at IS NOT NULL
+                     AND assessment_assignments.score IS NOT NULL THEN 1
+                ELSE 2
+            END'
         );
+
+        $paginator = $query->paginate($perPage);
+
+        $paginator->setCollection(
+            $paginator->getCollection()->map(function ($row) use ($assessment) {
+                $student = new User;
+                $student->id = $row->student_id;
+                $student->name = $row->student_name;
+                $student->email = $row->student_email;
+
+                if ($row->assignment_id !== null) {
+                    $assignment = new AssessmentAssignment;
+                    $assignment->id = $row->assignment_id;
+                    $assignment->assessment_id = $row->assessment_id ?? $assessment->id;
+                    $assignment->enrollment_id = $row->enrollment_id;
+                    $assignment->submitted_at = $row->submitted_at;
+                    $assignment->score = $row->score;
+                    $assignment->setRelation('student', $student);
+                    $assignment->is_virtual = false;
+
+                    return $assignment;
+                }
+
+                return (object) [
+                    'id' => null,
+                    'assessment_id' => $assessment->id,
+                    'enrollment_id' => $row->enrollment_id,
+                    'student' => $student,
+                    'submitted_at' => null,
+                    'score' => null,
+                    'is_virtual' => true,
+                ];
+            })
+        );
+
+        return $paginator;
     }
 
     /**

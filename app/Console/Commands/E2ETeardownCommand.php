@@ -27,6 +27,12 @@ class E2ETeardownCommand extends Command
         $dbPath = config('database.connections.e2e_testing.database');
 
         try {
+            if (! is_string($dbPath) || $dbPath === '') {
+                $this->error('[ArtisanE2ETeardown] Invalid E2E database path in configuration.');
+
+                return self::FAILURE;
+            }
+
             if (file_exists($dbPath)) {
                 $this->info("Removing SQLite database: {$dbPath}");
 

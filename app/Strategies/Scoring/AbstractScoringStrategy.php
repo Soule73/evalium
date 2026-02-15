@@ -58,7 +58,9 @@ abstract class AbstractScoringStrategy implements ScoringStrategyInterface
      */
     protected function getSelectedChoiceIds(Collection $answers): array
     {
-        return $answers->pluck('choice_id')->filter()->toArray();
+        return $answers->pluck('choice_id')
+            ->filter(static fn ($choiceId) => $choiceId !== null)
+            ->toArray();
     }
 
     /**

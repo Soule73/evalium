@@ -78,7 +78,7 @@ refactor(migrations): Consolidate ALTER migrations into parent files
 - Business logic goes in `app/Services/` (organized by Admin, Core, Student, Teacher)
 - Validation in Form Request classes, using Strategy pattern when applicable
 - Authorization via Policies (Spatie Permission)
-- No `DB::` facade -- use `Model::query()` and Eloquent relationships
+- Avoid `DB::` facade for queries -- use `Model::query()` and Eloquent relationships; `DB::transaction(...)` is allowed in service layers
 - No `env()` outside config files
 
 **Frontend:**
