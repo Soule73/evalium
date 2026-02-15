@@ -4,9 +4,9 @@ import { type User, type PageProps } from '@/types';
 import { hasPermission, navRoutes } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { type NavIconType, NavIcon } from './NavIcon';
+import { Logo } from './Logo';
 import { RoleBadge } from './RoleBadge';
 import { UserAvatar } from './UserAvatar';
-import { LogoEvalium } from '../shared/LogoEvalium';
 import { route } from 'ziggy-js';
 
 interface NavItem {
@@ -188,16 +188,12 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
             >
                 <div className="flex flex-col h-full">
                     <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-                        {isCollapsed ? (
-                            <Link href={navRoutes.dashboard()} className="flex items-center justify-center w-full">
-                                <LogoEvalium width={32} height={32} />
-                            </Link>
-                        ) : (
-                            <Link href={navRoutes.dashboard()} className="flex items-center">
-                                <LogoEvalium />
-                                <span className="ml-2 text-xl font-bold text-indigo-600">{t('sidebar.app_name')}</span>
-                            </Link>
-                        )}
+                        <Link
+                            href={navRoutes.dashboard()}
+                            className={isCollapsed ? 'flex items-center justify-center w-full' : 'flex items-center'}
+                        >
+                            <Logo showName={!isCollapsed} width={isCollapsed ? 32 : 48} height={isCollapsed ? 32 : 48} />
+                        </Link>
 
                         <button
                             onClick={toggleCollapse}
