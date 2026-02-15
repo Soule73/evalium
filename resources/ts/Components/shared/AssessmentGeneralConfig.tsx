@@ -25,6 +25,7 @@ interface AssessmentGeneralConfigProps {
     is_published: boolean;
     shuffle_questions: boolean;
     show_results_immediately: boolean;
+    show_correct_answers: boolean;
     allow_late_submission: boolean;
     one_question_per_page: boolean;
     max_files?: number | null;
@@ -259,6 +260,11 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
             label={t('components.assessment_general_config.show_results_immediately_label')}
             checked={data.show_results_immediately}
             onChange={(e) => onFieldChange('show_results_immediately', e.target.checked)}
+          />
+          <Checkbox
+            label={t('components.assessment_general_config.show_correct_answers_label')}
+            checked={data.show_correct_answers}
+            onChange={(e) => onFieldChange('show_correct_answers', e.target.checked)}
           />
           <Checkbox
             label={t('components.assessment_general_config.allow_late_submission_label')}

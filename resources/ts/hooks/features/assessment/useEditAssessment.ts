@@ -17,6 +17,7 @@ interface AssessmentEditData {
   is_published: boolean;
   shuffle_questions: boolean;
   show_results_immediately: boolean;
+  show_correct_answers: boolean;
   allow_late_submission: boolean;
   one_question_per_page: boolean;
   questions: QuestionFormData[];
@@ -61,6 +62,7 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
     is_published: assessment.is_published ?? false,
     shuffle_questions: assessment.shuffle_questions ?? false,
     show_results_immediately: assessment.show_results_immediately ?? true,
+    show_correct_answers: assessment.show_correct_answers ?? false,
     allow_late_submission: assessment.allow_late_submission ?? false,
     one_question_per_page: assessment.one_question_per_page ?? false,
     questions: [],

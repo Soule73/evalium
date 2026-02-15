@@ -52,6 +52,7 @@ class AssessmentService
             $assessment->is_published = $data['is_published'] ?? false;
             $assessment->shuffle_questions = $data['shuffle_questions'] ?? false;
             $assessment->show_results_immediately = $data['show_results_immediately'] ?? true;
+            $assessment->show_correct_answers = $data['show_correct_answers'] ?? false;
             $assessment->allow_late_submission = $data['allow_late_submission'] ?? false;
             $assessment->one_question_per_page = $data['one_question_per_page'] ?? false;
             $assessment->save();
@@ -108,6 +109,9 @@ class AssessmentService
             }
             if (array_key_exists('show_results_immediately', $data)) {
                 $assessment->show_results_immediately = $data['show_results_immediately'];
+            }
+            if (array_key_exists('show_correct_answers', $data)) {
+                $assessment->show_correct_answers = $data['show_correct_answers'];
             }
             if (array_key_exists('allow_late_submission', $data)) {
                 $assessment->allow_late_submission = $data['allow_late_submission'];
@@ -197,7 +201,7 @@ class AssessmentService
     {
         return DB::transaction(function () use ($assessment, $overrides) {
             $newAssessment = $assessment->replicate();
-            $newAssessment->title = $overrides['title'] ?? ($assessment->title . ' (Copy)');
+            $newAssessment->title = $overrides['title'] ?? ($assessment->title.' (Copy)');
             $newAssessment->is_published = false;
             $newAssessment->scheduled_at = $overrides['scheduled_at'] ?? null;
             $newAssessment->save();

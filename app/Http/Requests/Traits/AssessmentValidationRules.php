@@ -80,6 +80,7 @@ trait AssessmentValidationRules
             'is_published' => ['sometimes', 'boolean'],
             'shuffle_questions' => ['sometimes', 'boolean'],
             'show_results_immediately' => ['sometimes', 'boolean'],
+            'show_correct_answers' => ['sometimes', 'boolean'],
             'allow_late_submission' => ['sometimes', 'boolean'],
             'one_question_per_page' => ['sometimes', 'boolean'],
             'questions' => ['sometimes', 'array'],

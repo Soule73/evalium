@@ -358,6 +358,7 @@ return [
         'options_title' => 'Options',
         'shuffle_questions_label' => 'Mélanger les questions',
         'show_results_immediately_label' => 'Afficher les résultats immédiatement',
+        'show_correct_answers_label' => 'Révéler les bonnes réponses après la correction',
         'allow_late_submission_label' => 'Autoriser les soumissions tardives',
         'one_question_per_page_label' => 'Une question par page',
         'file_upload_title' => 'Paramètres d\'envoi de fichiers',

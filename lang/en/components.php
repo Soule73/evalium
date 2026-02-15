@@ -343,6 +343,7 @@ return [
         'options_title' => 'Options',
         'shuffle_questions_label' => 'Shuffle questions',
         'show_results_immediately_label' => 'Show results immediately',
+        'show_correct_answers_label' => 'Reveal correct answers after grading',
         'allow_late_submission_label' => 'Allow late submission',
         'one_question_per_page_label' => 'One question per page',
         'file_upload_title' => 'File Upload Settings',

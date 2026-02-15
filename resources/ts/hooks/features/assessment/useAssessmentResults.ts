@@ -1,5 +1,4 @@
 import { type Assessment, type AssessmentAssignment, type Question, type Answer, type Choice } from '@/types';
-import { canShowAssessmentResults } from '@/utils';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { useMemo } from 'react';
 
@@ -7,12 +6,14 @@ interface UseAssessmentResultParams {
   assessment: Assessment;
   assignment: AssessmentAssignment;
   userAnswers: Record<number, Answer>;
+  canShowCorrectAnswers: boolean;
 }
 
 /**
  * Custom React hook to compute and provide assessment result-related data and utilities.
+ * The canShowCorrectAnswers flag is determined server-side to prevent cheating.
  */
-const useAssessmentResults = ({ assessment, assignment, userAnswers }: UseAssessmentResultParams) => {
+const useAssessmentResults = ({ assessment, assignment, userAnswers, canShowCorrectAnswers }: UseAssessmentResultParams) => {
   const { formatAssessmentAssignmentStatus } = useFormatters();
   const questions = useMemo(() => assessment?.questions ?? [], [assessment?.questions]);
   const assessmentIsActive = assessment.is_published;
@@ -29,7 +30,7 @@ const useAssessmentResults = ({ assessment, assignment, userAnswers }: UseAssess
 
   const formattedAssignmentStatus = formatAssessmentAssignmentStatus(assignmentStatus);
 
-  const showCorrectAnswers = canShowAssessmentResults(assignmentStatus, showResultsImmediately);
+  const showCorrectAnswers = canShowCorrectAnswers;
 
   const getQuestionResult = useMemo(() => {
     return (question: Question) => {

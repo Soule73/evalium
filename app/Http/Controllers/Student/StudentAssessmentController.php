@@ -27,6 +27,30 @@ class StudentAssessmentController extends Controller
     ) {}
 
     /**
+     * Strip is_correct from all choices to prevent cheating via DevTools.
+     */
+    private function hideCorrectAnswers(Assessment $assessment): void
+    {
+        $assessment->questions?->each(function ($question) {
+            $question->choices?->each(function ($choice) {
+                $choice->makeHidden('is_correct');
+            });
+        });
+    }
+
+    /**
+     * Determine whether the student should see correct answers on the results page.
+     */
+    private function shouldRevealCorrectAnswers(Assessment $assessment, ?object $assignment): bool
+    {
+        if (! $assignment?->graded_at) {
+            return false;
+        }
+
+        return $assessment->show_correct_answers;
+    }
+
+    /**
      * Display a listing of student's assessments.
      */
     public function index(Request $request): Response
@@ -65,6 +89,8 @@ class StudentAssessmentController extends Controller
             'classSubject.teacher',
             'questions.choices',
         ]);
+
+        $this->hideCorrectAnswers($assessment);
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
@@ -158,6 +184,8 @@ class StudentAssessmentController extends Controller
             'userAnswers' => $assignment->answers,
             'remainingSeconds' => $remainingSeconds,
         ];
+
+        $this->hideCorrectAnswers($assessment);
 
         if ($assessment->isHomeworkMode()) {
             $props['attachments'] = $this->attachmentService->getAttachments($assignment);
@@ -255,6 +283,8 @@ class StudentAssessmentController extends Controller
     {
         $student = Auth::user();
 
+        $this->authorize('view', $assessment);
+
         $assessment->load([
             'classSubject.class',
             'classSubject.subject',
@@ -268,12 +298,40 @@ class StudentAssessmentController extends Controller
             return redirect()->route('student.assessments.show', $assessment);
         }
 
+        if (! $assessment->show_results_immediately && ! $assignment->graded_at) {
+            return redirect()->route('student.assessments.show', $assessment)
+                ->with('info', __('messages.results_not_available_yet'));
+        }
+
+        $canRevealAnswers = $this->shouldRevealCorrectAnswers($assessment, $assignment);
+
+        if (! $canRevealAnswers) {
+            $this->hideCorrectAnswers($assessment);
+        }
+
         $userAnswers = $this->assessmentService->formatUserAnswers($assignment->answers);
+
+        if (! $canRevealAnswers) {
+            foreach ($userAnswers as &$answer) {
+                if (isset($answer['choice'])) {
+                    unset($answer['choice']['is_correct']);
+                }
+                if (isset($answer['choices'])) {
+                    foreach ($answer['choices'] as &$answerChoice) {
+                        if (isset($answerChoice['choice'])) {
+                            unset($answerChoice['choice']['is_correct']);
+                        }
+                    }
+                }
+            }
+            unset($answer, $answerChoice);
+        }
 
         return Inertia::render('Student/Assessments/Results', [
             'assignment' => $assignment,
             'assessment' => $assessment,
             'userAnswers' => $userAnswers,
+            'canShowCorrectAnswers' => $canRevealAnswers,
         ]);
     }
 

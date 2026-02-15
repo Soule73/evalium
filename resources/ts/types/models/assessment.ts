@@ -23,6 +23,7 @@ export interface Assessment {
   is_published: boolean;
   shuffle_questions: boolean;
   show_results_immediately: boolean;
+  show_correct_answers: boolean;
   allow_late_submission: boolean;
   one_question_per_page: boolean;
   created_at: string;
@@ -55,6 +56,7 @@ export interface AssessmentFormData {
   is_published?: boolean;
   shuffle_questions?: boolean;
   show_results_immediately?: boolean;
+  show_correct_answers?: boolean;
   allow_late_submission?: boolean;
   one_question_per_page?: boolean;
   questions?: QuestionFormData[];

@@ -61,6 +61,7 @@ class Assessment extends Model
         'is_published',
         'shuffle_questions',
         'show_results_immediately',
+        'show_correct_answers',
         'allow_late_submission',
         'one_question_per_page',
     ];
@@ -176,6 +177,22 @@ class Assessment extends Model
     public function setShowResultsImmediatelyAttribute(bool $value): void
     {
         $this->setSettingValue('show_results_immediately', $value);
+    }
+
+    /**
+     * Get whether correct answers should be revealed to students.
+     */
+    public function getShowCorrectAnswersAttribute(): bool
+    {
+        return $this->getBooleanSetting('show_correct_answers', false);
+    }
+
+    /**
+     * Set whether correct answers should be revealed to students.
+     */
+    public function setShowCorrectAnswersAttribute(bool $value): void
+    {
+        $this->setSettingValue('show_correct_answers', $value);
     }
 
     /**

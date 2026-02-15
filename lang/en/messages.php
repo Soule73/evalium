@@ -126,6 +126,7 @@ return [
     // Grading
     'grade_saved' => 'Grade saved successfully',
     'assessment_already_submitted' => 'This assessment has already been submitted',
+    'results_not_available_yet' => 'Results are not available until the assessment has been graded',
 
     // Validation - Form labels
     'assessment_title' => 'assessment title',

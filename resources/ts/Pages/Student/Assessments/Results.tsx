@@ -14,14 +14,15 @@ interface Props {
   assessment: Assessment;
   assignment: AssessmentAssignment;
   userAnswers: Record<number, Answer>;
+  canShowCorrectAnswers: boolean;
 }
 
-const AssessmentResults: React.FC<Props> = ({ assessment, assignment, userAnswers }) => {
+const AssessmentResults: React.FC<Props> = ({ assessment, assignment, userAnswers, canShowCorrectAnswers = false }) => {
   const { t } = useTranslations();
   const breadcrumbs = useBreadcrumbs();
 
   const { isPendingReview, assignmentStatus, showCorrectAnswers, showResultsImmediately, assessmentIsActive, totalPoints, getQuestionResult } =
-    useAssessmentResults({ assessment, assignment, userAnswers });
+    useAssessmentResults({ assessment, assignment, userAnswers, canShowCorrectAnswers });
 
   const { finalScore, finalPercentage } = useAssessmentScoring({
     assessment,

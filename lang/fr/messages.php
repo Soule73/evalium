@@ -126,6 +126,7 @@ return [
     // Grading
     'grade_saved' => 'Note enregistrée avec succès',
     'assessment_already_submitted' => 'Cette évaluation a déjà été soumise',
+    'results_not_available_yet' => 'Les résultats ne sont pas disponibles avant la correction de l\'évaluation',
 
     // Validation - Form labels
     'assessment_title' => 'titre de l\'évaluation',
