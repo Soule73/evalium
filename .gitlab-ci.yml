@@ -16,7 +16,7 @@ cache:
     paths:
         - vendor/
         - node_modules/
-        - .npm/
+        - .yarn/cache/
 
 # Template pour PHP
 .php-base:
@@ -31,7 +31,7 @@ cache:
 .node-base:
     image: node:20-alpine
     before_script:
-        - npm ci --cache .npm --prefer-offline
+        - yarn install --frozen-lockfile
 
 # Build stage
 build:composer:
@@ -49,8 +49,8 @@ build:npm:
     extends: .node-base
     stage: build
     script:
-        - npm ci
-        - npm run build
+        - yarn install --frozen-lockfile
+        - yarn build
     artifacts:
         paths:
             - node_modules/
@@ -65,6 +65,7 @@ test:laravel:
         - mysql:8.0
     dependencies:
         - build:composer
+        - build:npm
     script:
         - cp .env.example .env
         - php artisan key:generate
@@ -82,14 +83,14 @@ test:laravel:
         expire_in: 1 week
         when: always
 
-# Tests Jest (Frontend unit)
-test:jest:
+# Tests Vitest (Frontend unit)
+test:vitest:
     extends: .node-base
     stage: test
     dependencies:
         - build:npm
     script:
-        - npm run test:unit -- --coverage --ci
+        - yarn test:unit --coverage
     coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
         reports:
@@ -136,7 +137,7 @@ test:summary:
         - echo "📊 Test Summary"
         - echo "=========================================="
         - echo "Laravel Tests - Check artifacts"
-        - echo "Jest Tests - Check artifacts"
+        - echo "Vitest Tests - Check artifacts"
         - echo "=========================================="
     when: always
 
@@ -145,7 +146,7 @@ pages:
     stage: deploy
     dependencies:
         - test:laravel
-        - test:jest
+        - test:vitest
     script:
         - mkdir -p public/coverage
         - cp -r coverage/* public/coverage/ || true
