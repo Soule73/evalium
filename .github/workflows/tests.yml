@@ -45,7 +45,9 @@ jobs:
                   cache: 'yarn'
 
             - name: Copy .env
-              run: cp .env.example .env
+              run: |
+                  cp .env.example .env
+                  cp .env.testing.example .env.testing
 
             - name: Install Composer dependencies
               run: composer install --prefer-dist --no-interaction --no-progress --optimize-autoloader
@@ -57,7 +59,9 @@ jobs:
               run: yarn build
 
             - name: Generate application key
-              run: php artisan key:generate
+              run: |
+                  php artisan key:generate
+                  php artisan key:generate --env=testing
 
             - name: Run migrations
               run: php artisan migrate --force

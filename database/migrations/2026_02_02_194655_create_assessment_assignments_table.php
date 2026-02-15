@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -29,10 +28,6 @@ return new class extends Migration
             $table->index(['enrollment_id', 'submitted_at']);
             $table->index(['assessment_id', 'score']);
         });
-
-        if (DB::getDriverName() !== 'sqlite') {
-            DB::statement('ALTER TABLE assessment_assignments ADD CONSTRAINT check_score CHECK (score IS NULL OR (score >= 0 AND score <= 20))');
-        }
     }
 
     /**

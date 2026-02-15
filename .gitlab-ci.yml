@@ -68,7 +68,9 @@ test:laravel:
         - build:npm
     script:
         - cp .env.example .env
+        - cp .env.testing.example .env.testing
         - php artisan key:generate
+        - php artisan key:generate --env=testing
         - php artisan migrate --force
         - php artisan test --coverage --min=70
     coverage: '/^\s*Lines:\s*\d+\.\d+\%/'
