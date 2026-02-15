@@ -1,343 +1,175 @@
-# 📚 Evalium - Plateforme de Gestion d'Examens en Ligne
+# Evalium
 
-[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)]()
-[![Coverage](https://img.shields.io/badge/coverage-70%25-green.svg)]()
+[![Tests](https://github.com/Soule73/evalium/actions/workflows/tests.yml/badge.svg)](https://github.com/Soule73/evalium/actions/workflows/tests.yml)
 [![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?logo=laravel)](https://laravel.com)
-[![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react)](https://react.dev)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Une application web pour la gestion d'examens en ligne, développée avec **Laravel 12**, **React 18**, **TypeScript** et **Inertia.js**.
+> **Where every grade tells a story.**
+
+Evalium is an online assessment management platform built with **Laravel 12**, **React 19**, **TypeScript** and **Inertia.js 2**. It provides a complete workflow for creating, delivering, taking, and grading assessments within an academic context.
 
 ---
 
-## Fonctionnalités
+## Features
 
-### Administrateurs
-- Gestion des utilisateurs et groupes
-- Attribution bulk des étudiants
-- Système de permissions (Spatie)
-- Statistiques en temps réel
-- DataTables avancés
+### Multi-Role System
+- **Admin** -- Manage users, classes, subjects, academic years, enrollments, roles & permissions
+- **Teacher** -- Create assessments (supervised / homework), assign to classes, grade student submissions
+- **Student** -- Take assessments with live timer, auto-save answers, view results & grade history
 
-### Enseignants
-- Création d'examens avec timer
-- Questions à choix multiples
-- Assignation par groupes ou individuelle
-- Confirmation avant assignation
-- Visualisation des résultats
-- Correction automatique
+### Assessment Engine
+- Multiple question types: single choice, multiple choice, free text
+- Two delivery modes: **supervised** (timed, anti-cheat) and **homework** (deadline-based, file upload)
+- Automatic scoring for choice-based questions, manual grading for text questions
+- Assessment duplication, per-question scoring with feedback, grade calculation
 
-### Étudiants
-- Accès aux examens via groupes
-- Interface intuitive avec timer
-- Sauvegarde automatique
-- Consultation des résultats
-- Historique complet
+### Academic Structure
+- Academic years with semesters
+- Classes scoped by academic year and level
+- Subject-class-teacher assignments (pivot)
+- Student enrollment per class with grade tracking
 
-### Interface
-- Design responsive mobile-first
-- Dark mode
-- Animations Tailwind CSS
-- Sélection bulk
-- Modales personnalisées
-- Notifications temps réel
+### Security (Supervised Mode)
+- Fullscreen enforcement
+- Tab-switch detection
+- DevTools detection
+- Forced submission on violation
+- Configurable via `config/assessment.php`
 
----
-
-## Stack Technique
-
-### Backend
-- Laravel 12.x | PHP 8.4+
-- MySQL 8.0
-- Spatie Permission
-- Architecture Services
-
-### Frontend
-- React 18.x | TypeScript 5.x
-- Inertia.js 2.x
-- Tailwind CSS 3.x
-- Vite 5.x
-
-### Testing
-- PHPUnit 11.x
-- Jest + React Testing Library
-- Playwright
-- Coverage: 70%+
-
-### DevOps
-- GitHub Actions / GitLab CI
-- Laravel Pint / PHPStan
-- Docker Sail (optionnel)
+### Frontend Architecture
+- 13 shared list components following a **variant pattern** (BaseEntityList + domain-specific lists)
+- Reusable DataTable with server-side pagination, search, filters
+- Breadcrumb system, role-aware sidebar navigation
+- Bilingual interface (English / French) via `laravel-react-i18n`
 
 ---
 
-## Prérequis
+## Tech Stack
 
-- PHP >= 8.4
-- Composer >= 2.x
-- Node.js >= 20.x
+| Layer     | Technology                                            |
+|-----------|-------------------------------------------------------|
+| Backend   | Laravel 12, PHP 8.4+, MySQL 8                        |
+| Frontend  | React 19, TypeScript 5, Inertia.js 2, Tailwind CSS 4 |
+| Auth      | Spatie Permission (hybrid role + permission strategy)  |
+| Testing   | PHPUnit 11, Vitest, Playwright                        |
+| CI/CD     | GitHub Actions                                        |
+| Quality   | Laravel Pint, ESLint, Commitlint                      |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- PHP >= 8.4, Composer >= 2
+- Node.js >= 20, Yarn
 - MySQL >= 8.0
-- Git
 
----
+### Installation
 
-## Installation
-
-### Cloner le repository
 ```bash
 git clone https://github.com/Soule73/evalium.git
 cd evalium
-```
 
-### Installer les dépendances
-```bash
 composer install
-npm install
-```
+yarn install
 
-### Configuration
-```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-### Base de données
+Create the database, then:
+
 ```bash
-# Créer la base de données
-mysql -u root -p -e "CREATE DATABASE evalium CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-
-# Exécuter les migrations
-php artisan migrate
-
-# Données de test (optionnel)
-php artisan db:seed
+php artisan migrate --seed
 ```
 
-### Lancer l'application
-```bash
-# Terminal 1 - Backend
-php artisan serve
+### Running
 
-# Terminal 2 - Frontend (dev)
-npm run dev
+```bash
+# All-in-one (server + vite + queue)
+composer run dev
+
+# Or manually:
+php artisan serve       # Backend on :8000
+yarn dev                # Vite dev server
+php artisan queue:listen --tries=1
 ```
 
-**Accès** : http://localhost:8000
+### Test Accounts
+
+After seeding:
+
+| Role    | Email                    | Password |
+|---------|--------------------------|----------|
+| Admin   | admin@examena.com        | password |
+| Teacher | teacher1@examena.com     | password |
+| Student | student1@examena.com     | password |
 
 ---
 
-## Comptes de test
+## Testing
 
-Après avoir exécuté `php artisan db:seed`:
-
-| Rôle | Email | Mot de passe |
-|------|-------|--------------|
-| Administrateur | admin@example.com | password123 |
-| Enseignant | teacher@example.com | password123 |
-| Étudiant | student@example.com | password123 |
-
----
-
-## Tests
-
-### Backend (PHPUnit)
 ```bash
-# Tous les tests
-php artisan test                    
-# Avec coverage
-php artisan test --coverage         
-```
+# Backend
+php artisan test                     # All tests
+php artisan test --filter=ClassName  # Specific test
 
-### Frontend (Jest)
-```bash
-# Tests unitaires
-npm run test:unit                   
-# Mode watch
-npm run test:unit:watch             
-```
+# Frontend
+yarn test:unit                       # Vitest
+yarn test:unit:coverage              # With coverage
 
-### E2E (Playwright)
-```bash
-# Tests E2E
-npm run test:e2e                    
-# Mode UI
-npm run test:e2e:ui                 
-# Voir rapport
-npm run test:e2e:report             
+# E2E
+yarn test:e2e                        # Playwright headless
+yarn test:e2e:ui                     # Playwright UI mode
 ```
 
 ---
 
-## Structure du projet
+## Project Structure
 
 ```
-evalium/
-├── app/
-│   ├── Console/           # Commandes Artisan
-│   ├── Helpers/           # Helper functions
-│   ├── Http/
-│   │   ├── Controllers/   # Admin, Exam, Student
-│   │   ├── Middleware/    # Custom middleware
-│   │   └── Requests/      # Form requests
-│   ├── Models/            # Eloquent models
-│   ├── Policies/          # Authorization policies
-│   └── Services/          # Business logic
-│       ├── Admin/
-│       ├── Exam/
-│       └── Student/
-├── database/
-│   ├── factories/         # Model factories
-│   ├── migrations/        # Database migrations
-│   └── seeders/          # Database seeders
-├── resources/
-│   ├── css/              # Styles
-│   ├── ts/               # TypeScript/React
-│   │   ├── Components/   # React components
-│   │   ├── Layouts/      # Page layouts
-│   │   ├── Pages/        # Inertia pages
-│   │   └── types/        # TypeScript types
-│   └── views/            # Blade templates
-├── routes/
-│   ├── web.php           # Routes web
-│   └── console.php       # Artisan commands
-├── tests/
-│   ├── e2e/              # Playwright tests
-│   ├── Feature/          # Laravel feature tests
-│   ├── Unit/             # Laravel unit tests
-│   └── frontend/         # Jest tests
-├── .github/
-│   └── workflows/        # GitHub Actions
-├── .gitlab-ci.yml        # GitLab CI
-└── playwright.config.ts  # Playwright config
+app/
+  Http/Controllers/       Thin controllers (delegate to services)
+  Models/                 Eloquent models with relationships
+  Policies/               Authorization (Spatie Permission)
+  Services/
+    Admin/                User, class, enrollment, academic year management
+    Core/                 Assessment, scoring, grade calculation
+    Student/              Assessment sessions, assignment queries
+    Teacher/              Dashboard stats
+  Strategies/Validation/  Question & score validation (Strategy pattern)
+
+resources/ts/
+  Components/
+    features/             Domain-specific components (assessment, classes...)
+    layout/               Sidebar, navbar, breadcrumbs, logo
+    shared/lists/         13 shared list components (variant pattern)
+    ui/                   Design system (@evalium/ui)
+  Pages/                  Inertia page components (Admin, Teacher, Student)
+  hooks/                  Custom React hooks
+  types/                  TypeScript interfaces
+
+documentation/            Architecture diagrams, branding guide
 ```
-
----
-
-## Fonctionnalités clés
-
-### Système d'assignation d'examens
-- Assignation d'examens par groupes (Many-to-Many)
-- Assignation individuelle aux étudiants
-- Système de confirmation avant assignation
-- Création automatique d'ExamAssignment au démarrage de l'examen
-
-### DataTables avancés
-- Sélection bulk (multiple)
-- Pagination dynamique
-- Filtres et recherche en temps réel
-- Actions groupées personnalisables
-
-### Sécurité
-- Protection CSRF (Laravel)
-- Prévention XSS (React + escaping)
-- Prévention injection SQL (Eloquent ORM)
-- Hashage des mots de passe (bcrypt)
-- Rate Limiting (API throttle)
-- Policies d'autorisation (Spatie)
-- Validation des entrées (Form Requests)
-- Headers sécurisés (middleware)
 
 ---
 
 ## Documentation
 
-- [CHANGELOG.md](CHANGELOG.md) - Historique des versions et modifications
-- [CI_CD_DOCUMENTATION.md](CI_CD_DOCUMENTATION.md) - Guide CI/CD complet
----
-
-## Contribution
-
-Les contributions sont les bienvenues ! Voici comment contribuer :
-
-1. **Fork** le projet
-2. Créer une branche (`git checkout -b feature/AmazingFeature`)
-3. Commit les changements (`git commit -m 'Add AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une **Pull Request**
-
-### Guidelines
-
-- Suivre le style de code (Laravel Pint, ESLint)
-- Écrire des tests pour les nouvelles fonctionnalités
-- Maintenir la couverture >= 70%
-- Documenter les nouvelles fonctionnalités
-- Respecter les conventions de commit
-- Tester localement avant de pusher
+- [EVALIUM_BRANDING.md](documentation/EVALIUM_BRANDING.md) -- Brand guidelines, logo, color palette
+- [CONTRIBUTING.md](CONTRIBUTING.md) -- How to contribute
+- [CHANGELOG.md](CHANGELOG.md) -- Version history
+- [documentation/](documentation/) -- Architecture decisions, refactoring plans, audit reports
 
 ---
 
-## Rapporter un bug
+## Authors
 
-Ouvrir une [issue](https://github.com/Soule73/evalium/issues/new) avec :
+- **Soule Soumare** -- [@Soule73](https://github.com/Soule73)
 
-- Description claire du problème
-- Étapes pour reproduire
-- Comportement attendu
-- Comportement actuel
-- Screenshots si applicable
-- Environnement (OS, PHP, Node version)
+## License
 
----
-
-## Roadmap
-
-- [ ] Notifications en temps réel (WebSockets)
-- [ ] Export PDF des examens et résultats
-- [ ] API REST pour intégrations tierces
-- [ ] Analytics avancés pour enseignants
-- [ ] Mode hors-ligne pour étudiants
-
-Voir le [CHANGELOG.md](CHANGELOG.md) pour l'historique complet des versions.
-
----
-
-## Auteurs
-
-**Soule73**
-- GitHub: [@Soule73](https://github.com/Soule73)
-
-**badressa**
-- GitHub: [@badressa](https://github.com/badressa)
-
----
-
-## Licence
-
-Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
-
----
-
-## Ressources
-
-- [CAHIER DES CHARGES FONCTIONNEL](https://1drv.ms/w/c/2B46B4AF3F51B332/Ad8mY1XC7JtImCw6pDIJwm8?e=fd5U3V)
-
----
-
-## Remerciements
-
-- [Laravel](https://laravel.com) - Framework PHP
-- [React](https://react.dev) - Librairie UI
-- [Inertia.js](https://inertiajs.com) - Adaptateur Laravel/React
-- [Tailwind CSS](https://tailwindcss.com) - Framework CSS
-- [Playwright](https://playwright.dev) - Testing E2E
-- [Spatie](https://spatie.be) - Packages Laravel
-
----
-
-## Support
-
-- Email: [sourtoumo@gmail.com](mailto:sourtoumo@gmail.com)
-- Discussions: [GitHub Discussions](https://github.com/Soule73/evalium/discussions)
-- Issues: [GitHub Issues](https://github.com/Soule73/evalium/issues)
-- Wiki: [Documentation](https://github.com/Soule73/evalium/wiki)
-
----
-
-<div align="center">
-
-**Si ce projet vous est utile, n'hésitez pas à lui donner une étoile ! ⭐**
-
-Made with ❤️ by [Soule73](https://github.com/Soule73)
-
-</div>
+[MIT](LICENSE)
