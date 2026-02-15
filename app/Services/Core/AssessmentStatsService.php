@@ -75,13 +75,14 @@ class AssessmentStatsService
     private function computeAssessmentStats(int $assessmentId): array
     {
         $assignments = AssessmentAssignment::where('assessment_id', $assessmentId)
-            ->select(['id', 'assessment_id', 'submitted_at', 'graded_at', 'score'])
+            ->select(['id', 'assessment_id', 'started_at', 'submitted_at', 'graded_at', 'score'])
             ->get();
 
         $totalAssigned = $assignments->count();
         $graded = $assignments->whereNotNull('graded_at')->count();
         $submitted = $assignments->whereNotNull('submitted_at')->whereNull('graded_at')->count();
-        $notSubmitted = $assignments->whereNull('submitted_at')->count();
+        $inProgress = $assignments->whereNotNull('started_at')->whereNull('submitted_at')->count();
+        $notStarted = $assignments->whereNull('started_at')->count();
 
         $gradedAssignments = $assignments->whereNotNull('score');
         $averageScore = $gradedAssignments->isEmpty()
@@ -92,7 +93,9 @@ class AssessmentStatsService
             'total_assigned' => $totalAssigned,
             'graded' => $graded,
             'submitted' => $submitted,
-            'not_submitted' => $notSubmitted,
+            'in_progress' => $inProgress,
+            'not_started' => $notStarted,
+            'not_submitted' => $inProgress + $notStarted,
             'average_score' => $averageScore,
             'completion_rate' => $totalAssigned > 0
                 ? round(($graded / $totalAssigned) * 100, 2)

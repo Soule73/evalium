@@ -129,6 +129,55 @@ class ServerSideTimerTest extends TestCase
         $this->assertNull($assignment->started_at);
     }
 
+    public function test_start_assignment_sets_started_at_for_homework_mode(): void
+    {
+        $assessment = $this->createHomeworkAssessment();
+        $student = $this->createEnrolledStudent();
+
+        Carbon::setTestNow('2026-02-13 14:00:00');
+        $assignment = $this->service->getOrCreateAssignment($student, $assessment);
+        $assignment = $this->service->startAssignment($assignment, $assessment);
+
+        $this->assertNotNull($assignment->started_at);
+        $this->assertEquals('2026-02-13 14:00:00', $assignment->started_at->toDateTimeString());
+    }
+
+    public function test_start_assignment_does_not_overwrite_started_at_for_homework(): void
+    {
+        $assessment = $this->createHomeworkAssessment();
+        $student = $this->createEnrolledStudent();
+
+        Carbon::setTestNow('2026-02-13 14:00:00');
+        $assignment = $this->service->getOrCreateAssignment($student, $assessment);
+        $firstAssignment = $this->service->startAssignment($assignment, $assessment);
+        $originalStartedAt = $firstAssignment->started_at->toDateTimeString();
+
+        Carbon::setTestNow('2026-02-13 15:00:00');
+        $secondAssignment = $this->service->startAssignment($firstAssignment, $assessment);
+
+        $this->assertEquals($originalStartedAt, $secondAssignment->started_at->toDateTimeString());
+    }
+
+    public function test_homework_status_transitions_correctly(): void
+    {
+        $assessment = $this->createHomeworkAssessment();
+        $student = $this->createEnrolledStudent();
+
+        $assignment = $this->service->getOrCreateAssignment($student, $assessment);
+        $this->assertEquals('not_submitted', $assignment->status);
+
+        $assignment = $this->service->startAssignment($assignment, $assessment);
+        $this->assertEquals('in_progress', $assignment->status);
+
+        $assignment->update(['submitted_at' => now()]);
+        $assignment->refresh();
+        $this->assertEquals('submitted', $assignment->status);
+
+        $assignment->update(['graded_at' => now()]);
+        $assignment->refresh();
+        $this->assertEquals('graded', $assignment->status);
+    }
+
     public function test_calculate_remaining_seconds_full_time(): void
     {
         $assessment = $this->createSupervisedAssessment(['duration_minutes' => 60]);

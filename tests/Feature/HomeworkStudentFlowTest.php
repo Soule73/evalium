@@ -84,7 +84,7 @@ class HomeworkStudentFlowTest extends TestCase
         $response->assertInertia(fn($page) => $page->component('Student/Assessments/Work'));
     }
 
-    public function test_homework_does_not_set_started_at(): void
+    public function test_homework_sets_started_at_on_take(): void
     {
         ['student' => $student, 'assessment' => $assessment] = $this->createEnrolledStudentWithHomework();
 
@@ -96,7 +96,7 @@ class HomeworkStudentFlowTest extends TestCase
             ->first();
 
         $this->assertNotNull($assignment);
-        $this->assertNull($assignment->started_at);
+        $this->assertNotNull($assignment->started_at);
     }
 
     public function test_homework_allows_multi_session_access(): void

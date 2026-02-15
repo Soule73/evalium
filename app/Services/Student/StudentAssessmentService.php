@@ -44,7 +44,10 @@ class StudentAssessmentService
     }
 
     /**
-     * Start a supervised assignment by setting started_at if not already set.
+     * Start an assignment by setting started_at if not already set.
+     *
+     * Sets started_at for all delivery modes to enable consistent
+     * status tracking (not_submitted -> in_progress -> submitted -> graded).
      *
      * @param  AssessmentAssignment  $assignment  The assignment
      * @param  Assessment  $assessment  The assessment
@@ -52,7 +55,7 @@ class StudentAssessmentService
      */
     public function startAssignment(AssessmentAssignment $assignment, Assessment $assessment): AssessmentAssignment
     {
-        if ($assessment->isSupervisedMode() && ! $assignment->started_at) {
+        if (! $assignment->started_at) {
             $assignment->update(['started_at' => now()]);
             $assignment->refresh();
         }
