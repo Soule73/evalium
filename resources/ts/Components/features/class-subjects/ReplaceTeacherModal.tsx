@@ -84,12 +84,12 @@ export function ReplaceTeacherModal({
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
           <div className="text-sm">
-            <div className="font-medium text-blue-900 mb-2">
+            <div className="font-medium text-indigo-900 mb-2">
               {t('admin_pages.class_subjects.current_assignment')}
             </div>
-            <div className="text-blue-800 space-y-1">
+            <div className="text-indigo-800 space-y-1">
               <div>
                 <span className="font-medium">{t('admin_pages.class_subjects.class')}:</span>{' '}
                 {classSubject.class?.name}

@@ -19,12 +19,12 @@ export const NavLink = ({
     className = ''
 }: NavLinkProps) => {
     const desktopClasses = `whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 flex items-center ${isActive
-        ? 'border-blue-500 text-blue-600'
+        ? 'border-indigo-500 text-indigo-600'
         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
         }`;
 
     const mobileClasses = `block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${isActive
-        ? 'bg-blue-100 text-blue-700'
+        ? 'bg-indigo-100 text-indigo-700'
         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
         }`;
 

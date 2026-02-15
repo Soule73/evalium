@@ -19,9 +19,9 @@ export const useQuestionOptions = (): QuestionOption[] => {
             key: 'multiple',
             title: t('components.question_options.multiple_title'),
             subtitle: t('components.question_options.multiple_subtitle'),
-            bg: 'bg-blue-100',
-            text: 'text-blue-600',
-            hoverBg: 'group-hover:bg-blue-200',
+            bg: 'bg-indigo-100',
+            text: 'text-indigo-600',
+            hoverBg: 'group-hover:bg-indigo-200',
             svg: (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <circle cx="7" cy="8" r="1.5" fill="currentColor" stroke="currentColor" strokeWidth="1" />

@@ -147,7 +147,7 @@ export default function GradeAssignment({ assessment, student, assignment, userA
               {t('grading_pages.show.question_score_label', { max: maxScore })}
             </label>
             {isAutoGraded && (
-              <p className="text-xs text-blue-600 mt-1">
+              <p className="text-xs text-indigo-600 mt-1">
                 {t('grading_pages.show.auto_graded_info')}
               </p>
             )}
@@ -165,7 +165,7 @@ export default function GradeAssignment({ assessment, student, assignment, userA
               step="0.5"
               value={questionScore}
               onChange={(e) => handleScoreChange(question.id, e.target.value)}
-              className="w-20 px-2 py-1 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-20 px-2 py-1 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
               disabled={!canGradeAssessments}
             />
             <span className="text-sm text-gray-500">/ {maxScore}</span>

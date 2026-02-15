@@ -52,10 +52,10 @@ export function WithdrawEnrollmentModal({
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="p-4 ">
           <div className="text-sm">
-            <div className="font-medium text-blue-900 mb-2">
+            <div className="font-medium text-indigo-900 mb-2">
               {t('admin_pages.enrollments.current_enrollment')}
             </div>
-            <div className="text-blue-800 space-y-1">
+            <div className="text-indigo-800 space-y-1">
               <div>
                 <span className="font-medium">{t('admin_pages.enrollments.student')}:</span>{' '}
                 {enrollment.student?.name}

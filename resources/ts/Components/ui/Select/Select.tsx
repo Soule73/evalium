@@ -160,15 +160,15 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
         const baseClasses = 'relative w-full';
         const triggerClasses = `
             w-full px-3 py-2 bg-white border rounded-md
-            focus:outline-none focus:ring-2 focus:ring-blue-500
+            focus:outline-none focus:ring-2 focus:ring-indigo-500
             transition-all duration-200 cursor-pointer
             flex items-center justify-between
             ${error
                 ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:border-blue-500 hover:border-gray-400'
+                : 'border-gray-300 focus:border-indigo-500 hover:border-gray-400'
             }
             ${disabled ? 'bg-gray-50 cursor-not-allowed opacity-60' : ''}
-            ${isOpen ? 'ring-2 ring-blue-500 border-blue-500' : ''}
+            ${isOpen ? 'ring-2 ring-indigo-500 border-indigo-500' : ''}
         `.trim();
 
         return (
@@ -214,7 +214,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                                         <input
                                             ref={searchInputRef}
                                             type="text"
-                                            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                                            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900"
                                             placeholder={searchPlaceholder}
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -244,10 +244,10 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                                                 ${option.disabled
                                                     ? 'text-gray-400 cursor-not-allowed'
                                                     : index === highlightedIndex
-                                                        ? 'bg-blue-50 text-blue-900'
+                                                        ? 'bg-indigo-50 text-indigo-900'
                                                         : 'text-gray-900 hover:bg-gray-50'
                                                 }
-                                                ${option.value === value ? 'bg-blue-100' : ''}
+                                                ${option.value === value ? 'bg-indigo-100' : ''}
                                             `.trim()}
                                             onClick={() => handleSelect(option)}
                                             onMouseEnter={() => setHighlightedIndex(index)}
@@ -256,7 +256,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                                         >
                                             <span className="block truncate">{option.label}</span>
                                             {option.value === value && (
-                                                <CheckIcon className="h-4 w-4 text-blue-600 shrink-0" />
+                                                <CheckIcon className="h-4 w-4 text-indigo-600 shrink-0" />
                                             )}
                                         </li>
                                     ))

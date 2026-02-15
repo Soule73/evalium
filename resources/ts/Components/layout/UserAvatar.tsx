@@ -20,7 +20,7 @@ export const UserAvatar = ({ avatar, name, size = 'md', className = '' }: UserAv
     }
 
     return (
-        <div className={`bg-linear-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center ${sizeClass} ${className}`}>
+        <div className={`bg-linear-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center ${sizeClass} ${className}`}>
             <span className="text-white font-medium">
                 {name.charAt(0).toUpperCase()}
             </span>

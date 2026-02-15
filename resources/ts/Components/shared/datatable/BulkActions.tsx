@@ -16,16 +16,16 @@ export function BulkActions({ selectedCount, onDeselectAll, children }: BulkActi
     const suffixText = t('components.datatable.items_selected_suffix', { count: selectedCount });
 
     return (
-        <div className="bg-blue-50 border-b border-blue-200 px-6 py-3">
+        <div className="bg-indigo-50 border-b border-indigo-200 px-6 py-3">
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium text-blue-900">
+                        <span className="text-sm font-medium text-indigo-900">
                             {itemsText} {suffixText}
                         </span>
                         <button
                             onClick={onDeselectAll}
-                            className="text-blue-600 hover:text-blue-800 transition-colors"
+                            className="text-indigo-600 hover:text-indigo-800 transition-colors"
                             aria-label={t('components.datatable.deselect_all')}
                         >
                             <XMarkIcon className="h-5 w-5" />
@@ -33,7 +33,7 @@ export function BulkActions({ selectedCount, onDeselectAll, children }: BulkActi
                     </div>
                     {children && (
                         <>
-                            <div className="h-6 w-px bg-blue-300" />
+                            <div className="h-6 w-px bg-indigo-300" />
                             <div className="flex items-center space-x-2">
                                 {children}
                             </div>

@@ -80,7 +80,7 @@ const ChoiceItem: React.FC<ChoiceItemProps> = ({ choice, index, type, isSelected
             ? 'text-red-600'
             : isCorrect
               ? 'text-green-600'
-              : 'text-blue-600'
+              : 'text-indigo-600'
             }`}>
             {statusLabelText}
           </span>

@@ -23,7 +23,7 @@ const GRADE_THRESHOLDS = [
 function getGradeColor(average: number | null): string {
   if (average === null) return 'text-gray-500';
   if (average >= 16) return 'text-green-600 font-semibold';
-  if (average >= 14) return 'text-blue-600 font-semibold';
+  if (average >= 14) return 'text-indigo-600 font-semibold';
   if (average >= 12) return 'text-yellow-600 font-medium';
   if (average >= 10) return 'text-orange-600 font-medium';
   return 'text-red-600 font-semibold';

@@ -77,6 +77,7 @@ class StudentAssessmentShowTest extends TestCase
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->teacher->id,
             'coefficient' => 1,
+            'scheduled_at' => now()->subHour(),
             'settings' => ['is_published' => true],
         ]);
 

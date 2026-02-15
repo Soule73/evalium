@@ -119,8 +119,8 @@ export default function AcademicYearCreate() {
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-800">{translations.createNote}</p>
+          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+            <p className="text-sm text-indigo-800">{translations.createNote}</p>
           </div>
 
           <div className="flex justify-end space-x-3 pt-6">

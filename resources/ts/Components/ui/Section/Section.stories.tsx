@@ -118,7 +118,7 @@ export const WithCustomTitle: Story = {
         title: (
             <div className="flex items-center space-x-2">
                 <svg
-                    className="w-5 h-5 text-blue-500"
+                    className="w-5 h-5 text-indigo-500"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"

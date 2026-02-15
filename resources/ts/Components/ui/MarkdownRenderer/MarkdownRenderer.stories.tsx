@@ -329,6 +329,6 @@ print(f"Total time: {total_time:.2f} s")
 export const CustomClassName: Story = {
     args: {
         children: '# Custom Styling\n\nThis example has a custom className applied.',
-        className: 'bg-blue-50 p-6 rounded-lg border-2 border-blue-200',
+        className: 'bg-indigo-50 p-6 rounded-lg border-2 border-indigo-200',
     },
 };

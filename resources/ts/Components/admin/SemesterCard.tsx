@@ -34,7 +34,7 @@ const SemesterCard: React.FC<SemesterCardProps> = ({
       className={`
                 border border-gray-200 rounded-lg p-4 bg-white
                 transition-all duration-200
-                ${onClick ? 'cursor-pointer hover:shadow-md hover:border-blue-400' : ''}
+                ${onClick ? 'cursor-pointer hover:shadow-md hover:border-indigo-400' : ''}
                 ${className}
             `}
     >

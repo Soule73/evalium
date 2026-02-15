@@ -38,9 +38,9 @@ export const WithCustomStyles: Story = {
     args: {
         label: "Total Score",
         value: "85/100",
-        className: "bg-blue-50 p-4 rounded-lg",
-        labelClass: "text-blue-900",
-        valueClass: "text-blue-700 text-lg font-bold",
+        className: "bg-indigo-50 p-4 rounded-lg",
+        labelClass: "text-indigo-900",
+        valueClass: "text-indigo-700 text-lg font-bold",
     },
 };
 

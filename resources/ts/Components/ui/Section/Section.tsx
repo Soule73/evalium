@@ -51,7 +51,7 @@ const Section = ({
                         aria-controls={collapsible ? contentId : undefined}
                         onClick={collapsible ? () => setIsOpen(prev => !prev) : undefined}
                         onKeyDown={collapsible ? (e) => e.key === 'Enter' && setIsOpen(prev => !prev) : undefined}
-                        className={`flex items-center gap-2 ${collapsible ? 'cursor-pointer select-none hover:text-blue-600 transition-colors' : ''}`}
+                        className={`flex items-center gap-2 ${collapsible ? 'cursor-pointer select-none hover:text-indigo-600 transition-colors' : ''}`}
                     >
                         {collapsible && (
                             <ChevronUpIcon

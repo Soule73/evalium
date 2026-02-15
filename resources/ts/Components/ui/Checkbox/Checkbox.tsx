@@ -24,7 +24,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                     ref={ref}
                     id={generatedId}
                     type={type}
-                    className={`peer appearance-none w-5 h-5 border border-gray-300 ${className} ${roundedClass} checked:bg-blue-600 checked:border-blue-600 focus:ring-2 focus:ring-blue-500 transition-colors duration-200 bg-white`}
+                    className={`peer appearance-none w-5 h-5 border border-gray-300 ${className} ${roundedClass} checked:bg-indigo-600 checked:border-indigo-600 focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 bg-white`}
                     aria-invalid={error ? 'true' : 'false'}
                     aria-describedby={errorId}
                     {...props}

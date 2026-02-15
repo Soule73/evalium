@@ -68,7 +68,7 @@ export function EnrollmentCard({ enrollment, onClick }: EnrollmentCardProps) {
 
         {enrollment.status === 'transferred' && enrollment.left_date && (
           <div className="pt-3 border-t border-gray-100">
-            <div className="text-xs text-blue-600">
+            <div className="text-xs text-indigo-600">
               {t('admin_pages.enrollments.transferred_on')}: {formatDate(enrollment.left_date)}
             </div>
           </div>

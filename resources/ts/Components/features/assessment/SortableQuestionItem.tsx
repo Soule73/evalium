@@ -105,7 +105,7 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
                     <button
                         type="button"
                         onClick={() => onToggleCollapse(index)}
-                        className="flex items-center space-x-3 cursor-pointer text-left hover:text-blue-600 transition-colors"
+                        className="flex items-center space-x-3 cursor-pointer text-left hover:text-indigo-600 transition-colors"
                     >
                         {isCollapsed ? (
                             <ChevronRightIcon className="h-5 w-5 text-gray-400" />
@@ -180,7 +180,7 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
                                     <button
                                         type="button"
                                         onClick={() => onAddChoice(index)}
-                                        className="inline-flex items-center px-3 py-1 border border-gray-200 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                                        className="inline-flex items-center px-3 py-1 border border-gray-200 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
                                     >
                                         <PlusIcon className="h-3 w-3 mr-1" />
                                         {t('components.question_item.add_option')}

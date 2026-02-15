@@ -28,21 +28,21 @@ function Button({
 
     const colorClassesMap = {
         solid: {
-            primary: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500',
+            primary: 'bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-500',
             secondary: 'bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500',
             danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
             success: 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500',
             warning: 'bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500',
         },
         outline: {
-            primary: 'bg-transparent border-blue-600 text-blue-600 hover:bg-blue-50 focus:ring-blue-500',
+            primary: 'bg-transparent border-indigo-600 text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500',
             secondary: 'bg-transparent border-gray-200 text-gray-600 hover:bg-gray-50 focus:ring-gray-500',
             danger: 'bg-transparent border-red-600 text-red-600 hover:bg-red-50 focus:ring-red-500',
             success: 'bg-transparent border-green-600 text-green-600 hover:bg-green-50 focus:ring-green-500',
             warning: 'bg-transparent border-yellow-600 text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500',
         },
         ghost: {
-            primary: 'bg-transparent text-blue-600 hover:bg-blue-50 focus:ring-blue-500',
+            primary: 'bg-transparent text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500',
             secondary: 'bg-transparent text-gray-600 hover:bg-gray-50 focus:ring-gray-500',
             danger: 'bg-transparent text-red-600 hover:bg-red-50 focus:ring-red-500',
             success: 'bg-transparent text-green-600 hover:bg-green-50 focus:ring-green-500',

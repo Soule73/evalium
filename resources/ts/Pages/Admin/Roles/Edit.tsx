@@ -97,10 +97,10 @@ export default function EditRole({ role, groupedPermissions }: Props) {
                         </div>
                     }
                 >
-                    <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="mb-4 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
                         <div className="flex items-center gap-2">
                             <Badge label={role.name} type="info" />
-                            <span className="text-sm text-blue-800">
+                            <span className="text-sm text-indigo-800">
                                 {translations.systemRoleNotice}
                             </span>
                         </div>

@@ -177,8 +177,8 @@ export function CreateClassSubjectModal({
           />
         )}
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="text-sm text-blue-800">
+        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+          <div className="text-sm text-indigo-800">
             {t('admin_pages.class_subjects.create_info')}
           </div>
         </div>

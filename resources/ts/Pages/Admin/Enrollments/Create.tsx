@@ -116,12 +116,12 @@ export default function EnrollmentCreate({ classes, students }: Props) {
             />
 
             {selectedClass && (
-              <div className={`p-4 rounded-lg ${availableSlots > 0 ? 'bg-blue-50 border border-blue-200' : 'bg-red-50 border border-red-200'}`}>
+              <div className={`p-4 rounded-lg ${availableSlots > 0 ? 'bg-indigo-50 border border-indigo-200' : 'bg-red-50 border border-red-200'}`}>
                 <div className="text-sm">
                   <span className="font-medium">
                     {translations.availableSlots}:
                   </span>
-                  <span className={`ml-2 ${availableSlots > 0 ? 'text-blue-900' : 'text-red-900'}`}>
+                  <span className={`ml-2 ${availableSlots > 0 ? 'text-indigo-900' : 'text-red-900'}`}>
                     {availableSlots} / {selectedClass.max_students}
                   </span>
                 </div>

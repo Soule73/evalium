@@ -45,7 +45,7 @@ const TakeQuestionMultiple: React.FC<BaseChoiceProps> = ({ questionId, choices, 
                     key={choice.id}
                     type="checkbox"
                     label={<>
-                        {questionIndexLabel(idx, 'bg-blue-100 text-blue-800')}
+                        {questionIndexLabel(idx, 'bg-indigo-100 text-indigo-800')}
                         <MarkdownRenderer>{choice.content}</MarkdownRenderer>
                     </>}
                     checked={current.includes(choice.id)}
@@ -153,7 +153,7 @@ const TakeQuestion: React.FC<TakeQuestionProps> = ({ question, answers, onAnswer
             title={<MarkdownRenderer>{question.content}</MarkdownRenderer>}
             actions={
                 <div className="flex space-x-2 top-5 right-5 absolute">
-                    <div className="text-sm min-w-fit font-medium h-max text-blue-600 px-2 py-1 rounded">
+                    <div className="text-sm min-w-fit font-medium h-max text-indigo-600 px-2 py-1 rounded">
                         {t('components.take_question.points', { points: question.points })}
                     </div>
 

@@ -41,7 +41,7 @@ export function RoleList({
           labelKey: 'admin_pages.roles.name',
           render: (role) => (
             <div className="flex items-center gap-2">
-              <ShieldCheckIcon className="w-5 h-5 text-blue-600" />
+              <ShieldCheckIcon className="w-5 h-5 text-indigo-600" />
               <p
                 data-e2e={`role-name-${role.name.toLowerCase()}`}
                 className="text-sm font-medium text-gray-900"

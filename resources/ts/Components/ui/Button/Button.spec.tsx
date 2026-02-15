@@ -9,7 +9,7 @@ describe('Button Component', () => {
 
         const button = screen.getByRole('button', { name: /click me/i });
         expect(button).toBeInTheDocument();
-        expect(button).toHaveClass('bg-blue-600', 'text-white');
+        expect(button).toHaveClass('bg-indigo-600', 'text-white');
     });
 
     it('renders with different colors', () => {
@@ -25,10 +25,10 @@ describe('Button Component', () => {
 
     it('renders with different variants', () => {
         const { rerender } = render(<Button variant="outline">Outline</Button>);
-        expect(screen.getByRole('button')).toHaveClass('border-blue-600', 'text-blue-600');
+        expect(screen.getByRole('button')).toHaveClass('border-indigo-600', 'text-indigo-600');
 
         rerender(<Button variant="ghost">Ghost</Button>);
-        expect(screen.getByRole('button')).toHaveClass('text-blue-600');
+        expect(screen.getByRole('button')).toHaveClass('text-indigo-600');
     });
 
     it('renders with different sizes', () => {

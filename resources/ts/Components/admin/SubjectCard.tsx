@@ -32,7 +32,7 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
       className={`
                 border border-gray-200 rounded-lg p-4 bg-white
                 cursor-pointer transition-all duration-200
-                hover:shadow-md hover:border-blue-400
+                hover:shadow-md hover:border-indigo-400
                 ${className}
             `}
     >

@@ -14,9 +14,9 @@ function FullscreenModal({ isOpen, onEnterFullscreen }: FullscreenModalProps) {
         <Modal isOpen={isOpen} onClose={() => { }}>
             <div className="p-6">
                 <div className="flex items-center justify-center mb-4">
-                    <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full">
+                    <div className="flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-full">
                         <ArrowsPointingOutIcon
-                            className="w-6 h-6 text-blue-600" />
+                            className="w-6 h-6 text-indigo-600" />
                     </div>
                 </div>
 

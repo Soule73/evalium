@@ -85,7 +85,7 @@ function DataTablePaginationInner<T>({
                         value={per_page}
                         onChange={(e) => handlePerPageChange(Number(e.target.value))}
                         disabled={isLoading}
-                        className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                        className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
                     >
                         {perPageOptions.map((option) => (
                             <option key={option} value={option}>
@@ -117,7 +117,7 @@ function DataTablePaginationInner<T>({
                                 onClick={() => handlePageChange(page as number)}
                                 disabled={isLoading}
                                 className={`inline-flex items-center px-4 py-2 text-sm font-medium border ${page === current_page
-                                    ? 'bg-blue-50 border-blue-500 text-blue-600'
+                                    ? 'bg-indigo-50 border-indigo-500 text-indigo-600'
                                     : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                             >

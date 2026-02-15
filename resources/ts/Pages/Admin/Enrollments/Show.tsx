@@ -135,11 +135,11 @@ export default function EnrollmentShow({ enrollment, classes, subjects, overallS
 
           {enrollment.status === 'transferred' && enrollment.left_date && (
             <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="text-sm font-medium text-blue-900 mb-2">
+              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                <div className="text-sm font-medium text-indigo-900 mb-2">
                   {translations.transferInfo}
                 </div>
-                <div className="text-sm text-blue-800">
+                <div className="text-sm text-indigo-800">
                   {translations.transferredAt}: {formatDate(enrollment.left_date)}
                 </div>
               </div>

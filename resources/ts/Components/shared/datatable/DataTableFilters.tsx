@@ -50,8 +50,8 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(({
                 </div>
 
                 {isLoading && (
-                    <div className="flex items-center gap-2 text-blue-600" data-e2e="datatable-loading-indicator">
-                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="flex items-center gap-2 text-indigo-600" data-e2e="datatable-loading-indicator">
+                        <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                         <span className="text-sm">{t('admin_pages.common.loading')}</span>
                     </div>
                 )}
@@ -86,7 +86,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(({
                 {showResetButton && hasActiveFilters && (
                     <button
                         onClick={onReset}
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
                         data-e2e={testIdResetFiltersButton}
                     >
                         <FunnelIcon className="w-4 h-4 mr-1" />

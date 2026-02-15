@@ -32,8 +32,8 @@ const AcademicYearCard: React.FC<AcademicYearCardProps> = ({
       className={`
                 border rounded-lg p-4 cursor-pointer
                 transition-all duration-200
-                hover:shadow-md hover:border-blue-400
-                ${academicYear.is_current ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}
+                hover:shadow-md hover:border-indigo-400
+                ${academicYear.is_current ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 bg-white'}
                 ${className}
             `}
     >

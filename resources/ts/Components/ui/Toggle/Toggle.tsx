@@ -38,10 +38,10 @@ const sizeClasses = {
 
 const colorClasses = {
     blue: {
-        active: 'bg-blue-600',
+        active: 'bg-indigo-600',
         inactive: 'bg-gray-200',
-        focus: 'focus:ring-blue-500',
-        labelActive: 'text-blue-700',
+        focus: 'focus:ring-indigo-500',
+        labelActive: 'text-indigo-700',
         labelInactive: 'text-gray-500',
     },
     green: {

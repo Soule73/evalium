@@ -24,7 +24,7 @@ export function AssessmentCard({ assessment, onClick }: AssessmentCardProps) {
     : { color: 'bg-gray-100 text-gray-800', label: t('teacher_pages.assessments.filters.draft') };
 
   const typeBadge = {
-    color: 'bg-blue-100 text-blue-800',
+    color: 'bg-indigo-100 text-indigo-800',
     label: t(`teacher_pages.assessments.types.${assessment.type}`)
   };
 
@@ -92,7 +92,7 @@ export function AssessmentCard({ assessment, onClick }: AssessmentCardProps) {
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${completionRate * 100}%` }}
           />
         </div>

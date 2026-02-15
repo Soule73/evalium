@@ -38,8 +38,8 @@ interface ActionGroupProps {
 
 const colorClasses: Record<ActionColor, { button: string; dropdown: string }> = {
   primary: {
-    button: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500',
-    dropdown: 'text-blue-600 hover:bg-blue-50',
+    button: 'bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-500',
+    dropdown: 'text-indigo-600 hover:bg-indigo-50',
   },
   secondary: {
     button: 'bg-gray-100 hover:bg-gray-200 text-gray-700 focus:ring-gray-500',

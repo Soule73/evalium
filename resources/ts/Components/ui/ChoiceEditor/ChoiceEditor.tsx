@@ -78,7 +78,7 @@ const ChoiceEditor: React.FC<ChoiceEditorProps> = ({
                         }
                     }}
                     className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-md transition-colors ${isMarkdownMode
-                        ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                        ? 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                     title={isMarkdownMode ? switchToSimpleTitle : switchToMarkdownTitle}

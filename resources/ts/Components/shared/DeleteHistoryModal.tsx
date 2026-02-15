@@ -109,7 +109,7 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                                     type="button"
                                     onClick={() => setActiveTab('questions')}
                                     className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'questions'
-                                        ? 'border-blue-500 text-blue-600'
+                                        ? 'border-indigo-500 text-indigo-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                         }`}
                                 >
@@ -119,7 +119,7 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                                     type="button"
                                     onClick={() => setActiveTab('choices')}
                                     className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'choices'
-                                        ? 'border-blue-500 text-blue-600'
+                                        ? 'border-indigo-500 text-indigo-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                         }`}
                                 >
@@ -142,8 +142,8 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
                                             <div className="flex items-start justify-between">
                                                 <div className="flex-1">
                                                     <div className="flex items-center space-x-2 mb-2">
-                                                        <QuestionMarkCircleIcon className="w-4 h-4 text-blue-500" />
-                                                        <span className="text-sm font-medium text-blue-600">
+                                                        <QuestionMarkCircleIcon className="w-4 h-4 text-indigo-500" />
+                                                        <span className="text-sm font-medium text-indigo-600">
                                                             {getQuestionTypeLabelFromCache(deletedQuestion.question.type)}
                                                         </span>
                                                         <span className="text-xs text-gray-500">
