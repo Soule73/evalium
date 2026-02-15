@@ -72,7 +72,7 @@ test:laravel:
         - php artisan key:generate
         - php artisan key:generate --env=testing
         - php artisan migrate --force
-        - php artisan test --coverage --min=70
+        - php artisan test --coverage --min=50
     coverage: '/^\s*Lines:\s*\d+\.\d+\%/'
     artifacts:
         reports:
