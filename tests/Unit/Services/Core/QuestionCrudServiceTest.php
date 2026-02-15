@@ -147,6 +147,32 @@ class QuestionCrudServiceTest extends TestCase
         $this->assertEquals(20, $updated->points);
     }
 
+    public function test_update_question_by_id_returns_null_for_different_assessment(): void
+    {
+        $assessment1 = Assessment::factory()->create(['class_subject_id' => $this->classSubject->id]);
+        $assessment2 = Assessment::factory()->create(['class_subject_id' => $this->classSubject->id]);
+        $question = Question::factory()->for($assessment2)->create([
+            'content' => 'Original content',
+            'points' => 5,
+        ]);
+
+        $updatedData = [
+            'content' => 'Should not update',
+            'type' => 'one_choice',
+            'points' => 20,
+            'order_index' => 0,
+        ];
+
+        $result = $this->service->updateQuestionById($assessment1, $question->id, $updatedData);
+
+        $this->assertNull($result);
+        $this->assertDatabaseHas('questions', [
+            'id' => $question->id,
+            'content' => 'Original content',
+            'points' => 5,
+        ]);
+    }
+
     public function test_it_can_delete_single_question(): void
     {
         $assessment = Assessment::factory()->create(['class_subject_id' => $this->classSubject->id]);

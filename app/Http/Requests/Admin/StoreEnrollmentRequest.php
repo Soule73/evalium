@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\EnrollmentStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -31,7 +32,7 @@ class StoreEnrollmentRequest extends FormRequest
             ],
             'class_id' => ['required', 'exists:classes,id'],
             'enrolled_at' => ['nullable', 'date'],
-            'status' => ['sometimes', 'in:active,pending,withdrawn'],
+            'status' => ['sometimes', Rule::in(EnrollmentStatus::values())],
         ];
     }
 

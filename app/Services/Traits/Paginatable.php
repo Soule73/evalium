@@ -72,12 +72,12 @@ trait Paginatable
     }
 
     /**
-     * Simple pagination without appends
+     * Paginate a query with query string preservation.
      *
      * @param  Builder|Relation  $query  The query builder or relation
      * @param  int  $perPage  Items per page
      */
-    protected function simplePaginate(
+    protected function paginateQuery(
         Builder|Relation $query,
         int $perPage = 10
     ): LengthAwarePaginator {

@@ -34,9 +34,9 @@ class PaginatableTest extends TestCase
                 return $this->paginateWithStandardFilters($query, $filters);
             }
 
-            public function exposeSimplePaginate($query, $perPage = 10)
+            public function exposePaginateQuery($query, $perPage = 10)
             {
-                return $this->simplePaginate($query, $perPage);
+                return $this->paginateQuery($query, $perPage);
             }
         };
     }
@@ -152,7 +152,7 @@ class PaginatableTest extends TestCase
     {
         User::factory()->count(15)->create();
 
-        $result = $this->service->exposeSimplePaginate(User::query());
+        $result = $this->service->exposePaginateQuery(User::query());
 
         $this->assertInstanceOf(LengthAwarePaginator::class, $result);
         $this->assertEquals(10, $result->perPage());
@@ -162,7 +162,7 @@ class PaginatableTest extends TestCase
     {
         User::factory()->count(15)->create();
 
-        $result = $this->service->exposeSimplePaginate(User::query(), 5);
+        $result = $this->service->exposePaginateQuery(User::query(), 5);
 
         $this->assertEquals(5, $result->perPage());
         $this->assertEquals(5, $result->count());

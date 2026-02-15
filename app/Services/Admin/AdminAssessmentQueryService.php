@@ -231,6 +231,6 @@ class AdminAssessmentQueryService
             ->when($filters['delivery_mode'] ?? null, fn($query, $mode) => $query->where('delivery_mode', $mode))
             ->orderBy('created_at', 'desc');
 
-        return $this->simplePaginate($query, $perPage);
+        return $this->paginateQuery($query, $perPage);
     }
 }

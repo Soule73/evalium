@@ -41,7 +41,7 @@ class TeacherDashboardService
             });
         }
 
-        return $this->simplePaginate($query, $perPage);
+        return $this->paginateQuery($query, $perPage);
     }
 
     /**
@@ -65,7 +65,7 @@ class TeacherDashboardService
             $query->where('title', 'like', "%{$search}%");
         }
 
-        return $this->simplePaginate($query, $perPage);
+        return $this->paginateQuery($query, $perPage);
     }
 
     /**
@@ -89,7 +89,7 @@ class TeacherDashboardService
             $query->where('title', 'like', "%{$search}%");
         }
 
-        return $this->simplePaginate($query, $perPage);
+        return $this->paginateQuery($query, $perPage);
     }
 
     /**

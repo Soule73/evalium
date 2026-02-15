@@ -39,7 +39,7 @@ class EnrollmentService
             ->when($filters['status'] ?? null, fn($query, $status) => $query->where('status', $status))
             ->orderBy('enrolled_at', 'desc');
 
-        $enrollments = $this->simplePaginate($query, $perPage);
+        $enrollments = $this->paginateQuery($query, $perPage);
 
         $classes = ClassModel::forAcademicYear($academicYearId)
             ->with('academicYear')

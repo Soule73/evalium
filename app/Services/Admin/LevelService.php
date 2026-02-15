@@ -37,7 +37,7 @@ class LevelService
 
         $query = $this->buildLevelQuery($search, $status)->ordered();
 
-        return $this->simplePaginate($query, $perPage);
+        return $this->paginateQuery($query, $perPage);
     }
 
     /**

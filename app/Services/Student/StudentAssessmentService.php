@@ -243,7 +243,7 @@ class StudentAssessmentService
         $assignment->update([
             'submitted_at' => now(),
             'forced_submission' => true,
-            'security_violation' => $violationType.($violationDetails ? ': '.$violationDetails : ''),
+            'security_violation' => $violationType . ($violationDetails ? ': ' . $violationDetails : ''),
         ]);
 
         return true;
@@ -296,7 +296,7 @@ class StudentAssessmentService
             });
         }
 
-        $hasTextQuestions = $assessment->questions->contains(fn ($q) => $q->type->requiresManualGrading());
+        $hasTextQuestions = $assessment->questions->contains(fn($q) => $q->type->requiresManualGrading());
 
         if (! $hasTextQuestions) {
             $totalScore = $this->scoringService->calculateAssignmentScore($assignment);
@@ -357,7 +357,7 @@ class StudentAssessmentService
 
         $enrollment = $student->enrollments()
             ->where('status', 'active')
-            ->whereHas('class.classSubjects.assessments', fn ($q) => $q->whereIn('id', $assessmentIds))
+            ->whereHas('class.classSubjects.assessments', fn($q) => $q->whereIn('id', $assessmentIds))
             ->first();
 
         return $assessments->map(function ($assessment) use ($enrollment, $assignments) {
@@ -445,7 +445,7 @@ class StudentAssessmentService
             })
             ->orderBy('scheduled_at', 'asc');
 
-        $assessments = $this->simplePaginate($assessmentsQuery, $perPage);
+        $assessments = $this->paginateQuery($assessmentsQuery, $perPage);
 
         $assessmentItems = $assessments instanceof \Illuminate\Pagination\AbstractPaginator
             ? collect($assessments->items())

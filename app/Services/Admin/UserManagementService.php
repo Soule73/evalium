@@ -58,7 +58,7 @@ class UserManagementService
             });
         }
 
-        return $this->simplePaginate($query, $filters['per_page'] ?? 10);
+        return $this->paginateQuery($query, $filters['per_page'] ?? 10);
     }
 
     /**
@@ -118,7 +118,7 @@ class UserManagementService
                 $user->syncRoles([$data['role']]);
             });
         } catch (\Exception $e) {
-            Log::error('Error updating user: '.$e->getMessage());
+            Log::error('Error updating user: ' . $e->getMessage());
             throw $e;
         }
     }

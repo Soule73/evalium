@@ -42,14 +42,14 @@ class SubjectService
                     });
                 }
             }])
-            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%")
+            ->when($filters['search'] ?? null, fn($query, $search) => $query->where('name', 'like', "%{$search}%")
                 ->orWhere('code', 'like', "%{$search}%"))
-            ->when($filters['level_id'] ?? null, fn ($query, $levelId) => $query->where('level_id', $levelId))
+            ->when($filters['level_id'] ?? null, fn($query, $levelId) => $query->where('level_id', $levelId))
             ->orderBy('level_id')
             ->orderBy('name');
 
         /** @var \Illuminate\Pagination\LengthAwarePaginator<\App\Models\Subject> $paginated */
-        $paginated = $this->simplePaginate($query, $perPage);
+        $paginated = $this->paginateQuery($query, $perPage);
 
         $paginated->getCollection()->transform(function ($subject) {
             $subject->can_delete = $subject->canBeDeleted();
@@ -67,7 +67,7 @@ class SubjectService
     {
         return $this->cacheService->remember(
             CacheService::KEY_LEVELS_ALL,
-            fn () => Level::orderBy('name')->get()
+            fn() => Level::orderBy('name')->get()
         );
     }
 
@@ -78,7 +78,7 @@ class SubjectService
     {
         return $this->cacheService->remember(
             CacheService::KEY_SUBJECTS_ALL,
-            fn () => Subject::with('level')->orderBy('name')->get()
+            fn() => Subject::with('level')->orderBy('name')->get()
         );
     }
 

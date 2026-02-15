@@ -28,6 +28,17 @@ class E2ESetupCommand extends Command
         $dbPath = config('database.connections.e2e_testing.database');
 
         try {
+            if (! is_string($dbPath) || $dbPath === '') {
+                $this->error('[ArtisanE2ESetup] Invalid E2E database path in configuration.');
+
+                return self::FAILURE;
+            }
+
+            $dbDirectory = dirname($dbPath);
+            if (! is_dir($dbDirectory)) {
+                mkdir($dbDirectory, 0777, true);
+            }
+
             if (file_exists($dbPath)) {
                 $this->info("[ArtisanE2ESetup] Removing existing database: {$dbPath}");
                 unlink($dbPath);
@@ -59,7 +70,7 @@ class E2ESetupCommand extends Command
 
             return self::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('[ArtisanE2ESetup] Failed to setup E2E environment: '.
+            $this->error('[ArtisanE2ESetup] Failed to setup E2E environment: ' .
 
                 $e->getMessage());
 

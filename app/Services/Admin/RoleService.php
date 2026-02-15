@@ -75,7 +75,7 @@ class RoleService
             $query->where('name', 'like', "%{$search}%");
         }
 
-        return $this->simplePaginate($query, $perPage);
+        return $this->paginateQuery($query, $perPage);
     }
 
     /**
@@ -109,7 +109,7 @@ class RoleService
             }
         }
 
-        return array_filter($grouped, fn ($items) => ! empty($items));
+        return array_filter($grouped, fn($items) => ! empty($items));
     }
 
     /**

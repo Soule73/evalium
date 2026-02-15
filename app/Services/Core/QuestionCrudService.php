@@ -62,17 +62,22 @@ class QuestionCrudService
      */
     public function updateQuestionById(Assessment $assessment, int $questionId, array $questionData): ?Question
     {
-        Question::where('id', $questionId)
+        $question = Question::where('id', $questionId)
             ->where('assessment_id', $assessment->id)
-            ->update([
-                'content' => $questionData['content'],
-                'type' => $questionData['type'],
-                'points' => $questionData['points'],
-                'order_index' => $questionData['order_index'] ?? 0,
-                'updated_at' => now(),
-            ]);
+            ->first();
 
-        return Question::find($questionId);
+        if (! $question) {
+            return null;
+        }
+
+        $question->update([
+            'content' => $questionData['content'],
+            'type' => $questionData['type'],
+            'points' => $questionData['points'],
+            'order_index' => $questionData['order_index'] ?? 0,
+        ]);
+
+        return $question->fresh();
     }
 
     /**
