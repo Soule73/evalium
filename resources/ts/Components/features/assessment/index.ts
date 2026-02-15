@@ -1,6 +1,5 @@
 export * from './AlertSecurityViolation';
 export * from './AssessmentHeader';
-export * from './AssessmentInfoSection';
 export * from './FileUploadZone';
 export * from './FullscreenModal';
 export * from './questionOptions';
