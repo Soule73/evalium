@@ -165,7 +165,7 @@ class LoginController extends Controller
      */
     public function throttleKey(Request $request)
     {
-        return Str::transliterate(Str::lower($request->input('email')).'|'.$request->ip());
+        return Str::transliterate(Str::lower($request->input('email')) . '|' . $request->ip());
     }
 
     public function getDashboardRoute(): string

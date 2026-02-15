@@ -86,7 +86,6 @@ class RoleBasedRedirectService
      */
     public function isTeacher(?User $user = null): bool
     {
-
         /** @var User $user */
         $user = $user ?? Auth::user();
 

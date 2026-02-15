@@ -40,7 +40,7 @@ class GradingQueryService
         $existingAssignments = AssessmentAssignment::where('assessment_id', $assessment->id)
             ->with('enrollment.student')
             ->get()
-            ->keyBy(fn($a) => $a->enrollment?->student_id);
+            ->keyBy(fn(AssessmentAssignment $a) => $a->enrollment?->student_id);
 
         $allStudentData = $enrollments->map(function ($enrollment) use ($assessment, $existingAssignments) {
             $assignment = $existingAssignments->get($enrollment->student_id);

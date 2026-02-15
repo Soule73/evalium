@@ -39,7 +39,7 @@ trait Paginatable
             page: (int) $page
         );
 
-        $paginator->withQueryString();
+        $paginator = $paginator->withQueryString();
 
         if (! empty($appends)) {
             $paginator->appends($appends);
