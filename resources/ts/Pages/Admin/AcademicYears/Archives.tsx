@@ -6,6 +6,7 @@ import { type AcademicYear, type PageProps } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, ConfirmationModal, Section } from '@/Components';
+import { AcademicYearDetailsModal } from '@/Components/features/academic-years';
 import { AcademicYearList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
 import { hasPermission } from '@/utils';
@@ -24,12 +25,21 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
   const { t } = useTranslations();
   const breadcrumbs = useBreadcrumbs();
 
+  const [detailsModal, setDetailsModal] = useState<{ isOpen: boolean; year: AcademicYear | null }>({
+    isOpen: false,
+    year: null,
+  });
+
   const [setCurrentModal, setSetCurrentModal] = useState<{ isOpen: boolean; year: AcademicYear | null }>({
     isOpen: false,
     year: null,
   });
 
   const canCreate = hasPermission(auth.permissions, 'create academic years');
+
+  const handleDetails = useCallback((year: AcademicYear) => {
+    setDetailsModal({ isOpen: true, year });
+  }, []);
 
   const handleSetCurrent = useCallback((year: AcademicYear) => {
     setSetCurrentModal({ isOpen: true, year });
@@ -80,10 +90,17 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
       >
         <AcademicYearList
           data={academicYears}
+          onDetails={handleDetails}
           onSetCurrent={handleSetCurrent}
           onDelete={handleDelete}
         />
       </Section>
+
+      <AcademicYearDetailsModal
+        isOpen={detailsModal.isOpen}
+        onClose={() => setDetailsModal({ isOpen: false, year: null })}
+        academicYear={detailsModal.year}
+      />
 
       <ConfirmationModal
         isOpen={setCurrentModal.isOpen}

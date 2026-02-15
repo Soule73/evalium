@@ -183,4 +183,14 @@ return [
     'security_violation_recorded' => 'Security violation recorded',
     'delivery_mode_supervised' => 'Supervised',
     'delivery_mode_homework' => 'Homework',
+
+    // Semester validation
+    'semesters_required' => 'At least one semester is required.',
+    'semesters_min' => 'At least one semester is required.',
+    'semester_name_required' => 'Each semester must have a name.',
+    'semester_start_date_required' => 'Each semester must have a start date.',
+    'semester_end_date_required' => 'Each semester must have an end date.',
+    'semester_end_before_start' => 'The semester end date must be after its start date.',
+    'semester_outside_year' => 'Semester dates must be within the academic year period.',
+    'semester_overlap' => 'This semester overlaps with semester :other.',
 ];

@@ -27,7 +27,7 @@ return new class extends Migration
 
         if (DB::getDriverName() !== 'sqlite') {
             DB::statement('ALTER TABLE semesters ADD CONSTRAINT check_semester_end_date CHECK (end_date > start_date)');
-            DB::statement('ALTER TABLE semesters ADD CONSTRAINT check_semester_order CHECK (order_number BETWEEN 1 AND 2)');
+            DB::statement('ALTER TABLE semesters ADD CONSTRAINT check_semester_order CHECK (order_number >= 1)');
         }
     }
 

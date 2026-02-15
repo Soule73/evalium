@@ -5,7 +5,7 @@ export interface Semester {
   id: number;
   academic_year_id: number;
   name: string;
-  order_number: 1 | 2;
+  order_number: number;
   start_date: string;
   end_date: string;
   created_at: string;
@@ -17,8 +17,8 @@ export interface Semester {
 }
 
 export interface SemesterFormData {
+  id?: number;
   name: string;
-  order_number: 1 | 2;
   start_date: string;
   end_date: string;
 }

@@ -80,7 +80,6 @@ function createBreadcrumbs(t: TranslateFn) {
   const academicYearsBc = createEntityBreadcrumbs<{ id: number; name: string }>({
     labelKey: 'breadcrumbs.academic_years',
     indexRoute: 'admin.academic-years.archives',
-    showRoute: 'admin.academic-years.show',
   });
 
   const subjectsBc = createEntityBreadcrumbs<{ id: number; name: string }>({
@@ -198,7 +197,6 @@ function createBreadcrumbs(t: TranslateFn) {
     admin: {
       academicYears: academicYearsBc.index,
       createAcademicYear: academicYearsBc.create,
-      showAcademicYear: academicYearsBc.show,
       editAcademicYear: academicYearsBc.edit,
       subjects: subjectsBc.index,
       createSubject: subjectsBc.create,

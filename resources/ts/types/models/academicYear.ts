@@ -1,4 +1,4 @@
-import type { Semester } from './semester';
+import type { Semester, SemesterFormData } from './semester';
 import type { ClassModel } from './class';
 
 export interface AcademicYear {
@@ -21,4 +21,5 @@ export interface AcademicYearFormData {
   start_date: string;
   end_date: string;
   is_current?: boolean;
+  semesters: SemesterFormData[];
 }

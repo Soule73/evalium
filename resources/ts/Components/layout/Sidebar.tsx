@@ -108,7 +108,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
     const isAdmin = userRole === 'admin' || userRole === 'super_admin';
     if (isAdmin) {
         navItems.push(
-            { name: t('sidebar.navigation.academic_years'), href: navRoutes.adminAcademicYears(), icon: 'academic-years' },
+            { name: t('sidebar.navigation.archives'), href: navRoutes.adminAcademicYears(), icon: 'academic-years' },
             { name: t('sidebar.navigation.assessments'), href: navRoutes.adminAssessments(), icon: 'assessments' },
             { name: t('sidebar.navigation.subjects'), href: route('admin.subjects.index'), icon: 'subjects' },
             { name: t('sidebar.navigation.classes'), href: route('admin.classes.index'), icon: 'classes' },

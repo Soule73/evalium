@@ -1,3 +1,4 @@
+export * from './academic-years';
 export * from './assessment';
 export * from './classes';
 export * from './class-subjects';

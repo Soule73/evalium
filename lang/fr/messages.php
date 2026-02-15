@@ -183,4 +183,14 @@ return [
     'security_violation_recorded' => 'Violation de sécurité enregistrée',
     'delivery_mode_supervised' => 'Surveillé',
     'delivery_mode_homework' => 'Devoir maison',
+
+    // Semester validation
+    'semesters_required' => 'Au moins un semestre est requis.',
+    'semesters_min' => 'Au moins un semestre est requis.',
+    'semester_name_required' => 'Chaque semestre doit avoir un nom.',
+    'semester_start_date_required' => 'Chaque semestre doit avoir une date de début.',
+    'semester_end_date_required' => 'Chaque semestre doit avoir une date de fin.',
+    'semester_end_before_start' => 'La date de fin du semestre doit être postérieure à sa date de début.',
+    'semester_outside_year' => 'Les dates du semestre doivent être comprises dans la période de l\'année académique.',
+    'semester_overlap' => 'Ce semestre chevauche le semestre :other.',
 ];

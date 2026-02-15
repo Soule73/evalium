@@ -20,7 +20,7 @@ return [
         'grading' => 'Notation',
 
         // Admin Navigation
-        'academic_years' => 'Années Scolaires',
+        'archives' => 'Années Archivées',
         'subjects' => 'Matières',
         'classes' => 'Classes',
         'enrollments' => 'Inscriptions',

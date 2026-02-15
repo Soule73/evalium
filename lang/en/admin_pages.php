@@ -28,6 +28,9 @@ return [
         'loading' => 'Loading...',
         'clear_search' => 'Clear search',
         'reset' => 'Reset',
+        'creating' => 'Creating...',
+        'update' => 'Update',
+        'updating' => 'Updating...',
     ],
 
     // Users Management
@@ -160,6 +163,8 @@ return [
     // Academic Years Management
     'academic_years' => [
         'title' => 'Academic Years Management',
+        'archives' => 'Archives',
+        'archives_title' => 'Academic Year Archives',
         'subtitle' => 'Manage academic years and semesters',
         'create' => 'New Academic Year',
         'create_title' => 'Create New Academic Year',
@@ -181,9 +186,9 @@ return [
         'current' => 'Current',
         'archived' => 'Archived',
         'semesters' => 'Semesters',
-        'semesters_count' => ':count semester(s)',
+        'semesters_count' => 'semester(s)',
         'classes' => 'Classes',
-        'classes_count' => ':count class(es)',
+        'classes_count' => 'class(es)',
         'set_current' => 'Set as Current',
         'set_current_title' => 'Set as Current Year',
         'set_current_message' => 'Do you want to set ":name" as the current academic year?',
@@ -219,6 +224,21 @@ return [
         'no_years_description' => 'Try adjusting your search criteria.',
         'confirm_delete' => 'Are you sure you want to delete this academic year?',
         'view_archives' => 'View all archives',
+        'details' => 'Details',
+        'details_title' => 'Academic Year Details',
+        'create_page_title' => 'Create Academic Year',
+        'edit_page_title' => 'Edit Academic Year',
+        'edit_warning' => 'Modifying dates may affect existing semesters.',
+        'name_label' => 'Name',
+        'start_date_label' => 'Start Date',
+        'end_date_label' => 'End Date',
+        'semesters_config_title' => 'Semesters Configuration',
+        'semesters_config_subtitle' => 'Configure the semesters for this academic year. At least one semester is required.',
+        'semesters_title' => 'Semesters',
+        'semester_name_label' => 'Name',
+        'semester_number' => 'Semester :number',
+        'add_semester' => 'Add Semester',
+        'remove_semester' => 'Remove',
 
         // Semesters section
         'semester_details' => 'Semester Details',

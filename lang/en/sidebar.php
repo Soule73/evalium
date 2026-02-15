@@ -20,7 +20,7 @@ return [
         'grading' => 'Grading',
 
         // Admin Navigation
-        'academic_years' => 'Academic Years',
+        'archives' => 'Archives Years',
         'subjects' => 'Subjects',
         'classes' => 'Classes',
         'enrollments' => 'Enrollments',

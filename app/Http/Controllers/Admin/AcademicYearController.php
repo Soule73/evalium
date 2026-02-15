@@ -54,25 +54,11 @@ class AcademicYearController extends Controller
      */
     public function store(StoreAcademicYearRequest $request): RedirectResponse
     {
-        $academicYear = $this->academicYearService->createNewYear($request->validated());
+        $this->academicYearService->createNewYear($request->validated());
 
         return redirect()
-            ->route('admin.academic-years.show', $academicYear)
+            ->route('admin.academic-years.archives')
             ->flashSuccess(__('messages.academic_year_created'));
-    }
-
-    /**
-     * Display the specified academic year.
-     */
-    public function show(AcademicYear $academicYear): Response
-    {
-        $this->authorize('view', $academicYear);
-
-        $academicYear = $this->academicYearService->loadAcademicYearDetails($academicYear);
-
-        return Inertia::render('Admin/AcademicYears/Show', [
-            'academicYear' => $academicYear,
-        ]);
     }
 
     /**
@@ -81,6 +67,8 @@ class AcademicYearController extends Controller
     public function edit(AcademicYear $academicYear): Response
     {
         $this->authorize('update', $academicYear);
+
+        $academicYear->load('semesters');
 
         return Inertia::render('Admin/AcademicYears/Edit', [
             'academicYear' => $academicYear,
@@ -95,7 +83,7 @@ class AcademicYearController extends Controller
         $this->academicYearService->updateYear($academicYear, $request->validated());
 
         return redirect()
-            ->route('admin.academic-years.show', $academicYear)
+            ->route('admin.academic-years.archives')
             ->flashSuccess(__('messages.academic_year_updated'));
     }
 

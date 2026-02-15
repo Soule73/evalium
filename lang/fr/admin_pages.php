@@ -28,6 +28,9 @@ return [
         'loading' => 'Chargement...',
         'search_placeholder' => 'Rechercher...',
         'reset' => 'Réinitialiser',
+        'creating' => 'Création...',
+        'update' => 'Mettre à jour',
+        'updating' => 'Mise à jour...',
     ],
 
     // Users Management
@@ -162,6 +165,8 @@ return [
     // Academic Years Management
     'academic_years' => [
         'title' => 'Gestion des années académiques',
+        'archives' => 'Archives',
+        'archives_title' => 'Archives des années académiques',
         'subtitle' => 'Gérer les années académiques et les semestres',
         'create' => 'Nouvelle année académique',
         'create_title' => 'Créer une nouvelle année académique',
@@ -183,9 +188,9 @@ return [
         'current' => 'En cours',
         'archived' => 'Archivée',
         'semesters' => 'Semestres',
-        'semesters_count' => ':count semestre(s)',
+        'semesters_count' => 'semestre(s)',
         'classes' => 'Classes',
-        'classes_count' => ':count classe(s)',
+        'classes_count' => 'classe(s)',
         'set_current' => 'Définir comme actuelle',
         'set_current_title' => 'Définir comme année en cours',
         'set_current_message' => 'Voulez-vous définir ":name" comme année académique en cours ?',
@@ -221,6 +226,21 @@ return [
         'no_years_description' => 'Essayez d\'ajuster vos critères de recherche.',
         'confirm_delete' => 'Êtes-vous sûr de vouloir supprimer cette année académique ?',
         'view_archives' => 'Voir toutes les archives',
+        'details' => 'Détails',
+        'details_title' => 'Détails de l\'année académique',
+        'create_page_title' => 'Créer une année académique',
+        'edit_page_title' => 'Modifier l\'année académique',
+        'edit_warning' => 'La modification des dates peut affecter les semestres existants.',
+        'name_label' => 'Nom',
+        'start_date_label' => 'Date de début',
+        'end_date_label' => 'Date de fin',
+        'semesters_config_title' => 'Configuration des semestres',
+        'semesters_config_subtitle' => 'Configurez les semestres pour cette année académique. Au moins un semestre est requis.',
+        'semesters_title' => 'Semestres',
+        'semester_name_label' => 'Nom',
+        'semester_number' => 'Semestre :number',
+        'add_semester' => 'Ajouter un semestre',
+        'remove_semester' => 'Supprimer',
 
         // Semesters section
         'semester_details' => 'Détails du semestre',

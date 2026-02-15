@@ -13,6 +13,7 @@ import type { PaginationType } from '@/types/datatable';
 interface AcademicYearListProps {
   data: PaginationType<AcademicYear>;
   showPagination?: boolean;
+  onDetails?: (year: AcademicYear) => void;
   onSetCurrent?: (year: AcademicYear) => void;
   onDelete?: (year: AcademicYear) => void;
 }
@@ -21,11 +22,12 @@ interface AcademicYearListProps {
  * Unified AcademicYearList component for displaying academic years.
  *
  * Displays all academic years with status indicators, date ranges,
- * and contextual actions (view, activate, delete).
+ * and contextual actions (details, edit, activate, delete).
  */
 export function AcademicYearList({
   data,
   showPagination = true,
+  onDetails,
   onSetCurrent,
   onDelete,
 }: AcademicYearListProps) {
@@ -46,7 +48,7 @@ export function AcademicYearList({
               <ArchiveBoxIcon className="w-5 h-5 text-gray-400" />
             )}
             <div>
-              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{year.name}</div>
+              <div className="text-sm font-medium text-gray-900">{year.name}</div>
               {year.is_current && (
                 <Badge label={t('admin_pages.academic_years.current')} type="success" size="sm" />
               )}
@@ -59,7 +61,7 @@ export function AcademicYearList({
         key: 'start_date',
         labelKey: 'admin_pages.academic_years.start_date',
         render: (year) => (
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <span className="text-sm text-gray-600">
             {formatDate(year.start_date)}
           </span>
         ),
@@ -69,7 +71,7 @@ export function AcademicYearList({
         key: 'end_date',
         labelKey: 'admin_pages.academic_years.end_date',
         render: (year) => (
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <span className="text-sm text-gray-600">
             {formatDate(year.end_date)}
           </span>
         ),
@@ -97,7 +99,7 @@ export function AcademicYearList({
         key: 'classes_count',
         labelKey: 'admin_pages.academic_years.classes_count',
         render: (year) => (
-          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          <span className="text-sm font-medium text-gray-900">
             {year.classes_count || 0}
           </span>
         ),
@@ -107,7 +109,7 @@ export function AcademicYearList({
         key: 'semesters_count',
         labelKey: 'admin_pages.academic_years.semesters_count',
         render: (year) => (
-          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          <span className="text-sm font-medium text-gray-900">
             {year.semesters_count || 0}
           </span>
         ),
@@ -116,12 +118,21 @@ export function AcademicYearList({
 
     actions: [
       {
-        labelKey: 'common.view',
+        labelKey: 'admin_pages.academic_years.details',
         onClick: (year: AcademicYear) => {
-          router.visit(route('admin.academic-years.show', year.id));
+          onDetails?.(year);
         },
         color: 'secondary' as const,
         variant: 'outline' as const,
+      },
+      {
+        labelKey: 'common.edit',
+        onClick: (year: AcademicYear) => {
+          router.visit(route('admin.academic-years.edit', year.id));
+        },
+        color: 'primary' as const,
+        variant: 'outline' as const,
+        permission: 'update academic years',
       },
       {
         labelKey: 'admin_pages.academic_years.activate_year',
@@ -144,7 +155,7 @@ export function AcademicYearList({
         conditional: (year: AcademicYear) => year.classes_count === 0 && year.semesters_count === 0 && !!onDelete,
       },
     ],
-  }), [t, onSetCurrent, onDelete]);
+  }), [t, onDetails, onSetCurrent, onDelete]);
 
   return <BaseEntityList data={data} config={config} variant="admin" showPagination={showPagination} />;
 }

@@ -3,7 +3,6 @@
 namespace App\Services\Admin;
 
 use App\Models\AcademicYear;
-use App\Models\Semester;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -16,7 +15,7 @@ use InvalidArgumentException;
 class AcademicYearService
 {
     /**
-     * Create a new academic year with its semesters
+     * Create a new academic year with its semesters.
      */
     public function createNewYear(array $data): AcademicYear
     {
@@ -32,9 +31,7 @@ class AcademicYearService
                 'is_current' => $data['is_current'] ?? false,
             ]);
 
-            if (isset($data['create_semesters']) && $data['create_semesters']) {
-                $this->createDefaultSemesters($academicYear);
-            }
+            $this->syncSemesters($academicYear, $data['semesters'] ?? []);
 
             return $academicYear->load('semesters');
         });
@@ -73,7 +70,7 @@ class AcademicYearService
     }
 
     /**
-     * Update an existing academic year
+     * Update an existing academic year and sync its semesters.
      */
     public function updateYear(AcademicYear $academicYear, array $data): AcademicYear
     {
@@ -89,7 +86,11 @@ class AcademicYearService
                 'is_current' => $data['is_current'] ?? $academicYear->is_current,
             ]);
 
-            return $academicYear->fresh();
+            if (isset($data['semesters'])) {
+                $this->syncSemesters($academicYear, $data['semesters']);
+            }
+
+            return $academicYear->fresh()->load('semesters');
         });
     }
 
@@ -110,30 +111,37 @@ class AcademicYearService
     }
 
     /**
-     * Create default 2 semesters for an academic year
+     * Sync semesters: create new, update existing, remove deleted.
+     *
+     * @param  array<int, array{id?: int, name: string, start_date: string, end_date: string}>  $semestersData
      */
-    private function createDefaultSemesters(AcademicYear $academicYear): void
+    private function syncSemesters(AcademicYear $academicYear, array $semestersData): void
     {
-        $startDate = $academicYear->start_date;
-        $endDate = $academicYear->end_date;
+        $incomingIds = collect($semestersData)
+            ->pluck('id')
+            ->filter()
+            ->toArray();
 
-        $midDate = $startDate->copy()->addMonths(5);
+        $academicYear->semesters()
+            ->whereNotIn('id', $incomingIds)
+            ->delete();
 
-        Semester::create([
-            'academic_year_id' => $academicYear->id,
-            'name' => 'Semestre 1',
-            'start_date' => $startDate,
-            'end_date' => $midDate,
-            'order_number' => 1,
-        ]);
+        foreach ($semestersData as $index => $semesterData) {
+            $attributes = [
+                'name' => $semesterData['name'],
+                'start_date' => $semesterData['start_date'],
+                'end_date' => $semesterData['end_date'],
+                'order_number' => $index + 1,
+            ];
 
-        Semester::create([
-            'academic_year_id' => $academicYear->id,
-            'name' => 'Semestre 2',
-            'start_date' => $midDate->copy()->addDay(),
-            'end_date' => $endDate,
-            'order_number' => 2,
-        ]);
+            if (! empty($semesterData['id'])) {
+                $academicYear->semesters()
+                    ->where('id', $semesterData['id'])
+                    ->update($attributes);
+            } else {
+                $academicYear->semesters()->create($attributes);
+            }
+        }
     }
 
     /**
@@ -150,25 +158,18 @@ class AcademicYearService
     public function getAcademicYearsForArchives(array $filters, int $perPage): LengthAwarePaginator
     {
         return AcademicYear::query()
+            ->with('semesters')
             ->withCount(['semesters', 'classes'])
             ->when(
                 $filters['search'] ?? null,
-                fn ($query, $search) => $query->where('name', 'like', "%{$search}%")
+                fn($query, $search) => $query->where('name', 'like', "%{$search}%")
             )
             ->when(
                 isset($filters['is_current']),
-                fn ($query) => $query->where('is_current', (bool) $filters['is_current'])
+                fn($query) => $query->where('is_current', (bool) $filters['is_current'])
             )
             ->orderBy('start_date', 'desc')
             ->paginate($perPage)
             ->withQueryString();
-    }
-
-    /**
-     * Load detailed relationships for an academic year.
-     */
-    public function loadAcademicYearDetails(AcademicYear $academicYear): AcademicYear
-    {
-        return $academicYear->load(['semesters', 'classes.level', 'classes.students']);
     }
 }

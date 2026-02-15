@@ -1,12 +1,11 @@
-import { type FormEvent, useMemo, useState } from 'react';
+import { type FormEvent, useCallback, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { type FormDataConvertible } from '@inertiajs/core';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type AcademicYearFormData } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
-import { Button, Section } from '@/Components';
-import { Input, Checkbox } from '@/Components';
+import { AcademicYearForm, buildDefaultSemesters } from '@/Components/features/academic-years';
 import { route } from 'ziggy-js';
 
 export default function AcademicYearCreate() {
@@ -18,121 +17,64 @@ export default function AcademicYearCreate() {
     start_date: '',
     end_date: '',
     is_current: false,
+    semesters: buildDefaultSemesters('', ''),
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof AcademicYearFormData, string>>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (field: keyof AcademicYearFormData, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
-  };
-
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = useCallback((e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    router.post(route('admin.academic-years.store'), formData as unknown as unknown as Record<string, FormDataConvertible>, {
-      onError: (errors) => {
-        setErrors(errors as Partial<Record<keyof AcademicYearFormData, string>>);
-        setIsSubmitting(false);
-      },
-      onSuccess: () => {
-        setIsSubmitting(false);
-      },
-    });
-  };
+    router.post(
+      route('admin.academic-years.store'),
+      formData as unknown as Record<string, FormDataConvertible>,
+      {
+        onError: (errs) => {
+          setErrors(errs as Record<string, string>);
+          setIsSubmitting(false);
+        },
+        onSuccess: () => setIsSubmitting(false),
+      }
+    );
+  }, [formData]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     router.visit(route('admin.academic-years.archives'));
-  };
+  }, []);
+
+  const handleErrorsClear = useCallback((field: string) => {
+    setErrors((prev) => ({ ...prev, [field]: '' }));
+  }, []);
 
   const translations = useMemo(() => ({
-    createPageTitle: t('admin_pages.academic_years.create_page_title'),
-    createTitle: t('admin_pages.academic_years.create_title'),
-    createSubtitle: t('admin_pages.academic_years.create_subtitle'),
-    nameLabel: t('admin_pages.academic_years.name_label'),
-    namePlaceholder: t('admin_pages.academic_years.name_placeholder'),
-    nameHelper: t('admin_pages.academic_years.name_helper'),
-    startDateLabel: t('admin_pages.academic_years.start_date_label'),
-    endDateLabel: t('admin_pages.academic_years.end_date_label'),
-    isCurrent: t('admin_pages.academic_years.is_current'),
-    isCurrentHelper: t('admin_pages.academic_years.is_current_helper'),
-    createNote: t('admin_pages.academic_years.create_note'),
-    cancel: t('admin_pages.common.cancel'),
+    pageTitle: t('admin_pages.academic_years.create_page_title'),
+    sectionTitle: t('admin_pages.academic_years.create_title'),
+    sectionSubtitle: t('admin_pages.academic_years.create_subtitle'),
     creating: t('admin_pages.common.creating'),
     create: t('admin_pages.common.create'),
   }), [t]);
 
   return (
     <AuthenticatedLayout
-      title={translations.createPageTitle}
+      title={translations.pageTitle}
       breadcrumb={breadcrumbs.admin.createAcademicYear()}
     >
-      <Section
-        title={translations.createTitle}
-        subtitle={translations.createSubtitle}
-      >
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 gap-6">
-            <Input
-              label={translations.nameLabel}
-              name="name"
-              value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
-              error={errors.name}
-              required
-              placeholder={translations.namePlaceholder}
-              helperText={translations.nameHelper}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input
-                label={translations.startDateLabel}
-                name="start_date"
-                type="date"
-                value={formData.start_date}
-                onChange={(e) => handleChange('start_date', e.target.value)}
-                error={errors.start_date}
-                required
-              />
-
-              <Input
-                label={translations.endDateLabel}
-                name="end_date"
-                type="date"
-                value={formData.end_date}
-                onChange={(e) => handleChange('end_date', e.target.value)}
-                error={errors.end_date}
-                required
-              />
-            </div>
-
-            <div>
-              <Checkbox
-                label={translations.isCurrent}
-                name="is_current"
-                checked={formData.is_current || false}
-                onChange={(e) => handleChange('is_current', e.target.checked)}
-              />
-              <p className="text-sm text-gray-500 mt-1">{translations.isCurrentHelper}</p>
-            </div>
-          </div>
-
-          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-            <p className="text-sm text-indigo-800">{translations.createNote}</p>
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-6">
-            <Button type="button" variant="outline" color="secondary" onClick={handleCancel} disabled={isSubmitting}>
-              {translations.cancel}
-            </Button>
-            <Button type="submit" variant="solid" color="primary" disabled={isSubmitting}>
-              {isSubmitting ? translations.creating : translations.create}
-            </Button>
-          </div>
-        </form>
-      </Section>
+      <AcademicYearForm
+        formData={formData}
+        errors={errors}
+        isSubmitting={isSubmitting}
+        sectionTitle={translations.sectionTitle}
+        sectionSubtitle={translations.sectionSubtitle}
+        submitLabel={translations.create}
+        submittingLabel={translations.creating}
+        onFormDataChange={setFormData}
+        onErrorsClear={handleErrorsClear}
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+        showNameHelper
+      />
     </AuthenticatedLayout>
   );
 }
