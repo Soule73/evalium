@@ -50,7 +50,6 @@ export function EnrollmentList({
     const statusFilterOptions = [
       { value: '', label: t('admin_pages.enrollments.all_statuses') },
       { value: 'active', label: t('admin_pages.enrollments.status_active') },
-      { value: 'transferred', label: t('admin_pages.enrollments.status_transferred') },
       { value: 'withdrawn', label: t('admin_pages.enrollments.status_withdrawn') },
     ];
 
@@ -66,7 +65,6 @@ export function EnrollmentList({
 
       const statusMap: Record<string, { type: 'success' | 'error' | 'warning' | 'info' | 'gray'; label: string }> = {
         active: { type: 'success', label: t('admin_pages.enrollments.status_active') },
-        transferred: { type: 'info', label: t('admin_pages.enrollments.status_transferred') },
         withdrawn: { type: 'gray', label: t('admin_pages.enrollments.status_withdrawn') },
       };
 

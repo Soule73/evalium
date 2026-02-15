@@ -378,7 +378,6 @@ return [
         'manage_enrollments' => 'Manage Enrollments',
         'no_enrollments' => 'No students enrolled yet',
         'status_active' => 'Active',
-        'status_transferred' => 'Transferred',
         'status_withdrawn' => 'Withdrawn',
         'and_more' => 'And :count more...',
 
@@ -421,7 +420,6 @@ return [
         'withdrawn_on' => 'Withdrawn on',
         'status' => 'Status',
         'status_active' => 'Active',
-        'status_transferred' => 'Transferred',
         'status_withdrawn' => 'Withdrawn',
         'all_classes' => 'All Classes',
         'all_statuses' => 'All Statuses',

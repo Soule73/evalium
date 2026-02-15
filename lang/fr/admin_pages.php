@@ -381,7 +381,6 @@ return [
         'manage_enrollments' => 'Gérer les inscriptions',
         'no_enrollments' => 'Aucun étudiant inscrit pour le moment',
         'status_active' => 'Actif',
-        'status_transferred' => 'Transféré',
         'status_withdrawn' => 'Retiré',
         'and_more' => 'Et :count de plus...',
 
@@ -423,7 +422,6 @@ return [
         'withdrawn_on' => 'Retiré le',
         'status' => 'Statut',
         'status_active' => 'Actif',
-        'status_transferred' => 'Transféré',
         'status_withdrawn' => 'Retiré',
         'all_classes' => 'Toutes les classes',
         'all_statuses' => 'Tous les statuts',

@@ -16,10 +16,10 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
     return (
         <GuestLayout title={t('auth_pages.login.title')}>
             <div className="min-h-screen flex flex-col sm:justify-center items-center ">
+                <div className="flex justify-center mb-6">
+                    <Logo showName showSlogan width={80} height={80} />
+                </div>
                 <div className="w-full max-w-lg mx-auto bg-white p-8 border border-gray-300 rounded-lg ">
-                    <div className="flex justify-center mb-6">
-                        <Logo />
-                    </div>
                     <div className="text-center mb-8">
 
                         <h1 className="text-3xl font-bold text-gray-900">

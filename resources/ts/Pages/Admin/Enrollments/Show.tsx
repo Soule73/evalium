@@ -41,10 +41,7 @@ export default function EnrollmentShow({ enrollment, classes, subjects, overallS
     enrolledAt: t('admin_pages.enrollments.enrolled_at'),
     status: t('admin_pages.enrollments.status'),
     statusActive: t('admin_pages.enrollments.status_active'),
-    statusTransferred: t('admin_pages.enrollments.status_transferred'),
     statusWithdrawn: t('admin_pages.enrollments.status_withdrawn'),
-    transferInfo: t('admin_pages.enrollments.transfer_info'),
-    transferredAt: t('admin_pages.enrollments.transferred_at'),
     withdrawalInfo: t('admin_pages.enrollments.withdrawal_info'),
     withdrawnAt: t('admin_pages.enrollments.withdrawn_at'),
   }), [t]);
@@ -56,7 +53,6 @@ export default function EnrollmentShow({ enrollment, classes, subjects, overallS
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { type: 'success' | 'error' | 'warning' | 'info' | 'gray'; label: string }> = {
       active: { type: 'success', label: translations.statusActive },
-      transferred: { type: 'info', label: translations.statusTransferred },
       withdrawn: { type: 'gray', label: translations.statusWithdrawn },
     };
 
@@ -132,19 +128,6 @@ export default function EnrollmentShow({ enrollment, classes, subjects, overallS
               value={getStatusBadge(enrollment.status)}
             />
           </Stat.Group>
-
-          {enrollment.status === 'transferred' && enrollment.left_date && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-                <div className="text-sm font-medium text-indigo-900 mb-2">
-                  {translations.transferInfo}
-                </div>
-                <div className="text-sm text-indigo-800">
-                  {translations.transferredAt}: {formatDate(enrollment.left_date)}
-                </div>
-              </div>
-            </div>
-          )}
 
           {enrollment.status === 'withdrawn' && enrollment.left_date && (
             <div className="mt-6 pt-6 border-t border-gray-200">

@@ -1,7 +1,7 @@
 import type { ClassModel } from './class';
 import type { User } from './shared';
 
-export type EnrollmentStatus = 'active' | 'withdrawn' | 'transferred' | 'completed';
+export type EnrollmentStatus = 'active' | 'withdrawn' | 'completed';
 
 export interface Enrollment {
   id: number;
