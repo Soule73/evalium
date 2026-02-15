@@ -125,7 +125,7 @@ const Tooltip = ({
         <div
           ref={tooltipRef}
           role="tooltip"
-          className="fixed z-[9999] whitespace-nowrap px-2.5 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-md shadow-lg pointer-events-none"
+          className="fixed z-9999 whitespace-nowrap px-2.5 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-md shadow-lg pointer-events-none"
           style={{ top: coords.top, left: coords.left }}
         >
           {content}

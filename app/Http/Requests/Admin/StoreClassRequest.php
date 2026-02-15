@@ -25,10 +25,8 @@ class StoreClassRequest extends FormRequest
     {
         $rules = $this->getClassValidationRules();
 
-        unset($rules['academic_year_id']);
-
         $academicYearId = $this->getAcademicYearIdFromSession();
-        $rules['name'][3] = Rule::unique('classes')->where(function ($query) use ($academicYearId) {
+        $rules['name'][] = Rule::unique('classes')->where(function ($query) use ($academicYearId) {
             return $query->where('academic_year_id', $academicYearId)
                 ->where('level_id', $this->input('level_id'));
         });

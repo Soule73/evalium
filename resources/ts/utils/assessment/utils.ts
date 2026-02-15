@@ -1,13 +1,77 @@
-import { type Question, type AssessmentAssignment } from '@/types';
+import { type Question, type Answer, type AssessmentAssignment, type Choice, type QuestionResult } from '@/types';
 
 
 /**
- * Calculates the percentage score based on the given score and total possible points.
- *
- * @param score - The achieved score.
- * @param totalPoints - The total possible points.
- * @returns The percentage score as a whole number (rounded). Returns 0 if totalPoints is 0 or less.
+ * Calculates the total possible points from a list of questions.
  */
+export const calculateTotalPoints = (questions: Question[]): number => {
+    return questions.reduce((sum, q) => sum + (q.points || 0), 0);
+};
+
+
+/**
+ * Calculates the total score from a record of user answers.
+ */
+export const calculateTotalScore = (userAnswers: Record<number, Answer>): number => {
+    return Object.values(userAnswers || {}).reduce((sum, answer) => sum + (answer.score || 0), 0);
+};
+
+
+/**
+ * Builds a map of question_id -> score from user answers.
+ */
+export const buildScoresMap = (userAnswers: Record<number, Answer>): Record<number, number> => {
+    const result: Record<number, number> = {};
+    Object.values(userAnswers || {}).forEach(answer => {
+        if (answer.question_id) {
+            result[answer.question_id] = answer.score || 0;
+        }
+    });
+    return result;
+};
+
+
+/**
+ * Builds a QuestionResult from a question and its corresponding answer.
+ * Supports optional overrides for editable scores/feedbacks (grading mode).
+ */
+export const buildQuestionResult = (
+    question: Question,
+    answer: Answer | undefined,
+    overrides?: { scores?: Record<number, number>; feedbacks?: Record<number, string> }
+): QuestionResult => {
+    if (!answer) {
+        return {
+            isCorrect: null,
+            userChoices: [],
+            hasMultipleAnswers: question.type === 'multiple',
+            feedback: overrides?.feedbacks?.[question.id] || null,
+            score: overrides?.scores?.[question.id] || 0,
+        };
+    }
+
+    const isMultipleChoice = question.type === 'multiple';
+    const userChoices: Choice[] = [];
+
+    if (isMultipleChoice && answer.choices) {
+        answer.choices.forEach(c => {
+            if (c.choice) {
+                userChoices.push(c.choice);
+            }
+        });
+    } else if (answer.choice) {
+        userChoices.push(answer.choice);
+    }
+
+    return {
+        isCorrect: null,
+        userChoices,
+        hasMultipleAnswers: isMultipleChoice,
+        userText: answer.answer_text,
+        feedback: overrides?.feedbacks?.[question.id] ?? answer.feedback ?? null,
+        score: overrides?.scores?.[question.id] ?? answer.score ?? 0,
+    };
+};
 export const calculatePercentage = (score: number, totalPoints: number): number => {
     return totalPoints > 0 ? Math.round((score / totalPoints) * 100) : 0;
 };

@@ -40,9 +40,9 @@ class LevelRequest extends FormRequest
                 'max:50',
                 Rule::unique('levels', 'code')->ignore($levelId),
             ],
-            'description' => 'nullable|string|max:1000',
-            'order' => 'required|integer|min:0',
-            'is_active' => 'boolean',
+            'description' => ['nullable', 'string', 'max:1000'],
+            'order' => ['required', 'integer', 'min:0'],
+            'is_active' => ['boolean'],
         ];
     }
 }

@@ -1,12 +1,12 @@
-import { useMemo, useCallback } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type Assessment, type AssessmentAssignment, type Answer, type User, type Question, type QuestionResult, type Choice, type AssessmentRouteContext } from '@/types';
+import { type Assessment, type AssessmentAssignment, type Answer, type User, type AssessmentRouteContext } from '@/types';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
-import { Badge, Button, Section, QuestionRenderer, Stat } from '@/Components';
+import { Badge, Button, Section, Stat, QuestionReviewList, TeacherNotesDisplay } from '@/Components';
 import { formatDate } from '@/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useAssessmentReview } from '@/hooks/features/assessment';
 import { DocumentTextIcon, ChartPieIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 interface Props {
@@ -21,67 +21,8 @@ export default function ReviewAssignment({ assessment, student, assignment, user
   const { t } = useTranslations();
   const breadcrumbs = useBreadcrumbs();
 
-  const totalPoints = useMemo(() =>
-    (assessment.questions ?? []).reduce((sum, q) => sum + q.points, 0),
-    [assessment.questions]
-  );
-
-  const calculatedTotalScore = useMemo(() => {
-    return Object.values(userAnswers || {}).reduce((sum, answer) => {
-      return sum + (answer.score || 0);
-    }, 0);
-  }, [userAnswers]);
-
-  const percentage = useMemo(() =>
-    totalPoints > 0 ? Math.round((calculatedTotalScore / totalPoints) * 100) : 0,
-    [calculatedTotalScore, totalPoints]
-  );
-
-  const getQuestionResult = useCallback((question: Question): QuestionResult => {
-    const answer = userAnswers[question.id];
-
-    if (!answer) {
-      return {
-        isCorrect: null,
-        userChoices: [],
-        hasMultipleAnswers: question.type === 'multiple',
-        feedback: null,
-        score: 0
-      };
-    }
-
-    const isMultipleChoice = question.type === 'multiple';
-    const userChoices: Choice[] = [];
-
-    if (isMultipleChoice && answer.choices) {
-      answer.choices.forEach(c => {
-        if (c.choice) {
-          userChoices.push(c.choice);
-        }
-      });
-    } else if (answer.choice) {
-      userChoices.push(answer.choice);
-    }
-
-    return {
-      isCorrect: null,
-      userChoices,
-      hasMultipleAnswers: isMultipleChoice,
-      userText: answer.answer_text,
-      feedback: answer.feedback || null,
-      score: answer.score || 0
-    };
-  }, [userAnswers]);
-
-  const scores = useMemo(() => {
-    const result: Record<number, number> = {};
-    Object.values(userAnswers || {}).forEach(answer => {
-      if (answer.question_id) {
-        result[answer.question_id] = answer.score || 0;
-      }
-    });
-    return result;
-  }, [userAnswers]);
+  const { totalPoints, calculatedTotalScore, percentage, scores, getQuestionResult } =
+    useAssessmentReview({ assessment, userAnswers });
 
   const pageBreadcrumbs = routeContext
     ? breadcrumbs.assessment.review(routeContext, assessment, student)
@@ -151,28 +92,17 @@ export default function ReviewAssignment({ assessment, student, assignment, user
           </Stat.Group>
         </Section>
 
-        <Section title={t('grading_pages.review.questions_review')}>
-          <div className="space-y-6">
-            {(assessment.questions ?? []).map((question) => (
-              <div key={question.id} className="pb-6 border-b border-gray-200 last:border-0">
-                <QuestionRenderer
-                  questions={[question]}
-                  getQuestionResult={getQuestionResult}
-                  scores={scores}
-                  isTeacherView={true}
-                />
-              </div>
-            ))}
-          </div>
-        </Section>
+        <QuestionReviewList
+          title={t('grading_pages.review.questions_review')}
+          questions={assessment.questions ?? []}
+          getQuestionResult={getQuestionResult}
+          scores={scores}
+        />
 
-        {assignment.teacher_notes && (
-          <Section title={t('grading_pages.show.teacher_notes_label')}>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-gray-700 whitespace-pre-wrap">{assignment.teacher_notes}</p>
-            </div>
-          </Section>
-        )}
+        <TeacherNotesDisplay
+          notes={assignment.teacher_notes}
+          title={t('grading_pages.show.teacher_notes_label')}
+        />
       </div>
     </AuthenticatedLayout>
   );

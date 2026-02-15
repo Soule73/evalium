@@ -1,13 +1,14 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type Assessment, type AssessmentAssignment, type Answer, type User, type Question, type PageProps, type QuestionResult, type Choice, type AssessmentRouteContext } from '@/types';
+import { type Assessment, type AssessmentAssignment, type Answer, type User, type Question, type PageProps, type AssessmentRouteContext } from '@/types';
 import { requiresManualGrading } from '@/utils';
 import { route } from 'ziggy-js';
 import { router, usePage } from '@inertiajs/react';
-import { Button, Section, Textarea, QuestionRenderer, ConfirmationModal, Stat } from '@/Components';
+import { Button, Section, Textarea, ConfirmationModal, Stat, QuestionReviewList } from '@/Components';
 import { hasPermission } from '@/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useAssessmentReview } from '@/hooks/features/assessment';
 import { DocumentTextIcon, ChartPieIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 interface Props {
@@ -24,7 +25,7 @@ export default function GradeAssignment({ assessment, student, assignment, userA
   const { auth } = usePage<PageProps>().props;
   const canGradeAssessments = hasPermission(auth.permissions, 'grade assessments');
 
-  const [scores, setScores] = useState<Record<number, number>>(() => {
+  const [editableScores, setEditableScores] = useState<Record<number, number>>(() => {
     const initialScores: Record<number, number> = {};
     (assessment.questions ?? []).forEach(question => {
       const answer = userAnswers[question.id];
@@ -48,65 +49,17 @@ export default function GradeAssignment({ assessment, student, assignment, userA
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const totalPoints = useMemo(() =>
-    (assessment.questions ?? []).reduce((sum, q) => sum + q.points, 0),
-    [assessment.questions]
-  );
-
-  const calculatedTotalScore = useMemo(() =>
-    Object.values(scores).reduce((sum, score) => sum + score, 0),
-    [scores]
-  );
-
-  const percentage = useMemo(() =>
-    totalPoints > 0 ? Math.round((calculatedTotalScore / totalPoints) * 100) : 0,
-    [calculatedTotalScore, totalPoints]
-  );
+  const { totalPoints, calculatedTotalScore, percentage, scores, getQuestionResult } =
+    useAssessmentReview({ assessment, userAnswers, scoreOverrides: editableScores, feedbackOverrides: feedbacks });
 
   const handleScoreChange = useCallback((questionId: number, value: string) => {
     const numValue = parseFloat(value) || 0;
-    setScores(prev => ({ ...prev, [questionId]: numValue }));
+    setEditableScores(prev => ({ ...prev, [questionId]: numValue }));
   }, []);
 
   const handleFeedbackChange = useCallback((questionId: number, value: string) => {
     setFeedbacks(prev => ({ ...prev, [questionId]: value }));
   }, []);
-
-  const getQuestionResult = useCallback((question: Question): QuestionResult => {
-    const answer = userAnswers[question.id];
-
-    if (!answer) {
-      return {
-        isCorrect: null,
-        userChoices: [],
-        hasMultipleAnswers: question.type === 'multiple',
-        feedback: feedbacks[question.id] || null,
-        score: scores[question.id] || 0
-      };
-    }
-
-    const isMultipleChoice = question.type === 'multiple';
-    const userChoices: Choice[] = [];
-
-    if (isMultipleChoice && answer.choices) {
-      answer.choices.forEach(c => {
-        if (c.choice) {
-          userChoices.push(c.choice);
-        }
-      });
-    } else if (answer.choice) {
-      userChoices.push(answer.choice);
-    }
-
-    return {
-      isCorrect: null,
-      userChoices,
-      hasMultipleAnswers: isMultipleChoice,
-      userText: answer.answer_text,
-      feedback: feedbacks[question.id] || null,
-      score: scores[question.id] || 0
-    };
-  }, [userAnswers, feedbacks, scores]);
 
   const handleSubmit = useCallback(() => {
     setShowConfirmModal(true);
@@ -122,7 +75,7 @@ export default function GradeAssignment({ assessment, student, assignment, userA
 
     const scoresWithFeedback = (assessment.questions ?? []).map(question => ({
       question_id: question.id,
-      score: scores[question.id] || 0,
+      score: editableScores[question.id] || 0,
       feedback: feedbacks[question.id] || null
     }));
 
@@ -132,10 +85,10 @@ export default function GradeAssignment({ assessment, student, assignment, userA
     }, {
       onFinish: () => setIsSubmitting(false)
     });
-  }, [assessment, scores, feedbacks, teacherNotes, saveGradeUrl]);
+  }, [assessment, editableScores, feedbacks, teacherNotes, saveGradeUrl]);
 
   const renderScoreInput = (question: Question) => {
-    const questionScore = scores[question.id] || 0;
+    const questionScore = editableScores[question.id] || 0;
     const maxScore = question.points || 0;
     const isAutoGraded = !requiresManualGrading(question);
 
@@ -243,22 +196,14 @@ export default function GradeAssignment({ assessment, student, assignment, userA
           </Stat.Group>
         </Section>
 
-        <Section title={t('grading_pages.show.questions_correction')}>
-          <div className="space-y-6">
-            {(assessment.questions ?? []).map((question) => (
-              <div key={question.id} className="pb-6 border-b border-gray-200 last:border-0">
-                <QuestionRenderer
-                  questions={[question]}
-                  getQuestionResult={getQuestionResult}
-                  scores={scores}
-                  isTeacherView={true}
-                  renderScoreInput={renderScoreInput}
-                  isEditMode={canGradeAssessments}
-                />
-              </div>
-            ))}
-          </div>
-        </Section>
+        <QuestionReviewList
+          title={t('grading_pages.show.questions_correction')}
+          questions={assessment.questions ?? []}
+          getQuestionResult={getQuestionResult}
+          scores={scores}
+          isEditMode={canGradeAssessments}
+          renderScoreInput={renderScoreInput}
+        />
 
         <Section title={t('grading_pages.show.teacher_notes_label')}>
           <Textarea

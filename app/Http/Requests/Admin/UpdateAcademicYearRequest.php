@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Traits\ValidatesAcademicYearSemesters;
+use App\Http\Requests\Traits\ValidatesAcademicYearSemesters;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

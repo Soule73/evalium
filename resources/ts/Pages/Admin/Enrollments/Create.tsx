@@ -5,7 +5,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type EnrollmentFormData, type ClassModel, type User } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
-import { Button, Section, Select, Badge } from '@/Components';
+import { Button, Section, Select } from '@/Components';
 import { UserAvatar } from '@/Components/layout/UserAvatar';
 import { RoleBadge } from '@/Components/layout/RoleBadge';
 import { CreateStudentModal } from '@/Components/features';

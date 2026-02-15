@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Http\Requests\Traits;
 
 use App\Http\Requests\Traits\ClassValidationRules;
-use App\Models\AcademicYear;
 use App\Models\Level;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,36 +17,17 @@ class ClassValidationRulesTest extends TestCase
 
     private FormRequest $request;
 
-    private AcademicYear $academicYear;
-
     private Level $level;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->academicYear = AcademicYear::factory()->create();
         $this->level = Level::factory()->create();
 
-        $this->request = new class($this->academicYear->id, $this->level->id) extends FormRequest
+        $this->request = new class extends FormRequest
         {
             use ClassValidationRules;
-
-            public function __construct(
-                private int $academicYearId,
-                private int $levelId
-            ) {
-                parent::__construct();
-            }
-
-            public function input($key = null, $default = null)
-            {
-                return match ($key) {
-                    'academic_year_id' => $this->academicYearId,
-                    'level_id' => $this->levelId,
-                    default => $default,
-                };
-            }
 
             public function rules(): array
             {
@@ -65,14 +45,14 @@ class ClassValidationRulesTest extends TestCase
     {
         $rules = $this->request->rules();
 
-        $this->assertArrayHasKey('academic_year_id', $rules);
         $this->assertArrayHasKey('level_id', $rules);
         $this->assertArrayHasKey('name', $rules);
         $this->assertArrayHasKey('description', $rules);
         $this->assertArrayHasKey('max_students', $rules);
+        $this->assertArrayNotHasKey('academic_year_id', $rules);
     }
 
-    public function test_get_class_validation_rules_includes_unique_constraint(): void
+    public function test_get_class_validation_rules_name_has_base_constraints(): void
     {
         $rules = $this->request->rules();
 
@@ -80,65 +60,14 @@ class ClassValidationRulesTest extends TestCase
         $this->assertContains('required', $rules['name']);
         $this->assertContains('string', $rules['name']);
         $this->assertContains('max:255', $rules['name']);
-
-        $hasUniqueRule = false;
-        foreach ($rules['name'] as $rule) {
-            if (is_object($rule) && method_exists($rule, '__toString')) {
-                $ruleString = (string) $rule;
-                if (str_contains($ruleString, 'unique')) {
-                    $hasUniqueRule = true;
-                    break;
-                }
-            }
-        }
-
-        $this->assertTrue($hasUniqueRule, 'Name should have unique validation rule');
     }
 
-    public function test_get_class_validation_rules_with_class_id_adds_ignore(): void
+    public function test_get_class_validation_rules_description_has_max_length(): void
     {
-        $requestWithId = new class($this->academicYear->id, $this->level->id) extends FormRequest
-        {
-            use ClassValidationRules;
+        $rules = $this->request->rules();
 
-            public function __construct(
-                private int $academicYearId,
-                private int $levelId
-            ) {
-                parent::__construct();
-            }
-
-            public function input($key = null, $default = null)
-            {
-                return match ($key) {
-                    'academic_year_id' => $this->academicYearId,
-                    'level_id' => $this->levelId,
-                    default => $default,
-                };
-            }
-
-            public function rules(): array
-            {
-                return $this->getClassValidationRules(classId: 5);
-            }
-        };
-
-        $rules = $requestWithId->rules();
-
-        $this->assertIsArray($rules['name']);
-
-        $hasIgnore = false;
-        foreach ($rules['name'] as $rule) {
-            if (is_object($rule) && method_exists($rule, '__toString')) {
-                $ruleString = (string) $rule;
-                if (str_contains($ruleString, 'unique') && str_contains($ruleString, '5')) {
-                    $hasIgnore = true;
-                    break;
-                }
-            }
-        }
-
-        $this->assertTrue($hasIgnore, 'Unique rule should ignore class ID 5');
+        $this->assertIsArray($rules['description']);
+        $this->assertContains('max:1000', $rules['description']);
     }
 
     public function test_get_class_validation_messages_returns_translated_messages(): void
@@ -148,7 +77,6 @@ class ClassValidationRulesTest extends TestCase
         $this->assertIsArray($messages);
         $this->assertNotEmpty($messages);
 
-        $this->assertArrayHasKey('academic_year_id.required', $messages);
         $this->assertArrayHasKey('level_id.required', $messages);
         $this->assertArrayHasKey('name.required', $messages);
         $this->assertArrayHasKey('name.unique', $messages);
@@ -160,7 +88,6 @@ class ClassValidationRulesTest extends TestCase
         $rules = $this->request->rules();
 
         $validator = Validator::make([
-            'academic_year_id' => $this->academicYear->id,
             'level_id' => $this->level->id,
             'name' => 'Test Class',
             'description' => 'A test class',
@@ -177,7 +104,6 @@ class ClassValidationRulesTest extends TestCase
         $validator = Validator::make([], $rules);
 
         $this->assertTrue($validator->fails());
-        $this->assertArrayHasKey('academic_year_id', $validator->errors()->toArray());
         $this->assertArrayHasKey('level_id', $validator->errors()->toArray());
         $this->assertArrayHasKey('name', $validator->errors()->toArray());
     }
@@ -187,7 +113,6 @@ class ClassValidationRulesTest extends TestCase
         $rules = $this->request->rules();
 
         $validator = Validator::make([
-            'academic_year_id' => $this->academicYear->id,
             'level_id' => $this->level->id,
             'name' => 'Test Class',
             'max_students' => 0,
@@ -202,7 +127,6 @@ class ClassValidationRulesTest extends TestCase
         $rules = $this->request->rules();
 
         $validator = Validator::make([
-            'academic_year_id' => $this->academicYear->id,
             'level_id' => $this->level->id,
             'name' => 'Test Class',
         ], $rules);

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Traits;
+namespace App\Http\Requests\Traits;
 
 use Illuminate\Validation\Validator;
 

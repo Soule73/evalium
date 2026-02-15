@@ -4,43 +4,26 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Traits;
 
-use Illuminate\Validation\Rule;
-
 /**
- * Trait ClassValidationRules
- *
  * Provides shared validation rules and messages for Class form requests.
  * Eliminates duplication between StoreClassRequest and UpdateClassRequest.
+ *
+ * Each consumer must append their own unique constraint to the 'name' rule,
+ * scoped by academic_year_id and level_id.
  */
 trait ClassValidationRules
 {
     /**
      * Get the base validation rules for class entities.
      *
-     * @param  int|null  $classId  The class ID to ignore for unique validation (for updates)
      * @return array<string, array<int, mixed>>
      */
-    protected function getClassValidationRules(?int $classId = null): array
+    protected function getClassValidationRules(): array
     {
-        $uniqueRule = Rule::unique('classes')->where(function ($query) {
-            return $query->where('academic_year_id', $this->input('academic_year_id'))
-                ->where('level_id', $this->input('level_id'));
-        });
-
-        if ($classId !== null) {
-            $uniqueRule->ignore($classId);
-        }
-
         return [
-            'academic_year_id' => ['required', 'exists:academic_years,id'],
             'level_id' => ['required', 'exists:levels,id'],
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                $uniqueRule,
-            ],
-            'description' => ['nullable', 'string'],
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:1000'],
             'max_students' => ['nullable', 'integer', 'min:1'],
         ];
     }

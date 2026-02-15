@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property int $id The unique identifier for the question.
  * @property string $content The text of the question.
- * @property string $type The type of the question Available(‘multiple’, ‘boolean’, ‘one_choice’, ‘text’).
+ * @property QuestionType $type The type of the question Available(‘multiple’, ‘boolean’, ‘one_choice’, ‘text’).
  * @property int $points The points assigned to the question.
  * @property int $assessment_id The ID of the related assessment.
  * @property int $order_index The order index of the question within the assessment.

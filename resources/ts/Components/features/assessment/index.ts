@@ -7,6 +7,8 @@ export * from './QuestionNavigation';
 export * from './QuestionReadOnlySection';
 export * from './QuestionRenderer';
 export * from './QuestionResultReadOnly';
+export * from './QuestionReviewList';
 export * from './QuestionsManager';
 export * from './SortableQuestionItem';
 export * from './TakeQuestion';
+export * from './TeacherNotesDisplay';

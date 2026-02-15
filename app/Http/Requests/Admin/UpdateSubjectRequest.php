@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Traits\SubjectValidationRules;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateSubjectRequest extends FormRequest
 {
+    use SubjectValidationRules;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -20,14 +22,7 @@ class UpdateSubjectRequest extends FormRequest
      */
     public function rules(): array
     {
-        $subjectId = $this->route('subject')->id;
-
-        return [
-            'level_id' => ['required', 'exists:levels,id'],
-            'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:50', Rule::unique('subjects', 'code')->ignore($subjectId)],
-            'description' => ['nullable', 'string'],
-        ];
+        return $this->getSubjectValidationRules($this->route('subject')->id);
     }
 
     /**
@@ -35,12 +30,6 @@ class UpdateSubjectRequest extends FormRequest
      */
     public function messages(): array
     {
-        return [
-            'level_id.required' => __('validation.required', ['attribute' => __('messages.level')]),
-            'level_id.exists' => __('validation.exists', ['attribute' => __('messages.level')]),
-            'name.required' => __('validation.required', ['attribute' => __('messages.subject_name')]),
-            'code.required' => __('validation.required', ['attribute' => __('messages.subject_code')]),
-            'code.unique' => __('validation.unique', ['attribute' => __('messages.subject_code')]),
-        ];
+        return $this->getSubjectValidationMessages();
     }
 }
