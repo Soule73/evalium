@@ -26,10 +26,10 @@ class UpdateClassRequest extends FormRequest
         $class = $this->route('class');
         $rules = $this->getClassValidationRules();
 
-        $rules['name'][] = Rule::unique('classes')->where(function ($query) use ($class) {
-            return $query->where('academic_year_id', $class->academic_year_id)
-                ->where('level_id', $this->input('level_id'));
-        })->ignore($class->id);
+        $rules['name'][] = Rule::unique('classes')
+            ->where('academic_year_id', $class->academic_year_id)
+            ->where('level_id', $this->input('level_id'))
+            ->ignore($class->id);
 
         return $rules;
     }

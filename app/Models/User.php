@@ -26,9 +26,9 @@ use Spatie\Permission\Traits\HasRoles;
  * @property \Illuminate\Support\Carbon|null $created_at The date and time when the user was created.
  * @property \Illuminate\Support\Carbon|null $updated_at The date and time when the user was last updated.
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Question newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Question newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Question query()
+ * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User query()
  *
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Assessment> $assessments The assessments created by the user (if teacher).
  *

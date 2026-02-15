@@ -33,8 +33,8 @@ enum QuestionType: string
     /**
      * Check if this type is auto-correctable.
      */
-    public function isAutoCorrecteable(): bool
+    public function isAutoCorrectable(): bool
     {
-        return in_array($this, [self::Multiple, self::OneChoice, self::Boolean]);
+        return in_array($this, [self::Multiple, self::OneChoice, self::Boolean], true);
     }
 }

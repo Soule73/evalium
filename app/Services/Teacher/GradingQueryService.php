@@ -31,39 +31,34 @@ class GradingQueryService
     ): LengthAwarePaginator {
         $classId = $assessment->classSubject->class_id;
 
-        $enrolledStudents = Enrollment::where('class_id', $classId)
+        $enrollments = Enrollment::where('class_id', $classId)
             ->where('status', 'active')
             ->with('student')
             ->get()
-            ->pluck('student')
-            ->filter();
+            ->keyBy('student_id');
 
         $existingAssignments = AssessmentAssignment::where('assessment_id', $assessment->id)
             ->with('enrollment.student')
             ->get()
             ->keyBy(fn($a) => $a->enrollment?->student_id);
 
-        $allStudentData = $enrolledStudents->map(function ($student) use ($assessment, $existingAssignments, $classId) {
-            $assignment = $existingAssignments->get($student->id);
+        $allStudentData = $enrollments->map(function ($enrollment) use ($assessment, $existingAssignments) {
+            $assignment = $existingAssignments->get($enrollment->student_id);
 
             if ($assignment) {
                 return $assignment;
             }
 
-            $enrollment = Enrollment::where('student_id', $student->id)
-                ->where('class_id', $classId)
-                ->first();
-
             return (object) [
                 'id' => null,
                 'assessment_id' => $assessment->id,
-                'enrollment_id' => $enrollment?->id,
-                'student' => $student,
+                'enrollment_id' => $enrollment->id,
+                'student' => $enrollment->student,
                 'submitted_at' => null,
                 'score' => null,
                 'is_virtual' => true,
             ];
-        });
+        })->filter(fn($item) => $item->student !== null);
 
         if ($search = $filters['search'] ?? null) {
             $search = strtolower($search);

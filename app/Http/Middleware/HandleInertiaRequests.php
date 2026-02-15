@@ -52,10 +52,10 @@ class HandleInertiaRequests extends Middleware
                 'roles' => $user ? $user->getRoleNames()->toArray() : [],
             ],
             'flash' => [
-                'success' => fn () => $request->session()->pull('success'),
-                'error' => fn () => $request->session()->pull('error'),
-                'warning' => fn () => $request->session()->pull('warning'),
-                'info' => fn () => $request->session()->pull('info'),
+                'success' => fn() => $request->session()->pull('success'),
+                'error' => fn() => $request->session()->pull('error'),
+                'warning' => fn() => $request->session()->pull('warning'),
+                'info' => fn() => $request->session()->pull('info'),
             ],
             'academic_year' => [
                 'selected' => $this->getSelectedAcademicYear($request),
@@ -105,7 +105,7 @@ class HandleInertiaRequests extends Middleware
      */
     protected function getRecentAcademicYears(): array
     {
-        return \Illuminate\Support\Facades\Cache::remember('academic_years:recent_years', 3600, function () {
+        return \Illuminate\Support\Facades\Cache::remember(\App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT, 3600, function () {
             return \App\Models\AcademicYear::orderBy('start_date', 'desc')
                 ->take(3)
                 ->get()
@@ -124,27 +124,28 @@ class HandleInertiaRequests extends Middleware
     protected function getTranslations(): array
     {
         $locale = app()->getLocale();
-        $translations = [];
 
-        // Load all PHP translation files from lang/{locale}/ directory
-        $langPath = lang_path($locale);
+        return \Illuminate\Support\Facades\Cache::remember("translations:{$locale}", 3600, function () use ($locale) {
+            $translations = [];
 
-        if (is_dir($langPath)) {
-            $files = glob($langPath.'/*.php');
+            $langPath = lang_path($locale);
 
-            foreach ($files as $file) {
-                $filename = basename($file, '.php');
-                $translations[$filename] = require $file;
+            if (is_dir($langPath)) {
+                $files = glob($langPath . '/*.php');
+
+                foreach ($files as $file) {
+                    $filename = basename($file, '.php');
+                    $translations[$filename] = require $file;
+                }
             }
-        }
 
-        // Load JSON translations from lang/{locale}.json
-        $jsonFile = lang_path($locale.'.json');
-        if (file_exists($jsonFile)) {
-            $jsonTranslations = json_decode(file_get_contents($jsonFile), true);
-            $translations = array_merge($translations, ['json' => $jsonTranslations]);
-        }
+            $jsonFile = lang_path($locale . '.json');
+            if (file_exists($jsonFile)) {
+                $jsonTranslations = json_decode(file_get_contents($jsonFile), true);
+                $translations = array_merge($translations, ['json' => $jsonTranslations]);
+            }
 
-        return $translations;
+            return $translations;
+        });
     }
 }

@@ -63,8 +63,8 @@ class CacheService
     /**
      * Forget multiple keys matching pattern
      *
-     * Note: Pattern matching requires direct Redis access.
-     * Falls back to no-op if not using Redis store.
+     * Note: Pattern matching requires direct redis access.
+     * Falls back to no-op if not using redis store.
      */
     public function forgetPattern(string $pattern): void
     {
@@ -75,15 +75,19 @@ class CacheService
                 );
 
                 $prefix = Cache::getStore()->getPrefix();
-                $keys = $redis->keys($prefix.$pattern);
+                $cursor = null;
 
-                foreach ($keys as $key) {
-                    $cleanKey = str_replace($prefix, '', $key);
-                    Cache::forget($cleanKey);
-                }
+                do {
+                    [$cursor, $keys] = $redis->scan($cursor ?? '0', ['match' => $prefix . $pattern, 'count' => 100]);
+
+                    foreach ($keys as $key) {
+                        $cleanKey = str_replace($prefix, '', $key);
+                        Cache::forget($cleanKey);
+                    }
+                } while ($cursor && $cursor !== '0');
             }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::warning('forgetPattern failed: '.$e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('forgetPattern failed: ' . $e->getMessage());
         }
     }
 

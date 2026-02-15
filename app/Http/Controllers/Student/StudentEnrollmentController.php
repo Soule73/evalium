@@ -33,7 +33,7 @@ class StudentEnrollmentController extends Controller
         $currentEnrollment = $this->enrollmentService->getCurrentEnrollment($student, $selectedYearId);
 
         if (! $currentEnrollment) {
-            return redirect()->route('dashboard')->with('info', 'No active enrollment found for the selected academic year.');
+            return redirect()->route('dashboard')->flashInfo(__('messages.no_active_enrollment_for_year'));
         }
 
         $filters = ['search' => $request->input('search')];

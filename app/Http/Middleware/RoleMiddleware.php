@@ -31,7 +31,7 @@ class RoleMiddleware
         $user = Auth::user();
 
         if (! $user->hasAnyRole($roles)) {
-            abort(403, __('messages.operation_failed'));
+            abort(403, __('messages.forbidden'));
         }
 
         return $next($request);

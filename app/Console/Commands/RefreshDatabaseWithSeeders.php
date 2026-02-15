@@ -71,7 +71,7 @@ class RefreshDatabaseWithSeeders extends Command
                 ['Roles & Permissions', 'Done'],
                 ['Levels', 'Done'],
                 ['Users', 'Done'],
-                ['ClasseModel', 'Done'],
+                ['ClassModel', 'Done'],
                 ['Assessments', 'Done'],
                 ['Assignments', 'Done'],
             ]
