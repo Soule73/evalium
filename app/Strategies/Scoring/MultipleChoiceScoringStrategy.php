@@ -2,6 +2,7 @@
 
 namespace App\Strategies\Scoring;
 
+use App\Enums\QuestionType;
 use App\Models\Question;
 use Illuminate\Support\Collection;
 
@@ -15,7 +16,7 @@ use Illuminate\Support\Collection;
  */
 class MultipleChoiceScoringStrategy extends AbstractScoringStrategy
 {
-    protected array $supportedTypes = ['multiple'];
+    protected array $supportedTypes = [QuestionType::Multiple];
 
     /**
      * Determine if the student's answers are completely correct.

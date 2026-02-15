@@ -2,18 +2,19 @@
 
 namespace App\Strategies\Scoring;
 
+use App\Enums\QuestionType;
 use App\Models\Question;
 use Illuminate\Support\Collection;
 
 /**
- * Scoring strategy for text-based questions (text, essay).
+ * Scoring strategy for text-based questions.
  *
  * These questions require manual grading by a teacher.
  * The score is retrieved from the answer after teacher evaluation.
  */
 class TextQuestionScoringStrategy extends AbstractScoringStrategy
 {
-    protected array $supportedTypes = ['text', 'essay'];
+    protected array $supportedTypes = [QuestionType::Text];
 
     /**
      * Calculate the score for a text-based answer.

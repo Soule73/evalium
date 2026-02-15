@@ -2,6 +2,7 @@
 
 namespace App\Contracts\Scoring;
 
+use App\Enums\QuestionType;
 use App\Models\Question;
 use Illuminate\Support\Collection;
 
@@ -16,10 +17,10 @@ interface ScoringStrategyInterface
     /**
      * Check if this strategy can handle the given question type.
      *
-     * @param  string  $questionType  The question type (multiple, one_choice, boolean, text, essay)
+     * @param  QuestionType  $questionType  The question type enum value
      * @return bool True if this strategy supports the question type
      */
-    public function supports(string $questionType): bool;
+    public function supports(QuestionType $questionType): bool;
 
     /**
      * Calculate the score for a specific question.

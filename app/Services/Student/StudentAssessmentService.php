@@ -283,7 +283,7 @@ class StudentAssessmentService
             $score = 0.0;
 
             foreach ($strategy as $scoringStrategy) {
-                if ($scoringStrategy->supports($question->type->value)) {
+                if ($scoringStrategy->supports($question->type)) {
                     $score = $scoringStrategy->calculateScore($question, $answers);
                     break;
                 }

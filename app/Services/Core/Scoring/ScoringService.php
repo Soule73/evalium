@@ -60,7 +60,7 @@ class ScoringService
                 continue;
             }
 
-            $strategy = $this->getStrategyForQuestionType($question->type->value);
+            $strategy = $this->getStrategyForQuestionType($question->type);
 
             if (! $strategy) {
                 continue;
@@ -81,7 +81,7 @@ class ScoringService
      */
     public function isAnswerCorrect(Question $question, Collection $answers): bool
     {
-        $strategy = $this->getStrategyForQuestionType($question->type->value);
+        $strategy = $this->getStrategyForQuestionType($question->type);
 
         if (! $strategy) {
             return false;
@@ -128,7 +128,7 @@ class ScoringService
                 continue;
             }
 
-            $strategy = $this->getStrategyForQuestionType($question->type->value);
+            $strategy = $this->getStrategyForQuestionType($question->type);
 
             if (! $strategy) {
                 continue;
@@ -144,22 +144,22 @@ class ScoringService
      * Check if an exam contains questions requiring manual grading.
      *
      * @param  AssessmentAssignment  $assignment  The assignment to check
-     * @return bool True if the exam has text/essay questions
+     * @return bool True if the exam has text questions
      */
     public function hasManualCorrectionQuestions(AssessmentAssignment $assignment): bool
     {
         return $assignment->assessment->questions()
-            ->whereIn('type', ['text', 'essay'])
+            ->where('type', QuestionType::Text)
             ->exists();
     }
 
     /**
      * Get the appropriate strategy for a question type.
      *
-     * @param  string  $questionType  The type of question
+     * @param  QuestionType  $questionType  The type of question
      * @return ScoringStrategyInterface|null The matching strategy or null
      */
-    private function getStrategyForQuestionType(string $questionType): ?ScoringStrategyInterface
+    private function getStrategyForQuestionType(QuestionType $questionType): ?ScoringStrategyInterface
     {
         foreach ($this->strategies as $strategy) {
             if ($strategy->supports($questionType)) {

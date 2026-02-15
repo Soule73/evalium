@@ -2,6 +2,7 @@
 
 namespace App\Strategies\Scoring;
 
+use App\Enums\QuestionType;
 use App\Models\Question;
 use Illuminate\Support\Collection;
 
@@ -13,7 +14,7 @@ use Illuminate\Support\Collection;
  */
 class BooleanScoringStrategy extends AbstractScoringStrategy
 {
-    protected array $supportedTypes = ['boolean'];
+    protected array $supportedTypes = [QuestionType::Boolean];
 
     /**
      * Determine if the student's answer is correct.

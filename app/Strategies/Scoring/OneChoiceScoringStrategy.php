@@ -2,6 +2,7 @@
 
 namespace App\Strategies\Scoring;
 
+use App\Enums\QuestionType;
 use App\Models\Question;
 use Illuminate\Support\Collection;
 
@@ -13,7 +14,7 @@ use Illuminate\Support\Collection;
  */
 class OneChoiceScoringStrategy extends AbstractScoringStrategy
 {
-    protected array $supportedTypes = ['one_choice'];
+    protected array $supportedTypes = [QuestionType::OneChoice];
 
     /**
      * Determine if the student's answer is correct.

@@ -3,6 +3,7 @@
 namespace App\Strategies\Scoring;
 
 use App\Contracts\Scoring\ScoringStrategyInterface;
+use App\Enums\QuestionType;
 use App\Models\Question;
 use Illuminate\Support\Collection;
 
@@ -16,14 +17,14 @@ abstract class AbstractScoringStrategy implements ScoringStrategyInterface
     /**
      * Question type(s) supported by this strategy.
      *
-     * @var array<string>
+     * @var array<QuestionType>
      */
     protected array $supportedTypes = [];
 
     /**
      * {@inheritDoc}
      */
-    public function supports(string $questionType): bool
+    public function supports(QuestionType $questionType): bool
     {
         return in_array($questionType, $this->supportedTypes, true);
     }
