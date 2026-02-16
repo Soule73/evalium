@@ -1,0 +1,370 @@
+import { Meta, Canvas, Controls } from '@storybook/blocks';
+import * as MarkdownRendererStories from './MarkdownRenderer.stories';
+
+<Meta of={MarkdownRendererStories} />
+
+# MarkdownRenderer
+
+A powerful component for rendering Markdown content with support for GitHub Flavored Markdown (GFM), mathematical formulas via KaTeX, and syntax highlighting with Prism.js.
+
+## Features
+
+- **GitHub Flavored Markdown**: Full GFM support including tables, task lists, and strikethrough
+- **Mathematical Formulas**: Render inline ($...$) and display ($$...$$) formulas with KaTeX
+- **Syntax Highlighting**: Beautiful code blocks with Prism.js supporting multiple languages
+- **Custom Styling**: Tailwind CSS classes for consistent, beautiful rendering
+- **Responsive**: Adapts to container width with proper overflow handling
+- **Accessible**: Semantic HTML with proper heading hierarchy
+
+## Installation
+
+Required peer dependencies:
+
+```bash
+yarn add react-markdown remark-gfm remark-math rehype-katex rehype-prism-plus katex prismjs
+```
+
+## Basic Usage
+
+```tsx
+import { MarkdownRenderer } from '@evalium/ui';
+
+function MyComponent() {
+    const markdown = '# Hello World\n\nThis is **Markdown**.';
+
+    return <MarkdownRenderer>{markdown}</MarkdownRenderer>;
+}
+```
+
+## Examples
+
+### Simple Text
+
+Basic Markdown rendering.
+
+<Canvas of={MarkdownRendererStories.Default} />
+
+### Headings
+
+All heading levels from H1 to H6.
+
+<Canvas of={MarkdownRendererStories.Headings} />
+
+### Text Formatting
+
+Bold, italic, strikethrough, and inline code.
+
+<Canvas of={MarkdownRendererStories.TextFormatting} />
+
+### Lists
+
+Ordered, unordered, and nested lists.
+
+<Canvas of={MarkdownRendererStories.Lists} />
+
+### Links
+
+Hyperlinks with proper styling.
+
+<Canvas of={MarkdownRendererStories.Links} />
+
+### Code Blocks
+
+Syntax-highlighted code in multiple languages.
+
+<Canvas of={MarkdownRendererStories.CodeBlocks} />
+
+### Mathematical Formulas
+
+Render LaTeX math with KaTeX.
+
+<Canvas of={MarkdownRendererStories.MathFormulas} />
+
+### Tables
+
+GitHub Flavored Markdown tables.
+
+<Canvas of={MarkdownRendererStories.Tables} />
+
+### Blockquotes
+
+Styled quote blocks.
+
+<Canvas of={MarkdownRendererStories.Blockquotes} />
+
+### Images
+
+Embedded images with captions.
+
+<Canvas of={MarkdownRendererStories.Images} />
+
+### Horizontal Rules
+
+Section dividers.
+
+<Canvas of={MarkdownRendererStories.HorizontalRules} />
+
+### Complete Example
+
+All features in one document.
+
+<Canvas of={MarkdownRendererStories.CompleteExample} />
+
+### Question Example
+
+Real-world usage for assessment questions.
+
+<Canvas of={MarkdownRendererStories.QuestionExample} />
+
+### Custom Styling
+
+Apply custom CSS classes.
+
+<Canvas of={MarkdownRendererStories.CustomClassName} />
+
+## Props
+
+<Controls />
+
+## Markdown Syntax Guide
+
+### Text Formatting
+
+```markdown
+**bold** or **bold**
+_italic_ or _italic_
+~~strikethrough~~
+`inline code`
+```
+
+### Headings
+
+```markdown
+# H1
+
+## H2
+
+### H3
+
+#### H4
+
+##### H5
+
+###### H6
+```
+
+### Lists
+
+**Unordered:**
+
+```markdown
+- Item 1
+- Item 2
+    - Nested item
+```
+
+**Ordered:**
+
+```markdown
+1. First
+2. Second
+3. Third
+```
+
+### Links
+
+```markdown
+[Link text](https://example.com)
+[Link with title](https://example.com 'Title')
+```
+
+### Images
+
+```markdown
+![Alt text](image-url.jpg)
+![Alt text](image-url.jpg 'Image title')
+```
+
+### Code Blocks
+
+````markdown
+```javascript
+const greeting = 'Hello World';
+console.log(greeting);
+```
+````
+
+Supported languages: javascript, typescript, python, php, java, c, cpp, csharp, ruby, go, rust, sql, html, css, json, yaml, markdown, bash, shell, and many more.
+
+### Mathematical Formulas
+
+**Inline math:**
+
+```markdown
+The value of $\pi$ is approximately 3.14159.
+```
+
+**Display math:**
+
+```markdown
+$$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$
+```
+
+**Common LaTeX symbols:**
+
+- Greek: `\alpha`, `\beta`, `\gamma`, `\Delta`, `\Sigma`
+- Operators: `\sum`, `\int`, `\prod`, `\lim`
+- Relations: `\leq`, `\geq`, `\neq`, `\approx`
+- Arrows: `\rightarrow`, `\Rightarrow`, `\leftrightarrow`
+- Special: `\frac{a}{b}`, `\sqrt{x}`, `x^2`, `x_i`
+
+### Tables
+
+```markdown
+| Header 1 | Header 2 | Header 3 |
+| -------- | -------- | -------- |
+| Cell 1   | Cell 2   | Cell 3   |
+| Cell 4   | Cell 5   | Cell 6   |
+
+Alignment:
+| Left | Center | Right |
+|:-----|:------:|------:|
+| L | C | R |
+```
+
+### Blockquotes
+
+```markdown
+> This is a blockquote
+> It can span multiple lines
+
+> Nested quotes:
+>
+> > Nested quote
+```
+
+### Horizontal Rules
+
+```markdown
+---
+or
+---
+
+or
+
+---
+```
+
+## Styling Customization
+
+The component uses Tailwind CSS classes. You can customize appearance by:
+
+1. **Pass className prop:**
+
+```tsx
+<MarkdownRenderer className="bg-gray-50 p-4 rounded-lg">{content}</MarkdownRenderer>
+```
+
+2. **Override styles globally:**
+
+```css
+.markdown-content h1 {
+    @apply text-3xl font-extrabold text-purple-900;
+}
+
+.markdown-content code {
+    @apply bg-purple-100 text-purple-800;
+}
+```
+
+## Accessibility
+
+- Semantic HTML5 elements
+- Proper heading hierarchy (h1 → h2 → h3...)
+- Alt text support for images
+- Accessible links with `target="_blank"` and `rel="noopener noreferrer"`
+- ARIA-friendly table structure
+- High contrast code highlighting
+
+## Performance Tips
+
+1. **Memoize content**: Use `useMemo` to avoid re-rendering unchanged content
+2. **Split large documents**: Break into sections for better performance
+3. **Lazy load images**: Consider lazy loading for image-heavy content
+4. **Code splitting**: Load Prism.js languages on demand
+
+## Common Use Cases
+
+### Assessment Questions
+
+```tsx
+<MarkdownRenderer>
+    {`# Question 1
+  
+  Calculate the derivative of $f(x) = x^2 + 2x + 1$
+  
+  **Hint**: Use the power rule
+  `}
+</MarkdownRenderer>
+```
+
+### Documentation
+
+```tsx
+<MarkdownRenderer>
+    {`## API Reference
+  
+  \`\`\`typescript
+  interface User {
+    id: number;
+    name: string;
+  }
+  \`\`\`
+  `}
+</MarkdownRenderer>
+```
+
+### Announcements
+
+```tsx
+<MarkdownRenderer>
+    {`> **Important**: System maintenance on Sunday
+  > 
+  > Expected downtime: 2 hours
+  `}
+</MarkdownRenderer>
+```
+
+## Troubleshooting
+
+### Math formulas not rendering
+
+Ensure KaTeX CSS is imported:
+
+```tsx
+import 'katex/dist/katex.min.css';
+```
+
+### Code blocks not highlighted
+
+Ensure Prism CSS is imported:
+
+```tsx
+import 'prismjs/themes/prism-tomorrow.css';
+```
+
+### Table overflow
+
+Tables automatically scroll on small screens. Ensure parent container allows overflow:
+
+```css
+.container {
+    overflow-x: auto;
+}
+```
+
+## Related Components
+
+- [MarkdownEditor](../?path=/docs/ui-forms-markdowneditor--docs) - Edit Markdown content
+- [ChoiceEditor](../?path=/docs/ui-forms-choiceeditor--docs) - Dual-mode editor with preview
+- [TextEntry](../?path=/docs/ui-forms-textentry--docs) - Simple text input with label

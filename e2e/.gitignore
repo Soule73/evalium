@@ -1,0 +1,8 @@
+# Ignore E2E environment file
+resources/ts/tests/e2e/.env
+node_modules/
+
+playwright/
+playwright-report/
+
+.laravel-server.pid

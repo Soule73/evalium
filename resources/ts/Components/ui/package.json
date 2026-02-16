@@ -1,0 +1,33 @@
+{
+    "name": "@evalium/ui",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "main": "./index.ts",
+    "types": "./index.ts",
+    "exports": {
+        ".": "./index.ts",
+        "./*": "./*"
+    },
+    "scripts": {
+        "storybook": "storybook dev -p 6006",
+        "build-storybook": "storybook build",
+        "test-storybook": "test-storybook"
+    },
+    "peerDependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
+    },
+    "devDependencies": {
+        "@chromatic-com/storybook": "^3.2.4",
+        "@storybook/addon-essentials": "^8.6.15",
+        "@storybook/addon-interactions": "^8.6.15",
+        "@storybook/addon-links": "^8.6.15",
+        "@storybook/blocks": "^8.6.15",
+        "@storybook/react": "^8.6.15",
+        "@storybook/react-vite": "^8.6.15",
+        "@storybook/test": "^8.6.15",
+        "@storybook/test-runner": "^0.24.2",
+        "storybook": "^8.6.15"
+    }
+}

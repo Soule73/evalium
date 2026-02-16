@@ -2,148 +2,129 @@
 
 namespace App\Services\Teacher;
 
-use App\Models\User;
-use App\Models\Exam;
-use App\Models\Question;
-use App\Models\ExamAssignment;
-use Illuminate\Support\Collection;
+use App\Models\Assessment;
+use App\Models\ClassSubject;
+use App\Services\Traits\Paginatable;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
+/**
+ * Teacher Dashboard Service
+ *
+ * Handles business logic for teacher dashboard data preparation.
+ * Single Responsibility: Prepare teacher dashboard data only.
+ */
 class TeacherDashboardService
 {
+    use Paginatable;
+
     /**
-     * Obtenir les statistiques du tableau de bord professeur
+     * Get active class-subject assignments for a teacher
+     *
+     * @param  int  $teacherId  The teacher ID
+     * @param  int  $academicYearId  The academic year ID
+     * @param  string|null  $search  Optional search query
+     * @param  int  $perPage  Items per page
+     * @return LengthAwarePaginator Paginated active assignments
      */
-    public function getDashboardStats(User $teacher): array
+    public function getActiveAssignments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 5): LengthAwarePaginator
     {
-        $teacherExams = $this->getTeacherExams($teacher);
-        $teacherExamIds = $teacherExams->pluck('id');
+        $query = ClassSubject::where('teacher_id', $teacherId)
+            ->forAcademicYear($academicYearId)
+            ->active()
+            ->with(['class.level', 'class.academicYear', 'subject']);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('class', fn ($query) => $query->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('subject', fn ($query) => $query->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        return $this->paginateQuery($query, $perPage);
+    }
+
+    /**
+     * Get past assessments for a teacher
+     *
+     * @param  int  $teacherId  The teacher ID
+     * @param  int  $academicYearId  The academic year ID
+     * @param  string|null  $search  Optional search query
+     * @param  int  $perPage  Items per page
+     * @return LengthAwarePaginator Paginated past assessments
+     */
+    public function getPastAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 5): LengthAwarePaginator
+    {
+        $query = Assessment::whereHas('classSubject', fn ($q) => $q->where('teacher_id', $teacherId))
+            ->forAcademicYear($academicYearId)
+            ->where('scheduled_at', '<', now())
+            ->with(['classSubject.class.level', 'classSubject.subject', 'classSubject.teacher'])
+            ->orderBy('scheduled_at', 'desc');
+
+        if ($search) {
+            $query->where('title', 'like', "%{$search}%");
+        }
+
+        return $this->paginateQuery($query, $perPage);
+    }
+
+    /**
+     * Get upcoming assessments for a teacher
+     *
+     * @param  int  $teacherId  The teacher ID
+     * @param  int  $academicYearId  The academic year ID
+     * @param  string|null  $search  Optional search query
+     * @param  int  $perPage  Items per page
+     * @return LengthAwarePaginator Paginated upcoming assessments
+     */
+    public function getUpcomingAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 5): LengthAwarePaginator
+    {
+        $query = Assessment::whereHas('classSubject', fn ($q) => $q->where('teacher_id', $teacherId))
+            ->forAcademicYear($academicYearId)
+            ->where('scheduled_at', '>=', now())
+            ->with(['classSubject.class.level', 'classSubject.subject', 'classSubject.teacher'])
+            ->orderBy('scheduled_at', 'asc');
+
+        if ($search) {
+            $query->where('title', 'like', "%{$search}%");
+        }
+
+        return $this->paginateQuery($query, $perPage);
+    }
+
+    /**
+     * Get dashboard statistics for a teacher
+     *
+     * @param  int  $teacherId  The teacher ID
+     * @param  int  $academicYearId  The academic year ID
+     * @param  int  $pastAssessmentsTotal  Total past assessments count
+     * @param  int  $upcomingAssessmentsTotal  Total upcoming assessments count
+     * @return array Statistics
+     */
+    public function getDashboardStats(int $teacherId, int $academicYearId, int $pastAssessmentsTotal, int $upcomingAssessmentsTotal): array
+    {
+        $stats = DB::table('class_subjects')
+            ->join('classes', 'class_subjects.class_id', '=', 'classes.id')
+            ->where('class_subjects.teacher_id', $teacherId)
+            ->where('classes.academic_year_id', $academicYearId)
+            ->whereNull('class_subjects.valid_to')
+            ->selectRaw('
+                COUNT(DISTINCT class_subjects.class_id) as total_classes,
+                COUNT(DISTINCT class_subjects.subject_id) as total_subjects
+            ')
+            ->first();
+
+        $totalAssessmentsCount = Assessment::whereHas('classSubject', function ($query) use ($teacherId, $academicYearId) {
+            $query->where('teacher_id', $teacherId)
+                ->whereHas('class', fn ($q) => $q->where('academic_year_id', $academicYearId));
+        })->count();
 
         return [
-            'total_exams' => $teacherExams->count(),
-            'total_questions' => $this->getTotalQuestions($teacherExamIds),
-            'students_evaluated' => $this->getStudentsEvaluatedCount($teacherExamIds),
-            'average_score' => $this->calculateAverageScore($teacherExamIds),
+            'total_classes' => (int) ($stats->total_classes ?? 0),
+            'total_subjects' => (int) ($stats->total_subjects ?? 0),
+            'total_assessments' => $totalAssessmentsCount,
+            'past_assessments' => $pastAssessmentsTotal,
+            'upcoming_assessments' => $upcomingAssessmentsTotal,
         ];
-    }
-
-    /**
-     * Obtenir les examens récents du professeur
-     */
-    public function getRecentExams(User $teacher, int $limit = 5): Collection
-    {
-        return Exam::where('teacher_id', $teacher->id)
-            ->withCount('questions')
-            ->with(['assignments' => function ($query) {
-                $query->selectRaw('exam_id, count(*) as total_assignments')
-                    ->groupBy('exam_id');
-            }])
-            ->orderBy('created_at', 'desc')
-            ->limit($limit)
-            ->get()
-            ->map(function ($exam) {
-                return [
-                    'id' => $exam->id,
-                    'title' => $exam->title,
-                    'questions_count' => $exam->questions_count,
-                    'total_assignments' => $exam->assignments->first()?->total_assignments ?? 0,
-                    'created_at' => $exam->created_at->format('Y-m-d H:i'),
-                    'status' => $exam->is_active ? 'active' : 'inactive',
-                ];
-            });
-    }
-
-    /**
-     * Obtenir les assignations récentes nécessitant une correction
-     */
-    public function getPendingReviews(User $teacher, int $limit = 5): Collection
-    {
-        return ExamAssignment::whereHas('exam', function ($query) use ($teacher) {
-            $query->where('teacher_id', $teacher->id);
-        })
-            ->where('status', 'submitted')
-            ->whereNull('score')
-            ->with(['exam:id,title', 'student:id,name'])
-            ->orderBy('submitted_at', 'desc')
-            ->limit($limit)
-            ->get()
-            ->map(function ($assignment) {
-                return [
-                    'id' => $assignment->id,
-                    'exam_title' => $assignment->exam->title,
-                    'student_name' => $assignment->student->name,
-                    'submitted_at' => $assignment->submitted_at->format('Y-m-d H:i'),
-                    'time_taken' => $assignment->duration ? $this->formatDuration($assignment->duration) : 'N/A',
-                ];
-            });
-    }
-
-    /**
-     * Obtenir les données complètes du dashboard professeur
-     */
-    public function getDashboardData(User $teacher): array
-    {
-        return [
-            'stats' => $this->getDashboardStats($teacher),
-            'recent_exams' => $this->getRecentExams($teacher),
-            'pending_reviews' => $this->getPendingReviews($teacher),
-        ];
-    }
-
-    /**
-     * Méthodes privées pour les calculs
-     */
-    private function getTeacherExams(User $teacher): Collection
-    {
-        return Exam::where('teacher_id', $teacher->id)->get();
-    }
-
-    private function getTotalQuestions(Collection $examIds): int
-    {
-        return Question::whereIn('exam_id', $examIds)->count();
-    }
-
-    private function getStudentsEvaluatedCount(Collection $examIds): int
-    {
-        return ExamAssignment::whereIn('exam_id', $examIds)
-            ->whereIn('status', ['submitted', 'graded'])
-            ->distinct('student_id')
-            ->count();
-    }
-
-    private function calculateAverageScore(Collection $examIds): float
-    {
-        $assignments = ExamAssignment::whereIn('exam_id', $examIds)
-            ->whereIn('status', ['submitted', 'graded'])
-            ->whereNotNull('score')
-            // ->with('exam:id,total_points')
-            ->get();
-
-        if ($assignments->isEmpty()) {
-            return 0;
-        }
-
-        $totalScore = $assignments->sum('score');
-        $totalPossible = $assignments->sum(function ($assignment) {
-            return $assignment->exam->total_points ?? 0;
-        });
-
-        return $totalPossible > 0 ? round(($totalScore / $totalPossible) * 100, 2) : 0;
-    }
-
-    private function formatDuration(?int $seconds): string
-    {
-        if (!$seconds) {
-            return 'N/A';
-        }
-
-        $hours = floor($seconds / 3600);
-        $minutes = floor(($seconds % 3600) / 60);
-        $remainingSeconds = $seconds % 60;
-
-        if ($hours > 0) {
-            return sprintf('%02d:%02d:%02d', $hours, $minutes, $remainingSeconds);
-        }
-
-        return sprintf('%02d:%02d', $minutes, $remainingSeconds);
     }
 }

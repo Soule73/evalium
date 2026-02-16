@@ -17,20 +17,19 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./resources/ts', import.meta.url))
+            '@': fileURLToPath(new URL('./resources/ts', import.meta.url)),
+            '@evalium/ui': fileURLToPath(new URL('./resources/ts/Components/ui', import.meta.url)),
         }
     },
     optimizeDeps: {
         include: ['react', 'react-dom', '@inertiajs/react']
     },
     build: {
+        chunkSizeWarningLimit: 800,
         rollupOptions: {
             output: {
-                manualChunks: {
-                    react: ['react', 'react-dom'],
-                    inertia: ['@inertiajs/react']
-                }
-            }
-        }
-    }
+                manualChunks: undefined,
+            },
+        },
+    },
 });

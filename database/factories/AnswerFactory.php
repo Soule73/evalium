@@ -3,9 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\Answer;
-use App\Models\User;
+use App\Models\AssessmentAssignment;
 use App\Models\Question;
-use App\Models\ExamAssignment;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,9 +22,45 @@ class AnswerFactory extends Factory
     public function definition(): array
     {
         return [
-            'assignment_id' => ExamAssignment::factory(),
+            'assessment_assignment_id' => AssessmentAssignment::factory(),
             'question_id' => Question::factory(),
-            'answer_text' => $this->faker->sentence(),
+            'choice_id' => null,
+            'answer_text' => $this->faker->optional()->sentence(),
+            'score' => null,
+            'feedback' => null,
         ];
+    }
+
+    /**
+     * Answer with a choice (for multiple choice questions)
+     */
+    public function withChoice(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'choice_id' => \App\Models\Choice::factory(),
+            'answer_text' => null,
+        ]);
+    }
+
+    /**
+     * Answer with text (for text questions)
+     */
+    public function withText(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'choice_id' => null,
+            'answer_text' => $this->faker->paragraph(),
+        ]);
+    }
+
+    /**
+     * Graded answer with score and feedback
+     */
+    public function graded(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'score' => $this->faker->randomFloat(2, 0, 20),
+            'feedback' => $this->faker->optional()->sentence(),
+        ]);
     }
 }

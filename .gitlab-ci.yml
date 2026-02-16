@@ -1,0 +1,161 @@
+stages:
+    - build
+    - test
+    - deploy
+
+variables:
+    MYSQL_ROOT_PASSWORD: password
+    MYSQL_DATABASE: evalium_test
+    DB_HOST: mysql
+    DB_USERNAME: root
+    DB_PASSWORD: password
+
+# Cache pour accélérer les builds
+cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+        - vendor/
+        - node_modules/
+        - .yarn/cache/
+
+# Template pour PHP
+.php-base:
+    image: php:8.4-cli
+    before_script:
+        - apt-get update -qq && apt-get install -y -qq git curl libmcrypt-dev libjpeg-dev libpng-dev libfreetype6-dev libbz2-dev libzip-dev unzip
+        - docker-php-ext-install pdo pdo_mysql zip bcmath gd
+        - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+        - composer install --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+# Template pour Node.js
+.node-base:
+    image: node:20-alpine
+    before_script:
+        - yarn install --frozen-lockfile
+
+# Build stage
+build:composer:
+    extends: .php-base
+    stage: build
+    script:
+        - composer validate
+        - composer install --prefer-dist --no-interaction --no-progress
+    artifacts:
+        paths:
+            - vendor/
+        expire_in: 1 hour
+
+build:npm:
+    extends: .node-base
+    stage: build
+    script:
+        - yarn install --frozen-lockfile
+        - yarn build
+    artifacts:
+        paths:
+            - node_modules/
+            - public/build/
+        expire_in: 1 hour
+
+# Tests Laravel (PHPUnit)
+test:laravel:
+    extends: .php-base
+    stage: test
+    services:
+        - mysql:8.0
+    dependencies:
+        - build:composer
+        - build:npm
+    script:
+        - cp .env.example .env
+        - cp .env.testing.example .env.testing
+        - php artisan key:generate
+        - php artisan key:generate --env=testing
+        - php artisan migrate --force
+        - php artisan test --coverage --min=50
+    coverage: '/^\s*Lines:\s*\d+\.\d+\%/'
+    artifacts:
+        reports:
+            junit: storage/logs/junit.xml
+            coverage_report:
+                coverage_format: cobertura
+                path: coverage/cobertura.xml
+        paths:
+            - coverage/
+        expire_in: 1 week
+        when: always
+
+# Tests Vitest (Frontend unit)
+test:vitest:
+    extends: .node-base
+    stage: test
+    dependencies:
+        - build:npm
+    script:
+        - yarn test:unit --coverage
+    coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+    artifacts:
+        reports:
+            junit: coverage/junit.xml
+            coverage_report:
+                coverage_format: cobertura
+                path: coverage/cobertura-coverage.xml
+        paths:
+            - coverage/
+        expire_in: 1 week
+        when: always
+
+# Tests Playwright (E2E) - Disabled temporarily
+# test:playwright:
+#     To re-enable, uncomment this job and add it back to pages dependencies
+
+# Test de code quality (optionnel)
+test:code-quality:
+    extends: .php-base
+    stage: test
+    dependencies:
+        - build:composer
+    script:
+        - ./vendor/bin/phpstan analyse --memory-limit=2G || true
+        - ./vendor/bin/pint --test || true
+    allow_failure: true
+
+# Test de sécurité (optionnel)
+test:security:
+    extends: .php-base
+    stage: test
+    dependencies:
+        - build:composer
+    script:
+        - composer audit || true
+    allow_failure: true
+
+# Job de résumé
+test:summary:
+    stage: .post
+    image: alpine:latest
+    script:
+        - echo "=========================================="
+        - echo "📊 Test Summary"
+        - echo "=========================================="
+        - echo "Laravel Tests - Check artifacts"
+        - echo "Vitest Tests - Check artifacts"
+        - echo "=========================================="
+    when: always
+
+# Pages pour les rapports (optionnel)
+pages:
+    stage: deploy
+    dependencies:
+        - test:laravel
+        - test:vitest
+    script:
+        - mkdir -p public/coverage
+        - cp -r coverage/* public/coverage/ || true
+        - echo '<html><body><h1>Test Reports</h1><ul><li><a href="coverage/">Coverage</a></li></ul></body></html>' > public/index.html
+    artifacts:
+        paths:
+            - public
+        expire_in: 30 days
+    only:
+        - main

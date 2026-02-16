@@ -1,0 +1,61 @@
+import { Meta, Canvas, Controls } from '@storybook/blocks';
+import * as CheckboxStories from './Checkbox.stories.tsx';
+
+<Meta of={CheckboxStories} />
+
+# Checkbox
+
+A custom checkbox and radio button component with consistent styling and accessibility features.
+
+## Features
+
+- ✅ Checkbox and radio button variants
+- ✅ Custom styled with smooth animations
+- ✅ Label support (string or JSX)
+- ✅ Error state handling
+- ✅ Disabled state
+- ✅ Dark mode support
+- ✅ Full accessibility (WCAG compliant)
+
+## Basic Usage
+
+<Canvas of={CheckboxStories.Default} />
+
+## States
+
+<Canvas of={CheckboxStories.Checked} />
+<Canvas of={CheckboxStories.Disabled} />
+<Canvas of={CheckboxStories.DisabledChecked} />
+
+## Without Label
+
+<Canvas of={CheckboxStories.WithoutLabel} />
+
+## Error State
+
+<Canvas of={CheckboxStories.WithError} />
+
+## Radio Button
+
+<Canvas of={CheckboxStories.RadioButton} />
+
+## Groups
+
+### Checkbox Group
+<Canvas of={CheckboxStories.CheckboxGroup} />
+
+### Radio Group
+<Canvas of={CheckboxStories.RadioGroup} />
+
+## Accessibility
+
+- Proper label association with `htmlFor` and `id`
+- Error messages with `role="alert"`
+- `aria-invalid` for error states
+- `aria-describedby` linking to error messages
+- Full keyboard support (Space to toggle)
+- Focus indicators
+
+## Props
+
+<Controls />

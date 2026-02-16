@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000"><style>
+    #light-icon {
+      display: inline;
+    }
+    #dark-icon {
+      display: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #light-icon {
+        display: none;
+      }
+      #dark-icon {
+        display: inline;
+      }
+    }
+  </style><g id="light-icon"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000"><g clip-path="url(#SvgjsClipPath1161)"><rect width="1000" height="1000" fill="#ffffff"></rect><g transform="matrix(20.833333333333332,0,0,20.833333333333332,0,0)"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="48"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gemTop" x1="10" y1="6" x2="38" y2="24" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#818cf8"></stop>
+      <stop offset="1" stop-color="#6366f1"></stop>
+    </linearGradient>
+    <linearGradient id="gemLeft" x1="10" y1="18" x2="24" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4f46e5"></stop>
+      <stop offset="1" stop-color="#3730a3"></stop>
+    </linearGradient>
+    <linearGradient id="gemRight" x1="24" y1="24" x2="38" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366f1"></stop>
+      <stop offset="1" stop-color="#4f46e5"></stop>
+    </linearGradient>
+  <clipPath id="SvgjsClipPath1161"><rect width="1000" height="1000" x="0" y="0" rx="500" ry="500"></rect></clipPath></defs>
+  <path d="M10 18 L24 6 L38 18 L24 24 Z" fill="url(#gemTop)"></path>
+  <path d="M10 18 L24 24 L24 44 Z" fill="url(#gemLeft)"></path>
+  <path d="M38 18 L24 24 L24 44 Z" fill="url(#gemRight)"></path>
+  <path d="M10 18 L24 6 L24 24 Z" fill="white" opacity="0.15"></path>
+  <path d="M24 6 L38 18 L24 24 Z" fill="white" opacity="0.06"></path>
+  <circle cx="17" cy="14" r="1.8" fill="white" opacity="0.5"></circle>
+</svg></svg></g></g></svg></g><g id="dark-icon"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000"><g clip-path="url(#SvgjsClipPath1162)"><rect width="1000" height="1000" fill="#ffffff"></rect><g transform="matrix(20.833333333333332,0,0,20.833333333333332,0,0)"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="48"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gemTop" x1="10" y1="6" x2="38" y2="24" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#818cf8"></stop>
+      <stop offset="1" stop-color="#6366f1"></stop>
+    </linearGradient>
+    <linearGradient id="gemLeft" x1="10" y1="18" x2="24" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4f46e5"></stop>
+      <stop offset="1" stop-color="#3730a3"></stop>
+    </linearGradient>
+    <linearGradient id="gemRight" x1="24" y1="24" x2="38" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366f1"></stop>
+      <stop offset="1" stop-color="#4f46e5"></stop>
+    </linearGradient>
+  <clipPath id="SvgjsClipPath1162"><rect width="1000" height="1000" x="0" y="0" rx="500" ry="500"></rect></clipPath></defs>
+  <path d="M10 18 L24 6 L38 18 L24 24 Z" fill="url(#gemTop)"></path>
+  <path d="M10 18 L24 24 L24 44 Z" fill="url(#gemLeft)"></path>
+  <path d="M38 18 L24 24 L24 44 Z" fill="url(#gemRight)"></path>
+  <path d="M10 18 L24 6 L24 24 Z" fill="white" opacity="0.15"></path>
+  <path d="M24 6 L38 18 L24 24 Z" fill="white" opacity="0.06"></path>
+  <circle cx="17" cy="14" r="1.8" fill="white" opacity="0.5"></circle>
+</svg></svg></g></g></svg></g></svg>

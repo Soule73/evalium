@@ -1,11 +1,4 @@
-import { Button } from './Button';
-import Input from './form/Input';
-import Textarea from './Textarea';
-import Select from './Select';
-
-export {
-    Button,
-    Input,
-    Textarea,
-    Select,
-};
+export * from './features';
+export * from './ui';
+export * from './layout';
+export * from './shared';

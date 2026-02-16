@@ -2,132 +2,103 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Admin\AdminDashboardService;
+use App\Services\Core\RoleBasedRedirectService;
+use App\Services\Student\StudentAssessmentService;
+use App\Services\Student\StudentDashboardService;
+use App\Traits\FiltersAcademicYear;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\Request;
-use App\Services\ExamService;
-use Illuminate\Http\RedirectResponse;
-use App\Services\Shared\DashboardService;
-use App\Services\Admin\AdminDashboardService;
-use App\Services\Teacher\TeacherDashboardService;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class DashboardController extends Controller
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, FiltersAcademicYear;
 
     public function __construct(
-        private readonly ExamService $examService,
-        private readonly DashboardService $dashboardService,
-        private readonly TeacherDashboardService $teacherDashboardService,
-        private readonly AdminDashboardService $adminDashboardService
+        private readonly AdminDashboardService $adminDashboardService,
+        private readonly StudentAssessmentService $studentAssessmentService,
+        private readonly StudentDashboardService $studentDashboardService,
+        private readonly RoleBasedRedirectService $redirectService
     ) {}
 
-
     /**
-     * Display the dashboard index page.
-     *
-     * @return \Illuminate\Http\RedirectResponse Redirects to the appropriate route.
+     * Display the appropriate dashboard based on user role.
      */
-    public function index(): RedirectResponse
+    public function index(Request $request): RedirectResponse|Response
     {
-        try {
-            $route = $this->dashboardService->getDashboardRoute();
-            return redirect()->route($route);
-        } catch (\Exception $e) {
-            abort(403, $e->getMessage());
+        $user = $request->user();
+
+        if (! $user) {
+            abort(401, __('messages.unauthenticated'));
         }
+
+        if ($this->redirectService->isTeacher($user)) {
+            return redirect()->route('teacher.dashboard');
+        }
+
+        if ($this->redirectService->isAdmin($user)) {
+            return $this->renderAdminDashboard($request, $user);
+        }
+
+        if ($this->redirectService->isStudent($user)) {
+            return $this->renderStudentDashboard($request, $user);
+        }
+
+        throw new \RuntimeException(__('messages.user_has_no_valid_role'));
     }
 
     /**
-     * Handles the request to display the student dashboard.
-     *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request.
-     * @return \Illuminate\Http\Response The response containing the student dashboard view.
+     * Render the student dashboard.
      */
-    public function student(Request $request): Response
+    private function renderStudentDashboard(Request $request, $user): Response
     {
-        /** @var \App\Models\User $user */
-        $user = $request->user();
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
 
-        if (!$user) {
-            abort(401, 'Utilisateur non authentifié');
-        }
+        $enrollment = $user->enrollments()
+            ->where('status', 'active')
+            ->when($selectedYearId, function ($query) use ($selectedYearId) {
+                $query->whereHas('class', function ($q) use ($selectedYearId) {
+                    $q->where('academic_year_id', $selectedYearId);
+                });
+            })
+            ->with(['class.classSubjects'])
+            ->first();
 
-        if (!$this->dashboardService->canAccessDashboard('student', $user)) {
-            abort(403, 'Accès non autorisé au dashboard étudiant');
-        }
+        $stats = $this->studentDashboardService->getDashboardStats($user, $selectedYearId, $enrollment);
 
-        $allAssignments = $this->examService->getAssignedExamsForStudent($user, null);
+        $filters = $request->only(['status', 'search']);
+        $perPage = 3;
 
-        $stats = $this->examService->getStudentDashboardStats($allAssignments);
-
-        $examAssignments = $this->examService->getAssignedExamsForStudent($user, 10);
+        $assessmentAssignments = $this->studentAssessmentService->getStudentAssessmentsForIndex(
+            $user,
+            $selectedYearId,
+            $filters,
+            $perPage,
+            $enrollment
+        );
 
         return Inertia::render('Dashboard/Student', [
             'user' => $user,
             'stats' => $stats,
-            'examAssignments' => $examAssignments
+            'assessmentAssignments' => $assessmentAssignments,
         ]);
     }
 
     /**
-     * Handle the request for the teacher dashboard.
-     *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request.
-     * @return \Illuminate\Http\Response The response containing the teacher dashboard data.
+     * Render the admin dashboard.
      */
-    public function teacher(Request $request): Response
+    private function renderAdminDashboard(Request $request, $user): Response
     {
-        /** @var \App\Models\User $user */
-        $user = $request->user();
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
 
-        if (!$user) {
-            abort(401, 'Utilisateur non authentifié');
-        }
-
-        if (!$this->dashboardService->canAccessDashboard('teacher', $user)) {
-            abort(403, 'Accès non autorisé au dashboard professeur');
-        }
-
-        $dashboardData = $this->teacherDashboardService->getDashboardData($user);
-
-        return Inertia::render('Dashboard/Teacher', [
-            'user' => $user,
-            'stats' => $dashboardData['stats'],
-            'recent_exams' => $dashboardData['recent_exams'],
-            'pending_reviews' => $dashboardData['pending_reviews']
-        ]);
-    }
-
-    /**
-     * Handle the admin dashboard request.
-     *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request.
-     * @return \Illuminate\Http\Response The response to be sent back to the client.
-     */
-    public function admin(Request $request): Response
-    {
-        /** @var \App\Models\User $user */
-        $user = $request->user();
-
-        if (!$user) {
-            abort(401, 'Utilisateur non authentifié');
-        }
-
-        if (!$this->dashboardService->canAccessDashboard('admin', $user)) {
-            abort(403, 'Accès non autorisé au dashboard administrateur');
-        }
-
-        $dashboardData = $this->adminDashboardService->getDashboardData();
+        $dashboardData = $this->adminDashboardService->getDashboardData($selectedYearId);
 
         return Inertia::render('Dashboard/Admin', [
             'user' => $user,
             'stats' => $dashboardData['stats'],
-            'activity_stats' => $dashboardData['activity_stats'],
-            'recent_users' => $dashboardData['recent_users'],
-            'recent_exams' => $dashboardData['recent_exams'],
-            'role_distribution' => $dashboardData['role_distribution']
         ]);
     }
 }

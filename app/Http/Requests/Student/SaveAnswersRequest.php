@@ -9,8 +9,6 @@ use Illuminate\Foundation\Http\FormRequest;
  *
  * This request class is responsible for authorizing and validating
  * the input data when a student submits their answers.
- *
- * @package App\Http\Requests\Student
  */
 class SaveAnswersRequest extends FormRequest
 {
@@ -21,13 +19,13 @@ class SaveAnswersRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->hasRole('student');
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array The array of validation rules for saving student answers.
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

@@ -1,0 +1,110 @@
+import { Canvas, Meta, Controls } from '@storybook/blocks';
+import * as ConfirmationModalStories from './ConfirmationModal.stories.tsx';
+
+<Meta of={ConfirmationModalStories} />
+
+# ConfirmationModal
+
+A specialized modal component for confirming user actions before execution.
+
+## Overview
+
+The ConfirmationModal component provides a standardized way to ask users for confirmation before performing important or destructive actions. It includes visual indicators for different severity levels.
+
+## Usage
+
+```tsx
+import { ConfirmationModal } from '@evalium/ui';
+import { useState } from 'react';
+
+function MyComponent() {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleConfirm = () => {
+        // Perform action
+        setIsOpen(false);
+    };
+
+    return (
+        <>
+            <button onClick={() => setIsOpen(true)}>Delete Item</button>
+            <ConfirmationModal
+                isOpen={isOpen}
+                onClose={() => setIsOpen(false)}
+                onConfirm={handleConfirm}
+                title="Delete Item"
+                message="Are you sure you want to delete this item? This action cannot be undone."
+                type="danger"
+            />
+        </>
+    );
+}
+```
+
+## Types
+
+The modal supports different visual types to indicate severity:
+
+- `danger` - For destructive actions (delete, remove, etc.) - Red theme
+- `warning` - For potentially problematic actions - Yellow theme
+- `info` - For informational confirmations - Blue theme
+
+## Features
+
+### Loading State
+
+Show a loading state while the action is being processed.
+
+### Customizable Buttons
+
+Customize the text of confirm and cancel buttons.
+
+### Flexible Content
+
+Use the `children` prop to provide custom content beyond the standard message.
+
+### Size Options
+
+Control the modal size based on content needs.
+
+## Examples
+
+### Danger Confirmation
+
+<Canvas of={ConfirmationModalStories.Danger} />
+
+### Warning Confirmation
+
+<Canvas of={ConfirmationModalStories.Warning} />
+
+### Info Confirmation
+
+<Canvas of={ConfirmationModalStories.Info} />
+
+### With Loading
+
+<Canvas of={ConfirmationModalStories.WithLoading} />
+
+### Not Closeable
+
+<Canvas of={ConfirmationModalStories.NotCloseable} />
+
+### With Custom Content
+
+<Canvas of={ConfirmationModalStories.WithCustomContent} />
+
+## Props
+
+<Controls of={ConfirmationModalStories.Danger} />
+
+## Best Practices
+
+- Always use `danger` type for destructive actions
+- Provide clear, specific messages about what will happen
+- Mention if the action is irreversible
+- Use descriptive button labels (e.g., "Delete User" instead of "OK")
+- Show loading state during async operations
+- Don't overuse confirmation modals - only for important actions
+- Consider alternatives for low-risk actions (undo instead of confirm)
+- Make the cancel action easily accessible
+- Use appropriate modal size based on message length

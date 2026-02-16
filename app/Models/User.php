@@ -4,7 +4,10 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -23,21 +26,21 @@ use Spatie\Permission\Traits\HasRoles;
  * @property \Illuminate\Support\Carbon|null $created_at The date and time when the user was created.
  * @property \Illuminate\Support\Carbon|null $updated_at The date and time when the user was last updated.
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Question newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Question newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Question query()
- * 
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Exam> $exams The exams created by the user (if teacher).
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExamAssignment> $examAssignments The exam assignments for the user (if student).
+ * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User query()
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Assessment> $assessments The assessments created by the user (if teacher).
  *
  * @mixin \Eloquent
  */
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, 
-        Notifiable, 
-        HasRoles;
+    use HasFactory,
+        HasRoles,
+        Notifiable,
+        SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -48,6 +51,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'avatar',
+        'is_active',
+        'locale',
     ];
 
     /**
@@ -70,26 +76,64 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
     /**
-     * Get the exams associated with the user.
+     * Get the assessments associated with the user (for teachers).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Exam>
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Assessment>
      */
-    public function exams(): HasMany
+    public function assessments(): HasMany
     {
-        return $this->hasMany(Exam::class, 'teacher_id');
+        return $this->hasMany(Assessment::class, 'teacher_id');
     }
 
     /**
-     * Get the exam assignments associated with the user.
+     * Get the assessment assignments for the user (student) through enrollments.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\ExamAssignment>
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\App\Models\AssessmentAssignment, \App\Models\Enrollment>
      */
-    public function examAssignments(): HasMany
+    public function assessmentAssignments(): HasManyThrough
     {
-        return $this->hasMany(ExamAssignment::class, 'student_id');
+        return $this->hasManyThrough(
+            AssessmentAssignment::class,
+            Enrollment::class,
+            'student_id',
+            'enrollment_id',
+        );
+    }
+
+    /**
+     * Get the enrollments associated with the user (for students).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Enrollment>
+     */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class, 'student_id');
+    }
+
+    /**
+     * Get the classes associated with the user (for students via enrollments).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\ClassModel>
+     */
+    public function classes(): BelongsToMany
+    {
+        return $this->belongsToMany(ClassModel::class, 'enrollments', 'student_id', 'class_id')
+            ->withPivot(['enrolled_at', 'withdrawn_at', 'status'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the class subjects where the user is teaching (for teachers).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\ClassSubject>
+     */
+    public function classSubjects(): HasMany
+    {
+        return $this->hasMany(ClassSubject::class, 'teacher_id');
     }
 }

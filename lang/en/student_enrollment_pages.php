@@ -1,0 +1,75 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    // Student Enrollment - Show (Current Enrollment)
+    'show' => [
+        'title' => 'My Enrollment',
+        'subtitle' => 'View your current enrollment and academic progress',
+        'current_class' => 'Current Class',
+        'enrolled_on' => 'Enrolled on',
+        'academic_year' => 'Academic Year',
+        'level' => 'Level',
+        'class_name' => 'Class Name',
+        'grade_breakdown' => 'Grade Breakdown by Subject',
+        'subject' => 'Subject',
+        'teacher' => 'Teacher',
+        'average' => 'Average',
+        'assessments' => 'Assessments',
+        'assessment_singular' => 'assessment',
+        'assessment_plural' => 'assessments',
+        'no_grade' => 'No grade yet',
+        'overall_statistics' => 'Overall Statistics',
+        'overall_average' => 'Overall Average',
+        'total_assessments' => 'Total Assessments',
+        'completed_assessments' => 'Completed',
+        'pending_assessments' => 'Pending',
+        'no_enrollment_title' => 'No Active Enrollment',
+        'no_enrollment_subtitle' => 'You are not enrolled in any class at the moment.',
+        'no_enrollment_message' => 'Please contact your administrator for enrollment information.',
+        'view_history' => 'View Enrollment History',
+        'view_classmates' => 'View Classmates',
+        'excellent' => 'Excellent',
+        'very_good' => 'Very Good',
+        'good' => 'Good',
+        'satisfactory' => 'Satisfactory',
+        'needs_improvement' => 'Needs Improvement',
+    ],
+
+    // Student Enrollment - History
+    'history' => [
+        'title' => 'Enrollment History',
+        'subtitle' => 'View your past enrollments',
+        'back_to_current' => 'Back to Current Enrollment',
+        'academic_year' => 'Academic Year',
+        'class' => 'Class',
+        'level' => 'Level',
+        'enrolled_on' => 'Enrolled',
+        'completed_on' => 'Completed',
+        'status' => 'Status',
+        'active' => 'Active',
+        'completed' => 'Completed',
+        'in_progress' => 'In Progress',
+        'empty_title' => 'No Enrollment History',
+        'empty_subtitle' => 'You have no past enrollments.',
+        'duration' => 'Duration',
+        'final_grade' => 'Final Grade',
+        'not_available' => 'Not Available',
+    ],
+
+    // Student Enrollment - Classmates
+    'classmates' => [
+        'title' => 'My Classmates',
+        'subtitle' => 'View your classmates in :class',
+        'back_to_enrollment' => 'Back to Enrollment',
+        'search_placeholder' => 'Search classmates...',
+        'student_name' => 'Name',
+        'email' => 'Email',
+        'enrolled_on' => 'Enrolled',
+        'empty_title' => 'No Classmates',
+        'empty_subtitle' => 'There are no other students in your class.',
+        'classmates_count' => 'Classmates (:count)',
+        'total_students' => 'Total Students',
+    ],
+];

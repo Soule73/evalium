@@ -1,0 +1,146 @@
+import { Meta, Canvas, Controls, Story } from '@storybook/blocks';
+import * as ChoiceEditorStories from './ChoiceEditor.stories';
+
+<Meta of={ChoiceEditorStories} />
+
+# ChoiceEditor
+
+A versatile editor component designed for creating and editing question choices with support for both simple text input and advanced Markdown formatting.
+
+## Features
+
+- **Dual Mode**: Switch between simple text input and Markdown editor
+- **Live Preview**: Real-time preview of Markdown content
+- **Math Support**: Render mathematical formulas with KaTeX ($inline$ and $$display$$)
+- **Syntax Highlighting**: Code blocks with Prism.js support
+- **Validation**: Built-in required field validation
+- **Read-Only Mode**: Display choices in a read-only state
+
+## Usage
+
+```tsx
+import { ChoiceEditor } from '@evalium/ui';
+import { useState } from 'react';
+
+function MyComponent() {
+    const [value, setValue] = useState('');
+    const [isMarkdown, setIsMarkdown] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
+
+    return (
+        <ChoiceEditor
+            value={value}
+            onChange={setValue}
+            isMarkdownMode={isMarkdown}
+            showPreview={showPreview}
+            onToggleMarkdownMode={() => setIsMarkdown(!isMarkdown)}
+            onTogglePreview={() => setShowPreview(!showPreview)}
+            required
+        />
+    );
+}
+```
+
+## Examples
+
+### Simple Text Mode
+
+Basic text input for simple answers.
+
+<Canvas of={ChoiceEditorStories.SimpleMode} />
+
+### Markdown Mode
+
+Advanced editor with Markdown support for rich formatting.
+
+<Canvas of={ChoiceEditorStories.MarkdownMode} />
+
+### With Live Preview
+
+Side-by-side editor and preview for immediate feedback.
+
+<Canvas of={ChoiceEditorStories.WithPreview} />
+
+### With Validation Error
+
+Display validation errors for required fields.
+
+<Canvas of={ChoiceEditorStories.WithError} />
+
+### Read-Only Mode
+
+Display choices without editing capability.
+
+<Canvas of={ChoiceEditorStories.ReadOnly} />
+
+### Complex Markdown Content
+
+Full example with math, code, tables, and more.
+
+<Canvas of={ChoiceEditorStories.ComplexMarkdown} />
+
+## Props
+
+<Controls />
+
+## Markdown Syntax
+
+The editor supports full GitHub Flavored Markdown (GFM) including:
+
+### Text Formatting
+
+- **Bold**: `**text**` or `__text__`
+- _Italic_: `*text*` or `_text_`
+- `Inline code`: `` `code` ``
+
+### Math (KaTeX)
+
+- Inline: `$E = mc^2$`
+- Display: `$$\int_0^\infty e^{-x^2} dx$$`
+
+### Code Blocks
+
+````
+```javascript
+console.log('Hello World');
+```
+````
+
+### Tables
+
+```
+| Header 1 | Header 2 |
+|----------|----------|
+| Cell 1   | Cell 2   |
+```
+
+### Lists
+
+- Unordered: `- item` or `* item`
+- Ordered: `1. item`
+
+### Links & Images
+
+- Link: `[text](url)`
+- Image: `![alt](url)`
+
+## Accessibility
+
+- Keyboard navigation support
+- ARIA labels for screen readers
+- Focus management
+- Error message announcements
+
+## Best Practices
+
+1. **Always control state**: Use controlled component pattern with `useState`
+2. **Provide feedback**: Use `error` prop for validation messages
+3. **Enable preview**: Show preview for Markdown mode to help users
+4. **Label fields**: Use clear placeholders and labels
+5. **Responsive**: Component adapts to container width
+
+## Related Components
+
+- [MarkdownEditor](../?path=/docs/ui-forms-markdowneditor--docs) - Standalone Markdown editor
+- [MarkdownRenderer](../?path=/docs/ui-display-markdownrenderer--docs) - Markdown display component
+- [Input](../?path=/docs/ui-forms-input--docs) - Basic text input

@@ -1,0 +1,279 @@
+---
+id: 15ead0c8-6550-493e-bc5e-2a1a331d2048
+---
+%%{init: {'er': {'layoutDirection': 'TB', 'fontSize': 14}}}%%
+erDiagram
+
+    %% ============================================================
+    %% Evalium - Final Database Schema (MCD)
+    %% Generated from consolidated migrations - 2026-02-15
+    %% ============================================================
+
+    %% ========================
+    %% Core Identity & Auth
+    %% ========================
+
+    users {
+        bigint id PK
+        varchar name
+        varchar email UK
+        varchar avatar "nullable"
+        varchar locale "default: en"
+        timestamp email_verified_at "nullable"
+        boolean is_active "default: true"
+        varchar password
+        varchar remember_token "nullable"
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at "nullable, softDeletes"
+    }
+
+    roles {
+        bigint id PK
+        varchar name
+        varchar guard_name
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    permissions {
+        bigint id PK
+        varchar name
+        varchar guard_name
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    model_has_roles {
+        bigint role_id FK
+        varchar model_type
+        bigint model_id
+    }
+
+    model_has_permissions {
+        bigint permission_id FK
+        varchar model_type
+        bigint model_id
+    }
+
+    role_has_permissions {
+        bigint permission_id FK
+        bigint role_id FK
+    }
+
+    %% ========================
+    %% Academic Structure
+    %% ========================
+
+    levels {
+        bigint id PK
+        varchar name UK
+        varchar code UK
+        text description "nullable"
+        integer order "default: 0"
+        boolean is_active "default: true"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    academic_years {
+        bigint id PK
+        varchar name UK
+        date start_date
+        date end_date "CHECK: end_date > start_date"
+        boolean is_current "default: false"
+        text description "nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    semesters {
+        bigint id PK
+        bigint academic_year_id FK
+        varchar name
+        date start_date
+        date end_date "CHECK: end_date > start_date"
+        tinyint order_number "CHECK: 1..2"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    subjects {
+        bigint id PK
+        bigint level_id FK
+        varchar name
+        varchar code UK
+        text description "nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    classes {
+        bigint id PK
+        bigint academic_year_id FK
+        bigint level_id FK
+        varchar name
+        text description "nullable"
+        integer max_students "nullable, CHECK: > 0"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    %% ========================
+    %% Enrollment & Assignments
+    %% ========================
+
+    enrollments {
+        bigint id PK
+        bigint class_id FK
+        bigint student_id FK
+        date enrolled_at
+        date withdrawn_at "nullable"
+        enum status "active|withdrawn|completed"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    class_subjects {
+        bigint id PK
+        bigint class_id FK
+        bigint subject_id FK
+        bigint teacher_id FK
+        bigint semester_id FK "nullable"
+        decimal coefficient "CHECK: > 0"
+        date valid_from
+        date valid_to "nullable, CHECK: >= valid_from"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    %% ========================
+    %% Assessment Domain
+    %% ========================
+
+    assessments {
+        bigint id PK
+        bigint class_subject_id FK
+        bigint teacher_id FK
+        varchar title
+        text description "nullable"
+        enum type "devoir|examen|tp|controle|projet"
+        enum delivery_mode "supervised|homework, default: supervised"
+        decimal coefficient "CHECK: > 0"
+        integer duration_minutes "nullable, CHECK: > 0"
+        timestamp scheduled_at "nullable"
+        timestamp due_date "nullable"
+        int max_file_size "unsigned, nullable"
+        varchar allowed_extensions "nullable"
+        int max_files "unsigned, default: 0"
+        json settings "nullable (is_published, shuffle_questions, etc.)"
+        timestamp deleted_at "nullable, softDeletes"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    assessment_assignments {
+        bigint id PK
+        bigint assessment_id FK
+        bigint enrollment_id FK
+        timestamp started_at "nullable"
+        timestamp submitted_at "nullable"
+        timestamp graded_at "nullable"
+        decimal score "nullable, CHECK: 0..20"
+        text teacher_notes "nullable"
+        boolean forced_submission "default: false"
+        varchar security_violation "nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    questions {
+        bigint id PK
+        bigint assessment_id FK
+        text content
+        enum type "text|multiple|one_choice|boolean, default: text"
+        integer points "default: 1"
+        integer order_index "default: 1"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    choices {
+        bigint id PK
+        bigint question_id FK
+        varchar content
+        boolean is_correct "default: false"
+        integer order_index "default: 1"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    answers {
+        bigint id PK
+        bigint assessment_assignment_id FK
+        bigint question_id FK
+        bigint choice_id FK "nullable"
+        text answer_text "nullable"
+        float score "nullable"
+        text feedback "nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    assignment_attachments {
+        bigint id PK
+        bigint assessment_assignment_id FK
+        varchar file_name
+        varchar file_path
+        int file_size "unsigned"
+        varchar mime_type
+        timestamp uploaded_at
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    %% ============================================================
+    %% Relationships
+    %% ============================================================
+
+    %% Auth & Permissions (Spatie)
+    roles ||--o{ model_has_roles : "assigned to"
+    permissions ||--o{ model_has_permissions : "granted to"
+    roles ||--o{ role_has_permissions : "has"
+    permissions ||--o{ role_has_permissions : "belongs to"
+    users ||--o{ model_has_roles : "has roles"
+    users ||--o{ model_has_permissions : "has permissions"
+
+    %% Academic Structure
+    academic_years ||--o{ semesters : "contains"
+    academic_years ||--o{ classes : "organizes"
+    levels ||--o{ subjects : "categorizes"
+    levels ||--o{ classes : "defines grade"
+
+    %% Enrollment
+    classes ||--o{ enrollments : "has students"
+    users ||--o{ enrollments : "enrolled in"
+
+    %% Class-Subject Assignments
+    classes ||--o{ class_subjects : "offers"
+    subjects ||--o{ class_subjects : "taught in"
+    users ||--o{ class_subjects : "teaches"
+    semesters ||--o{ class_subjects : "scoped to"
+
+    %% Assessments
+    class_subjects ||--o{ assessments : "evaluates"
+    users ||--o{ assessments : "created by"
+
+    %% Assessment Lifecycle
+    assessments ||--o{ assessment_assignments : "assigned to"
+    enrollments ||--o{ assessment_assignments : "takes"
+    assessments ||--o{ questions : "contains"
+
+    %% Questions & Answers
+    questions ||--o{ choices : "has options"
+    assessment_assignments ||--o{ answers : "includes"
+    questions ||--o{ answers : "answered by"
+    choices ||--o{ answers : "selected in"
+
+    %% Attachments
+    assessment_assignments ||--o{ assignment_attachments : "has files"

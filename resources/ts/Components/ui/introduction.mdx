@@ -1,0 +1,78 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="UI/Introduction" />
+
+# Evalium UI Components
+
+Welcome to the Evalium UI component library documentation. This library provides a collection of reusable React components built with **Tailwind CSS v4** for the Evalium online assessment management platform.
+
+## Getting Started
+
+All components are built with:
+
+- **React 19** with TypeScript
+- **Tailwind CSS v4** for styling
+- **Heroicons** for icons
+- **Accessibility** best practices
+
+## Component Categories
+
+### Form Components
+
+- **Select** - Searchable dropdown with keyboard navigation
+- **Textarea** - Multi-line text input with validation
+- **TextEntry** - Display label-value pairs
+
+### Feedback Components
+
+- **Badge** - Status indicators (success, error, warning, info, gray)
+- **AlertEntry** - Alert messages with icons
+- **Modal** - Dialog overlays with various sizes
+- **ConfirmationModal** - Confirmation dialogs for critical actions
+
+### Layout Components
+
+- **Section** - Content sections with optional collapsible functionality
+- **Button** - Primary action buttons with variants
+
+## Usage
+
+Import components from the `@evalium/ui` package:
+
+```tsx
+import { Button, Badge, Modal, Select } from '@evalium/ui';
+
+function MyComponent() {
+    return (
+        <div>
+            <Button color="primary">Click me</Button>
+            <Badge label="Active" type="success" />
+        </div>
+    );
+}
+```
+
+## Design Principles
+
+1. **Consistency** - All components follow the same design language
+2. **Accessibility** - WCAG 2.1 compliant
+3. **Flexibility** - Customizable through props and className
+4. **Performance** - Optimized for production use
+5. **Type Safety** - Full TypeScript support
+
+## Color Palette
+
+The components use a consistent color system:
+
+- **Primary** - Blue (#3b82f6)
+- **Secondary** - Gray (#6b7280)
+- **Success** - Green (#22c55e)
+- **Warning** - Yellow (#f59e0b)
+- **Danger** - Red (#ef4444)
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)

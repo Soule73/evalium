@@ -1,0 +1,30 @@
+{
+    "name": "@evalium/e2e-tests",
+    "version": "1.0.0",
+    "private": true,
+    "description": "E2E tests for Evalium platform",
+    "type": "module",
+    "scripts": {
+        "test": "playwright test",
+        "test:ui": "playwright test --ui",
+        "test:debug": "playwright test --debug",
+        "test:headed": "playwright test --headed",
+        "test:chrome": "playwright test --project=chromium",
+        "test:setup": "playwright test --project=setup-*",
+        "test:admin": "playwright test --project=admin",
+        "test:teacher": "playwright test --project=teacher",
+        "test:student": "playwright test --project=student",
+        "test:auth": "playwright test --project=auth",
+        "test:report": "playwright show-report",
+        "playwright:install": "playwright install"
+    },
+    "dependencies": {
+        "dotenv": "^17.2.3"
+    },
+    "devDependencies": {
+        "@axe-core/playwright": "^4.10.2",
+        "@playwright/test": "^1.56.0",
+        "@types/node": "^25.0.3",
+        "axe-core": "^4.11.0"
+    }
+}

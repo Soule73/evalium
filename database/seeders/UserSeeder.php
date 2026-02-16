@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -13,30 +12,47 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Créer des utilisateurs administrateurs
-        $admin = \App\Models\User::create([
-            'name' => 'Admin Système',
-            'email' => 'admin@examena.com',
+        // Créer le Super Admin
+        $superAdmin = \App\Models\User::create([
+            'name' => 'Super Administrateur',
+            'email' => 'superadmin@evalium.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
+            'avatar' => null,
+            'is_active' => true,
+        ]);
+        $superAdmin->assignRole('super_admin');
+
+        // Créer un Admin normal
+        $admin = \App\Models\User::create([
+            'name' => 'Admin Système',
+            'email' => 'admin@evalium.com',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'avatar' => null,
+            'is_active' => true,
         ]);
         $admin->assignRole('admin');
 
-        // Créer des enseignants
         $teachers = [
             [
-                'name' => 'Dr. Marie Dupont',
-                'email' => 'marie.dupont@examena.com',
+                'name' => 'Prof. Mathematics',
+                'email' => 'math.teacher@evalium.com',
                 'password' => Hash::make('password'),
             ],
             [
-                'name' => 'Prof. Jean Martin',
-                'email' => 'jean.martin@examena.com',
+                'name' => 'Prof. Physics',
+                'email' => 'physics.teacher@evalium.com',
                 'password' => Hash::make('password'),
             ],
             [
-                'name' => 'Dr. Sophie Bernard',
-                'email' => 'sophie.bernard@examena.com',
+                'name' => 'Prof. Computer Science',
+                'email' => 'cs.teacher@evalium.com',
+                'password' => Hash::make('password'),
+            ],
+            [
+                'name' => 'Prof. English',
+                'email' => 'english.teacher@evalium.com',
                 'password' => Hash::make('password'),
             ],
         ];
@@ -44,64 +60,35 @@ class UserSeeder extends Seeder
         foreach ($teachers as $teacherData) {
             $teacher = \App\Models\User::create(array_merge($teacherData, [
                 'email_verified_at' => now(),
+                'avatar' => null,
+                'is_active' => true,
             ]));
             $teacher->assignRole('teacher');
         }
 
-        // Créer des étudiants
-        $students = [
-            [
-                'name' => 'Alice Johnson',
-                'email' => 'alice.johnson@student.examena.com',
+        $students = [];
+        for ($i = 1; $i <= 20; $i++) {
+            $students[] = [
+                'name' => "Student {$i}",
+                'email' => "student{$i}@evalium.com",
                 'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'Bob Smith',
-                'email' => 'bob.smith@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'Claire Davis',
-                'email' => 'claire.davis@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'David Wilson',
-                'email' => 'david.wilson@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'Emma Brown',
-                'email' => 'emma.brown@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'Frank Miller',
-                'email' => 'frank.miller@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'Grace Taylor',
-                'email' => 'grace.taylor@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-            [
-                'name' => 'Henry Anderson',
-                'email' => 'henry.anderson@student.examena.com',
-                'password' => Hash::make('password'),
-            ],
-        ];
+            ];
+        }
 
         foreach ($students as $studentData) {
             $student = \App\Models\User::create(array_merge($studentData, [
                 'email_verified_at' => now(),
+                'avatar' => null,
+                'is_active' => true,
             ]));
             $student->assignRole('student');
         }
 
-        echo "Utilisateurs créés avec succès !\n";
-        echo "- 1 administrateur\n";
-        echo "- " . count($teachers) . " enseignants\n";
-        echo "- " . count($students) . " étudiants\n";
+        $this->command->info('Utilisateurs créés avec succès !');
+        $this->command->info('- 1 super administrateur (superadmin@evalium.com)');
+        $this->command->info('- 1 administrateur (admin@evalium.com)');
+        $this->command->info('- '.count($teachers).' enseignants');
+        $this->command->info('- '.count($students).' étudiants');
+        $this->command->info('- Mot de passe pour tous: password');
     }
 }

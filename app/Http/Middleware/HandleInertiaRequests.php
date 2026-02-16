@@ -42,33 +42,110 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+                'permissions' => $user ? $user->getAllPermissions()->pluck('name')->toArray() : [],
+                'roles' => $user ? $user->getRoleNames()->toArray() : [],
             ],
             'flash' => [
-                'success' => fn() => $request->session()->pull('success'),
-                'error' => fn() => $request->session()->pull('error'),
-                'warning' => fn() => $request->session()->pull('warning'),
-                'info' => fn() => $request->session()->pull('info'),
+                'success' => fn () => $request->session()->pull('success'),
+                'error' => fn () => $request->session()->pull('error'),
+                'warning' => fn () => $request->session()->pull('warning'),
+                'info' => fn () => $request->session()->pull('info'),
             ],
-            'examConfig' => [
-                'devMode' => config('exam.dev_mode', false),
-                'securityEnabled' => config('exam.security_enabled', true),
+            'academic_year' => [
+                'selected' => $this->getSelectedAcademicYear($request),
+                'recent' => $this->getRecentAcademicYears(),
+            ],
+            'locale' => app()->getLocale(),
+            'language' => $this->getTranslations(),
+            'assessmentConfig' => [
+                'devMode' => config('assessment.dev_mode', false),
+                'securityEnabled' => config('assessment.security_enabled', true),
                 'features' => [
-                    'fullscreenRequired' => config('exam.features.fullscreen_required', true),
-                    'tabSwitchDetection' => config('exam.features.tab_switch_detection', true),
-                    'devToolsDetection' => config('exam.features.dev_tools_detection', true),
-                    'copyPastePrevention' => config('exam.features.copy_paste_prevention', true),
-                    'contextMenuDisabled' => config('exam.features.context_menu_disabled', true),
-                    'printPrevention' => config('exam.features.print_prevention', true),
+                    'fullscreenRequired' => config('assessment.features.fullscreen_required', true),
+                    'tabSwitchDetection' => config('assessment.features.tab_switch_detection', true),
+                    'devToolsDetection' => config('assessment.features.dev_tools_detection', true),
+                    'copyPastePrevention' => config('assessment.features.copy_paste_prevention', true),
+                    'contextMenuDisabled' => config('assessment.features.context_menu_disabled', true),
+                    'printPrevention' => config('assessment.features.print_prevention', true),
                 ],
                 'timing' => [
-                    'minExamDurationMinutes' => config('exam.timing.min_exam_duration_minutes', 2),
-                    'autoSubmitOnTimeEnd' => config('exam.timing.auto_submit_on_time_end', true),
+                    'minAssessmentDurationMinutes' => config('assessment.timing.min_assessment_duration_minutes', 2),
+                    'autoSubmitOnTimeEnd' => config('assessment.timing.auto_submit_on_time_end', true),
                 ],
             ],
         ];
+    }
+
+    /**
+     * Get the selected academic year from session or default to current.
+     */
+    protected function getSelectedAcademicYear(Request $request): ?array
+    {
+        $academicYearId = $request->session()->get('academic_year_id');
+
+        if (! $academicYearId) {
+            $currentYear = \App\Models\AcademicYear::where('is_current', true)->first();
+
+            return $currentYear ? $currentYear->toArray() : null;
+        }
+
+        $academicYear = \App\Models\AcademicYear::find($academicYearId);
+
+        return $academicYear ? $academicYear->toArray() : null;
+    }
+
+    /**
+     * Get the 3 most recent academic years (cached).
+     */
+    protected function getRecentAcademicYears(): array
+    {
+        return \Illuminate\Support\Facades\Cache::remember(\App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT, 3600, function () {
+            return \App\Models\AcademicYear::orderBy('start_date', 'desc')
+                ->take(3)
+                ->get()
+                ->toArray();
+        });
+    }
+
+    /**
+     * Get all translations for the current locale.
+     *
+     * This method loads all PHP translation files and JSON translations
+     * to make them available in the frontend via Inertia.js.
+     *
+     * @return array<string, mixed>
+     */
+    protected function getTranslations(): array
+    {
+        $locale = app()->getLocale();
+
+        return \Illuminate\Support\Facades\Cache::remember("translations:{$locale}", 3600, function () use ($locale) {
+            $translations = [];
+
+            $langPath = lang_path($locale);
+
+            if (is_dir($langPath)) {
+                $files = glob($langPath.'/*.php');
+
+                foreach ($files as $file) {
+                    $filename = basename($file, '.php');
+                    $translations[$filename] = require $file;
+                }
+            }
+
+            $jsonFile = lang_path($locale.'.json');
+            if (file_exists($jsonFile)) {
+                $jsonTranslations = json_decode(file_get_contents($jsonFile), true);
+                $translations = array_merge($translations, ['json' => $jsonTranslations]);
+            }
+
+            return $translations;
+        });
     }
 }

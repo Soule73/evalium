@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
-import { Button } from '@/Components/Button';
-import Input from '@/Components/form/Input';
-import { User } from '@/types';
-import Modal from '@/Components/Modal';
+import { type User } from '@/types';
+import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useFormatters } from '@/hooks/shared/useFormatters';
+import { Button, Modal, Select } from '@/Components';
+import { Input } from '@evalium/ui';
 
 interface Props {
     user: User;
@@ -15,7 +17,19 @@ interface Props {
     onClose: () => void;
 }
 
-export default function EditUser({ user, roles, userRole, isOpen, onClose, title, description, route }: Props) {
+export default function EditUser({
+    user,
+    roles,
+    userRole,
+    isOpen,
+    onClose,
+    title,
+    description,
+    route,
+}: Props) {
+    const { t } = useTranslations();
+    const { getRoleLabel } = useFormatters();
+
     const { data, setData, put, processing, errors } = useForm({
         id: user.id,
         name: user.name,
@@ -31,9 +45,6 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
             onSuccess: () => {
                 onClose();
             },
-            onError: (e) => {
-                console.log('Erreur lors de la mise à jour de l\'utilisateur :', e);
-            }
         });
     };
 
@@ -49,29 +60,38 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
         });
     };
 
-    const getRoleLabel = (roleName: string) => {
-        switch (roleName) {
-            case 'admin':
-                return 'Administrateur';
-            case 'teacher':
-                return 'Enseignant';
-            case 'student':
-                return 'Étudiant';
-            default:
-                return roleName;
-        }
-    };
+    const translations = useMemo(
+        () => ({
+            searchPlaceholder: t('components.select.search_placeholder'),
+            noOptionFound: t('components.select.no_option_found'),
+            editTitle: t('admin_pages.users.edit_title'),
+            role: t('admin_pages.users.role'),
+            selectRole: t('admin_pages.users.select_role'),
+            namePlaceholder: t('admin_pages.users.name_placeholder'),
+            emailPlaceholder: t('admin_pages.users.email_placeholder'),
+            passwordChange: t('admin_pages.users.password_change'),
+            passwordKeep: t('admin_pages.users.password_keep'),
+            passwordConfirmPlaceholder: t('admin_pages.users.password_confirm_placeholder'),
+            cancel: t('admin_pages.common.cancel'),
+            updating: t('admin_pages.users.updating'),
+            updateButton: t('admin_pages.users.update_button'),
+        }),
+        [t],
+    );
+
+    const editSubtitle = useMemo(
+        () => t('admin_pages.users.edit_subtitle', { name: user.name }),
+        [t, user.name],
+    );
 
     return (
-        <Modal isOpen={isOpen} size='2xl' onClose={onClose} isCloseableInside={false}>
+        <Modal isOpen={isOpen} size="2xl" onClose={onClose} isCloseableInside={false}>
             <div className="p-6 md:min-w-lg lg:min-w-xl w-full ">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold text-gray-900">
-                        {title || "Modifier l'utilisateur"}
+                        {title || translations.editTitle}
                     </h1>
-                    <p className="text-gray-600 mt-1">
-                        {description || `Modifiez les informations de ${user.name}`}
-                    </p>
+                    <p className="text-gray-600 mt-1">{description || editSubtitle}</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -80,41 +100,41 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         type="text"
                         className="mt-1 block w-full"
                         value={data.name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('name', e.target.value)}
-                        placeholder="Entrez le nom complet"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setData('name', e.target.value)
+                        }
+                        placeholder={translations.namePlaceholder}
                         required
                     />
-
 
                     <Input
                         id="email"
                         type="email"
                         value={data.email}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('email', e.target.value)}
-                        placeholder="Entrez l'adresse email"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setData('email', e.target.value)
+                        }
+                        placeholder={translations.emailPlaceholder}
                         required
                     />
-                    {roles && <div>
-                        <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                            Rôle
-                        </label>
-                        <select
-                            id="role"
-                            value={data.role}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setData('role', e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            required
-                        >
-                            {roles.map((role) => (
-                                <option key={role} value={role}>
-                                    {getRoleLabel(role)}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.role && (
-                            <p className="mt-2 text-sm text-red-600">{errors.role}</p>
-                        )}
-                    </div>}
+                    {roles && (
+                        <div>
+                            <Select
+                                label={translations.role}
+                                noOptionFound={translations.noOptionFound}
+                                searchPlaceholder={translations.searchPlaceholder}
+                                options={roles.map((role) => ({
+                                    value: role,
+                                    label: getRoleLabel(role),
+                                }))}
+                                value={data.role}
+                                onChange={(value) => setData('role', String(value))}
+                                error={errors.role}
+                                searchable={false}
+                                placeholder={translations.selectRole}
+                            />
+                        </div>
+                    )}
 
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
@@ -122,7 +142,7 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         </div>
                         <div className="relative flex justify-center text-sm">
                             <span className="px-2 bg-white text-gray-500">
-                                Changer le mot de passe (optionnel)
+                                {translations.passwordChange}
                             </span>
                         </div>
                     </div>
@@ -131,39 +151,39 @@ export default function EditUser({ user, roles, userRole, isOpen, onClose, title
                         id="password"
                         type="password"
                         value={data.password}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('password', e.target.value)}
-                        placeholder="Laissez vide pour conserver le mot de passe actuel"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setData('password', e.target.value)
+                        }
+                        placeholder={translations.passwordKeep}
                     />
 
                     <Input
                         id="password_confirmation"
                         type="password"
                         value={data.password_confirmation}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('password_confirmation', e.target.value)}
-                        placeholder="Confirmez le nouveau mot de passe"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setData('password_confirmation', e.target.value)
+                        }
+                        placeholder={translations.passwordConfirmPlaceholder}
                     />
                     <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
                         <Button
                             type="button"
                             color="secondary"
-                            variant='outline'
-                            size='sm'
+                            variant="outline"
+                            size="sm"
                             onClick={handleCancel}
                         >
-                            Annuler
+                            {translations.cancel}
                         </Button>
                         <Button
                             type="submit"
                             color="primary"
-                            size='sm'
+                            size="sm"
                             loading={processing}
                             disabled={processing}
                         >
-                            {processing ? (
-                                'Mise à jour...'
-                            ) : (
-                                'Mettre à jour'
-                            )}
+                            {processing ? translations.updating : translations.updateButton}
                         </Button>
                     </div>
                 </form>

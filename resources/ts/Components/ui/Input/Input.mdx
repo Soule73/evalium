@@ -1,0 +1,56 @@
+import { Meta, Canvas, Controls } from '@storybook/blocks';
+import * as InputStories from './Input.stories.tsx';
+
+<Meta of={InputStories} />
+
+# Input
+
+A flexible text input component with label, error handling, and helper text support.
+
+## Features
+
+- ✅ Multiple input types (text, email, password, number, tel, url, search)
+- ✅ Label with proper association
+- ✅ Error states with ARIA invalid
+- ✅ Helper text for additional context
+- ✅ Disabled state
+- ✅ Required field support
+- ✅ Dark mode support
+- ✅ Full accessibility (WCAG compliant)
+
+## Basic Usage
+
+<Canvas of={InputStories.Default} />
+
+## With Label
+
+<Canvas of={InputStories.WithLabel} />
+
+## Error State
+
+<Canvas of={InputStories.WithError} />
+
+## With Helper Text
+
+<Canvas of={InputStories.WithHelperText} />
+
+## States
+
+<Canvas of={InputStories.Disabled} />
+<Canvas of={InputStories.Required} />
+
+## Input Types
+
+<Canvas of={InputStories.DifferentTypes} />
+
+## Accessibility
+
+- Proper label association with `htmlFor` and `id`
+- Error messages announced with `role="alert"`
+- `aria-invalid` attribute for error states
+- `aria-describedby` linking to helper text and errors
+- Full keyboard navigation support
+
+## Props
+
+<Controls />

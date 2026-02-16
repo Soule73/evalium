@@ -1,0 +1,108 @@
+import { Canvas, Meta, Controls } from '@storybook/blocks';
+import * as AlertEntryStories from './AlertEntry.stories.tsx';
+
+<Meta of={AlertEntryStories} />
+
+# AlertEntry
+
+A notification component for displaying feedback messages to users.
+
+## Overview
+
+The AlertEntry component provides visual feedback about system states, user actions, or important information. It supports multiple types with distinct visual styles and optional icons.
+
+## Usage
+
+```tsx
+import { AlertEntry } from '@evalium/ui';
+
+function MyComponent() {
+    return (
+        <>
+            <AlertEntry type="success">Your changes have been saved successfully.</AlertEntry>
+            <AlertEntry type="error">An error occurred while processing your request.</AlertEntry>
+        </>
+    );
+}
+```
+
+## Types
+
+The component supports four distinct types:
+
+- `success` - Positive feedback (green) - completed actions, confirmations
+- `error` - Error messages (red) - failures, critical issues
+- `warning` - Warnings (yellow) - cautions, important notices
+- `info` - Informational messages (blue) - tips, general information
+
+## Features
+
+### Optional Icons
+
+Each type has a default icon that can be customized or hidden.
+
+### Rich Content
+
+Supports text, HTML, and React components as children.
+
+### Flexible Styling
+
+Customize appearance with additional CSS classes.
+
+### Accessibility
+
+Proper ARIA roles and semantic HTML for screen readers.
+
+## Examples
+
+### Success Alert
+
+<Canvas of={AlertEntryStories.Success} />
+
+### Error Alert
+
+<Canvas of={AlertEntryStories.Error} />
+
+### Warning Alert
+
+<Canvas of={AlertEntryStories.Warning} />
+
+### Info Alert
+
+<Canvas of={AlertEntryStories.Info} />
+
+### Without Children
+
+<Canvas of={AlertEntryStories.WithoutChildren} />
+
+### Long Content
+
+<Canvas of={AlertEntryStories.WithLongContent} />
+
+### Real-World Examples
+
+<Canvas of={AlertEntryStories.AssessmentSubmitted} />
+<Canvas of={AlertEntryStories.ValidationError} />
+<Canvas of={AlertEntryStories.TimeWarning} />
+
+### All Types
+
+<Canvas of={AlertEntryStories.AllTypes} />
+
+## Props
+
+<Controls of={AlertEntryStories.Success} />
+
+## Best Practices
+
+- Use `success` for confirming completed actions
+- Use `error` for failures that require user attention
+- Use `warning` for situations that need caution but aren't errors
+- Use `info` for helpful tips or general information
+- Keep messages concise and actionable
+- Provide specific error messages that help users fix issues
+- Place alerts near the relevant content or action
+- Don't stack multiple alerts of the same type
+- Auto-dismiss success messages after a few seconds
+- Keep error and warning messages visible until addressed
+- Use appropriate icons that reinforce the message type

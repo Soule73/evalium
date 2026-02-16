@@ -1,0 +1,129 @@
+%%{init: {'flowchart': {'htmlLabels': true, 'nodeSpacing': 50, 'rankSpacing': 70}}}%%
+graph LR
+    %% Layer 1: Shared List Components (left column)
+    subgraph L1["Layer 1: Shared List Components - Variant Pattern"]
+        direction TB
+        BEL["<div style='width:260px;white-space:normal;text-align:left'>BaseEntityList<br>common base</div>"]
+        AL["<div style='width:260px;white-space:normal;text-align:left'>AssessmentList<br>admin | teacher | student</div>"]
+        ASGL["<div style='width:260px;white-space:normal;text-align:left'>AssignmentList<br>teacher</div>"]
+        CL["<div style='width:260px;white-space:normal;text-align:left'>ClassList<br>admin | teacher</div>"]
+        CSL["<div style='width:260px;white-space:normal;text-align:left'>ClassSubjectList<br>admin | teacher</div>"]
+        CSHL["<div style='width:260px;white-space:normal;text-align:left'>ClassSubjectHistoryList<br>admin</div>"]
+        EL["<div style='width:260px;white-space:normal;text-align:left'>EnrollmentList<br>admin | student</div>"]
+        SL["<div style='width:260px;white-space:normal;text-align:left'>SubjectList<br>admin | teacher | class-assignment</div>"]
+        SGL["<div style='width:260px;white-space:normal;text-align:left'>SubjectGradeList<br>admin | student</div>"]
+        UL["<div style='width:260px;white-space:normal;text-align:left'>UserList<br>admin | classmates</div>"]
+        AYL["<div style='width:260px;white-space:normal;text-align:left'>AcademicYearList<br>admin</div>"]
+        RL["<div style='width:260px;white-space:normal;text-align:left'>RoleList<br>admin</div>"]
+        LL["<div style='width:260px;white-space:normal;text-align:left'>LevelList<br>admin</div>"]
+    end
+
+    %% Backend trait and shared pages (center)
+    subgraph TRAIT["HandlesAssessmentViewing"]
+        direction TB
+        METHODS["<div style='width:200px;white-space:normal;text-align:center'>show() | review()<br>grade() | saveGrade()</div>"]
+    end
+
+    subgraph L2["Layer 2: Shared Pages - routeContext"]
+        direction TB
+        AS["<div style='width:180px;white-space:normal;text-align:left'>Assessments/Show</div>"]
+        AR["<div style='width:180px;white-space:normal;text-align:left'>Assessments/Review</div>"]
+        AG["<div style='width:180px;white-space:normal;text-align:left'>Assessments/Grade</div>"]
+    end
+
+    %% Role-specific pages (right column)
+    subgraph ROLES["Role-Specific Pages"]
+        direction TB
+        subgraph ADMIN["Admin"]
+            A_AI["<div style='width:220px;white-space:normal;text-align:left'>Assessments/Index</div>"]
+            A_CI["<div style='width:220px;white-space:normal;text-align:left'>Classes/<br>Index | Create | Edit | Show</div>"]
+            A_SI["<div style='width:220px;white-space:normal;text-align:left'>Subjects/<br>Index | Create | Edit | Show</div>"]
+            A_CSI["<div style='width:220px;white-space:normal;text-align:left'>ClassSubjects/<br>Index | Show</div>"]
+            A_UI["<div style='width:220px;white-space:normal;text-align:left'>Users/<br>Index | Create | Edit | ShowUser | ShowTeacher</div>"]
+            A_EI["<div style='width:220px;white-space:normal;text-align:left'>Enrollments/<br>Index | Create | Show</div>"]
+            A_AY["<div style='width:220px;white-space:normal;text-align:left'>AcademicYears/<br>Archives | Create | Edit | Show</div>"]
+            A_SYS["<div style='width:220px;white-space:normal;text-align:left'>Levels/Index | Create | Edit<br>Roles/Index | Edit</div>"]
+        end
+        subgraph TEACHER["Teacher"]
+            T_AI["<div style='width:220px;white-space:normal;text-align:left'>Assessments/<br>Index | Create | Edit</div>"]
+            T_CI["<div style='width:220px;white-space:normal;text-align:left'>Classes/<br>Index | Show</div>"]
+            T_SI["<div style='width:220px;white-space:normal;text-align:left'>Subjects/<br>Index | Show</div>"]
+        end
+        subgraph STUDENT["Student"]
+            S_A["<div style='width:220px;white-space:normal;text-align:left'>Assessments/<br>Index | Show | Take | Work | Results</div>"]
+            S_E["<div style='width:220px;white-space:normal;text-align:left'>Enrollment/<br>Show | History | Classmates</div>"]
+        end
+    end
+
+    %% Common pages (top)
+    subgraph COMMON["Common"]
+        direction LR
+        DASH["<div style='width:240px;white-space:normal;text-align:center'>Dashboard<br>Admin | Teacher | Student</div>"]
+        AUTH["<div style='width:180px;white-space:normal;text-align:center'>Auth<br>Login | Profile</div>"]
+    end
+
+    %% AssessmentList connections
+    AL --> A_AI
+    AL --> A_CI
+    AL --> A_UI
+    AL --> T_AI
+    AL --> T_CI
+    AL --> T_SI
+    AL --> S_A
+    AL --> DASH
+
+    %% AssignmentList connections
+    ASGL --> AS
+
+    %% ClassList connections
+    CL --> A_CI
+    CL --> T_CI
+
+    %% ClassSubjectList connections
+    CSL --> A_CSI
+    CSL --> A_CI
+    CSL --> T_CI
+    CSL --> DASH
+
+    %% ClassSubjectHistoryList connections
+    CSHL --> A_CSI
+
+    %% EnrollmentList connections
+    EL --> A_EI
+    EL --> A_CI
+    EL --> T_CI
+    EL --> S_E
+
+    %% SubjectList connections
+    SL --> A_SI
+    SL --> T_SI
+
+    %% SubjectGradeList connections
+    SGL --> A_EI
+    SGL --> S_E
+
+    %% UserList connections
+    UL --> A_UI
+    UL --> S_E
+
+    %% AcademicYearList connections
+    AYL --> A_AY
+
+    %% RoleList & LevelList connections
+    RL --> A_SYS
+    LL --> A_SYS
+
+    %% Controllers use the trait
+    ADMIN -.->|AdminAssessmentController| METHODS
+    TEACHER -.->|TeacherAssessmentController| METHODS
+
+    %% Trait exposes routeContext to shared pages
+    METHODS -->|routeContext| AS
+    METHODS -->|routeContext| AR
+    METHODS -->|routeContext| AG
+
+    %% Common navigation links
+    DASH --- AUTH
+    DASH --> ADMIN
+    DASH --> TEACHER
+    DASH --> STUDENT

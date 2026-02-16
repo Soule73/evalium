@@ -1,0 +1,108 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Http\Traits\HandlesAssessmentViewing;
+use App\Http\Traits\HandlesIndexRequests;
+use App\Models\Assessment;
+use App\Models\ClassModel;
+use App\Models\Subject;
+use App\Models\User;
+use App\Services\Admin\AdminAssessmentQueryService;
+use App\Services\Core\Answer\AnswerFormatterService;
+use App\Services\Core\Scoring\ScoringService;
+use App\Services\Teacher\GradingQueryService;
+use App\Services\Teacher\TeacherAssessmentQueryService;
+use App\Traits\FiltersAcademicYear;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+
+/**
+ * Admin Assessment Controller
+ *
+ * Provides assessment listing for administrators.
+ * Show/review/grade/saveGrade are handled by HandlesAssessmentViewing trait.
+ */
+class AdminAssessmentController extends Controller
+{
+    use AuthorizesRequests, FiltersAcademicYear, HandlesAssessmentViewing, HandlesIndexRequests;
+
+    public function __construct(
+        private readonly AdminAssessmentQueryService $assessmentQueryService,
+        private readonly TeacherAssessmentQueryService $teacherAssessmentQueryService,
+        private readonly GradingQueryService $gradingQueryService,
+        private readonly AnswerFormatterService $answerFormatterService,
+        private readonly ScoringService $scoringService
+    ) {}
+
+    protected function resolveAssessmentQueryService(): TeacherAssessmentQueryService
+    {
+        return $this->teacherAssessmentQueryService;
+    }
+
+    /**
+     * Display a listing of all assessments across the platform.
+     */
+    public function index(Request $request): Response
+    {
+        $this->authorize('viewAny', Assessment::class);
+
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+
+        ['filters' => $filters, 'per_page' => $perPage] = $this->extractIndexParams(
+            $request,
+            ['search', 'class_id', 'subject_id', 'teacher_id', 'type', 'delivery_mode']
+        );
+
+        $assessments = $this->assessmentQueryService->getAllAssessments(
+            $selectedYearId,
+            $filters,
+            $perPage
+        );
+
+        $classes = ClassModel::query()
+            ->when($selectedYearId, fn ($q, $id) => $q->where('academic_year_id', $id))
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $subjects = Subject::orderBy('name')->get(['id', 'name']);
+
+        $teachers = User::role('teacher')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return Inertia::render('Admin/Assessments/Index', [
+            'assessments' => $assessments,
+            'filters' => $filters,
+            'classes' => $classes,
+            'subjects' => $subjects,
+            'teachers' => $teachers,
+        ]);
+    }
+
+    /**
+     * Build route context array for admin role.
+     *
+     * @return array<string, string|null>
+     */
+    protected function buildRouteContext(): array
+    {
+        return [
+            'role' => 'admin',
+            'backRoute' => 'admin.assessments.index',
+            'showRoute' => 'admin.assessments.show',
+            'reviewRoute' => 'admin.assessments.review',
+            'gradeRoute' => 'admin.assessments.grade',
+            'saveGradeRoute' => 'admin.assessments.saveGrade',
+            'editRoute' => null,
+            'publishRoute' => null,
+            'unpublishRoute' => null,
+            'duplicateRoute' => null,
+            'reopenRoute' => null,
+        ];
+    }
+}

@@ -1,0 +1,121 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Components/ActionGroup" />
+
+# ActionGroup
+
+A component for grouping related actions together, similar to FilamentPHP's ActionGroup.
+
+## Overview
+
+The ActionGroup component provides a clean way to display multiple action buttons with support for overflow actions in a dropdown menu. This is particularly useful for pages with many actions.
+
+## Usage
+
+```tsx
+import { ActionGroup } from '@evalium/ui';
+import { PencilIcon, TrashIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
+
+function MyComponent() {
+    return (
+        <ActionGroup
+            actions={[
+                { label: 'Edit', onClick: handleEdit, color: 'primary' },
+                { label: 'Save', onClick: handleSave, color: 'success' },
+            ]}
+            dropdownActions={[
+                {
+                    label: 'Duplicate',
+                    onClick: handleDuplicate,
+                    icon: DocumentDuplicateIcon,
+                },
+                'divider',
+                {
+                    label: 'Delete',
+                    onClick: handleDelete,
+                    color: 'danger',
+                    icon: TrashIcon,
+                },
+            ]}
+        />
+    );
+}
+```
+
+## Props
+
+### `actions`
+
+Primary actions displayed as buttons (recommended max: 2-3).
+
+### `dropdownActions`
+
+Additional actions shown in a dropdown menu. Supports `'divider'` to separate groups.
+
+### `size`
+
+Button size: `'sm'` or `'md'` (default: `'sm'`)
+
+### `dropdownLabel`
+
+Accessibility label for the dropdown trigger (default: "More actions")
+
+## Action Object
+
+Each action supports:
+
+- `label`: Button/menu item text
+- `onClick`: Click handler function
+- `icon?`: HeroIcon component
+- `color?`: `'primary'` | `'secondary'` | `'danger'` | `'success'` | `'warning'`
+- `disabled?`: Disable the action
+- `hidden?`: Hide the action
+
+## Examples
+
+### Primary Actions Only
+
+```tsx
+<ActionGroup
+    actions={[
+        { label: 'Back', onClick: handleBack, color: 'secondary' },
+        { label: 'Save', onClick: handleSave, color: 'primary' },
+    ]}
+/>
+```
+
+### With Dropdown Actions
+
+```tsx
+<ActionGroup
+    actions={[{ label: 'Edit', onClick: handleEdit, color: 'primary' }]}
+    dropdownActions={[
+        { label: 'Replace Teacher', onClick: handleReplace, icon: UserIcon },
+        {
+            label: 'Update Coefficient',
+            onClick: handleCoefficient,
+            icon: HashtagIcon,
+        },
+        'divider',
+        {
+            label: 'Terminate',
+            onClick: handleTerminate,
+            color: 'danger',
+            icon: XMarkIcon,
+        },
+    ]}
+/>
+```
+
+### Dropdown Only
+
+```tsx
+<ActionGroup
+    dropdownActions={[
+        { label: 'View', onClick: handleView },
+        { label: 'Edit', onClick: handleEdit },
+        'divider',
+        { label: 'Delete', onClick: handleDelete, color: 'danger' },
+    ]}
+/>
+```

@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
-import { Button } from '@/Components/Button';
-import Input from '@/Components/form/Input';
 import { route } from 'ziggy-js';
-import Modal from '@/Components/Modal';
+import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useFormatters } from '@/hooks/shared/useFormatters';
+import { Button, Modal, Select } from '@/Components';
+import { Input } from '@evalium/ui';
 
 interface Props {
     roles: string[];
@@ -11,11 +13,16 @@ interface Props {
 }
 
 export default function CreateUser({ roles, isOpen, onClose }: Props) {
-    const { data, setData, post, processing, errors } = useForm({
+    const { t } = useTranslations();
+    const { getRoleLabel } = useFormatters();
+
+    const { data, setData, post, processing, errors } = useForm<{
+        name: string;
+        email: string;
+        role: string;
+    }>({
         name: '',
         email: '',
-        password: '',
-        password_confirmation: '',
         role: 'student',
     });
 
@@ -25,9 +32,6 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
             onSuccess: () => {
                 onClose();
             },
-            onError: (e) => {
-                console.log('Erreur lors de la création de l\'utilisateur :', e);
-            }
         });
     };
 
@@ -36,104 +40,109 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
         setData({
             name: '',
             email: '',
-            password: '',
-            password_confirmation: '',
             role: 'student',
         });
     };
 
-    const getRoleLabel = (roleName: string) => {
-        switch (roleName) {
-            case 'admin':
-                return 'Administrateur';
-            case 'teacher':
-                return 'Enseignant';
-            case 'student':
-                return 'Étudiant';
-            default:
-                return roleName;
-        }
-    };
+    const translations = useMemo(
+        () => ({
+            searchPlaceholder: t('components.select.search_placeholder'),
+            noOptionFound: t('components.select.no_option_found'),
+            createTitle: t('admin_pages.users.create_title'),
+            createSubtitle: t('admin_pages.users.create_subtitle'),
+            nameLabel: t('admin_pages.users.name_label'),
+            namePlaceholder: t('admin_pages.users.name_placeholder'),
+            emailLabel: t('admin_pages.users.email_label'),
+            emailPlaceholder: t('admin_pages.users.email_placeholder'),
+            role: t('admin_pages.users.role'),
+            selectRole: t('admin_pages.users.select_role'),
+            passwordInfo: t('admin_pages.users.password_info'),
+            cancel: t('admin_pages.common.cancel'),
+            loading: t('admin_pages.common.loading'),
+            createButton: t('admin_pages.users.create_button'),
+        }),
+        [t],
+    );
 
     return (
-        <Modal isOpen={isOpen} size='2xl' onClose={onClose} isCloseableInside={false}>
+        <Modal isOpen={isOpen} size="2xl" onClose={onClose} isCloseableInside={false}>
             <div className="p-6">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-gray-900">
-                        Créer un nouvel utilisateur
-                    </h1>
-                    <p className="text-gray-600 mt-1">
-                        Remplissez les informations pour créer un nouveau compte utilisateur
-                    </p>
+                    <h1 className="text-2xl font-bold text-gray-900">{translations.createTitle}</h1>
+                    <p className="text-gray-600 mt-1">{translations.createSubtitle}</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <Input
-                        label="Nom complet"
+                        label={translations.nameLabel}
                         type="text"
                         value={data.name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('name', e.target.value)}
-                        placeholder="Entrez le nom complet"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setData('name', e.target.value)
+                        }
+                        placeholder={translations.namePlaceholder}
                         required
                         error={errors.name}
                     />
+
                     <Input
-                        label="Adresse email"
+                        label={translations.emailLabel}
                         type="email"
                         value={data.email}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('email', e.target.value)}
-                        placeholder="Entrez l'adresse email"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setData('email', e.target.value)
+                        }
+                        placeholder={translations.emailPlaceholder}
                         required
                         error={errors.email}
                     />
-                    <div>
-                        <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                            Rôle
-                        </label>
-                        <select
-                            id="role"
-                            value={data.role}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setData('role', e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            required
-                        >
-                            {roles.map((role) => (
-                                <option key={role} value={role}>
-                                    {getRoleLabel(role)}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.role && (
-                            <p className="mt-2 text-sm text-red-600">{errors.role}</p>
-                        )}
+
+                    <Select
+                        label={translations.role}
+                        noOptionFound={translations.noOptionFound}
+                        searchPlaceholder={translations.searchPlaceholder}
+                        options={roles.map((role) => ({
+                            value: role,
+                            label: getRoleLabel(role),
+                        }))}
+                        value={data.role}
+                        onChange={(value) => setData('role', String(value))}
+                        error={errors.role}
+                        searchable={false}
+                        placeholder={translations.selectRole}
+                    />
+
+                    <div className="bg-indigo-50 border-l-4 border-indigo-400 p-4">
+                        <div className="flex">
+                            <div className="shrink-0">
+                                <svg
+                                    className="h-5 w-5 text-indigo-400"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                            </div>
+                            <div className="ml-3">
+                                <p className="text-sm text-indigo-700">
+                                    {translations.passwordInfo}
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                    <Input
-                        label="Mot de passe"
-                        type="password"
-                        value={data.password}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('password', e.target.value)}
-                        placeholder="Entrez le mot de passe"
-                        required
-                        error={errors.password}
-                        helperText="Le mot de passe doit contenir au moins 8 caractères"
-                    />
-                    <Input
-                        label="Confirmer le mot de passe"
-                        type="password"
-                        value={data.password_confirmation}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('password_confirmation', e.target.value)}
-                        placeholder="Confirmez le mot de passe"
-                        required
-                        error={errors.password_confirmation}
-                    />
+
                     <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
                         <Button
                             type="button"
                             color="secondary"
-                            variant='outline'
+                            variant="outline"
                             onClick={handleCancel}
                         >
-                            Annuler
+                            {translations.cancel}
                         </Button>
                         <Button
                             type="submit"
@@ -141,11 +150,7 @@ export default function CreateUser({ roles, isOpen, onClose }: Props) {
                             loading={processing}
                             disabled={processing}
                         >
-                            {processing ? (
-                                'Création...'
-                            ) : (
-                                "Créer l'utilisateur"
-                            )}
+                            {processing ? translations.loading : translations.createButton}
                         </Button>
                     </div>
                 </form>

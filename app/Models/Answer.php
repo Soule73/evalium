@@ -12,11 +12,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Represents an answer entity in the application.
  *
  * @property int $id The unique identifier for the answer.
- * @property int $assignment_id The ID of the related exam assignment(student).
+ * @property int $assessment_assignment_id The ID of the related assessment assignment(student).
  * @property int $question_id The ID of the related question.
  * @property int|null $choice_id The ID of the selected choice (if applicable).
  * @property string|null $answer_text The text of the answer (for text-based questions).
  * @property float|null $score The score obtained for this answer, if applicable.
+ * @property string|null $feedback The teacher's feedback for this answer.
  * @property \Carbon\Carbon|null $created_at The date and time when the answer was created.
  * @property \Carbon\Carbon|null $updated_at The date and time when the answer was last updated.
  *
@@ -37,11 +38,12 @@ class Answer extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'assignment_id',
+        'assessment_assignment_id',
         'question_id',
         'choice_id',
         'answer_text',
         'score',
+        'feedback',
     ];
 
     /**
@@ -49,7 +51,7 @@ class Answer extends Model
      *
      * @return array<string, string>
      */
-    public function cast(): array
+    protected function casts(): array
     {
         return [
             'score' => 'float',
@@ -57,13 +59,13 @@ class Answer extends Model
     }
 
     /**
-     * Get the assignment that this answer belongs to.
+     * Get the assessment assignment that this answer belongs to.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Assignment, self>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\AssessmentAssignment, self>
      */
-    public function assignment(): BelongsTo
+    public function assessmentAssignment(): BelongsTo
     {
-        return $this->belongsTo(ExamAssignment::class);
+        return $this->belongsTo(AssessmentAssignment::class);
     }
 
     /**

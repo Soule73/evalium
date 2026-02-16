@@ -1,19 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\LevelController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Teacher\ExamController as TeacherExamController;
-use App\Http\Controllers\Student\ExamController as StudentExamController;
-use App\Http\Controllers\Admin\UserManagementController;
-use Inertia\Inertia;
+use App\Http\Controllers\Auth\UserController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LocaleController;
+use Illuminate\Support\Facades\Route;
 
-// Routes publiques
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('welcome');
+Route::redirect('/', '/login');
 
-// Routes d'authentification
+/**
+ * Authentication Routes
+ * Login and authentication related routes for guest users
+ */
 Route::middleware('guest')
     ->controller(LoginController::class)
     ->group(function () {
@@ -21,8 +21,12 @@ Route::middleware('guest')
         Route::post('/login', 'login')->name('login.attempt');
     });
 
-// Routes protégées nécessitant une authentification
+/**
+ * Authenticated Routes
+ * All routes requiring user authentication
+ */
 Route::middleware('auth')->group(function () {
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::controller(LoginController::class)->group(function () {
@@ -31,71 +35,286 @@ Route::middleware('auth')->group(function () {
         Route::post('/logout', 'logout')->name('logout');
     });
 
-    Route::middleware('role:student')->group(function () {
-        Route::get('/dashboard/student', [DashboardController::class, 'student'])->name('student.dashboard');
+    // Locale Management
+    Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 
-        Route::controller(StudentExamController::class)
-            ->prefix('student/exams')
-            ->name('student.exams.')
-            ->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('/{exam}', 'show')->name('show');
-                Route::get('/{exam}/take', 'take')->name('take');
-                Route::post('/{exam}/save-answers', 'saveAnswers')->name('save-answers');
-                Route::post('/{exam}/security-violation', 'handleSecurityViolation')->name('security-violation');
-                Route::post('/{exam}/abandon', 'abandon')->name('abandon');
-                Route::post('/{exam}/submit', 'submit')->name('submit');
-            });
-    });
+    /**
+     * Academic Year Routes
+     * API endpoint for academic year selection
+     */
+    Route::post('/academic-years/set-current', [
+        \App\Http\Controllers\AcademicYearController::class,
+        'setCurrent',
+    ])->name('api.academic-years.set-current');
 
-    Route::middleware('role:teacher')->group(function () {
-        Route::get('/dashboard/teacher', [DashboardController::class, 'teacher'])->name('teacher.dashboard');
-
-        Route::controller(TeacherExamController::class)
-            ->prefix('teacher/exams')
-            ->name('teacher.exams.')
-            ->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('/create', 'create')->name('create');
-                Route::post('/', 'store')->name('store');
-                Route::get('/{exam}', 'show')->name('show');
-                Route::get('/{exam}/edit', 'edit')->name('edit');
-                Route::put('/{exam}', 'update')->name('update');
-                Route::delete('/{exam}', 'destroy')->name('destroy');
-                Route::post('/{exam}/duplicate', 'duplicate')->name('duplicate');
-                Route::patch('/{exam}/toggle-active', 'toggleActive')->name('toggle-active');
-                Route::get('/{exam}/stats', 'stats')->name('stats');
-
-                Route::get('/{exam}/assign', 'showAssignForm')->name('assign');
-                Route::get('/{exam}/assign/show', 'showAssignForm')->name('assign.show');
-                Route::post('/{exam}/assign', 'assignToStudents')->name('assign.store');
-                Route::get('/{exam}/assignments', 'showAssignments')->name('assignments');
-                Route::delete('/{exam}/assignments/{user}', 'removeAssignment')->name('assignment.remove');
-
-                Route::get('/{exam}/results/{student}', 'showStudentResults')->name('results');
-                Route::get('/{exam}/results/{student}/show', 'showStudentResults')->name('results.show');
-                Route::get('/{exam}/review/{student}', 'showStudentReview')->name('review');
-                Route::post('/{exam}/review/{student}', 'saveStudentReview')->name('review.save');
-                Route::post('/{exam}/score/update', 'updateScore')->name('score.update');
-            });
-    });
-
-    Route::middleware('role:admin')
-        ->prefix('admin')
+    /**
+     * Admin Routes
+     * Routes for managing academic years, subjects, classes, enrollments
+     */
+    Route::prefix('admin')
         ->name('admin.')
         ->group(function () {
-            Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard');
 
-            Route::prefix('/users')->name('users.')
-                ->controller(UserManagementController::class)
+            /**
+             * User Management operations
+             */
+            Route::prefix('users')
+                ->name('users.')
+                ->controller(UserController::class)
+                ->group(function () {
+                    Route::get('/', 'index')
+                        ->name('index');
+
+                    Route::get('/teachers/{user}', 'showTeacher')
+                        ->name('show.teacher');
+
+                    Route::post('/', 'store')
+                        ->name('store');
+
+                    Route::put('/{user}', 'update')
+                        ->name('update');
+
+                    Route::delete('/{user}', 'destroy')
+                        ->name('destroy');
+
+                    Route::patch('/{user}/toggle-status', 'toggleStatus')
+                        ->name('toggle-status');
+
+                    Route::post('/{id}/restore', 'restore')
+                        ->name('restore');
+
+                    Route::delete('/{id}/force', 'forceDelete')
+                        ->name('force-delete');
+                });
+
+            /**
+             * Academic Year Management
+             */
+            Route::prefix('academic-years')
+                ->name('academic-years.')
+                ->controller(\App\Http\Controllers\Admin\AcademicYearController::class)
+                ->group(function () {
+                    Route::get('/', 'archives')->name('archives');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{academic_year}/edit', 'edit')->name('edit');
+                    Route::put('/{academic_year}', 'update')->name('update');
+                    Route::delete('/{academic_year}', 'destroy')->name('destroy');
+                    Route::post('/{academic_year}/set-current', 'setCurrent')->name('set-current');
+                    Route::post('/{academic_year}/archive', 'archive')->name('archive');
+                });
+
+            /**
+             * Subject Management
+             */
+            Route::prefix('subjects')
+                ->name('subjects.')
+                ->controller(\App\Http\Controllers\Admin\SubjectController::class)
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
-                    // Route::get('/{user}', 'show')->name('show');
-                    Route::get('/students/{user}', 'showStudent')->name('show.student');
-                    Route::get('/teachers/{user}', 'showTeacher')->name('show.teacher');
+                    Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
-                    Route::put('/{user}', 'update')->name('update');
-                    Route::delete('/{user}', 'destroy')->name('destroy');
+                    Route::get('/{subject}', 'show')->name('show');
+                    Route::get('/{subject}/edit', 'edit')->name('edit');
+                    Route::put('/{subject}', 'update')->name('update');
+                    Route::delete('/{subject}', 'destroy')->name('destroy');
+                });
+
+            /**
+             * Class Management
+             */
+            Route::prefix('classes')
+                ->name('classes.')
+                ->controller(\App\Http\Controllers\Admin\ClassController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{class}', 'show')->name('show');
+                    Route::get('/{class}/edit', 'edit')->name('edit');
+                    Route::put('/{class}', 'update')->name('update');
+                    Route::delete('/{class}', 'destroy')->name('destroy');
+                });
+
+            /**
+             * Enrollment Management
+             */
+            Route::prefix('enrollments')
+                ->name('enrollments.')
+                ->controller(\App\Http\Controllers\Admin\EnrollmentController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::post('/quick-student', 'storeQuickStudent')->name('quick-student');
+                    Route::get('/{enrollment}', 'show')->name('show');
+                    Route::get('/{enrollment}/assignments', 'assignments')->name('assignments');
+                    Route::get('/{enrollment}/assignments/{assignment}', 'assignmentShow')->name('assignments.show');
+                    Route::post('/{enrollment}/transfer', 'transfer')->name('transfer');
+                    Route::post('/{enrollment}/withdraw', 'withdraw')->name('withdraw');
+                    Route::post('/{enrollment}/reactivate', 'reactivate')->name('reactivate');
+                    Route::delete('/{enrollment}', 'destroy')->name('destroy');
+                });
+
+            /**
+             * Class Subject Management (Central table for teacher-subject-class assignments)
+             */
+            Route::prefix('class-subjects')
+                ->name('class-subjects.')
+                ->controller(\App\Http\Controllers\Admin\ClassSubjectController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{class_subject}', 'show')->name('show');
+                    Route::get('/history', 'history')->name('history');
+                    Route::post('/{class_subject}/replace-teacher', 'replaceTeacher')->name('replace-teacher');
+                    Route::post('/{class_subject}/update-coefficient', 'updateCoefficient')->name('update-coefficient');
+                    Route::post('/{class_subject}/terminate', 'terminate')->name('terminate');
+                    Route::delete('/{class_subject}', 'destroy')->name('destroy');
+                });
+
+            /**
+             * Level Management
+             */
+            Route::prefix('levels')
+                ->name('levels.')
+                ->controller(LevelController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{level}/edit', 'edit')->name('edit');
+                    Route::put('/{level}', 'update')->name('update');
+                    Route::delete('/{level}', 'destroy')->name('destroy');
+                    Route::patch('/{level}/toggle-status', 'toggleStatus')->name('toggle-status');
+                });
+
+            /**
+             * Role and Permission Configuration
+             */
+            Route::prefix('roles')
+                ->name('roles.')
+                ->controller(RoleController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{role}/edit', 'edit')->name('edit');
+                    Route::post('/{role}/sync-permissions', 'syncPermissions')->name('sync-permissions');
+                });
+
+            /**
+             * Assessment Consultation
+             */
+            Route::prefix('assessments')
+                ->name('assessments.')
+                ->middleware('role:admin,super_admin')
+                ->controller(\App\Http\Controllers\Admin\AdminAssessmentController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{assessment}', 'show')->name('show');
+                    Route::get('/{assessment}/assignments/{assignment}/review', 'review')->name('review');
+                    Route::get('/{assessment}/assignments/{assignment}/grade', 'grade')->name('grade');
+                    Route::post('/{assessment}/assignments/{assignment}/grade', 'saveGrade')->name('saveGrade');
+                });
+        });
+
+    /**
+     * Teacher Routes
+     * Routes for managing assessments, grading, and teacher dashboard
+     */
+    Route::prefix('teacher')
+        ->name('teacher.')
+        ->group(function () {
+
+            /**
+             * Teacher Dashboard
+             */
+            Route::get('/dashboard', [\App\Http\Controllers\Teacher\TeacherDashboardController::class, 'index'])
+                ->name('dashboard');
+
+            /**
+             * Assessment Management
+             */
+            Route::prefix('assessments')
+                ->name('assessments.')
+                ->controller(\App\Http\Controllers\Teacher\AssessmentController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{assessment}', 'show')->name('show');
+                    Route::get('/{assessment}/edit', 'edit')->name('edit');
+                    Route::put('/{assessment}', 'update')->name('update');
+                    Route::delete('/{assessment}', 'destroy')->name('destroy');
+                    Route::post('/{assessment}/publish', 'publish')->name('publish');
+                    Route::post('/{assessment}/unpublish', 'unpublish')->name('unpublish');
+                    Route::post('/{assessment}/duplicate', 'duplicate')->name('duplicate');
+                    Route::get('/{assessment}/assignments/{assignment}/grade', 'grade')->name('grade');
+                    Route::post('/{assessment}/assignments/{assignment}/grade', 'saveGrade')->name('saveGrade');
+                    Route::get('/{assessment}/assignments/{assignment}/review', 'review')->name('review');
+                    Route::post('/{assessment}/assignments/{assignment}/reopen', 'reopenAssignment')->name('reopen');
+                });
+
+            /**
+             * Teacher Classes
+             */
+            Route::prefix('classes')
+                ->name('classes.')
+                ->controller(\App\Http\Controllers\Teacher\TeacherClassController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{class}', 'show')->name('show');
+                });
+
+            /**
+             * Teacher Subjects
+             */
+            Route::prefix('subjects')
+                ->name('subjects.')
+                ->controller(\App\Http\Controllers\Teacher\TeacherSubjectController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{subject}', 'show')->name('show');
+                });
+        });
+
+    /**
+     * Student Routes
+     * Role-based routes exclusively for students
+     */
+    Route::middleware('role:student')
+        ->prefix('student')
+        ->name('student.')
+        ->group(function () {
+
+            /**
+             * Student Assessments
+             */
+            Route::prefix('assessments')
+                ->name('assessments.')
+                ->controller(\App\Http\Controllers\Student\StudentAssessmentController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{assessment}', 'show')->name('show');
+                    Route::post('/{assessment}/start', 'start')->name('start');
+                    Route::get('/{assessment}/take', 'take')->name('take');
+                    Route::post('/{assessment}/save-answers', 'saveAnswers')->name('save-answers');
+                    Route::post('/{assessment}/submit', 'submit')->name('submit');
+                    Route::post('/{assessment}/security-violation', 'securityViolation')->name('security-violation');
+                    Route::get('/{assessment}/results', 'results')->name('results');
+                    Route::post('/{assessment}/attachments', 'uploadAttachment')->name('attachments.upload');
+                    Route::delete('/{assessment}/attachments/{attachment}', 'deleteAttachment')->name('attachments.delete');
+                });
+
+            /**
+             * Student Enrollment
+             */
+            Route::prefix('enrollment')
+                ->name('enrollment.')
+                ->controller(\App\Http\Controllers\Student\StudentEnrollmentController::class)
+                ->group(function () {
+                    Route::get('/', 'show')->name('show');
+                    Route::get('/history', 'history')->name('history');
+                    Route::get('/classmates', 'classmates')->name('classmates');
                 });
         });
 });

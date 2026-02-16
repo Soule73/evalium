@@ -1,158 +1,148 @@
-import { router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button } from '@/Components/Button';
-import { formatDate, getRoleColor, getRoleLabel } from '@/utils/formatters';
-import { DataTableConfig, PaginationType } from '@/types/datatable';
-import Section from '@/Components/Section';
-import StatCard from '@/Components/StatCard';
-import { UserGroupIcon } from '@heroicons/react/24/outline';
-import { DataTable } from '@/Components/DataTable';
+import { usePage } from '@inertiajs/react';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
+import { UserGroupIcon, BookOpenIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import CreateUser from './Create';
-import { User } from '@/types';
+import { type User, type PageProps } from '@/types';
+import { hasPermission } from '@/utils';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
+import { useTranslations } from '@/hooks/shared/useTranslations';
+import { Stat, Section, ConfirmationModal, Button } from '@/Components';
+import { useConfirmationModal } from '@/hooks';
+import { type PaginationType } from '@/types/datatable';
+import { UserList } from '@/Components/shared/lists';
+import { router } from '@inertiajs/react';
 
-interface Props {
+interface Props extends PageProps {
     users: PaginationType<User>;
     roles: string[];
+    canManageAdmins: boolean;
 }
 
 export default function UserIndex({ users, roles }: Props) {
+    const { auth } = usePage<PageProps>().props;
+    const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
+
+    const canCreateUsers = hasPermission(auth.permissions, 'create users');
+    const canUpdateUsers = hasPermission(auth.permissions, 'update users');
+    const canToggleUserStatus = hasPermission(auth.permissions, 'update users');
+    const canDeleteUsers = hasPermission(auth.permissions, 'delete users');
 
     const [isShowCreateModal, setIsShowCreateModal] = useState(false);
+    const deleteModal = useConfirmationModal<{ id: number; name: string }>();
+    const forceDeleteModal = useConfirmationModal<{ id: number; name: string }>();
 
-
-    const handleCreateUser = () => {
-        setIsShowCreateModal(true);
+    const handleDeleteUser = (userId: number) => {
+        if (!deleteModal.data) return;
+        router.delete(route('admin.users.destroy', { user: userId }), {
+            onFinish: () => deleteModal.closeModal(),
+        });
     };
 
-    const handleViewUser = (userId: number, role: string) => {
-        if (role === 'student') {
-            router.visit(route('admin.users.show.student', { user: userId }));
-        } else if (role === 'teacher') {
-            router.visit(route('admin.users.show.teacher', { user: userId }));
-        }
+    const handleForceDeleteUser = (userId: number) => {
+        if (!forceDeleteModal.data) return;
+        router.delete(route('admin.users.force-delete', { id: userId }), {
+            onFinish: () => forceDeleteModal.closeModal(),
+        });
     };
 
-
-    const dataTableConfig: DataTableConfig<User> = {
-        columns: [
-            {
-                key: 'name',
-                label: 'Utilisateur',
-                render: (user) => (
-                    <div>
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                        <div className="text-sm text-gray-500">{user.email}</div>
-                    </div>
-                )
-            },
-            {
-                key: 'role',
-                label: 'Rôle',
-                render: (user) => (
-                    (user?.roles?.length ?? 0) > 0 ? (
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.roles?.[0]?.name ?? '')}`}>
-                            {getRoleLabel(user.roles?.[0]?.name ?? '')}
-                        </span>
-                    ) : null
-                )
-            },
-            {
-                key: 'created_at',
-                label: 'Date de création',
-                render: (user) => (
-                    <span className="text-sm text-gray-500">{formatDate(user.created_at)}</span>
-                )
-            },
-            {
-                key: 'actions',
-                label: 'Actions',
-                render: (user) => (
-                    <Button
-                        onClick={() => handleViewUser(user.id, user.roles?.length && user.roles[0] ? user.roles[0].name : '')}
-                        color="secondary"
-                        size="sm"
-                        variant='outline'
-                    >
-                        Voir
-                    </Button>
-                )
-            }
-        ],
-        searchPlaceholder: 'Rechercher par nom ou email...',
-        filters: [
-            {
-                key: 'role',
-                type: 'select',
-                label: 'Filtrer par rôle',
-                options: [{ label: 'Tous les rôles', value: '' }].concat(roles.map(role => ({ label: getRoleLabel(role), value: role })))
-            }
-        ],
-        emptyState: {
-            title: 'Aucun utilisateur trouvé',
-            subtitle: 'Essayez de modifier vos critères de recherche',
-            icon: 'UserIcon'
-        },
-        emptySearchState: {
-            title: 'Aucun utilisateur trouvé',
-            subtitle: 'Aucun utilisateur ne correspond à vos critères de recherche ou de filtre.',
-            resetLabel: 'Réinitialiser les filtres'
-        },
-        perPageOptions: [10, 25, 50]
-    };
+    const translations = useMemo(
+        () => ({
+            title: t('admin_pages.users.title'),
+            allUsers: t('admin_pages.users.all_users'),
+            teacher: t('admin_pages.roles.role_labels.teacher'),
+            admin: t('admin_pages.roles.role_labels.admin'),
+            subtitle: t('admin_pages.users.subtitle'),
+            create: t('admin_pages.users.create'),
+            deleteTitle: t('admin_pages.users.delete_title'),
+            delete: t('admin_pages.common.delete'),
+            cancel: t('admin_pages.common.cancel'),
+            forceDeleteTitle: t('admin_pages.users.force_delete_title'),
+            forceDelete: t('admin_pages.users.force_delete'),
+        }),
+        [t],
+    );
 
     return (
-        <AuthenticatedLayout title="Gestion des utilisateurs">
-
+        <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.users()}>
             <CreateUser
                 roles={roles}
                 isOpen={isShowCreateModal}
                 onClose={() => setIsShowCreateModal(false)}
             />
-
-            <Section title="Gestion des utilisateurs" subtitle="Gérez les comptes utilisateurs et leurs rôles."
+            <Stat.Group columns={3} className="mb-6">
+                <Stat.Item title={translations.allUsers} value={users.total} icon={UserGroupIcon} />
+                <Stat.Item
+                    title={translations.teacher}
+                    value={
+                        users.data.filter((user) =>
+                            user.roles?.some((role) => role.name === 'teacher'),
+                        ).length
+                    }
+                    icon={BookOpenIcon}
+                />
+                <Stat.Item
+                    title={translations.admin}
+                    value={
+                        users.data.filter((user) =>
+                            user.roles?.some((role) => role.name === 'admin'),
+                        ).length
+                    }
+                    icon={ShieldCheckIcon}
+                />
+            </Stat.Group>
+            <Section
+                title={translations.subtitle}
                 actions={
-                    <Button onClick={handleCreateUser} color="secondary" variant='outline' size='sm'>
-                        Créer un utilisateur
-                    </Button>
+                    canCreateUsers && (
+                        <Button onClick={() => setIsShowCreateModal(true)} size="sm">
+                            {translations.create}
+                        </Button>
+                    )
                 }
             >
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <StatCard
-                        title="Total utilisateurs"
-                        value={users.total}
-                        icon={UserGroupIcon}
-                        color="blue"
-                    />
-                    <StatCard
-                        title="Étudiants"
-                        value={users.data.filter(user => user.roles?.some(role => role.name === 'student')).length}
-                        icon={UserGroupIcon}
-                        color="green"
-                    />
-                    <StatCard
-                        title="Enseignants"
-                        value={users.data.filter(user => user.roles?.some(role => role.name === 'teacher')).length}
-                        icon={UserGroupIcon}
-                        color="purple"
-                    />
-
-                    <StatCard
-                        title="Administrateurs"
-                        value={users.data.filter(user => user.roles?.some(role => role.name === 'admin')).length}
-                        icon={UserGroupIcon}
-                        color="red"
-                    />
-                </div>
-
-            </Section>
-            <Section title="Liste des utilisateurs">
-                <DataTable
+                <UserList
                     data={users}
-                    config={dataTableConfig}
+                    roles={roles}
+                    permissions={{
+                        canUpdate: canUpdateUsers,
+                        canToggleStatus: canToggleUserStatus,
+                        canDelete: canDeleteUsers,
+                    }}
+                    onDeleteClick={(user) => deleteModal.openModal(user)}
+                    onForceDeleteClick={(user) => forceDeleteModal.openModal(user)}
                 />
             </Section>
+
+            <ConfirmationModal
+                isOpen={deleteModal.isOpen}
+                onClose={deleteModal.closeModal}
+                onConfirm={() => deleteModal.data && handleDeleteUser(deleteModal.data.id)}
+                title={translations.deleteTitle}
+                message={t('admin_pages.users.delete_message', {
+                    name: deleteModal.data?.name || '',
+                })}
+                confirmText={translations.delete}
+                cancelText={translations.cancel}
+                type="danger"
+            />
+
+            <ConfirmationModal
+                isOpen={forceDeleteModal.isOpen}
+                onClose={forceDeleteModal.closeModal}
+                onConfirm={() =>
+                    forceDeleteModal.data && handleForceDeleteUser(forceDeleteModal.data.id)
+                }
+                title={translations.forceDeleteTitle}
+                message={t('admin_pages.users.force_delete_message', {
+                    name: forceDeleteModal.data?.name || '',
+                })}
+                confirmText={translations.forceDelete}
+                cancelText={translations.cancel}
+                type="danger"
+            />
         </AuthenticatedLayout>
     );
 }

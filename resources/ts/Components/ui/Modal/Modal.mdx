@@ -1,0 +1,91 @@
+import { Canvas, Meta, Controls } from '@storybook/blocks';
+import * as ModalStories from './Modal.stories.tsx';
+
+<Meta of={ModalStories} />
+
+# Modal
+
+A customizable modal dialog component for displaying content in an overlay.
+
+## Overview
+
+The Modal component provides a dialog overlay that can display content above the main page. It includes features like backdrop click handling, size variations, and customizable close behavior.
+
+## Usage
+
+```tsx
+import { Modal } from '@evalium/ui';
+import { useState } from 'react';
+
+function MyComponent() {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <>
+            <button onClick={() => setIsOpen(true)}>Open Modal</button>
+            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+                <h2>Modal Title</h2>
+                <p>Modal content goes here...</p>
+            </Modal>
+        </>
+    );
+}
+```
+
+## Sizes
+
+The modal supports multiple size options:
+
+- `sm` - Small modal (max-width: 400px)
+- `md` - Medium modal (max-width: 600px) - default
+- `lg` - Large modal (max-width: 800px)
+- `xl` - Extra large modal (max-width: 1000px)
+- `2xl` - Extra extra large modal (max-width: 1200px)
+- `full` - Full screen modal
+
+## Features
+
+### Backdrop Click
+
+By default, clicking outside the modal closes it. You can disable this behavior using the `isCloseableInside` prop.
+
+### Scrollable Content
+
+Long content automatically becomes scrollable within the modal while maintaining the backdrop and header visibility.
+
+### Keyboard Support
+
+Press `Escape` key to close the modal (when `isCloseableInside` is true).
+
+## Examples
+
+### Size Variations
+
+<Canvas of={ModalStories.Small} />
+<Canvas of={ModalStories.Medium} />
+<Canvas of={ModalStories.Large} />
+
+### Full Screen
+
+<Canvas of={ModalStories.FullScreen} />
+
+### Not Closeable
+
+<Canvas of={ModalStories.NotCloseable} />
+
+### Long Content
+
+<Canvas of={ModalStories.WithLongContent} />
+
+## Props
+
+<Controls of={ModalStories.Medium} />
+
+## Best Practices
+
+- Use appropriate sizes based on content - don't use `full` unless necessary
+- Always provide a way to close the modal (close button or cancel action)
+- Use modals for focused tasks that require user attention
+- Avoid nesting modals - it creates poor UX
+- Keep modal content concise and focused on a single task
+- For forms, include clear submit and cancel actions

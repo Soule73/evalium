@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
         $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\EagerLoadPermissions::class,
+            \App\Http\Middleware\InjectAcademicYear::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
         ]);
     })

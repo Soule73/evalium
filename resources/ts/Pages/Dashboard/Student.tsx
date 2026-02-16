@@ -1,90 +1,90 @@
 import { router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { ChartBarIcon, CheckIcon, ClockIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
-import StatCard from '@/Components/StatCard';
-import Section from '@/Components/Section';
-import { Button } from '@/Components';
-import StudentExamAssignmentList from '@/Components/exam/StudentExamAssignmentList';
-import { ExamAssignment, User } from '@/types';
-import { PaginationType } from '@/types/datatable';
+import { Button, Section, Stat } from '@/Components';
+import { AssessmentList } from '@/Components/shared/lists';
+import { type Assessment, type AssessmentAssignment, type User } from '@/types';
+import { type PaginationType } from '@/types/datatable';
+import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 
-interface Stats {
-    totalExams: number;
-    completedExams: number;
-    pendingExams: number;
-    averageScore: number;
+interface DashboardStats {
+    totalAssessments: number;
+    completedAssessments: number;
+    pendingAssessments: number;
+    averageScore: number | null;
 }
 
 interface Props {
     user: User;
-    stats: Stats;
-    examAssignments: PaginationType<ExamAssignment>;
+    stats: DashboardStats;
+    assessmentAssignments: PaginationType<AssessmentAssignment & { assessment: Assessment }>;
 }
 
-export default function StudentDashboard({ user, stats, examAssignments }: Props) {
-    return (
-        <AuthenticatedLayout title='Tableau de bord étudiant'>
+export default function StudentDashboard({ user, stats, assessmentAssignments }: Props) {
+    const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
 
-            <Section title={`Bonjour, ${user.name} !`}
+    return (
+        <AuthenticatedLayout
+            title={t('dashboard.title.student')}
+            breadcrumb={breadcrumbs.dashboard()}
+        >
+            <Section
+                title={t('dashboard.student.greeting', { name: user.name })}
                 actions={
                     <Button
-                        size='sm'
-                        variant='outline'
-                        className=' w-max'
-                        onClick={() => router.visit(route('student.exams.index'))}>
-                        Voir mes examens
+                        size="sm"
+                        variant="outline"
+                        className="w-max"
+                        onClick={() => router.visit(route('student.assessments.index'))}
+                    >
+                        {t('dashboard.student.view_my_assessments')}
                     </Button>
                 }
             >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <StatCard
-                        title="Total Examens"
-                        value={`${stats.totalExams}`}
+                <Stat.Group columns={4} className="mb-8" data-e2e="dashboard-content">
+                    <Stat.Item
+                        title={t('dashboard.student.total_assessments')}
+                        value={stats.totalAssessments}
                         icon={DocumentTextIcon}
-                        color="blue"
                     />
-
-                    <StatCard
-                        title="Examens en attente"
-                        value={`${stats.pendingExams}`}
+                    <Stat.Item
+                        title={t('dashboard.student.pending_assessments')}
+                        value={stats.pendingAssessments}
                         icon={ClockIcon}
-                        color="yellow"
                     />
-
-                    <StatCard
-                        title="Examens terminés"
-                        value={`${stats.completedExams}`}
+                    <Stat.Item
+                        title={t('dashboard.student.completed_assessments')}
+                        value={stats.completedAssessments}
                         icon={CheckIcon}
-                        color="green"
                     />
-
-                    <StatCard
-                        title="Note moyen"
-                        value={`${stats.averageScore} / 20`}
+                    <Stat.Item
+                        title={t('dashboard.student.average_score')}
+                        value={stats.averageScore !== null ? `${stats.averageScore} / 20` : 'N/A'}
                         icon={ChartBarIcon}
-                        color="red"
                     />
-                </div>
-
+                </Stat.Group>
             </Section>
 
-            <Section title="Examens assignés"
+            <Section
+                title={t('dashboard.student.assigned_assessments')}
                 actions={
                     <Button
-                        size='sm'
-                        variant='outline'
-                        className=' w-max'
-                        onClick={() => router.visit(route('student.exams.index'))}>
-                        Voir tous les examens
+                        size="sm"
+                        variant="outline"
+                        className="w-max"
+                        onClick={() => router.visit(route('student.assessments.index'))}
+                    >
+                        {t('dashboard.student.view_all_assessments')}
                     </Button>
                 }
             >
-                <StudentExamAssignmentList
-                    data={examAssignments}
-                    variant="dashboard"
-                    showFilters={false}
-                    showSearch={true}
+                <AssessmentList
+                    data={assessmentAssignments}
+                    variant="student"
+                    showPagination={false}
                 />
             </Section>
         </AuthenticatedLayout>
