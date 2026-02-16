@@ -7,8 +7,15 @@ use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
-Route::redirect('/', '/login');
+Route::get('/', function () {
+    return Inertia::render('Welcome', [
+        'locale' => app()->getLocale(),
+    ]);
+})->name('welcome');
+
+Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 
 /**
  * Authentication Routes
@@ -34,9 +41,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/profile/{user}', 'editProfile')->name('profile.update');
         Route::post('/logout', 'logout')->name('logout');
     });
-
-    // Locale Management
-    Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 
     /**
      * Academic Year Routes
