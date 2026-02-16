@@ -3,6 +3,7 @@
 namespace App\Services\Core;
 
 use App\Models\AssessmentAssignment;
+
 /**
  * Assessment Statistics Service
  *
@@ -63,5 +64,4 @@ class AssessmentStatsService
                 : 0.0,
         ];
     }
-
 }

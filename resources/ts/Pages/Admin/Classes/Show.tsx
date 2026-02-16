@@ -8,6 +8,7 @@ import {
     type ClassSubject,
     type PageProps,
     type PaginationType,
+    type ClassStatistics,
 } from '@/types';
 import { hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
@@ -22,16 +23,6 @@ import {
     CalendarIcon,
     DocumentTextIcon,
 } from '@heroicons/react/24/outline';
-
-interface ClassStatistics {
-    total_students: number;
-    active_students: number;
-    withdrawn_students: number;
-    subjects_count: number;
-    assessments_count: number;
-    max_students: number;
-    available_slots: number;
-}
 
 interface Props extends PageProps {
     class: ClassModel;

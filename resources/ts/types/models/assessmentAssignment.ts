@@ -40,20 +40,3 @@ export interface AssessmentAssignment {
     max_points?: number;
     normalized_grade?: number | null;
 }
-
-export interface SaveAnswersData {
-    answers: {
-        question_id: number;
-        choice_id?: number;
-        choice_ids?: number[];
-        answer_text?: string;
-    }[];
-}
-
-export interface GradingData {
-    scores: {
-        question_id: number;
-        score: number;
-        feedback?: string;
-    }[];
-}

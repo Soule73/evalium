@@ -24,14 +24,3 @@ export interface EnrollmentFormData {
     student_id: number;
     enrolled_at?: string;
 }
-
-export interface TransferStudentFormData {
-    new_class_id: number;
-    transfer_date?: string;
-}
-
-export interface EnrollmentWithGrades extends Enrollment {
-    average_grade?: number;
-    total_assessments?: number;
-    completed_assessments?: number;
-}

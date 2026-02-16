@@ -305,6 +305,7 @@ export function UserList({
         handleViewUser,
         handleToggleStatus,
         handleRestoreUser,
+        getRoleLabel,
         t,
     ]);
 

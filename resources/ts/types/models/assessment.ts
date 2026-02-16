@@ -80,16 +80,6 @@ export interface ChoiceFormData {
     order_index: number;
 }
 
-export interface AssessmentStatistics {
-    total_assigned: number;
-    in_progress: number;
-    not_started: number;
-    completed: number;
-    average_score?: number;
-    highest_score?: number;
-    lowest_score?: number;
-}
-
 export interface AvailabilityStatus {
     available: boolean;
     reason: string | null;

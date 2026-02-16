@@ -54,12 +54,6 @@ export const useCreateAssessment = () => {
         resetStore();
     }, [resetStore]);
 
-    useEffect(() => {
-        if (Object.keys(errors).length > 0) {
-            console.warn('Validation errors detected:', errors);
-        }
-    }, [errors]);
-
     const handleFieldChange = (field: string, value: string | number | boolean) => {
         setData(field as keyof AssessmentCreateData, value);
     };
@@ -68,8 +62,6 @@ export const useCreateAssessment = () => {
         e.preventDefault();
 
         clearErrors();
-
-        console.warn('Submitted data:', { ...data, questions });
 
         transform((data) => ({
             ...data,

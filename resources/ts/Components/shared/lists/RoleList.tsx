@@ -117,7 +117,7 @@ export function RoleList({ data, permissions = {}, onEdit, onDelete }: RoleListP
                 },
             ],
         };
-    }, [permissions.canUpdate, permissions.canDelete, onEdit, onDelete, t]);
+    }, [permissions.canUpdate, permissions.canDelete, onEdit, onDelete, getRoleLabel, t]);
 
     return <BaseEntityList data={data} config={config} variant="admin" />;
 }

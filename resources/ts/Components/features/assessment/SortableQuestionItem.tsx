@@ -33,9 +33,7 @@ interface SortableQuestionItemProps {
         value: ChoiceFormData[keyof ChoiceFormData],
     ) => void;
     getQuestionTypeLabel: (type: string) => string;
-    getQuestionTypeIcon: (
-        type: string,
-    ) => {
+    getQuestionTypeIcon: (type: string) => {
         icon: React.ComponentType<{ className?: string }>;
         bgColor: string;
         textColor: string;
@@ -484,6 +482,8 @@ const QuestionBooleanItem: React.FC<QuestionBooleanItemProps> = ({
     onUpdateChoice,
     error,
 }) => {
+    const { t } = useTranslations();
+
     return (
         <div
             key={choice.id || `choice-${choiceIndex}`}
@@ -499,12 +499,12 @@ const QuestionBooleanItem: React.FC<QuestionBooleanItemProps> = ({
 
             <Input
                 type="text"
-                value={choice.content === 'true' ? 'Vrai' : 'Faux'}
-                onChange={(e) => {
-                    const boolValue = e.target.value === 'Vrai' ? 'true' : 'false';
-                    onUpdateChoice(index, choiceIndex, 'content', boolValue);
-                }}
-                placeholder="Saisissez le texte de cette option..."
+                value={
+                    choice.content === 'true'
+                        ? t('components.question_item.true')
+                        : t('components.question_item.false')
+                }
+                onChange={() => {}}
                 className="flex-1 text-sm"
                 required
                 error={error}

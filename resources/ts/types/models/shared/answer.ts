@@ -18,14 +18,3 @@ export interface Answer {
     }>;
     selectedChoice?: Choice;
 }
-
-export interface BackendAnswerData {
-    type: 'single' | 'multiple';
-    choice_id?: number;
-    answer_text?: string;
-    choices?: Array<{
-        choice_id: number;
-        choice: Choice;
-    }>;
-    choice?: Choice;
-}

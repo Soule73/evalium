@@ -379,7 +379,7 @@ export function AssessmentList({
                 },
             ],
         };
-    }, [variant, showClassColumn, onView, handleToggleStatus, t]);
+    }, [variant, showClassColumn, onView, handleToggleStatus, formatDuration, t]);
 
     return (
         <BaseEntityList

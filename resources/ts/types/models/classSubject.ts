@@ -26,24 +26,6 @@ export interface ClassSubject {
     is_active?: boolean;
 }
 
-export interface ClassSubjectFormData {
-    class_id: number;
-    subject_id: number;
-    teacher_id: number;
-    semester_id?: number;
-    coefficient: number;
-    valid_from?: string;
-}
-
-export interface ReplaceTeacherFormData {
-    new_teacher_id: number;
-    effective_date: string;
-}
-
-export interface UpdateCoefficientFormData {
-    coefficient: number;
-}
-
 export interface ClassSubjectHistory {
     id: number;
     class_subject_id: number;

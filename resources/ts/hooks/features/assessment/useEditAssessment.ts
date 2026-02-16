@@ -113,12 +113,6 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
         };
     }, [resetStore]);
 
-    useEffect(() => {
-        if (Object.keys(errors).length > 0) {
-            console.warn('Validation errors detected:', errors);
-        }
-    }, [errors]);
-
     const handleFieldChange = useCallback(
         (field: string, value: string | number | boolean) => {
             setData(field as keyof AssessmentEditData, value);

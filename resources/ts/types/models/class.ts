@@ -37,4 +37,6 @@ export interface ClassStatistics {
     withdrawn_students: number;
     subjects_count: number;
     assessments_count: number;
+    max_students: number;
+    available_slots: number;
 }
