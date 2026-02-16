@@ -7,8 +7,6 @@ use App\Enums\DeliveryMode;
 use App\Exceptions\AssessmentException;
 use App\Exceptions\ValidationException;
 use App\Models\Assessment;
-use App\Models\ClassSubject;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -147,29 +145,6 @@ class AssessmentService
         }
 
         return $assessment->delete();
-    }
-
-    /**
-     * Get all assessments for a class-subject
-     */
-    public function getAssessmentsForClassSubject(ClassSubject $classSubject): Collection
-    {
-        return Assessment::where('class_subject_id', $classSubject->id)
-            ->with(['questions.choices', 'assignments'])
-            ->orderBy('scheduled_at')
-            ->get();
-    }
-
-    /**
-     * Get assessments by type
-     */
-    public function getAssessmentsByType(int $classSubjectId, string $type): Collection
-    {
-        return Assessment::where('class_subject_id', $classSubjectId)
-            ->where('type', $type)
-            ->with(['questions.choices'])
-            ->orderBy('scheduled_at')
-            ->get();
     }
 
     /**

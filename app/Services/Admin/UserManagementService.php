@@ -189,46 +189,6 @@ class UserManagementService
     }
 
     /**
-     * Check if user can modify target user (admin permission check)
-     *
-     * @param  User  $currentUser  Current authenticated user
-     * @param  User  $targetUser  Target user to check
-     */
-    public function canModifyUser(User $currentUser, User $targetUser): bool
-    {
-        if ($targetUser->hasRole(['admin', 'super_admin'])) {
-            return $currentUser->hasRole('super_admin');
-        }
-
-        return true;
-    }
-
-    /**
-     * Check if user is super admin
-     *
-     * @param  User  $currentUser  Current authenticated user
-     */
-    public function isSuperAdmin(User $currentUser): bool
-    {
-        return $currentUser->hasRole('super_admin');
-    }
-
-    /**
-     * Check if user can force delete users and if target is not self
-     *
-     * @param  User  $currentUser  Current authenticated user
-     * @param  int  $targetUserId  Target user ID to check
-     */
-    public function canForceDeleteUser(User $currentUser, int $targetUserId): bool
-    {
-        if ($targetUserId === $currentUser->id) {
-            return false;
-        }
-
-        return $currentUser->can('force delete users');
-    }
-
-    /**
      * Check if user is a teacher
      *
      * @param  User  $user  User to check
@@ -236,16 +196,6 @@ class UserManagementService
     public function isTeacher(User $user): bool
     {
         return $user->hasRole('teacher');
-    }
-
-    /**
-     * Check if user is a student
-     *
-     * @param  User  $user  User to check
-     */
-    public function isStudent(User $user): bool
-    {
-        return $user->hasRole('student');
     }
 
     /**

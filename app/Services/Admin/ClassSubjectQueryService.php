@@ -42,21 +42,6 @@ class ClassSubjectQueryService
     }
 
     /**
-     * Get form data for filtering (index page).
-     */
-    public function getFormDataForIndex(int $selectedYearId): array
-    {
-        return [
-            'classes' => ClassModel::forAcademicYear($selectedYearId)
-                ->with('academicYear')
-                ->orderBy('name')
-                ->get(),
-            'subjects' => Subject::orderBy('name')->get(),
-            'teachers' => User::role('teacher')->orderBy('name')->get(),
-        ];
-    }
-
-    /**
      * Get form data for creation/editing.
      */
     public function getFormDataForCreate(int $selectedYearId): array

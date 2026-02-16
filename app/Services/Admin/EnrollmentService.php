@@ -8,7 +8,6 @@ use App\Models\ClassSubject;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Services\Traits\Paginatable;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -183,28 +182,6 @@ class EnrollmentService
     }
 
     /**
-     * Get active enrollments for a class
-     */
-    public function getActiveEnrollments(ClassModel $class): Collection
-    {
-        return Enrollment::active()
-            ->where('class_id', $class->id)
-            ->with('student')
-            ->get();
-    }
-
-    /**
-     * Get all enrollments for a student
-     */
-    public function getEnrollmentsForStudent(User $student): Collection
-    {
-        return Enrollment::where('student_id', $student->id)
-            ->with(['class.academicYear', 'class.level'])
-            ->orderBy('enrolled_at', 'desc')
-            ->get();
-    }
-
-    /**
      * Get current active enrollment for a student
      */
     public function getCurrentEnrollment(User $student, ?int $academicYearId = null): ?Enrollment
@@ -221,28 +198,6 @@ class EnrollmentService
         }
 
         return $query->with(['class.academicYear', 'class.level'])->first();
-    }
-
-    /**
-     * Bulk enroll students in a class
-     */
-    public function bulkEnrollStudents(ClassModel $class, array $studentIds): Collection
-    {
-        $availableSlots = $class->max_students - $class->enrollments()->count();
-
-        if (count($studentIds) > $availableSlots) {
-            throw EnrollmentException::classFull($availableSlots);
-        }
-
-        $enrollments = collect();
-
-        DB::transaction(function () use ($class, $studentIds, &$enrollments) {
-            foreach ($studentIds as $studentId) {
-                $enrollments->push($this->enrollStudent($studentId, $class->id));
-            }
-        });
-
-        return $enrollments;
     }
 
     /**

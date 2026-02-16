@@ -48,46 +48,6 @@ class ClassQueryService
     }
 
     /**
-     * Get all classes for an academic year
-     */
-    public function getClassesForAcademicYear(AcademicYear $academicYear): Collection
-    {
-        return ClassModel::where('academic_year_id', $academicYear->id)
-            ->with(['level', 'enrollments'])
-            ->get();
-    }
-
-    /**
-     * Get classes for current academic year
-     */
-    public function getCurrentClasses(): Collection
-    {
-        return ClassModel::whereHas('academicYear', function ($query) {
-            $query->where('is_current', true);
-        })
-            ->with(['level', 'academicYear', 'enrollments'])
-            ->get();
-    }
-
-    /**
-     * Get classes by level
-     */
-    public function getClassesByLevel(Level $level, ?int $academicYearId = null): Collection
-    {
-        $query = ClassModel::where('level_id', $level->id);
-
-        if ($academicYearId) {
-            $query->where('academic_year_id', $academicYearId);
-        } else {
-            $query->whereHas('academicYear', function ($q) {
-                $q->where('is_current', true);
-            });
-        }
-
-        return $query->with(['academicYear', 'enrollments'])->get();
-    }
-
-    /**
      * Get all levels for dropdown (cached)
      */
     public function getAllLevels(): Collection
@@ -198,14 +158,6 @@ class ClassQueryService
             ['per_page' => $filters['per_page'] ?? 10, 'page' => $filters['page'] ?? 1],
             ['search' => $filters['search'] ?? null]
         );
-    }
-
-    /**
-     * Get students in a class
-     */
-    public function getStudentsInClass(ClassModel $class): Collection
-    {
-        return $class->students;
     }
 
     /**

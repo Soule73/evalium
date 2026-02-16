@@ -7,7 +7,6 @@ use App\Exceptions\ValidationException;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
 use App\Models\Subject;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -73,32 +72,6 @@ class ClassSubjectService
             ->where('subject_id', $subjectId)
             ->with(['teacher', 'semester'])
             ->orderBy('valid_from')
-            ->get();
-    }
-
-    /**
-     * Get all subjects taught in a class (current only)
-     */
-    public function getSubjectsForClass(ClassModel $class, bool $activeOnly = true): Collection
-    {
-        $query = ClassSubject::where('class_id', $class->id)
-            ->with(['subject', 'teacher', 'semester']);
-
-        if ($activeOnly) {
-            $query->active();
-        }
-
-        return $query->get();
-    }
-
-    /**
-     * Get all active assignments for a teacher
-     */
-    public function getActiveAssignmentsForTeacher(User $teacher): Collection
-    {
-        return ClassSubject::active()
-            ->where('teacher_id', $teacher->id)
-            ->with(['class.academicYear', 'subject', 'semester'])
             ->get();
     }
 

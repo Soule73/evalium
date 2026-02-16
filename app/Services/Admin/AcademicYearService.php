@@ -52,14 +52,6 @@ class AcademicYearService
     }
 
     /**
-     * Get the current academic year
-     */
-    public function getCurrentYear(): ?AcademicYear
-    {
-        return AcademicYear::current()->first();
-    }
-
-    /**
      * Archive an academic year (set is_current to false)
      */
     public function archiveYear(AcademicYear $academicYear): AcademicYear

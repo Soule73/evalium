@@ -72,17 +72,6 @@ class SubjectService
     }
 
     /**
-     * Get all subjects (cached for dropdowns)
-     */
-    public function getAllSubjects(): Collection
-    {
-        return $this->cacheService->remember(
-            CacheService::KEY_SUBJECTS_ALL,
-            fn () => Subject::with('level')->orderBy('name')->get()
-        );
-    }
-
-    /**
      * Get form data for create page
      */
     public function getCreateFormData(): array

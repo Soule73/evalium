@@ -201,8 +201,12 @@ class UserController extends Controller
      */
     public function restore(int $id)
     {
+        $user = User::withTrashed()->findOrFail($id);
+
+        $this->authorize('restore', $user);
+
         try {
-            $user = $this->userService->restoreUser($id);
+            $this->userService->restoreUser($id);
 
             return redirect()->route('admin.users.index')->flashSuccess(__('messages.user_restored'));
         } catch (\Exception $e) {
@@ -219,14 +223,11 @@ class UserController extends Controller
      */
     public function forceDelete(int $id)
     {
+        $user = User::withTrashed()->findOrFail($id);
+
+        $this->authorize('forceDelete', $user);
+
         try {
-            /** @var \App\Models\User $currentUser */
-            $currentUser = Auth::user();
-
-            if (! $this->userService->canForceDeleteUser($currentUser, $id)) {
-                return back()->flashError(__('messages.unauthorized'));
-            }
-
             $this->userService->forceDeleteUser($id);
 
             return redirect()->route('admin.users.index')->flashSuccess(__('messages.user_deleted'));
