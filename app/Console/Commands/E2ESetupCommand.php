@@ -70,7 +70,7 @@ class E2ESetupCommand extends Command
 
             return self::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('[ArtisanE2ESetup] Failed to setup E2E environment: ' .
+            $this->error('[ArtisanE2ESetup] Failed to setup E2E environment: '.
 
                 $e->getMessage());
 

@@ -118,7 +118,7 @@ class UserManagementService
                 $user->syncRoles([$data['role']]);
             });
         } catch (\Exception $e) {
-            Log::error('Error updating user: ' . $e->getMessage());
+            Log::error('Error updating user: '.$e->getMessage());
             throw $e;
         }
     }

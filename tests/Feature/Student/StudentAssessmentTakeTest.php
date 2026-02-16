@@ -100,7 +100,7 @@ class StudentAssessmentTakeTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Assessments/Take')
                 ->has('assessment')
                 ->has('assignment')

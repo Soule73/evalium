@@ -162,11 +162,11 @@ class AcademicYearService
             ->withCount(['semesters', 'classes'])
             ->when(
                 $filters['search'] ?? null,
-                fn($query, $search) => $query->where('name', 'like', "%{$search}%")
+                fn ($query, $search) => $query->where('name', 'like', "%{$search}%")
             )
             ->when(
                 isset($filters['is_current']),
-                fn($query) => $query->where('is_current', (bool) $filters['is_current'])
+                fn ($query) => $query->where('is_current', (bool) $filters['is_current'])
             )
             ->orderBy('start_date', 'desc')
             ->paginate($perPage)

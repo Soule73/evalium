@@ -87,7 +87,7 @@ class AssessmentAssignment extends Model
     {
         $studentId = $student instanceof User ? $student->id : $student;
 
-        return $query->whereHas('enrollment', fn(Builder $q) => $q->where('student_id', $studentId));
+        return $query->whereHas('enrollment', fn (Builder $q) => $q->where('student_id', $studentId));
     }
 
     /**

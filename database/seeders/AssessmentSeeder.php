@@ -40,8 +40,8 @@ class AssessmentSeeder extends Seeder
                 $assessment = Assessment::create([
                     'class_subject_id' => $classSubject->id,
                     'teacher_id' => $classSubject->teacher_id,
-                    'title' => $classSubject->subject->name . ' - ' . $assessmentData['title_suffix'],
-                    'description' => 'Assessment for ' . $classSubject->subject->name,
+                    'title' => $classSubject->subject->name.' - '.$assessmentData['title_suffix'],
+                    'description' => 'Assessment for '.$classSubject->subject->name,
                     'type' => $assessmentData['type'],
                     'delivery_mode' => $deliveryMode,
                     'coefficient' => $assessmentData['coefficient'],

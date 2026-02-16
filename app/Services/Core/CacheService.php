@@ -78,7 +78,7 @@ class CacheService
                 $cursor = null;
 
                 do {
-                    [$cursor, $keys] = $redis->scan($cursor ?? '0', ['match' => $prefix . $pattern, 'count' => 100]);
+                    [$cursor, $keys] = $redis->scan($cursor ?? '0', ['match' => $prefix.$pattern, 'count' => 100]);
 
                     foreach ($keys as $key) {
                         $cleanKey = str_replace($prefix, '', $key);
@@ -87,7 +87,7 @@ class CacheService
                 } while ($cursor && $cursor !== '0');
             }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::warning('forgetPattern failed: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('forgetPattern failed: '.$e->getMessage());
         }
     }
 

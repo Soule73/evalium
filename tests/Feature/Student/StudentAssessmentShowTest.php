@@ -97,7 +97,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Assessments/Show')
                 ->has('assessment')
                 ->has('assignment')
@@ -121,7 +121,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Assessments/Show')
                 ->has('assessment.class_subject')
                 ->has('assessment.questions', 2)
@@ -159,7 +159,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Assessments/Show')
                 ->has('availability')
                 ->where('availability.available', true)
@@ -176,7 +176,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Assessments/Show')
                 ->where('availability.available', false)
                 ->where('availability.reason', 'assessment_not_published')
@@ -196,7 +196,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->where('availability.available', false)
                 ->where('availability.reason', 'assessment_due_date_passed')
         );
@@ -216,7 +216,7 @@ class StudentAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->where('availability.available', false)
                 ->where('availability.reason', 'assessment_not_started')
         );

@@ -36,8 +36,8 @@ class TeacherDashboardService
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->whereHas('class', fn($query) => $query->where('name', 'like', "%{$search}%"))
-                    ->orWhereHas('subject', fn($query) => $query->where('name', 'like', "%{$search}%"));
+                $q->whereHas('class', fn ($query) => $query->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('subject', fn ($query) => $query->where('name', 'like', "%{$search}%"));
             });
         }
 
@@ -55,7 +55,7 @@ class TeacherDashboardService
      */
     public function getPastAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 5): LengthAwarePaginator
     {
-        $query = Assessment::whereHas('classSubject', fn($q) => $q->where('teacher_id', $teacherId))
+        $query = Assessment::whereHas('classSubject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->forAcademicYear($academicYearId)
             ->where('scheduled_at', '<', now())
             ->with(['classSubject.class.level', 'classSubject.subject', 'classSubject.teacher'])
@@ -79,7 +79,7 @@ class TeacherDashboardService
      */
     public function getUpcomingAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 5): LengthAwarePaginator
     {
-        $query = Assessment::whereHas('classSubject', fn($q) => $q->where('teacher_id', $teacherId))
+        $query = Assessment::whereHas('classSubject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->forAcademicYear($academicYearId)
             ->where('scheduled_at', '>=', now())
             ->with(['classSubject.class.level', 'classSubject.subject', 'classSubject.teacher'])
@@ -116,7 +116,7 @@ class TeacherDashboardService
 
         $totalAssessmentsCount = Assessment::whereHas('classSubject', function ($query) use ($teacherId, $academicYearId) {
             $query->where('teacher_id', $teacherId)
-                ->whereHas('class', fn($q) => $q->where('academic_year_id', $academicYearId));
+                ->whereHas('class', fn ($q) => $q->where('academic_year_id', $academicYearId));
         })->count();
 
         return [

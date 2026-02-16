@@ -38,7 +38,7 @@ class AssessmentFactory extends Factory
 
     public function devoir(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'type' => AssessmentType::Homework,
             'delivery_mode' => DeliveryMode::Homework,
             'coefficient' => 1,
@@ -47,7 +47,7 @@ class AssessmentFactory extends Factory
 
     public function examen(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'type' => AssessmentType::Exam,
             'delivery_mode' => DeliveryMode::Supervised,
             'coefficient' => 2,
@@ -57,7 +57,7 @@ class AssessmentFactory extends Factory
 
     public function tp(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'type' => AssessmentType::Practical,
             'delivery_mode' => DeliveryMode::Homework,
             'coefficient' => 1.5,
@@ -66,7 +66,7 @@ class AssessmentFactory extends Factory
 
     public function supervised(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'delivery_mode' => DeliveryMode::Supervised,
             'duration_minutes' => $attributes['duration_minutes'] ?? 60,
         ]);
@@ -74,7 +74,7 @@ class AssessmentFactory extends Factory
 
     public function homework(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'delivery_mode' => DeliveryMode::Homework,
             'due_date' => $this->faker->dateTimeBetween('+1 day', '+2 weeks'),
         ]);
@@ -82,7 +82,7 @@ class AssessmentFactory extends Factory
 
     public function withFileUploads(int $maxFiles = 3, int $maxSizeKb = 5120): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'max_files' => $maxFiles,
             'max_file_size' => $maxSizeKb,
             'allowed_extensions' => 'pdf,docx,zip',
@@ -91,7 +91,7 @@ class AssessmentFactory extends Factory
 
     public function published(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'settings' => array_merge($attributes['settings'] ?? [], ['is_published' => true]),
         ]);
     }

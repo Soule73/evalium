@@ -93,7 +93,7 @@ class AdminEnrollmentAssignmentsTest extends TestCase
             ->get(route('admin.enrollments.assignments', $this->enrollment))
             ->assertStatus(200)
             ->assertInertia(
-                fn($page) => $page
+                fn ($page) => $page
                     ->component('Admin/Enrollments/Assignments/Index')
                     ->has('enrollment')
                     ->has('assignments.data', 1)
@@ -115,7 +115,7 @@ class AdminEnrollmentAssignmentsTest extends TestCase
             ]))
             ->assertStatus(200)
             ->assertInertia(
-                fn($page) => $page
+                fn ($page) => $page
                     ->component('Admin/Enrollments/Assignments/Index')
                     ->has('assignments.data', 1)
             );
@@ -135,7 +135,7 @@ class AdminEnrollmentAssignmentsTest extends TestCase
             ]))
             ->assertStatus(200)
             ->assertInertia(
-                fn($page) => $page
+                fn ($page) => $page
                     ->has('assignments.data', 1)
             );
 
@@ -146,7 +146,7 @@ class AdminEnrollmentAssignmentsTest extends TestCase
             ]))
             ->assertStatus(200)
             ->assertInertia(
-                fn($page) => $page
+                fn ($page) => $page
                     ->has('assignments.data', 0)
             );
     }
@@ -165,7 +165,7 @@ class AdminEnrollmentAssignmentsTest extends TestCase
             ]))
             ->assertStatus(200)
             ->assertInertia(
-                fn($page) => $page
+                fn ($page) => $page
                     ->component('Admin/Enrollments/Assignments/Show')
                     ->has('enrollment')
                     ->has('assignment')
@@ -193,7 +193,7 @@ class AdminEnrollmentAssignmentsTest extends TestCase
             ->get(route('admin.enrollments.assignments', $this->enrollment))
             ->assertStatus(200)
             ->assertInertia(
-                fn($page) => $page
+                fn ($page) => $page
                     ->has('assignments.data', 0)
             );
     }

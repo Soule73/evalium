@@ -289,7 +289,7 @@ class FileUploadTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Assessments/Work')
                 ->has('attachments', 2)
         );

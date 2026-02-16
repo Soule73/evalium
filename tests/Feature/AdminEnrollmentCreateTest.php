@@ -52,7 +52,7 @@ class AdminEnrollmentCreateTest extends TestCase
             ->get(route('admin.enrollments.create'))
             ->assertStatus(200)
             ->assertInertia(
-                fn($page) => $page
+                fn ($page) => $page
                     ->component('Admin/Enrollments/Create')
                     ->has('classes')
                     ->has('students')
@@ -71,12 +71,12 @@ class AdminEnrollmentCreateTest extends TestCase
             ->get(route('admin.enrollments.create'))
             ->assertStatus(200)
             ->assertInertia(
-                fn($page) => $page
+                fn ($page) => $page
                     ->component('Admin/Enrollments/Create')
                     ->has(
                         'classes',
                         1,
-                        fn($page) => $page
+                        fn ($page) => $page
                             ->where('active_enrollments_count', 1)
                             ->has('enrollments', 1)
                             ->etc()
@@ -90,12 +90,12 @@ class AdminEnrollmentCreateTest extends TestCase
             ->get(route('admin.enrollments.create'))
             ->assertStatus(200)
             ->assertInertia(
-                fn($page) => $page
+                fn ($page) => $page
                     ->component('Admin/Enrollments/Create')
                     ->has(
                         'students',
                         1,
-                        fn($page) => $page
+                        fn ($page) => $page
                             ->has('email')
                             ->has('name')
                             ->etc()

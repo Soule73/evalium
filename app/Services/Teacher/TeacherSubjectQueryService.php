@@ -51,7 +51,7 @@ class TeacherSubjectQueryService
             $subject->classes_count = $subject->classes->count();
 
             $subject->assessments_count = $classSubjects->sum(
-                fn($cs) => $assessmentCounts->get($cs->id, 0)
+                fn ($cs) => $assessmentCounts->get($cs->id, 0)
             );
 
             return $subject;
@@ -144,7 +144,7 @@ class TeacherSubjectQueryService
             ->with(['classSubject.class'])
             ->when(
                 $filters['search'] ?? null,
-                fn($query, $search) => $query->where('title', 'like', "%{$search}%")
+                fn ($query, $search) => $query->where('title', 'like', "%{$search}%")
             )
             ->latest('scheduled_at')
             ->paginate($perPage)

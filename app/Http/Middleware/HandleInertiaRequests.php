@@ -52,10 +52,10 @@ class HandleInertiaRequests extends Middleware
                 'roles' => $user ? $user->getRoleNames()->toArray() : [],
             ],
             'flash' => [
-                'success' => fn() => $request->session()->pull('success'),
-                'error' => fn() => $request->session()->pull('error'),
-                'warning' => fn() => $request->session()->pull('warning'),
-                'info' => fn() => $request->session()->pull('info'),
+                'success' => fn () => $request->session()->pull('success'),
+                'error' => fn () => $request->session()->pull('error'),
+                'warning' => fn () => $request->session()->pull('warning'),
+                'info' => fn () => $request->session()->pull('info'),
             ],
             'academic_year' => [
                 'selected' => $this->getSelectedAcademicYear($request),
@@ -131,7 +131,7 @@ class HandleInertiaRequests extends Middleware
             $langPath = lang_path($locale);
 
             if (is_dir($langPath)) {
-                $files = glob($langPath . '/*.php');
+                $files = glob($langPath.'/*.php');
 
                 foreach ($files as $file) {
                     $filename = basename($file, '.php');
@@ -139,7 +139,7 @@ class HandleInertiaRequests extends Middleware
                 }
             }
 
-            $jsonFile = lang_path($locale . '.json');
+            $jsonFile = lang_path($locale.'.json');
             if (file_exists($jsonFile)) {
                 $jsonTranslations = json_decode(file_get_contents($jsonFile), true);
                 $translations = array_merge($translations, ['json' => $jsonTranslations]);

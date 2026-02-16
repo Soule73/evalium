@@ -117,7 +117,7 @@ class StudentAssessmentController extends Controller
         $availability = $assessment->getAvailabilityStatus();
 
         if (! $availability['available']) {
-            return back()->with('error', __('messages.' . $availability['reason']));
+            return back()->with('error', __('messages.'.$availability['reason']));
         }
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
@@ -161,7 +161,7 @@ class StudentAssessmentController extends Controller
         if (! $availability['available']) {
             return redirect()
                 ->route('student.assessments.show', $assessment)
-                ->with('error', __('messages.' . $availability['reason']));
+                ->with('error', __('messages.'.$availability['reason']));
         }
 
         $assignment->load([

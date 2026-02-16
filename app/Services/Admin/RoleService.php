@@ -109,7 +109,7 @@ class RoleService
             }
         }
 
-        return array_filter($grouped, fn($items) => ! empty($items));
+        return array_filter($grouped, fn ($items) => ! empty($items));
     }
 
     /**

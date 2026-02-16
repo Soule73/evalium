@@ -81,7 +81,7 @@ class HomeworkStudentFlowTest extends TestCase
             ->get(route('student.assessments.take', $assessment));
 
         $response->assertOk();
-        $response->assertInertia(fn($page) => $page->component('Student/Assessments/Work'));
+        $response->assertInertia(fn ($page) => $page->component('Student/Assessments/Work'));
     }
 
     public function test_homework_sets_started_at_on_take(): void
@@ -110,7 +110,7 @@ class HomeworkStudentFlowTest extends TestCase
         $response2 = $this->actingAs($student)
             ->get(route('student.assessments.take', $assessment));
         $response2->assertOk();
-        $response2->assertInertia(fn($page) => $page->component('Student/Assessments/Work'));
+        $response2->assertInertia(fn ($page) => $page->component('Student/Assessments/Work'));
     }
 
     public function test_homework_save_answers_works(): void
@@ -232,7 +232,7 @@ class HomeworkStudentFlowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Assessments/Work')
                 ->where('remainingSeconds', null)
         );

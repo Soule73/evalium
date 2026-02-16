@@ -221,7 +221,7 @@ class SupervisedModeHardeningTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Student/Assessments/Take')
                 ->where('remainingSeconds', 2400)
         );

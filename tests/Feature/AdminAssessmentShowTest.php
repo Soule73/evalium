@@ -76,7 +76,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Assessments/Show')
                 ->has('assessment')
                 ->has('assignments')
@@ -98,7 +98,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->where('routeContext.role', 'admin')
                 ->where('routeContext.backRoute', 'admin.assessments.index')
                 ->where('routeContext.saveGradeRoute', 'admin.assessments.saveGrade')
@@ -133,7 +133,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Assessments/Review')
                 ->has('assignment')
                 ->has('assessment')
@@ -156,7 +156,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Assessments/Grade')
                 ->has('assignment')
                 ->has('assessment')
@@ -269,7 +269,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Assessments/Show')
                 ->has('assessment')
                 ->has('routeContext')
@@ -290,7 +290,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Assessments/Review')
                 ->where('routeContext.role', 'admin')
         );
@@ -309,7 +309,7 @@ class AdminAssessmentShowTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Assessments/Grade')
                 ->where('routeContext.role', 'admin')
         );
