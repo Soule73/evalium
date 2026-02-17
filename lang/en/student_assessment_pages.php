@@ -34,7 +34,6 @@ return [
         'empty_subtitle' => 'You have no assessments assigned at the moment.',
         'duration' => 'Duration',
         'questions_count' => 'Questions',
-        'not_started' => 'Not Started',
         'delivery_mode_supervised' => 'Supervised',
         'delivery_mode_homework' => 'Homework',
     ],

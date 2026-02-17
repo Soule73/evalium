@@ -26,7 +26,7 @@ return [
     'assignment_graded' => 'Noté',
     'assignment_submitted' => 'Soumis',
     'assignment_not_started' => 'Non commencé',
-    'assignment_not_assigned' => 'Non commencé',
+    'assignment_not_assigned' => 'Non assigné',
     'assignment_all_statuses' => 'Tous les statuts',
 
     // Security violations

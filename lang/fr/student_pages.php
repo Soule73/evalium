@@ -33,7 +33,7 @@ return [
         'important_dates' => 'Dates importantes',
         'start_date' => 'Début',
         'end_date' => 'Fin',
-        'important_title' => 'IMPORTANTS',
+        'important_title' => 'IMPORTANT',
         'alert_stable_connection' => 'Assurez-vous d\'avoir une connexion internet stable',
         'alert_fullscreen' => 'L\'examen se déroulera en mode plein écran pour des raisons de sécurité',
         'alert_cheating' => 'Les tentatives de triche seront détectées et sanctionnées',

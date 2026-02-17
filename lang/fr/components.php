@@ -1,13 +1,11 @@
 <?php
 
 return [
-    // ConfirmationModal
     'confirmation_modal' => [
         'confirm' => 'Confirmer',
         'cancel' => 'Annuler',
     ],
 
-    // Select
     'select' => [
         'placeholder' => 'Sélectionner une option',
         'search_placeholder' => 'Rechercher...',
@@ -16,7 +14,6 @@ return [
         'level_placeholder' => 'Sélectionner un niveau académique',
     ],
 
-    // ChoiceEditor
     'choice_editor' => [
         'placeholders' => 'Entrez votre réponse...',
         'simple' => 'Éditeur simple',
@@ -31,7 +28,6 @@ return [
         'show_preview' => 'Afficher l\'aperçu',
     ],
 
-    // Toast / FlashToastHandler
     'toast' => [
         'success' => 'Succès',
         'error' => 'Erreur',
@@ -40,24 +36,21 @@ return [
         'close' => 'Fermer',
     ],
 
-    // Toggle
     'toggle' => [
         'active' => 'Actif',
         'inactive' => 'Inactif',
     ],
 
-    // RoleForm
     'role_form' => [
         'system_role_badge' => 'Rôle système',
         'system_role_notice' => 'Ce rôle est un rôle système. Vous pouvez uniquement modifier ses permissions.',
         'role_name_label' => 'Nom du rôle',
-        'role_name_placeholder' => 'Ex: moderator, editor...',
+        'role_name_placeholder' => 'Ex : modérateur, éditeur...',
         'create_button' => 'Créer le rôle',
         'creating' => 'Création...',
         'cancel' => 'Annuler',
     ],
 
-    // PermissionSelector
     'permission_selector' => [
         'label' => 'Permissions (:count sélectionnées)',
         'select_all' => 'Tout sélectionner',
@@ -65,7 +58,6 @@ return [
         'sync' => 'Synchroniser',
     ],
 
-    // QuestionsManager
     'questions_manager' => [
         'title' => 'Questions de l\'évaluation',
         'subtitle' => 'Ajoutez et configurez les questions de votre évaluation.',
@@ -78,7 +70,6 @@ return [
         'history_button' => 'Historique (:count)',
     ],
 
-    // DeleteHistoryModal
     'delete_history_modal' => [
         'title' => 'Historique des suppressions',
         'clear_history' => 'Vider l\'historique',
@@ -96,7 +87,6 @@ return [
         'incorrect_choice' => 'Choix incorrect',
     ],
 
-    // SortableQuestionItem
     'question_item' => [
         'question_statement' => 'Énoncé de la question',
         'question_placeholder' => 'Saisissez votre question ici...',
@@ -105,20 +95,46 @@ return [
         'add_option' => 'Ajouter une option',
     ],
 
-    // AssessmentGeneralConfig
     'assessment_general_config' => [
-        'title' => 'Informations générales',
+        'title' => 'Paramètres généraux',
         'active_label' => 'Évaluation active',
+        'published_label' => 'Publié',
         'assessment_title_label' => 'Titre de l\'évaluation',
+        'type_label' => 'Type d\'évaluation',
+        'type_homework' => 'Devoir',
+        'type_exam' => 'Examen',
+        'type_practical' => 'Travaux pratiques',
+        'type_quiz' => 'Quiz',
+        'type_project' => 'Projet',
+        'type_assignment' => 'Devoir',
+        'type_assessment' => 'Évaluation',
         'duration_label' => 'Durée (minutes)',
         'start_time_label' => 'Date et heure de début',
         'end_time_label' => 'Date et heure de fin',
-        'description_label' => 'Description de l\'évaluation',
-        'description_placeholder' => 'Description de l\'évaluation...',
-        'description_help' => 'Décrivez l\'objectif et les modalités de cette évaluation. Vous pouvez utiliser le formatage Markdown.',
+        'due_date_label' => 'Date limite',
+        'delivery_mode_label' => 'Mode de passation',
+        'delivery_mode_supervised' => 'Supervisé',
+        'delivery_mode_homework' => 'Devoir maison',
+        'class_subject_label' => 'Classe & Matière',
+        'class_subject_placeholder' => 'Sélectionner classe et matière',
+        'scheduled_date_label' => 'Date planifiée',
+        'description_label' => 'Description',
+        'description_placeholder' => 'Entrez la description de l\'évaluation...',
+        'description_help' => 'Décrivez l\'objectif et les modalités de cette évaluation. Vous pouvez utiliser le formatage Markdown. Formatage Markdown supporté',
+        'options_title' => 'Options',
+        'shuffle_questions_label' => 'Mélanger les questions',
+        'show_results_immediately_label' => 'Afficher les résultats immédiatement',
+        'show_correct_answers_label' => 'Révéler les bonnes réponses après la correction',
+        'allow_late_submission_label' => 'Autoriser les soumissions tardives',
+        'one_question_per_page_label' => 'Une question par page',
+        'file_upload_title' => 'Paramètres d\'envoi de fichiers',
+        'max_files_label' => 'Nombre maximal de fichiers',
+        'max_files_help' => 'Laissez vide ou 0 pour désactiver l\'envoi de fichiers',
+        'max_file_size_label' => 'Taille maximale du fichier (Ko)',
+        'allowed_extensions_label' => 'Extensions autorisées',
+        'allowed_extensions_help' => 'Liste séparée par des virgules (ex : pdf,docx,jpg)',
     ],
 
-    // QuestionRenderer
     'question_renderer' => [
         'no_answer' => 'Aucune réponse fournie',
         'student_answer_label' => 'Réponse de l\'étudiant',
@@ -128,7 +144,6 @@ return [
         'teacher_feedback' => 'Commentaire du professeur :',
     ],
 
-    // StudentAssessmentAssignmentList
     'student_assessment_list' => [
         'title_unavailable' => 'Titre non disponible',
         'pending' => 'En attente',
@@ -154,7 +169,6 @@ return [
         'reset_filters' => 'Réinitialiser les filtres',
     ],
 
-    // TakeQuestion
     'take_question' => [
         'points' => ':points point(s)',
         'multiple_choice' => 'Choix multiples',
@@ -167,9 +181,8 @@ return [
         'your_answer_help' => 'Vous pouvez utiliser la syntaxe Markdown pour formater votre réponse',
     ],
 
-    // AlertSecurityViolation
     'alert_security_violation' => [
-        'title' => 'Évaluation Terminée',
+        'title' => 'Évaluation terminée',
         'subtitle' => 'Votre évaluation a été automatiquement terminée et soumise en raison d\'une violation des règles de sécurité.',
         'violation_detected' => 'Violation détectée : :reason',
         'teacher_notified' => 'Votre enseignant sera notifié de cette violation',
@@ -178,7 +191,6 @@ return [
         'back_to_assessments' => 'Retour aux évaluations',
     ],
 
-    // AssessmentInfoSection
     'assessment_info_section' => [
         'assessment_label' => 'Évaluation',
         'description_label' => 'Description',
@@ -197,21 +209,19 @@ return [
         'questions_count' => ':count questions',
         'pending_correction' => 'En attente de correction',
         'finished' => 'Terminé',
-        'automatic_submission' => 'Soumission Automatique',
+        'automatic_submission' => 'Soumission automatique',
         'automatic_submission_message' => 'Cette évaluation a été soumise automatiquement',
         'violation_detected_label' => 'Violation détectée : :violation',
     ],
 
-    // AssessmentStatsCards
     'assessment_stats_cards' => [
         'total_students' => 'Total étudiants',
-        'total_assigned' => 'Total assigné',
-        'completed' => 'Terminé',
+        'total_assigned' => 'Total assignés',
+        'completed' => 'Terminés',
         'in_progress' => 'En cours',
-        'not_started' => 'Non commencé',
+        'not_started' => 'Non commencés',
     ],
 
-    // question_result_readonly
     'question_result_readonly' => [
         'your_answer_default' => 'Votre réponse :',
         'student_answer' => 'Réponse de l\'étudiant',
@@ -227,13 +237,11 @@ return [
         'boolean_false_short' => 'F',
     ],
 
-    // QuestionReadOnlySection
     'question_readonly_section' => [
         'correct' => 'Correct',
         'incorrect' => 'Incorrect',
     ],
 
-    // questionOptions
     'question_options' => [
         'multiple_title' => 'Choix multiples',
         'multiple_subtitle' => 'Plusieurs réponses possibles',
@@ -245,7 +253,6 @@ return [
         'text_subtitle' => 'Texte de réponse libre',
     ],
 
-    // AssessmentAssignmentColumns
     'assessment_assignment_columns' => [
         'student_label' => 'Étudiant',
         'name_unavailable' => 'Nom non disponible',
@@ -263,7 +270,6 @@ return [
         'graded' => 'Noté',
     ],
 
-    // GroupTableConfig
     'group_table_config' => [
         'group_label' => 'Groupe',
         'active_students_count' => ':count étudiant(s) actif(s)',
@@ -275,7 +281,6 @@ return [
         'empty_subtitle' => 'Cette évaluation n\'est pas encore assignée à des groupes',
     ],
 
-    // AssessmentHeader
     'assessment_header' => [
         'questions_count' => 'Questions',
         'created_on' => 'Créé le',
@@ -284,7 +289,6 @@ return [
         'class' => 'Classe',
     ],
 
-    // AssessmentList
     'assessment_list' => [
         'view_assessment' => 'Voir',
         'view_assessment_title' => 'Voir l\'évaluation',
@@ -305,7 +309,6 @@ return [
         'reset_filters' => 'Réinitialiser les filtres',
     ],
 
-    // AssignmentList
     'assignment_list' => [
         'student' => 'Étudiant',
         'status' => 'Statut',
@@ -331,45 +334,6 @@ return [
         'reopen_error' => 'Impossible de rouvrir la copie',
     ],
 
-    'assessment_general_config' => [
-        'title' => 'Paramètres généraux',
-        'published_label' => 'Publié',
-        'assessment_title_label' => 'Titre de l\'évaluation',
-        'type_label' => 'Type d\'évaluation',
-        'type_homework' => 'Devoir',
-        'type_exam' => 'Évaluation',
-        'type_practical' => 'Travaux Pratiques',
-        'type_quiz' => 'Contrôle',
-        'type_project' => 'Projet',
-        'type_assignment' => 'Devoir',
-        'type_quiz' => 'Quiz',
-        'type_assessment' => 'Évaluation',
-        'duration_label' => 'Durée (minutes)',
-        'due_date_label' => 'Date limite',
-        'delivery_mode_label' => 'Mode de passation',
-        'delivery_mode_supervised' => 'Supervisé',
-        'delivery_mode_homework' => 'Devoir maison',
-        'class_subject_label' => 'Classe & Matière',
-        'class_subject_placeholder' => 'Sélectionner classe et matière',
-        'scheduled_date_label' => 'Date planifiée',
-        'description_label' => 'Description',
-        'description_placeholder' => 'Entrez la description de l\'évaluation...',
-        'description_help' => 'Formatage Markdown supporté',
-        'options_title' => 'Options',
-        'shuffle_questions_label' => 'Mélanger les questions',
-        'show_results_immediately_label' => 'Afficher les résultats immédiatement',
-        'show_correct_answers_label' => 'Révéler les bonnes réponses après la correction',
-        'allow_late_submission_label' => 'Autoriser les soumissions tardives',
-        'one_question_per_page_label' => 'Une question par page',
-        'file_upload_title' => 'Paramètres d\'envoi de fichiers',
-        'max_files_label' => 'Nombre maximum de fichiers',
-        'max_files_help' => 'Laissez vide ou 0 pour désactiver l\'envoi de fichiers',
-        'max_file_size_label' => 'Taille maximale du fichier (Ko)',
-        'allowed_extensions_label' => 'Extensions autorisées',
-        'allowed_extensions_help' => 'Liste séparée par des virgules (ex : pdf,docx,jpg)',
-    ],
-
-    // FullscreenModal
     'fullscreen_modal' => [
         'title' => 'Mode plein écran requis',
         'description_line1' => 'Pour des raisons de sécurité, cette évaluation doit être passée en mode plein écran.',
@@ -377,7 +341,6 @@ return [
         'button' => 'Entrer en plein écran',
     ],
 
-    // DataTable
     'datatable' => [
         'items_selected' => ':count élément|:count éléments',
         'items_selected_suffix' => 'sélectionné|sélectionnés',
@@ -386,7 +349,7 @@ return [
         'select_item' => 'Sélectionner l\'élément :id',
         'reset_filters_default' => 'Réinitialiser les filtres',
         'showing_records' => 'Affichage de :from à :to sur :total résultats',
-        'per_page' => 'Par page:',
+        'per_page' => 'Par page :',
         'previous' => 'Précédent',
         'next' => 'Suivant',
     ],

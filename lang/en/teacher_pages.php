@@ -98,7 +98,7 @@ return [
         'filters' => [
             'search_placeholder' => 'Search by title, class, or subject...',
             'all_types' => 'All Types',
-            'all_status' => 'All Status',
+            'all_status' => 'All Statuses',
             'published' => 'Published',
             'draft' => 'Draft',
         ],

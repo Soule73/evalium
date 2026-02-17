@@ -80,7 +80,7 @@ return [
     'assessment_unpublished' => 'L\'évaluation a été dépubliée avec succès',
     'assessment_submitted' => 'L\'évaluation a été soumise avec succès',
     'assessment_must_start_before_submit' => 'Vous devez commencer l\'évaluation avant de la soumettre',
-    'answers_saved' => 'Réponses enregistrées',
+    'answers_saved' => 'Réponses enregistrées avec succès',
     'error_saving_answers' => 'Erreur lors de l\'enregistrement des réponses',
     'security_violation_processed' => 'Violation de sécurité enregistrée',
     'security_violations_not_applicable' => 'Les violations de sécurité ne sont pas applicables pour ce mode d\'évaluation',
@@ -187,7 +187,6 @@ return [
 
     'cannot_access_assessment' => 'Vous ne pouvez pas accéder à cette évaluation',
     'do_not_own_attachment' => 'Ce fichier ne vous appartient pas',
-    'answers_saved' => 'Réponses enregistrées avec succès',
     'security_violation_recorded' => 'Violation de sécurité enregistrée',
     'delivery_mode_supervised' => 'Surveillé',
     'delivery_mode_homework' => 'Devoir maison',

@@ -25,7 +25,6 @@ return [
         'no_results' => 'Aucun résultat trouvé.',
         'no_results_subtitle' => 'Essayez de modifier vos critères de recherche.',
         'clear_search' => 'Effacer la recherche',
-        'loading' => 'Chargement...',
         'search_placeholder' => 'Rechercher...',
         'reset' => 'Réinitialiser',
         'creating' => 'Création...',
@@ -98,8 +97,8 @@ return [
         'active_exams' => 'Examens actifs',
         'inactive_exams' => 'Examens inactifs',
         'total_assessments' => "Total d'évaluations",
-        'active_assessments' => ' Évaluations publiées',
-        'inactive_assessments' => ' Évaluations non publiées',
+        'active_assessments' => 'Évaluations publiées',
+        'inactive_assessments' => 'Évaluations non publiées',
 
         // Student show page
         'show_student_stats' => 'Statistiques des évaluations',
@@ -527,7 +526,7 @@ return [
         'terminate' => 'Terminer',
         'terminate_title' => 'Terminer l\'affectation',
         'terminate_button' => 'Terminer l\'affectation',
-        'terminating' => 'Termination...',
+        'terminating' => 'Finalisation...',
         'terminate_warning' => 'Cela mettra fin à l\'affectation actuelle. L\'enseignant ne sera plus assigné à cette matière dans cette classe après la date spécifiée.',
         'end_date' => 'Date de fin',
         'empty_title' => 'Aucune affectation',

@@ -80,7 +80,7 @@ return [
     'assessment_unpublished' => 'Assessment unpublished successfully',
     'assessment_submitted' => 'Assessment submitted successfully',
     'assessment_must_start_before_submit' => 'You must start the assessment before submitting it',
-    'answers_saved' => 'Answers saved',
+    'answers_saved' => 'Answers saved successfully',
     'error_saving_answers' => 'Error saving answers',
     'security_violation_processed' => 'Security violation processed',
     'security_violations_not_applicable' => 'Security violations are not applicable for this assessment mode',
@@ -187,7 +187,6 @@ return [
 
     'cannot_access_assessment' => 'You cannot access this assessment',
     'do_not_own_attachment' => 'You do not own this attachment',
-    'answers_saved' => 'Answers saved successfully',
     'security_violation_recorded' => 'Security violation recorded',
     'delivery_mode_supervised' => 'Supervised',
     'delivery_mode_homework' => 'Homework',

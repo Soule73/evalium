@@ -13,7 +13,7 @@ return [
         'my_classes' => 'My Classes',
         'my_subjects' => 'My Subjects',
         'grading' => 'Grading',
-        'archives' => 'Archives Years',
+        'archives' => 'Archived Years',
         'subjects' => 'Subjects',
         'classes' => 'Classes',
         'enrollments' => 'Enrollments',

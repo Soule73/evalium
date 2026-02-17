@@ -34,7 +34,6 @@ return [
         'empty_subtitle' => 'Vous n\'avez aucune évaluation assignée pour le moment.',
         'duration' => 'Durée',
         'questions_count' => 'Questions',
-        'not_started' => 'Non commencé',
         'delivery_mode_supervised' => 'Surveillé',
         'delivery_mode_homework' => 'Devoir maison',
     ],

@@ -26,7 +26,7 @@ return [
     'assignment_graded' => 'Graded',
     'assignment_submitted' => 'Submitted',
     'assignment_not_started' => 'Not started',
-    'assignment_not_assigned' => 'Not started',
+    'assignment_not_assigned' => 'Not assigned',
     'assignment_all_statuses' => 'All statuses',
 
     // Security violations
