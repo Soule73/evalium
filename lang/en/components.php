@@ -281,6 +281,7 @@ return [
         'empty_search_title' => 'No assessments found',
         'empty_search_subtitle' => 'Try modifying your search or filter criteria.',
         'reset_filters' => 'Reset filters',
+        'all_classes' => 'All Classes',
     ],
 
     'assignment_list' => [
@@ -372,5 +373,22 @@ return [
         'per_page' => 'Per page:',
         'previous' => 'Previous',
         'next' => 'Next',
+    ],
+
+    'file_list' => [
+        'file_name' => 'File Name',
+        'file_type' => 'Type',
+        'uploaded_at' => 'Uploaded At',
+        'preview' => 'Preview',
+        'download' => 'Download',
+        'delete' => 'Delete',
+        'close' => 'Close',
+        'no_files' => 'No files attached.',
+        'preview_not_available' => 'Preview is not available for this file type.',
+        'type_image' => 'Image',
+        'type_pdf' => 'PDF',
+        'type_document' => 'Document',
+        'type_archive' => 'Archive',
+        'type_other' => 'Other',
     ],
 ];

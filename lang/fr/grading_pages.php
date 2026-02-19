@@ -48,6 +48,8 @@ return [
         'teacher_notes_label' => 'Notes générales',
         'teacher_notes_placeholder' => 'Ajouter des notes générales pour l\'étudiant...',
         'teacher_notes_help' => 'Ces notes seront visibles par l\'étudiant',
+        'student_files_title' => 'Fichiers de l\'étudiant',
+        'no_student_files' => 'Aucun fichier soumis par l\'étudiant.',
         'confirm_save_title' => 'Enregistrer les notes',
         'confirm_save_message' => 'Enregistrer les notes et commentaires pour :student ?',
         'confirm_save' => 'Enregistrer',

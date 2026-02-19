@@ -307,6 +307,7 @@ return [
         'empty_search_title' => 'Aucune évaluation trouvée',
         'empty_search_subtitle' => 'Essayez de modifier vos critères de recherche ou de filtrage.',
         'reset_filters' => 'Réinitialiser les filtres',
+        'all_classes' => 'Toutes les classes',
     ],
 
     'assignment_list' => [
@@ -352,5 +353,22 @@ return [
         'per_page' => 'Par page :',
         'previous' => 'Précédent',
         'next' => 'Suivant',
+    ],
+
+    'file_list' => [
+        'file_name' => 'Nom du fichier',
+        'file_type' => 'Type',
+        'uploaded_at' => 'Date d\'envoi',
+        'preview' => 'Aperçu',
+        'download' => 'Télécharger',
+        'delete' => 'Supprimer',
+        'close' => 'Fermer',
+        'no_files' => 'Aucun fichier joint.',
+        'preview_not_available' => 'L\'aperçu n\'est pas disponible pour ce type de fichier.',
+        'type_image' => 'Image',
+        'type_pdf' => 'PDF',
+        'type_document' => 'Document',
+        'type_archive' => 'Archive',
+        'type_other' => 'Autre',
     ],
 ];

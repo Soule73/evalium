@@ -48,6 +48,8 @@ return [
         'teacher_notes_label' => 'General Notes',
         'teacher_notes_placeholder' => 'Add general notes for the student...',
         'teacher_notes_help' => 'These notes will be visible to the student',
+        'student_files_title' => 'Student Files',
+        'no_student_files' => 'No files submitted by the student.',
         'confirm_save_title' => 'Save Grades',
         'confirm_save_message' => 'Save grades and feedback for :student?',
         'confirm_save' => 'Save',

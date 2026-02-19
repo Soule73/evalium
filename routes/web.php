@@ -51,6 +51,16 @@ Route::middleware('auth')->group(function () {
         'setCurrent',
     ])->name('api.academic-years.set-current');
 
+    Route::get('/attachments/{attachment}/download', [
+        \App\Http\Controllers\AttachmentController::class,
+        'download',
+    ])->name('attachments.download');
+
+    Route::get('/attachments/{attachment}/preview', [
+        \App\Http\Controllers\AttachmentController::class,
+        'preview',
+    ])->name('attachments.preview');
+
     /**
      * Admin Routes
      * Routes for managing academic years, subjects, classes, enrollments
@@ -227,6 +237,7 @@ Route::middleware('auth')->group(function () {
      */
     Route::prefix('teacher')
         ->name('teacher.')
+        ->middleware('role:teacher,admin,super_admin')
         ->group(function () {
 
             /**
