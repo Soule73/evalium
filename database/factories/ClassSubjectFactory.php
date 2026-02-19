@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\ClassModel;
-use App\Models\Semester;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,7 +23,7 @@ class ClassSubjectFactory extends Factory
             'class_id' => ClassModel::factory(),
             'subject_id' => Subject::factory(),
             'teacher_id' => User::factory()->teacher(),
-            'semester_id' => Semester::factory(),
+            'semester_id' => null,
             'coefficient' => $this->faker->randomFloat(1, 1, 5),
             'valid_from' => now()->subDays($this->faker->numberBetween(1, 30)),
             'valid_to' => null,
