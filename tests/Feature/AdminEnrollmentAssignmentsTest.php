@@ -151,6 +151,30 @@ class AdminEnrollmentAssignmentsTest extends TestCase
             );
     }
 
+    public function test_assessments_without_assignment_appear_as_not_submitted(): void
+    {
+        $this->actingAs($this->admin)
+            ->get(route('admin.enrollments.assignments', [
+                'enrollment' => $this->enrollment->id,
+            ]))
+            ->assertStatus(200)
+            ->assertInertia(
+                fn ($page) => $page
+                    ->has('assignments.data', 1)
+            );
+
+        $this->actingAs($this->admin)
+            ->get(route('admin.enrollments.assignments', [
+                'enrollment' => $this->enrollment->id,
+                'status' => 'not_submitted',
+            ]))
+            ->assertStatus(200)
+            ->assertInertia(
+                fn ($page) => $page
+                    ->has('assignments.data', 1)
+            );
+    }
+
     public function test_admin_can_view_assignment_detail(): void
     {
         $assignment = AssessmentAssignment::factory()->graded()->create([
@@ -189,8 +213,19 @@ class AdminEnrollmentAssignmentsTest extends TestCase
 
     public function test_empty_assignments_returns_empty_list(): void
     {
+        $emptyClass = ClassModel::factory()->create([
+            'academic_year_id' => $this->class->academic_year_id,
+            'level_id' => $this->class->level_id,
+        ]);
+
+        $emptyEnrollment = $emptyClass->enrollments()->create([
+            'student_id' => $this->student->id,
+            'enrolled_at' => now(),
+            'status' => 'active',
+        ]);
+
         $this->actingAs($this->admin)
-            ->get(route('admin.enrollments.assignments', $this->enrollment))
+            ->get(route('admin.enrollments.assignments', $emptyEnrollment))
             ->assertStatus(200)
             ->assertInertia(
                 fn ($page) => $page
