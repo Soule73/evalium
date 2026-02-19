@@ -2,11 +2,14 @@
 
 namespace App\Services\Core;
 
+use App\Contracts\Services\ClassSubjectServiceInterface;
 use App\Exceptions\ClassSubjectException;
 use App\Exceptions\ValidationException;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
+use App\Models\Semester;
 use App\Models\Subject;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -16,8 +19,27 @@ use Illuminate\Support\Facades\DB;
  *
  * Single Responsibility: Manage teacher-subject-class assignments with historization
  */
-class ClassSubjectService
+class ClassSubjectService implements ClassSubjectServiceInterface
 {
+    /**
+     * Get form data for creation of a class-subject assignment.
+     */
+    public function getFormDataForCreate(int $selectedYearId): array
+    {
+        return [
+            'classes' => ClassModel::forAcademicYear($selectedYearId)
+                ->with('academicYear', 'level')
+                ->orderBy('name')
+                ->get(),
+            'subjects' => Subject::with('level')->orderBy('name')->get(),
+            'teachers' => User::role('teacher')->orderBy('name')->get(),
+            'semesters' => Semester::where('academic_year_id', $selectedYearId)
+                ->with('academicYear')
+                ->orderBy('order_number')
+                ->get(),
+        ];
+    }
+
     /**
      * Assign a teacher to teach a subject in a class
      */

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Teacher;
+namespace App\Repositories\Teacher;
 
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
@@ -8,7 +8,7 @@ use App\Models\Enrollment;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
-class GradingQueryService
+class GradingRepository
 {
     /**
      * Get assignments for grading with pagination.

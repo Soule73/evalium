@@ -1,17 +1,26 @@
 <?php
 
-namespace App\Services\Teacher;
+namespace App\Repositories\Teacher;
 
+use App\Contracts\Repositories\TeacherClassRepositoryInterface;
+use App\Contracts\Repositories\TeacherSubjectRepositoryInterface;
 use App\Models\Assessment;
 use App\Models\ClassSubject;
 use App\Models\Subject;
+use App\Services\Traits\Paginatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class TeacherSubjectQueryService
+class TeacherSubjectRepository implements TeacherSubjectRepositoryInterface
 {
+    use Paginatable;
+
+    public function __construct(
+        private readonly TeacherClassRepositoryInterface $classQueryService
+    ) {}
+
     /**
      * Get all subjects where the teacher is assigned with aggregated data.
      */
@@ -28,13 +37,7 @@ class TeacherSubjectQueryService
             ->get();
 
         if ($classSubjects->isEmpty()) {
-            return new \Illuminate\Pagination\LengthAwarePaginator(
-                [],
-                0,
-                $perPage,
-                1,
-                ['path' => request()->url(), 'query' => request()->query()]
-            );
+            return $this->paginateCollection(collect(), $perPage);
         }
 
         $assessmentCounts = DB::table('assessments')
@@ -51,7 +54,7 @@ class TeacherSubjectQueryService
             $subject->classes_count = $subject->classes->count();
 
             $subject->assessments_count = $classSubjects->sum(
-                fn ($cs) => $assessmentCounts->get($cs->id, 0)
+                fn($cs) => $assessmentCounts->get($cs->id, 0)
             );
 
             return $subject;
@@ -59,18 +62,7 @@ class TeacherSubjectQueryService
 
         $subjects = $this->applyFilters($subjects, $filters);
 
-        $page = request()->input('page', 1);
-        $offset = ($page - 1) * $perPage;
-        $total = $subjects->count();
-        $items = $subjects->slice($offset, $perPage)->values();
-
-        return new \Illuminate\Pagination\LengthAwarePaginator(
-            $items,
-            $total,
-            $perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
+        return $this->paginateCollection($subjects, $perPage);
     }
 
     /**
@@ -78,14 +70,9 @@ class TeacherSubjectQueryService
      */
     public function getClassesForFilter(int $teacherId, int $selectedYearId): Collection
     {
-        return ClassSubject::where('teacher_id', $teacherId)
-            ->forAcademicYear($selectedYearId)
-            ->active()
-            ->with('class')
-            ->get()
-            ->pluck('class')
-            ->unique('id')
-            ->values();
+        return $this->classQueryService
+            ->getActiveClassesForTeacher($teacherId, $selectedYearId)
+            ->map(fn($item) => ['id' => $item->class_id, 'name' => $item->class_name]);
     }
 
     /**
@@ -144,7 +131,7 @@ class TeacherSubjectQueryService
             ->with(['classSubject.class'])
             ->when(
                 $filters['search'] ?? null,
-                fn ($query, $search) => $query->where('title', 'like', "%{$search}%")
+                fn($query, $search) => $query->where('title', 'like', "%{$search}%")
             )
             ->latest('scheduled_at')
             ->paginate($perPage)

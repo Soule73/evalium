@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Services\Admin;
+namespace App\Repositories\Admin;
 
+use App\Contracts\Repositories\AdminAssessmentRepositoryInterface;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\ClassModel;
@@ -15,7 +16,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
  * Handles read-only queries for assessments from the admin perspective.
  * Provides paginated assessment listings for classes, teachers, and students.
  */
-class AdminAssessmentQueryService
+class AdminAssessmentRepository implements AdminAssessmentRepositoryInterface
 {
     use Paginatable;
 
@@ -29,7 +30,7 @@ class AdminAssessmentQueryService
     public function getAssessmentsForClass(ClassModel $class, array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
         $query = Assessment::query()
-            ->whereHas('classSubject', fn ($q) => $q->where('class_id', $class->id))
+            ->whereHas('classSubject', fn($q) => $q->where('class_id', $class->id))
             ->with(['classSubject.subject', 'classSubject.teacher', 'teacher'])
             ->withCount(['questions', 'assignments'])
             ->when($filters['search'] ?? null, function ($query, $search) {
@@ -39,11 +40,11 @@ class AdminAssessmentQueryService
                 });
             })
             ->when($filters['subject_id'] ?? null, function ($query, $subjectId) {
-                $query->whereHas('classSubject', fn ($q) => $q->where('subject_id', $subjectId));
+                $query->whereHas('classSubject', fn($q) => $q->where('subject_id', $subjectId));
             })
-            ->when($filters['teacher_id'] ?? null, fn ($query, $teacherId) => $query->where('teacher_id', $teacherId))
-            ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
-            ->when($filters['delivery_mode'] ?? null, fn ($query, $mode) => $query->where('delivery_mode', $mode))
+            ->when($filters['teacher_id'] ?? null, fn($query, $teacherId) => $query->where('teacher_id', $teacherId))
+            ->when($filters['type'] ?? null, fn($query, $type) => $query->where('type', $type))
+            ->when($filters['delivery_mode'] ?? null, fn($query, $mode) => $query->where('delivery_mode', $mode))
             ->when(isset($filters['status']) && $filters['status'] !== '', function ($query) use ($filters) {
                 $isPublished = $filters['status'] === 'published';
                 $query->whereJsonContains('settings->is_published', $isPublished);
@@ -83,8 +84,8 @@ class AdminAssessmentQueryService
                         ->orWhere('description', 'like', "%{$search}%");
                 });
             })
-            ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
-            ->when($filters['delivery_mode'] ?? null, fn ($query, $mode) => $query->where('delivery_mode', $mode))
+            ->when($filters['type'] ?? null, fn($query, $type) => $query->where('type', $type))
+            ->when($filters['delivery_mode'] ?? null, fn($query, $mode) => $query->where('delivery_mode', $mode))
             ->orderBy('created_at', 'desc');
 
         return $this->paginateWithFilters(
@@ -121,7 +122,7 @@ class AdminAssessmentQueryService
                 });
             })
             ->when($filters['subject_id'] ?? null, function ($query, $subjectId) {
-                $query->whereHas('assessment.classSubject', fn ($q) => $q->where('subject_id', $subjectId));
+                $query->whereHas('assessment.classSubject', fn($q) => $q->where('subject_id', $subjectId));
             })
             ->when($filters['status'] ?? null, function ($query, $status) {
                 match ($status) {
@@ -210,9 +211,8 @@ class AdminAssessmentQueryService
                 'classSubject.teacher',
                 'teacher',
             ])
-            ->withCount(['questions', 'assignments'])
             ->when($academicYearId, function ($query, $yearId) {
-                $query->whereHas('classSubject.class', fn ($q) => $q->where('academic_year_id', $yearId));
+                $query->whereHas('classSubject.class', fn($q) => $q->where('academic_year_id', $yearId));
             })
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -221,14 +221,14 @@ class AdminAssessmentQueryService
                 });
             })
             ->when($filters['class_id'] ?? null, function ($query, $classId) {
-                $query->whereHas('classSubject', fn ($q) => $q->where('class_id', $classId));
+                $query->whereHas('classSubject', fn($q) => $q->where('class_id', $classId));
             })
             ->when($filters['subject_id'] ?? null, function ($query, $subjectId) {
-                $query->whereHas('classSubject', fn ($q) => $q->where('subject_id', $subjectId));
+                $query->whereHas('classSubject', fn($q) => $q->where('subject_id', $subjectId));
             })
-            ->when($filters['teacher_id'] ?? null, fn ($query, $teacherId) => $query->where('teacher_id', $teacherId))
-            ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
-            ->when($filters['delivery_mode'] ?? null, fn ($query, $mode) => $query->where('delivery_mode', $mode))
+            ->when($filters['teacher_id'] ?? null, fn($query, $teacherId) => $query->where('teacher_id', $teacherId))
+            ->when($filters['type'] ?? null, fn($query, $type) => $query->where('type', $type))
+            ->when($filters['delivery_mode'] ?? null, fn($query, $mode) => $query->where('delivery_mode', $mode))
             ->orderBy('created_at', 'desc');
 
         return $this->paginateQuery($query, $perPage);

@@ -428,10 +428,23 @@ class StudentAssessmentService
         }
 
         if (! $enrollment) {
-            return [];
+            return [
+                'assignments' => [],
+                'subjects' => [],
+            ];
         }
 
-        $classSubjectIds = $enrollment->class->classSubjects->pluck('id');
+        $classSubjects = $enrollment->class->classSubjects;
+        $classSubjectIds = $classSubjects->pluck('id');
+
+        $subjects = $classSubjects->load(['subject:id,name', 'teacher:id,name'])
+            ->map(fn ($cs) => [
+                'id' => $cs->id,
+                'subject_name' => $cs->subject?->name ?? '-',
+                'teacher_name' => $cs->teacher?->name ?? '-',
+            ])
+            ->values()
+            ->all();
 
         $assessmentsQuery = Assessment::whereIn('class_subject_id', $classSubjectIds)
             ->with([
@@ -440,6 +453,9 @@ class StudentAssessmentService
                 'classSubject.teacher:id,name',
             ])
             ->withCount('questions')
+            ->when($filters['class_subject_id'] ?? null, function ($query, $classSubjectId) {
+                return $query->where('class_subject_id', $classSubjectId);
+            })
             ->when($filters['search'] ?? null, function ($query, $search) {
                 return $query->where('title', 'like', "%{$search}%");
             })
@@ -467,7 +483,10 @@ class StudentAssessmentService
             );
         }
 
-        return $assessments;
+        return [
+            'assignments' => $assessments,
+            'subjects' => $subjects,
+        ];
     }
 
     /**

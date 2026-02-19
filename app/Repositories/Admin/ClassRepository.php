@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Services\Admin;
+namespace App\Repositories\Admin;
 
-use App\Models\AcademicYear;
+use App\Contracts\Repositories\ClassRepositoryInterface;
 use App\Models\ClassModel;
 use App\Models\Level;
+use App\Services\Core\CacheService;
 use App\Services\Traits\Paginatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Class Query Service - Handle class queries, filtering, and pagination
@@ -17,13 +17,13 @@ use Illuminate\Support\Facades\Cache;
  * This follows Single Responsibility Principle by focusing only on querying.
  * Performance: Uses cache for frequently accessed, rarely modified data.
  */
-class ClassQueryService
+class ClassRepository implements ClassRepositoryInterface
 {
     use Paginatable;
 
-    private const CACHE_TTL = 3600;
-
-    private const CACHE_KEY_LEVELS = 'levels:all';
+    public function __construct(
+        private readonly CacheService $cacheService
+    ) {}
 
     /**
      * Get paginated classes for index page with filters
@@ -32,15 +32,15 @@ class ClassQueryService
     {
         $query = ClassModel::query()
             ->forAcademicYear($academicYearId)
-            ->with(['academicYear', 'level'])
+            ->with(['level'])
             ->withCount([
                 'enrollments as active_enrollments_count' => function ($query) {
                     $query->where('status', 'active');
                 },
                 'classSubjects as subjects_count',
             ])
-            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
-            ->when($filters['level_id'] ?? null, fn ($query, $levelId) => $query->where('level_id', $levelId))
+            ->when($filters['search'] ?? null, fn($query, $search) => $query->where('name', 'like', "%{$search}%"))
+            ->when($filters['level_id'] ?? null, fn($query, $levelId) => $query->where('level_id', $levelId))
             ->orderBy('level_id')
             ->orderBy('name');
 
@@ -52,9 +52,10 @@ class ClassQueryService
      */
     public function getAllLevels(): Collection
     {
-        return Cache::remember(self::CACHE_KEY_LEVELS, self::CACHE_TTL, function () {
-            return Level::orderBy('name')->get();
-        });
+        return $this->cacheService->remember(
+            CacheService::KEY_LEVELS_ALL,
+            fn() => Level::orderBy('name')->get()
+        );
     }
 
     /**
@@ -62,29 +63,7 @@ class ClassQueryService
      */
     public function invalidateLevelsCache(): void
     {
-        Cache::forget(self::CACHE_KEY_LEVELS);
-    }
-
-    /**
-     * Get form data for create page
-     */
-    public function getCreateFormData(int $selectedYearId): array
-    {
-        return [
-            'levels' => $this->getAllLevels(),
-            'selectedAcademicYear' => AcademicYear::find($selectedYearId),
-        ];
-    }
-
-    /**
-     * Get form data for edit page
-     */
-    public function getEditFormData(ClassModel $class): array
-    {
-        return [
-            'class' => $class->load(['academicYear', 'level']),
-            'levels' => $this->getAllLevels(),
-        ];
+        $this->cacheService->forget(CacheService::KEY_LEVELS_ALL);
     }
 
     /**

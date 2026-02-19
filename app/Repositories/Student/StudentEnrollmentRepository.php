@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Student;
+namespace App\Repositories\Student;
 
 use App\Models\ClassSubject;
 use App\Models\Enrollment;
@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
  * Handles all read operations for student enrollments.
  * Single Responsibility: Query student enrollment data only.
  */
-class StudentEnrollmentQueryService
+class StudentEnrollmentRepository
 {
     /**
      * Get all subjects with stats for a student's enrollment (non-paginated).

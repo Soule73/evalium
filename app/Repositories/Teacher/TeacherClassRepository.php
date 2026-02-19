@@ -1,15 +1,19 @@
 <?php
 
-namespace App\Services\Teacher;
+namespace App\Repositories\Teacher;
 
+use App\Contracts\Repositories\TeacherClassRepositoryInterface;
 use App\Models\Assessment;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
+use App\Services\Traits\Paginatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
-class TeacherClassQueryService
+class TeacherClassRepository implements TeacherClassRepositoryInterface
 {
+    use Paginatable;
+
     /**
      * Get all classes where the teacher is assigned with optimized queries.
      */
@@ -23,7 +27,6 @@ class TeacherClassQueryService
             ->forAcademicYear($selectedYearId)
             ->active()
             ->with([
-                'class.academicYear',
                 'class.level',
                 'subject',
             ])
@@ -34,7 +37,7 @@ class TeacherClassQueryService
         $classIds = $classSubjectsByClassId->keys();
 
         $classes = ClassModel::whereIn('id', $classIds)
-            ->with(['academicYear', 'level'])
+            ->with(['level'])
             ->withCount(['enrollments as active_enrollments_count' => function ($query) {
                 $query->where('status', 'active');
             }])
@@ -48,18 +51,7 @@ class TeacherClassQueryService
 
         $classes = $this->applyClassFilters($classes, $filters);
 
-        $page = request()->input('page', 1);
-        $offset = ($page - 1) * $perPage;
-        $total = $classes->count();
-        $items = $classes->slice($offset, $perPage)->values();
-
-        return new \Illuminate\Pagination\LengthAwarePaginator(
-            $items,
-            $total,
-            $perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
+        return $this->paginateCollection($classes, $perPage);
     }
 
     /**
@@ -77,9 +69,9 @@ class TeacherClassQueryService
             ->withCount('assessments')
             ->when(
                 $filters['subjects_search'] ?? null,
-                fn ($query, $search) => $query->whereHas(
+                fn($query, $search) => $query->whereHas(
                     'subject',
-                    fn ($q) => $q->where('name', 'like', "%{$search}%")
+                    fn($q) => $q->where('name', 'like', "%{$search}%")
                 )
             )
             ->paginate($perPage, ['*'], 'subjects_page')
@@ -104,7 +96,7 @@ class TeacherClassQueryService
             ->with(['classSubject.subject'])
             ->when(
                 $filters['assessments_search'] ?? null,
-                fn ($query, $search) => $query->where('title', 'like', "%{$search}%")
+                fn($query, $search) => $query->where('title', 'like', "%{$search}%")
             )
             ->latest('scheduled_at')
             ->paginate($perPage, ['*'], 'assessments_page')
@@ -124,15 +116,38 @@ class TeacherClassQueryService
             ->with('student')
             ->when(
                 $filters['students_search'] ?? null,
-                fn ($query, $search) => $query->whereHas(
+                fn($query, $search) => $query->whereHas(
                     'student',
-                    fn ($q) => $q->where('name', 'like', "%{$search}%")
+                    fn($q) => $q->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
                 )
             )
             ->latest('enrolled_at')
             ->paginate($perPage, ['*'], 'students_page')
             ->withQueryString();
+    }
+
+    /**
+     * Get distinct active classes for a teacher using an efficient JOIN query.
+     *
+     * @return Collection<int, object{class_id: int, class_name: string, level_name: string, level_description: string}>
+     */
+    public function getActiveClassesForTeacher(int $teacherId, int $selectedYearId): Collection
+    {
+        return ClassSubject::query()
+            ->select([
+                'classes.id as class_id',
+                'classes.name as class_name',
+                'levels.name as level_name',
+                'levels.description as level_description',
+            ])
+            ->join('classes', 'classes.id', '=', 'class_subjects.class_id')
+            ->join('levels', 'levels.id', '=', 'classes.level_id')
+            ->where('class_subjects.teacher_id', $teacherId)
+            ->whereNull('class_subjects.valid_to')
+            ->where('classes.academic_year_id', $selectedYearId)
+            ->distinct()
+            ->get();
     }
 
     /**

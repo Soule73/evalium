@@ -1,14 +1,20 @@
 <?php
 
-namespace App\Services\Teacher;
+namespace App\Repositories\Teacher;
 
+use App\Contracts\Repositories\TeacherAssessmentRepositoryInterface;
+use App\Contracts\Repositories\TeacherClassRepositoryInterface;
 use App\Models\Assessment;
 use App\Models\ClassSubject;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
-class TeacherAssessmentQueryService
+class TeacherAssessmentRepository implements TeacherAssessmentRepositoryInterface
 {
+    public function __construct(
+        private readonly TeacherClassRepositoryInterface $classQueryService
+    ) {}
+
     /**
      * Get assessments for a teacher with filters and pagination.
      */
@@ -19,24 +25,29 @@ class TeacherAssessmentQueryService
         int $perPage
     ): LengthAwarePaginator {
         return Assessment::query()
-            ->with(['classSubject.class.academicYear', 'classSubject.class.level', 'classSubject.subject', 'questions'])
+            ->with(['classSubject.class.level', 'classSubject.subject'])
+            ->withCount('questions')
             ->forAcademicYear($selectedYearId)
-            ->whereHas('classSubject', fn ($query) => $query->where('teacher_id', $teacherId))
+            ->whereHas('classSubject', fn($query) => $query->where('teacher_id', $teacherId))
             ->when(
                 $filters['search'] ?? null,
-                fn ($query, $search) => $query->where('title', 'like', "%{$search}%")
+                fn($query, $search) => $query->where('title', 'like', "%{$search}%")
             )
             ->when(
                 $filters['class_subject_id'] ?? null,
-                fn ($query, $classSubjectId) => $query->where('class_subject_id', $classSubjectId)
+                fn($query, $classSubjectId) => $query->where('class_subject_id', $classSubjectId)
+            )
+            ->when(
+                $filters['class_id'] ?? null,
+                fn($query, $classId) => $query->whereHas('classSubject', fn($q) => $q->where('class_id', $classId))
             )
             ->when(
                 $filters['type'] ?? null,
-                fn ($query, $type) => $query->where('type', $type)
+                fn($query, $type) => $query->where('type', $type)
             )
             ->when(
                 isset($filters['is_published']),
-                fn ($query) => $query->where('is_published', (bool) $filters['is_published'])
+                fn($query) => $query->where('is_published', (bool) $filters['is_published'])
             )
             ->orderBy('scheduled_at', 'desc')
             ->paginate($perPage)
@@ -51,14 +62,24 @@ class TeacherAssessmentQueryService
         int $selectedYearId,
         array $withRelations = []
     ): Collection {
-        $defaultRelations = ['class', 'subject'];
-        $relations = array_merge($defaultRelations, $withRelations);
+        $defaultRelations = ['class.level', 'subject'];
+        $relations = array_unique(array_merge($defaultRelations, $withRelations));
 
         return ClassSubject::where('teacher_id', $teacherId)
             ->forAcademicYear($selectedYearId)
             ->with($relations)
             ->active()
             ->get();
+    }
+
+    /**
+     * Get distinct classes for the filter dropdown using a single JOIN query.
+     *
+     * @return Collection<int, object{class_id: int, class_name: string, level_name: string, level_description: string}>
+     */
+    public function getClassFilterDataForTeacher(int $teacherId, int $selectedYearId): Collection
+    {
+        return $this->classQueryService->getActiveClassesForTeacher($teacherId, $selectedYearId);
     }
 
     /**
@@ -72,7 +93,7 @@ class TeacherAssessmentQueryService
             'classSubject.subject',
             'classSubject.teacher',
             'questions.choices',
-            'assignments.student',
+            'assignments.enrollment.student',
         ]);
     }
 

@@ -2,6 +2,8 @@
 
 namespace App\Services\Admin;
 
+use App\Contracts\Repositories\ClassRepositoryInterface;
+use App\Contracts\Services\ClassServiceInterface;
 use App\Exceptions\ClassException;
 use App\Exceptions\ValidationException;
 use App\Models\AcademicYear;
@@ -15,11 +17,33 @@ use Illuminate\Support\Facades\DB;
  * Handles create, update, delete, and duplicate operations for classes.
  * Query operations are delegated to ClassQueryService following SRP.
  */
-class ClassService
+class ClassService implements ClassServiceInterface
 {
     public function __construct(
-        private readonly ClassQueryService $classQueryService
+        private readonly ClassRepositoryInterface $classQueryService
     ) {}
+
+    /**
+     * Get form data for the create page.
+     */
+    public function getCreateFormData(int $selectedYearId): array
+    {
+        return [
+            'levels' => $this->classQueryService->getAllLevels(),
+            'selectedAcademicYear' => AcademicYear::find($selectedYearId),
+        ];
+    }
+
+    /**
+     * Get form data for the edit page.
+     */
+    public function getEditFormData(ClassModel $class): array
+    {
+        return [
+            'class' => $class->load(['academicYear', 'level']),
+            'levels' => $this->classQueryService->getAllLevels(),
+        ];
+    }
 
     /**
      * Create a new class for an academic year
@@ -50,7 +74,7 @@ class ClassService
             'name' => $data['name'] ?? null,
             'description' => $data['description'] ?? null,
             'max_students' => $data['max_students'] ?? null,
-        ], fn ($value) => $value !== null);
+        ], fn($value) => $value !== null);
 
         $class->update($updateData);
 
