@@ -80,7 +80,7 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
     return (
         <AuthenticatedLayout
             title={translations.showTitle}
-            breadcrumb={breadcrumbs.admin.showClassSubject(classSubject)}
+            breadcrumb={breadcrumbs.admin.classSubjects()}
         >
             <div className="space-y-6">
                 <Section
@@ -97,32 +97,32 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
                                 },
                                 ...(canUpdate && isActive
                                     ? [
-                                          {
-                                              label: translations.replaceTeacher,
-                                              onClick: () => setReplaceTeacherModal(true),
-                                              color: 'primary' as const,
-                                              icon: UserIcon,
-                                          },
-                                      ]
+                                        {
+                                            label: translations.replaceTeacher,
+                                            onClick: () => setReplaceTeacherModal(true),
+                                            color: 'primary' as const,
+                                            icon: UserIcon,
+                                        },
+                                    ]
                                     : []),
                             ]}
                             dropdownActions={
                                 canUpdate && isActive
                                     ? [
-                                          {
-                                              label: translations.updateCoefficient,
-                                              onClick: () => setCoefficientModal(true),
-                                              icon: HashtagIcon,
-                                              color: 'warning' as const,
-                                          },
-                                          'divider',
-                                          {
-                                              label: translations.terminate,
-                                              onClick: () => setTerminateModal(true),
-                                              icon: XMarkIcon,
-                                              color: 'danger' as const,
-                                          },
-                                      ]
+                                        {
+                                            label: translations.updateCoefficient,
+                                            onClick: () => setCoefficientModal(true),
+                                            icon: HashtagIcon,
+                                            color: 'warning' as const,
+                                        },
+                                        'divider',
+                                        {
+                                            label: translations.terminate,
+                                            onClick: () => setTerminateModal(true),
+                                            icon: XMarkIcon,
+                                            color: 'danger' as const,
+                                        },
+                                    ]
                                     : []
                             }
                         />

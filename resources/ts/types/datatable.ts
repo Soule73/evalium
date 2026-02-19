@@ -23,10 +23,11 @@ export interface PaginationType<T> {
 export interface FilterConfig {
     key: string;
     label: string;
-    type: 'text' | 'select';
+    type: 'text' | 'select' | 'boolean';
     placeholder?: string;
     options?: { value: string; label: string }[];
     defaultValue?: string;
+    trueValue?: string;
 }
 
 export interface ColumnConfig<T> {

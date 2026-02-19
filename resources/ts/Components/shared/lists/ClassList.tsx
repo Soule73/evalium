@@ -44,7 +44,7 @@ export function ClassList({ data, variant = 'admin', levels = [], onView }: Clas
                     labelKey: 'admin_pages.classes.level',
                     type: 'select' as const,
                     options: levelFilterOptions,
-                    conditional: (v: string) => v === 'admin',
+                    conditional: (v: string) => v === 'admin' || v === 'teacher',
                 },
             ],
 

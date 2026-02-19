@@ -21,6 +21,11 @@ interface ClassOption {
     name: string;
 }
 
+interface SimpleFilterOption {
+    id: number;
+    name: string;
+}
+
 interface AssessmentListProps {
     data: PaginationType<AssessmentItem>;
     variant?: 'admin' | 'teacher' | 'student' | 'class-assignment';
@@ -30,6 +35,8 @@ interface AssessmentListProps {
     subjects?: ClassSubjectOption[];
     classes?: ClassOption[];
     enrollment?: Enrollment;
+    filterSubjects?: SimpleFilterOption[];
+    filterTeachers?: SimpleFilterOption[];
 }
 
 type AssessmentItem = Assessment | AssessmentAssignment;
@@ -416,6 +423,40 @@ function buildAssignmentFilters(
     ];
 }
 
+function buildAdminFilters(
+    filterSubjects: SimpleFilterOption[],
+    filterTeachers: SimpleFilterOption[],
+    t: TranslateFn,
+): FilterConfig[] {
+    const filters: FilterConfig[] = [];
+
+    if (filterSubjects.length > 0) {
+        filters.push({
+            key: 'subject_id',
+            labelKey: 'components.assessment_list.subject_label',
+            type: 'select',
+            options: [
+                { value: '', label: t('components.assessment_list.all_subjects') },
+                ...filterSubjects.map((s) => ({ value: s.id, label: s.name })),
+            ],
+        });
+    }
+
+    if (filterTeachers.length > 0) {
+        filters.push({
+            key: 'teacher_id',
+            labelKey: 'components.assessment_list.teacher_label',
+            type: 'select',
+            options: [
+                { value: '', label: t('components.assessment_list.all_teachers') },
+                ...filterTeachers.map((t) => ({ value: t.id, label: t.name })),
+            ],
+        });
+    }
+
+    return filters;
+}
+
 function buildTeacherFilters(
     classes: ClassOption[],
     t: TranslateFn,
@@ -450,6 +491,8 @@ export function AssessmentList({
     subjects = [],
     classes = [],
     enrollment,
+    filterSubjects = [],
+    filterTeachers = [],
 }: AssessmentListProps) {
     const { t } = useTranslations();
     const { formatDuration } = useFormatters();
@@ -488,9 +531,11 @@ export function AssessmentList({
         const actions = buildActions({ onView, enrollment });
         const filters = isAssignmentVariant(variant)
             ? buildAssignmentFilters(variant, subjects, t)
-            : variant === 'teacher' && classes.length > 0
-                ? buildTeacherFilters(classes, t)
-                : undefined;
+            : variant === 'admin' && (filterSubjects.length > 0 || filterTeachers.length > 0)
+                ? buildAdminFilters(filterSubjects, filterTeachers, t)
+                : variant === 'teacher' && classes.length > 0
+                    ? buildTeacherFilters(classes, t)
+                    : undefined;
 
         return {
             entity: 'assessment',
@@ -498,7 +543,7 @@ export function AssessmentList({
             actions,
             ...(filters && { filters }),
         };
-    }, [variant, showClassColumn, onView, handleToggleStatus, formatDuration, t, enrollment, subjects, classes]);
+    }, [variant, showClassColumn, onView, handleToggleStatus, formatDuration, t, enrollment, subjects, classes, filterSubjects, filterTeachers]);
 
     return (
         <BaseEntityList

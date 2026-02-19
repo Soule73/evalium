@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Select } from '@/Components';
-import { Input } from '@evalium/ui';
+import { Input, Toggle } from '@evalium/ui';
 import { FunnelIcon } from '@heroicons/react/24/outline';
 import { type FilterConfig } from '@/types/datatable';
 import { useTranslations } from '@/hooks/shared/useTranslations';
@@ -78,6 +78,24 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(
                                     className="min-w-37.5 text-sm"
                                     searchable={filter.options.length > 5}
                                 />
+                            ) : filter.type === 'boolean' ? (
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-gray-600">{filter.label}</span>
+                                    <Toggle
+                                        id={`datatable-filter-${filter.key}`}
+                                        checked={
+                                            values[filter.key] === (filter.trueValue ?? '1')
+                                        }
+                                        onChange={(checked) =>
+                                            onFilterChange(
+                                                filter.key,
+                                                checked ? (filter.trueValue ?? '1') : '',
+                                            )
+                                        }
+                                        size="sm"
+                                        color="blue"
+                                    />
+                                </div>
                             ) : (
                                 <Input
                                     type="text"

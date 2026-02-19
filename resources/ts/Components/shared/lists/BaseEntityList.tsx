@@ -39,18 +39,24 @@ export function BaseEntityList<T extends { id: number | string }>({
         () =>
             config.filters
                 ?.filter((filter) => !filter.conditional || filter.conditional(variant))
-                .filter((filter) => filter.type === 'text' || filter.type === 'select')
+                .filter(
+                    (filter) =>
+                        filter.type === 'text' ||
+                        filter.type === 'select' ||
+                        filter.type === 'boolean',
+                )
                 .map((filter) => ({
                     key: filter.key,
                     label: t(filter.labelKey),
-                    type: filter.type as 'text' | 'select',
+                    type: filter.type as 'text' | 'select' | 'boolean',
+                    trueValue: filter.trueValue,
                     ...(filter.type === 'select' && filter.options
                         ? {
-                              options: filter.options.map((opt) => ({
-                                  value: String(opt.value),
-                                  label: opt.label,
-                              })),
-                          }
+                            options: filter.options.map((opt) => ({
+                                value: String(opt.value),
+                                label: opt.label,
+                            })),
+                        }
                         : {}),
                 })),
         [config.filters, variant, t],

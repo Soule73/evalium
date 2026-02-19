@@ -31,9 +31,10 @@ export interface ActionConfig<T> {
 export interface FilterConfig {
     key: string;
     labelKey: string;
-    type: 'select' | 'text' | 'date' | 'daterange';
+    type: 'select' | 'text' | 'date' | 'daterange' | 'boolean';
     options?: Array<{ value: string | number; label: string }>;
     conditional?: (variant: EntityListVariant) => boolean;
+    trueValue?: string;
 }
 
 /**

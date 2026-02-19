@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { type ClassSubject } from '@/types';
+import { type ClassSubject, type ClassModel, type Subject, type User } from '@/types';
 import { Badge } from '@evalium/ui';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
@@ -11,6 +11,9 @@ import type { PaginationType } from '@/types/datatable';
 interface ClassSubjectListProps {
     data: PaginationType<ClassSubject>;
     variant?: 'admin' | 'teacher';
+    classes?: ClassModel[];
+    subjects?: Subject[];
+    teachers?: User[];
     showClassColumn?: boolean;
     showTeacherColumn?: boolean;
     showAssessmentsColumn?: boolean;
@@ -29,6 +32,9 @@ interface ClassSubjectListProps {
 export function ClassSubjectList({
     data,
     variant = 'admin',
+    classes = [],
+    subjects = [],
+    teachers = [],
     showClassColumn = true,
     showTeacherColumn = true,
     showAssessmentsColumn = true,
@@ -153,7 +159,12 @@ export function ClassSubjectList({
                         if (onView) {
                             onView(classSubject);
                         } else {
-                            router.visit(route('admin.class-subjects.show', classSubject.id));
+                            router.visit(
+                                route('admin.classes.subjects.show', {
+                                    class: classSubject.class_id,
+                                    class_subject: classSubject.id,
+                                }),
+                            );
                         }
                     },
                     color: 'secondary' as const,
@@ -171,8 +182,60 @@ export function ClassSubjectList({
                         v === 'teacher' && !!onCreateAssessment,
                 },
             ],
+            filters: [
+                {
+                    key: 'class_id',
+                    labelKey: 'admin_pages.class_subjects.class',
+                    type: 'select' as const,
+                    options: [
+                        { value: '', label: t('admin_pages.class_subjects.all_classes') },
+                        ...classes.map((c) => ({ value: String(c.id), label: `${c.name} (${c.level?.name ?? ''})` })),
+                    ],
+                    conditional: (v) => v === 'admin',
+                },
+                {
+                    key: 'subject_id',
+                    labelKey: 'admin_pages.class_subjects.subject',
+                    type: 'select' as const,
+                    options: [
+                        { value: '', label: t('admin_pages.class_subjects.all_subjects') },
+                        ...subjects.map((s) => ({ value: String(s.id), label: s.name })),
+                    ],
+                    conditional: (v) => v === 'admin',
+                },
+                {
+                    key: 'teacher_id',
+                    labelKey: 'admin_pages.class_subjects.teacher',
+                    type: 'select' as const,
+                    options: [
+                        { value: '', label: t('admin_pages.class_subjects.all_teachers') },
+                        ...teachers.map((teacher) => ({
+                            value: String(teacher.id),
+                            label: teacher.name,
+                        })),
+                    ],
+                    conditional: (v) => v === 'admin',
+                },
+                {
+                    key: 'active_only',
+                    labelKey: 'admin_pages.class_subjects.active_only',
+                    type: 'boolean' as const,
+                    trueValue: '0',
+                    conditional: (v) => v === 'admin',
+                },
+            ],
         }),
-        [showClassColumn, showTeacherColumn, showAssessmentsColumn, onView, onCreateAssessment, t],
+        [
+            showClassColumn,
+            showTeacherColumn,
+            showAssessmentsColumn,
+            onView,
+            onCreateAssessment,
+            classes,
+            subjects,
+            teachers,
+            t,
+        ],
     );
 
     return (

@@ -116,6 +116,18 @@ export function LevelList({
                         ) : null,
                 },
             ],
+            filters: [
+                {
+                    key: 'status',
+                    labelKey: 'admin_pages.levels.status',
+                    type: 'select' as const,
+                    options: [
+                        { value: '', label: t('admin_pages.levels.all_status') },
+                        { value: '1', label: t('admin_pages.common.active') },
+                        { value: '0', label: t('admin_pages.common.inactive') },
+                    ],
+                },
+            ],
         }),
         [permissions.canUpdate, permissions.canDelete, onToggleStatus, onEdit, onDelete, t],
     );
