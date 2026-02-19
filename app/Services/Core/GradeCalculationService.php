@@ -3,6 +3,7 @@
 namespace App\Services\Core;
 
 use App\Models\AcademicYear;
+use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
@@ -443,6 +444,10 @@ class GradeCalculationService
     /**
      * Get paginated assignments for an enrollment with optional filters.
      *
+     * Queries all assessments from the enrollment's class subjects (not just
+     * existing assignments), creating virtual AssessmentAssignment objects
+     * for assessments that haven't been started yet.
+     *
      * @param  Enrollment  $enrollment  The enrollment to query
      * @param  array  $filters  Optional filters (search, class_subject_id, status)
      * @param  int  $perPage  Items per page
@@ -450,35 +455,56 @@ class GradeCalculationService
      */
     public function getEnrollmentAssignments(Enrollment $enrollment, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = AssessmentAssignment::where('enrollment_id', $enrollment->id)
-            ->with([
-                'assessment.questions:id,assessment_id,points',
-                'assessment.classSubject.subject',
-                'assessment.classSubject.teacher',
-            ]);
+        $enrollment->loadMissing('class.classSubjects');
 
-        if (! empty($filters['class_subject_id'])) {
-            $query->whereHas('assessment', function ($q) use ($filters) {
-                $q->where('class_subject_id', $filters['class_subject_id']);
-            });
-        }
+        $classSubjectIds = $enrollment->class->classSubjects->pluck('id');
+
+        $assessmentsQuery = Assessment::whereIn('class_subject_id', $classSubjectIds)
+            ->with([
+                'questions:id,assessment_id,points',
+                'classSubject.subject',
+                'classSubject.teacher',
+            ])
+            ->when(! empty($filters['class_subject_id']), function ($query) use ($filters) {
+                $query->where('class_subject_id', $filters['class_subject_id']);
+            })
+            ->when(! empty($filters['search']), function ($query) use ($filters) {
+                $query->where('title', 'like', "%{$filters['search']}%");
+            })
+            ->latest('created_at');
+
+        $paginator = $assessmentsQuery->paginate($perPage)->withQueryString();
+
+        $assessmentItems = collect($paginator->items());
+
+        $existingAssignments = AssessmentAssignment::whereIn('assessment_id', $assessmentItems->pluck('id'))
+            ->where('enrollment_id', $enrollment->id)
+            ->get()
+            ->keyBy('assessment_id');
+
+        $assignments = $assessmentItems->map(function (Assessment $assessment) use ($enrollment, $existingAssignments) {
+            $assignment = $existingAssignments->get($assessment->id);
+
+            if (! $assignment) {
+                $assignment = new AssessmentAssignment([
+                    'assessment_id' => $assessment->id,
+                    'enrollment_id' => $enrollment->id,
+                ]);
+            }
+
+            $assignment->assessment = $assessment;
+
+            return $assignment;
+        });
 
         if (! empty($filters['status'])) {
-            match ($filters['status']) {
-                'graded' => $query->whereNotNull('graded_at'),
-                'submitted' => $query->whereNotNull('submitted_at')->whereNull('graded_at'),
-                'in_progress' => $query->whereNotNull('started_at')->whereNull('submitted_at'),
-                'not_submitted' => $query->whereNull('started_at'),
-                default => null,
-            };
+            $assignments = $assignments->filter(function (AssessmentAssignment $assignment) use ($filters) {
+                return $assignment->status === $filters['status'];
+            })->values();
         }
 
-        if (! empty($filters['search'])) {
-            $query->whereHas('assessment', function ($q) use ($filters) {
-                $q->where('title', 'like', "%{$filters['search']}%");
-            });
-        }
+        $paginator->setCollection($assignments);
 
-        return $query->latest('created_at')->paginate($perPage)->withQueryString();
+        return $paginator;
     }
 }
