@@ -25,13 +25,15 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
     if (!isOpen) return null;
 
+    const isFullSize = size === 'full';
+
     const sizeClasses = {
         sm: 'max-w-sm',
         md: 'max-w-md',
         lg: 'max-w-lg',
         xl: 'max-w-xl',
         '2xl': 'max-w-2xl',
-        full: 'w-full h-full',
+        full: 'w-[calc(100%-2rem)] h-[calc(100vh-2rem)] flex flex-col',
     };
 
     return (
@@ -44,19 +46,23 @@ const Modal: React.FC<ModalProps> = ({
                 className={`bg-white rounded-lg shadow-lg z-10 p-6 ${sizeClasses[size]} ${className}`}
             >
                 {title && (
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+                    <div className="flex items-center justify-between mb-4 shrink-0">
+                        <h3 className="text-lg font-semibold text-gray-900 truncate">{title}</h3>
                         {isCloseableInside && (
                             <button
                                 onClick={onClose}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                className="text-gray-400 hover:text-gray-600 transition-colors shrink-0"
                             >
                                 <XMarkIcon className="w-5 h-5" />
                             </button>
                         )}
                     </div>
                 )}
-                {children}
+                {isFullSize ? (
+                    <div className="flex-1 min-h-0 flex flex-col">{children}</div>
+                ) : (
+                    children
+                )}
             </div>
         </div>
     );

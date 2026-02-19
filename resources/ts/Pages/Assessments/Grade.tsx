@@ -4,6 +4,7 @@ import {
     type Assessment,
     type AssessmentAssignment,
     type Answer,
+    type AssignmentAttachment,
     type User,
     type Question,
     type PageProps,
@@ -18,8 +19,9 @@ import {
     Textarea,
     ConfirmationModal,
     Stat,
-    QuestionReviewList,
+    QuestionList,
 } from '@/Components';
+import { FileList } from '@/Components/shared/lists';
 import { hasPermission } from '@/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
@@ -36,6 +38,7 @@ interface Props {
     student: User;
     assignment: AssessmentAssignment;
     userAnswers: Record<number, Answer>;
+    attachments?: AssignmentAttachment[];
     routeContext?: AssessmentRouteContext;
 }
 
@@ -44,6 +47,7 @@ export default function GradeAssignment({
     student,
     assignment,
     userAnswers = {},
+    attachments = [],
     routeContext,
 }: Props) {
     const { t } = useTranslations();
@@ -98,13 +102,13 @@ export default function GradeAssignment({
 
     const saveGradeUrl = routeContext?.saveGradeRoute
         ? route(routeContext.saveGradeRoute, {
-              assessment: assessment.id,
-              assignment: assignment.id,
-          })
+            assessment: assessment.id,
+            assignment: assignment.id,
+        })
         : route('teacher.assessments.saveGrade', {
-              assessment: assessment.id,
-              assignment: assignment.id,
-          });
+            assessment: assessment.id,
+            assignment: assignment.id,
+        });
 
     const handleConfirmSubmit = useCallback(() => {
         setIsSubmitting(true);
@@ -128,57 +132,60 @@ export default function GradeAssignment({
         );
     }, [assessment, editableScores, feedbacks, teacherNotes, saveGradeUrl]);
 
-    const renderScoreInput = (question: Question) => {
-        const questionScore = editableScores[question.id] || 0;
-        const maxScore = question.points || 0;
-        const isAutoGraded = !requiresManualGrading(question);
+    const renderScoreInput = useCallback(
+        (question: Question) => {
+            const questionScore = editableScores[question.id] || 0;
+            const maxScore = question.points || 0;
+            const isAutoGraded = !requiresManualGrading(question);
 
-        return (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <label className="text-sm font-medium text-gray-700">
-                            {t('grading_pages.show.question_score_label', { max: maxScore })}
-                        </label>
-                        {isAutoGraded && (
-                            <p className="text-xs text-indigo-600 mt-1">
-                                {t('grading_pages.show.auto_graded_info')}
-                            </p>
-                        )}
-                        {!isAutoGraded && (
-                            <p className="text-xs text-orange-600 mt-1">
-                                {t('grading_pages.show.manual_grading_required')}
-                            </p>
-                        )}
+            return (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">
+                                {t('grading_pages.show.question_score_label', { max: maxScore })}
+                            </label>
+                            {isAutoGraded && (
+                                <p className="text-xs text-indigo-600 mt-1">
+                                    {t('grading_pages.show.auto_graded_info')}
+                                </p>
+                            )}
+                            {!isAutoGraded && (
+                                <p className="text-xs text-orange-600 mt-1">
+                                    {t('grading_pages.show.manual_grading_required')}
+                                </p>
+                            )}
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="number"
+                                min="0"
+                                max={maxScore}
+                                step="0.5"
+                                value={questionScore}
+                                onChange={(e) => handleScoreChange(question.id, e.target.value)}
+                                className="w-20 px-2 py-1 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                                disabled={!canGradeAssessments}
+                            />
+                            <span className="text-sm text-gray-500">/ {maxScore}</span>
+                        </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <input
-                            type="number"
-                            min="0"
-                            max={maxScore}
-                            step="0.5"
-                            value={questionScore}
-                            onChange={(e) => handleScoreChange(question.id, e.target.value)}
-                            className="w-20 px-2 py-1 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+
+                    <div>
+                        <Textarea
+                            label={t('grading_pages.show.question_comment_label')}
+                            value={feedbacks[question.id] || ''}
+                            onChange={(e) => handleFeedbackChange(question.id, e.target.value)}
+                            placeholder={t('grading_pages.show.question_comment_placeholder')}
+                            rows={2}
                             disabled={!canGradeAssessments}
                         />
-                        <span className="text-sm text-gray-500">/ {maxScore}</span>
                     </div>
                 </div>
-
-                <div>
-                    <Textarea
-                        label={t('grading_pages.show.question_comment_label')}
-                        value={feedbacks[question.id] || ''}
-                        onChange={(e) => handleFeedbackChange(question.id, e.target.value)}
-                        placeholder={t('grading_pages.show.question_comment_placeholder')}
-                        rows={2}
-                        disabled={!canGradeAssessments}
-                    />
-                </div>
-            </div>
-        );
-    };
+            );
+        },
+        [editableScores, feedbacks, canGradeAssessments, handleScoreChange, handleFeedbackChange, t],
+    );
 
     const pageBreadcrumbs = routeContext
         ? breadcrumbs.assessment.grade(routeContext, assessment, student)
@@ -246,7 +253,7 @@ export default function GradeAssignment({
                     </Stat.Group>
                 </Section>
 
-                <QuestionReviewList
+                <QuestionList
                     title={t('grading_pages.show.questions_correction')}
                     questions={assessment.questions ?? []}
                     getQuestionResult={getQuestionResult}
@@ -254,6 +261,12 @@ export default function GradeAssignment({
                     isEditMode={canGradeAssessments}
                     renderScoreInput={renderScoreInput}
                 />
+
+                {attachments.length > 0 && (
+                    <Section title={t('grading_pages.show.student_files_title')}>
+                        <FileList attachments={attachments} readOnly />
+                    </Section>
+                )}
 
                 <Section title={t('grading_pages.show.teacher_notes_label')}>
                     <Textarea

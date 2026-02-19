@@ -3,10 +3,11 @@ import {
     type AssessmentAssignment,
     type Question,
     type Answer,
-    type Choice,
+    type QuestionResult,
 } from '@/types';
+import { buildQuestionResult } from '@/utils/assessment/utils';
 import { useFormatters } from '@/hooks/shared/useFormatters';
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 
 interface UseAssessmentResultParams {
     assessment: Assessment;
@@ -49,110 +50,10 @@ const useAssessmentResults = ({
 
     const showCorrectAnswers = canShowCorrectAnswers;
 
-    const getQuestionResult = useMemo(() => {
-        return (question: Question) => {
-            const userAnswer = userAnswers[question.id];
-
-            if (!userAnswer) {
-                return {
-                    isCorrect: null,
-                    userChoices: [],
-                    hasMultipleAnswers: false,
-                    feedback: null,
-                };
-            }
-
-            if (question.type === 'multiple') {
-                if (userAnswer.choices && Array.isArray(userAnswer.choices)) {
-                    const selectedChoices = userAnswer.choices
-                        .map((c) => c.choice)
-                        .filter(
-                            (choice): choice is Choice => choice !== null && choice !== undefined,
-                        );
-
-                    const correctChoices = (question.choices ?? []).filter((c) => c.is_correct);
-
-                    const selectedChoiceIds = new Set(selectedChoices.map((choice) => choice.id));
-                    const correctChoiceIds = new Set(correctChoices.map((choice) => choice.id));
-
-                    const hasAllCorrectChoices =
-                        correctChoiceIds.size === selectedChoiceIds.size &&
-                        [...correctChoiceIds].every((id) => selectedChoiceIds.has(id));
-
-                    const score =
-                        userAnswer.score !== undefined && userAnswer.score !== null
-                            ? userAnswer.score
-                            : hasAllCorrectChoices
-                              ? question.points
-                              : 0;
-
-                    return {
-                        isCorrect: hasAllCorrectChoices,
-                        userChoices: selectedChoices,
-                        hasMultipleAnswers: true,
-                        feedback: userAnswer.feedback,
-                        score: score,
-                    };
-                }
-
-                return {
-                    isCorrect: null,
-                    userChoices: [],
-                    hasMultipleAnswers: true,
-                    feedback: userAnswer.feedback,
-                    score: userAnswer.score ?? 0,
-                };
-            }
-
-            if (question.type === 'text') {
-                return {
-                    isCorrect: null,
-                    userChoices: [],
-                    userText: userAnswer.answer_text,
-                    hasMultipleAnswers: false,
-                    score: userAnswer.score,
-                    feedback: userAnswer.feedback,
-                };
-            }
-
-            if (question.type === 'one_choice') {
-                if (userAnswer.choice) {
-                    const selectedChoice = userAnswer.choice;
-                    const isCorrect = selectedChoice.is_correct;
-
-                    const score =
-                        userAnswer.score !== undefined && userAnswer.score !== null
-                            ? userAnswer.score
-                            : isCorrect
-                              ? question.points
-                              : 0;
-
-                    return {
-                        isCorrect,
-                        userChoices: [selectedChoice],
-                        hasMultipleAnswers: false,
-                        feedback: userAnswer.feedback,
-                        score: score,
-                    };
-                }
-
-                return {
-                    isCorrect: null,
-                    userChoices: [],
-                    hasMultipleAnswers: false,
-                    feedback: userAnswer.feedback,
-                    score: userAnswer.score ?? 0,
-                };
-            }
-
-            return {
-                isCorrect: null,
-                userChoices: [],
-                hasMultipleAnswers: false,
-                feedback: null,
-            };
-        };
-    }, [userAnswers]);
+    const getQuestionResult = useCallback(
+        (question: Question): QuestionResult => buildQuestionResult(question, userAnswers[question.id]),
+        [userAnswers],
+    );
 
     return {
         totalPoints,
@@ -167,3 +68,4 @@ const useAssessmentResults = ({
 };
 
 export default useAssessmentResults;
+

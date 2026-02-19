@@ -35,7 +35,8 @@ export const buildScoresMap = (userAnswers: Record<number, Answer>): Record<numb
 
 /**
  * Builds a QuestionResult from a question and its corresponding answer.
- * Supports optional overrides for editable scores/feedbacks (grading mode).
+ * Computes isCorrect for choice-based questions and infers score from correctness
+ * when no explicit score is stored. Supports optional overrides for editable scores/feedbacks.
  */
 export const buildQuestionResult = (
     question: Question,
@@ -47,13 +48,14 @@ export const buildQuestionResult = (
             isCorrect: null,
             userChoices: [],
             hasMultipleAnswers: question.type === 'multiple',
-            feedback: overrides?.feedbacks?.[question.id] || null,
-            score: overrides?.scores?.[question.id] || 0,
+            feedback: overrides?.feedbacks?.[question.id] ?? null,
+            score: overrides?.scores?.[question.id] ?? 0,
         };
     }
 
     const isMultipleChoice = question.type === 'multiple';
     const userChoices: Choice[] = [];
+    let isCorrect: boolean | null = null;
 
     if (isMultipleChoice && answer.choices) {
         answer.choices.forEach((c) => {
@@ -61,17 +63,35 @@ export const buildQuestionResult = (
                 userChoices.push(c.choice);
             }
         });
+        const correctChoices = (question.choices ?? []).filter((c) => c.is_correct);
+        const selectedIds = new Set(userChoices.map((c) => c.id));
+        const correctIds = new Set(correctChoices.map((c) => c.id));
+        isCorrect =
+            correctIds.size === selectedIds.size &&
+            [...correctIds].every((id) => selectedIds.has(id));
     } else if (answer.choice) {
         userChoices.push(answer.choice);
+        if (question.type === 'one_choice' || question.type === 'boolean') {
+            isCorrect = answer.choice.is_correct ?? null;
+        }
     }
 
+    const effectiveScore =
+        overrides?.scores?.[question.id] !== undefined
+            ? overrides.scores[question.id]
+            : answer.score !== undefined && answer.score !== null
+                ? answer.score
+                : isCorrect === true
+                    ? question.points ?? 0
+                    : 0;
+
     return {
-        isCorrect: null,
+        isCorrect,
         userChoices,
         hasMultipleAnswers: isMultipleChoice,
         userText: answer.answer_text,
         feedback: overrides?.feedbacks?.[question.id] ?? answer.feedback ?? null,
-        score: overrides?.scores?.[question.id] ?? answer.score ?? 0,
+        score: effectiveScore,
     };
 };
 export const calculatePercentage = (score: number, totalPoints: number): number => {

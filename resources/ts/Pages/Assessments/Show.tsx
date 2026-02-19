@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Button, ConfirmationModal, Section, Stat } from '@/Components';
+import { Button, ConfirmationModal, Section, Stat, QuestionList } from '@/Components';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { TextEntry, Toggle } from '@evalium/ui';
-import { type Assessment, type AssessmentAssignment, type AssessmentRouteContext } from '@/types';
+import { type Assessment, type AssessmentAssignment, type AssessmentRouteContext, type Question, type QuestionResult } from '@/types';
 import { type PaginationType } from '@/types/datatable';
 import {
     ClockIcon,
@@ -16,11 +16,6 @@ import {
 import { route } from 'ziggy-js';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { QuestionReadOnlySection } from '@/Components';
-import {
-    QuestionResultReadOnlyText,
-    QuestionTeacherReadOnlyChoices,
-} from '@/Components/features/assessment/QuestionResultReadOnly';
 import { AssessmentHeader } from '@/Components/features/assessment/AssessmentHeader';
 import { AssignmentList } from '@/Components/shared/lists';
 
@@ -90,6 +85,21 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
         if (!canEdit) return;
         router.visit(route(routeContext!.editRoute!, assessment.id));
     };
+
+    const getQuestionResult = useCallback(
+        (question: Question): QuestionResult => ({
+            isCorrect: null,
+            userChoices: [],
+            hasMultipleAnswers: question.type === 'multiple',
+            feedback: null,
+            score: undefined,
+            userText:
+                question.type === 'text'
+                    ? t('assessment_pages.common.free_text_info')
+                    : undefined,
+        }),
+        [t],
+    );
 
     const handleGradeStudent = (assignment: AssignmentWithVirtual) => {
         if (!assignment.id || !routeContext) return;
@@ -246,36 +256,13 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
                             )}
                         </div>
                     ) : (
-                        <div className="divide-y divide-gray-200">
-                            {(assessment.questions ?? []).map((question, index) => (
-                                <QuestionReadOnlySection
-                                    key={question.id}
-                                    question={question}
-                                    questionIndex={index}
-                                >
-                                    {question.type !== 'text' &&
-                                        (question.choices ?? []).length > 0 && (
-                                            <div className="ml-4">
-                                                <h5 className="text-sm font-medium text-gray-700 mb-2">
-                                                    {t('assessment_pages.common.answer_choices')}
-                                                </h5>
-                                                <div className="space-y-2">
-                                                    <QuestionTeacherReadOnlyChoices
-                                                        type={question.type}
-                                                        choices={question.choices ?? []}
-                                                    />
-                                                </div>
-                                            </div>
-                                        )}
-                                    {question.type === 'text' && (
-                                        <QuestionResultReadOnlyText
-                                            userText={t('assessment_pages.common.free_text_info')}
-                                            label=""
-                                        />
-                                    )}
-                                </QuestionReadOnlySection>
-                            ))}
-                        </div>
+                        <QuestionList
+                            questions={assessment.questions ?? []}
+                            getQuestionResult={getQuestionResult}
+                            isTeacherView={true}
+                            showCorrectAnswers={true}
+                            previewMode={true}
+                        />
                     )}
                 </Section>
             </div>

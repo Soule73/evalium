@@ -6,7 +6,7 @@ import {
     Button,
     Section,
     Stat,
-    QuestionReviewList,
+    QuestionList,
     TeacherNotesDisplay,
 } from '@/Components';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
@@ -96,16 +96,16 @@ export default function EnrollmentAssignmentShow({
                                             ? assignment.graded_at
                                                 ? t('components.assignment_list.status_graded')
                                                 : t(
-                                                      'components.assignment_list.status_pending_grading',
-                                                  )
+                                                    'components.assignment_list.status_pending_grading',
+                                                )
                                             : t('components.assignment_list.status_not_started')
                                     }
                                     type={
                                         assignment.graded_at
                                             ? 'success'
                                             : assignment.submitted_at
-                                              ? 'warning'
-                                              : 'gray'
+                                                ? 'warning'
+                                                : 'gray'
                                     }
                                 />
                             }
@@ -123,7 +123,7 @@ export default function EnrollmentAssignmentShow({
                     </Stat.Group>
                 </Section>
 
-                <QuestionReviewList
+                <QuestionList
                     title={t('grading_pages.review.questions_review')}
                     questions={assessment.questions ?? []}
                     getQuestionResult={getQuestionResult}

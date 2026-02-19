@@ -3,6 +3,7 @@ import {
     type Assessment,
     type AssessmentAssignment,
     type Answer,
+    type AssignmentAttachment,
     type User,
     type AssessmentRouteContext,
 } from '@/types';
@@ -13,9 +14,10 @@ import {
     Button,
     Section,
     Stat,
-    QuestionReviewList,
+    QuestionList,
     TeacherNotesDisplay,
 } from '@/Components';
+import { FileList } from '@/Components/shared/lists';
 import { formatDate } from '@/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
@@ -27,6 +29,7 @@ interface Props {
     student: User;
     assignment: AssessmentAssignment;
     userAnswers: Record<number, Answer>;
+    attachments?: AssignmentAttachment[];
     routeContext?: AssessmentRouteContext;
 }
 
@@ -35,6 +38,7 @@ export default function ReviewAssignment({
     student,
     assignment,
     userAnswers = {},
+    attachments = [],
     routeContext,
 }: Props) {
     const { t } = useTranslations();
@@ -54,9 +58,9 @@ export default function ReviewAssignment({
     const gradeRouteUrl = routeContext
         ? route(routeContext.gradeRoute, { assessment: assessment.id, assignment: assignment.id })
         : route('teacher.assessments.grade', {
-              assessment: assessment.id,
-              assignment: assignment.id,
-          });
+            assessment: assessment.id,
+            assignment: assignment.id,
+        });
 
     return (
         <AuthenticatedLayout
@@ -122,12 +126,18 @@ export default function ReviewAssignment({
                     </Stat.Group>
                 </Section>
 
-                <QuestionReviewList
+                <QuestionList
                     title={t('grading_pages.review.questions_review')}
                     questions={assessment.questions ?? []}
                     getQuestionResult={getQuestionResult}
                     scores={scores}
                 />
+
+                {attachments.length > 0 && (
+                    <Section title={t('grading_pages.show.student_files_title')}>
+                        <FileList attachments={attachments} readOnly />
+                    </Section>
+                )}
 
                 <TeacherNotesDisplay
                     notes={assignment.teacher_notes}

@@ -61,17 +61,17 @@ const ChoiceItem: React.FC<ChoiceItemProps> = ({
     const indexLabel =
         type === 'boolean'
             ? (() => {
-                  const isTrue = getBooleanDisplay(choice.content || '');
-                  const badgeClass = getBooleanBadgeClass(isTrue, shouldShowCorrect && isCorrect);
-                  const shortLabel = getBooleanShortLabel(isTrue);
-                  return (
-                      <span
-                          className={`inline-flex items-center justify-center h-6 w-6 rounded-full ${badgeClass} text-xs font-medium mr-2`}
-                      >
-                          {shortLabel}
-                      </span>
-                  );
-              })()
+                const isTrue = getBooleanDisplay(choice.content || '');
+                const badgeClass = getBooleanBadgeClass(isTrue, shouldShowCorrect && isCorrect);
+                const shortLabel = getBooleanShortLabel(isTrue);
+                return (
+                    <span
+                        className={`inline-flex items-center justify-center h-6 w-6 rounded-full ${badgeClass} text-xs font-medium mr-2`}
+                    >
+                        {shortLabel}
+                    </span>
+                );
+            })()
             : questionIndexLabel(index, getIndexBgClass(isCorrect, isSelected, shouldShowCorrect));
 
     const statusLabelText = getStatusLabelText(
@@ -99,13 +99,12 @@ const ChoiceItem: React.FC<ChoiceItemProps> = ({
                 </span>
                 {statusLabelText && (
                     <span
-                        className={`ml-2 text-xs font-medium ${
-                            isSelected && !isCorrect
-                                ? 'text-red-600'
-                                : isCorrect
-                                  ? 'text-green-600'
-                                  : 'text-indigo-600'
-                        }`}
+                        className={`ml-2 text-xs font-medium ${isSelected && !isCorrect
+                            ? 'text-red-600'
+                            : isCorrect
+                                ? 'text-green-600'
+                                : 'text-indigo-600'
+                            }`}
                     >
                         {statusLabelText}
                     </span>
@@ -128,7 +127,7 @@ const QuestionResultReadOnlyChoices: React.FC<QuestionResultReadOnlyChoicesProps
     userChoices,
     type,
     isTeacherView = false,
-    showCorrectAnswers = true,
+    showCorrectAnswers = false,
 }) => {
     const shouldShowCorrect = showCorrectAnswers || isTeacherView;
 
@@ -153,34 +152,7 @@ const QuestionResultReadOnlyChoices: React.FC<QuestionResultReadOnlyChoicesProps
     );
 };
 
-interface QuestionTeacherReadOnlyChoicesProps {
-    choices: Choice[];
-    type: 'one_choice' | 'multiple' | 'boolean';
-}
-
-const QuestionTeacherReadOnlyChoices: React.FC<QuestionTeacherReadOnlyChoicesProps> = ({
-    choices,
-    type,
-}) => {
-    return (
-        <div className="space-y-2">
-            {(choices ?? []).map((choice, idx) => (
-                <ChoiceItem
-                    key={choice.id}
-                    choice={choice}
-                    index={idx}
-                    type={type}
-                    isSelected={false}
-                    shouldShowCorrect={true}
-                    isTeacherView={true}
-                />
-            ))}
-        </div>
-    );
-};
-
 export {
     QuestionResultReadOnlyText,
-    QuestionTeacherReadOnlyChoices,
     QuestionResultReadOnlyChoices,
 };
