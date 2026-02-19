@@ -10,7 +10,7 @@ use App\Models\ClassSubject;
 use App\Models\Enrollment;
 use App\Models\Semester;
 use App\Models\User;
-use App\Services\Admin\AdminAssessmentQueryService;
+use App\Repositories\Admin\AdminAssessmentRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\CreatesTestUsers;
@@ -19,7 +19,7 @@ class AdminAssessmentQueryServiceTest extends TestCase
 {
     use CreatesTestUsers, RefreshDatabase;
 
-    private AdminAssessmentQueryService $service;
+    private AdminAssessmentRepository $service;
 
     private ClassSubject $classSubject;
 
@@ -34,7 +34,7 @@ class AdminAssessmentQueryServiceTest extends TestCase
         parent::setUp();
         $this->seedRolesAndPermissions();
 
-        $this->service = app(AdminAssessmentQueryService::class);
+        $this->service = app(AdminAssessmentRepository::class);
 
         $academicYear = AcademicYear::factory()->create();
         $classModel = ClassModel::factory()->create(['academic_year_id' => $academicYear->id]);

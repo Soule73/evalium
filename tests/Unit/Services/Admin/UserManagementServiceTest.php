@@ -3,6 +3,7 @@
 namespace Tests\Unit\Services\Admin;
 
 use App\Models\User;
+use App\Repositories\Admin\UserRepository;
 use App\Services\Admin\UserManagementService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
@@ -15,12 +16,15 @@ class UserManagementServiceTest extends TestCase
 
     private UserManagementService $service;
 
+    private UserRepository $queryService;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->seedRolesAndPermissions();
         $this->service = app(UserManagementService::class);
+        $this->queryService = app(UserRepository::class);
     }
 
     #[Test]
@@ -90,7 +94,7 @@ class UserManagementServiceTest extends TestCase
         $currentUser = $this->createTeacher();
         collect()->times(15, fn () => $this->createStudent());
 
-        $result = $this->service->getUserWithPagination(
+        $result = $this->queryService->getUserWithPagination(
             ['per_page' => 10],
             10,
             $currentUser
@@ -106,7 +110,7 @@ class UserManagementServiceTest extends TestCase
         $currentUser = $this->createTeacher();
         collect()->times(5, fn () => $this->createStudent());
 
-        $result = $this->service->getUserWithPagination([], 10, $currentUser);
+        $result = $this->queryService->getUserWithPagination([], 10, $currentUser);
 
         $userIds = collect($result->items())->pluck('id');
         $this->assertFalse($userIds->contains($currentUser->id));
@@ -119,7 +123,7 @@ class UserManagementServiceTest extends TestCase
         collect()->times(3, fn () => $this->createStudent());
         collect()->times(2, fn () => $this->createTeacher());
 
-        $result = $this->service->getUserWithPagination(
+        $result = $this->queryService->getUserWithPagination(
             ['role' => 'student'],
             10,
             $currentUser
@@ -135,7 +139,7 @@ class UserManagementServiceTest extends TestCase
         collect()->times(3, fn () => $this->createStudent([]));
         collect()->times(2, fn () => $this->createStudent(['is_active' => false]));
 
-        $result = $this->service->getUserWithPagination(
+        $result = $this->queryService->getUserWithPagination(
             ['status' => 'active'],
             10,
             $currentUser
@@ -153,7 +157,7 @@ class UserManagementServiceTest extends TestCase
         $this->createStudent(['name' => 'John Doe', 'email' => 'john@example.com']);
         $this->createStudent(['name' => 'Jane Smith', 'email' => 'jane@example.com']);
 
-        $result = $this->service->getUserWithPagination(
+        $result = $this->queryService->getUserWithPagination(
             ['search' => 'John'],
             10,
             $currentUser

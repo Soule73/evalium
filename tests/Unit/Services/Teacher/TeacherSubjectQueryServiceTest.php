@@ -6,7 +6,7 @@ use App\Models\AcademicYear;
 use App\Models\Assessment;
 use App\Models\ClassSubject;
 use App\Models\Subject;
-use App\Services\Teacher\TeacherSubjectQueryService;
+use App\Repositories\Teacher\TeacherSubjectRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
@@ -17,7 +17,7 @@ class TeacherSubjectQueryServiceTest extends TestCase
 {
     use InteractsWithTestData, RefreshDatabase;
 
-    private TeacherSubjectQueryService $service;
+    private TeacherSubjectRepository $service;
 
     private AcademicYear $academicYear;
 
@@ -30,7 +30,7 @@ class TeacherSubjectQueryServiceTest extends TestCase
         parent::setUp();
 
         $this->seedRolesAndPermissions();
-        $this->service = app(TeacherSubjectQueryService::class);
+        $this->service = app(TeacherSubjectRepository::class);
         $this->academicYear = AcademicYear::factory()->create([
             'name' => '2025-2026',
             'is_current' => true,
