@@ -2,10 +2,10 @@
 
 namespace App\Http\Traits;
 
+use App\Contracts\Repositories\TeacherAssessmentRepositoryInterface;
 use App\Http\Requests\Teacher\SaveManualGradeRequest;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
-use App\Services\Teacher\TeacherAssessmentQueryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,7 +18,7 @@ use Inertia\Response;
  * AdminAssessmentController and TeacherAssessmentController.
  *
  * Requires the using class to have these injected properties:
- * - GradingQueryService $gradingQueryService
+ * - GradingRepository $gradingQueryService
  * - AnswerFormatterService $answerFormatterService
  * - ScoringService $scoringService
  *
@@ -31,7 +31,7 @@ trait HandlesAssessmentViewing
      */
     abstract protected function buildRouteContext(): array;
 
-    abstract protected function resolveAssessmentQueryService(): TeacherAssessmentQueryService;
+    abstract protected function resolveAssessmentQueryService(): TeacherAssessmentRepositoryInterface;
 
     /**
      * Hook called after loading assessment data in review/grade methods.
@@ -73,7 +73,7 @@ trait HandlesAssessmentViewing
         $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
         $this->afterGradingLoad($request, $assessment);
 
-        $assignment->load(['enrollment.student', 'answers.choice']);
+        $assignment->load(['enrollment.student', 'answers.choice', 'attachments']);
         $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
 
         return Inertia::render('Assessments/Review', [
@@ -81,6 +81,7 @@ trait HandlesAssessmentViewing
             'assessment' => $assessment,
             'student' => $assignment->enrollment?->student,
             'userAnswers' => $userAnswers,
+            'attachments' => $assignment->attachments,
             'routeContext' => $this->buildRouteContext(),
         ]);
     }
@@ -96,7 +97,7 @@ trait HandlesAssessmentViewing
         $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
         $this->afterGradingLoad($request, $assessment);
 
-        $assignment->load(['enrollment.student', 'answers.choice']);
+        $assignment->load(['enrollment.student', 'answers.choice', 'attachments']);
         $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
 
         return Inertia::render('Assessments/Grade', [
@@ -104,6 +105,7 @@ trait HandlesAssessmentViewing
             'assessment' => $assessment,
             'student' => $assignment->enrollment?->student,
             'userAnswers' => $userAnswers,
+            'attachments' => $assignment->attachments,
             'routeContext' => $this->buildRouteContext(),
         ]);
     }

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Repositories\AdminAssessmentRepositoryInterface;
+use App\Contracts\Repositories\ClassRepositoryInterface;
+use App\Contracts\Services\ClassServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreClassRequest;
 use App\Http\Requests\Admin\UpdateClassRequest;
 use App\Http\Traits\HandlesIndexRequests;
 use App\Models\ClassModel;
-use App\Services\Admin\AdminAssessmentQueryService;
-use App\Services\Admin\ClassQueryService;
-use App\Services\Admin\ClassService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -22,9 +22,9 @@ class ClassController extends Controller
     use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests;
 
     public function __construct(
-        private readonly ClassService $classService,
-        private readonly ClassQueryService $classQueryService,
-        private readonly AdminAssessmentQueryService $assessmentQueryService
+        private readonly ClassServiceInterface $classService,
+        private readonly ClassRepositoryInterface $classQueryService,
+        private readonly AdminAssessmentRepositoryInterface $assessmentQueryService
     ) {}
 
     /**
@@ -63,7 +63,7 @@ class ClassController extends Controller
         $this->authorize('create', ClassModel::class);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $formData = $this->classQueryService->getCreateFormData($selectedYearId);
+        $formData = $this->classService->getCreateFormData($selectedYearId);
 
         return Inertia::render('Admin/Classes/Create', $formData);
     }
@@ -148,7 +148,7 @@ class ClassController extends Controller
     {
         $this->authorize('update', $class);
 
-        $formData = $this->classQueryService->getEditFormData($class);
+        $formData = $this->classService->getEditFormData($class);
 
         return Inertia::render('Admin/Classes/Edit', $formData);
     }

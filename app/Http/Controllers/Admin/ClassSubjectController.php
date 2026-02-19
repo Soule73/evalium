@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Repositories\ClassSubjectRepositoryInterface;
+use App\Contracts\Services\ClassSubjectServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ReplaceTeacherRequest;
 use App\Http\Requests\Admin\StoreClassSubjectRequest;
 use App\Models\ClassSubject;
-use App\Services\Admin\ClassSubjectQueryService;
-use App\Services\Core\ClassSubjectService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -20,8 +20,8 @@ class ClassSubjectController extends Controller
     use AuthorizesRequests, FiltersAcademicYear;
 
     public function __construct(
-        private readonly ClassSubjectService $classSubjectService,
-        private readonly ClassSubjectQueryService $classSubjectQueryService
+        private readonly ClassSubjectServiceInterface $classSubjectService,
+        private readonly ClassSubjectRepositoryInterface $classSubjectQueryService
     ) {}
 
     /**
@@ -43,7 +43,7 @@ class ClassSubjectController extends Controller
             $perPage
         );
 
-        $formData = $this->classSubjectQueryService->getFormDataForCreate($selectedYearId);
+        $formData = $this->classSubjectService->getFormDataForCreate($selectedYearId);
 
         return Inertia::render('Admin/ClassSubjects/Index', [
             'classSubjects' => $classSubjects,

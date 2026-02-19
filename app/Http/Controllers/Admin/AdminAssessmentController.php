@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Repositories\AdminAssessmentRepositoryInterface;
+use App\Contracts\Repositories\TeacherAssessmentRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\HandlesAssessmentViewing;
 use App\Http\Traits\HandlesIndexRequests;
@@ -9,11 +11,9 @@ use App\Models\Assessment;
 use App\Models\ClassModel;
 use App\Models\Subject;
 use App\Models\User;
-use App\Services\Admin\AdminAssessmentQueryService;
+use App\Repositories\Teacher\GradingRepository;
 use App\Services\Core\Answer\AnswerFormatterService;
 use App\Services\Core\Scoring\ScoringService;
-use App\Services\Teacher\GradingQueryService;
-use App\Services\Teacher\TeacherAssessmentQueryService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -31,14 +31,14 @@ class AdminAssessmentController extends Controller
     use AuthorizesRequests, FiltersAcademicYear, HandlesAssessmentViewing, HandlesIndexRequests;
 
     public function __construct(
-        private readonly AdminAssessmentQueryService $assessmentQueryService,
-        private readonly TeacherAssessmentQueryService $teacherAssessmentQueryService,
-        private readonly GradingQueryService $gradingQueryService,
+        private readonly AdminAssessmentRepositoryInterface $assessmentQueryService,
+        private readonly TeacherAssessmentRepositoryInterface $teacherAssessmentQueryService,
+        private readonly GradingRepository $gradingQueryService,
         private readonly AnswerFormatterService $answerFormatterService,
         private readonly ScoringService $scoringService
     ) {}
 
-    protected function resolveAssessmentQueryService(): TeacherAssessmentQueryService
+    protected function resolveAssessmentQueryService(): TeacherAssessmentRepositoryInterface
     {
         return $this->teacherAssessmentQueryService;
     }
@@ -64,7 +64,7 @@ class AdminAssessmentController extends Controller
         );
 
         $classes = ClassModel::query()
-            ->when($selectedYearId, fn ($q, $id) => $q->where('academic_year_id', $id))
+            ->when($selectedYearId, fn($q, $id) => $q->where('academic_year_id', $id))
             ->orderBy('name')
             ->get(['id', 'name']);
 

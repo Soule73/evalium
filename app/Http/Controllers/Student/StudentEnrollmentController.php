@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Repositories\Student\StudentEnrollmentRepository;
 use App\Services\Admin\EnrollmentService;
 use App\Services\Core\GradeCalculationService;
-use App\Services\Student\StudentEnrollmentQueryService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -18,7 +18,7 @@ class StudentEnrollmentController extends Controller
 
     public function __construct(
         private readonly EnrollmentService $enrollmentService,
-        private readonly StudentEnrollmentQueryService $enrollmentQueryService,
+        private readonly StudentEnrollmentRepository $enrollmentQueryService,
         private readonly GradeCalculationService $gradeCalculationService
     ) {}
 

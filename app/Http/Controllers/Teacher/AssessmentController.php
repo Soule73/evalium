@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Teacher;
 
+use App\Contracts\Repositories\TeacherAssessmentRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\ReopenAssignmentRequest;
 use App\Http\Requests\Teacher\StoreAssessmentRequest;
@@ -9,12 +10,11 @@ use App\Http\Requests\Teacher\UpdateAssessmentRequest;
 use App\Http\Traits\HandlesAssessmentViewing;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
+use App\Repositories\Teacher\GradingRepository;
 use App\Services\Core\Answer\AnswerFormatterService;
 use App\Services\Core\AssessmentService;
 use App\Services\Core\Scoring\ScoringService;
 use App\Services\Teacher\AssignmentExceptionService;
-use App\Services\Teacher\GradingQueryService;
-use App\Services\Teacher\TeacherAssessmentQueryService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -36,14 +36,14 @@ class AssessmentController extends Controller
 
     public function __construct(
         private readonly AssessmentService $assessmentService,
-        private readonly TeacherAssessmentQueryService $assessmentQueryService,
-        private readonly GradingQueryService $gradingQueryService,
+        private readonly TeacherAssessmentRepositoryInterface $assessmentQueryService,
+        private readonly GradingRepository $gradingQueryService,
         private readonly ScoringService $scoringService,
         private readonly AnswerFormatterService $answerFormatterService,
         private readonly AssignmentExceptionService $assignmentExceptionService
     ) {}
 
-    protected function resolveAssessmentQueryService(): TeacherAssessmentQueryService
+    protected function resolveAssessmentQueryService(): TeacherAssessmentRepositoryInterface
     {
         return $this->assessmentQueryService;
     }
@@ -61,7 +61,7 @@ class AssessmentController extends Controller
     {
         $this->authorize('viewAny', Assessment::class);
 
-        $filters = $request->only(['search', 'class_subject_id', 'type', 'is_published']);
+        $filters = $request->only(['search', 'class_subject_id', 'class_id', 'type', 'is_published']);
         $perPage = $request->input('per_page', 15);
 
         $teacherId = $request->user()->id;
@@ -74,15 +74,17 @@ class AssessmentController extends Controller
             $perPage
         );
 
-        // $classSubjects = $this->assessmentQueryService->getClassSubjectsForTeacher(
-        //     $teacherId,
-        //     $selectedYearId
-        // );
+        $classes = $this->assessmentQueryService
+            ->getClassFilterDataForTeacher($teacherId, $selectedYearId)
+            ->map(fn($item) => [
+                'id' => $item->class_id,
+                'name' => $item->class_name . ' - ' . $item->level_name . ' (' . $item->level_description . ')',
+            ]);
 
         return Inertia::render('Teacher/Assessments/Index', [
             'assessments' => $assessments,
             'filters' => $filters,
-            // 'classSubjects' => $classSubjects,
+            'classes' => $classes,
         ]);
     }
 
@@ -223,7 +225,7 @@ class AssessmentController extends Controller
 
         if (! $check['can_reopen']) {
             return response()->json([
-                'message' => __('messages.assignment_cannot_reopen_'.$check['reason']),
+                'message' => __('messages.assignment_cannot_reopen_' . $check['reason']),
             ], 422);
         }
 

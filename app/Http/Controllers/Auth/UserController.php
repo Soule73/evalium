@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Contracts\Repositories\AdminAssessmentRepositoryInterface;
+use App\Contracts\Repositories\UserRepositoryInterface;
+use App\Contracts\Services\UserManagementServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CreateUserRequest;
 use App\Http\Requests\Admin\EditUserRequest;
 use App\Http\Traits\HandlesIndexRequests;
 use App\Models\User;
-use App\Services\Admin\AdminAssessmentQueryService;
-use App\Services\Admin\UserManagementService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,8 +21,9 @@ class UserController extends Controller
     use AuthorizesRequests, HandlesIndexRequests;
 
     public function __construct(
-        public readonly UserManagementService $userService,
-        private readonly AdminAssessmentQueryService $assessmentQueryService
+        public readonly UserManagementServiceInterface $userService,
+        private readonly UserRepositoryInterface $userQueryService,
+        private readonly AdminAssessmentRepositoryInterface $assessmentQueryService
     ) {}
 
     /**
@@ -51,9 +53,9 @@ class UserController extends Controller
             $filters['exclude_roles'] = array_merge($filters['exclude_roles'], ['admin', 'super_admin']);
         }
 
-        $users = $this->userService->getUserWithPagination($filters, $perPage, $currentUser);
+        $users = $this->userQueryService->getUserWithPagination($filters, $perPage, $currentUser);
 
-        $availableRoles = $this->userService->getAvailableRoles($currentUser);
+        $availableRoles = $this->userQueryService->getAvailableRoles($currentUser);
 
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,

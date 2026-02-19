@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Teacher;
 
+use App\Contracts\Repositories\TeacherSubjectRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Models\Subject;
-use App\Services\Teacher\TeacherSubjectQueryService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,7 +15,7 @@ class TeacherSubjectController extends Controller
     use FiltersAcademicYear;
 
     public function __construct(
-        private readonly TeacherSubjectQueryService $subjectQueryService
+        private readonly TeacherSubjectRepositoryInterface $subjectQueryService
     ) {}
 
     /**

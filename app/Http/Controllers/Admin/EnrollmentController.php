@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Repositories\EnrollmentRepositoryInterface;
+use App\Contracts\Services\EnrollmentServiceInterface;
+use App\Contracts\Services\UserManagementServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreEnrollmentRequest;
 use App\Http\Requests\Admin\TransferStudentRequest;
@@ -9,8 +12,6 @@ use App\Http\Traits\HandlesIndexRequests;
 use App\Models\AssessmentAssignment;
 use App\Models\Enrollment;
 use App\Models\User;
-use App\Services\Admin\EnrollmentService;
-use App\Services\Admin\UserManagementService;
 use App\Services\Core\GradeCalculationService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -26,9 +27,10 @@ class EnrollmentController extends Controller
     use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests;
 
     public function __construct(
-        private readonly EnrollmentService $enrollmentService,
+        private readonly EnrollmentServiceInterface $enrollmentService,
+        private readonly EnrollmentRepositoryInterface $enrollmentQueryService,
         private readonly GradeCalculationService $gradeCalculationService,
-        private readonly UserManagementService $userManagementService
+        private readonly UserManagementServiceInterface $userManagementService
     ) {}
 
     /**
@@ -44,7 +46,7 @@ class EnrollmentController extends Controller
             ['search', 'class_id', 'status']
         );
 
-        $data = $this->enrollmentService->getEnrollmentsForIndex($selectedYearId, $filters, $perPage);
+        $data = $this->enrollmentQueryService->getEnrollmentsForIndex($selectedYearId, $filters, $perPage);
 
         return Inertia::render('Admin/Enrollments/Index', $data);
     }
@@ -57,7 +59,7 @@ class EnrollmentController extends Controller
         $this->authorize('create', Enrollment::class);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $formData = $this->enrollmentService->getCreateFormData($selectedYearId);
+        $formData = $this->enrollmentQueryService->getCreateFormData($selectedYearId);
 
         return Inertia::render('Admin/Enrollments/Create', $formData);
     }
@@ -114,7 +116,7 @@ class EnrollmentController extends Controller
         $this->authorize('view', $enrollment);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $data = $this->enrollmentService->getShowData($enrollment, $selectedYearId);
+        $data = $this->enrollmentQueryService->getShowData($enrollment, $selectedYearId);
 
         $student = $enrollment->student;
         $class = $enrollment->class;
@@ -161,7 +163,7 @@ class EnrollmentController extends Controller
             $perPage
         );
 
-        $subjects = $this->enrollmentService->getClassSubjectsForEnrollment($enrollment);
+        $subjects = $this->enrollmentQueryService->getClassSubjectsForEnrollment($enrollment);
 
         return Inertia::render('Admin/Enrollments/Assignments/Index', [
             'enrollment' => $enrollment,

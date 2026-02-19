@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Repositories\LevelRepositoryInterface;
+use App\Contracts\Services\LevelServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LevelRequest;
 use App\Http\Traits\HandlesIndexRequests;
 use App\Models\Level;
-use App\Services\Admin\LevelService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,7 +20,8 @@ class LevelController extends Controller
     use AuthorizesRequests, HandlesIndexRequests;
 
     public function __construct(
-        private readonly LevelService $levelService
+        private readonly LevelServiceInterface $levelService,
+        private readonly LevelRepositoryInterface $levelQueryService
     ) {}
 
     /**
@@ -38,7 +40,7 @@ class LevelController extends Controller
         );
         $filters['per_page'] = $perPage;
 
-        $levels = $this->levelService->getLevelsWithPagination($filters);
+        $levels = $this->levelQueryService->getLevelsWithPagination($filters);
 
         return Inertia::render('Admin/Levels/Index', [
             'levels' => $levels,
