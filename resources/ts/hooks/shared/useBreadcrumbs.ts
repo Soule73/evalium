@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslations } from './useTranslations';
 import { route } from 'ziggy-js';
 import { type BreadcrumbItem } from '@/Components/layout/Breadcrumb';
-import { type ClassSubject, type AssessmentRouteContext } from '@/types';
+import { type AssessmentRouteContext } from '@/types';
 
 type TranslateFn = (key: string, replacements?: Record<string, string | number>) => string;
 
@@ -93,21 +93,6 @@ function createBreadcrumbs(t: TranslateFn) {
             dashboard(),
             { label: t('breadcrumbs.class_subjects'), href: route('admin.class-subjects.index') },
         ],
-        show: (classSubject: ClassSubject): BreadcrumbItem[] => {
-            const levelInfo = classSubject.class?.level
-                ? `${classSubject.class.level.name} (${classSubject.class.level.description})`
-                : '';
-            return [
-                dashboard(),
-                {
-                    label: t('breadcrumbs.class_subjects'),
-                    href: route('admin.class-subjects.index'),
-                },
-                {
-                    label: `${classSubject.class?.name || ''}, ${levelInfo} - ${classSubject.subject?.name || ''}`,
-                },
-            ];
-        },
     };
 
     const teacherClassesBc = {
@@ -205,6 +190,36 @@ function createBreadcrumbs(t: TranslateFn) {
             createClass: classesBc.create,
             showClass: classesBc.show,
             editClass: classesBc.edit,
+            classAssessments: (classItem: { id: number; name?: string }): BreadcrumbItem[] => [
+                ...classesBc.show(classItem),
+                { label: t('breadcrumbs.assessments') },
+            ],
+            classAssessmentShow: (
+                classItem: { id: number; name?: string },
+                assessment: { id: number; title: string },
+            ): BreadcrumbItem[] => [
+                    ...classesBc.show(classItem),
+                    {
+                        label: t('breadcrumbs.assessments'),
+                        href: route('admin.classes.assessments', classItem.id),
+                    },
+                    { label: assessment.title },
+                ],
+            classSubjectsList: (classItem: { id: number; name?: string }): BreadcrumbItem[] => [
+                ...classesBc.show(classItem),
+                { label: t('breadcrumbs.class_subjects') },
+            ],
+            showClassesSubject: (
+                classItem: { id: number; name?: string },
+                classSubject: { subject?: { name?: string }; id: number },
+            ): BreadcrumbItem[] => [
+                    ...classesBc.show(classItem),
+                    {
+                        label: t('breadcrumbs.class_subjects'),
+                        href: route('admin.classes.subjects', classItem.id),
+                    },
+                    { label: classSubject.subject?.name || `#${classSubject.id}` },
+                ],
             enrollments: enrollmentsBc.index,
             createEnrollment: enrollmentsBc.create,
             showEnrollment: (enrollment: {
@@ -218,7 +233,6 @@ function createBreadcrumbs(t: TranslateFn) {
                     },
                 ],
             classSubjects: classSubjectsBc.index,
-            showClassSubject: classSubjectsBc.show,
             assessments: adminAssessmentsBc.index,
         },
         teacher: {

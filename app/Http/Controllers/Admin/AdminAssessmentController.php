@@ -64,7 +64,7 @@ class AdminAssessmentController extends Controller
         );
 
         $classes = ClassModel::query()
-            ->when($selectedYearId, fn($q, $id) => $q->where('academic_year_id', $id))
+            ->when($selectedYearId, fn ($q, $id) => $q->where('academic_year_id', $id))
             ->orderBy('name')
             ->get(['id', 'name']);
 
@@ -94,7 +94,7 @@ class AdminAssessmentController extends Controller
         return [
             'role' => 'admin',
             'backRoute' => 'admin.assessments.index',
-            'showRoute' => 'admin.assessments.show',
+            'showRoute' => null,
             'reviewRoute' => 'admin.assessments.review',
             'gradeRoute' => 'admin.assessments.grade',
             'saveGradeRoute' => 'admin.assessments.saveGrade',

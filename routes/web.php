@@ -145,6 +145,12 @@ Route::middleware('auth')->group(function () {
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
                     Route::get('/{class}', 'show')->name('show');
+                    Route::get('/{class}/assessments', 'classAssessments')->name('assessments');
+                    Route::get('/{class}/assessments/{assessment}', 'assessmentShow')
+                        ->middleware('role:admin,super_admin')
+                        ->name('assessments.show');
+                    Route::get('/{class}/subjects', 'classSubjectsList')->name('subjects');
+                    Route::get('/{class}/subjects/{class_subject}', 'subjectShow')->name('subjects.show');
                     Route::get('/{class}/edit', 'edit')->name('edit');
                     Route::put('/{class}', 'update')->name('update');
                     Route::delete('/{class}', 'destroy')->name('destroy');
@@ -179,7 +185,6 @@ Route::middleware('auth')->group(function () {
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
                     Route::post('/', 'store')->name('store');
-                    Route::get('/{class_subject}', 'show')->name('show');
                     Route::get('/history', 'history')->name('history');
                     Route::post('/{class_subject}/replace-teacher', 'replaceTeacher')->name('replace-teacher');
                     Route::post('/{class_subject}/update-coefficient', 'updateCoefficient')->name('update-coefficient');
@@ -224,7 +229,6 @@ Route::middleware('auth')->group(function () {
                 ->controller(\App\Http\Controllers\Admin\AdminAssessmentController::class)
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
-                    Route::get('/{assessment}', 'show')->name('show');
                     Route::get('/{assessment}/assignments/{assignment}/review', 'review')->name('review');
                     Route::get('/{assessment}/assignments/{assignment}/grade', 'grade')->name('grade');
                     Route::post('/{assessment}/assignments/{assignment}/grade', 'saveGrade')->name('saveGrade');

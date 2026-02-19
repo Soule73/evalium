@@ -282,6 +282,9 @@ return [
         'empty_search_subtitle' => 'Try modifying your search or filter criteria.',
         'reset_filters' => 'Reset filters',
         'all_classes' => 'All Classes',
+        'subject_label' => 'Subject',
+        'all_subjects' => 'All Subjects',
+        'all_teachers' => 'All Teachers',
     ],
 
     'assignment_list' => [

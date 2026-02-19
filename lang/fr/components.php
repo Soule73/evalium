@@ -308,6 +308,9 @@ return [
         'empty_search_subtitle' => 'Essayez de modifier vos critères de recherche ou de filtrage.',
         'reset_filters' => 'Réinitialiser les filtres',
         'all_classes' => 'Toutes les classes',
+        'subject_label' => 'Matière',
+        'all_subjects' => 'Toutes les matières',
+        'all_teachers' => 'Tous les enseignants',
     ],
 
     'assignment_list' => [

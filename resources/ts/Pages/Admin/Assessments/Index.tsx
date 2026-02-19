@@ -52,7 +52,12 @@ export default function AdminAssessmentsIndex({ assessments }: Props) {
                         variant="admin"
                         onView={(item) => {
                             const assessment = item as Assessment;
-                            router.visit(route('admin.assessments.show', assessment.id));
+                            router.visit(
+                                route('admin.classes.assessments.show', {
+                                    class: assessment.class_subject?.class_id,
+                                    assessment: assessment.id,
+                                }),
+                            );
                         }}
                     />
                 </Section>

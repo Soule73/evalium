@@ -32,7 +32,7 @@ class ClassSubjectController extends Controller
         $this->authorize('viewAny', ClassSubject::class);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $filters = $request->only(['class_id', 'subject_id', 'teacher_id', 'active_only']);
+        $filters = $request->only(['search', 'class_id', 'subject_id', 'teacher_id', 'active_only']);
         $perPage = $request->input('per_page', 15);
         $activeOnly = ($filters['active_only'] ?? true) === true;
 
@@ -60,35 +60,20 @@ class ClassSubjectController extends Controller
         try {
             $classSubject = $this->classSubjectService->assignTeacherToClassSubject($request->validated());
 
+            $redirectTo = $request->input('redirect_to');
+            if ($redirectTo && str_starts_with($redirectTo, '/')) {
+                return redirect($redirectTo)->flashSuccess(__('messages.class_subject_created'));
+            }
+
             return redirect()
-                ->route('admin.class-subjects.show', $classSubject)
+                ->route('admin.classes.subjects.show', [
+                    'class' => $classSubject->class_id,
+                    'class_subject' => $classSubject->id,
+                ])
                 ->flashSuccess(__('messages.class_subject_created'));
         } catch (\InvalidArgumentException $e) {
             return back()->flashError($e->getMessage());
         }
-    }
-
-    /**
-     * Display the specified class subject assignment.
-     */
-    public function show(Request $request, ClassSubject $classSubject): Response
-    {
-        $this->authorize('view', $classSubject);
-
-        $classSubject = $this->classSubjectQueryService->loadClassSubjectDetails($classSubject);
-        $teachers = $this->classSubjectQueryService->getTeachersForReplacement();
-        $history = $this->classSubjectQueryService->getPaginatedHistory(
-            $classSubject->class_id,
-            $classSubject->subject_id,
-            $request->input('history_per_page', 10),
-            $classSubject->id
-        );
-
-        return Inertia::render('Admin/ClassSubjects/Show', [
-            'classSubject' => $classSubject,
-            'teachers' => $teachers,
-            'history' => $history,
-        ]);
     }
 
     /**
@@ -128,7 +113,10 @@ class ClassSubjectController extends Controller
             );
 
             return redirect()
-                ->route('admin.class-subjects.show', $newClassSubject)
+                ->route('admin.classes.subjects.show', [
+                    'class' => $newClassSubject->class_id,
+                    'class_subject' => $newClassSubject->id,
+                ])
                 ->flashSuccess(__('messages.teacher_replaced'));
         } catch (\InvalidArgumentException $e) {
             return back()->flashError($e->getMessage());
