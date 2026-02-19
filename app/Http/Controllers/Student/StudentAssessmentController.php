@@ -58,10 +58,10 @@ class StudentAssessmentController extends Controller
         $student = $request->user();
         $selectedYearId = $this->getSelectedAcademicYearId($request);
 
-        $filters = $request->only(['status', 'search']);
+        $filters = $request->only(['status', 'search', 'class_subject_id']);
         $perPage = $request->input('per_page', 15);
 
-        $assignments = $this->assessmentService->getStudentAssessmentsForIndex(
+        $result = $this->assessmentService->getStudentAssessmentsForIndex(
             $student,
             $selectedYearId,
             $filters,
@@ -69,7 +69,8 @@ class StudentAssessmentController extends Controller
         );
 
         return Inertia::render('Student/Assessments/Index', [
-            'assignments' => $assignments,
+            'assignments' => $result['assignments'],
+            'subjects' => $result['subjects'],
             'filters' => $filters,
         ]);
     }
@@ -179,7 +180,11 @@ class StudentAssessmentController extends Controller
 
         $props = [
             'assignment' => $assignment,
-            'assessment' => $assessment->load(['questions.choices']),
+            'assessment' => $assessment->load([
+                'questions.choices',
+                'classSubject.subject',
+                'classSubject.teacher',
+            ]),
             'questions' => $assessment->questions,
             'userAnswers' => $assignment->answers,
             'remainingSeconds' => $remainingSeconds,
