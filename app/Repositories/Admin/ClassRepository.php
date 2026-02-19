@@ -39,8 +39,8 @@ class ClassRepository implements ClassRepositoryInterface
                 },
                 'classSubjects as subjects_count',
             ])
-            ->when($filters['search'] ?? null, fn($query, $search) => $query->where('name', 'like', "%{$search}%"))
-            ->when($filters['level_id'] ?? null, fn($query, $levelId) => $query->where('level_id', $levelId))
+            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
+            ->when($filters['level_id'] ?? null, fn ($query, $levelId) => $query->where('level_id', $levelId))
             ->orderBy('level_id')
             ->orderBy('name');
 
@@ -54,7 +54,7 @@ class ClassRepository implements ClassRepositoryInterface
     {
         return $this->cacheService->remember(
             CacheService::KEY_LEVELS_ALL,
-            fn() => Level::orderBy('name')->get()
+            fn () => Level::orderBy('name')->get()
         );
     }
 
@@ -75,6 +75,10 @@ class ClassRepository implements ClassRepositoryInterface
         array $subjectsFilters
     ): array {
         $class->load(['academicYear', 'level']);
+        $class->loadCount([
+            'enrollments',
+            'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
+        ]);
         $class->can_delete = $class->canBeDeleted();
 
         $enrollments = $this->getPaginatedEnrollments($class, $studentsFilters);
@@ -140,21 +144,25 @@ class ClassRepository implements ClassRepositoryInterface
     }
 
     /**
-     * Get class statistics
+     * Get class statistics using optimised aggregate queries.
      */
     public function getClassStatistics(ClassModel $class): array
     {
+        $totalStudents = $class->enrollments_count ?? $class->enrollments()->count();
+        $activeStudents = $class->active_enrollments_count ?? $class->enrollments()->where('status', 'active')->count();
+
+        $assessmentsCount = $class->classSubjects()
+            ->active()
+            ->join('assessments', 'assessments.class_subject_id', '=', 'class_subjects.id')
+            ->count('assessments.id');
+
         return [
-            'total_students' => $class->enrollments()->count(),
-            'active_students' => $class->enrollments()->where('status', 'active')->count(),
+            'total_students' => $totalStudents,
+            'active_students' => $activeStudents,
             'max_students' => $class->max_students,
-            'available_slots' => $class->max_students - $class->enrollments()->count(),
+            'available_slots' => $class->max_students - $totalStudents,
             'subjects_count' => $class->classSubjects()->active()->count(),
-            'assessments_count' => $class->classSubjects()
-                ->active()
-                ->withCount('assessments')
-                ->get()
-                ->sum('assessments_count'),
+            'assessments_count' => $assessmentsCount,
         ];
     }
 }

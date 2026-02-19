@@ -118,7 +118,7 @@ class StudentAssessmentController extends Controller
         $availability = $assessment->getAvailabilityStatus();
 
         if (! $availability['available']) {
-            return back()->with('error', __('messages.'.$availability['reason']));
+            return back()->with('error', __('messages.' . $availability['reason']));
         }
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
@@ -162,15 +162,18 @@ class StudentAssessmentController extends Controller
         if (! $availability['available']) {
             return redirect()
                 ->route('student.assessments.show', $assessment)
-                ->with('error', __('messages.'.$availability['reason']));
+                ->with('error', __('messages.' . $availability['reason']));
         }
 
         $assignment->load([
             'assessment.classSubject.class',
             'assessment.classSubject.subject',
+            'assessment.classSubject.teacher',
             'assessment.questions.choices',
             'answers',
         ]);
+
+        $assessment = $assignment->assessment;
 
         $remainingSeconds = $this->assessmentService->calculateRemainingSeconds($assignment, $assessment);
 
@@ -180,21 +183,13 @@ class StudentAssessmentController extends Controller
 
         $props = [
             'assignment' => $assignment,
-            'assessment' => $assessment->load([
-                'questions.choices',
-                'classSubject.subject',
-                'classSubject.teacher',
-            ]),
+            'assessment' => $assessment,
             'questions' => $assessment->questions,
             'userAnswers' => $assignment->answers,
             'remainingSeconds' => $remainingSeconds,
         ];
 
         $this->hideCorrectAnswers($assessment);
-
-        if ($assignment->relationLoaded('assessment')) {
-            $this->hideCorrectAnswers($assignment->assessment);
-        }
 
         if ($assessment->isHomeworkMode()) {
             $props['attachments'] = $this->attachmentService->getAttachments($assignment);
