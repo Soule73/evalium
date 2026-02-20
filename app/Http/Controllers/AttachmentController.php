@@ -60,7 +60,7 @@ class AttachmentController extends Controller
 
         $isOwner = $assignment->enrollment?->student_id === $user->id;
         $isTeacher = $assignment->assessment?->teacher_id === $user->id;
-        $isAdmin = $user->hasRole(['admin', 'super-admin']);
+        $isAdmin = $user->hasRole(['admin', 'super_admin']);
 
         abort_unless($isOwner || $isTeacher || $isAdmin, 403, __('messages.unauthorized'));
     }
