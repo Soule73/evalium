@@ -39,8 +39,8 @@ class ClassRepository implements ClassRepositoryInterface
                 },
                 'classSubjects as subjects_count',
             ])
-            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
-            ->when($filters['level_id'] ?? null, fn ($query, $levelId) => $query->where('level_id', $levelId))
+            ->when($filters['search'] ?? null, fn($query, $search) => $query->where('name', 'like', "%{$search}%"))
+            ->when($filters['level_id'] ?? null, fn($query, $levelId) => $query->where('level_id', $levelId))
             ->orderBy('level_id')
             ->orderBy('name');
 
@@ -54,7 +54,7 @@ class ClassRepository implements ClassRepositoryInterface
     {
         return $this->cacheService->remember(
             CacheService::KEY_LEVELS_ALL,
-            fn () => Level::orderBy('name')->get()
+            fn() => Level::orderBy('name')->get()
         );
     }
 
@@ -77,7 +77,7 @@ class ClassRepository implements ClassRepositoryInterface
         $class->load(['academicYear', 'level']);
         $class->loadCount([
             'enrollments',
-            'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
+            'enrollments as active_enrollments_count' => fn($q) => $q->where('status', 'active'),
         ]);
         $class->can_delete = $class->canBeDeleted();
 
@@ -134,6 +134,10 @@ class ClassRepository implements ClassRepositoryInterface
                         ->orWhere('code', 'like', "%{$search}%");
                 });
             })
+            ->when(
+                ! filter_var($filters['include_archived'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                fn($query) => $query->active()
+            )
             ->orderBy('created_at', 'desc');
 
         return $this->paginateWithFilters(

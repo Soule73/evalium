@@ -138,7 +138,7 @@ class ClassController extends Controller
 
         ['filters' => $filters, 'per_page' => $perPage] = $this->extractIndexParams(
             $request,
-            ['search', 'teacher_id', 'active_only']
+            ['search', 'teacher_id', 'include_archived']
         );
 
         $classSubjects = $this->classQueryService->getPaginatedClassSubjects(

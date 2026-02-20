@@ -539,7 +539,7 @@ return [
         'all_classes' => 'All Classes',
         'all_subjects' => 'All Subjects',
         'all_teachers' => 'All Teachers',
-        'active_only' => 'Include archived',
+        'include_archived' => 'Include archived',
         'all_assignments' => 'All assignments',
         'empty_title' => 'No Assignments',
         'empty_subtitle' => 'No teaching assignments found.',

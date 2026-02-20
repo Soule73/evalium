@@ -66,5 +66,4 @@ return [
     'filter_by_group' => 'Filter by group',
     'all_users' => 'All users',
     'active_only' => 'Active only',
-    'inactive_only' => 'Inactive only',
 ];

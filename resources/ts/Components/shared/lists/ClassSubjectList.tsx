@@ -217,10 +217,9 @@ export function ClassSubjectList({
                     conditional: (v) => v === 'admin',
                 },
                 {
-                    key: 'active_only',
-                    labelKey: 'admin_pages.class_subjects.active_only',
+                    key: 'include_archived',
+                    labelKey: 'admin_pages.class_subjects.include_archived',
                     type: 'boolean' as const,
-                    trueValue: '0',
                     conditional: (v) => v === 'admin',
                 },
             ],

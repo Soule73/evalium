@@ -32,9 +32,9 @@ class ClassSubjectController extends Controller
         $this->authorize('viewAny', ClassSubject::class);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $filters = $request->only(['search', 'class_id', 'subject_id', 'teacher_id', 'active_only']);
+        $filters = $request->only(['search', 'class_id', 'subject_id', 'teacher_id', 'include_archived']);
         $perPage = $request->input('per_page', 15);
-        $activeOnly = ($filters['active_only'] ?? true) === true;
+        $activeOnly = ! filter_var($filters['include_archived'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         $classSubjects = $this->classSubjectQueryService->getClassSubjectsForIndex(
             $selectedYearId,

@@ -541,7 +541,7 @@ return [
         'all_classes' => 'Toutes les classes',
         'all_subjects' => 'Toutes les matières',
         'all_teachers' => 'Tous les enseignants',
-        'active_only' => 'Inclure les archivées',
+        'include_archived' => 'Inclure les archivées',
         'all_assignments' => 'Toutes les affectations',
         'empty_title' => 'Aucune affectation',
         'empty_subtitle' => 'Aucune affectation trouvée.',

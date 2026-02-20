@@ -32,7 +32,7 @@ interface Props extends PageProps {
   filters: {
     search?: string;
     teacher_id?: string;
-    active_only?: string;
+    include_archived?: string;
   };
   teachers: User[];
   classSubjectFormData: ClassSubjectFormData;
