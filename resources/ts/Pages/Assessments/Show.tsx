@@ -3,7 +3,8 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, ConfirmationModal, Section, Stat, QuestionList } from '@/Components';
 import { useFormatters } from '@/hooks/shared/useFormatters';
-import { TextEntry, Toggle } from '@evalium/ui';
+import { Toggle } from '@evalium/ui';
+import { AssessmentContextInfo } from '@/Components/features/assessment';
 import { type Assessment, type AssessmentAssignment, type AssessmentRouteContext, type Question, type QuestionResult } from '@/types';
 import { type PaginationType } from '@/types/datatable';
 import {
@@ -121,8 +122,6 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
         );
     };
 
-    const levelNameDescription = `${assessment?.class_subject?.class?.level?.name} (${assessment?.class_subject?.class?.level?.description})`;
-
     const pageBreadcrumbs = routeContext
         ? breadcrumbs.assessment.show(routeContext, assessment)
         : breadcrumbs.showTeacherAssessment(assessment);
@@ -180,22 +179,13 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
                         showDescription={true}
                         showMetadata={false}
                     />
-                    <Stat.Group columns={3} className="border-b border-b-gray-300 pb-3">
-                        <TextEntry
-                            label={t('assessment_pages.common.class')}
-                            value={assessment?.class_subject?.class?.name || '-'}
+                    <div className="border-b border-b-gray-300 pb-4">
+                        <AssessmentContextInfo
+                            assessment={assessment}
+                            role={routeContext?.role ?? 'teacher'}
+                            showLevel
                         />
-                        <TextEntry
-                            label={t('assessment_pages.common.level')}
-                            value={
-                                assessment?.class_subject?.class?.level ? levelNameDescription : '-'
-                            }
-                        />
-                        <TextEntry
-                            label={t('assessment_pages.common.subject')}
-                            value={assessment?.class_subject?.subject?.name || '-'}
-                        />
-                    </Stat.Group>
+                    </div>
 
                     <Stat.Group columns={4} className="mt-6">
                         <Stat.Item

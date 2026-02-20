@@ -26,6 +26,7 @@ import { hasPermission } from '@/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useAssessmentReview } from '@/hooks/features/assessment';
+import { AssessmentContextInfo, AssessmentHeader } from '@/Components/features/assessment';
 import {
     DocumentTextIcon,
     ChartPieIcon,
@@ -191,9 +192,15 @@ export default function GradeAssignment({
         ? breadcrumbs.assessment.grade(routeContext, assessment, student)
         : breadcrumbs.assessmentGrade(assessment, assignment, student);
 
-    const backRoute = routeContext
-        ? route(routeContext.showRoute, assessment.id)
-        : route('teacher.assessments.show', assessment.id);
+    const backUrl = (() => {
+        if (!routeContext) return route('teacher.assessments.show', assessment.id);
+        if (routeContext.showRoute) return route(routeContext.showRoute, assessment.id);
+        const classId = assessment.class_subject?.class?.id;
+        if (classId) {
+            return route('admin.classes.assessments.show', { class: classId, assessment: assessment.id });
+        }
+        return route(routeContext.backRoute);
+    })();
 
     return (
         <AuthenticatedLayout
@@ -205,11 +212,23 @@ export default function GradeAssignment({
         >
             <div className="max-w-6xl mx-auto space-y-6">
                 <Section
+                    title={assessment.title}
+                    collapsible
+                    defaultOpen={false}
+                >
+                    <AssessmentHeader
+                        assessment={assessment}
+                        showDescription
+                        showMetadata
+                    />
+                </Section>
+
+                <Section
                     title={t('grading_pages.show.correction_title', { student: student.name })}
                     actions={
                         <div className="flex items-center space-x-4">
                             <Button
-                                onClick={() => router.visit(backRoute)}
+                                onClick={() => router.visit(backUrl)}
                                 variant="outline"
                                 size="sm"
                             >
@@ -230,6 +249,12 @@ export default function GradeAssignment({
                         </div>
                     }
                 >
+                    <AssessmentContextInfo
+                        assessment={assessment}
+                        role={routeContext?.role ?? 'teacher'}
+                        student={student}
+                    />
+                    <div className="my-4 border-t border-gray-100" />
                     <Stat.Group columns={3}>
                         <Stat.Item
                             title={t('grading_pages.show.total_score')}
