@@ -225,8 +225,8 @@ class ClassController extends Controller
 
         $routeContext = [
             'role' => 'admin',
-            'backRoute' => 'admin.classes.assessments',
-            'showRoute' => 'admin.classes.assessments.show',
+            'backRoute' => 'admin.assessments.index',
+            'showRoute' => null,
             'reviewRoute' => 'admin.assessments.review',
             'gradeRoute' => 'admin.assessments.grade',
             'saveGradeRoute' => 'admin.assessments.saveGrade',
@@ -237,8 +237,7 @@ class ClassController extends Controller
             'reopenRoute' => null,
         ];
 
-        return Inertia::render('Admin/Classes/AssessmentShow', [
-            'class' => $assessment->classSubject->class,
+        return Inertia::render('Assessments/Show', [
             'assessment' => $assessment,
             'assignments' => $assignments,
             'routeContext' => $routeContext,

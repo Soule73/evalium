@@ -80,12 +80,12 @@ class AdminAssessmentShowTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn ($page) => $page
-                ->component('Admin/Classes/AssessmentShow')
+                ->component('Assessments/Show')
                 ->has('assessment')
                 ->has('assignments')
                 ->has('routeContext')
                 ->where('routeContext.role', 'admin')
-                ->where('routeContext.showRoute', 'admin.classes.assessments.show')
+                ->where('routeContext.showRoute', null)
                 ->where('routeContext.reviewRoute', 'admin.assessments.review')
                 ->where('routeContext.gradeRoute', 'admin.assessments.grade')
                 ->where('routeContext.editRoute', null)
@@ -106,7 +106,7 @@ class AdminAssessmentShowTest extends TestCase
         $response->assertInertia(
             fn ($page) => $page
                 ->where('routeContext.role', 'admin')
-                ->where('routeContext.backRoute', 'admin.classes.assessments')
+                ->where('routeContext.backRoute', 'admin.assessments.index')
                 ->where('routeContext.saveGradeRoute', 'admin.assessments.saveGrade')
         );
     }
@@ -288,7 +288,7 @@ class AdminAssessmentShowTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn ($page) => $page
-                ->component('Admin/Classes/AssessmentShow')
+                ->component('Assessments/Show')
                 ->has('assessment')
                 ->has('routeContext')
                 ->where('routeContext.role', 'admin')
