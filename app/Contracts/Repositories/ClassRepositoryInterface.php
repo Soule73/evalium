@@ -41,5 +41,5 @@ interface ClassRepositoryInterface
     /**
      * Get aggregate statistics for a class.
      */
-    public function getClassStatistics(ClassModel $class): array;
+    public function getClassStatistics(ClassModel $class, ?int $subjectsCount = null): array;
 }

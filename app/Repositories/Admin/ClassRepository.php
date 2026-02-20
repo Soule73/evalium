@@ -39,8 +39,8 @@ class ClassRepository implements ClassRepositoryInterface
                 },
                 'classSubjects as subjects_count',
             ])
-            ->when($filters['search'] ?? null, fn($query, $search) => $query->where('name', 'like', "%{$search}%"))
-            ->when($filters['level_id'] ?? null, fn($query, $levelId) => $query->where('level_id', $levelId))
+            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
+            ->when($filters['level_id'] ?? null, fn ($query, $levelId) => $query->where('level_id', $levelId))
             ->orderBy('level_id')
             ->orderBy('name');
 
@@ -54,7 +54,7 @@ class ClassRepository implements ClassRepositoryInterface
     {
         return $this->cacheService->remember(
             CacheService::KEY_LEVELS_ALL,
-            fn() => Level::orderBy('name')->get()
+            fn () => Level::orderBy('name')->get()
         );
     }
 
@@ -77,7 +77,7 @@ class ClassRepository implements ClassRepositoryInterface
         $class->load(['academicYear', 'level']);
         $class->loadCount([
             'enrollments',
-            'enrollments as active_enrollments_count' => fn($q) => $q->where('status', 'active'),
+            'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
         ]);
         $class->can_delete = $class->canBeDeleted();
 
@@ -104,13 +104,14 @@ class ClassRepository implements ClassRepositoryInterface
     public function getPaginatedEnrollments(ClassModel $class, array $filters): LengthAwarePaginator
     {
         $query = $class->enrollments()
-            ->with('student')
+            ->with(['student', 'class.level'])
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->whereHas('student', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%");
                 });
             })
+            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
             ->orderBy('enrolled_at', 'desc');
 
         return $this->paginateWithFilters(
@@ -136,7 +137,7 @@ class ClassRepository implements ClassRepositoryInterface
             })
             ->when(
                 ! filter_var($filters['include_archived'] ?? false, FILTER_VALIDATE_BOOLEAN),
-                fn($query) => $query->active()
+                fn ($query) => $query->active()
             )
             ->orderBy('created_at', 'desc');
 
@@ -150,7 +151,7 @@ class ClassRepository implements ClassRepositoryInterface
     /**
      * Get class statistics using optimised aggregate queries.
      */
-    public function getClassStatistics(ClassModel $class): array
+    public function getClassStatistics(ClassModel $class, ?int $subjectsCount = null): array
     {
         $totalStudents = $class->enrollments_count ?? $class->enrollments()->count();
         $activeStudents = $class->active_enrollments_count ?? $class->enrollments()->where('status', 'active')->count();
@@ -160,12 +161,14 @@ class ClassRepository implements ClassRepositoryInterface
             ->join('assessments', 'assessments.class_subject_id', '=', 'class_subjects.id')
             ->count('assessments.id');
 
+        $resolvedSubjectsCount = $subjectsCount ?? $class->classSubjects()->active()->count();
+
         return [
             'total_students' => $totalStudents,
             'active_students' => $activeStudents,
             'max_students' => $class->max_students,
             'available_slots' => $class->max_students - $totalStudents,
-            'subjects_count' => $class->classSubjects()->active()->count(),
+            'subjects_count' => $resolvedSubjectsCount,
             'assessments_count' => $assessmentsCount,
         ];
     }

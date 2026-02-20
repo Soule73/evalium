@@ -4,7 +4,6 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import {
     type ClassModel,
     type Assessment,
-    type Enrollment,
     type ClassSubject,
     type Subject,
     type User,
@@ -17,7 +16,7 @@ import { hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section, Badge, ConfirmationModal, Stat } from '@/Components';
-import { EnrollmentList, ClassSubjectList, AssessmentList } from '@/Components/shared/lists';
+import { ClassSubjectList, AssessmentList } from '@/Components/shared/lists';
 import { CreateClassSubjectModal } from '@/Components/features';
 import { route } from 'ziggy-js';
 import {
@@ -38,19 +37,14 @@ interface ClassSubjectFormData {
 
 interface Props extends PageProps {
     class: ClassModel;
-    enrollments: PaginationType<Enrollment>;
     recentClassSubjects: PaginationType<ClassSubject>;
     recentAssessments?: PaginationType<Assessment>;
     statistics: ClassStatistics;
     classSubjectFormData: ClassSubjectFormData;
-    studentsFilters?: {
-        search?: string;
-    };
 }
 
 export default function ClassShow({
     class: classItem,
-    enrollments,
     recentClassSubjects,
     recentAssessments,
     statistics,
@@ -99,8 +93,9 @@ export default function ClassShow({
             full: t('admin_pages.classes.full'),
             subjects: t('admin_pages.classes.subjects'),
             assessmentsLabel: t('admin_pages.classes.assessments'),
-            enrollmentsSection: t('admin_pages.classes.enrollments_section'),
-            enrollmentsSectionSubtitle: t('admin_pages.classes.enrollments_section_subtitle'),
+            studentsSection: t('admin_pages.classes.students_section'),
+            studentsSectionSubtitle: t('admin_pages.classes.students_section_subtitle'),
+            seeAllStudents: t('admin_pages.classes.see_all_students'),
             subjectsSection: t('admin_pages.classes.subjects_section'),
             subjectsSectionSubtitle: t('admin_pages.classes.subjects_section_subtitle'),
             assignSubject: t('admin_pages.classes.assign_subject'),
@@ -222,19 +217,33 @@ export default function ClassShow({
                 </Section>
 
                 <Section
-                    title={translations.enrollmentsSection}
-                    subtitle={translations.enrollmentsSectionSubtitle}
+                    title={translations.studentsSection}
+                    subtitle={translations.studentsSectionSubtitle}
+                    actions={
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            color="secondary"
+                            onClick={() =>
+                                router.visit(
+                                    route('admin.classes.students.index', classItem.id),
+                                )
+                            }
+                        >
+                            {translations.seeAllStudents}
+                        </Button>
+                    }
                 >
-                    <EnrollmentList
-                        data={enrollments}
-                        variant="admin"
-                        showClassColumn={false}
-                        permissions={{ canView: true }}
-                        onView={(enrollment) =>
-                            enrollment.student_id &&
-                            router.visit(route('admin.users.show', enrollment.student_id))
-                        }
-                    />
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <UserGroupIcon className="h-5 w-5" />
+                        <span>
+                            {statistics.active_students} / {statistics.max_students}{' '}
+                            {translations.students}
+                        </span>
+                        {enrollmentPercentage >= 90 && (
+                            <Badge label={translations.full} type="warning" size="sm" />
+                        )}
+                    </div>
                 </Section>
 
                 <Section

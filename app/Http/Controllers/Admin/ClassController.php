@@ -108,25 +108,25 @@ class ClassController extends Controller
         $selectedYearId = $this->getSelectedAcademicYearId($request);
         $this->validateAcademicYearAccess($class, $selectedYearId);
 
-        $studentsFilters = [
-            'search' => $request->input('students_search'),
-            'page' => $request->input('students_page', 1),
-            'per_page' => $request->input('students_per_page', 10),
-        ];
+        $class->load(['academicYear', 'level']);
+        $class->loadCount([
+            'enrollments',
+            'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
+        ]);
+        $class->can_delete = $class->canBeDeleted();
 
-        $data = $this->classQueryService->getClassDetailsWithPagination(
+        $recentClassSubjects = $this->classQueryService->getPaginatedClassSubjects(
             $class,
-            $studentsFilters,
             ['search' => null, 'page' => 1, 'per_page' => 5]
         );
 
-        $data['recentClassSubjects'] = $data['classSubjects'];
-        unset($data['classSubjects'], $data['subjectsFilters']);
-
-        $data['recentAssessments'] = $this->assessmentQueryService->getAssessmentsForClass($class, [], 3);
-        $data['classSubjectFormData'] = $this->classSubjectService->getFormDataForCreate($selectedYearId);
-
-        return Inertia::render('Admin/Classes/Show', $data);
+        return Inertia::render('Admin/Classes/Show', [
+            'class' => $class,
+            'recentClassSubjects' => $recentClassSubjects,
+            'statistics' => $this->classQueryService->getClassStatistics($class, $recentClassSubjects->total()),
+            'recentAssessments' => $this->assessmentQueryService->getAssessmentsForClass($class, [], 3),
+            'classSubjectFormData' => $this->classSubjectService->getFormDataForCreate($selectedYearId),
+        ]);
     }
 
     /**
