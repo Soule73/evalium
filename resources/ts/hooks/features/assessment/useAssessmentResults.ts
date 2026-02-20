@@ -51,7 +51,8 @@ const useAssessmentResults = ({
     const showCorrectAnswers = canShowCorrectAnswers;
 
     const getQuestionResult = useCallback(
-        (question: Question): QuestionResult => buildQuestionResult(question, userAnswers[question.id]),
+        (question: Question): QuestionResult =>
+            buildQuestionResult(question, userAnswers[question.id]),
         [userAnswers],
     );
 
@@ -68,4 +69,3 @@ const useAssessmentResults = ({
 };
 
 export default useAssessmentResults;
-

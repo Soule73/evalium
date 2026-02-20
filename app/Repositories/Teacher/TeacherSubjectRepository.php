@@ -54,7 +54,7 @@ class TeacherSubjectRepository implements TeacherSubjectRepositoryInterface
             $subject->classes_count = $subject->classes->count();
 
             $subject->assessments_count = $classSubjects->sum(
-                fn($cs) => $assessmentCounts->get($cs->id, 0)
+                fn ($cs) => $assessmentCounts->get($cs->id, 0)
             );
 
             return $subject;
@@ -72,7 +72,7 @@ class TeacherSubjectRepository implements TeacherSubjectRepositoryInterface
     {
         return $this->classQueryService
             ->getActiveClassesForTeacher($teacherId, $selectedYearId)
-            ->map(fn($item) => ['id' => $item->class_id, 'name' => $item->class_name]);
+            ->map(fn ($item) => ['id' => $item->class_id, 'name' => $item->class_name]);
     }
 
     /**
@@ -131,7 +131,7 @@ class TeacherSubjectRepository implements TeacherSubjectRepositoryInterface
             ->with(['classSubject.class'])
             ->when(
                 $filters['search'] ?? null,
-                fn($query, $search) => $query->where('title', 'like', "%{$search}%")
+                fn ($query, $search) => $query->where('title', 'like', "%{$search}%")
             )
             ->latest('scheduled_at')
             ->paginate($perPage)

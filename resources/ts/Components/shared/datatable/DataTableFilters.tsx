@@ -83,9 +83,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(
                                     <span className="text-sm text-gray-600">{filter.label}</span>
                                     <Toggle
                                         id={`datatable-filter-${filter.key}`}
-                                        checked={
-                                            values[filter.key] === (filter.trueValue ?? '1')
-                                        }
+                                        checked={values[filter.key] === (filter.trueValue ?? '1')}
                                         onChange={(checked) =>
                                             onFilterChange(
                                                 filter.key,

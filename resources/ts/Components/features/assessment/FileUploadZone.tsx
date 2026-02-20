@@ -164,10 +164,11 @@ export function FileUploadZone({
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
-                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${dragOver
+                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
+                        dragOver
                             ? 'border-indigo-500 bg-indigo-50'
                             : 'border-gray-300 hover:border-gray-400 bg-gray-50'
-                        }`}
+                    }`}
                     onClick={() => fileInputRef.current?.click()}
                 >
                     <ArrowUpTrayIcon className="mx-auto h-10 w-10 text-gray-400" />

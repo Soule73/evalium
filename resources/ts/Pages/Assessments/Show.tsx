@@ -5,7 +5,13 @@ import { Button, ConfirmationModal, Section, Stat, QuestionList } from '@/Compon
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { Toggle } from '@evalium/ui';
 import { AssessmentContextInfo } from '@/Components/features/assessment';
-import { type Assessment, type AssessmentAssignment, type AssessmentRouteContext, type Question, type QuestionResult } from '@/types';
+import {
+    type Assessment,
+    type AssessmentAssignment,
+    type AssessmentRouteContext,
+    type Question,
+    type QuestionResult,
+} from '@/types';
 import { type PaginationType } from '@/types/datatable';
 import {
     ClockIcon,
@@ -95,9 +101,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
             feedback: null,
             score: undefined,
             userText:
-                question.type === 'text'
-                    ? t('assessment_pages.common.free_text_info')
-                    : undefined,
+                question.type === 'text' ? t('assessment_pages.common.free_text_info') : undefined,
         }),
         [t],
     );

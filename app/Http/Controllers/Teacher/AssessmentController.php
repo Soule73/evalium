@@ -76,9 +76,9 @@ class AssessmentController extends Controller
 
         $classes = $this->assessmentQueryService
             ->getClassFilterDataForTeacher($teacherId, $selectedYearId)
-            ->map(fn($item) => [
+            ->map(fn ($item) => [
                 'id' => $item->class_id,
-                'name' => $item->class_name . ' - ' . $item->level_name . ' (' . $item->level_description . ')',
+                'name' => $item->class_name.' - '.$item->level_name.' ('.$item->level_description.')',
             ]);
 
         return Inertia::render('Teacher/Assessments/Index', [
@@ -225,7 +225,7 @@ class AssessmentController extends Controller
 
         if (! $check['can_reopen']) {
             return response()->json([
-                'message' => __('messages.assignment_cannot_reopen_' . $check['reason']),
+                'message' => __('messages.assignment_cannot_reopen_'.$check['reason']),
             ], 422);
         }
 

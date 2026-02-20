@@ -74,7 +74,7 @@ class ClassService implements ClassServiceInterface
             'name' => $data['name'] ?? null,
             'description' => $data['description'] ?? null,
             'max_students' => $data['max_students'] ?? null,
-        ], fn($value) => $value !== null);
+        ], fn ($value) => $value !== null);
 
         $class->update($updateData);
 

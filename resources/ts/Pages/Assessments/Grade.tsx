@@ -13,14 +13,7 @@ import {
 import { requiresManualGrading } from '@/utils';
 import { route } from 'ziggy-js';
 import { router, usePage } from '@inertiajs/react';
-import {
-    Button,
-    Section,
-    Textarea,
-    ConfirmationModal,
-    Stat,
-    QuestionList,
-} from '@/Components';
+import { Button, Section, Textarea, ConfirmationModal, Stat, QuestionList } from '@/Components';
 import { FileList } from '@/Components/shared/lists';
 import { hasPermission } from '@/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
@@ -103,13 +96,13 @@ export default function GradeAssignment({
 
     const saveGradeUrl = routeContext?.saveGradeRoute
         ? route(routeContext.saveGradeRoute, {
-            assessment: assessment.id,
-            assignment: assignment.id,
-        })
+              assessment: assessment.id,
+              assignment: assignment.id,
+          })
         : route('teacher.assessments.saveGrade', {
-            assessment: assessment.id,
-            assignment: assignment.id,
-        });
+              assessment: assessment.id,
+              assignment: assignment.id,
+          });
 
     const handleConfirmSubmit = useCallback(() => {
         setIsSubmitting(true);
@@ -185,7 +178,14 @@ export default function GradeAssignment({
                 </div>
             );
         },
-        [editableScores, feedbacks, canGradeAssessments, handleScoreChange, handleFeedbackChange, t],
+        [
+            editableScores,
+            feedbacks,
+            canGradeAssessments,
+            handleScoreChange,
+            handleFeedbackChange,
+            t,
+        ],
     );
 
     const pageBreadcrumbs = routeContext
@@ -197,7 +197,10 @@ export default function GradeAssignment({
         if (routeContext.showRoute) return route(routeContext.showRoute, assessment.id);
         const classId = assessment.class_subject?.class?.id;
         if (classId) {
-            return route('admin.classes.assessments.show', { class: classId, assessment: assessment.id });
+            return route('admin.classes.assessments.show', {
+                class: classId,
+                assessment: assessment.id,
+            });
         }
         return route(routeContext.backRoute);
     })();
@@ -211,16 +214,8 @@ export default function GradeAssignment({
             breadcrumb={pageBreadcrumbs}
         >
             <div className="max-w-6xl mx-auto space-y-6">
-                <Section
-                    title={assessment.title}
-                    collapsible
-                    defaultOpen={false}
-                >
-                    <AssessmentHeader
-                        assessment={assessment}
-                        showDescription
-                        showMetadata
-                    />
+                <Section title={assessment.title} collapsible defaultOpen={false}>
+                    <AssessmentHeader assessment={assessment} showDescription showMetadata />
                 </Section>
 
                 <Section

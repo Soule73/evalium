@@ -100,10 +100,7 @@ export default function ClassStudentShow({
     const levelNameDescription = `${enrollment.class?.level?.name} (${enrollment.class?.level?.description})`;
 
     return (
-        <AuthenticatedLayout
-            title={enrollment.student?.name || ''}
-            breadcrumb={pageBreadcrumbs}
-        >
+        <AuthenticatedLayout title={enrollment.student?.name || ''} breadcrumb={pageBreadcrumbs}>
             <div className="space-y-6">
                 <Section
                     title={enrollment.student?.name || ''}
@@ -115,7 +112,9 @@ export default function ClassStudentShow({
                                 variant="outline"
                                 color="secondary"
                                 onClick={() =>
-                                    router.visit(route('admin.classes.students.index', classItem.id))
+                                    router.visit(
+                                        route('admin.classes.students.index', classItem.id),
+                                    )
                                 }
                             >
                                 {translations.back}
@@ -202,7 +201,8 @@ export default function ClassStudentShow({
                                     {translations.withdrawalInfo}
                                 </div>
                                 <div className="text-sm text-gray-700">
-                                    {translations.withdrawnAt}: {formatDate(enrollment.withdrawn_at)}
+                                    {translations.withdrawnAt}:{' '}
+                                    {formatDate(enrollment.withdrawn_at)}
                                 </div>
                             </div>
                         </div>

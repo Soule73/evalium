@@ -225,9 +225,7 @@ export default function ClassShow({
                             variant="outline"
                             color="secondary"
                             onClick={() =>
-                                router.visit(
-                                    route('admin.classes.students.index', classItem.id),
-                                )
+                                router.visit(route('admin.classes.students.index', classItem.id))
                             }
                         >
                             {translations.seeAllStudents}

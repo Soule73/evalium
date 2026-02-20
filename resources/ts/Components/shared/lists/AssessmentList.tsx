@@ -7,7 +7,12 @@ import { Badge, MarkdownRenderer, Toggle } from '@evalium/ui';
 import { formatDate } from '@/utils';
 import { useTranslations } from '@/hooks';
 import { useFormatters } from '@/hooks/shared/useFormatters';
-import type { ColumnConfig, ActionConfig, FilterConfig, EntityListVariant } from './types/listConfig';
+import type {
+    ColumnConfig,
+    ActionConfig,
+    FilterConfig,
+    EntityListVariant,
+} from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';
 
 interface ClassSubjectOption {
@@ -48,7 +53,10 @@ function isAssignmentVariant(v: EntityListVariant | undefined): boolean {
 }
 
 function getStatusBadge(status: string, t: TranslateFn): ReactNode {
-    const statusMap: Record<string, { label: string; type: 'warning' | 'info' | 'success' | 'gray' }> = {
+    const statusMap: Record<
+        string,
+        { label: string; type: 'warning' | 'info' | 'success' | 'gray' }
+    > = {
         not_submitted: { label: t('student_assessment_pages.index.not_started'), type: 'warning' },
         in_progress: { label: t('student_assessment_pages.index.in_progress'), type: 'info' },
         submitted: { label: t('student_assessment_pages.index.completed'), type: 'success' },
@@ -100,7 +108,13 @@ function buildColumns(deps: ColumnDeps): ColumnConfig<AssessmentItem>[] {
                         </span>
                         <div className="flex items-center gap-2">
                             {getDeliveryModeBadge(assignment.assessment.delivery_mode, t)}
-                            {variant === 'student' && <span className="text-sm text-gray-500"> - {assignment.assessment.questions_count || 0} {t('assessment_pages.common.questions')}</span>}
+                            {variant === 'student' && (
+                                <span className="text-sm text-gray-500">
+                                    {' '}
+                                    - {assignment.assessment.questions_count || 0}{' '}
+                                    {t('assessment_pages.common.questions')}
+                                </span>
+                            )}
                         </div>
                     </div>
                 );
@@ -161,9 +175,7 @@ function buildColumns(deps: ColumnDeps): ColumnConfig<AssessmentItem>[] {
             return (
                 <div>
                     <div className="text-xs text-gray-500">{dateLabel}</div>
-                    <span className="text-gray-700">
-                        {formatDate(dateValue ?? '', 'datetime')}
-                    </span>
+                    <span className="text-gray-700">{formatDate(dateValue ?? '', 'datetime')}</span>
                 </div>
             );
         },
@@ -323,7 +335,7 @@ interface ActionDeps {
 }
 
 function buildActions(deps: ActionDeps): ActionConfig<AssessmentItem>[] {
-    const { onView, enrollment } = deps;
+    const { onView } = deps;
 
     return [
         {
@@ -475,10 +487,7 @@ function buildAdminFilters(
     return filters;
 }
 
-function buildTeacherFilters(
-    classes: ClassOption[],
-    t: TranslateFn,
-): FilterConfig[] {
+function buildTeacherFilters(classes: ClassOption[], t: TranslateFn): FilterConfig[] {
     return [
         {
             key: 'class_id',
@@ -545,15 +554,21 @@ export function AssessmentList({
     }, []);
 
     const config = useMemo(() => {
-        const columns = buildColumns({ t, variant, showClassColumn, formatDuration, handleToggleStatus });
+        const columns = buildColumns({
+            t,
+            variant,
+            showClassColumn,
+            formatDuration,
+            handleToggleStatus,
+        });
         const actions = buildActions({ onView, enrollment });
         const filters = isAssignmentVariant(variant)
             ? buildAssignmentFilters(variant, subjects, t)
             : variant === 'admin' && (filterSubjects.length > 0 || filterTeachers.length > 0)
-                ? buildAdminFilters(filterSubjects, filterTeachers, t)
-                : variant === 'teacher' && classes.length > 0
-                    ? buildTeacherFilters(classes, t)
-                    : undefined;
+              ? buildAdminFilters(filterSubjects, filterTeachers, t)
+              : variant === 'teacher' && classes.length > 0
+                ? buildTeacherFilters(classes, t)
+                : undefined;
 
         return {
             entity: 'assessment',
@@ -561,7 +576,19 @@ export function AssessmentList({
             actions,
             ...(filters && { filters }),
         };
-    }, [variant, showClassColumn, onView, handleToggleStatus, formatDuration, t, enrollment, subjects, classes, filterSubjects, filterTeachers]);
+    }, [
+        variant,
+        showClassColumn,
+        onView,
+        handleToggleStatus,
+        formatDuration,
+        t,
+        enrollment,
+        subjects,
+        classes,
+        filterSubjects,
+        filterTeachers,
+    ]);
 
     return (
         <BaseEntityList

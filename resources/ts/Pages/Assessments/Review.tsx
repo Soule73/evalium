@@ -9,14 +9,7 @@ import {
 } from '@/types';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
-import {
-    Badge,
-    Button,
-    Section,
-    Stat,
-    QuestionList,
-    TeacherNotesDisplay,
-} from '@/Components';
+import { Badge, Button, Section, Stat, QuestionList, TeacherNotesDisplay } from '@/Components';
 import { FileList } from '@/Components/shared/lists';
 import { formatDate } from '@/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
@@ -57,7 +50,10 @@ export default function ReviewAssignment({
         if (routeContext.showRoute) return route(routeContext.showRoute, assessment.id);
         const classId = assessment.class_subject?.class?.id;
         if (classId) {
-            return route('admin.classes.assessments.show', { class: classId, assessment: assessment.id });
+            return route('admin.classes.assessments.show', {
+                class: classId,
+                assessment: assessment.id,
+            });
         }
         return route(routeContext.backRoute);
     })();
@@ -65,9 +61,9 @@ export default function ReviewAssignment({
     const gradeRouteUrl = routeContext
         ? route(routeContext.gradeRoute, { assessment: assessment.id, assignment: assignment.id })
         : route('teacher.assessments.grade', {
-            assessment: assessment.id,
-            assignment: assignment.id,
-        });
+              assessment: assessment.id,
+              assignment: assignment.id,
+          });
 
     return (
         <AuthenticatedLayout
@@ -78,16 +74,8 @@ export default function ReviewAssignment({
             breadcrumb={pageBreadcrumbs}
         >
             <div className="max-w-6xl mx-auto space-y-6">
-                <Section
-                    title={assessment.title}
-                    collapsible
-                    defaultOpen={false}
-                >
-                    <AssessmentHeader
-                        assessment={assessment}
-                        showDescription
-                        showMetadata
-                    />
+                <Section title={assessment.title} collapsible defaultOpen={false}>
+                    <AssessmentHeader assessment={assessment} showDescription showMetadata />
                 </Section>
 
                 <Section

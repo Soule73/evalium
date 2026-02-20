@@ -32,8 +32,8 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
                         ->orWhere('email', 'like', "%{$search}%");
                 });
             })
-            ->when($filters['class_id'] ?? null, fn($query, $classId) => $query->where('class_id', $classId))
-            ->when($filters['status'] ?? null, fn($query, $status) => $query->where('status', $status))
+            ->when($filters['class_id'] ?? null, fn ($query, $classId) => $query->where('class_id', $classId))
+            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
             ->orderBy('enrolled_at', 'desc');
 
         $enrollments = $this->paginateQuery($query, $perPage);
@@ -55,9 +55,9 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
     public function getCreateFormData(?int $academicYearId): array
     {
         $classes = ClassModel::forAcademicYear($academicYearId)
-            ->with(['academicYear', 'level', 'enrollments' => fn($q) => $q->where('status', 'active')->with('student:id,name,email,avatar')])
+            ->with(['academicYear', 'level', 'enrollments' => fn ($q) => $q->where('status', 'active')->with('student:id,name,email,avatar')])
             ->withCount([
-                'enrollments as active_enrollments_count' => fn($q) => $q->where('status', 'active'),
+                'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
             ])
             ->orderBy('name')
             ->get();
@@ -83,7 +83,7 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
         $classes = ClassModel::forAcademicYear($academicYearId)
             ->with(['level', 'academicYear'])
             ->withCount([
-                'enrollments as active_enrollments_count' => fn($q) => $q->where('status', 'active'),
+                'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
             ])
             ->orderBy('name')
             ->get();
@@ -105,7 +105,7 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
             ->where('class_id', $enrollment->class_id)
             ->with(['subject:id,name', 'teacher:id,name'])
             ->get()
-            ->map(fn(ClassSubject $cs) => [
+            ->map(fn (ClassSubject $cs) => [
                 'id' => $cs->id,
                 'subject_name' => $cs->subject?->name ?? '-',
                 'teacher_name' => $cs->teacher?->name ?? '-',

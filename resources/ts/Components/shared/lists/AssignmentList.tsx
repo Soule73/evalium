@@ -32,10 +32,7 @@ interface AssignmentListProps {
 
 type StatusResult = { label: string; type: 'gray' | 'info' | 'warning' | 'success' };
 
-function resolveStatus(
-    assignment: AssignmentWithVirtual,
-    t: (k: string) => string,
-): StatusResult {
+function resolveStatus(assignment: AssignmentWithVirtual, t: (k: string) => string): StatusResult {
     if (assignment.is_virtual) {
         return { label: t('components.assignment_list.status_not_started'), type: 'gray' };
     }
@@ -282,9 +279,12 @@ export function AssignmentList({
 
     const handleGrade = useCallback(
         (assignment: AssignmentWithVirtual) => {
-            if (!assignment.id ||
+            if (
+                !assignment.id ||
                 // !assignment.submitted_at ||
-                assignment.is_virtual) return;
+                assignment.is_virtual
+            )
+                return;
             if (onGrade) {
                 onGrade(assignment);
                 return;

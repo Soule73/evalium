@@ -28,26 +28,26 @@ class TeacherAssessmentRepository implements TeacherAssessmentRepositoryInterfac
             ->with(['classSubject.class.level', 'classSubject.subject'])
             ->withCount('questions')
             ->forAcademicYear($selectedYearId)
-            ->whereHas('classSubject', fn($query) => $query->where('teacher_id', $teacherId))
+            ->whereHas('classSubject', fn ($query) => $query->where('teacher_id', $teacherId))
             ->when(
                 $filters['search'] ?? null,
-                fn($query, $search) => $query->where('title', 'like', "%{$search}%")
+                fn ($query, $search) => $query->where('title', 'like', "%{$search}%")
             )
             ->when(
                 $filters['class_subject_id'] ?? null,
-                fn($query, $classSubjectId) => $query->where('class_subject_id', $classSubjectId)
+                fn ($query, $classSubjectId) => $query->where('class_subject_id', $classSubjectId)
             )
             ->when(
                 $filters['class_id'] ?? null,
-                fn($query, $classId) => $query->whereHas('classSubject', fn($q) => $q->where('class_id', $classId))
+                fn ($query, $classId) => $query->whereHas('classSubject', fn ($q) => $q->where('class_id', $classId))
             )
             ->when(
                 $filters['type'] ?? null,
-                fn($query, $type) => $query->where('type', $type)
+                fn ($query, $type) => $query->where('type', $type)
             )
             ->when(
                 isset($filters['is_published']),
-                fn($query) => $query->where('is_published', (bool) $filters['is_published'])
+                fn ($query) => $query->where('is_published', (bool) $filters['is_published'])
             )
             ->orderBy('scheduled_at', 'desc')
             ->paginate($perPage)

@@ -66,14 +66,14 @@ const QuestionItem: React.FC<QuestionItemProps> = memo(
                     {(question.type === 'one_choice' ||
                         question.type === 'multiple' ||
                         question.type === 'boolean') && (
-                            <QuestionResultReadOnlyChoices
-                                choices={question.choices ?? []}
-                                userChoices={result.userChoices}
-                                type={question.type}
-                                isTeacherView={isTeacherView}
-                                showCorrectAnswers={showCorrectAnswers}
-                            />
-                        )}
+                        <QuestionResultReadOnlyChoices
+                            choices={question.choices ?? []}
+                            userChoices={result.userChoices}
+                            type={question.type}
+                            isTeacherView={isTeacherView}
+                            showCorrectAnswers={showCorrectAnswers}
+                        />
+                    )}
 
                     {!hasResponse && !previewMode && (
                         <AlertEntry
@@ -143,7 +143,9 @@ const QuestionList: React.FC<QuestionListProps> = ({
             {questions.map((question, index) => (
                 <div
                     key={question.id}
-                    className={withSection ? 'pb-6 border-b border-gray-200 last:border-0' : undefined}
+                    className={
+                        withSection ? 'pb-6 border-b border-gray-200 last:border-0' : undefined
+                    }
                 >
                     <QuestionItem
                         question={question}

@@ -41,10 +41,7 @@ export default function ClassSubjectIndex({ classSubjects, formData }: Props) {
             title={translations.title}
             breadcrumb={breadcrumbs.admin.classSubjects()}
         >
-            <Section
-                title={translations.title}
-                subtitle={translations.subtitle}
-            >
+            <Section title={translations.title} subtitle={translations.subtitle}>
                 <ClassSubjectList
                     data={classSubjects}
                     variant="admin"

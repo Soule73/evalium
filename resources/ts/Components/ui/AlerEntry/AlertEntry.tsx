@@ -15,7 +15,10 @@ interface AlertEntryProps {
     type: AlertType;
 }
 
-const ALERT_STYLES: Record<AlertType, { container: string; icon: string; title: string; body: string }> = {
+const ALERT_STYLES: Record<
+    AlertType,
+    { container: string; icon: string; title: string; body: string }
+> = {
     success: {
         container: 'bg-green-50 border-green-200 ring-1 ring-green-100',
         icon: 'text-green-500',
@@ -59,7 +62,10 @@ const AlertEntry: React.FC<AlertEntryProps> = ({ title, children, type, classNam
     const Icon = ALERT_ICONS[type];
 
     return (
-        <div className={`rounded-lg border p-4 ${styles.container} ${className || ''}`} role="alert">
+        <div
+            className={`rounded-lg border p-4 ${styles.container} ${className || ''}`}
+            role="alert"
+        >
             <div className="flex gap-3">
                 <Icon className={`h-5 w-5 shrink-0 mt-0.5 ${styles.icon}`} aria-hidden="true" />
                 <div className="flex-1 min-w-0">

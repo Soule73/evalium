@@ -69,9 +69,9 @@ class TeacherClassRepository implements TeacherClassRepositoryInterface
             ->withCount('assessments')
             ->when(
                 $filters['subjects_search'] ?? null,
-                fn($query, $search) => $query->whereHas(
+                fn ($query, $search) => $query->whereHas(
                     'subject',
-                    fn($q) => $q->where('name', 'like', "%{$search}%")
+                    fn ($q) => $q->where('name', 'like', "%{$search}%")
                 )
             )
             ->paginate($perPage, ['*'], 'subjects_page')
@@ -96,7 +96,7 @@ class TeacherClassRepository implements TeacherClassRepositoryInterface
             ->with(['classSubject.subject'])
             ->when(
                 $filters['assessments_search'] ?? null,
-                fn($query, $search) => $query->where('title', 'like', "%{$search}%")
+                fn ($query, $search) => $query->where('title', 'like', "%{$search}%")
             )
             ->latest('scheduled_at')
             ->paginate($perPage, ['*'], 'assessments_page')
@@ -116,9 +116,9 @@ class TeacherClassRepository implements TeacherClassRepositoryInterface
             ->with('student')
             ->when(
                 $filters['students_search'] ?? null,
-                fn($query, $search) => $query->whereHas(
+                fn ($query, $search) => $query->whereHas(
                     'student',
-                    fn($q) => $q->where('name', 'like', "%{$search}%")
+                    fn ($q) => $q->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
                 )
             )
