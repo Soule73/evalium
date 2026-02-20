@@ -93,7 +93,7 @@ export function EnrollmentList({
                     labelKey: 'admin_pages.enrollments.class',
                     type: 'select',
                     options: classFilterOptions,
-                    conditional: (v) => v === 'admin',
+                    conditional: (v) => v === 'admin' && showClassColumn,
                 },
                 {
                     key: 'status',
@@ -209,7 +209,13 @@ export function EnrollmentList({
                 {
                     labelKey: 'admin_pages.common.view',
                     onClick: (item: Enrollment) =>
-                        onView?.(item) || router.visit(route('admin.enrollments.show', item.id)),
+                        onView?.(item) ||
+                        router.visit(
+                            route('admin.classes.students.show', {
+                                class: item.class_id,
+                                enrollment: item.id,
+                            }),
+                        ),
                     color: 'secondary' as const,
                     variant: 'outline' as const,
                     conditional: (_item: Enrollment, v) =>

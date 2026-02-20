@@ -343,21 +343,39 @@ function buildActions(deps: ActionDeps): ActionConfig<AssessmentItem>[] {
         {
             labelKey: 'admin_pages.enrollments.view_details',
             onClick: (item) => {
-                const assignment = item as AssignmentWithAssessment;
-                if (enrollment) {
-                    router.visit(
-                        route('admin.enrollments.assignments.show', {
-                            enrollment: enrollment.id,
-                            assignment: assignment.id,
-                        }),
-                    );
-                }
+                const assignment = item as AssessmentAssignment;
+                router.visit(
+                    route('admin.assessments.review', {
+                        assessment: assignment.assessment_id,
+                        assignment: assignment.id,
+                    }),
+                );
             },
             color: 'secondary',
             variant: 'outline',
             conditional: (item, cv) => {
                 if (cv !== 'class-assignment') return false;
-                return !!(item as AssessmentAssignment).id;
+                const assignment = item as AssessmentAssignment;
+                return !!assignment.id && assignment.status !== 'submitted';
+            },
+        },
+        {
+            labelKey: 'admin_pages.assessments.grade',
+            onClick: (item) => {
+                const assignment = item as AssessmentAssignment;
+                router.visit(
+                    route('admin.assessments.grade', {
+                        assessment: assignment.assessment_id,
+                        assignment: assignment.id,
+                    }),
+                );
+            },
+            color: 'primary',
+            variant: 'solid',
+            conditional: (item, cv) => {
+                if (cv !== 'class-assignment') return false;
+                const assignment = item as AssessmentAssignment;
+                return !!assignment.id && assignment.status === 'submitted';
             },
         },
         {
