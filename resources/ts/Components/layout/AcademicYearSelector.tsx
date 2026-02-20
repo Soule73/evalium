@@ -57,6 +57,7 @@ export function AcademicYearSelector({ user }: AcademicYearSelectorProps) {
     return (
         <div className="flex items-center gap-2">
             <Select
+                size='sm'
                 id="academic-year-selector"
                 options={options}
                 value={selectedYear.id}

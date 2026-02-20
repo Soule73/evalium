@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, forwardRef } from 'react';
+import { useState, useRef, useEffect, useCallback, forwardRef } from 'react';
 import { ChevronDownIcon, CheckIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 interface Option {
@@ -22,10 +22,26 @@ interface SelectProps {
     onBlur?: () => void;
     disabled?: boolean;
     searchable?: boolean;
+    size?: 'sm' | 'md';
     className?: string;
     name?: string;
     required?: boolean;
 }
+
+const SIZE_STYLES = {
+    sm: {
+        trigger: 'px-2.5 py-1.5 text-sm',
+        option: 'px-2.5 py-1.5 text-xs',
+        icon: 'h-4 w-4',
+        chevron: 'h-4 w-4',
+    },
+    md: {
+        trigger: 'px-3 py-2 text-sm',
+        option: 'px-3 py-2 text-sm',
+        icon: 'h-5 w-5',
+        chevron: 'h-5 w-5',
+    },
+} as const;
 
 const Select = forwardRef<HTMLDivElement, SelectProps>(
     (
@@ -43,6 +59,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
             onBlur,
             disabled = false,
             searchable = true,
+            size = 'md',
             className = '',
             required = false,
             name,
@@ -51,50 +68,62 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
     ) => {
         const [isOpen, setIsOpen] = useState(false);
         const [searchTerm, setSearchTerm] = useState('');
-        const [filteredOptions, setFilteredOptions] = useState(options);
         const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
         const dropdownRef = useRef<HTMLDivElement>(null);
         const searchInputRef = useRef<HTMLInputElement>(null);
         const listRef = useRef<HTMLUListElement>(null);
 
-        // Filtrer les options basées sur le terme de recherche
-        useEffect(() => {
-            if (!searchable) {
-                setFilteredOptions(options);
-                return;
-            }
+        const sz = SIZE_STYLES[size];
 
-            const filtered = options.filter((option) =>
-                option.label.toLowerCase().includes(searchTerm.toLowerCase()),
-            );
-            setFilteredOptions(filtered);
+        const filteredOptions = searchable && searchTerm
+            ? options.filter((o) => o.label.toLowerCase().includes(searchTerm.toLowerCase()))
+            : options;
+
+        const selectedOption = options.find((o) => o.value === value);
+
+        const close = useCallback(() => {
+            setIsOpen(false);
+            setSearchTerm('');
             setHighlightedIndex(-1);
-        }, [searchTerm, options, searchable]);
+        }, []);
 
-        // Fermer le dropdown quand on clique à l'extérieur
         useEffect(() => {
-            const handleClickOutside = (event: MouseEvent) => {
-                if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                    setIsOpen(false);
-                    setSearchTerm('');
+            const handleClickOutside = (e: MouseEvent) => {
+                if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+                    close();
                     onBlur?.();
                 }
             };
-
             document.addEventListener('mousedown', handleClickOutside);
             return () => document.removeEventListener('mousedown', handleClickOutside);
-        }, [onBlur]);
+        }, [close, onBlur]);
 
-        // Focus sur le champ de recherche quand le dropdown s'ouvre
         useEffect(() => {
-            if (isOpen && searchable && searchInputRef.current) {
-                searchInputRef.current.focus();
+            if (isOpen && searchable) {
+                searchInputRef.current?.focus();
             }
         }, [isOpen, searchable]);
 
-        // Gestion des touches du clavier
-        const handleKeyDown = (e: React.KeyboardEvent) => {
+        useEffect(() => {
+            if (highlightedIndex >= 0 && listRef.current) {
+                const el = listRef.current.children[highlightedIndex] as HTMLElement;
+                el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+        }, [highlightedIndex]);
+
+        const handleSelect = useCallback((option: Option) => {
+            if (option.disabled) return;
+            onChange?.(option.value);
+            close();
+        }, [onChange, close]);
+
+        const handleToggle = useCallback(() => {
+            if (disabled) return;
+            setIsOpen((prev) => !prev);
+        }, [disabled]);
+
+        const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
             if (!isOpen) {
                 if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
                     e.preventDefault();
@@ -102,11 +131,9 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                 }
                 return;
             }
-
             switch (e.key) {
                 case 'Escape':
-                    setIsOpen(false);
-                    setSearchTerm('');
+                    close();
                     break;
                 case 'ArrowDown':
                     e.preventDefault();
@@ -125,75 +152,31 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                     }
                     break;
             }
-        };
+        }, [isOpen, close, filteredOptions, highlightedIndex, handleSelect]);
 
-        // Faire défiler l'option en surbrillance dans la vue
-        useEffect(() => {
-            if (highlightedIndex >= 0 && listRef.current) {
-                const highlightedElement = listRef.current.children[
-                    highlightedIndex
-                ] as HTMLElement;
-                if (highlightedElement) {
-                    highlightedElement.scrollIntoView({
-                        block: 'nearest',
-                        behavior: 'smooth',
-                    });
-                }
-            }
-        }, [highlightedIndex]);
-
-        const handleSelect = (option: Option) => {
-            if (option.disabled) return;
-
-            onChange?.(option.value);
-            setIsOpen(false);
-            setSearchTerm('');
-            setHighlightedIndex(-1);
-        };
-
-        const handleToggle = () => {
-            if (disabled) return;
-            setIsOpen(!isOpen);
-            if (!isOpen) {
-                setSearchTerm('');
-            }
-        };
-
-        const selectedOption = options.find((opt) => opt.value === value);
-
-        const baseClasses = 'relative w-full';
-        const triggerClasses = `
-            w-full px-3 py-2 bg-white border rounded-md
-            focus:outline-none focus:ring-2 focus:ring-indigo-500
-            transition-all duration-200 cursor-pointer
-            flex items-center justify-between
-            ${
-                error
-                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 focus:border-indigo-500 hover:border-gray-400'
-            }
-            ${disabled ? 'bg-gray-50 cursor-not-allowed opacity-60' : ''}
-            ${isOpen ? 'ring-2 ring-indigo-500 border-indigo-500' : ''}
-        `.trim();
+        const triggerClasses = [
+            'w-full bg-white border rounded-md cursor-pointer flex items-center justify-between',
+            'focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200',
+            sz.trigger,
+            error
+                ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                : 'border-gray-300 focus:border-indigo-500 hover:border-gray-400',
+            disabled ? 'bg-gray-50 cursor-not-allowed opacity-60' : '',
+            isOpen ? 'ring-2 ring-indigo-500 border-indigo-500' : '',
+        ].filter(Boolean).join(' ');
 
         return (
-            <div
-                className={`${baseClasses} ${className}`}
-                ref={ref}
-                id={id}
-                data-e2e={id ? `${id}-container` : undefined}
-            >
-                {/* Hidden input for form submission */}
-                <input type="hidden" name={name} value={value || ''} />
+            <div className={`relative w-full ${className}`} ref={ref} id={id} data-e2e={id ? `${id}-container` : undefined}>
+                <input type="hidden" name={name} value={value ?? ''} />
 
                 {label && (
                     <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
-                        {label} {required && <span className="text-red-500 ml-1">*</span>}
+                        {label}
+                        {required && <span className="text-red-500 ml-1">*</span>}
                     </label>
                 )}
 
                 <div className="relative" ref={dropdownRef}>
-                    {/* Trigger Button */}
                     <div
                         className={triggerClasses}
                         onClick={handleToggle}
@@ -204,76 +187,65 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                         aria-haspopup="listbox"
                         aria-label={label || 'Select option'}
                     >
-                        <span
-                            className={`block truncate ${!selectedOption ? 'text-gray-500' : 'text-gray-900'}`}
-                        >
-                            {selectedOption ? selectedOption.label : placeholder || ''}
+                        <span className={`block truncate ${!selectedOption ? 'text-gray-500' : 'text-gray-900'}`}>
+                            {selectedOption ? selectedOption.label : (placeholder ?? '')}
                         </span>
                         <ChevronDownIcon
-                            className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${
-                                isOpen ? 'rotate-180' : ''
-                            }`}
+                            className={`${sz.chevron} text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                         />
                     </div>
 
-                    {/* Dropdown */}
                     {isOpen && (
                         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-                            {/* Search Input */}
                             {searchable && (
                                 <div className="p-2 border-b border-gray-200">
                                     <div className="relative">
-                                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                                         <input
                                             ref={searchInputRef}
                                             type="text"
-                                            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900"
+                                            className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900"
                                             placeholder={searchPlaceholder}
                                             value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            onChange={(e) => { setSearchTerm(e.target.value); setHighlightedIndex(-1); }}
                                             onKeyDown={handleKeyDown}
                                         />
                                     </div>
                                 </div>
                             )}
 
-                            {/* Options List */}
-                            <ul
-                                ref={listRef}
-                                className="max-h-60 overflow-auto custom-scrollbar py-1"
-                                role="listbox"
-                            >
+                            <ul ref={listRef} className="max-h-60 overflow-auto custom-scrollbar py-1" role="listbox">
                                 {filteredOptions.length === 0 ? (
-                                    <li className="px-3 py-2 text-sm text-gray-500 text-center">
-                                        {noOptionFound}
-                                    </li>
+                                    <li className="px-3 py-2 text-sm text-gray-500 text-center">{noOptionFound}</li>
                                 ) : (
-                                    filteredOptions.map((option, index) => (
-                                        <li
-                                            key={option.value}
-                                            className={`
-                                                px-3 py-2 text-sm cursor-pointer flex items-center justify-between
-                                                transition-colors duration-150
-                                                ${
-                                                    option.disabled
-                                                        ? 'text-gray-400 cursor-not-allowed'
-                                                        : index === highlightedIndex
-                                                          ? 'bg-indigo-50 text-indigo-900'
-                                                          : 'text-gray-900 hover:bg-gray-50'
-                                                }
-                                                ${option.value === value ? 'bg-indigo-100' : ''}
-                                            `.trim()}
-                                            onClick={() => handleSelect(option)}
-                                            onMouseEnter={() => setHighlightedIndex(index)}
-                                            role="option"
-                                            aria-selected={option.value === value}
-                                        >
-                                            <span className="block truncate">{option.label}</span>
-                                            {option.value === value && (
-                                                <CheckIcon className="h-4 w-4 text-indigo-600 shrink-0" />
-                                            )}
-                                        </li>
-                                    ))
+                                    filteredOptions.map((option, index) => {
+                                        const isSelected = option.value === value;
+                                        const isHighlighted = index === highlightedIndex;
+                                        const optionClasses = [
+                                            sz.option,
+                                            'cursor-pointer flex items-center justify-between transition-colors duration-150',
+                                            option.disabled
+                                                ? 'text-gray-400 cursor-not-allowed'
+                                                : isHighlighted
+                                                    ? 'bg-indigo-50 text-indigo-900'
+                                                    : 'text-gray-900 hover:bg-gray-50',
+                                            isSelected ? 'bg-indigo-100' : '',
+                                        ].filter(Boolean).join(' ');
+
+                                        return (
+                                            <li
+                                                key={option.value}
+                                                className={optionClasses}
+                                                onClick={() => handleSelect(option)}
+                                                onMouseEnter={() => setHighlightedIndex(index)}
+                                                role="option"
+                                                aria-selected={isSelected}
+                                            >
+                                                <span className="block truncate">{option.label}</span>
+                                                {isSelected && <CheckIcon className={`${sz.icon} text-indigo-600 shrink-0`} />}
+                                            </li>
+                                        );
+                                    })
                                 )}
                             </ul>
                         </div>
