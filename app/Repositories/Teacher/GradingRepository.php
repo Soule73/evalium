@@ -131,6 +131,11 @@ class GradingRepository
      */
     public function loadAssessmentForGradingShow(Assessment $assessment): Assessment
     {
-        return $assessment->load(['classSubject.class', 'questions.choices']);
+        return $assessment->load([
+            'classSubject.class.level',
+            'classSubject.subject',
+            'classSubject.teacher',
+            'questions.choices',
+        ]);
     }
 }
