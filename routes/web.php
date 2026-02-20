@@ -157,6 +157,18 @@ Route::middleware('auth')->group(function () {
                 });
 
             /**
+             * Class Students (nested under classes)
+             */
+            Route::prefix('classes/{class}/students')
+                ->name('classes.students.')
+                ->controller(\App\Http\Controllers\Admin\ClassStudentController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{enrollment}', 'show')->name('show');
+                    Route::get('/{enrollment}/assignments', 'assignments')->name('assignments');
+                });
+
+            /**
              * Enrollment Management
              */
             Route::prefix('enrollments')
@@ -167,9 +179,6 @@ Route::middleware('auth')->group(function () {
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
                     Route::post('/quick-student', 'storeQuickStudent')->name('quick-student');
-                    Route::get('/{enrollment}', 'show')->name('show');
-                    Route::get('/{enrollment}/assignments', 'assignments')->name('assignments');
-                    Route::get('/{enrollment}/assignments/{assignment}', 'assignmentShow')->name('assignments.show');
                     Route::post('/{enrollment}/transfer', 'transfer')->name('transfer');
                     Route::post('/{enrollment}/withdraw', 'withdraw')->name('withdraw');
                     Route::post('/{enrollment}/reactivate', 'reactivate')->name('reactivate');
