@@ -74,6 +74,7 @@ return [
         'class' => 'Class',
         'subject' => 'Subject',
         'level' => 'Level',
+        'teacher' => 'Teacher',
     ],
 
     'assign' => [

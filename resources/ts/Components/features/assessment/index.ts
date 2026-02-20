@@ -1,4 +1,5 @@
 export * from './AlertSecurityViolation';
+export * from './AssessmentContextInfo';
 export * from './AssessmentHeader';
 export * from './FileUploadZone';
 export * from './FullscreenModal';

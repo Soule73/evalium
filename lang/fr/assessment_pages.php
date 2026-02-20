@@ -74,6 +74,7 @@ return [
         'class' => 'Classe',
         'subject' => 'Matière',
         'level' => 'Niveau',
+        'teacher' => 'Enseignant',
     ],
 
     'assign' => [
