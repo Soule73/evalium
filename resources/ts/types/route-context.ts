@@ -1,7 +1,7 @@
 export interface AssessmentRouteContext {
     role: 'admin' | 'teacher';
     backRoute: string;
-    showRoute: string;
+    showRoute: string | null;
     reviewRoute: string;
     gradeRoute: string;
     saveGradeRoute?: string;
