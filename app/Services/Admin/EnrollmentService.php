@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Contracts\Services\EnrollmentServiceInterface;
+use App\Enums\EnrollmentStatus;
 use App\Exceptions\EnrollmentException;
 use App\Models\ClassModel;
 use App\Models\Enrollment;
@@ -27,7 +28,7 @@ class EnrollmentService implements EnrollmentServiceInterface
 
         $this->validateEnrollment($student, $class);
 
-        if ($class->enrollments()->count() >= $class->max_students) {
+        if ($this->isClassAtCapacity($class)) {
             throw EnrollmentException::classFull();
         }
 
@@ -46,9 +47,11 @@ class EnrollmentService implements EnrollmentServiceInterface
     {
         $newClass = ClassModel::findOrFail($newClassId);
 
-        $this->validateEnrollment($enrollment->student, $newClass);
+        if (! $enrollment->student->hasRole('student')) {
+            throw EnrollmentException::invalidStudentRole();
+        }
 
-        if ($newClass->enrollments()->count() >= $newClass->max_students) {
+        if ($this->isClassAtCapacity($newClass)) {
             throw EnrollmentException::targetClassFull();
         }
 
@@ -85,11 +88,11 @@ class EnrollmentService implements EnrollmentServiceInterface
      */
     public function reactivateEnrollment(Enrollment $enrollment): Enrollment
     {
-        if ($enrollment->status !== 'withdrawn') {
-            throw EnrollmentException::invalidStatus($enrollment->status);
+        if ($enrollment->status !== EnrollmentStatus::Withdrawn) {
+            throw EnrollmentException::invalidStatus($enrollment->status->value);
         }
 
-        if ($enrollment->class->enrollments()->count() >= $enrollment->class->max_students) {
+        if ($this->isClassAtCapacity($enrollment->class)) {
             throw EnrollmentException::classFull();
         }
 
@@ -120,9 +123,6 @@ class EnrollmentService implements EnrollmentServiceInterface
         return $query->with(['class.academicYear', 'class.level'])->first();
     }
 
-    /**
-     * Validate enrollment
-     */
     private function validateEnrollment(User $student, ClassModel $class): void
     {
         if (! $student->hasRole('student')) {
@@ -139,5 +139,22 @@ class EnrollmentService implements EnrollmentServiceInterface
         if ($existingEnrollment) {
             throw EnrollmentException::alreadyEnrolled();
         }
+    }
+
+    /**
+     * Check if a class has reached its maximum student capacity.
+     * Returns false if no maximum is defined.
+     */
+    private function isClassAtCapacity(ClassModel $class): bool
+    {
+        if ($class->max_students === null) {
+            return false;
+        }
+
+        $activeCount = $class->enrollments()
+            ->where('status', EnrollmentStatus::Active)
+            ->count();
+
+        return $activeCount >= $class->max_students;
     }
 }
