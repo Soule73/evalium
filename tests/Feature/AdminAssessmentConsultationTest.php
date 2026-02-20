@@ -145,12 +145,15 @@ class AdminAssessmentConsultationTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.enrollments.show', $enrollment));
+            ->get(route('admin.classes.students.show', [
+                'class' => $this->classModel->id,
+                'enrollment' => $enrollment->id,
+            ]));
 
         $response->assertOk();
         $response->assertInertia(
             fn ($page) => $page
-                ->component('Admin/Enrollments/Show')
+                ->component('Admin/Classes/Students/Show')
                 ->has('enrollment')
                 ->has('subjects')
                 ->has('overallStats')
@@ -173,7 +176,7 @@ class AdminAssessmentConsultationTest extends TestCase
         $response->assertInertia(
             fn ($page) => $page
                 ->component('Admin/Classes/Show')
-                ->has('assessments.data', 2)
+                ->has('recentAssessments.data', 2)
                 ->has('statistics')
         );
     }
@@ -236,7 +239,10 @@ class AdminAssessmentConsultationTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.enrollments.show', $enrollment));
+            ->get(route('admin.classes.students.show', [
+                'class' => $this->classModel->id,
+                'enrollment' => $enrollment->id,
+            ]));
 
         $response->assertOk();
         $response->assertInertia(
