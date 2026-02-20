@@ -375,9 +375,11 @@ return [
         'update_button' => 'Mettre à jour la classe',
         'updating' => 'Mise à jour...',
 
-        // Enrollments section
-        'enrollments_section' => 'Étudiants inscrits',
-        'enrollments_section_subtitle' => 'Étudiants inscrits dans cette classe',
+        // Students section
+        'class_students' => 'Étudiants de la classe',
+        'students_section' => 'Étudiants',
+        'students_section_subtitle' => 'Étudiants inscrits dans cette classe',
+        'see_all_students' => 'Voir les étudiants',
         'manage_enrollments' => 'Gérer les inscriptions',
         'no_enrollments' => 'Aucun étudiant inscrit pour le moment',
         'status_active' => 'Actif',

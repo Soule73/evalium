@@ -15,6 +15,8 @@ return [
     'enrollments' => 'Inscriptions',
     'enrollment_assignments' => 'Évaluations',
     'class_subjects' => 'Affectations',
+    'class_students' => 'Étudiants',
+    'class_student_assignments' => 'Évaluations',
     'create' => 'Créer',
     'edit' => 'Modifier',
     'show' => 'Afficher',

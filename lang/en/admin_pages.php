@@ -372,9 +372,11 @@ return [
         'update_button' => 'Update Class',
         'updating' => 'Updating...',
 
-        // Enrollments section
-        'enrollments_section' => 'Enrolled Students',
-        'enrollments_section_subtitle' => 'Students enrolled in this class',
+        // Students section
+        'class_students' => 'Class Students',
+        'students_section' => 'Students',
+        'students_section_subtitle' => 'Students enrolled in this class',
+        'see_all_students' => 'View Students',
         'manage_enrollments' => 'Manage Enrollments',
         'no_enrollments' => 'No students enrolled yet',
         'status_active' => 'Active',
