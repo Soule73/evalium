@@ -38,10 +38,25 @@ class TeacherClassController extends Controller
 
         $levels = Level::where('is_active', true)->orderBy('order')->get(['id', 'name']);
 
-        return Inertia::render('Teacher/Classes/Index', [
+        return Inertia::render('Classes/Index', [
             'classes' => $paginatedClasses->withQueryString(),
             'filters' => $filters,
             'levels' => $levels,
+            'routeContext' => [
+                'role' => 'teacher',
+                'indexRoute' => 'teacher.classes.index',
+                'showRoute' => 'teacher.classes.show',
+                'editRoute' => null,
+                'deleteRoute' => null,
+                'assessmentsRoute' => null,
+                'subjectShowRoute' => null,
+                'studentShowRoute' => null,
+                'studentAssignmentsRoute' => null,
+                'assessmentShowRoute' => null,
+                'assessmentGradeRoute' => null,
+                'assessmentReviewRoute' => null,
+                'assessmentSaveGradeRoute' => null,
+            ],
         ]);
     }
 
@@ -89,12 +104,27 @@ class TeacherClassController extends Controller
             'level',
         ]);
 
-        return Inertia::render('Teacher/Classes/Show', [
+        return Inertia::render('Classes/Show', [
             'class' => $class,
-            'subjects' => $classSubjects,
+            'classSubjects' => $classSubjects,
             'assessments' => $assessments,
             'students' => $students,
             'filters' => $filters,
+            'routeContext' => [
+                'role' => 'teacher',
+                'indexRoute' => 'teacher.classes.index',
+                'showRoute' => 'teacher.classes.show',
+                'editRoute' => null,
+                'deleteRoute' => null,
+                'assessmentsRoute' => null,
+                'subjectShowRoute' => null,
+                'studentShowRoute' => null,
+                'studentAssignmentsRoute' => null,
+                'assessmentShowRoute' => null,
+                'assessmentGradeRoute' => null,
+                'assessmentReviewRoute' => null,
+                'assessmentSaveGradeRoute' => null,
+            ],
         ]);
     }
 }

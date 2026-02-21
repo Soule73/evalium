@@ -62,10 +62,25 @@ class ClassController extends Controller
 
         $levels = $this->classQueryService->getAllLevels();
 
-        return Inertia::render('Admin/Classes/Index', [
+        return Inertia::render('Classes/Index', [
             'classes' => $classes,
             'filters' => $filters,
             'levels' => $levels,
+            'routeContext' => [
+                'role' => 'admin',
+                'indexRoute' => 'admin.classes.index',
+                'showRoute' => 'admin.classes.show',
+                'editRoute' => 'admin.classes.edit',
+                'deleteRoute' => 'admin.classes.destroy',
+                'assessmentsRoute' => 'admin.classes.assessments',
+                'subjectShowRoute' => 'admin.classes.subjects.show',
+                'studentShowRoute' => 'admin.classes.students.show',
+                'studentAssignmentsRoute' => 'admin.classes.students.assignments',
+                'assessmentShowRoute' => 'admin.classes.assessments.show',
+                'assessmentGradeRoute' => 'admin.assessments.grade',
+                'assessmentReviewRoute' => 'admin.assessments.review',
+                'assessmentSaveGradeRoute' => 'admin.assessments.saveGrade',
+            ],
         ]);
     }
 
@@ -122,12 +137,27 @@ class ClassController extends Controller
             ['search' => null, 'page' => 1, 'per_page' => 5]
         );
 
-        return Inertia::render('Admin/Classes/Show', [
+        return Inertia::render('Classes/Show', [
             'class' => $class,
-            'recentClassSubjects' => $recentClassSubjects,
+            'classSubjects' => $recentClassSubjects,
             'statistics' => $this->classQueryService->getClassStatistics($class, $recentClassSubjects->total()),
-            'recentAssessments' => $this->assessmentQueryService->getAssessmentsForClass($class, [], 3),
+            'assessments' => $this->assessmentQueryService->getAssessmentsForClass($class, [], 3),
             'classSubjectFormData' => $this->classSubjectService->getFormDataForCreate($selectedYearId),
+            'routeContext' => [
+                'role' => 'admin',
+                'indexRoute' => 'admin.classes.index',
+                'showRoute' => 'admin.classes.show',
+                'editRoute' => 'admin.classes.edit',
+                'deleteRoute' => 'admin.classes.destroy',
+                'assessmentsRoute' => 'admin.classes.assessments',
+                'subjectShowRoute' => 'admin.classes.subjects.show',
+                'studentShowRoute' => 'admin.classes.students.show',
+                'studentAssignmentsRoute' => 'admin.classes.students.assignments',
+                'assessmentShowRoute' => 'admin.classes.assessments.show',
+                'assessmentGradeRoute' => 'admin.assessments.grade',
+                'assessmentReviewRoute' => 'admin.assessments.review',
+                'assessmentSaveGradeRoute' => 'admin.assessments.saveGrade',
+            ],
         ]);
     }
 

@@ -175,8 +175,8 @@ class AdminAssessmentConsultationTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn ($page) => $page
-                ->component('Admin/Classes/Show')
-                ->has('recentAssessments.data', 2)
+                ->component('Classes/Show')
+                ->has('assessments.data', 2)
                 ->has('statistics')
         );
     }
