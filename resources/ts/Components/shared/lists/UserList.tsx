@@ -105,18 +105,19 @@ export function UserList({ data, variant = 'admin', permissions = {}, onView }: 
                 labelKey: 'admin_pages.users.status',
                 render: (user: User) => (
                     <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.deleted_at
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            user.deleted_at
                                 ? 'bg-red-100 text-red-800'
                                 : user.is_active
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-gray-100 text-gray-800'
-                            }`}
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-gray-100 text-gray-800'
+                        }`}
                     >
                         {user.deleted_at
                             ? t('admin_pages.users.deleted')
                             : user.is_active
-                                ? t('admin_pages.common.active')
-                                : t('admin_pages.common.inactive')}
+                              ? t('admin_pages.common.active')
+                              : t('admin_pages.common.inactive')}
                     </span>
                 ),
                 conditional: (v) => v === 'admin',
@@ -170,23 +171,23 @@ export function UserList({ data, variant = 'admin', permissions = {}, onView }: 
             filters:
                 variant === 'admin'
                     ? [
-                        {
-                            key: 'status',
-                            type: 'select' as const,
-                            labelKey: 'admin_pages.users.filter_status',
-                            options: [
-                                { label: t('admin_pages.users.all_status'), value: '' },
-                                { label: t('admin_pages.common.active'), value: 'active' },
-                                { label: t('admin_pages.common.inactive'), value: 'inactive' },
-                            ],
-                        },
-                        {
-                            key: 'include_deleted',
-                            type: 'boolean' as const,
-                            labelKey: 'admin_pages.users.include_deleted',
-                            trueValue: '1',
-                        },
-                    ]
+                          {
+                              key: 'status',
+                              type: 'select' as const,
+                              labelKey: 'admin_pages.users.filter_status',
+                              options: [
+                                  { label: t('admin_pages.users.all_status'), value: '' },
+                                  { label: t('admin_pages.common.active'), value: 'active' },
+                                  { label: t('admin_pages.common.inactive'), value: 'inactive' },
+                              ],
+                          },
+                          {
+                              key: 'include_deleted',
+                              type: 'boolean' as const,
+                              labelKey: 'admin_pages.users.include_deleted',
+                              trueValue: '1',
+                          },
+                      ]
                     : undefined,
         };
     }, [variant, permissions.canUpdate, handleViewUser, handleRestoreUser, t]);

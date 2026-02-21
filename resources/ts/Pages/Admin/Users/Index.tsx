@@ -51,13 +51,17 @@ export default function UserIndex({ users, roles, adminCount, superAdminCount }:
             <CreateUserModal
                 roles={roles}
                 isOpen={isShowCreateModal}
-                forcedRole='admin'
+                forcedRole="admin"
                 onClose={() => setIsShowCreateModal(false)}
             />
             <Stat.Group columns={3} className="mb-6">
                 <Stat.Item title={translations.allUsers} value={users.total} icon={UserGroupIcon} />
                 <Stat.Item title={translations.admin} value={adminCount} icon={ShieldCheckIcon} />
-                <Stat.Item title={translations.superAdmin} value={superAdminCount} icon={StarIcon} />
+                <Stat.Item
+                    title={translations.superAdmin}
+                    value={superAdminCount}
+                    icon={StarIcon}
+                />
             </Stat.Group>
             <Section
                 title={translations.subtitle}

@@ -17,6 +17,16 @@ interface CreateUserModalProps {
      */
     forcedRole?: string;
     storeRoute?: string;
+    /**
+     * When true, the "send credentials" checkbox is hidden.
+     * Used in contexts where credentials are managed separately (e.g. enrollment flow).
+     */
+    hideSendCredentials?: boolean;
+    /**
+     * Called with the newly created user's credentials when creation succeeds in
+     * a context where credentials are not shown on-screen (hideSendCredentials=true).
+     */
+    onStudentCreated?: (credentials: CreatedUserCredentials) => void;
 }
 
 type CopiedField = 'name' | 'email' | 'password' | null;
@@ -27,6 +37,8 @@ export default function CreateUserModal({
     onClose,
     forcedRole,
     storeRoute = 'admin.users.store',
+    hideSendCredentials = false,
+    onStudentCreated,
 }: CreateUserModalProps) {
     const { t } = useTranslations();
     const { flash } = usePage<PageProps>().props;
@@ -56,11 +68,20 @@ export default function CreateUserModal({
         })
             .then((r) => (r.ok ? r.json() : null))
             .then((credentials: CreatedUserCredentials | null) => {
-                if (credentials) {
-                    setCreatedUser(credentials);
+                if (!credentials) {
+                    return;
                 }
+
+                if (hideSendCredentials && onStudentCreated) {
+                    onStudentCreated(credentials);
+                    handleClose();
+                    return;
+                }
+
+                setCreatedUser(credentials);
             })
             .catch(() => undefined);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flash.has_new_user, isOpen]);
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -118,8 +139,12 @@ export default function CreateUserModal({
                         <div className="flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
                             <UserCircleIcon className="w-9 h-9 text-green-600" />
                         </div>
-                        <h1 className="text-2xl font-bold text-gray-900">{translations.credentialsTitle}</h1>
-                        <p className="text-gray-600 mt-1 max-w-sm">{translations.credentialsSubtitle}</p>
+                        <h1 className="text-2xl font-bold text-gray-900">
+                            {translations.credentialsTitle}
+                        </h1>
+                        <p className="text-gray-600 mt-1 max-w-sm">
+                            {translations.credentialsSubtitle}
+                        </p>
                     </div>
 
                     <div className="space-y-3">
@@ -177,11 +202,13 @@ export default function CreateUserModal({
                         hideRoleSelect={!!forcedRole}
                     />
 
-                    <Checkbox
-                        label={translations.sendCredentials}
-                        checked={data.send_credentials}
-                        onChange={(e) => setData('send_credentials', e.target.checked)}
-                    />
+                    {!hideSendCredentials && (
+                        <Checkbox
+                            label={translations.sendCredentials}
+                            checked={data.send_credentials}
+                            onChange={(e) => setData('send_credentials', e.target.checked)}
+                        />
+                    )}
 
                     <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
                         <Button
@@ -232,8 +259,12 @@ function CredentialRow({
     return (
         <div className="flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
             <div className="min-w-0">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">{label}</p>
-                <p className={`text-sm font-mono text-gray-900 break-all ${isPassword ? 'tracking-wider' : ''}`}>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">
+                    {label}
+                </p>
+                <p
+                    className={`text-sm font-mono text-gray-900 break-all ${isPassword ? 'tracking-wider' : ''}`}
+                >
                     {value}
                 </p>
             </div>

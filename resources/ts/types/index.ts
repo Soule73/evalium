@@ -6,6 +6,7 @@ export * from './route-context';
 export type FlashMessageObject = { id: string; message: string } | null;
 
 export interface CreatedUserCredentials {
+    id: number;
     name: string;
     email: string;
     password: string;

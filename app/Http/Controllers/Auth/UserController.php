@@ -110,6 +110,7 @@ class UserController extends Controller
             ['user' => $user, 'password' => $password] = $this->userService->store($validated);
 
             session()->put('new_user_credentials', [
+                'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'password' => $password,

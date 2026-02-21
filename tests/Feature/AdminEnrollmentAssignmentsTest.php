@@ -281,8 +281,7 @@ class AdminEnrollmentAssignmentsTest extends TestCase
             ->assertInertia(
                 fn ($page) => $page
                     ->component('Admin/Enrollments/Create')
-                    ->has('classes')
-                    ->has('students')
+                    ->has('selectedYearId')
             );
     }
 
@@ -293,25 +292,31 @@ class AdminEnrollmentAssignmentsTest extends TestCase
             ->assertStatus(403);
     }
 
-    public function test_quick_student_creation_returns_201(): void
+    public function test_create_student_in_enrollment_context_succeeds(): void
     {
         $this->actingAs($this->admin)
-            ->postJson(route('admin.enrollments.quick-student'), [
+            ->post(route('admin.enrollments.create-student'), [
                 'name' => 'New Student',
                 'email' => 'newstudent@example.com',
             ])
-            ->assertStatus(201)
-            ->assertJsonStructure(['id', 'name', 'email']);
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('users', [
+            'name' => 'New Student',
+            'email' => 'newstudent@example.com',
+        ]);
+
+        $newUser = User::where('email', 'newstudent@example.com')->first();
+        $this->assertTrue($newUser->hasRole('student'));
     }
 
-    public function test_quick_student_creation_fails_with_duplicate_email(): void
+    public function test_create_student_fails_with_duplicate_email(): void
     {
         $this->actingAs($this->admin)
-            ->postJson(route('admin.enrollments.quick-student'), [
+            ->post(route('admin.enrollments.create-student'), [
                 'name' => $this->student->name,
                 'email' => $this->student->email,
             ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['email']);
+            ->assertSessionHasErrors(['email']);
     }
 }

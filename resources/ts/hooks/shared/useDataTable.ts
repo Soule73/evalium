@@ -20,6 +20,8 @@ interface UseDataTableOptions<T> {
     filters?: FilterConfig[];
     onStateChange?: (state: DataTableState) => void;
     onSelectionChange?: (selectedIds: (number | string)[]) => void;
+    /** When true, disables URL navigation (router.visit). Intended for list/static mode. */
+    isStatic?: boolean;
 }
 
 /**
@@ -39,6 +41,7 @@ export function useDataTable<T extends { id: number | string }>(
         filters,
         onStateChange,
         onSelectionChange,
+        isStatic = false,
     } = options;
 
     const [initialized, setInitialized] = useState(false);
@@ -129,6 +132,10 @@ export function useDataTable<T extends { id: number | string }>(
             newState: Partial<DataTableState> = {},
             navOptions: { replace?: boolean; preserveState?: boolean } = {},
         ) => {
+            if (isStatic) {
+                return;
+            }
+
             const url = buildUrl(newState);
             setIsNavigating(true);
 
@@ -142,7 +149,7 @@ export function useDataTable<T extends { id: number | string }>(
                 },
             );
         },
-        [buildUrl, preserveState],
+        [buildUrl, preserveState, isStatic],
     );
 
     const debouncedNavigate = useCallback(

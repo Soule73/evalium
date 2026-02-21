@@ -72,7 +72,7 @@ export interface DataTableState {
 }
 
 export interface DataTableProps<T> {
-    data: PaginationType<T>;
+    data: PaginationType<T> | T[];
     config: DataTableConfig<T>;
     onStateChange?: (state: DataTableState) => void;
     onSelectionChange?: (selectedIds: (number | string)[]) => void;

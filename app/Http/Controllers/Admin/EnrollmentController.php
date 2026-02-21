@@ -7,11 +7,14 @@ use App\Contracts\Services\EnrollmentServiceInterface;
 use App\Contracts\Services\UserManagementServiceInterface;
 use App\Exceptions\EnrollmentException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkStoreEnrollmentRequest;
 use App\Http\Requests\Admin\StoreEnrollmentRequest;
 use App\Http\Requests\Admin\TransferStudentRequest;
 use App\Http\Traits\HandlesIndexRequests;
+use App\Models\ClassModel;
 use App\Models\Enrollment;
 use App\Models\User;
+use App\Notifications\UserCredentialsNotification;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -56,9 +59,10 @@ class EnrollmentController extends Controller
         $this->authorize('create', Enrollment::class);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $formData = $this->enrollmentQueryService->getCreateFormData($selectedYearId);
 
-        return Inertia::render('Admin/Enrollments/Create', $formData);
+        return Inertia::render('Admin/Enrollments/Create', [
+            'selectedYearId' => $selectedYearId,
+        ]);
     }
 
     /**
@@ -72,6 +76,8 @@ class EnrollmentController extends Controller
                 $request->integer('class_id')
             );
 
+            $this->handleEnrollmentCredentials($request);
+
             return redirect()
                 ->route('admin.enrollments.index')
                 ->flashSuccess(__('messages.enrollment_created'));
@@ -81,9 +87,11 @@ class EnrollmentController extends Controller
     }
 
     /**
-     * Quick-create a student for inline enrollment form.
+     * Create a student in the context of enrollment (without sending credentials immediately).
+     *
+     * Stores credentials in session for optional later sending after enrollment confirmation.
      */
-    public function storeQuickStudent(Request $request): JsonResponse
+    public function createStudent(Request $request): RedirectResponse
     {
         $this->authorize('create', User::class);
 
@@ -92,19 +100,141 @@ class EnrollmentController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
         ]);
 
-        /** @var \App\Models\User */
-        $student = $this->userManagementService->store([
+        ['user' => $user, 'password' => $password] = $this->userManagementService->store([
             ...$validated,
             'role' => 'student',
             'send_credentials' => false,
-        ])['user'];
+        ]);
+
+        session()->put('new_user_credentials', [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'password' => $password,
+        ]);
+
+        session()->put('pending_enrollment_credentials', [
+            'user_id' => $user->id,
+            'password' => $password,
+        ]);
+
+        $credentialMap = session()->get('enrollment_credential_map', []);
+        $credentialMap[$user->id] = $password;
+        session()->put('enrollment_credential_map', $credentialMap);
+
+        session()->flash('has_new_user', true);
+
+        return back()->flashSuccess(__('messages.user_created'));
+    }
+
+    /**
+     * Bulk enroll multiple students into a class in a single request.
+     */
+    public function bulkStore(BulkStoreEnrollmentRequest $request): JsonResponse
+    {
+        $classId = $request->integer('class_id');
+        $studentIds = $request->array('student_ids');
+        $newStudentIds = $request->array('new_student_ids', []);
+        $sendCredentials = $request->boolean('send_credentials');
+
+        $credentialMap = session()->pull('enrollment_credential_map', []);
+
+        $class = ClassModel::findOrFail($classId);
+
+        $enrolled = [];
+        $failed = [];
+
+        foreach ($studentIds as $studentId) {
+            try {
+                $enrollment = $this->enrollmentService->enrollStudent((int) $studentId, $classId);
+                $enrollment->load('student:id,name,email');
+
+                $password = null;
+                $isNew = in_array((int) $studentId, array_map('intval', $newStudentIds));
+
+                if ($isNew && isset($credentialMap[$studentId])) {
+                    $password = $credentialMap[$studentId];
+
+                    if ($sendCredentials) {
+                        $enrollment->student->notify(
+                            new \App\Notifications\UserCredentialsNotification($password, 'student')
+                        );
+                    }
+                }
+
+                $enrolled[] = [
+                    'student_id' => $enrollment->student_id,
+                    'student_name' => $enrollment->student->name,
+                    'student_email' => $enrollment->student->email,
+                    'enrollment_id' => $enrollment->id,
+                    'status' => $enrollment->status,
+                    'password' => $password,
+                ];
+            } catch (\App\Exceptions\EnrollmentException $e) {
+                $student = User::find($studentId);
+                $failed[] = [
+                    'student_id' => $studentId,
+                    'student_name' => $student?->name ?? "#$studentId",
+                    'reason' => $e->getMessage(),
+                ];
+            }
+        }
 
         return response()->json([
-            'id' => $student->id,
-            'name' => $student->name,
-            'email' => $student->email,
-            'avatar' => $student->avatar,
-        ], 201);
+            'class_name' => $class->name,
+            'enrolled' => $enrolled,
+            'failed' => $failed,
+        ]);
+    }
+
+    /**
+     * Search students available for enrollment.
+     * Excludes students already actively enrolled in any class of the selected academic year.
+     */
+    public function searchStudents(Request $request): JsonResponse
+    {
+        $query = $request->string('q')->trim()->value();
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+        $perPage = min($request->integer('per_page', 15), 100);
+
+        $students = User::role('student')
+            ->select(['id', 'name', 'email', 'avatar'])
+            ->when($query, fn ($q) => $q->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('email', 'like', "%{$query}%");
+            }))
+            ->whereDoesntHave('enrollments', function ($q) use ($selectedYearId) {
+                $q->where('status', '!=', 'withdrawn')
+                    ->when(
+                        $selectedYearId,
+                        fn ($q) => $q->whereHas('class', fn ($q) => $q->where('academic_year_id', $selectedYearId))
+                    );
+            })
+            ->orderBy('name')
+            ->paginate($perPage);
+
+        return response()->json($students);
+    }
+
+    /**
+     * Search classes available for enrollment.
+     */
+    public function searchClasses(Request $request): JsonResponse
+    {
+        $query = $request->string('q')->trim()->value();
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+        $perPage = min($request->integer('per_page', 15), 100);
+
+        $classes = ClassModel::forAcademicYear($selectedYearId)
+            ->with(['level:id,name,description', 'academicYear:id,name'])
+            ->withCount([
+                'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
+            ])
+            ->when($query, fn ($q) => $q->where('name', 'like', "%{$query}%"))
+            ->orderBy('name')
+            ->paginate($perPage);
+
+        return response()->json($classes);
     }
 
     /**
@@ -169,5 +299,38 @@ class EnrollmentController extends Controller
         return redirect()
             ->route('admin.enrollments.index')
             ->flashSuccess(__('messages.enrollment_deleted'));
+    }
+
+    /**
+     * Send credentials notification if requested after enrollment of a newly created student.
+     */
+    private function handleEnrollmentCredentials(StoreEnrollmentRequest $request): void
+    {
+        if (! $request->boolean('send_credentials')) {
+            return;
+        }
+
+        $enrollmentCredentials = session()->pull('pending_enrollment_credentials');
+
+        if (! $enrollmentCredentials) {
+            return;
+        }
+
+        $student = User::find($enrollmentCredentials['user_id']);
+
+        if (! $student) {
+            return;
+        }
+
+        $student->notify(new UserCredentialsNotification($enrollmentCredentials['password'], 'student'));
+
+        session()->put('new_user_credentials', [
+            'id' => $student->id,
+            'name' => $student->name,
+            'email' => $student->email,
+            'password' => $enrollmentCredentials['password'],
+        ]);
+
+        session()->flash('has_new_user', true);
     }
 }

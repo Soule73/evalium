@@ -2,7 +2,14 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type User } from '@/types';
 import { formatDate } from '@/utils';
 import { useFormatters } from '@/hooks/shared/useFormatters';
-import { Button, EditUserModal, LanguageSelector, Section, TextEntry, UserAvatar } from '@/Components';
+import {
+    Button,
+    EditUserModal,
+    LanguageSelector,
+    Section,
+    TextEntry,
+    UserAvatar,
+} from '@/Components';
 import { route } from 'ziggy-js';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useProfile } from '@/hooks/shared';

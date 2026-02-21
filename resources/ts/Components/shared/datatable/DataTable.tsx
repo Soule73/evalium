@@ -1,5 +1,5 @@
 import { useMemo, useCallback, memo } from 'react';
-import { type DataTableProps } from '@/types/datatable';
+import { type DataTableProps, type PaginationType } from '@/types/datatable';
 import { DataTableFilters } from './DataTableFilters';
 import { DataTablePagination } from './DataTablePagination';
 import { EmptyState } from '../EmptyState';
@@ -7,6 +7,64 @@ import { BulkActions } from './BulkActions';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Checkbox } from '@evalium/ui';
 import { useDataTable } from '@/hooks';
+
+/**
+ * Converts a plain array into a fake PaginationType shape so useDataTable can consume it.
+ */
+function toStaticPagination<T>(items: T[]): PaginationType<T> {
+    return {
+        data: items,
+        current_page: 1,
+        first_page_url: '',
+        from: items.length > 0 ? 1 : null,
+        last_page: 1,
+        last_page_url: '',
+        links: [],
+        next_page_url: null,
+        path: '',
+        per_page: Math.max(items.length, 1),
+        prev_page_url: null,
+        to: items.length > 0 ? items.length : null,
+        total: items.length,
+    };
+}
+
+/**
+ * Applies a simple case-insensitive search across primitive-valued fields of each item.
+ */
+function applyStaticSearch<T extends object>(items: T[], search: string): T[] {
+    const needle = search.toLowerCase().trim();
+    if (!needle) {
+        return items;
+    }
+
+    return items.filter((item) =>
+        Object.values(item).some((val) => {
+            if (val === null || val === undefined || typeof val === 'object') {
+                return false;
+            }
+            return String(val).toLowerCase().includes(needle);
+        }),
+    );
+}
+
+/**
+ * Applies select-filter matching against a specific field key.
+ */
+function applyStaticFilters<T extends object>(items: T[], filters: Record<string, string>): T[] {
+    let result = items;
+
+    for (const [key, value] of Object.entries(filters)) {
+        if (!value) {
+            continue;
+        }
+        result = result.filter(
+            (item) => String((item as Record<string, unknown>)[key] ?? '') === value,
+        );
+    }
+
+    return result;
+}
 
 function DataTableInner<T extends { id: number | string }>({
     data,
@@ -23,20 +81,42 @@ function DataTableInner<T extends { id: number | string }>({
     dataTableSearchInputId,
 }: DataTableProps<T>) {
     const { t } = useTranslations();
-    const { state, actions, isNavigating, selection } = useDataTable(data, {
+
+    const isStatic = Array.isArray(data);
+
+    const hookData = useMemo(
+        () => (isStatic ? toStaticPagination(data as T[]) : (data as PaginationType<T>)),
+        [isStatic, data],
+    );
+
+    const { state, actions, isNavigating, selection } = useDataTable(hookData, {
         enableSelection: config.enableSelection,
         maxSelectable: config.maxSelectable,
         isSelectable: config.isSelectable,
         filters: config.filters,
-        onStateChange,
+        onStateChange: isStatic ? undefined : onStateChange,
         onSelectionChange,
+        isStatic,
     });
+
+    const displayItems = useMemo(() => {
+        if (!isStatic) {
+            return (data as PaginationType<T>).data;
+        }
+
+        const filtered = applyStaticSearch(
+            applyStaticFilters(data as T[], state.filters),
+            state.search,
+        );
+
+        return filtered;
+    }, [isStatic, data, state.search, state.filters]);
 
     const hasActiveFilters = useMemo(
         () => state.search || Object.values(state.filters).some((v) => v),
         [state.search, state.filters],
     );
-    const isEmpty = data.data.length === 0;
+    const isEmpty = displayItems.length === 0;
     const showEmptyState = isEmpty && !isLoading;
     const showEmptySearchState = showEmptyState && hasActiveFilters;
     const combinedLoading = isLoading || isNavigating;
@@ -107,19 +187,23 @@ function DataTableInner<T extends { id: number | string }>({
                                 <tr>
                                     {config.enableSelection && (
                                         <th className="px-6 py-3 text-left w-12">
-                                            <Checkbox
-                                                checked={selection.allItemsOnPageSelected}
-                                                ref={(el) => {
-                                                    if (el) {
-                                                        el.indeterminate =
-                                                            selection.someItemsOnPageSelected;
-                                                    }
-                                                }}
-                                                onChange={actions.toggleAllOnPage}
-                                                className="cursor-pointer"
-                                                aria-label={t('components.datatable.select_all')}
-                                                data-e2e={testIdSelectAllCheckbox}
-                                            />
+                                            {config.maxSelectable !== 1 && (
+                                                <Checkbox
+                                                    checked={selection.allItemsOnPageSelected}
+                                                    ref={(el) => {
+                                                        if (el) {
+                                                            el.indeterminate =
+                                                                selection.someItemsOnPageSelected;
+                                                        }
+                                                    }}
+                                                    onChange={actions.toggleAllOnPage}
+                                                    className="cursor-pointer"
+                                                    aria-label={t(
+                                                        'components.datatable.select_all',
+                                                    )}
+                                                    data-e2e={testIdSelectAllCheckbox}
+                                                />
+                                            )}
                                         </th>
                                     )}
                                     {config.columns.map((column) => (
@@ -137,7 +221,7 @@ function DataTableInner<T extends { id: number | string }>({
                                 className="bg-white divide-y divide-gray-200"
                                 data-e2e={testIdTableBody}
                             >
-                                {data.data.map((item, index) => {
+                                {displayItems.map((item, index) => {
                                     const isItemSelectable =
                                         !config.isSelectable || config.isSelectable(item);
 
@@ -191,9 +275,9 @@ function DataTableInner<T extends { id: number | string }>({
                 )}
             </div>
 
-            {!showEmptyState && config.showPagination !== false && (
+            {!showEmptyState && !isStatic && config.showPagination !== false && (
                 <DataTablePagination
-                    data={data}
+                    data={data as PaginationType<T>}
                     onPageChange={actions.goToPage}
                     onPerPageChange={actions.setPerPage}
                     isLoading={combinedLoading}

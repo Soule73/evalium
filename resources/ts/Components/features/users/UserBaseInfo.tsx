@@ -1,13 +1,13 @@
-import { ConfirmationModal, Section, Button, TextEntry, Toggle } from "@/Components/ui";
-import { useTranslations } from "@/hooks";
-import { useFormatters } from "@/hooks/shared/useFormatters";
-import { type User } from "@/types";
-import { formatDate } from "@/utils";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import { router } from "@inertiajs/react";
-import { useState, useMemo } from "react";
-import { route } from "ziggy-js";
-import EditUserModal from "./EditUserModal";
+import { ConfirmationModal, Section, Button, TextEntry, Toggle } from '@/Components/ui';
+import { useTranslations } from '@/hooks';
+import { useFormatters } from '@/hooks/shared/useFormatters';
+import { type User } from '@/types';
+import { formatDate } from '@/utils';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { router } from '@inertiajs/react';
+import { useState, useMemo } from 'react';
+import { route } from 'ziggy-js';
+import EditUserModal from './EditUserModal';
 
 interface UserBaseInfoProps {
     user: User;

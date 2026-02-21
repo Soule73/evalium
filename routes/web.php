@@ -195,7 +195,10 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'index')->name('index');
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
-                    Route::post('/quick-student', 'storeQuickStudent')->name('quick-student');
+                    Route::post('/create-student', 'createStudent')->name('create-student');
+                    Route::post('/bulk', 'bulkStore')->name('bulk-store');
+                    Route::get('/search-students', 'searchStudents')->name('search-students');
+                    Route::get('/search-classes', 'searchClasses')->name('search-classes');
                     Route::post('/{enrollment}/transfer', 'transfer')->name('transfer');
                     Route::post('/{enrollment}/withdraw', 'withdraw')->name('withdraw');
                     Route::post('/{enrollment}/reactivate', 'reactivate')->name('reactivate');

@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\AcademicYear;
 use App\Models\ClassModel;
-use App\Models\Enrollment;
 use App\Models\Level;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -54,37 +53,11 @@ class AdminEnrollmentCreateTest extends TestCase
             ->assertInertia(
                 fn ($page) => $page
                     ->component('Admin/Enrollments/Create')
-                    ->has('classes')
-                    ->has('students')
+                    ->has('selectedYearId')
             );
     }
 
-    public function test_create_page_returns_classes_with_enrollments(): void
-    {
-        Enrollment::factory()->create([
-            'class_id' => $this->class->id,
-            'student_id' => $this->student->id,
-            'status' => 'active',
-        ]);
-
-        $this->actingAs($this->admin)
-            ->get(route('admin.enrollments.create'))
-            ->assertStatus(200)
-            ->assertInertia(
-                fn ($page) => $page
-                    ->component('Admin/Enrollments/Create')
-                    ->has(
-                        'classes',
-                        1,
-                        fn ($page) => $page
-                            ->where('active_enrollments_count', 1)
-                            ->has('enrollments', 1)
-                            ->etc()
-                    )
-            );
-    }
-
-    public function test_create_page_returns_students_with_avatar(): void
+    public function test_create_page_does_not_preload_all_students_or_classes(): void
     {
         $this->actingAs($this->admin)
             ->get(route('admin.enrollments.create'))
@@ -92,15 +65,25 @@ class AdminEnrollmentCreateTest extends TestCase
             ->assertInertia(
                 fn ($page) => $page
                     ->component('Admin/Enrollments/Create')
-                    ->has(
-                        'students',
-                        1,
-                        fn ($page) => $page
-                            ->has('email')
-                            ->has('name')
-                            ->etc()
-                    )
+                    ->missing('classes')
+                    ->missing('students')
             );
+    }
+
+    public function test_search_students_endpoint_returns_results(): void
+    {
+        $this->actingAs($this->admin)
+            ->getJson(route('admin.enrollments.search-students', ['q' => $this->student->name]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['id' => $this->student->id]);
+    }
+
+    public function test_search_classes_endpoint_returns_results(): void
+    {
+        $this->actingAs($this->admin)
+            ->getJson(route('admin.enrollments.search-classes', ['q' => $this->class->name]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['id' => $this->class->id]);
     }
 
     public function test_admin_can_enroll_student(): void
@@ -119,17 +102,16 @@ class AdminEnrollmentCreateTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_quick_create_student(): void
+    public function test_admin_can_create_student_in_enrollment_context(): void
     {
         Notification::fake();
 
         $this->actingAs($this->admin)
-            ->postJson(route('admin.enrollments.quick-student'), [
+            ->post(route('admin.enrollments.create-student'), [
                 'name' => 'New Student',
                 'email' => 'newstudent@example.com',
             ])
-            ->assertStatus(201)
-            ->assertJsonStructure(['id', 'name', 'email', 'avatar']);
+            ->assertRedirect();
 
         $this->assertDatabaseHas('users', [
             'name' => 'New Student',
@@ -140,26 +122,24 @@ class AdminEnrollmentCreateTest extends TestCase
         $this->assertTrue($newUser->hasRole('student'));
     }
 
-    public function test_quick_create_student_validates_email(): void
+    public function test_create_student_validates_email(): void
     {
         $this->actingAs($this->admin)
-            ->postJson(route('admin.enrollments.quick-student'), [
+            ->post(route('admin.enrollments.create-student'), [
                 'name' => 'New Student',
                 'email' => 'invalid-email',
             ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['email']);
+            ->assertSessionHasErrors(['email']);
     }
 
-    public function test_quick_create_student_rejects_duplicate_email(): void
+    public function test_create_student_rejects_duplicate_email(): void
     {
         $this->actingAs($this->admin)
-            ->postJson(route('admin.enrollments.quick-student'), [
+            ->post(route('admin.enrollments.create-student'), [
                 'name' => 'Duplicate',
                 'email' => $this->student->email,
             ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['email']);
+            ->assertSessionHasErrors(['email']);
     }
 
     public function test_student_cannot_access_create_page(): void
@@ -169,10 +149,10 @@ class AdminEnrollmentCreateTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_student_cannot_quick_create_student(): void
+    public function test_student_cannot_create_student_in_enrollment_context(): void
     {
         $this->actingAs($this->student)
-            ->postJson(route('admin.enrollments.quick-student'), [
+            ->post(route('admin.enrollments.create-student'), [
                 'name' => 'Test',
                 'email' => 'test@example.com',
             ])
@@ -184,5 +164,66 @@ class AdminEnrollmentCreateTest extends TestCase
         $this->actingAs($this->admin)
             ->post(route('admin.enrollments.store'), [])
             ->assertSessionHasErrors(['student_id', 'class_id']);
+    }
+
+    public function test_bulk_store_enrolls_multiple_students(): void
+    {
+        $student2 = User::factory()->create();
+        $student2->assignRole('student');
+
+        $this->actingAs($this->admin)
+            ->postJson(route('admin.enrollments.bulk-store'), [
+                'class_id' => $this->class->id,
+                'student_ids' => [$this->student->id, $student2->id],
+            ])
+            ->assertStatus(200)
+            ->assertJsonPath('class_name', $this->class->name)
+            ->assertJsonCount(2, 'enrolled')
+            ->assertJsonCount(0, 'failed');
+
+        $this->assertDatabaseHas('enrollments', [
+            'student_id' => $this->student->id,
+            'class_id' => $this->class->id,
+        ]);
+        $this->assertDatabaseHas('enrollments', [
+            'student_id' => $student2->id,
+            'class_id' => $this->class->id,
+        ]);
+    }
+
+    public function test_bulk_store_reports_already_enrolled_as_failed(): void
+    {
+        \App\Models\Enrollment::factory()->create([
+            'student_id' => $this->student->id,
+            'class_id' => $this->class->id,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($this->admin)
+            ->postJson(route('admin.enrollments.bulk-store'), [
+                'class_id' => $this->class->id,
+                'student_ids' => [$this->student->id],
+            ])
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'enrolled')
+            ->assertJsonCount(1, 'failed');
+    }
+
+    public function test_bulk_store_validates_required_fields(): void
+    {
+        $this->actingAs($this->admin)
+            ->postJson(route('admin.enrollments.bulk-store'), [])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['class_id', 'student_ids']);
+    }
+
+    public function test_student_cannot_bulk_store(): void
+    {
+        $this->actingAs($this->student)
+            ->postJson(route('admin.enrollments.bulk-store'), [
+                'class_id' => $this->class->id,
+                'student_ids' => [$this->student->id],
+            ])
+            ->assertForbidden();
     }
 }

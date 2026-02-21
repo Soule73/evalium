@@ -28,7 +28,10 @@ export default function ShowUser({
     );
 
     return (
-        <AuthenticatedLayout title={userTitle} breadcrumb={breadcrumbs.admin.adminShow({ name: user.name })}>
+        <AuthenticatedLayout
+            title={userTitle}
+            breadcrumb={breadcrumbs.admin.adminShow({ name: user.name })}
+        >
             <UserBaseInfo
                 user={user}
                 canDelete={canDelete}

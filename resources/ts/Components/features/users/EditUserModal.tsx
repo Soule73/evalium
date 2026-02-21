@@ -78,7 +78,8 @@ export default function EditUserModal({
 
     const translations = useMemo(
         () => ({
-            editTitle: title || (editTitleKey ? t(editTitleKey) : t('admin_pages.users.edit_title')),
+            editTitle:
+                title || (editTitleKey ? t(editTitleKey) : t('admin_pages.users.edit_title')),
             passwordChange: t('admin_pages.users.password_change'),
             passwordKeep: t('admin_pages.users.password_keep'),
             passwordConfirmPlaceholder: t('admin_pages.users.password_confirm_placeholder'),
@@ -98,9 +99,7 @@ export default function EditUserModal({
         <Modal isOpen={isOpen} size="2xl" onClose={onClose} isCloseableInside={false}>
             <div className="p-6 md:min-w-lg lg:min-w-xl w-full ">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-gray-900">
-                        {translations.editTitle}
-                    </h1>
+                    <h1 className="text-2xl font-bold text-gray-900">{translations.editTitle}</h1>
                     <p className="text-gray-600 mt-1">{editSubtitle}</p>
                 </div>
 
