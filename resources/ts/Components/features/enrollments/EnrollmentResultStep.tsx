@@ -30,14 +30,16 @@ function PasswordCell({ password }: PasswordCellProps) {
             <span className="font-mono text-sm text-gray-900">
                 {visible ? password : '••••••••'}
             </span>
-            <button
+            <Button
+                size="sm"
+                variant="ghost"
                 type="button"
                 onClick={() => setVisible((v) => !v)}
                 className="text-gray-400 hover:text-gray-600"
                 aria-label={visible ? 'Hide password' : 'Show password'}
             >
                 {visible ? <EyeSlashIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
-            </button>
+            </Button>
         </div>
     );
 }
@@ -116,27 +118,50 @@ export function EnrollmentResultStep() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center gap-3">
-                {enrolledCount > 0 && (
-                    <div className="flex items-center gap-2 text-green-700">
-                        <CheckCircleIcon className="h-5 w-5" />
-                        <span className="text-sm font-medium">
-                            {t('admin_pages.enrollments.result_enrolled', {
-                                count: enrolledCount,
-                                class: result.class_name,
-                            })}
-                        </span>
+            <Section
+                title={result.class_name}
+                actions={
+                    <div className="flex items-center gap-3">
+                        <Button
+                            size="sm"
+                            type="button"
+                            color="primary"
+                            variant="solid"
+                            onClick={handleEnrollMore}
+                        >
+                            {t('admin_pages.enrollments.enroll_more')}
+                        </Button>
+                        <Link
+                            href={route('admin.enrollments.index')}
+                            className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                        >
+                            {t('admin_pages.enrollments.view_all_enrollments')}
+                        </Link>
                     </div>
-                )}
-                {failedCount > 0 && (
-                    <div className="flex items-center gap-2 text-amber-700">
-                        <ExclamationCircleIcon className="h-5 w-5" />
-                        <span className="text-sm font-medium">
-                            {t('admin_pages.enrollments.result_failed', { count: failedCount })}
-                        </span>
-                    </div>
-                )}
-            </div>
+                }
+            >
+                <div className="flex items-center gap-3">
+                    {enrolledCount > 0 && (
+                        <div className="flex items-center gap-2 text-green-700">
+                            <CheckCircleIcon className="h-5 w-5" />
+                            <span className="text-sm font-medium">
+                                {t('admin_pages.enrollments.result_enrolled', {
+                                    count: enrolledCount,
+                                    class: result.class_name,
+                                })}
+                            </span>
+                        </div>
+                    )}
+                    {failedCount > 0 && (
+                        <div className="flex items-center gap-2 text-amber-700">
+                            <ExclamationCircleIcon className="h-5 w-5" />
+                            <span className="text-sm font-medium">
+                                {t('admin_pages.enrollments.result_failed', { count: failedCount })}
+                            </span>
+                        </div>
+                    )}
+                </div>
+            </Section>
 
             {enrolledCount > 0 && (
                 <Section title={t('admin_pages.enrollments.result_enrolled_list')}>
@@ -173,18 +198,6 @@ export function EnrollmentResultStep() {
                     </ul>
                 </Section>
             )}
-
-            <div className="flex items-center gap-3">
-                <Button type="button" color="primary" variant="solid" onClick={handleEnrollMore}>
-                    {t('admin_pages.enrollments.enroll_more')}
-                </Button>
-                <Link
-                    href={route('admin.enrollments.index')}
-                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                >
-                    {t('admin_pages.enrollments.view_all_enrollments')}
-                </Link>
-            </div>
         </div>
     );
 }

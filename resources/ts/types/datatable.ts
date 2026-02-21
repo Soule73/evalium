@@ -76,6 +76,7 @@ export interface DataTableProps<T> {
     config: DataTableConfig<T>;
     onStateChange?: (state: DataTableState) => void;
     onSelectionChange?: (selectedIds: (number | string)[]) => void;
+    selectedIds?: (number | string)[];
     isLoading?: boolean;
     className?: string;
     testIdSelectAllCheckbox?: string;

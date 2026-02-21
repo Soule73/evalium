@@ -9,9 +9,15 @@ interface AuthenticatedLayoutProps {
     children: React.ReactNode;
     title?: string;
     breadcrumb?: BreadcrumbItem[];
+    headerActions?: React.ReactNode;
 }
 
-const AuthenticatedLayout = ({ children, title, breadcrumb }: AuthenticatedLayoutProps) => {
+const AuthenticatedLayout = ({
+    children,
+    title,
+    breadcrumb,
+    headerActions,
+}: AuthenticatedLayoutProps) => {
     const { auth, flash } = usePage<PageProps>().props;
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -67,6 +73,9 @@ const AuthenticatedLayout = ({ children, title, breadcrumb }: AuthenticatedLayou
 
                             {/* Academic Year Selector + User Menu */}
                             <div className="hidden lg:flex items-center gap-4">
+                                {headerActions && (
+                                    <div className="flex items-center">{headerActions}</div>
+                                )}
                                 <AcademicYearSelector user={auth.user} />
                                 <UserMenu
                                     user={auth.user}

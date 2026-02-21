@@ -121,6 +121,40 @@ export function EnrollmentSummaryStep() {
                 title={t('admin_pages.enrollments.summary_students', {
                     count: state.selectedStudents.length,
                 })}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            color="primary"
+                            size="sm"
+                            onClick={handleBack}
+                        >
+                            <ArrowLeftIcon className="mr-2 h-4 w-4" />
+                            {t('admin_pages.enrollments.back')}
+                        </Button>
+                        <Button
+                            type="button"
+                            color="primary"
+                            variant="solid"
+                            size="sm"
+                            onClick={handleConfirm}
+                            disabled={isSubmitting || state.selectedStudents.length === 0}
+                        >
+                            {isSubmitting ? (
+                                <span className="flex items-center gap-2">
+                                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                    {t('admin_pages.enrollments.enrolling')}
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-2">
+                                    <CheckIcon className="h-4 w-4" />
+                                    {t('admin_pages.enrollments.confirm_enrollment')}
+                                </span>
+                            )}
+                        </Button>
+                    </div>
+                }
             >
                 <DataTable
                     data={state.selectedStudents}
@@ -148,46 +182,13 @@ export function EnrollmentSummaryStep() {
                         </p>
                     </div>
                 )}
+
+                {submitError && (
+                    <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        {submitError}
+                    </div>
+                )}
             </Section>
-
-            {submitError && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    {submitError}
-                </div>
-            )}
-
-            <div className="flex items-center justify-between">
-                <Button
-                    type="button"
-                    variant="ghost"
-                    color="primary"
-                    size="sm"
-                    onClick={handleBack}
-                >
-                    <ArrowLeftIcon className="mr-2 h-4 w-4" />
-                    {t('admin_pages.enrollments.back')}
-                </Button>
-
-                <Button
-                    type="button"
-                    color="primary"
-                    variant="solid"
-                    onClick={handleConfirm}
-                    disabled={isSubmitting || state.selectedStudents.length === 0}
-                >
-                    {isSubmitting ? (
-                        <span className="flex items-center gap-2">
-                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                            {t('admin_pages.enrollments.enrolling')}
-                        </span>
-                    ) : (
-                        <span className="flex items-center gap-2">
-                            <CheckIcon className="h-4 w-4" />
-                            {t('admin_pages.enrollments.confirm_enrollment')}
-                        </span>
-                    )}
-                </Button>
-            </div>
         </div>
     );
 }

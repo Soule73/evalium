@@ -71,6 +71,7 @@ function DataTableInner<T extends { id: number | string }>({
     config,
     onStateChange,
     onSelectionChange,
+    selectedIds,
     isLoading = false,
     className = '',
     testIdSelectAllCheckbox = 'datatable-select-all-checkbox',
@@ -96,6 +97,7 @@ function DataTableInner<T extends { id: number | string }>({
         filters: config.filters,
         onStateChange: isStatic ? undefined : onStateChange,
         onSelectionChange,
+        selectedIds,
         isStatic,
     });
 
