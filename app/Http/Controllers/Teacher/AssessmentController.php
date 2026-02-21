@@ -83,10 +83,11 @@ class AssessmentController extends Controller
                 'name' => $item->class_name.' - '.$item->level_name.' ('.$item->level_description.')',
             ]);
 
-        return Inertia::render('Teacher/Assessments/Index', [
+        return Inertia::render('Assessments/Index', [
             'assessments' => $assessments,
             'filters' => $filters,
             'classes' => $classes,
+            'routeContext' => $this->buildRouteContext(),
         ]);
     }
 
@@ -262,6 +263,7 @@ class AssessmentController extends Controller
             'unpublishRoute' => 'teacher.assessments.unpublish',
             'duplicateRoute' => 'teacher.assessments.duplicate',
             'reopenRoute' => 'teacher.assessments.reopen',
+            'createRoute' => 'teacher.assessments.create',
         ];
     }
 }

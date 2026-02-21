@@ -67,11 +67,12 @@ class AdminAssessmentConsultationTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn ($page) => $page
-                ->component('Admin/Assessments/Index')
+                ->component('Assessments/Index')
                 ->has('assessments.data', 3)
                 ->has('classes')
                 ->has('subjects')
                 ->has('teachers')
+                ->where('routeContext.role', 'admin')
         );
     }
 
@@ -94,7 +95,7 @@ class AdminAssessmentConsultationTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn ($page) => $page
-                ->component('Admin/Assessments/Index')
+                ->component('Assessments/Index')
                 ->has('assessments.data', 1)
         );
     }

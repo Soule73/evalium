@@ -77,12 +77,13 @@ class AdminAssessmentController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return Inertia::render('Admin/Assessments/Index', [
+        return Inertia::render('Assessments/Index', [
             'assessments' => $assessments,
             'filters' => $filters,
             'classes' => $classes,
             'subjects' => $subjects,
             'teachers' => $teachers,
+            'routeContext' => $this->buildRouteContext(),
         ]);
     }
 
@@ -105,6 +106,7 @@ class AdminAssessmentController extends Controller
             'unpublishRoute' => null,
             'duplicateRoute' => null,
             'reopenRoute' => null,
+            'createRoute' => null,
         ];
     }
 }
