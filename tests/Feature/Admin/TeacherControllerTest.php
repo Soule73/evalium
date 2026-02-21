@@ -199,7 +199,10 @@ class TeacherControllerTest extends TestCase
                 'role' => 'teacher',
             ]);
 
-        $response->assertRedirect(route('admin.teachers.index'));
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+        $response->assertSessionHas('has_new_user', true);
+        $response->assertSessionHas('new_user_credentials');
 
         $this->assertDatabaseHas('users', ['email' => 'newteacher@example.com']);
 

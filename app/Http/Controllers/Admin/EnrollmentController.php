@@ -92,10 +92,12 @@ class EnrollmentController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
         ]);
 
+        /** @var \App\Models\User */
         $student = $this->userManagementService->store([
             ...$validated,
             'role' => 'student',
-        ]);
+            'send_credentials' => false,
+        ])['user'];
 
         return response()->json([
             'id' => $student->id,

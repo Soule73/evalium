@@ -582,8 +582,8 @@ class ScoringServiceTest extends TestCase
         );
 
         $questions = $assessment->questions;
-        $questions->take(5)->each(fn($q) => $q->update(['type' => 'text', 'points' => 10]));
-        $questions->skip(5)->each(fn($q) => $q->update(['type' => 'one_choice', 'points' => 10]));
+        $questions->take(5)->each(fn ($q) => $q->update(['type' => 'text', 'points' => 10]));
+        $questions->skip(5)->each(fn ($q) => $q->update(['type' => 'one_choice', 'points' => 10]));
 
         $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
@@ -619,7 +619,7 @@ class ScoringServiceTest extends TestCase
             assessmentAttributes: ['title' => 'Manual Grade Test', 'duration_minutes' => 60]
         );
 
-        $assessment->questions->each(fn($q) => $q->update(['type' => 'text', 'points' => 10]));
+        $assessment->questions->each(fn ($q) => $q->update(['type' => 'text', 'points' => 10]));
         $questions = $assessment->fresh()->questions;
 
         $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
