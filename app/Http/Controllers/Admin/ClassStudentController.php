@@ -84,12 +84,28 @@ class ClassStudentController extends Controller
 
         $showData = $this->enrollmentRepository->getShowData($enrollment, $selectedYearId);
 
-        return Inertia::render('Admin/Classes/Students/Show', [
+        return Inertia::render('Classes/Students/Show', [
             'class' => $class,
             'enrollment' => $enrollment,
             'subjects' => $paginatedSubjects,
             'overallStats' => $overallStats,
             'classes' => $showData['classes'],
+            'routeContext' => [
+                'role' => 'admin',
+                'indexRoute' => 'admin.classes.index',
+                'showRoute' => 'admin.classes.show',
+                'editRoute' => 'admin.classes.edit',
+                'deleteRoute' => 'admin.classes.destroy',
+                'assessmentsRoute' => 'admin.classes.assessments',
+                'subjectShowRoute' => 'admin.classes.subjects.show',
+                'studentShowRoute' => 'admin.classes.students.show',
+                'studentIndexRoute' => 'admin.classes.students.index',
+                'studentAssignmentsRoute' => 'admin.classes.students.assignments',
+                'assessmentShowRoute' => 'admin.classes.assessments.show',
+                'assessmentGradeRoute' => 'admin.assessments.grade',
+                'assessmentReviewRoute' => 'admin.assessments.review',
+                'assessmentSaveGradeRoute' => 'admin.assessments.saveGrade',
+            ],
         ]);
     }
 
@@ -115,12 +131,28 @@ class ClassStudentController extends Controller
 
         $subjects = $this->enrollmentRepository->getClassSubjectsForEnrollment($enrollment);
 
-        return Inertia::render('Admin/Classes/Students/Assignments/Index', [
+        return Inertia::render('Classes/Students/Assignments/Index', [
             'class' => $class,
             'enrollment' => $enrollment,
             'assignments' => $assignments,
             'subjects' => $subjects,
             'filters' => $filters,
+            'routeContext' => [
+                'role' => 'admin',
+                'indexRoute' => 'admin.classes.index',
+                'showRoute' => 'admin.classes.show',
+                'editRoute' => 'admin.classes.edit',
+                'deleteRoute' => 'admin.classes.destroy',
+                'assessmentsRoute' => 'admin.classes.assessments',
+                'subjectShowRoute' => 'admin.classes.subjects.show',
+                'studentShowRoute' => 'admin.classes.students.show',
+                'studentIndexRoute' => 'admin.classes.students.index',
+                'studentAssignmentsRoute' => 'admin.classes.students.assignments',
+                'assessmentShowRoute' => 'admin.classes.assessments.show',
+                'assessmentGradeRoute' => 'admin.assessments.grade',
+                'assessmentReviewRoute' => 'admin.assessments.review',
+                'assessmentSaveGradeRoute' => 'admin.assessments.saveGrade',
+            ],
         ]);
     }
 }

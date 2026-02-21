@@ -308,10 +308,21 @@ Route::middleware('auth')->group(function () {
              */
             Route::prefix('classes')
                 ->name('classes.')
-                ->controller(\App\Http\Controllers\Teacher\TeacherClassController::class)
                 ->group(function () {
-                    Route::get('/', 'index')->name('index');
-                    Route::get('/{class}', 'show')->name('show');
+                    Route::controller(\App\Http\Controllers\Teacher\TeacherClassController::class)->group(function () {
+                        Route::get('/', 'index')->name('index');
+                        Route::get('/{class}', 'show')->name('show');
+                    });
+
+                    Route::controller(\App\Http\Controllers\Teacher\TeacherClassAssessmentController::class)->group(function () {
+                        Route::get('/{class}/assessments', 'index')->name('assessments');
+                        Route::get('/{class}/assessments/{assessment}', 'show')->name('assessments.show');
+                    });
+
+                    Route::controller(\App\Http\Controllers\Teacher\TeacherClassStudentController::class)->group(function () {
+                        Route::get('/{class}/students/{enrollment}', 'show')->name('students.show');
+                        Route::get('/{class}/students/{enrollment}/assignments', 'assignments')->name('students.assignments');
+                    });
                 });
 
             /**

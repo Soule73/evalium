@@ -75,6 +75,7 @@ class ClassController extends Controller
                 'assessmentsRoute' => 'admin.classes.assessments',
                 'subjectShowRoute' => 'admin.classes.subjects.show',
                 'studentShowRoute' => 'admin.classes.students.show',
+                'studentIndexRoute' => 'admin.classes.students.index',
                 'studentAssignmentsRoute' => 'admin.classes.students.assignments',
                 'assessmentShowRoute' => 'admin.classes.assessments.show',
                 'assessmentGradeRoute' => 'admin.assessments.grade',
@@ -152,6 +153,7 @@ class ClassController extends Controller
                 'assessmentsRoute' => 'admin.classes.assessments',
                 'subjectShowRoute' => 'admin.classes.subjects.show',
                 'studentShowRoute' => 'admin.classes.students.show',
+                'studentIndexRoute' => 'admin.classes.students.index',
                 'studentAssignmentsRoute' => 'admin.classes.students.assignments',
                 'assessmentShowRoute' => 'admin.classes.assessments.show',
                 'assessmentGradeRoute' => 'admin.assessments.grade',
@@ -230,12 +232,28 @@ class ClassController extends Controller
             ->orderBy('users.name')
             ->get(['users.id', 'users.name']);
 
-        return Inertia::render('Admin/Classes/Assessments', [
+        return Inertia::render('Classes/Assessments', [
             'class' => $class->load('level', 'academicYear'),
             'assessments' => $assessments,
             'filters' => $filters,
             'subjects' => $subjects,
             'teachers' => $teachers,
+            'routeContext' => [
+                'role' => 'admin',
+                'indexRoute' => 'admin.classes.index',
+                'showRoute' => 'admin.classes.show',
+                'editRoute' => 'admin.classes.edit',
+                'deleteRoute' => 'admin.classes.destroy',
+                'assessmentsRoute' => 'admin.classes.assessments',
+                'subjectShowRoute' => 'admin.classes.subjects.show',
+                'studentShowRoute' => 'admin.classes.students.show',
+                'studentIndexRoute' => 'admin.classes.students.index',
+                'studentAssignmentsRoute' => 'admin.classes.students.assignments',
+                'assessmentShowRoute' => 'admin.classes.assessments.show',
+                'assessmentGradeRoute' => 'admin.assessments.grade',
+                'assessmentReviewRoute' => 'admin.assessments.review',
+                'assessmentSaveGradeRoute' => 'admin.assessments.saveGrade',
+            ],
         ]);
     }
 

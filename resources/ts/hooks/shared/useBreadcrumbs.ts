@@ -240,6 +240,12 @@ function createBreadcrumbs(t: TranslateFn) {
                     },
                 ];
             }
+            if (ctx.role === 'teacher' && !ctx.showRoute && assessment.class_subject?.class) {
+                const classItem = assessment.class_subject.class;
+                return [
+                    ...teacherClassesBc.showClassAssessment(classItem, assessment),
+                ];
+            }
             return [
                 { label: t('breadcrumbs.assessments'), href: route(ctx.backRoute) },
                 ctx.showRoute

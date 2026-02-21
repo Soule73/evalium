@@ -96,13 +96,13 @@ export default function GradeAssignment({
 
     const saveGradeUrl = routeContext?.saveGradeRoute
         ? route(routeContext.saveGradeRoute, {
-              assessment: assessment.id,
-              assignment: assignment.id,
-          })
+            assessment: assessment.id,
+            assignment: assignment.id,
+        })
         : route('teacher.assessments.saveGrade', {
-              assessment: assessment.id,
-              assignment: assignment.id,
-          });
+            assessment: assessment.id,
+            assignment: assignment.id,
+        });
 
     const handleConfirmSubmit = useCallback(() => {
         setIsSubmitting(true);
@@ -197,6 +197,12 @@ export default function GradeAssignment({
         if (routeContext.showRoute) return route(routeContext.showRoute, assessment.id);
         const classId = assessment.class_subject?.class?.id;
         if (classId) {
+            if (routeContext.role === 'teacher') {
+                return route('teacher.classes.assessments.show', {
+                    class: classId,
+                    assessment: assessment.id,
+                });
+            }
             return route('admin.classes.assessments.show', {
                 class: classId,
                 assessment: assessment.id,

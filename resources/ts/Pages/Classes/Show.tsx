@@ -329,11 +329,11 @@ export default function ClassShow({
                 size="sm"
                 variant="outline"
                 color="secondary"
-                onClick={() =>
-                  router.visit(
-                    route('admin.classes.students.index', classItem.id),
-                  )
-                }
+                onClick={() => {
+                  if (routeContext.studentIndexRoute) {
+                    router.visit(route(routeContext.studentIndexRoute, classItem.id));
+                  }
+                }}
               >
                 {translations.seeAllStudents}
               </Button>
@@ -431,6 +431,12 @@ export default function ClassShow({
               data={students as PaginationType<Enrollment>}
               variant="teacher"
               showClassColumn={false}
+              onView={routeContext.studentShowRoute ? (enrollment) => {
+                router.visit(route(routeContext.studentShowRoute!, {
+                  class: classItem.id,
+                  enrollment: enrollment.id,
+                }));
+              } : undefined}
             />
           </Section>
         )}

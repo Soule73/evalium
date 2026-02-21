@@ -7,6 +7,7 @@ export interface ClassRouteContext {
     assessmentsRoute: string | null;
     subjectShowRoute: string | null;
     studentShowRoute: string | null;
+    studentIndexRoute: string | null;
     studentAssignmentsRoute: string | null;
     assessmentShowRoute: string | null;
     assessmentGradeRoute: string | null;

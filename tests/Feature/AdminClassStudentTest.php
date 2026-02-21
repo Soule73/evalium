@@ -120,7 +120,7 @@ class AdminClassStudentTest extends TestCase
             ->assertStatus(200)
             ->assertInertia(
                 fn ($page) => $page
-                    ->component('Admin/Classes/Students/Show')
+                    ->component('Classes/Students/Show')
                     ->has('class')
                     ->has('enrollment')
                     ->has('subjects')
@@ -158,7 +158,7 @@ class AdminClassStudentTest extends TestCase
             ->assertStatus(200)
             ->assertInertia(
                 fn ($page) => $page
-                    ->component('Admin/Classes/Students/Assignments/Index')
+                    ->component('Classes/Students/Assignments/Index')
                     ->has('class')
                     ->has('enrollment')
                     ->has('assignments.data', 1)
@@ -182,7 +182,7 @@ class AdminClassStudentTest extends TestCase
             ->assertStatus(200)
             ->assertInertia(
                 fn ($page) => $page
-                    ->component('Admin/Classes/Students/Assignments/Index')
+                    ->component('Classes/Students/Assignments/Index')
                     ->has('assignments.data', 1)
             );
     }
