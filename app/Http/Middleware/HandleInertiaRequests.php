@@ -52,11 +52,11 @@ class HandleInertiaRequests extends Middleware
                 'roles' => $user ? $user->getRoleNames()->toArray() : [],
             ],
             'flash' => [
-                'success' => fn () => $request->session()->pull('success'),
-                'error' => fn () => $request->session()->pull('error'),
-                'warning' => fn () => $request->session()->pull('warning'),
-                'info' => fn () => $request->session()->pull('info'),
-                'has_new_user' => fn () => $request->session()->pull('has_new_user'),
+                'success' => fn() => $request->session()->pull('success'),
+                'error' => fn() => $request->session()->pull('error'),
+                'warning' => fn() => $request->session()->pull('warning'),
+                'info' => fn() => $request->session()->pull('info'),
+                'has_new_user' => fn() => $request->session()->pull('has_new_user'),
             ],
             'academic_year' => [
                 'selected' => $this->getSelectedAcademicYear($request),
@@ -117,8 +117,9 @@ class HandleInertiaRequests extends Middleware
     /**
      * Get all translations for the current locale.
      *
-     * This method loads all PHP translation files and JSON translations
-     * to make them available in the frontend via Inertia.js.
+     * Loads all PHP translation files recursively (including subdirectories)
+     * and JSON translations. Subdirectory files are namespaced as
+     * "subdirectory/filename" (e.g. lang/en/commons/ui.php → "commons/ui").
      *
      * @return array<string, mixed>
      */
@@ -132,15 +133,25 @@ class HandleInertiaRequests extends Middleware
             $langPath = lang_path($locale);
 
             if (is_dir($langPath)) {
-                $files = glob($langPath.'/*.php');
+                $iterator = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($langPath, \FilesystemIterator::SKIP_DOTS)
+                );
 
-                foreach ($files as $file) {
-                    $filename = basename($file, '.php');
-                    $translations[$filename] = require $file;
+                foreach ($iterator as $file) {
+                    if ($file->getExtension() !== 'php') {
+                        continue;
+                    }
+
+                    $relativePath = ltrim(
+                        str_replace([$langPath, '\\', '.php'], ['', '/', ''], $file->getPathname()),
+                        '/'
+                    );
+
+                    $translations[$relativePath] = require $file->getPathname();
                 }
             }
 
-            $jsonFile = lang_path($locale.'.json');
+            $jsonFile = lang_path($locale . '.json');
             if (file_exists($jsonFile)) {
                 $jsonTranslations = json_decode(file_get_contents($jsonFile), true);
                 $translations = array_merge($translations, ['json' => $jsonTranslations]);

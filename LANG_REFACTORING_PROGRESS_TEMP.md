@@ -169,21 +169,23 @@ Actions form : required_field, optional
 
 ---
 
-### Phase 1 — Créer les fichiers `commons/` 🔲 À FAIRE
+### Phase 1 — Créer les fichiers `commons/` ✅ TERMINÉ
 **Durée estimée :** 1–2h  
 **Risque :** Zéro (création seule, aucun fichier existant modifié)
 
-- [ ] Créer `lang/en/commons/ui.php`
-- [ ] Créer `lang/fr/commons/ui.php`
-- [ ] Créer `lang/en/commons/status.php`
-- [ ] Créer `lang/fr/commons/status.php`
-- [ ] Créer `lang/en/commons/entities.php`
-- [ ] Créer `lang/fr/commons/entities.php`
-- [ ] Créer `lang/en/commons/table.php`
-- [ ] Créer `lang/fr/commons/table.php`
-- [ ] Créer `lang/en/commons/form.php`
-- [ ] Créer `lang/fr/commons/form.php`
-- [ ] Vérifier que `t('commons/ui.save')` résout bien côté frontend (test rapide)
+- [x] Créer `lang/en/commons/ui.php`
+- [x] Créer `lang/fr/commons/ui.php`
+- [x] Créer `lang/en/commons/status.php`
+- [x] Créer `lang/fr/commons/status.php`
+- [x] Créer `lang/en/commons/entities.php`
+- [x] Créer `lang/fr/commons/entities.php`
+- [x] Créer `lang/en/commons/table.php`
+- [x] Créer `lang/fr/commons/table.php`
+- [x] Créer `lang/en/commons/form.php`
+- [x] Créer `lang/fr/commons/form.php`
+- [x] Rendre `HandleInertiaRequests::getTranslations()` récursif (`RecursiveIteratorIterator`)
+- [x] Vérifier que `t('commons/ui.save')`, `t('commons/status.graded')`, etc. résolvent (tinker ✅)
+- [x] Tests Enrollment : 55 passed ✅
 
 ---
 
@@ -287,16 +289,18 @@ Ordre par priorité (nb d'orphelins estimé) :
 
 | Date | Phase | Action | Commit |
 |---|---|---|---|
-| 2026-02-21 | Phase 0 | Audit complet + création du document de tracking | — |
+| 2026-02-21 | Phase 0 | Audit complet + création du document de tracking | `abb38f2` |
+| 2026-02-21 | Phase 1 | Création des 10 fichiers `commons/` (EN+FR) + middleware récursif | TBD |
 
 ---
 
 ## 8. Notes et décisions techniques
 
-### Accès aux fichiers `commons/` côté frontend
-Laravel `laravel-react-i18n` charge tous les fichiers du dossier `lang/{locale}/` **récursivement**.  
-Un fichier `lang/en/commons/ui.php` sera accessible via `t('commons/ui.save')`.  
-→ **Format de clé :** `t('commons/nomfichier.cle')` (avec `/` comme séparateur de dossier)
+### Accès aux fichiers `commons/` côté frontend ✅ Validé
+`HandleInertiaRequests::getTranslations()` utilise désormais `RecursiveIteratorIterator` pour charger tous les fichiers `.php` récursivement.  
+Un fichier `lang/en/commons/ui.php` est accessible via `t('commons/ui.save')`, `t('commons/ui.creating')`, etc.  
+→ **Format de clé :** `t('commons/nomfichier.cle')` (avec `/` comme séparateur de dossier)  
+→ **Vérifié par tinker :** `trans('commons/ui.save', [], 'en')` → `Save` ✅, `trans('commons/status.graded', [], 'fr')` → `Noté` ✅
 
 ### Clés dynamiques — attention particulière
 Certaines clés sont construites dynamiquement en TS, ex :
