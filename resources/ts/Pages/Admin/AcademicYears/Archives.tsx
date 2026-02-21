@@ -81,7 +81,7 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
             archivesSubtitle: t('admin_pages.academic_years.archives_subtitle'),
             activateYearModalTitle: t('admin_pages.academic_years.activate_year_modal_title'),
             activateAndSwitch: t('admin_pages.academic_years.activate_and_switch'),
-            cancel: t('common.cancel'),
+            cancel: t('commons/ui.cancel'),
             create: t('admin_pages.academic_years.create'),
         }),
         [t],

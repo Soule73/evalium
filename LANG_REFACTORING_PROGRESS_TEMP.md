@@ -2,7 +2,7 @@
 
 > **Créé le :** 21 février 2026  
 > **Branche :** `develop/v1.1-improvements`  
-> **Statut global :** Phase 3 terminée ✅ — Phase 4 à faire
+> **Statut global :** Phase 4 terminée ✅ — Phase 5 à faire
 
 ---
 
@@ -213,33 +213,32 @@ Actions form : required_field, optional
 
 ---
 
-### Phase 4 — Migration des fichiers pages restants 🔲 À FAIRE
-Ordre par priorité (nb d'orphelins estimé) :
+### Phase 4 — Migration des fichiers pages restants ✅ TERMINÉ
+**Résultat :** -990 clés EN (2615 → 1625) — 12 fichiers supprimés  
+**Commit :** `3658102`
 
-- [ ] `assessment_pages.php` (104 → ~38 utilisées)
-- [ ] `teacher_class_pages.php` (67 → ~18 utilisées)
-- [ ] `student_enrollment_pages.php` (58 → ~36 utilisées)
-- [ ] `dashboard.php` (61 → ~26 utilisées)
-- [ ] `student_assessment_pages.php` (153 → ~119 utilisées)
-- [ ] `grading_pages.php` (51 → ~29 utilisées)
-- [ ] `formatters.php` (48 → ~20 utilisées)
-- [ ] `teacher_pages.php` (95 → ~0 détectées — vérifier clés dynamiques)
-- [ ] `breadcrumbs.php` (36 → ~16 utilisées)
-- [ ] `users.php` (48 → ~5 utilisées)
-- [ ] `corrections.php` (29 → ~0 détectées)
-- [ ] `results.php` (36 → ~0 détectées)
+- [x] `assessment_pages.php` (104 → 39)
+- [x] `teacher_class_pages.php` (67 → 23)
+- [x] `student_enrollment_pages.php` (58 → 49 + 2 clés ajoutées manquantes)
+- [x] `dashboard.php` (61 → 26)
+- [x] `student_assessment_pages.php` (153 → 126)
+- [x] `grading_pages.php` (51 → 29)
+- [x] `formatters.php` (48 → 20)
+- [x] `breadcrumbs.php` (36 → 22)
+- [x] `users.php` (48 → 5)
+- [x] `common.php` (24 → 13)
+- [x] `sidebar.php` (30 → 23)
+- [x] Supprimé : `teacher_pages`, `corrections`, `results`, `assignments`, `actions`, `permissions` (EN+FR = 12 fichiers)
+- [x] Pint ✅
 
 ---
 
-### Phase 5 — Nettoyage final 🔲 À FAIRE
+### Phase 5 — Nettoyage final � EN COURS
 
-- [ ] Fusionner `common.php` (24 valeurs) dans `commons/ui.php` et supprimer `common.php`
-- [ ] Décider du sort de `actions.php` (109 valeurs, 0 usage TS détecté)
-  - Option A : supprimer → risque si backend l'utilise
-  - Option B : garder pour backend uniquement, annoter
-- [ ] Décider du sort de `assignments.php` (21 valeurs, 0 usage)
-- [ ] Décider du sort de `permissions.php` (63 valeurs, 0 usage TS)
-- [ ] Vérifier `messages.php` — séparer clés backend/frontend, garder uniquement backend
+- [ ] Auditer `student_pages.php` (52 clés) et `teacher_subject_pages.php` (22 clés) — découverts en Phase 4
+- [ ] Fusionner `common.php` (13 clés restantes) dans `commons/ui.php` et supprimer `common.php`
+- [ ] Vérifier `messages.php` (164 clés) — séparer clés backend/frontend
+- [ ] Valider les clés dynamiques restantes (`formatters.assessment_type.${type}`, etc.)
 - [ ] Run final : `php artisan test` pour vérifier que rien n'est cassé
 - [ ] Benchmark payload avant/après (comparer taille JSON envoyée au frontend)
 
@@ -260,9 +259,9 @@ Ordre par priorité (nb d'orphelins estimé) :
 
 | Métrique | Avant refactoring | Cible | Actuel |
 |---|---|---|---|
-| Valeurs totales EN | 2 615 | < 1 400 | ~2 088 |
-| Fichiers lang EN | 31 | ~28 (+ 5 commons) | 36 (+ 5 commons) |
-| Orphelins supprimés | 0 | ~1 500 | 303 (admin + components) |
+| Valeurs totales EN | 2 615 | < 1 400 | 1 625 (-38%) |
+| Fichiers lang EN | 31 | ~28 (+ 5 commons) | 25 (+ 5 commons) |
+| Orphelins supprimés | 0 | ~1 500 | ~1 300 |
 | Lignes `admin_pages.php` | 624 | < 400 | ~382 ✅ |
 | Lignes `components.php` | 369 | < 220 | ~210 ✅ |
 | Tests backend | 599 ✅ | 599+ ✅ | à vérifier |
@@ -277,6 +276,7 @@ Ordre par priorité (nb d'orphelins estimé) :
 | 2026-02-21 | Phase 1 | Création des 10 fichiers `commons/` (EN+FR) + middleware récursif | `8433ca6` |
 | 2026-02-21 | Phase 2 | Migration `admin_pages.common.*` → `commons/`, suppression 191 orphelins | `f236456` |
 | 2026-02-21 | Phase 3 | Suppression 112 orphelins `components.php`, fix 2 clés manquantes | `fce1f98` |
+| 2026-02-21 | Phase 4 | Purge 11 fichiers pages + suppression 12 fichiers inutilisés | `3658102` |
 
 ---
 

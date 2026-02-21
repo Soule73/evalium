@@ -113,28 +113,28 @@ export function SubjectGradeList({
                 },
                 ...(onSubjectClick
                     ? [
-                          {
-                              key: 'actions',
-                              label: t('common.actions'),
-                              sortable: false,
-                              render: (item: SubjectGrade) => (
-                                  <Button
-                                      type="button"
-                                      size="xs"
-                                      variant="ghost"
-                                      onClick={() => onSubjectClick(item)}
-                                  >
-                                      <EyeIcon className="h-4 w-4" />
-                                      {t('common.view')}
-                                  </Button>
-                              ),
-                          },
-                      ]
+                        {
+                            key: 'actions',
+                            label: t('commons/table.actions'),
+                            sortable: false,
+                            render: (item: SubjectGrade) => (
+                                <Button
+                                    type="button"
+                                    size="xs"
+                                    variant="ghost"
+                                    onClick={() => onSubjectClick(item)}
+                                >
+                                    <EyeIcon className="h-4 w-4" />
+                                    {t('commons/ui.view')}
+                                </Button>
+                            ),
+                        },
+                    ]
                     : []),
             ],
             perPageOptions: [10, 25, 50],
             ...(showSearch && {
-                searchPlaceholder: t('common.search'),
+                searchPlaceholder: t('commons/ui.search'),
             }),
             emptyState: {
                 icon: <BookOpenIcon className="w-12 h-12" />,
@@ -143,8 +143,8 @@ export function SubjectGradeList({
             },
             emptySearchState: {
                 icon: <BookOpenIcon className="w-12 h-12" />,
-                title: t('common.no_search_results'),
-                subtitle: t('common.try_different_search'),
+                title: t('commons/table.no_results'),
+                subtitle: t('commons/table.try_different_search'),
             },
         }),
         [t, showSearch, getGradeBadge, onSubjectClick],

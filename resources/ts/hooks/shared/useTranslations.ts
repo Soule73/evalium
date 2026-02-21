@@ -16,7 +16,7 @@ interface TranslationPageProps extends InertiaPageProps {
  *
  * @example
  * const { t, tAll, tChoice, currentLocale } = useTranslations();
- * const label = useMemo(() => t('common.search'), [t]);
+ * const label = useMemo(() => t('commons/ui.search'), [t]);
  * const isFrench = currentLocale === 'fr';
  * const itemsLabel = tChoice('items.count', 5);
  */

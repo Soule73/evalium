@@ -80,7 +80,7 @@ export function AcademicYearList({
 
                 {
                     key: 'status',
-                    labelKey: 'common.status',
+                    labelKey: 'commons/table.status',
                     render: (year) => {
                         const endDate = new Date(year.end_date);
                         const now = new Date();
@@ -139,7 +139,7 @@ export function AcademicYearList({
                     variant: 'outline' as const,
                 },
                 {
-                    labelKey: 'common.edit',
+                    labelKey: 'commons/ui.edit',
                     onClick: (year: AcademicYear) => {
                         router.visit(route('admin.academic-years.edit', year.id));
                     },
@@ -158,7 +158,7 @@ export function AcademicYearList({
                     conditional: (year: AcademicYear) => !year.is_current && !!onSetCurrent,
                 },
                 {
-                    labelKey: 'common.delete',
+                    labelKey: 'commons/ui.delete',
                     onClick: (year: AcademicYear) => {
                         onDelete?.(year);
                     },

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'index' => [
         'title' => 'Mes Matières',
@@ -8,18 +10,10 @@ return [
         'subject' => 'Matière',
         'classes' => 'Classes',
         'assessments' => 'Évaluations',
-        'actions' => 'Actions',
         'view' => 'Voir',
-        'search_placeholder' => 'Rechercher des matières...',
         'all_classes' => 'Toutes les classes',
         'filter_class' => 'Filtrer par classe',
-        'empty_title' => 'Aucune matière assignée',
-        'empty_subtitle' => 'Vous n\'êtes assigné à aucune matière pour cette année académique.',
-        'no_results_title' => 'Aucune matière trouvée',
-        'no_results_subtitle' => 'Aucune matière ne correspond à vos critères de recherche.',
-        'reset_search' => 'Effacer la recherche',
     ],
-
     'show' => [
         'back' => 'Retour',
         'code' => 'Code',
