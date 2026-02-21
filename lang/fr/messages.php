@@ -108,6 +108,7 @@ return [
     'class_subject_has_assessments' => 'Impossible de supprimer : cette assignation a des évaluations',
     'class_and_subject_required' => 'La classe et la matière sont requises',
     'teacher_replaced' => 'Enseignant remplacé avec succès',
+    'teacher_has_active_assignments' => 'Cet enseignant est affecté à des classes dans l\'année académique courante et ne peut pas être modifié.',
     'coefficient_updated' => 'Coefficient mis à jour avec succès',
     'assignment_terminated' => 'Assignation terminée avec succès',
 

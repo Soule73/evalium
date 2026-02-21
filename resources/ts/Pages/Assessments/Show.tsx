@@ -19,6 +19,10 @@ import {
     StarIcon,
     DocumentDuplicateIcon,
     UserGroupIcon,
+    CheckCircleIcon,
+    ArrowPathIcon,
+    MinusCircleIcon,
+    ChartBarIcon,
 } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
@@ -30,13 +34,25 @@ interface AssignmentWithVirtual extends AssessmentAssignment {
     is_virtual?: boolean;
 }
 
+interface AssessmentStats {
+    total_assigned: number;
+    graded: number;
+    submitted: number;
+    in_progress: number;
+    not_started: number;
+    not_submitted: number;
+    average_score: number | null;
+    completion_rate: number;
+}
+
 interface Props {
     assessment: Assessment;
     assignments: PaginationType<AssignmentWithVirtual>;
+    stats?: AssessmentStats;
     routeContext?: AssessmentRouteContext;
 }
 
-const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext }) => {
+const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, routeContext }) => {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
     const { formatDuration } = useFormatters();
@@ -213,6 +229,35 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
                             icon={UserGroupIcon}
                         />
                     </Stat.Group>
+
+                    {stats && (
+                        <Stat.Group columns={4} className="mt-4">
+                            <Stat.Item
+                                title={t('assessment_pages.show.stats_graded')}
+                                value={stats.graded}
+                                icon={CheckCircleIcon}
+                            />
+                            <Stat.Item
+                                title={t('assessment_pages.show.stats_in_progress')}
+                                value={stats.in_progress}
+                                icon={ArrowPathIcon}
+                            />
+                            <Stat.Item
+                                title={t('assessment_pages.show.stats_not_started')}
+                                value={stats.not_started}
+                                icon={MinusCircleIcon}
+                            />
+                            <Stat.Item
+                                title={t('assessment_pages.show.stats_average_score')}
+                                value={
+                                    stats.average_score !== null
+                                        ? `${stats.average_score}/100`
+                                        : '—'
+                                }
+                                icon={ChartBarIcon}
+                            />
+                        </Stat.Group>
+                    )}
                 </Section>
 
                 <Section

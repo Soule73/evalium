@@ -198,6 +198,11 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                 href: navRoutes.users(),
                 icon: 'users',
             });
+            configItems.push({
+                name: t('sidebar.navigation.teachers'),
+                href: navRoutes.teachers(),
+                icon: 'users',
+            });
         }
         if (hasPermission(auth.permissions, 'view levels')) {
             configItems.push({

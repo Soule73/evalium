@@ -5,11 +5,18 @@ export * from './route-context';
 
 export type FlashMessageObject = { id: string; message: string } | null;
 
+export interface CreatedUserCredentials {
+    name: string;
+    email: string;
+    password: string;
+}
+
 export interface FlashMessages {
     success?: FlashMessageObject;
     error?: FlashMessageObject;
     warning?: FlashMessageObject;
     info?: FlashMessageObject;
+    has_new_user?: boolean | null;
 }
 
 import type { User } from './models/shared/user';

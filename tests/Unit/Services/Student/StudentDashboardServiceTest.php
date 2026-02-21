@@ -2,6 +2,9 @@
 
 namespace Tests\Unit\Services\Student;
 
+use App\Models\AssessmentAssignment;
+use App\Models\ClassSubject;
+use App\Models\Semester;
 use App\Services\Student\StudentDashboardService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -23,30 +26,50 @@ class StudentDashboardServiceTest extends TestCase
     public function test_get_dashboard_stats_returns_comprehensive_data(): void
     {
         $student = $this->createStudent();
+        $teacher = $this->createTeacher();
         $class = $this->createClassWithStudents(studentCount: 0);
 
-        $class->enrollments()->create([
+        $enrollment = $class->enrollments()->create([
             'student_id' => $student->id,
             'enrolled_at' => now(),
             'status' => 'active',
         ]);
 
-        $assessment1 = $this->createAssessmentWithQuestions(questionCount: 2);
-        $assessment2 = $this->createAssessmentWithQuestions(questionCount: 2);
-        $assessment3 = $this->createAssessmentWithQuestions(questionCount: 2);
+        $semester = Semester::factory()->create(['academic_year_id' => $class->academic_year_id]);
+        $classSubject = ClassSubject::factory()->create([
+            'class_id' => $class->id,
+            'teacher_id' => $teacher->id,
+            'semester_id' => $semester->id,
+        ]);
 
-        $this->createAssignmentForStudent($assessment1, $student, [
+        $assessment1 = $this->createAssessmentWithQuestions($teacher, [
+            'class_subject_id' => $classSubject->id,
+            'settings' => ['is_published' => true],
+        ], 2);
+
+        $assessment2 = $this->createAssessmentWithQuestions($teacher, [
+            'class_subject_id' => $classSubject->id,
+            'settings' => ['is_published' => true],
+        ], 2);
+
+        $assessment3 = $this->createAssessmentWithQuestions($teacher, [
+            'class_subject_id' => $classSubject->id,
+            'settings' => ['is_published' => true],
+        ], 2);
+
+        AssessmentAssignment::factory()->create([
+            'assessment_id' => $assessment1->id,
+            'enrollment_id' => $enrollment->id,
             'submitted_at' => now(),
             'graded_at' => now(),
             'score' => 15,
         ]);
 
-        $this->createAssignmentForStudent($assessment2, $student, [
+        AssessmentAssignment::factory()->create([
+            'assessment_id' => $assessment2->id,
+            'enrollment_id' => $enrollment->id,
             'submitted_at' => now()->subHour(),
-            'score' => null,
         ]);
-
-        $this->createAssignmentForStudent($assessment3, $student);
 
         $result = $this->service->getDashboardStats($student);
 
@@ -55,32 +78,51 @@ class StudentDashboardServiceTest extends TestCase
         $this->assertArrayHasKey('pendingAssessments', $result);
         $this->assertArrayHasKey('averageScore', $result);
 
-        $this->assertGreaterThanOrEqual(3, $result['totalAssessments']);
-        $this->assertGreaterThanOrEqual(1, $result['completedAssessments']);
-        $this->assertGreaterThanOrEqual(1, $result['pendingAssessments']);
+        $this->assertEquals(3, $result['totalAssessments']);
+        $this->assertEquals(1, $result['completedAssessments']);
+        $this->assertEquals(1, $result['pendingAssessments']);
     }
 
     public function test_get_dashboard_stats_calculates_average_correctly(): void
     {
         $student = $this->createStudent();
+        $teacher = $this->createTeacher();
         $class = $this->createClassWithStudents(studentCount: 0);
 
-        $class->enrollments()->create([
+        $enrollment = $class->enrollments()->create([
             'student_id' => $student->id,
             'enrolled_at' => now(),
             'status' => 'active',
         ]);
 
-        $assessment1 = $this->createAssessmentWithQuestions(questionCount: 2);
-        $assessment2 = $this->createAssessmentWithQuestions(questionCount: 2);
+        $semester = Semester::factory()->create(['academic_year_id' => $class->academic_year_id]);
+        $classSubject = ClassSubject::factory()->create([
+            'class_id' => $class->id,
+            'teacher_id' => $teacher->id,
+            'semester_id' => $semester->id,
+        ]);
 
-        $this->createAssignmentForStudent($assessment1, $student, [
+        $assessment1 = $this->createAssessmentWithQuestions($teacher, [
+            'class_subject_id' => $classSubject->id,
+            'settings' => ['is_published' => true],
+        ], 2);
+
+        $assessment2 = $this->createAssessmentWithQuestions($teacher, [
+            'class_subject_id' => $classSubject->id,
+            'settings' => ['is_published' => true],
+        ], 2);
+
+        AssessmentAssignment::factory()->create([
+            'assessment_id' => $assessment1->id,
+            'enrollment_id' => $enrollment->id,
             'submitted_at' => now(),
             'graded_at' => now(),
             'score' => 20,
         ]);
 
-        $this->createAssignmentForStudent($assessment2, $student, [
+        AssessmentAssignment::factory()->create([
+            'assessment_id' => $assessment2->id,
+            'enrollment_id' => $enrollment->id,
             'submitted_at' => now()->subHour(),
             'graded_at' => now()->subMinute(),
             'score' => 12,
@@ -88,8 +130,9 @@ class StudentDashboardServiceTest extends TestCase
 
         $result = $this->service->getDashboardStats($student);
 
-        $this->assertGreaterThanOrEqual(2, $result['totalAssessments']);
-        $this->assertGreaterThanOrEqual(2, $result['completedAssessments']);
+        $this->assertEquals(2, $result['totalAssessments']);
+        $this->assertEquals(2, $result['completedAssessments']);
+        $this->assertEquals(0, $result['pendingAssessments']);
 
         if ($result['averageScore'] !== null) {
             $this->assertGreaterThan(0, $result['averageScore']);
@@ -112,21 +155,32 @@ class StudentDashboardServiceTest extends TestCase
     public function test_get_dashboard_stats_filters_by_academic_year(): void
     {
         $student = $this->createStudent();
-        $class1 = $this->createClassWithStudents(studentCount: 0);
-        $class2 = $this->createClassWithStudents(studentCount: 0);
+        $teacher = $this->createTeacher();
+        $class = $this->createClassWithStudents(studentCount: 0);
 
-        $class1->enrollments()->create([
+        $enrollment = $class->enrollments()->create([
             'student_id' => $student->id,
             'enrolled_at' => now(),
             'status' => 'active',
         ]);
 
-        $assessment1 = $this->createAssessmentWithQuestions(questionCount: 2);
-        $this->createAssignmentForStudent($assessment1, $student);
+        $semester = Semester::factory()->create(['academic_year_id' => $class->academic_year_id]);
+        $classSubject = ClassSubject::factory()->create([
+            'class_id' => $class->id,
+            'teacher_id' => $teacher->id,
+            'semester_id' => $semester->id,
+        ]);
 
-        $result = $this->service->getDashboardStats($student, $class1->academic_year_id);
+        $assessment = $this->createAssessmentWithQuestions($teacher, [
+            'class_subject_id' => $classSubject->id,
+            'settings' => ['is_published' => true],
+        ], 2);
+
+        $result = $this->service->getDashboardStats($student, $class->academic_year_id);
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('totalAssessments', $result);
+        $this->assertEquals(1, $result['totalAssessments']);
+        $this->assertEquals(1, $result['pendingAssessments']);
     }
 }

@@ -371,18 +371,21 @@ class GradeCalculationService
 
         $gradeBreakdown = $this->getGradeBreakdown($student, $enrollment->class);
 
-        $assignmentsQuery = AssessmentAssignment::forStudent($student);
-        if ($academicYearId) {
-            $assignmentsQuery->whereHas('assessment.classSubject.class', function ($q) use ($academicYearId) {
-                $q->where('academic_year_id', $academicYearId);
-            });
-        }
-
-        $stats = $assignmentsQuery->selectRaw('
-            COUNT(*) as total_assessments,
-            SUM(CASE WHEN score IS NOT NULL THEN 1 ELSE 0 END) as graded_assessments,
-            SUM(CASE WHEN submitted_at IS NULL THEN 1 ELSE 0 END) as pending_assessments
-        ')->first();
+        $stats = DB::table('assessments as a')
+            ->join('class_subjects as cs', 'cs.id', '=', 'a.class_subject_id')
+            ->leftJoin('assessment_assignments as aa', function ($join) use ($enrollment) {
+                $join->on('aa.assessment_id', '=', 'a.id')
+                    ->where('aa.enrollment_id', '=', $enrollment->id);
+            })
+            ->where('cs.class_id', $enrollment->class_id)
+            ->whereRaw("JSON_EXTRACT(a.settings, '$.is_published') = true")
+            ->whereNull('a.deleted_at')
+            ->selectRaw('
+                COUNT(*) as total_assessments,
+                SUM(CASE WHEN aa.score IS NOT NULL THEN 1 ELSE 0 END) as graded_assessments,
+                SUM(CASE WHEN aa.submitted_at IS NULL THEN 1 ELSE 0 END) as pending_assessments
+            ')
+            ->first();
 
         return [
             'overall_average' => $gradeBreakdown['annual_average'],

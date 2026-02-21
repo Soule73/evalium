@@ -581,18 +581,20 @@ class ScoringServiceTest extends TestCase
             assessmentAttributes: ['title' => 'Auto Score Test', 'duration_minutes' => 60]
         );
 
-        $assessment->questions->take(5)->each(fn ($q) => $q->update(['type' => 'text', 'points' => 10]));
+        $questions = $assessment->questions;
+        $questions->take(5)->each(fn($q) => $q->update(['type' => 'text', 'points' => 10]));
+        $questions->skip(5)->each(fn($q) => $q->update(['type' => 'one_choice', 'points' => 10]));
 
         $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);
 
         foreach ($assessment->fresh()->questions as $question) {
-            if ($question->type === QuestionType::OneChoice) {
+            if ($question->type === QuestionType::Text) {
+                $this->createAnswer($assignment, $question, ['answer_text' => 'Student text answer']);
+            } else {
                 $correctChoice = $question->choices()->where('is_correct', true)->first();
                 if ($correctChoice) {
                     $this->createAnswer($assignment, $question, ['choice_id' => $correctChoice->id]);
                 }
-            } else {
-                $this->createAnswer($assignment, $question, ['answer_text' => 'Student text answer']);
             }
         }
 
@@ -617,7 +619,7 @@ class ScoringServiceTest extends TestCase
             assessmentAttributes: ['title' => 'Manual Grade Test', 'duration_minutes' => 60]
         );
 
-        $assessment->questions->each(fn ($q) => $q->update(['type' => 'text', 'points' => 10]));
+        $assessment->questions->each(fn($q) => $q->update(['type' => 'text', 'points' => 10]));
         $questions = $assessment->fresh()->questions;
 
         $assignment = $this->createAssignmentForStudent($assessment, $student, ['submitted_at' => now()]);

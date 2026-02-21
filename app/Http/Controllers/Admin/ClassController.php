@@ -18,6 +18,7 @@ use App\Models\ClassSubject;
 use App\Models\Subject;
 use App\Models\User;
 use App\Repositories\Teacher\GradingRepository;
+use App\Services\Core\AssessmentStatsService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -36,7 +37,8 @@ class ClassController extends Controller
         private readonly ClassSubjectServiceInterface $classSubjectService,
         private readonly ClassSubjectRepositoryInterface $classSubjectQueryService,
         private readonly TeacherAssessmentRepositoryInterface $teacherAssessmentQueryService,
-        private readonly GradingRepository $gradingQueryService
+        private readonly GradingRepository $gradingQueryService,
+        private readonly AssessmentStatsService $assessmentStatsService
     ) {}
 
     /**
@@ -240,6 +242,7 @@ class ClassController extends Controller
         return Inertia::render('Assessments/Show', [
             'assessment' => $assessment,
             'assignments' => $assignments,
+            'stats' => $this->assessmentStatsService->calculateAssessmentStats($assessment->id),
             'routeContext' => $routeContext,
         ]);
     }

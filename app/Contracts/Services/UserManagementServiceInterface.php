@@ -7,9 +7,11 @@ use App\Models\User;
 interface UserManagementServiceInterface
 {
     /**
-     * Create a new user and send credentials via notification.
+     * Create a new user and optionally send credentials via notification.
+     *
+     * @return array{user: \App\Models\User, password: string}
      */
-    public function store(array $data): User;
+    public function store(array $data): array;
 
     /**
      * Update an existing user's data and role.
@@ -40,6 +42,11 @@ interface UserManagementServiceInterface
      * Check if a user has the teacher role.
      */
     public function isTeacher(User $user): bool;
+
+    /**
+     * Check if a teacher has active class assignments in the current academic year.
+     */
+    public function isTeachingInCurrentYear(User $teacher): bool;
 
     /**
      * Load user roles relationship if not already loaded.

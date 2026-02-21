@@ -56,6 +56,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => $request->session()->pull('error'),
                 'warning' => fn () => $request->session()->pull('warning'),
                 'info' => fn () => $request->session()->pull('info'),
+                'has_new_user' => fn () => $request->session()->pull('has_new_user'),
             ],
             'academic_year' => [
                 'selected' => $this->getSelectedAcademicYear($request),

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Contracts\Repositories\AdminAssessmentRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\UserManagementServiceInterface;
 use App\Http\Controllers\Controller;
@@ -11,6 +10,7 @@ use App\Http\Requests\Admin\EditUserRequest;
 use App\Http\Traits\HandlesIndexRequests;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -22,8 +22,7 @@ class UserController extends Controller
 
     public function __construct(
         public readonly UserManagementServiceInterface $userService,
-        private readonly UserRepositoryInterface $userQueryService,
-        private readonly AdminAssessmentRepositoryInterface $assessmentQueryService
+        private readonly UserRepositoryInterface $userQueryService
     ) {}
 
     /**
@@ -47,7 +46,7 @@ class UserController extends Controller
             ['search', 'role', 'status', 'include_deleted']
         );
 
-        $filters['exclude_roles'] = ['student'];
+        $filters['exclude_roles'] = ['student', 'teacher'];
 
         if (! $currentUser->hasRole('super_admin')) {
             $filters['exclude_roles'] = array_merge($filters['exclude_roles'], ['admin', 'super_admin']);
@@ -62,6 +61,34 @@ class UserController extends Controller
             'roles' => $availableRoles,
             'canManageAdmins' => $currentUser->hasRole('super_admin'),
             'canDeleteUsers' => $currentUser->can('delete users'),
+            'adminCount' => User::role('admin')->count(),
+            'superAdminCount' => User::role('super_admin')->count(),
+        ]);
+    }
+
+    /**
+     * Display the specified admin user profile.
+     *
+     * @param  \App\Models\User  $user  The user instance to display.
+     * @return \Illuminate\Http\Response
+     */
+    public function show(User $user)
+    {
+        $this->authorize('view', $user);
+
+        if ($this->userService->isTeacher($user) || $user->hasRole('student')) {
+            return back()->flashError(__('messages.unauthorized'));
+        }
+
+        $this->userService->ensureRolesLoaded($user);
+
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        return Inertia::render('Admin/Users/ShowAdmin', [
+            'user' => $user,
+            'canDelete' => $currentUser->hasRole('super_admin'),
+            'canToggleStatus' => $currentUser->can('update users'),
         ]);
     }
 
@@ -80,9 +107,16 @@ class UserController extends Controller
         try {
             $validated = $request->validated();
 
-            $this->userService->store($validated);
+            ['user' => $user, 'password' => $password] = $this->userService->store($validated);
 
-            return redirect()->route('admin.users.index')->flashSuccess(__('messages.user_created'));
+            session()->put('new_user_credentials', [
+                'name' => $user->name,
+                'email' => $user->email,
+                'password' => $password,
+            ]);
+            session()->flash('has_new_user', true);
+
+            return back()->flashSuccess(__('messages.user_created'));
         } catch (\Exception $e) {
             Log::error('Error creating user', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
 
@@ -91,47 +125,20 @@ class UserController extends Controller
     }
 
     /**
-     * Display the specified teacher's details with exams.
+     * Return and clear the pending new user credentials stored in session.
      *
-     * Delegates to ExamQueryService to load paginated exams for teacher.
-     * Uses eager loading for optimization.
-     *
-     * @param  \Illuminate\Http\Request  $request  The current HTTP request instance.
-     * @param  \App\Models\User  $user  The user instance representing the teacher.
-     * @return \Illuminate\Http\Response
+     * The password is never exposed via Inertia shared props; it is fetched
+     * once via this authenticated endpoint and then removed from the session.
      */
-    public function showTeacher(Request $request, User $user)
+    public function pendingCredentials(Request $request): JsonResponse
     {
-        $this->authorize('view', $user);
+        $credentials = $request->session()->pull('new_user_credentials');
 
-        if (! $this->userService->isTeacher($user)) {
-            return back()->flashError(__('messages.unauthorized'));
+        if (! $credentials) {
+            return response()->json(null, 404);
         }
 
-        $this->userService->ensureRolesLoaded($user);
-
-        $filters = $request->only(['search', 'type', 'delivery_mode']);
-        $filters['page'] = $request->input('page', 1);
-        $perPage = $this->getPerPageFromRequest($request);
-
-        $assessments = $this->assessmentQueryService->getAssessmentsForTeacher(
-            $user,
-            $filters,
-            $perPage
-        );
-
-        $stats = $this->assessmentQueryService->getTeacherAssessmentStats($user);
-
-        /** @var \App\Models\User $currentUser */
-        $currentUser = Auth::user();
-
-        return Inertia::render('Admin/Users/ShowTeacher', [
-            'user' => $user,
-            'assessments' => $assessments,
-            'stats' => $stats,
-            'canDelete' => $currentUser->hasRole('super_admin'),
-            'canToggleStatus' => $currentUser->can('update users'),
-        ]);
+        return response()->json($credentials);
     }
 
     /**

@@ -72,6 +72,20 @@ Route::middleware('auth')->group(function () {
             /**
              * User Management operations
              */
+            /**
+             * Teacher Management
+             */
+            Route::prefix('teachers')
+                ->name('teachers.')
+                ->controller(\App\Http\Controllers\Admin\TeacherController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{user}', 'show')->name('show');
+                    Route::post('/', 'store')->name('store');
+                    Route::patch('/{user}/toggle-status', 'toggleStatus')->name('toggle-status');
+                    Route::delete('/{user}', 'destroy')->name('destroy');
+                });
+
             Route::prefix('users')
                 ->name('users.')
                 ->controller(UserController::class)
@@ -79,8 +93,11 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'index')
                         ->name('index');
 
-                    Route::get('/teachers/{user}', 'showTeacher')
-                        ->name('show.teacher');
+                    Route::get('/pending-credentials', 'pendingCredentials')
+                        ->name('pending-credentials');
+
+                    Route::get('/{user}', 'show')
+                        ->name('show');
 
                     Route::post('/', 'store')
                         ->name('store');

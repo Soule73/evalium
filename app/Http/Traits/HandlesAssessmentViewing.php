@@ -21,6 +21,7 @@ use Inertia\Response;
  * - GradingRepository $gradingQueryService
  * - AnswerFormatterService $answerFormatterService
  * - ScoringService $scoringService
+ * - AssessmentStatsService $assessmentStatsService
  *
  * Also requires AuthorizesRequests trait and flash message macros from FlashMessageServiceProvider.
  */
@@ -55,9 +56,12 @@ trait HandlesAssessmentViewing
             $perPage
         );
 
+        $stats = $this->assessmentStatsService->calculateAssessmentStats($assessment->id);
+
         return Inertia::render('Assessments/Show', [
             'assessment' => $assessment,
             'assignments' => $assignments,
+            'stats' => $stats,
             'routeContext' => $this->buildRouteContext(),
         ]);
     }

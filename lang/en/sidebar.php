@@ -20,6 +20,7 @@ return [
         'class_subjects' => 'Assignments',
         'exams' => 'Exams',
         'users' => 'Users',
+        'teachers' => 'Teachers',
         'groups' => 'Groups',
         'levels' => 'Levels',
         'roles_permissions' => 'Roles & Permissions',

@@ -128,5 +128,11 @@ return [
         'no_students_found' => 'Aucun étudiant trouvé',
         'no_students_found_description' => 'Aucun étudiant ne correspond à vos critères de recherche.',
         'reset_search' => 'Effacer la recherche',
+        'stats_section_title' => 'Statistiques de progression',
+        'stats_graded' => 'Corrigé(s)',
+        'stats_in_progress' => 'En cours',
+        'stats_not_started' => 'Non commencé(s)',
+        'stats_average_score' => 'Moyenne',
+        'stats_completion_rate' => 'Taux de completion',
     ],
 ];

@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import { type User } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { useFormatters } from '@/hooks/shared/useFormatters';
-import { Button, Modal, Select } from '@/Components';
+import { Button, Modal } from '@/Components';
 import { Input } from '@evalium/ui';
+import UserFormFields from './UserFormFields';
 
-interface Props {
+interface EditUserProps {
     user: User;
     route: string;
     title?: string;
@@ -17,7 +17,7 @@ interface Props {
     onClose: () => void;
 }
 
-export default function EditUser({
+export default function EditUserModal({
     user,
     roles,
     userRole,
@@ -26,9 +26,8 @@ export default function EditUser({
     title,
     description,
     route,
-}: Props) {
+}: EditUserProps) {
     const { t } = useTranslations();
-    const { getRoleLabel } = useFormatters();
 
     const { data, setData, put, processing, errors } = useForm({
         id: user.id,
@@ -60,15 +59,26 @@ export default function EditUser({
         });
     };
 
+    const editTitleKey = useMemo(() => {
+        if (title) {
+            return null;
+        }
+        switch (userRole) {
+            case 'teacher':
+                return 'admin_pages.users.edit_teacher_title';
+            case 'student':
+                return 'admin_pages.users.edit_student_title';
+            case 'admin':
+            case 'super_admin':
+                return 'admin_pages.users.edit_admin_title';
+            default:
+                return 'admin_pages.users.edit_title';
+        }
+    }, [title, userRole]);
+
     const translations = useMemo(
         () => ({
-            searchPlaceholder: t('components.select.search_placeholder'),
-            noOptionFound: t('components.select.no_option_found'),
-            editTitle: t('admin_pages.users.edit_title'),
-            role: t('admin_pages.users.role'),
-            selectRole: t('admin_pages.users.select_role'),
-            namePlaceholder: t('admin_pages.users.name_placeholder'),
-            emailPlaceholder: t('admin_pages.users.email_placeholder'),
+            editTitle: title || (editTitleKey ? t(editTitleKey) : t('admin_pages.users.edit_title')),
             passwordChange: t('admin_pages.users.password_change'),
             passwordKeep: t('admin_pages.users.password_keep'),
             passwordConfirmPlaceholder: t('admin_pages.users.password_confirm_placeholder'),
@@ -76,12 +86,12 @@ export default function EditUser({
             updating: t('admin_pages.users.updating'),
             updateButton: t('admin_pages.users.update_button'),
         }),
-        [t],
+        [t, title, editTitleKey],
     );
 
     const editSubtitle = useMemo(
-        () => t('admin_pages.users.edit_subtitle', { name: user.name }),
-        [t, user.name],
+        () => description || t('admin_pages.users.edit_subtitle', { name: user.name }),
+        [t, description, user.name],
     );
 
     return (
@@ -89,52 +99,19 @@ export default function EditUser({
             <div className="p-6 md:min-w-lg lg:min-w-xl w-full ">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold text-gray-900">
-                        {title || translations.editTitle}
+                        {translations.editTitle}
                     </h1>
-                    <p className="text-gray-600 mt-1">{description || editSubtitle}</p>
+                    <p className="text-gray-600 mt-1">{editSubtitle}</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <Input
-                        id="name"
-                        type="text"
-                        className="mt-1 block w-full"
-                        value={data.name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            setData('name', e.target.value)
-                        }
-                        placeholder={translations.namePlaceholder}
-                        required
+                    <UserFormFields
+                        data={{ name: data.name, email: data.email, role: data.role }}
+                        errors={errors}
+                        onChange={(field, value) => setData(field, value)}
+                        roles={roles}
+                        hideRoleSelect={!roles}
                     />
-
-                    <Input
-                        id="email"
-                        type="email"
-                        value={data.email}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            setData('email', e.target.value)
-                        }
-                        placeholder={translations.emailPlaceholder}
-                        required
-                    />
-                    {roles && (
-                        <div>
-                            <Select
-                                label={translations.role}
-                                noOptionFound={translations.noOptionFound}
-                                searchPlaceholder={translations.searchPlaceholder}
-                                options={roles.map((role) => ({
-                                    value: role,
-                                    label: getRoleLabel(role),
-                                }))}
-                                value={data.role}
-                                onChange={(value) => setData('role', String(value))}
-                                error={errors.role}
-                                searchable={false}
-                                placeholder={translations.selectRole}
-                            />
-                        </div>
-                    )}
 
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
@@ -149,6 +126,7 @@ export default function EditUser({
 
                     <Input
                         id="password"
+                        label={translations.passwordKeep}
                         type="password"
                         value={data.password}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -159,6 +137,7 @@ export default function EditUser({
 
                     <Input
                         id="password_confirmation"
+                        label={translations.passwordConfirmPlaceholder}
                         type="password"
                         value={data.password_confirmation}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

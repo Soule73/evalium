@@ -108,6 +108,7 @@ return [
     'class_subject_has_assessments' => 'Cannot delete: this assignment has assessments',
     'class_and_subject_required' => 'Class and subject are required',
     'teacher_replaced' => 'Teacher replaced successfully',
+    'teacher_has_active_assignments' => 'This teacher is assigned to classes in the current academic year and cannot be modified.',
     'coefficient_updated' => 'Coefficient updated successfully',
     'assignment_terminated' => 'Assignment terminated successfully',
 

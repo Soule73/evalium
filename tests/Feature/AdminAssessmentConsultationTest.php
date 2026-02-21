@@ -115,12 +115,12 @@ class AdminAssessmentConsultationTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.users.show.teacher', $this->teacher));
+            ->get(route('admin.teachers.show', $this->teacher));
 
         $response->assertOk();
         $response->assertInertia(
             fn ($page) => $page
-                ->component('Admin/Users/ShowTeacher')
+                ->component('Admin/Teachers/Show')
                 ->has('assessments.data', 2)
                 ->has('stats')
                 ->where('stats.total', 2)
@@ -184,7 +184,7 @@ class AdminAssessmentConsultationTest extends TestCase
     public function test_show_teacher_rejects_non_teacher_user(): void
     {
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.users.show.teacher', $this->student));
+            ->get(route('admin.teachers.show', $this->student));
 
         $response->assertRedirect();
     }
@@ -201,7 +201,7 @@ class AdminAssessmentConsultationTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.users.show.teacher', $this->teacher));
+            ->get(route('admin.teachers.show', $this->teacher));
 
         $response->assertOk();
         $response->assertInertia(

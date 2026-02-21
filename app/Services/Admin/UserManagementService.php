@@ -19,11 +19,12 @@ use Spatie\Permission\Models\Role;
 class UserManagementService implements UserManagementServiceInterface
 {
     /**
-     * Create a new user with random password and send credentials notification
+     * Create a new user with random password and optionally send credentials notification
      *
-     * @param  array  $data  User data (name, email, role)
+     * @param  array  $data  User data (name, email, role, send_credentials)
+     * @return array{user: User, password: string}
      */
-    public function store(array $data): User
+    public function store(array $data): array
     {
         return DB::transaction(function () use ($data) {
             $password = Str::random(12);
@@ -37,9 +38,11 @@ class UserManagementService implements UserManagementServiceInterface
 
             $user->assignRole($data['role']);
 
-            $user->notify(new UserCredentialsNotification($password, $data['role']));
+            if ($data['send_credentials'] ?? false) {
+                $user->notify(new UserCredentialsNotification($password, $data['role']));
+            }
 
-            return $user;
+            return ['user' => $user, 'password' => $password];
         });
     }
 
@@ -136,6 +139,18 @@ class UserManagementService implements UserManagementServiceInterface
     public function isTeacher(User $user): bool
     {
         return $user->hasRole('teacher');
+    }
+
+    /**
+     * Check if a teacher has at least one class assignment in the current academic year.
+     *
+     * @param  User  $teacher  Teacher to check
+     */
+    public function isTeachingInCurrentYear(User $teacher): bool
+    {
+        return $teacher->classSubjects()
+            ->whereHas('semester', fn ($q) => $q->whereHas('academicYear', fn ($q2) => $q2->where('is_current', true)))
+            ->exists();
     }
 
     /**

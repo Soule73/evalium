@@ -29,11 +29,6 @@ interface AdminAssessmentRepositoryInterface
     public function getTeacherAssessmentStats(User $teacher): array;
 
     /**
-     * Get aggregate assignment statistics for a student.
-     */
-    public function getStudentAssignmentStats(User $student): array;
-
-    /**
      * Get all assessments with optional academic year and filters.
      */
     public function getAllAssessments(?int $academicYearId, array $filters = [], int $perPage = 15): LengthAwarePaginator;

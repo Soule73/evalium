@@ -52,6 +52,7 @@ function createBreadcrumbs(t: TranslateFn) {
 
     const levelsBc = createSimpleBreadcrumbs('breadcrumbs.levels', 'admin.levels.index');
     const usersBc = createSimpleBreadcrumbs('breadcrumbs.users', 'admin.users.index');
+    const teachersBc = createSimpleBreadcrumbs('breadcrumbs.teachers', 'admin.teachers.index');
     const rolesBc = createSimpleBreadcrumbs('breadcrumbs.roles_permissions', 'admin.roles.index');
 
     const academicYearsBc = createEntityBreadcrumbs<{ id: number; name: string }>({
@@ -179,9 +180,9 @@ function createBreadcrumbs(t: TranslateFn) {
             },
             student: { name: string },
         ): BreadcrumbItem[] => [
-            ...dynamicAssessmentBc.show(ctx, assessment),
-            { label: t('breadcrumbs.grading') + ': ' + student.name },
-        ],
+                ...dynamicAssessmentBc.show(ctx, assessment),
+                { label: t('breadcrumbs.grading') + ': ' + student.name },
+            ],
         review: (
             ctx: AssessmentRouteContext,
             assessment: {
@@ -191,9 +192,9 @@ function createBreadcrumbs(t: TranslateFn) {
             },
             student: { name: string },
         ): BreadcrumbItem[] => [
-            ...dynamicAssessmentBc.show(ctx, assessment),
-            { label: t('breadcrumbs.review') + ': ' + student.name },
-        ],
+                ...dynamicAssessmentBc.show(ctx, assessment),
+                { label: t('breadcrumbs.review') + ': ' + student.name },
+            ],
     };
 
     return {
@@ -203,6 +204,10 @@ function createBreadcrumbs(t: TranslateFn) {
         userCreate: usersBc.create,
         userEdit: usersBc.edit,
         teacherShow: (user: { name: string }): BreadcrumbItem[] => [
+            ...teachersBc.index(),
+            { label: user.name },
+        ],
+        adminShow: (user: { name: string }): BreadcrumbItem[] => [
             ...usersBc.index(),
             { label: user.name },
         ],
@@ -235,23 +240,32 @@ function createBreadcrumbs(t: TranslateFn) {
                 classItem: ClassBcItem,
                 classSubject: { subject?: { name?: string }; id: number },
             ): BreadcrumbItem[] => [
-                ...classesBc.show(classItem),
-                {
-                    label: t('breadcrumbs.class_subjects'),
-                    href: route('admin.classes.subjects', classItem.id),
-                },
-                { label: classSubject.subject?.name || `#${classSubject.id}` },
-            ],
+                    ...classesBc.show(classItem),
+                    {
+                        label: t('breadcrumbs.class_subjects'),
+                        href: route('admin.classes.subjects', classItem.id),
+                    },
+                    { label: classSubject.subject?.name || `#${classSubject.id}` },
+                ],
             enrollments: enrollmentsBc.index,
             createEnrollment: enrollmentsBc.create,
             showEnrollment: (enrollment: {
                 id: number;
                 student?: { name: string };
             }): BreadcrumbItem[] => [
-                ...enrollmentsBc.index(),
-                {
-                    label: enrollment.student?.name || `#${enrollment.id}`,
-                },
+                    ...enrollmentsBc.index(),
+                    {
+                        label: enrollment.student?.name || `#${enrollment.id}`,
+                    },
+                ],
+            teachers: teachersBc.index,
+            teacherShow: (user: { name: string }): BreadcrumbItem[] => [
+                ...teachersBc.index(),
+                { label: user.name },
+            ],
+            adminShow: (user: { name: string }): BreadcrumbItem[] => [
+                ...usersBc.index(),
+                { label: user.name },
             ],
             classStudentsList: (classItem: ClassBcItem): BreadcrumbItem[] => [
                 ...classesBc.show(classItem),
@@ -261,37 +275,37 @@ function createBreadcrumbs(t: TranslateFn) {
                 classItem: ClassBcItem,
                 enrollment: { id: number; student?: { name: string } },
             ): BreadcrumbItem[] => [
-                ...classesBc.show(classItem),
-                {
-                    label: t('breadcrumbs.class_students'),
-                    href: route('admin.classes.students.index', classItem.id),
-                },
-                {
-                    label: enrollment.student?.name || `#${enrollment.id}`,
-                    href: route('admin.classes.students.show', {
-                        class: classItem.id,
-                        enrollment: enrollment.id,
-                    }),
-                },
-            ],
+                    ...classesBc.show(classItem),
+                    {
+                        label: t('breadcrumbs.class_students'),
+                        href: route('admin.classes.students.index', classItem.id),
+                    },
+                    {
+                        label: enrollment.student?.name || `#${enrollment.id}`,
+                        href: route('admin.classes.students.show', {
+                            class: classItem.id,
+                            enrollment: enrollment.id,
+                        }),
+                    },
+                ],
             classStudentAssignments: (
                 classItem: ClassBcItem,
                 enrollment: { id: number; student?: { name: string } },
             ): BreadcrumbItem[] => [
-                ...classesBc.show(classItem),
-                {
-                    label: t('breadcrumbs.class_students'),
-                    href: route('admin.classes.students.index', classItem.id),
-                },
-                {
-                    label: enrollment.student?.name || `#${enrollment.id}`,
-                    href: route('admin.classes.students.show', {
-                        class: classItem.id,
-                        enrollment: enrollment.id,
-                    }),
-                },
-                { label: t('breadcrumbs.class_student_assignments') },
-            ],
+                    ...classesBc.show(classItem),
+                    {
+                        label: t('breadcrumbs.class_students'),
+                        href: route('admin.classes.students.index', classItem.id),
+                    },
+                    {
+                        label: enrollment.student?.name || `#${enrollment.id}`,
+                        href: route('admin.classes.students.show', {
+                            class: classItem.id,
+                            enrollment: enrollment.id,
+                        }),
+                    },
+                    { label: t('breadcrumbs.class_student_assignments') },
+                ],
             classSubjects: classSubjectsBc.index,
             assessments: adminAssessmentsBc.index,
         },
@@ -310,17 +324,17 @@ function createBreadcrumbs(t: TranslateFn) {
             _assignment: { id: number },
             student: { name: string },
         ): BreadcrumbItem[] => [
-            ...assessmentsBc.show(assessment),
-            { label: t('breadcrumbs.grading') + ': ' + student.name },
-        ],
+                ...assessmentsBc.show(assessment),
+                { label: t('breadcrumbs.grading') + ': ' + student.name },
+            ],
         assessmentReview: (
             assessment: { id: number; title: string },
             _assignment: { id: number },
             student: { name: string },
         ): BreadcrumbItem[] => [
-            ...assessmentsBc.show(assessment),
-            { label: t('breadcrumbs.review') + ': ' + student.name },
-        ],
+                ...assessmentsBc.show(assessment),
+                { label: t('breadcrumbs.review') + ': ' + student.name },
+            ],
         adminAcademicYears: (): BreadcrumbItem[] => [
             { label: t('admin_pages.academic_years.title') },
         ],

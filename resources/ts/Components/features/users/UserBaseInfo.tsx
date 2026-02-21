@@ -1,32 +1,29 @@
-import { useMemo, useState } from 'react';
-import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { formatDate } from '@/utils';
-import { type User } from '@/types';
-import { useTranslations } from '@/hooks/shared/useTranslations';
-import { useFormatters } from '@/hooks/shared/useFormatters';
-import EditUser from './Edit';
-import { route } from 'ziggy-js';
-import { router } from '@inertiajs/react';
-import { ExclamationTriangleIcon } from '@heroicons/react/16/solid';
-import { ConfirmationModal, Section, Button, TextEntry } from '@/Components';
-import { Toggle } from '@evalium/ui';
-import { type BreadcrumbItem } from '@/Components/layout/Breadcrumb';
+import { ConfirmationModal, Section, Button, TextEntry, Toggle } from "@/Components/ui";
+import { useTranslations } from "@/hooks";
+import { useFormatters } from "@/hooks/shared/useFormatters";
+import { type User } from "@/types";
+import { formatDate } from "@/utils";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { router } from "@inertiajs/react";
+import { useState, useMemo } from "react";
+import { route } from "ziggy-js";
+import EditUserModal from "./EditUserModal";
 
-interface Props {
+interface UserBaseInfoProps {
     user: User;
     children?: React.ReactNode;
     canDelete?: boolean;
     canToggleStatus?: boolean;
-    breadcrumb?: BreadcrumbItem[] | undefined;
+    backRoute?: string;
 }
 
-export default function ShowUser({
+export default function UserBaseInfo({
     user,
     children,
     canDelete,
     canToggleStatus,
-    breadcrumb,
-}: Props) {
+    backRoute = 'admin.users.index',
+}: UserBaseInfoProps) {
     const { t } = useTranslations();
     const { getRoleLabel } = useFormatters();
 
@@ -40,7 +37,7 @@ export default function ShowUser({
     };
 
     const handleBack = () => {
-        router.visit(route('admin.users.index'));
+        router.visit(route(backRoute));
     };
 
     const handleDelete = () => {
@@ -76,14 +73,42 @@ export default function ShowUser({
 
     const userRole = (user.roles?.length ?? 0) > 0 ? user.roles![0].name : null;
 
+    const profileTitleKey = useMemo(() => {
+        switch (userRole) {
+            case 'teacher':
+                return 'admin_pages.users.teacher_profile';
+            case 'student':
+                return 'admin_pages.users.student_profile';
+            case 'admin':
+            case 'super_admin':
+                return 'admin_pages.users.admin_profile';
+            default:
+                return 'admin_pages.users.user_profile';
+        }
+    }, [userRole]);
+
+    const profileSubtitleKey = useMemo(() => {
+        switch (userRole) {
+            case 'teacher':
+                return 'admin_pages.users.teacher_profile_subtitle';
+            case 'student':
+                return 'admin_pages.users.student_profile_subtitle';
+            case 'admin':
+            case 'super_admin':
+                return 'admin_pages.users.admin_profile_subtitle';
+            default:
+                return 'admin_pages.users.user_profile_subtitle';
+        }
+    }, [userRole]);
+
     const translations = useMemo(
         () => ({
             deleteConfirmTitle: t('admin_pages.users.delete_confirm_title'),
             delete: t('admin_pages.common.delete'),
             cancel: t('admin_pages.common.cancel'),
             deleteIrreversible: t('admin_pages.users.delete_irreversible'),
-            userProfile: t('admin_pages.users.user_profile'),
-            userProfileSubtitle: t('admin_pages.users.user_profile_subtitle'),
+            profileTitle: t(profileTitleKey),
+            profileSubtitle: t(profileSubtitleKey),
             back: t('admin_pages.users.back'),
             modify: t('admin_pages.users.modify'),
             fullName: t('admin_pages.users.full_name'),
@@ -95,20 +120,16 @@ export default function ShowUser({
             memberSince: t('admin_pages.users.member_since'),
             lastModified: t('admin_pages.users.last_modified'),
         }),
-        [t],
+        [t, profileTitleKey, profileSubtitleKey],
     );
 
-    const userTitle = useMemo(
-        () => t('admin_pages.users.user_title', { name: user.name }),
-        [t, user.name],
-    );
     const deleteConfirmMessage = useMemo(
         () => t('admin_pages.users.delete_confirm_message', { name: user?.name }),
         [t, user?.name],
     );
 
     return (
-        <AuthenticatedLayout title={userTitle} breadcrumb={breadcrumb}>
+        <>
             <ConfirmationModal
                 isOpen={isShowDeleteModal}
                 isCloseableInside={true}
@@ -125,7 +146,7 @@ export default function ShowUser({
                 <p className="text-sm text-gray-500 mb-6"> {translations.deleteIrreversible}</p>
             </ConfirmationModal>
             {user && (
-                <EditUser
+                <EditUserModal
                     route={route('admin.users.update', user.id)}
                     isOpen={isShowUpdateModal}
                     onClose={() => {
@@ -136,8 +157,8 @@ export default function ShowUser({
                 />
             )}
             <Section
-                title={translations.userProfile}
-                subtitle={translations.userProfileSubtitle}
+                title={translations.profileTitle}
+                subtitle={translations.profileSubtitle}
                 actions={
                     <div className="flex space-x-3">
                         <Button onClick={handleBack} variant="outline" size="sm" color="secondary">
@@ -200,6 +221,6 @@ export default function ShowUser({
                 </div>
             </Section>
             {children}
-        </AuthenticatedLayout>
+        </>
     );
 }

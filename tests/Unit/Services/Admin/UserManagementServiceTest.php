@@ -3,9 +3,11 @@
 namespace Tests\Unit\Services\Admin;
 
 use App\Models\User;
+use App\Notifications\UserCredentialsNotification;
 use App\Repositories\Admin\UserRepository;
 use App\Services\Admin\UserManagementService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
@@ -195,5 +197,57 @@ class UserManagementServiceTest extends TestCase
         $this->service->delete($user);
 
         $this->assertSoftDeleted('users', ['id' => $user->id]);
+    }
+
+    #[Test]
+    public function it_store_returns_user_and_generated_password()
+    {
+        Notification::fake();
+
+        $result = $this->service->store([
+            'name' => 'Test User',
+            'email' => 'testuser@example.com',
+            'role' => 'student',
+            'send_credentials' => false,
+        ]);
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('user', $result);
+        $this->assertArrayHasKey('password', $result);
+        $this->assertInstanceOf(User::class, $result['user']);
+        $this->assertNotEmpty($result['password']);
+        $this->assertEquals('testuser@example.com', $result['user']->email);
+        $this->assertTrue($result['user']->hasRole('student'));
+    }
+
+    #[Test]
+    public function it_sends_notification_when_send_credentials_is_true()
+    {
+        Notification::fake();
+
+        $result = $this->service->store([
+            'name' => 'Notified User',
+            'email' => 'notified@example.com',
+            'role' => 'teacher',
+            'send_credentials' => true,
+        ]);
+
+        Notification::assertSentTo($result['user'], UserCredentialsNotification::class);
+    }
+
+    #[Test]
+    public function it_does_not_send_notification_when_send_credentials_is_false()
+    {
+        Notification::fake();
+
+        $result = $this->service->store([
+            'name' => 'Silent User',
+            'email' => 'silent@example.com',
+            'role' => 'student',
+            'send_credentials' => false,
+        ]);
+
+        Notification::assertNothingSent();
+        $this->assertNotEmpty($result['password']);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Services\Core;
 
-use App\Models\AssessmentAssignment;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Assessment Statistics Service
@@ -32,29 +32,51 @@ class AssessmentStatsService
     }
 
     /**
-     * Compute assessment stats (uncached)
+     * Compute assessment stats by starting from active enrollments (source of truth).
+     *
+     * AssessmentAssignment is created lazily when a student first opens the assessment,
+     * so querying it directly would always return 0 for "not started" students.
+     * Instead, we LEFT JOIN assignments onto enrollments to capture all cases:
+     * - enrolled but no assignment record → not started
+     * - assignment exists but started_at IS NULL → not started
+     * - assignment exists with started_at only → in progress
+     * - assignment submitted but not graded → submitted
+     * - assignment graded → graded
      */
     private function computeAssessmentStats(int $assessmentId): array
     {
-        $assignments = AssessmentAssignment::where('assessment_id', $assessmentId)
-            ->select(['id', 'assessment_id', 'started_at', 'submitted_at', 'graded_at', 'score'])
-            ->get();
+        $classId = DB::table('assessments')
+            ->join('class_subjects', 'class_subjects.id', '=', 'assessments.class_subject_id')
+            ->where('assessments.id', $assessmentId)
+            ->value('class_subjects.class_id');
 
-        $totalAssigned = $assignments->count();
-        $graded = $assignments->whereNotNull('graded_at')->count();
-        $submitted = $assignments->whereNotNull('submitted_at')->whereNull('graded_at')->count();
-        $inProgress = $assignments->whereNotNull('started_at')->whereNull('submitted_at')->count();
-        $notStarted = $assignments->whereNull('started_at')->count();
+        $row = DB::table('enrollments as e')
+            ->leftJoin('assessment_assignments as aa', function ($join) use ($assessmentId) {
+                $join->on('aa.enrollment_id', '=', 'e.id')
+                    ->where('aa.assessment_id', '=', $assessmentId);
+            })
+            ->where('e.class_id', $classId)
+            ->where('e.status', 'active')
+            ->selectRaw('
+                COUNT(*) as total_assigned,
+                SUM(CASE WHEN aa.graded_at IS NOT NULL THEN 1 ELSE 0 END) as graded,
+                SUM(CASE WHEN aa.submitted_at IS NOT NULL AND aa.graded_at IS NULL THEN 1 ELSE 0 END) as submitted,
+                SUM(CASE WHEN aa.started_at IS NOT NULL AND aa.submitted_at IS NULL THEN 1 ELSE 0 END) as in_progress,
+                SUM(CASE WHEN aa.id IS NULL OR aa.started_at IS NULL THEN 1 ELSE 0 END) as not_started,
+                AVG(CASE WHEN aa.score IS NOT NULL THEN aa.score ELSE NULL END) as average_score
+            ')
+            ->first();
 
-        $gradedAssignments = $assignments->whereNotNull('score');
-        $averageScore = $gradedAssignments->isEmpty()
-            ? null
-            : round($gradedAssignments->avg('score'), 2);
+        $totalAssigned = (int) ($row->total_assigned ?? 0);
+        $graded = (int) ($row->graded ?? 0);
+        $inProgress = (int) ($row->in_progress ?? 0);
+        $notStarted = (int) ($row->not_started ?? 0);
+        $averageScore = $row->average_score !== null ? round((float) $row->average_score, 2) : null;
 
         return [
             'total_assigned' => $totalAssigned,
             'graded' => $graded,
-            'submitted' => $submitted,
+            'submitted' => (int) ($row->submitted ?? 0),
             'in_progress' => $inProgress,
             'not_started' => $notStarted,
             'not_submitted' => $inProgress + $notStarted,

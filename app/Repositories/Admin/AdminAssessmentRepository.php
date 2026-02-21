@@ -41,10 +41,10 @@ class AdminAssessmentRepository implements AdminAssessmentRepositoryInterface
                         ->orWhere('description', 'like', "%{$search}%");
                 });
             })
-            ->when($filters['subject_id'] ?? null, fn ($query, $subjectId) => $query->where('class_subjects.subject_id', $subjectId))
-            ->when($filters['teacher_id'] ?? null, fn ($query, $teacherId) => $query->where('teacher_id', $teacherId))
-            ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
-            ->when($filters['delivery_mode'] ?? null, fn ($query, $mode) => $query->where('delivery_mode', $mode))
+            ->when($filters['subject_id'] ?? null, fn($query, $subjectId) => $query->where('class_subjects.subject_id', $subjectId))
+            ->when($filters['teacher_id'] ?? null, fn($query, $teacherId) => $query->where('teacher_id', $teacherId))
+            ->when($filters['type'] ?? null, fn($query, $type) => $query->where('type', $type))
+            ->when($filters['delivery_mode'] ?? null, fn($query, $mode) => $query->where('delivery_mode', $mode))
             ->when(isset($filters['status']) && $filters['status'] !== '', function ($query) use ($filters) {
                 $isPublished = $filters['status'] === 'published';
                 $query->whereJsonContains('settings->is_published', $isPublished);
@@ -84,8 +84,8 @@ class AdminAssessmentRepository implements AdminAssessmentRepositoryInterface
                         ->orWhere('description', 'like', "%{$search}%");
                 });
             })
-            ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
-            ->when($filters['delivery_mode'] ?? null, fn ($query, $mode) => $query->where('delivery_mode', $mode))
+            ->when($filters['type'] ?? null, fn($query, $type) => $query->where('type', $type))
+            ->when($filters['delivery_mode'] ?? null, fn($query, $mode) => $query->where('delivery_mode', $mode))
             ->orderBy('created_at', 'desc');
 
         return $this->paginateWithFilters(
@@ -122,7 +122,7 @@ class AdminAssessmentRepository implements AdminAssessmentRepositoryInterface
                 });
             })
             ->when($filters['subject_id'] ?? null, function ($query, $subjectId) {
-                $query->whereHas('assessment.classSubject', fn ($q) => $q->where('subject_id', $subjectId));
+                $query->whereHas('assessment.classSubject', fn($q) => $q->where('subject_id', $subjectId));
             })
             ->when($filters['status'] ?? null, function ($query, $status) {
                 match ($status) {
@@ -149,49 +149,29 @@ class AdminAssessmentRepository implements AdminAssessmentRepositoryInterface
     /**
      * Get teacher assessment statistics.
      *
+     * Computes total and published counts in a single query.
+     * Uses `= true` (not `= 1`) because MySQL's JSON_EXTRACT returns a JSON boolean
+     * which is not equal to the integer 1 in a JSON comparison context.
+     *
      * @param  User  $teacher  The teacher to compute stats for
      * @return array{total: int, published: int, unpublished: int}
      */
     public function getTeacherAssessmentStats(User $teacher): array
     {
-        $total = Assessment::where('teacher_id', $teacher->id)->count();
-        $published = Assessment::where('teacher_id', $teacher->id)
-            ->whereJsonContains('settings->is_published', true)
-            ->count();
+        $row = Assessment::query()
+            ->where('teacher_id', $teacher->id)
+            ->selectRaw(
+                "COUNT(*) as total, SUM(CASE WHEN json_extract(`settings`, '$.is_published') = true THEN 1 ELSE 0 END) as published"
+            )
+            ->first();
+
+        $total = (int) ($row->total ?? 0);
+        $published = (int) ($row->published ?? 0);
 
         return [
             'total' => $total,
             'published' => $published,
             'unpublished' => $total - $published,
-        ];
-    }
-
-    /**
-     * Get student assignment statistics.
-     *
-     * @param  User  $student  The student to compute stats for
-     * @return array{total: int, completed: int, in_progress: int, graded: int, average_score: float|null}
-     */
-    public function getStudentAssignmentStats(User $student): array
-    {
-        $baseQuery = AssessmentAssignment::forStudent($student);
-
-        $total = (clone $baseQuery)->count();
-        $completed = (clone $baseQuery)->whereNotNull('submitted_at')->whereNull('graded_at')->count();
-        $inProgress = (clone $baseQuery)->whereNotNull('started_at')->whereNull('submitted_at')->count();
-        $graded = (clone $baseQuery)->whereNotNull('graded_at')->count();
-
-        $averageScore = (clone $baseQuery)
-            ->whereNotNull('graded_at')
-            ->whereNotNull('score')
-            ->avg('score');
-
-        return [
-            'total' => $total,
-            'completed' => $completed,
-            'in_progress' => $inProgress,
-            'graded' => $graded,
-            'average_score' => $averageScore !== null ? round((float) $averageScore, 2) : null,
         ];
     }
 
@@ -212,7 +192,7 @@ class AdminAssessmentRepository implements AdminAssessmentRepositoryInterface
                 'teacher',
             ])
             ->when($academicYearId, function ($query, $yearId) {
-                $query->whereHas('classSubject.class', fn ($q) => $q->where('academic_year_id', $yearId));
+                $query->whereHas('classSubject.class', fn($q) => $q->where('academic_year_id', $yearId));
             })
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -221,14 +201,14 @@ class AdminAssessmentRepository implements AdminAssessmentRepositoryInterface
                 });
             })
             ->when($filters['class_id'] ?? null, function ($query, $classId) {
-                $query->whereHas('classSubject', fn ($q) => $q->where('class_id', $classId));
+                $query->whereHas('classSubject', fn($q) => $q->where('class_id', $classId));
             })
             ->when($filters['subject_id'] ?? null, function ($query, $subjectId) {
-                $query->whereHas('classSubject', fn ($q) => $q->where('subject_id', $subjectId));
+                $query->whereHas('classSubject', fn($q) => $q->where('subject_id', $subjectId));
             })
-            ->when($filters['teacher_id'] ?? null, fn ($query, $teacherId) => $query->where('teacher_id', $teacherId))
-            ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
-            ->when($filters['delivery_mode'] ?? null, fn ($query, $mode) => $query->where('delivery_mode', $mode))
+            ->when($filters['teacher_id'] ?? null, fn($query, $teacherId) => $query->where('teacher_id', $teacherId))
+            ->when($filters['type'] ?? null, fn($query, $type) => $query->where('type', $type))
+            ->when($filters['delivery_mode'] ?? null, fn($query, $mode) => $query->where('delivery_mode', $mode))
             ->orderBy('created_at', 'desc');
 
         return $this->paginateQuery($query, $perPage);

@@ -6,6 +6,7 @@ return [
     // Main navigation
     'dashboard' => 'Dashboard',
     'users' => 'Users',
+    'teachers' => 'Teachers',
     'groups' => 'Groups',
     'levels' => 'Levels',
     'roles_permissions' => 'Roles & Permissions',

@@ -13,6 +13,7 @@ use App\Models\AssessmentAssignment;
 use App\Repositories\Teacher\GradingRepository;
 use App\Services\Core\Answer\AnswerFormatterService;
 use App\Services\Core\AssessmentService;
+use App\Services\Core\AssessmentStatsService;
 use App\Services\Core\Scoring\ScoringService;
 use App\Services\Teacher\AssignmentExceptionService;
 use App\Traits\FiltersAcademicYear;
@@ -40,7 +41,8 @@ class AssessmentController extends Controller
         private readonly GradingRepository $gradingQueryService,
         private readonly ScoringService $scoringService,
         private readonly AnswerFormatterService $answerFormatterService,
-        private readonly AssignmentExceptionService $assignmentExceptionService
+        private readonly AssignmentExceptionService $assignmentExceptionService,
+        private readonly AssessmentStatsService $assessmentStatsService
     ) {}
 
     protected function resolveAssessmentQueryService(): TeacherAssessmentRepositoryInterface

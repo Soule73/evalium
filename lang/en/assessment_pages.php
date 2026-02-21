@@ -128,5 +128,11 @@ return [
         'no_students_found' => 'No students found',
         'no_students_found_description' => 'No students match your search criteria.',
         'reset_search' => 'Clear search',
+        'stats_section_title' => 'Progress Statistics',
+        'stats_graded' => 'Graded',
+        'stats_in_progress' => 'In Progress',
+        'stats_not_started' => 'Not Started',
+        'stats_average_score' => 'Average Score',
+        'stats_completion_rate' => 'Completion Rate',
     ],
 ];

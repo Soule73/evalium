@@ -30,6 +30,12 @@ class UserRepository implements UserRepositoryInterface
     {
         $query = User::with('roles')->whereNot('id', $currentUser->id);
 
+        if (! empty($filters['include_roles'])) {
+            $query->whereHas('roles', function ($q) use ($filters) {
+                $q->whereIn('name', $filters['include_roles']);
+            });
+        }
+
         if (! empty($filters['exclude_roles'])) {
             $query->whereDoesntHave('roles', function ($q) use ($filters) {
                 $q->whereIn('name', $filters['exclude_roles']);

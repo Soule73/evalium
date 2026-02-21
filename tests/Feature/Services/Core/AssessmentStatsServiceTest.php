@@ -146,13 +146,13 @@ class AssessmentStatsServiceTest extends TestCase
 
         $stats = $this->service->calculateAssessmentStats($this->assessment->id);
 
-        $this->assertEquals(4, $stats['total_assigned']);
-        $this->assertEquals(1, $stats['not_started']);
+        $this->assertEquals(5, $stats['total_assigned']);
+        $this->assertEquals(2, $stats['not_started']);
         $this->assertEquals(1, $stats['in_progress']);
         $this->assertEquals(1, $stats['submitted']);
         $this->assertEquals(1, $stats['graded']);
-        $this->assertEquals(2, $stats['not_submitted']);
+        $this->assertEquals(3, $stats['not_submitted']);
         $this->assertEquals(80.0, $stats['average_score']);
-        $this->assertEquals(25.0, $stats['completion_rate']);
+        $this->assertEquals(20.0, $stats['completion_rate']);
     }
 }

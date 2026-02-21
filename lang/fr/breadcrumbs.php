@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'dashboard' => 'Tableau de bord',
     'users' => 'Utilisateurs',
+    'teachers' => 'Enseignants',
     'groups' => 'Groupes',
     'levels' => 'Niveaux',
     'roles_permissions' => 'Rôles & Permissions',
