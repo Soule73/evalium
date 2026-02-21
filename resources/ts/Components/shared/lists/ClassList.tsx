@@ -150,9 +150,7 @@ export function ClassList({ data, variant = 'admin', levels = [], onView }: Clas
             actions: [
                 {
                     labelKey:
-                        variant === 'admin'
-                            ? 'commons/ui.view'
-                            : 'teacher_class_pages.index.view',
+                        variant === 'admin' ? 'commons/ui.view' : 'teacher_class_pages.index.view',
                     onClick: (item: ClassModel) =>
                         onView?.(item) || router.visit(route(`${variant}.classes.show`, item.id)),
                     color: 'secondary' as const,

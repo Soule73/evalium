@@ -92,11 +92,11 @@ class AcademicYearService
     public function deleteYear(AcademicYear $academicYear): bool
     {
         if ($academicYear->is_current) {
-            throw new InvalidArgumentException('Cannot delete the current academic year');
+            throw new InvalidArgumentException(__('messages.academic_year_cannot_delete_current'));
         }
 
         if ($academicYear->classes()->count() > 0) {
-            throw new InvalidArgumentException('Cannot delete academic year with existing classes');
+            throw new InvalidArgumentException(__('messages.academic_year_cannot_delete_with_classes'));
         }
 
         return $academicYear->delete();

@@ -18,28 +18,28 @@ class CustomExceptionsTest extends TestCase
         $exception = EnrollmentException::classFull();
 
         $this->assertInstanceOf(EnrollmentException::class, $exception);
-        $this->assertEquals('Class is full', $exception->getMessage());
+        $this->assertEquals(__('messages.enrollment_class_full'), $exception->getMessage());
     }
 
     public function test_enrollment_exception_class_full_with_slots(): void
     {
         $exception = EnrollmentException::classFull(5);
 
-        $this->assertEquals('Class has only 5 available slots', $exception->getMessage());
+        $this->assertEquals(__('messages.enrollment_class_full_slots', ['slots' => 5]), $exception->getMessage());
     }
 
     public function test_enrollment_exception_invalid_student_role(): void
     {
         $exception = EnrollmentException::invalidStudentRole();
 
-        $this->assertEquals('User must have student role', $exception->getMessage());
+        $this->assertEquals(__('messages.enrollment_invalid_student_role'), $exception->getMessage());
     }
 
     public function test_enrollment_exception_already_enrolled(): void
     {
         $exception = EnrollmentException::alreadyEnrolled();
 
-        $this->assertEquals('Student already enrolled in a class for this academic year', $exception->getMessage());
+        $this->assertEquals(__('messages.student_already_enrolled'), $exception->getMessage());
     }
 
     public function test_enrollment_exception_invalid_status(): void
@@ -54,7 +54,7 @@ class CustomExceptionsTest extends TestCase
     {
         $exception = EnrollmentException::targetClassFull();
 
-        $this->assertEquals('Target class is full', $exception->getMessage());
+        $this->assertEquals(__('messages.enrollment_target_class_full'), $exception->getMessage());
     }
 
     public function test_class_exception_has_enrolled_students(): void
@@ -84,7 +84,7 @@ class CustomExceptionsTest extends TestCase
         $exception = AssessmentException::invalidCoefficient();
 
         $this->assertInstanceOf(AssessmentException::class, $exception);
-        $this->assertStringContainsString('Coefficient', $exception->getMessage());
+        $this->assertStringContainsString('coefficient', strtolower($exception->getMessage()));
         $this->assertStringContainsString('greater than 0', $exception->getMessage());
     }
 
@@ -92,7 +92,7 @@ class CustomExceptionsTest extends TestCase
     {
         $exception = AssessmentException::invalidDuration();
 
-        $this->assertStringContainsString('Duration', $exception->getMessage());
+        $this->assertStringContainsString('duration', strtolower($exception->getMessage()));
     }
 
     public function test_assessment_exception_invalid_type(): void
@@ -116,7 +116,7 @@ class CustomExceptionsTest extends TestCase
         $exception = ClassSubjectException::invalidCoefficient();
 
         $this->assertInstanceOf(ClassSubjectException::class, $exception);
-        $this->assertStringContainsString('Coefficient', $exception->getMessage());
+        $this->assertStringContainsString('coefficient', strtolower($exception->getMessage()));
     }
 
     public function test_class_subject_exception_level_mismatch(): void

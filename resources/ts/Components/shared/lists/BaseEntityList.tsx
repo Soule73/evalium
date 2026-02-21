@@ -52,11 +52,11 @@ export function BaseEntityList<T extends { id: number | string }>({
                     trueValue: filter.trueValue,
                     ...(filter.type === 'select' && filter.options
                         ? {
-                            options: filter.options.map((opt) => ({
-                                value: String(opt.value),
-                                label: opt.label,
-                            })),
-                        }
+                              options: filter.options.map((opt) => ({
+                                  value: String(opt.value),
+                                  label: opt.label,
+                              })),
+                          }
                         : {}),
                 })),
         [config.filters, variant, t],

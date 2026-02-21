@@ -19,8 +19,8 @@ class EnrollmentException extends Exception
     public static function classFull(?int $availableSlots = null): self
     {
         $message = $availableSlots !== null
-          ? "Class has only {$availableSlots} available slots"
-          : 'Class is full';
+            ? __('messages.enrollment_class_full_slots', ['slots' => $availableSlots])
+            : __('messages.enrollment_class_full');
 
         return new self($message);
     }
@@ -30,7 +30,7 @@ class EnrollmentException extends Exception
      */
     public static function invalidStudentRole(): self
     {
-        return new self('User must have student role');
+        return new self(__('messages.enrollment_invalid_student_role'));
     }
 
     /**
@@ -38,7 +38,7 @@ class EnrollmentException extends Exception
      */
     public static function alreadyEnrolled(): self
     {
-        return new self('Student already enrolled in a class for this academic year');
+        return new self(__('messages.student_already_enrolled'));
     }
 
     /**
@@ -46,7 +46,7 @@ class EnrollmentException extends Exception
      */
     public static function invalidStatus(string $currentStatus): self
     {
-        return new self("Only withdrawn enrollments can be reactivated (current status: {$currentStatus})");
+        return new self(__('messages.enrollment_invalid_status', ['status' => $currentStatus]));
     }
 
     /**
@@ -54,6 +54,6 @@ class EnrollmentException extends Exception
      */
     public static function targetClassFull(): self
     {
-        return new self('Target class is full');
+        return new self(__('messages.enrollment_target_class_full'));
     }
 }

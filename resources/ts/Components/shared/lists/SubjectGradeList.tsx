@@ -113,23 +113,23 @@ export function SubjectGradeList({
                 },
                 ...(onSubjectClick
                     ? [
-                        {
-                            key: 'actions',
-                            label: t('commons/table.actions'),
-                            sortable: false,
-                            render: (item: SubjectGrade) => (
-                                <Button
-                                    type="button"
-                                    size="xs"
-                                    variant="ghost"
-                                    onClick={() => onSubjectClick(item)}
-                                >
-                                    <EyeIcon className="h-4 w-4" />
-                                    {t('commons/ui.view')}
-                                </Button>
-                            ),
-                        },
-                    ]
+                          {
+                              key: 'actions',
+                              label: t('commons/table.actions'),
+                              sortable: false,
+                              render: (item: SubjectGrade) => (
+                                  <Button
+                                      type="button"
+                                      size="xs"
+                                      variant="ghost"
+                                      onClick={() => onSubjectClick(item)}
+                                  >
+                                      <EyeIcon className="h-4 w-4" />
+                                      {t('commons/ui.view')}
+                                  </Button>
+                              ),
+                          },
+                      ]
                     : []),
             ],
             perPageOptions: [10, 25, 50],

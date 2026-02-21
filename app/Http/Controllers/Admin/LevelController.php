@@ -141,6 +141,8 @@ class LevelController extends Controller
                 __('messages.level_deleted')
             );
         } catch (\Exception $e) {
+            Log::error('Error deleting level', ['level_id' => $level->id, 'error' => $e->getMessage()]);
+
             return back()->flashError($e->getMessage());
         }
     }

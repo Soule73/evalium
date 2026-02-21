@@ -42,9 +42,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(
                     <div className="flex-1 max-w-sm">
                         <Input
                             type="search"
-                            placeholder={
-                                searchPlaceholder ?? t('commons/table.search_placeholder')
-                            }
+                            placeholder={searchPlaceholder ?? t('commons/table.search_placeholder')}
                             value={searchValue}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                 onSearchChange(e.target.value)

@@ -308,7 +308,7 @@ class ClassController extends Controller
             return redirect()
                 ->route('admin.classes.index')
                 ->flashSuccess(__('messages.class_deleted'));
-        } catch (\InvalidArgumentException $e) {
+        } catch (\App\Exceptions\ClassException $e) {
             return back()->flashError($e->getMessage());
         }
     }

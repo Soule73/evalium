@@ -198,9 +198,7 @@ function DataTableInner<T extends { id: number | string }>({
                                                     }}
                                                     onChange={actions.toggleAllOnPage}
                                                     className="cursor-pointer"
-                                                    aria-label={t(
-                                                        'commons/table.select_all',
-                                                    )}
+                                                    aria-label={t('commons/table.select_all')}
                                                     data-e2e={testIdSelectAllCheckbox}
                                                 />
                                             )}

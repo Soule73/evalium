@@ -70,7 +70,7 @@ class UserManagementService implements UserManagementServiceInterface
                 $user->update($updatedData);
 
                 if (! isset($data['role']) || ! Role::where('name', $data['role'])->exists()) {
-                    throw new \InvalidArgumentException('Role is required for update.');
+                    throw new \InvalidArgumentException(__('messages.role_required_for_update'));
                 }
 
                 $user->syncRoles([$data['role']]);

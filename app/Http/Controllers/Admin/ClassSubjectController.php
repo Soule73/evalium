@@ -71,7 +71,7 @@ class ClassSubjectController extends Controller
                     'class_subject' => $classSubject->id,
                 ])
                 ->flashSuccess(__('messages.class_subject_created'));
-        } catch (\InvalidArgumentException $e) {
+        } catch (\App\Exceptions\ClassSubjectException $e) {
             return back()->flashError($e->getMessage());
         }
     }
@@ -118,7 +118,7 @@ class ClassSubjectController extends Controller
                     'class_subject' => $newClassSubject->id,
                 ])
                 ->flashSuccess(__('messages.teacher_replaced'));
-        } catch (\InvalidArgumentException $e) {
+        } catch (\App\Exceptions\ClassSubjectException $e) {
             return back()->flashError($e->getMessage());
         }
     }
