@@ -167,7 +167,7 @@ export function FileList({
 
         if (onDelete && !readOnly) {
             actions.push({
-                labelKey: 'components.file_list.delete',
+                labelKey: 'commons/ui.delete',
                 onClick: (attachment) => onDelete(attachment),
                 color: 'danger',
                 variant: 'outline',

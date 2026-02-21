@@ -161,8 +161,8 @@ function Work({
             confirmSubmitCheck: t('student_assessment_pages.work.confirm_submit_check'),
             noQuestionsTitle: t('student_assessment_pages.work.no_questions_title'),
             noQuestionsMessage: t('student_assessment_pages.work.no_questions_message'),
-            modalConfirmText: t('components.confirmation_modal.confirm'),
-            modalCancelText: t('components.confirmation_modal.cancel'),
+            modalConfirmText: t('commons/ui.confirm'),
+            modalCancelText: t('commons/ui.cancel'),
         }),
         [t],
     );

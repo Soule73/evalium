@@ -2,7 +2,7 @@
 
 > **Créé le :** 21 février 2026  
 > **Branche :** `develop/v1.1-improvements`  
-> **Statut global :** Phase 0 — Audit terminé, en attente de démarrage Phase 1
+> **Statut global :** Phase 2 terminée ✅ — Phase 3 en cours
 
 ---
 
@@ -189,35 +189,18 @@ Actions form : required_field, optional
 
 ---
 
-### Phase 2 — Migration `admin_pages.php` 🔲 À FAIRE
-**Fichier le plus impacté :** 575 valeurs, gain estimé ~140 valeurs supprimées  
-**Fichiers TS à mettre à jour :** Pages et composants Admin
+### Phase 2 — Migration `admin_pages.php` ✅ TERMINÉ
+**Résultat :** 575 → 357 clés EN — 191 orphelins supprimés, section `common` retirée  
+**Commit :** `f236456`
 
-#### Étape 2a — Remplacer les doublons internes (adminpages vs adminpages)
-- [ ] Remplacer les 7× `'creating'` internes par référence à `commons/ui.creating`
-- [ ] Remplacer les 7× `'updating'` internes par référence à `commons/ui.updating`
-- [ ] Remplacer les 5× `'cancel'` internes
-- [ ] Remplacer les 4× `'status'` internes
-- [ ] Remplacer les 4× `'all_statuses'` internes
-
-#### Étape 2b — Remplacer dans les fichiers TS Admin
-- [ ] `Pages/Admin/**/*.tsx` : substituer les clés communes
-- [ ] `Components/features/enrollments/**/*.tsx`
-- [ ] `Components/features/classes/**/*.tsx`
-- [ ] `Components/features/users/**/*.tsx`
-
-#### Étape 2c — Supprimer les clés migrées de `admin_pages.php`
-- [ ] Valider qu'aucun TS n'utilise plus les anciennes clés
-- [ ] Supprimer de `admin_pages.php`
-
-#### Étape 2d — Supprimer les orphelins détectés
-- [ ] Lister les clés `admin_pages.*` jamais utilisées
-- [ ] Confirmer qu'elles ne sont pas dans des clés dynamiques
-- [ ] Supprimer
+- [x] Remplacer `admin_pages.common.*` (17 clés) → `commons/*` dans 34 fichiers TS
+- [x] Supprimer la section `common` de `admin_pages.php` (EN + FR)
+- [x] Auditer et supprimer 191 clés orphelines dans toutes les sections
+- [x] Pint + lint — 599 tests passés
 
 ---
 
-### Phase 3 — Migration `components.php` 🔲 À FAIRE
+### Phase 3 — Migration `components.php` � EN COURS
 **288 valeurs définies → 164 utilisées**  
 **Gain estimé :** ~60 valeurs migrées vers commons
 
@@ -276,12 +259,12 @@ Ordre par priorité (nb d'orphelins estimé) :
 
 | Métrique | Avant refactoring | Cible | Actuel |
 |---|---|---|---|
-| Valeurs totales EN | 2 615 | < 1 400 | 2 615 |
-| Fichiers lang EN | 31 | ~28 (+ 5 commons) | 31 |
-| Orphelins estimés | ~1 600 | < 100 | ~1 600 |
-| Lignes `admin_pages.php` | 624 | < 400 | 624 |
+| Valeurs totales EN | 2 615 | < 1 400 | ~2 370 |
+| Fichiers lang EN | 31 | ~28 (+ 5 commons) | 36 (+ 5 commons) |
+| Orphelins supprimés | 0 | ~1 500 | 191 (admin_pages) |
+| Lignes `admin_pages.php` | 624 | < 400 | ~382 ✅ |
 | Lignes `components.php` | 369 | < 220 | 369 |
-| Tests backend | 599 ✅ | 599+ ✅ | 599 |
+| Tests backend | 599 ✅ | 599+ ✅ | 599 ✅ |
 
 ---
 
@@ -290,7 +273,8 @@ Ordre par priorité (nb d'orphelins estimé) :
 | Date | Phase | Action | Commit |
 |---|---|---|---|
 | 2026-02-21 | Phase 0 | Audit complet + création du document de tracking | `abb38f2` |
-| 2026-02-21 | Phase 1 | Création des 10 fichiers `commons/` (EN+FR) + middleware récursif | TBD |
+| 2026-02-21 | Phase 1 | Création des 10 fichiers `commons/` (EN+FR) + middleware récursif | `8433ca6` |
+| 2026-02-21 | Phase 2 | Migration `admin_pages.common.*` → `commons/`, suppression 191 orphelins | `f236456` |
 
 ---
 

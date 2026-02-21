@@ -37,7 +37,7 @@ export default function UserFormFields({
             emailPlaceholder: t('admin_pages.users.email_placeholder'),
             roleLabel: t('admin_pages.users.role'),
             selectRole: t('admin_pages.users.select_role'),
-            searchPlaceholder: t('components.select.search_placeholder'),
+            searchPlaceholder: t('commons/table.search_placeholder'),
             noOptionFound: t('components.select.no_option_found'),
         }),
         [t],

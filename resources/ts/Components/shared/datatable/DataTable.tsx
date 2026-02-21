@@ -168,7 +168,7 @@ function DataTableInner<T extends { id: number | string }>({
                                     className="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-md hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                 >
                                     {config.emptySearchState.resetLabel ||
-                                        t('components.datatable.reset_filters_default')}
+                                        t('commons/table.reset_filters')}
                                 </button>
                             }
                         />
@@ -199,7 +199,7 @@ function DataTableInner<T extends { id: number | string }>({
                                                     onChange={actions.toggleAllOnPage}
                                                     className="cursor-pointer"
                                                     aria-label={t(
-                                                        'components.datatable.select_all',
+                                                        'commons/table.select_all',
                                                     )}
                                                     data-e2e={testIdSelectAllCheckbox}
                                                 />

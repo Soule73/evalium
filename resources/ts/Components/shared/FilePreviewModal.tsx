@@ -101,7 +101,7 @@ export function FilePreviewModal({ attachment, isOpen, onClose }: FilePreviewMod
                         </Button>
                     </a>
                     <Button size="sm" color="secondary" variant="outline" onClick={handleClose}>
-                        {t('components.file_list.close')}
+                        {t('commons/ui.close')}
                     </Button>
                 </div>
             </div>

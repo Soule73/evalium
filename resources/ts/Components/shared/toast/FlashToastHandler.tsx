@@ -17,7 +17,7 @@ const FlashToastHandler: React.FC<FlashToastHandlerProps> = ({ flash }) => {
     const errorTitle = t('components.toast.error');
     const warningTitle = t('components.toast.warning');
     const infoTitle = t('components.toast.info');
-    const closeLabel = t('components.toast.close');
+    const closeLabel = t('commons/ui.close');
 
     useEffect(() => {
         const showToast = (

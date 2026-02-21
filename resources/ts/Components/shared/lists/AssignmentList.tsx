@@ -351,7 +351,7 @@ export function AssignmentList({
                     student: reopen.target?.student?.name ?? '',
                 })}
                 confirmText={t('components.assignment_list.reopen_confirm')}
-                cancelText={t('components.confirmation_modal.cancel')}
+                cancelText={t('commons/ui.cancel')}
                 type="warning"
                 loading={reopen.loading}
             >

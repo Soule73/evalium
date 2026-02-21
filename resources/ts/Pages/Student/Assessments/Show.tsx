@@ -180,7 +180,7 @@ export default function Show({ assessment, assignment, availability }: StudentAs
                             color="secondary"
                             onClick={() => setIsModalOpen(false)}
                         >
-                            {t('components.confirmation_modal.cancel')}
+                            {t('commons/ui.cancel')}
                         </Button>
                         <Button size="sm" color="primary" onClick={handleStartAssessment}>
                             {statsTranslations.startModalConfirm}
