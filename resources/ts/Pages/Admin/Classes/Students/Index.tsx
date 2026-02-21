@@ -47,7 +47,7 @@ export default function ClassStudents({ class: classItem, enrollments, auth }: P
                             color="secondary"
                             onClick={() => router.visit(route('admin.classes.show', classItem.id))}
                         >
-                            {t('admin_pages.common.back')}
+                            {t('commons/ui.back')}
                         </Button>
                         {canCreate && (
                             <Button

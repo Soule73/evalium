@@ -43,7 +43,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(
                         <Input
                             type="search"
                             placeholder={
-                                searchPlaceholder ?? t('admin_pages.common.search_placeholder')
+                                searchPlaceholder ?? t('commons/table.search_placeholder')
                             }
                             value={searchValue}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -60,7 +60,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(
                             data-e2e="datatable-loading-indicator"
                         >
                             <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                            <span className="text-sm">{t('admin_pages.common.loading')}</span>
+                            <span className="text-sm">{t('commons/ui.loading')}</span>
                         </div>
                     )}
                 </div>
@@ -114,7 +114,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(
                             data-e2e={testIdResetFiltersButton}
                         >
                             <FunnelIcon className="w-4 h-4 mr-1" />
-                            {t('admin_pages.common.reset')}
+                            {t('commons/ui.reset')}
                         </button>
                     )}
                 </div>

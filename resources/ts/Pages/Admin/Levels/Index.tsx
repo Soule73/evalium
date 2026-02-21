@@ -34,8 +34,8 @@ export default function LevelIndex({ levels }: Props) {
             subtitle: t('admin_pages.levels.subtitle'),
             create: t('admin_pages.levels.create'),
             deleteTitle: t('admin_pages.levels.delete_title'),
-            delete: t('admin_pages.common.delete'),
-            cancel: t('admin_pages.common.cancel'),
+            delete: t('commons/ui.delete'),
+            cancel: t('commons/ui.cancel'),
         }),
         [t],
     );

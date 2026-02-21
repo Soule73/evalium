@@ -123,7 +123,7 @@ export function ClassSubjectList({
 
                 {
                     key: 'status',
-                    labelKey: 'admin_pages.common.status',
+                    labelKey: 'commons/table.status',
                     render: (classSubject) => {
                         const isActive = !classSubject.valid_to;
                         return (
@@ -154,7 +154,7 @@ export function ClassSubjectList({
 
             actions: [
                 {
-                    labelKey: 'admin_pages.common.view',
+                    labelKey: 'commons/ui.view',
                     onClick: (classSubject: ClassSubject) => {
                         if (onView) {
                             onView(classSubject);

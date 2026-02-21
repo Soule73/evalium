@@ -83,10 +83,10 @@ export default function ClassShow({
     const translations = useMemo(
         () => ({
             showSubtitle: t('admin_pages.classes.show_subtitle'),
-            back: t('admin_pages.common.back'),
-            edit: t('admin_pages.common.edit'),
+            back: t('commons/ui.back'),
+            edit: t('commons/ui.edit'),
             cannotDeleteHasData: t('admin_pages.classes.cannot_delete_has_data'),
-            delete: t('admin_pages.common.delete'),
+            delete: t('commons/ui.delete'),
             level: t('admin_pages.classes.level'),
             academicYear: t('admin_pages.classes.academic_year'),
             students: t('admin_pages.classes.students'),
@@ -104,7 +104,7 @@ export default function ClassShow({
             assessmentsSectionSubtitle: t('admin_pages.classes.assessments_section_subtitle'),
             seeAllAssessments: t('admin_pages.classes.see_all_assessments'),
             deleteTitle: t('admin_pages.classes.delete_title'),
-            cancel: t('admin_pages.common.cancel'),
+            cancel: t('commons/ui.cancel'),
         }),
         [t],
     );

@@ -41,7 +41,7 @@ export default function ClassAssessments({
         () => ({
             title: t('admin_pages.classes.assessments_page_title'),
             subtitle: t('admin_pages.classes.assessments_page_subtitle'),
-            back: t('admin_pages.common.back'),
+            back: t('commons/ui.back'),
         }),
         [t],
     );

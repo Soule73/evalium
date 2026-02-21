@@ -51,7 +51,7 @@ export default function ClassStudentShow({
 
     const translations = useMemo(
         () => ({
-            back: t('admin_pages.common.back'),
+            back: t('commons/ui.back'),
             viewAssignments: t('admin_pages.enrollments.view_assignments'),
             transfer: t('admin_pages.enrollments.transfer'),
             withdraw: t('admin_pages.enrollments.withdraw'),

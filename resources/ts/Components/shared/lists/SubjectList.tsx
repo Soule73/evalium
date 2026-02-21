@@ -249,7 +249,7 @@ export function SubjectList({
                     labelKey:
                         variant === 'teacher'
                             ? 'teacher_subject_pages.index.view'
-                            : 'admin_pages.common.view',
+                            : 'commons/ui.view',
                     onClick: (item: SubjectItem) => {
                         if (variant === 'admin') {
                             const subject = item as Subject;

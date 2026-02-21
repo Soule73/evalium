@@ -116,8 +116,8 @@ export function UserList({ data, variant = 'admin', permissions = {}, onView }: 
                         {user.deleted_at
                             ? t('admin_pages.users.deleted')
                             : user.is_active
-                              ? t('admin_pages.common.active')
-                              : t('admin_pages.common.inactive')}
+                              ? t('commons/status.active')
+                              : t('commons/status.inactive')}
                     </span>
                 ),
                 conditional: (v) => v === 'admin',
@@ -135,7 +135,7 @@ export function UserList({ data, variant = 'admin', permissions = {}, onView }: 
         if (variant === 'admin' && permissions.canUpdate) {
             columns.push({
                 key: 'actions',
-                labelKey: 'admin_pages.common.actions',
+                labelKey: 'commons/table.actions',
                 render: (user: User) => (
                     <div className="flex items-center gap-2">
                         {user.deleted_at ? (
@@ -155,7 +155,7 @@ export function UserList({ data, variant = 'admin', permissions = {}, onView }: 
                                 size="sm"
                                 variant="outline"
                             >
-                                {t('admin_pages.common.view')}
+                                {t('commons/ui.view')}
                             </Button>
                         )}
                     </div>
@@ -177,8 +177,8 @@ export function UserList({ data, variant = 'admin', permissions = {}, onView }: 
                               labelKey: 'admin_pages.users.filter_status',
                               options: [
                                   { label: t('admin_pages.users.all_status'), value: '' },
-                                  { label: t('admin_pages.common.active'), value: 'active' },
-                                  { label: t('admin_pages.common.inactive'), value: 'inactive' },
+                                  { label: t('commons/status.active'), value: 'active' },
+                                  { label: t('commons/status.inactive'), value: 'inactive' },
                               ],
                           },
                           {

@@ -104,8 +104,8 @@ export default function UserBaseInfo({
     const translations = useMemo(
         () => ({
             deleteConfirmTitle: t('admin_pages.users.delete_confirm_title'),
-            delete: t('admin_pages.common.delete'),
-            cancel: t('admin_pages.common.cancel'),
+            delete: t('commons/ui.delete'),
+            cancel: t('commons/ui.cancel'),
             deleteIrreversible: t('admin_pages.users.delete_irreversible'),
             profileTitle: t(profileTitleKey),
             profileSubtitle: t(profileSubtitleKey),

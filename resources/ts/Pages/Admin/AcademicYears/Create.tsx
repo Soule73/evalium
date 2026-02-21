@@ -56,8 +56,8 @@ export default function AcademicYearCreate() {
             pageTitle: t('admin_pages.academic_years.create_page_title'),
             sectionTitle: t('admin_pages.academic_years.create_title'),
             sectionSubtitle: t('admin_pages.academic_years.create_subtitle'),
-            creating: t('admin_pages.common.creating'),
-            create: t('admin_pages.common.create'),
+            creating: t('commons/ui.creating'),
+            create: t('commons/ui.create'),
         }),
         [t],
     );

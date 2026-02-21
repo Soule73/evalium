@@ -207,7 +207,7 @@ export function EnrollmentList({
 
             actions: [
                 {
-                    labelKey: 'admin_pages.common.view',
+                    labelKey: 'commons/ui.view',
                     onClick: (item: Enrollment) =>
                         onView?.(item) ||
                         router.visit(

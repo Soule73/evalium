@@ -57,7 +57,7 @@ export default function ClassSubjects({
         () => ({
             title: t('admin_pages.classes.subjects_page_title'),
             subtitle: t('admin_pages.classes.subjects_page_subtitle'),
-            back: t('admin_pages.common.back'),
+            back: t('commons/ui.back'),
             assignSubject: t('admin_pages.classes.assign_subject'),
         }),
         [t],

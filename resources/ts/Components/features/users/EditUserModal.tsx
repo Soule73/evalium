@@ -83,7 +83,7 @@ export default function EditUserModal({
             passwordChange: t('admin_pages.users.password_change'),
             passwordKeep: t('admin_pages.users.password_keep'),
             passwordConfirmPlaceholder: t('admin_pages.users.password_confirm_placeholder'),
-            cancel: t('admin_pages.common.cancel'),
+            cancel: t('commons/ui.cancel'),
             updating: t('admin_pages.users.updating'),
             updateButton: t('admin_pages.users.update_button'),
         }),

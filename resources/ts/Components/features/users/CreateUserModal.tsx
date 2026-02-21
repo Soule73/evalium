@@ -125,8 +125,8 @@ export default function CreateUserModal({
             copy: t('admin_pages.users.copy'),
             copied: t('admin_pages.users.copied'),
             closeCredentials: t('admin_pages.users.close_credentials'),
-            cancel: t('admin_pages.common.cancel'),
-            loading: t('admin_pages.common.loading'),
+            cancel: t('commons/ui.cancel'),
+            loading: t('commons/ui.loading'),
         }),
         [t, isTeacherContext],
     );

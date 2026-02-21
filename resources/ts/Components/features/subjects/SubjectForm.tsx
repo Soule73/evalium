@@ -95,7 +95,7 @@ export function SubjectForm({ title, subtitle, subject, levels, onCancel }: Subj
                             onClick={onCancel}
                             disabled={isSubmitting}
                         >
-                            {t('admin_pages.common.cancel')}
+                            {t('commons/ui.cancel')}
                         </Button>
                         <Button
                             type="submit"

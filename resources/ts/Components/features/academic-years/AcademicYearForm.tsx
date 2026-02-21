@@ -106,7 +106,7 @@ export default function AcademicYearForm({
             semesterName: t('admin_pages.academic_years.semester_name_label'),
             addSemester: t('admin_pages.academic_years.add_semester'),
             removeSemester: t('admin_pages.academic_years.remove_semester'),
-            cancel: t('admin_pages.common.cancel'),
+            cancel: t('commons/ui.cancel'),
         }),
         [t],
     );
