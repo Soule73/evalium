@@ -49,7 +49,7 @@ export default function ClassStudentAssignmentsIndex({
             title: t('admin_pages.enrollments.assignments_title'),
             subtitle: t('admin_pages.enrollments.assignments_subtitle', {
                 student: enrollment.student?.name || '',
-                class: enrollment.class?.name || '',
+                class: enrollment.class?.display_name ?? enrollment.class?.name ?? '',
             }),
             back: t('admin_pages.enrollments.back_to_enrollment'),
         }),

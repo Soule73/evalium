@@ -247,7 +247,11 @@ export default function Show({ assessment, assignment, availability }: StudentAs
                         />
                         <TextEntry
                             label={translations.class}
-                            value={assessment.class_subject?.class?.name || '-'}
+                            value={
+                                assessment.class_subject?.class?.display_name ??
+                                assessment.class_subject?.class?.name ??
+                                '-'
+                            }
                         />
                         <TextEntry
                             label={translations.teacher}

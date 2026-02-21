@@ -11,6 +11,7 @@ use App\Http\Requests\Admin\BulkStoreEnrollmentRequest;
 use App\Http\Requests\Admin\StoreEnrollmentRequest;
 use App\Http\Requests\Admin\TransferStudentRequest;
 use App\Http\Traits\HandlesIndexRequests;
+use App\Models\AcademicYear;
 use App\Models\ClassModel;
 use App\Models\Enrollment;
 use App\Models\User;
@@ -190,12 +191,15 @@ class EnrollmentController extends Controller
     /**
      * Search students available for enrollment.
      * Excludes students already actively enrolled in any class of the selected academic year.
+     * Appends their class from the previous academic year for context.
      */
     public function searchStudents(Request $request): JsonResponse
     {
         $query = $request->string('q')->trim()->value();
         $selectedYearId = $this->getSelectedAcademicYearId($request);
         $perPage = min($request->integer('per_page', 15), 100);
+
+        $previousYear = $this->resolvePreviousAcademicYear($selectedYearId);
 
         $students = User::role('student')
             ->select(['id', 'name', 'email', 'avatar'])
@@ -210,10 +214,50 @@ class EnrollmentController extends Controller
                         fn ($q) => $q->whereHas('class', fn ($q) => $q->where('academic_year_id', $selectedYearId))
                     );
             })
+            ->when($previousYear, fn ($q) => $q->with([
+                'enrollments' => fn ($q) => $q
+                    ->where('status', '!=', 'withdrawn')
+                    ->whereHas('class', fn ($q) => $q->where('academic_year_id', $previousYear->id))
+                    ->with('class:id,name,level_id', 'class.level:id,name')
+                    ->limit(1),
+            ]))
             ->orderBy('name')
             ->paginate($perPage);
 
+        $students->through(function (User $student) {
+            $previousEnrollment = $student->enrollments?->first();
+            $class = $previousEnrollment?->class;
+            $student->previous_class = $class
+                ? [
+                    'id' => $class->id,
+                    'name' => $class->name,
+                    'level' => $class->level ? ['id' => $class->level->id, 'name' => $class->level->name] : null,
+                ]
+                : null;
+            unset($student->enrollments);
+
+            return $student;
+        });
+
         return response()->json($students);
+    }
+
+    /**
+     * Resolve the academic year that precedes the given year.
+     */
+    private function resolvePreviousAcademicYear(?int $selectedYearId): ?AcademicYear
+    {
+        $referenceYear = $selectedYearId
+            ? AcademicYear::find($selectedYearId)
+            : AcademicYear::where('is_current', true)->first();
+
+        if (! $referenceYear) {
+            return null;
+        }
+
+        return AcademicYear::where('end_date', '<', $referenceYear->start_date)
+            ->orderByDesc('end_date')
+            ->first();
     }
 
     /**

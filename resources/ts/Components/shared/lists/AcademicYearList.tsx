@@ -15,6 +15,7 @@ interface AcademicYearListProps {
     showPagination?: boolean;
     onDetails?: (year: AcademicYear) => void;
     onSetCurrent?: (year: AcademicYear) => void;
+    onSwitch?: (year: AcademicYear) => void;
     onDelete?: (year: AcademicYear) => void;
 }
 
@@ -29,6 +30,7 @@ export function AcademicYearList({
     showPagination = true,
     onDetails,
     onSetCurrent,
+    onSwitch,
     onDelete,
 }: AcademicYearListProps) {
     const { t } = useTranslations();
@@ -158,6 +160,15 @@ export function AcademicYearList({
                     conditional: (year: AcademicYear) => !year.is_current && !!onSetCurrent,
                 },
                 {
+                    labelKey: 'admin_pages.academic_years.switch_year',
+                    onClick: (year: AcademicYear) => {
+                        onSwitch?.(year);
+                    },
+                    color: 'secondary' as const,
+                    variant: 'outline' as const,
+                    conditional: (_year: AcademicYear) => !!onSwitch,
+                },
+                {
                     labelKey: 'commons/ui.delete',
                     onClick: (year: AcademicYear) => {
                         onDelete?.(year);
@@ -170,7 +181,7 @@ export function AcademicYearList({
                 },
             ],
         }),
-        [t, onDetails, onSetCurrent, onDelete],
+        [t, onDetails, onSetCurrent, onSwitch, onDelete],
     );
 
     return (

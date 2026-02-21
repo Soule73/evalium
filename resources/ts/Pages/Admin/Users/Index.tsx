@@ -38,8 +38,8 @@ export default function UserIndex({ users, roles, adminCount, superAdminCount }:
         () => ({
             title: t('admin_pages.users.title'),
             allUsers: t('admin_pages.users.all_admins'),
-            admin: t('admin_pages.roles.role_labels.admin'),
-            superAdmin: t('admin_pages.roles.role_labels.super_admin'),
+            admin: t('admin_pages.roles.admin_role'),
+            superAdmin: t('admin_pages.roles.super_admin_role'),
             subtitle: t('admin_pages.users.subtitle'),
             create: t('admin_pages.users.create'),
         }),

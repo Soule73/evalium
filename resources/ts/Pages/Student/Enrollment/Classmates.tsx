@@ -35,7 +35,7 @@ export default function Classmates({ enrollment, classmates }: StudentEnrollment
     const subtitleTranslation = useMemo(
         () =>
             t('student_enrollment_pages.classmates.subtitle', {
-                class: enrollment.class?.name || '-',
+                class: enrollment.class?.display_name ?? enrollment.class?.name ?? '-',
             }),
         [t, enrollment.class?.name],
     );

@@ -60,7 +60,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'academic_year' => [
                 'selected' => $this->getSelectedAcademicYear($request),
-                'recent' => $this->getRecentAcademicYears(),
+                'recent' => $this->getRecentAcademicYears($user),
             ],
             'locale' => app()->getLocale(),
             'language' => $this->getTranslations(),
@@ -102,15 +102,52 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * Get the 3 most recent academic years (cached).
+     * Get the available academic years for the selector.
+     *
+     * For admins: current year + next year (if created) + up to 3 previous years.
+     * For others: the 3 most recent years.
      */
-    protected function getRecentAcademicYears(): array
+    protected function getRecentAcademicYears(?\App\Models\User $user = null): array
     {
-        return \Illuminate\Support\Facades\Cache::remember(\App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT, 3600, function () {
-            return \App\Models\AcademicYear::orderBy('start_date', 'desc')
+        $isAdmin = $user && $user->hasRole('admin');
+        $cacheKey = $isAdmin
+            ? \App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT.':admin'
+            : \App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT;
+
+        return \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600, function () use ($isAdmin) {
+            if (! $isAdmin) {
+                return \App\Models\AcademicYear::orderBy('start_date', 'desc')
+                    ->take(3)
+                    ->get()
+                    ->toArray();
+            }
+
+            $currentYear = \App\Models\AcademicYear::where('is_current', true)->first();
+
+            if (! $currentYear) {
+                return \App\Models\AcademicYear::orderBy('start_date', 'desc')
+                    ->take(5)
+                    ->get()
+                    ->toArray();
+            }
+
+            $futureYear = \App\Models\AcademicYear::where('start_date', '>', $currentYear->end_date)
+                ->orderBy('start_date')
+                ->first();
+
+            $previousYears = \App\Models\AcademicYear::where('end_date', '<', $currentYear->start_date)
+                ->orderBy('start_date', 'desc')
                 ->take(3)
-                ->get()
-                ->toArray();
+                ->get();
+
+            $years = collect([$futureYear, $currentYear])
+                ->filter()
+                ->merge($previousYears)
+                ->unique('id')
+                ->sortByDesc('start_date')
+                ->values();
+
+            return $years->toArray();
         });
     }
 

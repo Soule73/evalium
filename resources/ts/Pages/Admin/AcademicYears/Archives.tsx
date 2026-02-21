@@ -51,15 +51,22 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
         setSetCurrentModal({ isOpen: true, year });
     }, []);
 
+    const handleSwitch = useCallback((year: AcademicYear) => {
+        router.post(
+            route('api.academic-years.set-current'),
+            { academic_year_id: year.id },
+            { preserveScroll: true },
+        );
+    }, []);
+
     const confirmSetCurrent = () => {
         if (setCurrentModal.year) {
             router.post(
-                '/academic-years/set-current',
-                { academic_year_id: setCurrentModal.year.id },
+                route('admin.academic-years.set-current', setCurrentModal.year.id),
+                {},
                 {
                     onSuccess: () => {
                         setSetCurrentModal({ isOpen: false, year: null });
-                        router.visit(route('dashboard'));
                     },
                 },
             );
@@ -109,6 +116,7 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
                     data={academicYears}
                     onDetails={handleDetails}
                     onSetCurrent={handleSetCurrent}
+                    onSwitch={handleSwitch}
                     onDelete={handleDelete}
                 />
             </Section>

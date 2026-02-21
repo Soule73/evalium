@@ -65,11 +65,11 @@ export default function ClassSubjects({
 
     return (
         <AuthenticatedLayout
-            title={`${classItem.name} – ${translations.title}`}
+            title={`${classItem.display_name ?? classItem.name} – ${translations.title}`}
             breadcrumb={breadcrumbs.admin.classSubjectsList(classItem)}
         >
             <Section
-                title={`${classItem.name} – ${translations.title}`}
+                title={`${classItem.display_name ?? classItem.name} – ${translations.title}`}
                 subtitle={translations.subtitle}
                 actions={
                     <div className="flex items-center gap-3">

@@ -97,8 +97,6 @@ export default function ClassStudentShow({
         [classItem.id, enrollment.id],
     );
 
-    const levelNameDescription = `${enrollment.class?.level?.name} (${enrollment.class?.level?.description})`;
-
     return (
         <AuthenticatedLayout title={enrollment.student?.name || ''} breadcrumb={pageBreadcrumbs}>
             <div className="space-y-6">
@@ -173,10 +171,9 @@ export default function ClassStudentShow({
                             title={translations.class}
                             value={
                                 <span className="text-sm font-semibold text-gray-900">
-                                    {enrollment.class?.name}
+                                    {enrollment.class?.display_name ?? enrollment.class?.name}
                                 </span>
                             }
-                            description={levelNameDescription}
                         />
                         <Stat.Item
                             icon={CalendarIcon}

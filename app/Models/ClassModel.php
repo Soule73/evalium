@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasAcademicYearScope;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,9 +32,21 @@ class ClassModel extends Model
         'max_students' => 'integer',
     ];
 
+    protected $appends = ['display_name'];
+
     /**
-     * Get the academic year this class belongs to.
+     * Returns the class name combined with its level name for unambiguous display.
+     * Falls back to name only when the level relation is not loaded (avoids N+1).
      */
+    protected function displayName(): Attribute
+    {
+        return Attribute::get(
+            fn () => $this->relationLoaded('level') && $this->level
+                ? "{$this->name} ({$this->level->name})"
+                : $this->name
+        );
+    }
+
     public function academicYear(): BelongsTo
     {
         return $this->belongsTo(AcademicYear::class);

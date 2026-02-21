@@ -52,21 +52,11 @@ export function ClassSubjectList({
                 {
                     key: 'class',
                     labelKey: 'admin_pages.class_subjects.class',
-                    render: (classSubject) => {
-                        const levelInfo = classSubject.class?.level
-                            ? `${classSubject.class.level.name} (${classSubject.class.level.description})`
-                            : '';
-                        return (
-                            <>
-                                <div className="font-medium text-gray-900">
-                                    {classSubject.class?.name}
-                                </div>
-                                {levelInfo && (
-                                    <div className="text-sm text-gray-500">{levelInfo}</div>
-                                )}
-                            </>
-                        );
-                    },
+                    render: (classSubject) => (
+                        <span className="font-medium text-gray-900">
+                            {classSubject.class?.display_name ?? classSubject.class?.name ?? '-'}
+                        </span>
+                    ),
                     conditional: () => showClassColumn,
                 },
 

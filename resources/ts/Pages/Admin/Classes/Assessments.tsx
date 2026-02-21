@@ -48,11 +48,11 @@ export default function ClassAssessments({
 
     return (
         <AuthenticatedLayout
-            title={`${classItem.name} – ${translations.title}`}
+            title={`${classItem.display_name ?? classItem.name} – ${translations.title}`}
             breadcrumb={breadcrumbs.admin.classAssessments(classItem)}
         >
             <Section
-                title={`${classItem.name} – ${translations.title}`}
+                title={`${classItem.display_name ?? classItem.name} – ${translations.title}`}
                 subtitle={translations.subtitle}
                 actions={
                     <Button

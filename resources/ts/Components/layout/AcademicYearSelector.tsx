@@ -30,7 +30,7 @@ export function AcademicYearSelector({ user }: AcademicYearSelectorProps) {
         if (yearId === selectedYear?.id) return;
 
         router.post(
-            '/academic-years/set-current',
+            route('api.academic-years.set-current'),
             {
                 academic_year_id: yearId,
             },

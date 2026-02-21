@@ -69,14 +69,6 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
         [t],
     );
 
-    const levelInfo = useMemo(
-        () =>
-            classSubject.class?.level
-                ? `${classSubject.class.level.name} (${classSubject.class.level.description})`
-                : '',
-        [classSubject.class?.level],
-    );
-
     return (
         <AuthenticatedLayout
             title={translations.showTitle}
@@ -133,11 +125,8 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
                             icon={AcademicCapIcon}
                             title={translations.class}
                             value={
-                                <div>
-                                    <div className="text-sm font-semibold text-gray-900">
-                                        {classSubject.class?.name}
-                                    </div>
-                                    <div className="text-xs text-gray-500">{levelInfo}</div>
+                                <div className="text-sm font-semibold text-gray-900">
+                                    {classSubject.class?.display_name ?? classSubject.class?.name}
                                 </div>
                             }
                         />

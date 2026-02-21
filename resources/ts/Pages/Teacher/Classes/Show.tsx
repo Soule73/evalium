@@ -86,12 +86,12 @@ export default function TeacherClassShow({
 
     return (
         <AuthenticatedLayout
-            title={classItem.name}
+            title={classItem.display_name ?? classItem.name}
             breadcrumb={breadcrumbs.teacher.showClass(classItem)}
         >
             <div className="space-y-6">
                 <Section
-                    title={classItem.name}
+                    title={classItem.display_name ?? classItem.name}
                     subtitle={translations.showSubtitle}
                     actions={
                         <div className="flex space-x-3">

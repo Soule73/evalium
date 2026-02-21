@@ -241,11 +241,12 @@ function buildColumns(deps: ColumnDeps): ColumnConfig<AssessmentItem>[] {
         labelKey: 'components.assessment_list.class_label',
         render: (item) => {
             const assessment = item as Assessment;
-            const levelNameDescription = `${assessment.class_subject?.class?.level?.name} (${assessment.class_subject?.class?.level?.description})`;
             return (
                 <div>
                     <div className="font-medium text-gray-900">
-                        {assessment.class_subject?.class?.name || '-'}, {levelNameDescription}
+                        {assessment.class_subject?.class?.display_name ??
+                            assessment.class_subject?.class?.name ??
+                            '-'}
                     </div>
                     <div className="text-sm text-gray-500">
                         {t('student_assessment_pages.index.subject')}:{' '}

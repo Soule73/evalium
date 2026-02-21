@@ -53,9 +53,7 @@ function WizardSteps({ currentYear, futureYearExists }: WizardStepsProps) {
                 />
             )}
 
-            {state.step === 2 && currentYear && (
-                <ClassDuplicationStep currentYear={currentYear} />
-            )}
+            {state.step === 2 && currentYear && <ClassDuplicationStep currentYear={currentYear} />}
 
             {state.step === 3 && <AcademicYearConfirmStep currentYear={currentYear} />}
 
@@ -84,4 +82,3 @@ export default function AcademicYearCreate({ currentYear, futureYearExists }: Pr
         </AuthenticatedLayout>
     );
 }
-

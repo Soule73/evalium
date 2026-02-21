@@ -226,4 +226,57 @@ class AdminEnrollmentCreateTest extends TestCase
             ])
             ->assertForbidden();
     }
+
+    public function test_search_students_returns_previous_class_when_student_was_enrolled_last_year(): void
+    {
+        $previousYear = AcademicYear::factory()->create([
+            'name' => '2024/2025',
+            'start_date' => '2024-09-01',
+            'end_date' => '2025-06-30',
+            'is_current' => false,
+        ]);
+
+        $level = Level::factory()->create(['name' => 'Terminale']);
+        $previousClass = ClassModel::factory()->create([
+            'academic_year_id' => $previousYear->id,
+            'name' => 'Terminale A',
+            'level_id' => $level->id,
+        ]);
+
+        $previousClass->enrollments()->create([
+            'student_id' => $this->student->id,
+            'status' => 'active',
+            'enrolled_at' => '2024-09-15',
+        ]);
+
+        $currentYear = AcademicYear::where('is_current', true)->first();
+
+        $this->actingAs($this->admin)
+            ->getJson(route('admin.enrollments.search-students', [
+                'q' => $this->student->name,
+                'academic_year_id' => $currentYear->id,
+            ]))
+            ->assertOk()
+            ->assertJsonFragment([
+                'id' => $this->student->id,
+                'previous_class' => [
+                    'id' => $previousClass->id,
+                    'name' => $previousClass->name,
+                    'level' => ['id' => $level->id, 'name' => $level->name],
+                ],
+            ]);
+    }
+
+    public function test_search_students_returns_null_previous_class_when_no_previous_enrollment(): void
+    {
+        $freshStudent = $this->createStudent();
+
+        $this->actingAs($this->admin)
+            ->getJson(route('admin.enrollments.search-students', ['q' => $freshStudent->name]))
+            ->assertOk()
+            ->assertJsonFragment([
+                'id' => $freshStudent->id,
+                'previous_class' => null,
+            ]);
+    }
 }

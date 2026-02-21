@@ -110,18 +110,21 @@ export default function ClassShow({
     );
 
     const deleteMessage = useMemo(
-        () => t('admin_pages.classes.delete_message', { name: classItem.name }),
-        [t, classItem.name],
+        () =>
+            t('admin_pages.classes.delete_message', {
+                name: classItem.display_name ?? classItem.name,
+            }),
+        [t, classItem.display_name, classItem.name],
     );
 
     return (
         <AuthenticatedLayout
-            title={classItem.name || '-'}
+            title={classItem.display_name ?? classItem.name ?? '-'}
             breadcrumb={breadcrumbs.admin.showClass(classItem)}
         >
             <div className="space-y-6">
                 <Section
-                    title={classItem.name || '-'}
+                    title={classItem.display_name ?? classItem.name ?? '-'}
                     subtitle={translations.showSubtitle}
                     actions={
                         <div className="flex space-x-3">
