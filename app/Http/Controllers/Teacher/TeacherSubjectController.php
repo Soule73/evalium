@@ -37,10 +37,18 @@ class TeacherSubjectController extends Controller
 
         $classes = $this->subjectQueryService->getClassesForFilter($teacherId, $selectedYearId);
 
-        return Inertia::render('Teacher/Subjects/Index', [
+        return Inertia::render('Subjects/Index', [
             'subjects' => $subjects,
             'classes' => $classes,
             'filters' => $filters,
+            'routeContext' => [
+                'role' => 'teacher',
+                'indexRoute' => 'teacher.subjects.index',
+                'showRoute' => 'teacher.subjects.show',
+                'editRoute' => null,
+                'deleteRoute' => null,
+                'assessmentShowRoute' => 'teacher.assessments.show',
+            ],
         ]);
     }
 
@@ -69,10 +77,18 @@ class TeacherSubjectController extends Controller
             $perPage
         );
 
-        return Inertia::render('Teacher/Subjects/Show', [
+        return Inertia::render('Subjects/Show', [
             'subject' => $subjectWithDetails,
             'assessments' => $assessments,
             'filters' => $request->only(['search']),
+            'routeContext' => [
+                'role' => 'teacher',
+                'indexRoute' => 'teacher.subjects.index',
+                'showRoute' => 'teacher.subjects.show',
+                'editRoute' => null,
+                'deleteRoute' => null,
+                'assessmentShowRoute' => 'teacher.assessments.show',
+            ],
         ]);
     }
 }
