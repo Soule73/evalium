@@ -138,6 +138,7 @@ return [
     'academic_year_deleted' => 'Année académique supprimée avec succès',
     'academic_year_set_current' => 'Année académique définie comme courante avec succès',
     'academic_year_archived' => 'Année académique archivée avec succès',
+    'future_year_already_exists' => 'Une année académique future existe déjà. Une seule année future peut être créée à la fois.',
     'academic_year_cannot_delete_current' => 'Impossible de supprimer l\'année académique en cours',
     'academic_year_cannot_delete_with_classes' => 'Impossible de supprimer une année académique qui contient des classes',
     'resource_wrong_academic_year' => 'Cette ressource n\'appartient pas à l\'année académique sélectionnée',

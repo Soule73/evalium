@@ -140,6 +140,7 @@ return [
     'academic_year_deleted' => 'Academic year deleted successfully',
     'academic_year_set_current' => 'Academic year set as current successfully',
     'academic_year_archived' => 'Academic year archived successfully',
+    'future_year_already_exists' => 'A future academic year already exists. Only one future year can be created at a time.',
     'academic_year_cannot_delete_current' => 'Cannot delete the current academic year',
     'academic_year_cannot_delete_with_classes' => 'Cannot delete an academic year that has existing classes',
     'resource_wrong_academic_year' => 'This resource does not belong to the selected academic year',

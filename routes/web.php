@@ -128,6 +128,7 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'archives')->name('archives');
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
+                    Route::post('/wizard', 'storeWizard')->name('wizard-store');
                     Route::get('/{academic_year}/edit', 'edit')->name('edit');
                     Route::put('/{academic_year}', 'update')->name('update');
                     Route::delete('/{academic_year}', 'destroy')->name('destroy');

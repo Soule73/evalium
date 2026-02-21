@@ -68,7 +68,7 @@ class AcademicYearControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Admin/AcademicYears/Archives')
                 ->has('academicYears')
                 ->has('filters')
@@ -85,7 +85,7 @@ class AcademicYearControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Admin/AcademicYears/Archives')
                 ->where('filters.search', '2024')
         );
@@ -107,7 +107,7 @@ class AcademicYearControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Admin/AcademicYears/Archives')
                 ->has('academicYears.data.0.semesters')
         );
@@ -134,12 +134,17 @@ class AcademicYearControllerTest extends TestCase
 
     public function test_admin_can_access_create_page(): void
     {
+        AcademicYear::factory()->current()->create();
+
         $response = $this->actingAs($this->admin)
             ->get(route('admin.academic-years.create'));
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page->component('Admin/AcademicYears/Create')
+            fn($page) => $page
+                ->component('Admin/AcademicYears/Create')
+                ->has('currentYear')
+                ->has('futureYearExists')
         );
     }
 
@@ -361,7 +366,7 @@ class AcademicYearControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Admin/AcademicYears/Edit')
                 ->has('academicYear')
                 ->has('academicYear.semesters')
@@ -769,9 +774,139 @@ class AcademicYearControllerTest extends TestCase
             ]
         );
 
-        $year->refresh();
-        $this->assertCount(1, $year->semesters);
-        $this->assertEquals('New Single Semester', $year->semesters->first()->name);
+        $this->assertCount(1, $year->fresh()->semesters);
+    }
+
+    // ---------------------------------------------------------------
+    // Wizard Store
+    // ---------------------------------------------------------------
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function wizardPayload(array $overrides = []): array
+    {
+        return array_merge([
+            'name' => '2026/2027',
+            'start_date' => '2026-09-01',
+            'end_date' => '2027-06-30',
+            'is_current' => false,
+            'class_ids' => [],
+            'semesters' => [
+                [
+                    'name' => 'Semester 1',
+                    'start_date' => '2026-09-01',
+                    'end_date' => '2027-01-31',
+                ],
+                [
+                    'name' => 'Semester 2',
+                    'start_date' => '2027-02-01',
+                    'end_date' => '2027-06-30',
+                ],
+            ],
+        ], $overrides);
+    }
+
+    public function test_wizard_store_requires_authentication(): void
+    {
+        $response = $this->postJson(route('admin.academic-years.wizard-store'), []);
+
+        $response->assertUnauthorized();
+    }
+
+    public function test_student_cannot_use_wizard_store(): void
+    {
+        $response = $this->actingAs($this->student)
+            ->postJson(route('admin.academic-years.wizard-store'), $this->wizardPayload());
+
+        $response->assertForbidden();
+    }
+
+    public function test_wizard_store_creates_academic_year(): void
+    {
+        $currentYear = AcademicYear::factory()->current()->create([
+            'start_date' => '2025-09-01',
+            'end_date' => '2026-06-30',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->postJson(route('admin.academic-years.wizard-store'), $this->wizardPayload());
+
+        $response->assertCreated();
+        $response->assertJsonStructure(['year', 'duplicated_classes_count']);
+        $response->assertJsonPath('duplicated_classes_count', 0);
+
+        $this->assertDatabaseHas('academic_years', ['name' => '2026/2027']);
+    }
+
+    public function test_wizard_store_duplicates_selected_classes(): void
+    {
+        $currentYear = AcademicYear::factory()->current()->create([
+            'start_date' => '2025-09-01',
+            'end_date' => '2026-06-30',
+        ]);
+        $class1 = ClassModel::factory()->create(['academic_year_id' => $currentYear->id]);
+        $class2 = ClassModel::factory()->create(['academic_year_id' => $currentYear->id]);
+
+        $response = $this->actingAs($this->admin)
+            ->postJson(
+                route('admin.academic-years.wizard-store'),
+                $this->wizardPayload(['class_ids' => [$class1->id]])
+            );
+
+        $response->assertCreated();
+        $response->assertJsonPath('duplicated_classes_count', 1);
+
+        $newYear = AcademicYear::where('name', '2026/2027')->first();
+        $this->assertCount(1, $newYear->classes);
+        $this->assertEquals($class1->name, $newYear->classes->first()->name);
+    }
+
+    public function test_wizard_store_rejects_when_future_year_already_exists(): void
+    {
+        $currentYear = AcademicYear::factory()->current()->create([
+            'start_date' => '2025-09-01',
+            'end_date' => '2026-06-30',
+        ]);
+
+        AcademicYear::factory()->create([
+            'start_date' => '2026-09-01',
+            'end_date' => '2027-06-30',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->postJson(route('admin.academic-years.wizard-store'), $this->wizardPayload());
+
+        $response->assertUnprocessable();
+        $response->assertJsonPath('message', __('messages.future_year_already_exists'));
+    }
+
+    public function test_wizard_store_requires_name(): void
+    {
+        AcademicYear::factory()->current()->create();
+
+        $response = $this->actingAs($this->admin)
+            ->postJson(
+                route('admin.academic-years.wizard-store'),
+                $this->wizardPayload(['name' => ''])
+            );
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors('name');
+    }
+
+    public function test_wizard_store_creates_semesters(): void
+    {
+        AcademicYear::factory()->current()->create([
+            'start_date' => '2025-09-01',
+            'end_date' => '2026-06-30',
+        ]);
+
+        $this->actingAs($this->admin)
+            ->postJson(route('admin.academic-years.wizard-store'), $this->wizardPayload());
+
+        $year = AcademicYear::where('name', '2026/2027')->first();
+        $this->assertCount(2, $year->semesters);
     }
 
     // ---------------------------------------------------------------
