@@ -2,7 +2,7 @@
 
 > **Créé le :** 21 février 2026  
 > **Branche :** `develop/v1.1-improvements`  
-> **Statut global :** Phase 2 terminée ✅ — Phase 3 en cours
+> **Statut global :** Phase 3 terminée ✅ — Phase 4 à faire
 
 ---
 
@@ -200,15 +200,16 @@ Actions form : required_field, optional
 
 ---
 
-### Phase 3 — Migration `components.php` � EN COURS
-**288 valeurs définies → 164 utilisées**  
-**Gain estimé :** ~60 valeurs migrées vers commons
+### Phase 3 — Migration `components.php` ✅ TERMINÉ
+**Résultat :** 288 → 176 clés EN/FR — 112 orphelins supprimés, 6 sections entières retirées  
+**Bugs fixés :** `back_to_exams` renommé en `back_to_assessments`, ajout de `question_item.true` et `question_item.false`  
+**Commit :** `fce1f98`
 
-- [ ] Identifier toutes les clés `components.*` doublonnant avec `commons/`
-- [ ] Mettre à jour `Components/shared/**/*.tsx`
-- [ ] Mettre à jour `Components/ui/**/*.tsx`
-- [ ] Supprimer les clés communes de `components.php`
-- [ ] Supprimer les orphelins de `components.php`
+- [x] Identifier toutes les clés `components.*` (audit v3 incluant appels multilines)
+- [x] Supprimer 112 clés orphelines sur 288 définies
+- [x] Retirer sections complètement vides : confirmation_modal, toggle, role_form, exam_general_config, exam_stats_cards, exam_assignment_columns
+- [x] Corriger 2 clés manquantes/mal nantes dans PHP
+- [x] Pint ✅ — tests à valider plus tard
 
 ---
 
@@ -259,12 +260,12 @@ Ordre par priorité (nb d'orphelins estimé) :
 
 | Métrique | Avant refactoring | Cible | Actuel |
 |---|---|---|---|
-| Valeurs totales EN | 2 615 | < 1 400 | ~2 370 |
+| Valeurs totales EN | 2 615 | < 1 400 | ~2 088 |
 | Fichiers lang EN | 31 | ~28 (+ 5 commons) | 36 (+ 5 commons) |
-| Orphelins supprimés | 0 | ~1 500 | 191 (admin_pages) |
+| Orphelins supprimés | 0 | ~1 500 | 303 (admin + components) |
 | Lignes `admin_pages.php` | 624 | < 400 | ~382 ✅ |
-| Lignes `components.php` | 369 | < 220 | 369 |
-| Tests backend | 599 ✅ | 599+ ✅ | 599 ✅ |
+| Lignes `components.php` | 369 | < 220 | ~210 ✅ |
+| Tests backend | 599 ✅ | 599+ ✅ | à vérifier |
 
 ---
 
@@ -275,6 +276,7 @@ Ordre par priorité (nb d'orphelins estimé) :
 | 2026-02-21 | Phase 0 | Audit complet + création du document de tracking | `abb38f2` |
 | 2026-02-21 | Phase 1 | Création des 10 fichiers `commons/` (EN+FR) + middleware récursif | `8433ca6` |
 | 2026-02-21 | Phase 2 | Migration `admin_pages.common.*` → `commons/`, suppression 191 orphelins | `f236456` |
+| 2026-02-21 | Phase 3 | Suppression 112 orphelins `components.php`, fix 2 clés manquantes | `fce1f98` |
 
 ---
 
@@ -297,7 +299,18 @@ Ces clés **ne sont pas détectées par la regex** `t('...')`. Avant de supprime
 grep -r "admin_pages.enrollments.status" resources/ts --include="*.tsx"
 ```
 
-### `actions.php` — décision en suspens
+### Détection multiline — leçon apprise en Phase 3
+Certains appels `t()` sont sur plusieurs lignes :
+```tsx
+placeholder={t(
+    'components.assessment_general_config.class_subject_placeholder',
+)}
+```
+La regex `t\('components\.` ne capture que les appels sur une seule ligne.  
+→ **Pour les phases suivantes**, utiliser `'nomfichier\.` (string seul sur sa ligne) en plus de `t\('`.  
+→ Les scripts v3 utilisent `'components\.` (sans `t\(`) pour capturer les deux cas.
+
+### `actions.php` — décision en suspensécision en suspens
 Ce fichier (109 valeurs) ressemble à un fichier générique issu d'un starter kit.  
 Aucune clé `actions.*` n'est utilisée côté TS. À investiguer côté backend avant suppression.
 
