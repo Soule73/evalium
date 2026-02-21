@@ -1,7 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { UserGroupIcon, BookOpenIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, ShieldCheckIcon, StarIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
 import { useMemo, useState } from 'react';
 import { type User, type PageProps } from '@/types';
@@ -16,9 +16,11 @@ interface Props extends PageProps {
     users: PaginationType<User>;
     roles: string[];
     canManageAdmins: boolean;
+    adminCount: number;
+    superAdminCount: number;
 }
 
-export default function UserIndex({ users, roles }: Props) {
+export default function UserIndex({ users, roles, adminCount, superAdminCount }: Props) {
     const { auth } = usePage<PageProps>().props;
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
@@ -35,9 +37,9 @@ export default function UserIndex({ users, roles }: Props) {
     const translations = useMemo(
         () => ({
             title: t('admin_pages.users.title'),
-            allUsers: t('admin_pages.users.all_users'),
-            teacher: t('admin_pages.roles.role_labels.teacher'),
+            allUsers: t('admin_pages.users.all_admins'),
             admin: t('admin_pages.roles.role_labels.admin'),
+            superAdmin: t('admin_pages.roles.role_labels.super_admin'),
             subtitle: t('admin_pages.users.subtitle'),
             create: t('admin_pages.users.create'),
         }),
@@ -45,32 +47,17 @@ export default function UserIndex({ users, roles }: Props) {
     );
 
     return (
-        <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.users()}>
+        <AuthenticatedLayout title={translations.subtitle} breadcrumb={breadcrumbs.users()}>
             <CreateUserModal
                 roles={roles}
                 isOpen={isShowCreateModal}
+                forcedRole='admin'
                 onClose={() => setIsShowCreateModal(false)}
             />
             <Stat.Group columns={3} className="mb-6">
                 <Stat.Item title={translations.allUsers} value={users.total} icon={UserGroupIcon} />
-                <Stat.Item
-                    title={translations.teacher}
-                    value={
-                        users.data.filter((user) =>
-                            user.roles?.some((role) => role.name === 'teacher'),
-                        ).length
-                    }
-                    icon={BookOpenIcon}
-                />
-                <Stat.Item
-                    title={translations.admin}
-                    value={
-                        users.data.filter((user) =>
-                            user.roles?.some((role) => role.name === 'admin'),
-                        ).length
-                    }
-                    icon={ShieldCheckIcon}
-                />
+                <Stat.Item title={translations.admin} value={adminCount} icon={ShieldCheckIcon} />
+                <Stat.Item title={translations.superAdmin} value={superAdminCount} icon={StarIcon} />
             </Stat.Group>
             <Section
                 title={translations.subtitle}

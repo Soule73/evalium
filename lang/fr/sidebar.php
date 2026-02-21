@@ -20,6 +20,7 @@ return [
         'class_subjects' => 'Affectations',
         'exams' => 'Examens',
         'users' => 'Utilisateurs',
+        'admins' => 'Administrateurs',
         'teachers' => 'Enseignants',
         'groups' => 'Groupes',
         'levels' => 'Niveaux',
