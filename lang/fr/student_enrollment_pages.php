@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 return [
-    // Student Enrollment - Show (Current Enrollment)
     'show' => [
         'title' => 'Mon Inscription',
         'subtitle' => 'Consultez votre inscription actuelle et votre progression académique',
@@ -17,17 +16,14 @@ return [
         'teacher' => 'Professeur',
         'average' => 'Moyenne',
         'assessments' => 'Évaluations',
-        'assessment_singular' => 'Évaluation',
-        'assessment_plural' => 'Évaluations',
         'no_grade' => 'Pas encore de note',
+        'no_subjects_title' => 'Aucune matière',
+        'no_subjects_subtitle' => 'Aucune matière n\' est encore assignée à votre classe.',
         'overall_statistics' => 'Statistiques globales',
         'overall_average' => 'Moyenne générale',
         'total_assessments' => 'Total évaluations',
         'completed_assessments' => 'Terminées',
         'pending_assessments' => 'En attente',
-        'no_enrollment_title' => 'Aucune inscription active',
-        'no_enrollment_subtitle' => 'Vous n\'êtes inscrit dans aucune classe pour le moment.',
-        'no_enrollment_message' => 'Veuillez contacter votre administrateur pour les informations d\'inscription.',
         'view_history' => 'Voir l\'historique des inscriptions',
         'view_classmates' => 'Voir les camarades de classe',
         'excellent' => 'Excellent',
@@ -36,8 +32,6 @@ return [
         'satisfactory' => 'Satisfaisant',
         'needs_improvement' => 'À améliorer',
     ],
-
-    // Student Enrollment - History
     'history' => [
         'title' => 'Historique des inscriptions',
         'subtitle' => 'Consultez vos inscriptions passées',
@@ -50,15 +44,10 @@ return [
         'status' => 'Statut',
         'active' => 'Active',
         'completed' => 'Terminée',
-        'in_progress' => 'En cours',
         'empty_title' => 'Aucun historique d\'inscription',
         'empty_subtitle' => 'Vous n\'avez aucune inscription passée.',
-        'duration' => 'Durée',
-        'final_grade' => 'Note finale',
         'not_available' => 'Non disponible',
     ],
-
-    // Student Enrollment - Classmates
     'classmates' => [
         'title' => 'Mes camarades de classe',
         'subtitle' => 'Voir vos camarades dans :class',
@@ -66,10 +55,7 @@ return [
         'search_placeholder' => 'Rechercher des camarades...',
         'student_name' => 'Nom',
         'email' => 'Email',
-        'enrolled_on' => 'Inscrit',
-        'empty_title' => 'Aucun camarade',
         'empty_subtitle' => 'Il n\'y a aucun autre étudiant dans votre classe.',
         'classmates_count' => 'Camarades (:count)',
-        'total_students' => 'Total étudiants',
     ],
 ];

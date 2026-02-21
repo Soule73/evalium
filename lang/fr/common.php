@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'search' => 'Rechercher...',
     'no_search_results' => 'Aucun résultat trouvé',
@@ -14,15 +16,4 @@ return [
     'edit' => 'Modifier',
     'delete' => 'Supprimer',
     'cancel' => 'Annuler',
-    'save' => 'Enregistrer',
-    'create' => 'Créer',
-    'update' => 'Mettre à jour',
-    'confirm' => 'Confirmer',
-    'back' => 'Retour',
-    'close' => 'Fermer',
-    'name' => 'Nom',
-    'students' => 'Étudiants',
-    'loading' => 'Chargement...',
-    'yes' => 'Oui',
-    'no' => 'Non',
 ];

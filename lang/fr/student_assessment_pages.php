@@ -3,42 +3,22 @@
 declare(strict_types=1);
 
 return [
-    // Student Assessments - Index
     'index' => [
         'title' => 'Mes Évaluations',
         'subtitle' => 'Gérez vos évaluations assignées',
-        'assessments_count' => 'Évaluations (:count)',
         'subject' => 'Matière',
-        'class' => 'Classe',
         'teacher' => 'Professeur',
-        'due_date' => 'Date limite',
         'assessment_date' => 'Date',
         'status' => 'Statut',
-        'actions' => 'Actions',
-        'view_details' => 'Voir les détails',
         'take_assessment' => 'Passer l\'évaluation',
-        'continue_assessment' => 'Continuer',
         'view_results' => 'Voir les résultats',
         'not_started' => 'Non commencé',
         'in_progress' => 'En cours',
         'completed' => 'Terminé',
         'graded' => 'Corrigé',
-        'filter_status' => 'Filtrer par statut',
-        'filter_all' => 'Tous',
-        'filter_not_started' => 'Non commencé',
-        'filter_in_progress' => 'En cours',
-        'filter_completed' => 'Rendu',
-        'filter_graded' => 'Corrigé',
-        'search_placeholder' => 'Rechercher des évaluations...',
-        'empty_title' => 'Aucune évaluation',
-        'empty_subtitle' => 'Vous n\'avez aucune évaluation assignée pour le moment.',
-        'duration' => 'Durée',
-        'questions_count' => 'Questions',
         'delivery_mode_supervised' => 'Surveillé',
         'delivery_mode_homework' => 'Devoir maison',
     ],
-
-    // Student Assessments - Show
     'show' => [
         'title' => 'Détails de l\'évaluation',
         'back_to_assessments' => 'Retour aux évaluations',
@@ -60,12 +40,10 @@ return [
         'questions' => 'Questions',
         'status' => 'Statut',
         'status_completed' => 'Rendu',
-        'status_submitted' => 'Rendu',
         'status_graded' => 'Corrigé',
         'status_in_progress' => 'En cours',
         'status_not_started' => 'Non rendu',
         'important_dates' => 'Dates importantes',
-        'assigned_date' => 'Assigné',
         'due_date' => 'Date limite',
         'scheduled_date' => 'Date planifiée',
         'started_date' => 'Commencé',
@@ -83,8 +61,6 @@ return [
         'view_results' => 'Voir les résultats',
         'assessment_unavailable' => 'Évaluation indisponible',
     ],
-
-    // Student Assessments - Take
     'take' => [
         'title' => 'Évaluation - :assessment',
         'time_remaining' => 'Temps restant',
@@ -108,14 +84,10 @@ return [
         'fullscreen_activation_title' => 'Activation du mode plein écran requise',
         'fullscreen_activation_message' => 'Pour commencer cette évaluation, vous devez d\'abord activer le mode plein écran. Les questions n\'apparaîtront qu\'après l\'activation du mode plein écran.',
         'attention' => 'ATTENTION',
-        'question_number' => 'Question :number',
-        'points' => ':points points',
         'previous_question' => 'Précédent',
         'next_question' => 'Suivant',
         'question_progress' => 'Question :current sur :total',
     ],
-
-    // Student Assessments - Work (Homework mode)
     'work' => [
         'title' => 'Devoir - :assessment',
         'submit_work' => 'Rendre le devoir',
@@ -142,13 +114,10 @@ return [
         'uploading' => 'Envoi en cours...',
         'upload_error' => 'Échec de l\'envoi',
         'delete_error' => 'Échec de la suppression du fichier',
-        'delete_file' => 'Supprimer le fichier',
         'file_limit' => ':current / :max fichiers envoyés',
         'max_file_size' => 'Taille maximale : :size',
         'allowed_types' => 'Types autorisés : :types',
     ],
-
-    // Student Assessments - Results
     'results' => [
         'title' => 'Résultats - :assessment',
         'section_title' => 'Résultats de l\'évaluation',
@@ -157,7 +126,6 @@ return [
         'back_to_assessments' => 'Retour aux évaluations',
         'answers_detail' => 'Détails des réponses',
         'teacher_comments' => 'Commentaires du professeur',
-        'teacher_feedback' => 'Retour du professeur',
         'your_score' => 'Votre score',
         'percentage' => 'Pourcentage',
         'status' => 'Statut',
@@ -168,10 +136,6 @@ return [
         'subject' => 'Matière',
         'class' => 'Classe',
         'teacher' => 'Professeur',
-        'correct_answer' => 'Réponse correcte',
-        'your_answer' => 'Votre réponse',
-        'question_score' => 'Score : :score / :max',
-        'no_feedback' => 'Aucun retour fourni pour le moment.',
         'results_hidden_title' => 'Résultats non encore disponibles',
         'results_hidden_message' => 'Les réponses correctes seront affichées après que votre professeur aura corrigé cette évaluation.',
     ],

@@ -3,34 +3,9 @@
 declare(strict_types=1);
 
 return [
-    'page_titles' => [
-        'index' => 'Correction',
-        'show' => 'Corriger étudiant',
-    ],
-
-    'index' => [
-        'title' => 'Correction - :assessment',
-        'section_title' => 'Soumissions étudiants',
-        'section_subtitle' => ':count soumission(s) à réviser',
-        'student_label' => 'Étudiant',
-        'status_label' => 'Statut',
-        'score_label' => 'Note',
-        'submitted_at' => 'Soumis le',
-        'actions_label' => 'Actions',
-        'not_submitted' => 'Non soumis',
-        'graded' => 'Corrigé',
-        'pending' => 'En attente',
-        'grade' => 'Corriger',
-        'review' => 'Réviser',
-        'back_to_assessment' => 'Retour à l\'évaluation',
-        'empty_title' => 'Aucune soumission',
-        'empty_subtitle' => 'Les étudiants n\'ont pas encore soumis leurs évaluations.',
-    ],
-
     'show' => [
         'title' => 'Correction - :student - :assessment',
         'correction_title' => 'Correction de :student',
-        'back_to_grading' => 'Retour aux corrections',
         'back_to_assessment' => 'Retour à l\'évaluation',
         'save_grades' => 'Enregistrer les notes',
         'saving' => 'Enregistrement...',
@@ -49,19 +24,15 @@ return [
         'teacher_notes_placeholder' => 'Ajouter des notes générales pour l\'étudiant...',
         'teacher_notes_help' => 'Ces notes seront visibles par l\'étudiant',
         'student_files_title' => 'Fichiers de l\'étudiant',
-        'no_student_files' => 'Aucun fichier soumis par l\'étudiant.',
         'confirm_save_title' => 'Enregistrer les notes',
         'confirm_save_message' => 'Enregistrer les notes et commentaires pour :student ?',
         'confirm_save' => 'Enregistrer',
         'cancel' => 'Annuler',
     ],
-
     'review' => [
         'title' => 'Consultation - :student - :assessment',
         'result_title' => 'Résultats de :student',
         'questions_review' => 'Questions & Réponses',
-        'score_obtained' => 'Note obtenue',
-        'teacher_feedback' => 'Commentaire du professeur',
         'edit_grades' => 'Modifier les notes',
         'graded_at' => 'Corrigé le',
     ],

@@ -1,11 +1,8 @@
 <?php
 
-return [
-    'page_titles' => [
-        'index' => 'Mes Classes',
-        'show' => 'Détails de la Classe',
-    ],
+declare(strict_types=1);
 
+return [
     'index' => [
         'title' => 'Mes Classes',
         'section_title' => 'Classes où j\'enseigne',
@@ -14,19 +11,9 @@ return [
         'students' => 'Étudiants',
         'active_students' => 'actifs',
         'my_subjects' => 'Mes Matières',
-        'assessments' => 'Évaluations',
-        'actions' => 'Actions',
         'view' => 'Voir',
-        'no_classes' => 'Aucune classe assignée',
-        'no_classes_description' => 'Vous n\'êtes affecté à aucune classe pour le moment.',
-        'search_placeholder' => 'Rechercher par nom de classe ou niveau...',
-        'no_results' => 'Aucune classe trouvée',
-        'no_results_description' => 'Aucune classe ne correspond à vos critères de recherche.',
-        'reset_search' => 'Effacer la recherche',
     ],
-
     'show' => [
-        'title' => 'Détails de la Classe',
         'show_subtitle' => 'Consultez les informations de la classe et gérez vos matières',
         'back' => 'Retour aux Classes',
         'all_assessments' => 'Toutes les Évaluations',
@@ -34,49 +21,13 @@ return [
         'academic_year' => 'Année Académique',
         'students' => 'Étudiants',
         'my_subjects' => 'Mes Matières',
-        'subject_name' => 'Matière',
-        'coefficient' => 'Coefficient',
-        'assessments_count' => 'Évaluations',
         'create_assessment' => 'Nouvelle Évaluation',
-        'no_subjects' => 'Aucune matière assignée',
-        'no_subjects_description' => 'Vous n\'enseignez aucune matière dans cette classe.',
         'subjects_section_title' => 'Matières que j\'enseigne',
         'subjects_section_subtitle' => 'Gérez les évaluations pour chaque matière',
         'recent_assessments_title' => 'Évaluations Récentes',
         'recent_assessments_subtitle' => 'Dernières évaluations de cette classe',
         'view_all' => 'Voir Tout',
-        'assessment_title' => 'Titre',
-        'assessment_type' => 'Type',
-        'assessment_date' => 'Date',
-        'status' => 'Statut',
-        'published' => 'Publié',
-        'draft' => 'Brouillon',
-        'view_details' => 'Voir',
-        'no_assessments' => 'Aucune évaluation',
-        'no_assessments_description' => 'Créez votre première évaluation pour cette classe.',
-
-        'type_homework' => 'Devoir',
-        'type_exam' => 'Examen',
-        'type_practical' => 'Travaux Pratiques',
-        'type_quiz' => 'Contrôle',
-        'type_project' => 'Projet',
-
-        'search_subjects' => 'Rechercher des matières...',
-        'search_assessments' => 'Rechercher des évaluations...',
-        'no_subjects_found' => 'Aucune matière trouvée',
-        'no_subjects_found_description' => 'Aucune matière ne correspond à vos critères de recherche.',
-        'no_assessments_found' => 'Aucune évaluation trouvée',
-        'no_assessments_found_description' => 'Aucune évaluation ne correspond à vos critères de recherche.',
-
         'students_section_title' => 'Étudiants inscrits',
         'students_section_subtitle' => ':count étudiant(s) dans cette classe',
-        'student_name' => 'Étudiant',
-        'student_email' => 'Email',
-        'enrolled_at' => 'Inscrit le',
-        'no_students' => 'Aucun étudiant inscrit',
-        'no_students_description' => 'Aucun étudiant n\'est inscrit dans cette classe.',
-        'search_students' => 'Rechercher des étudiants...',
-        'no_students_found' => 'Aucun étudiant trouvé',
-        'no_students_found_description' => 'Aucun étudiant ne correspond à vos critères de recherche.',
     ],
 ];

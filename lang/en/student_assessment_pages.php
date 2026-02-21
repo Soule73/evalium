@@ -3,42 +3,22 @@
 declare(strict_types=1);
 
 return [
-    // Student Assessments - Index
     'index' => [
         'title' => 'My Assessments',
         'subtitle' => 'Manage your assigned assessments',
-        'assessments_count' => 'Assessments (:count)',
         'subject' => 'Subject',
-        'class' => 'Class',
         'teacher' => 'Teacher',
-        'due_date' => 'Due Date',
         'assessment_date' => 'Date',
         'status' => 'Status',
-        'actions' => 'Actions',
-        'view_details' => 'View Details',
         'take_assessment' => 'Take Assessment',
-        'continue_assessment' => 'Continue',
         'view_results' => 'View Results',
         'not_started' => 'Not Started',
         'in_progress' => 'In Progress',
         'completed' => 'Completed',
         'graded' => 'Graded',
-        'filter_status' => 'Filter by Status',
-        'filter_all' => 'All',
-        'filter_not_started' => 'Not Started',
-        'filter_in_progress' => 'In Progress',
-        'filter_completed' => 'Submitted',
-        'filter_graded' => 'Graded',
-        'search_placeholder' => 'Search assessments...',
-        'empty_title' => 'No Assessments',
-        'empty_subtitle' => 'You have no assessments assigned at the moment.',
-        'duration' => 'Duration',
-        'questions_count' => 'Questions',
         'delivery_mode_supervised' => 'Supervised',
         'delivery_mode_homework' => 'Homework',
     ],
-
-    // Student Assessments - Show
     'show' => [
         'title' => 'Assessment Details',
         'back_to_assessments' => 'Back to Assessments',
@@ -60,12 +40,10 @@ return [
         'questions' => 'Questions',
         'status' => 'Status',
         'status_completed' => 'Submitted',
-        'status_submitted' => 'Submitted',
         'status_graded' => 'Graded',
         'status_in_progress' => 'In Progress',
         'status_not_started' => 'Not Submitted',
         'important_dates' => 'Important Dates',
-        'assigned_date' => 'Assigned',
         'due_date' => 'Due Date',
         'scheduled_date' => 'Scheduled Date',
         'started_date' => 'Started',
@@ -83,8 +61,6 @@ return [
         'view_results' => 'View Results',
         'assessment_unavailable' => 'Assessment Unavailable',
     ],
-
-    // Student Assessments - Take
     'take' => [
         'title' => 'Assessment - :assessment',
         'time_remaining' => 'Time Remaining',
@@ -108,14 +84,10 @@ return [
         'fullscreen_activation_title' => 'Fullscreen Mode Activation Required',
         'fullscreen_activation_message' => 'To start this assessment, you must first activate fullscreen mode. Questions will only appear after activating fullscreen mode.',
         'attention' => 'ATTENTION',
-        'question_number' => 'Question :number',
-        'points' => ':points points',
         'previous_question' => 'Previous',
         'next_question' => 'Next',
         'question_progress' => 'Question :current of :total',
     ],
-
-    // Student Assessments - Work (Homework mode)
     'work' => [
         'title' => 'Homework - :assessment',
         'submit_work' => 'Submit Homework',
@@ -142,13 +114,10 @@ return [
         'uploading' => 'Uploading...',
         'upload_error' => 'Upload failed',
         'delete_error' => 'Failed to delete file',
-        'delete_file' => 'Delete file',
         'file_limit' => ':current / :max files uploaded',
         'max_file_size' => 'Maximum file size: :size',
         'allowed_types' => 'Allowed types: :types',
     ],
-
-    // Student Assessments - Results
     'results' => [
         'title' => 'Results - :assessment',
         'section_title' => 'Assessment Results',
@@ -157,7 +126,6 @@ return [
         'back_to_assessments' => 'Back to Assessments',
         'answers_detail' => 'Answer Details',
         'teacher_comments' => 'Teacher Comments',
-        'teacher_feedback' => 'Teacher Feedback',
         'your_score' => 'Your Score',
         'percentage' => 'Percentage',
         'status' => 'Status',
@@ -168,10 +136,6 @@ return [
         'subject' => 'Subject',
         'class' => 'Class',
         'teacher' => 'Teacher',
-        'correct_answer' => 'Correct Answer',
-        'your_answer' => 'Your Answer',
-        'question_score' => 'Score: :score / :max',
-        'no_feedback' => 'No feedback provided yet.',
         'results_hidden_title' => 'Results Not Yet Available',
         'results_hidden_message' => 'The correct answers will be displayed after your teacher has graded this assessment.',
     ],
