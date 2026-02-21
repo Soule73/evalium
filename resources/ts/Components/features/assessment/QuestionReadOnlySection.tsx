@@ -5,7 +5,7 @@ import { useQuestionTypeUtils } from '@/hooks/shared/useQuestionTypeUtils';
 import { MarkdownRenderer } from '@evalium/ui';
 import { getTypeColor } from '@/utils/assessment/components';
 
-interface QuestionReadOnlySection {
+interface QuestionReadOnlySectionProps {
     question: Question;
     children?: React.ReactNode;
     isCorrect?: boolean | null;
@@ -13,7 +13,7 @@ interface QuestionReadOnlySection {
     questionIndex?: number;
 }
 
-const QuestionReadOnlySection: React.FC<QuestionReadOnlySection> = ({
+const QuestionReadOnlySection: React.FC<QuestionReadOnlySectionProps> = ({
     question,
     children,
     isCorrect,
@@ -24,7 +24,7 @@ const QuestionReadOnlySection: React.FC<QuestionReadOnlySection> = ({
     const { getTypeLabel } = useQuestionTypeUtils();
 
     return (
-        <div key={question.id} className="border-b border-gray-200 pb-6 last:border-b-0">
+        <div className="border-b border-gray-200 pb-6 last:border-b-0">
             <div className="flex items-center  justify-between my-3">
                 <h3 className="text-lg font-medium text-gray-900">
                     {questionIndex !== undefined && `Q${questionIndex + 1}. `}
@@ -43,7 +43,7 @@ const QuestionReadOnlySection: React.FC<QuestionReadOnlySection> = ({
                         </span>
                     )}
                     <span className="text-sm text-gray-500 ml-2">
-                        {score && `${score}/`}
+                        {score !== null && score !== undefined && `${score}/`}
                         {question.points} pts
                     </span>
                     <span

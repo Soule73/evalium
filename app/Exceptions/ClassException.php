@@ -18,7 +18,7 @@ class ClassException extends Exception
      */
     public static function hasEnrolledStudents(): self
     {
-        return new self('Cannot delete class with enrolled students');
+        return new self(__('messages.class_has_enrolled_students'));
     }
 
     /**
@@ -26,7 +26,7 @@ class ClassException extends Exception
      */
     public static function hasSubjectAssignments(): self
     {
-        return new self('Cannot delete class with subject assignments');
+        return new self(__('messages.class_has_subject_assignments'));
     }
 
     /**
@@ -34,6 +34,6 @@ class ClassException extends Exception
      */
     public static function duplicateName(): self
     {
-        return new self('A class with this name already exists for this level and academic year');
+        return new self(__('messages.class_duplicate_name'));
     }
 }

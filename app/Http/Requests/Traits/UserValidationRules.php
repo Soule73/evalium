@@ -31,6 +31,7 @@ trait UserValidationRules
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', $uniqueEmailRule],
             'role' => ['required', 'string', 'in:admin,teacher,student,super_admin'],
+            'send_credentials' => ['sometimes', 'boolean'],
         ];
     }
 

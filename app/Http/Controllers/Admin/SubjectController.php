@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Repositories\SubjectRepositoryInterface;
+use App\Contracts\Services\SubjectServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreSubjectRequest;
 use App\Http\Requests\Admin\UpdateSubjectRequest;
 use App\Http\Traits\HandlesIndexRequests;
 use App\Models\Subject;
-use App\Services\Admin\SubjectService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -20,7 +21,8 @@ class SubjectController extends Controller
     use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests;
 
     public function __construct(
-        private readonly SubjectService $subjectService
+        private readonly SubjectServiceInterface $subjectService,
+        private readonly SubjectRepositoryInterface $subjectQueryService
     ) {}
 
     /**
@@ -36,8 +38,8 @@ class SubjectController extends Controller
             ['search', 'level_id']
         );
 
-        $subjects = $this->subjectService->getSubjectsForIndex($selectedYearId, $filters, $perPage);
-        $levels = $this->subjectService->getAllLevels();
+        $subjects = $this->subjectQueryService->getSubjectsForIndex($selectedYearId, $filters, $perPage);
+        $levels = $this->subjectQueryService->getAllLevels();
 
         return Inertia::render('Admin/Subjects/Index', [
             'subjects' => $subjects,
@@ -53,7 +55,7 @@ class SubjectController extends Controller
     {
         $this->authorize('create', Subject::class);
 
-        $formData = $this->subjectService->getCreateFormData();
+        $formData = $this->subjectQueryService->getCreateFormData();
 
         return Inertia::render('Admin/Subjects/Create', $formData);
     }
@@ -85,7 +87,7 @@ class SubjectController extends Controller
             'per_page' => $request->input('per_page', 10),
         ];
 
-        $data = $this->subjectService->getSubjectDetailsWithPagination(
+        $data = $this->subjectQueryService->getSubjectDetailsWithPagination(
             $subject,
             $selectedYearId,
             $classSubjectsFilters
@@ -101,7 +103,7 @@ class SubjectController extends Controller
     {
         $this->authorize('update', $subject);
 
-        $formData = $this->subjectService->getEditFormData($subject);
+        $formData = $this->subjectQueryService->getEditFormData($subject);
 
         return Inertia::render('Admin/Subjects/Edit', $formData);
     }

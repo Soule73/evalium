@@ -10,11 +10,17 @@ import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { AssessmentList } from '@/Components/shared/lists';
 
-interface Props extends PageProps {
-    assessments: PaginationType<Assessment>;
+interface ClassOption {
+    id: number;
+    name: string;
 }
 
-const AssessmentIndex: React.FC<Props> = ({ assessments }) => {
+interface Props extends PageProps {
+    assessments: PaginationType<Assessment>;
+    classes: ClassOption[];
+}
+
+const AssessmentIndex: React.FC<Props> = ({ assessments, classes }) => {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
     const { auth } = usePage<PageProps>().props;
@@ -51,7 +57,7 @@ const AssessmentIndex: React.FC<Props> = ({ assessments }) => {
                     )
                 }
             >
-                <AssessmentList data={assessments} />
+                <AssessmentList data={assessments} classes={classes} />
             </Section>
         </AuthenticatedLayout>
     );

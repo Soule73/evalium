@@ -23,6 +23,7 @@ export const navRoutes = {
 
     // System Routes
     users: () => route('admin.users.index'),
+    teachers: () => route('admin.teachers.index'),
     levels: () => route('admin.levels.index'),
     roles: () => route('admin.roles.index'),
 

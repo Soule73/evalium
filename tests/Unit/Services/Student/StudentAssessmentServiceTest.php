@@ -72,7 +72,11 @@ class StudentAssessmentServiceTest extends TestCase
 
         $result = $this->service->getStudentAssessmentsForIndex($student, $this->academicYear->id, [], 15);
 
-        $this->assertEquals([], $result);
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('assignments', $result);
+        $this->assertArrayHasKey('subjects', $result);
+        $this->assertEquals([], $result['assignments']);
+        $this->assertEquals([], $result['subjects']);
     }
 
     public function test_get_student_assessments_for_index_returns_paginated_results(): void
@@ -107,9 +111,12 @@ class StudentAssessmentServiceTest extends TestCase
 
         $result = $this->service->getStudentAssessmentsForIndex($student, $this->academicYear->id, [], 15);
 
-        $this->assertNotEmpty($result);
-        $this->assertCount(1, $result->items());
-        $this->assertEquals('Test Assessment', $result->items()[0]->assessment->title);
+        $this->assertIsArray($result);
+        $assignments = $result['assignments'];
+        $this->assertNotEmpty($assignments);
+        $this->assertCount(1, $assignments->items());
+        $this->assertEquals('Test Assessment', $assignments->items()[0]->assessment->title);
+        $this->assertNotEmpty($result['subjects']);
     }
 
     public function test_get_student_assessments_for_index_filters_by_search(): void
@@ -159,8 +166,9 @@ class StudentAssessmentServiceTest extends TestCase
             15
         );
 
-        $this->assertCount(1, $result->items());
-        $this->assertEquals('Math Test', $result->items()[0]->assessment->title);
+        $assignments = $result['assignments'];
+        $this->assertCount(1, $assignments->items());
+        $this->assertEquals('Math Test', $assignments->items()[0]->assessment->title);
     }
 
     public function test_get_student_assessments_for_index_filters_by_status(): void
@@ -216,9 +224,10 @@ class StudentAssessmentServiceTest extends TestCase
             15
         );
 
-        $this->assertCount(1, $result->items());
-        $this->assertEquals('Completed', $result->items()[0]->assessment->title);
-        $this->assertEquals('submitted', $result->items()[0]->status);
+        $assignments = $result['assignments'];
+        $this->assertCount(1, $assignments->items());
+        $this->assertEquals('Completed', $assignments->items()[0]->assessment->title);
+        $this->assertEquals('submitted', $assignments->items()[0]->status);
     }
 
     public function test_get_assignment_for_results_returns_assignment_with_answers(): void

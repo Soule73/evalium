@@ -90,11 +90,11 @@ export function WithdrawEnrollmentModal({
                         onClick={resetAndClose}
                         disabled={isSubmitting}
                     >
-                        {t('admin_pages.common.cancel')}
+                        {t('commons/ui.cancel')}
                     </Button>
                     <Button type="submit" variant="solid" color="danger" disabled={isSubmitting}>
                         {isSubmitting
-                            ? t('admin_pages.common.processing')
+                            ? t('commons/ui.processing')
                             : t('admin_pages.enrollments.withdraw_confirm')}
                     </Button>
                 </div>

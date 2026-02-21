@@ -2,22 +2,25 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Repositories\EnrollmentRepositoryInterface;
+use App\Contracts\Services\EnrollmentServiceInterface;
+use App\Contracts\Services\UserManagementServiceInterface;
+use App\Exceptions\EnrollmentException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkStoreEnrollmentRequest;
 use App\Http\Requests\Admin\StoreEnrollmentRequest;
 use App\Http\Requests\Admin\TransferStudentRequest;
 use App\Http\Traits\HandlesIndexRequests;
-use App\Models\AssessmentAssignment;
+use App\Models\AcademicYear;
+use App\Models\ClassModel;
 use App\Models\Enrollment;
 use App\Models\User;
-use App\Services\Admin\EnrollmentService;
-use App\Services\Admin\UserManagementService;
-use App\Services\Core\GradeCalculationService;
+use App\Notifications\UserCredentialsNotification;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,9 +29,9 @@ class EnrollmentController extends Controller
     use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests;
 
     public function __construct(
-        private readonly EnrollmentService $enrollmentService,
-        private readonly GradeCalculationService $gradeCalculationService,
-        private readonly UserManagementService $userManagementService
+        private readonly EnrollmentServiceInterface $enrollmentService,
+        private readonly EnrollmentRepositoryInterface $enrollmentQueryService,
+        private readonly UserManagementServiceInterface $userManagementService
     ) {}
 
     /**
@@ -44,7 +47,7 @@ class EnrollmentController extends Controller
             ['search', 'class_id', 'status']
         );
 
-        $data = $this->enrollmentService->getEnrollmentsForIndex($selectedYearId, $filters, $perPage);
+        $data = $this->enrollmentQueryService->getEnrollmentsForIndex($selectedYearId, $filters, $perPage);
 
         return Inertia::render('Admin/Enrollments/Index', $data);
     }
@@ -57,9 +60,10 @@ class EnrollmentController extends Controller
         $this->authorize('create', Enrollment::class);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $formData = $this->enrollmentService->getCreateFormData($selectedYearId);
 
-        return Inertia::render('Admin/Enrollments/Create', $formData);
+        return Inertia::render('Admin/Enrollments/Create', [
+            'selectedYearId' => $selectedYearId,
+        ]);
     }
 
     /**
@@ -73,18 +77,22 @@ class EnrollmentController extends Controller
                 $request->integer('class_id')
             );
 
+            $this->handleEnrollmentCredentials($request);
+
             return redirect()
                 ->route('admin.enrollments.index')
                 ->flashSuccess(__('messages.enrollment_created'));
-        } catch (\InvalidArgumentException $e) {
+        } catch (EnrollmentException $e) {
             return back()->flashError($e->getMessage());
         }
     }
 
     /**
-     * Quick-create a student for inline enrollment form.
+     * Create a student in the context of enrollment (without sending credentials immediately).
+     *
+     * Stores credentials in session for optional later sending after enrollment confirmation.
      */
-    public function storeQuickStudent(Request $request): JsonResponse
+    public function createStudent(Request $request): RedirectResponse
     {
         $this->authorize('create', User::class);
 
@@ -93,110 +101,184 @@ class EnrollmentController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
         ]);
 
-        $student = $this->userManagementService->store([
+        ['user' => $user, 'password' => $password] = $this->userManagementService->store([
             ...$validated,
             'role' => 'student',
+            'send_credentials' => false,
         ]);
+
+        session()->put('new_user_credentials', [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'password' => $password,
+        ]);
+
+        session()->put('pending_enrollment_credentials', [
+            'user_id' => $user->id,
+            'password' => $password,
+        ]);
+
+        $credentialMap = session()->get('enrollment_credential_map', []);
+        $credentialMap[$user->id] = $password;
+        session()->put('enrollment_credential_map', $credentialMap);
+
+        session()->flash('has_new_user', true);
+
+        return back()->flashSuccess(__('messages.user_created'));
+    }
+
+    /**
+     * Bulk enroll multiple students into a class in a single request.
+     */
+    public function bulkStore(BulkStoreEnrollmentRequest $request): JsonResponse
+    {
+        $classId = $request->integer('class_id');
+        $studentIds = $request->array('student_ids');
+        $newStudentIds = $request->array('new_student_ids', []);
+        $sendCredentials = $request->boolean('send_credentials');
+
+        $credentialMap = session()->pull('enrollment_credential_map', []);
+
+        $class = ClassModel::findOrFail($classId);
+
+        $enrolled = [];
+        $failed = [];
+
+        foreach ($studentIds as $studentId) {
+            try {
+                $enrollment = $this->enrollmentService->enrollStudent((int) $studentId, $classId);
+                $enrollment->load('student:id,name,email');
+
+                $password = null;
+                $isNew = in_array((int) $studentId, array_map('intval', $newStudentIds));
+
+                if ($isNew && isset($credentialMap[$studentId])) {
+                    $password = $credentialMap[$studentId];
+
+                    if ($sendCredentials) {
+                        $enrollment->student->notify(
+                            new \App\Notifications\UserCredentialsNotification($password, 'student')
+                        );
+                    }
+                }
+
+                $enrolled[] = [
+                    'student_id' => $enrollment->student_id,
+                    'student_name' => $enrollment->student->name,
+                    'student_email' => $enrollment->student->email,
+                    'enrollment_id' => $enrollment->id,
+                    'status' => $enrollment->status,
+                    'password' => $password,
+                ];
+            } catch (\App\Exceptions\EnrollmentException $e) {
+                $student = User::find($studentId);
+                $failed[] = [
+                    'student_id' => $studentId,
+                    'student_name' => $student?->name ?? "#$studentId",
+                    'reason' => $e->getMessage(),
+                ];
+            }
+        }
 
         return response()->json([
-            'id' => $student->id,
-            'name' => $student->name,
-            'email' => $student->email,
-            'avatar' => $student->avatar,
-        ], 201);
+            'class_name' => $class->name,
+            'enrolled' => $enrolled,
+            'failed' => $failed,
+        ]);
     }
 
     /**
-     * Display the specified enrollment with student grade breakdown.
+     * Search students available for enrollment.
+     * Excludes students already actively enrolled in any class of the selected academic year.
+     * Appends their class from the previous academic year for context.
      */
-    public function show(Request $request, Enrollment $enrollment): Response
+    public function searchStudents(Request $request): JsonResponse
     {
-        $this->authorize('view', $enrollment);
-
+        $query = $request->string('q')->trim()->value();
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $data = $this->enrollmentService->getShowData($enrollment, $selectedYearId);
+        $perPage = min($request->integer('per_page', 15), 100);
 
-        $student = $enrollment->student;
-        $class = $enrollment->class;
+        $previousYear = $this->resolvePreviousAcademicYear($selectedYearId);
 
-        $gradeBreakdown = $this->gradeCalculationService->getGradeBreakdown($student, $class);
+        $students = User::role('student')
+            ->select(['id', 'name', 'email', 'avatar'])
+            ->when($query, fn ($q) => $q->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('email', 'like', "%{$query}%");
+            }))
+            ->whereDoesntHave('enrollments', function ($q) use ($selectedYearId) {
+                $q->where('status', '!=', 'withdrawn')
+                    ->when(
+                        $selectedYearId,
+                        fn ($q) => $q->whereHas('class', fn ($q) => $q->where('academic_year_id', $selectedYearId))
+                    );
+            })
+            ->when($previousYear, fn ($q) => $q->with([
+                'enrollments' => fn ($q) => $q
+                    ->where('status', '!=', 'withdrawn')
+                    ->whereHas('class', fn ($q) => $q->where('academic_year_id', $previousYear->id))
+                    ->with('class:id,name,level_id', 'class.level:id,name')
+                    ->limit(1),
+            ]))
+            ->orderBy('name')
+            ->paginate($perPage);
 
-        $perPage = (int) $request->input('per_page', 10);
-        $page = (int) $request->input('page', 1);
-        $allSubjects = collect($gradeBreakdown['subjects']);
+        $students->through(function (User $student) {
+            $previousEnrollment = $student->enrollments?->first();
+            $class = $previousEnrollment?->class;
+            $student->previous_class = $class
+                ? [
+                    'id' => $class->id,
+                    'name' => $class->name,
+                    'level' => $class->level ? ['id' => $class->level->id, 'name' => $class->level->name] : null,
+                ]
+                : null;
+            unset($student->enrollments);
 
-        $paginatedSubjects = new LengthAwarePaginator(
-            $allSubjects->forPage($page, $perPage)->values(),
-            $allSubjects->count(),
-            $perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
+            return $student;
+        });
 
-        $overallStats = collect($gradeBreakdown)->except('subjects')->all();
-        $overallStats['total_assessments'] = $allSubjects->sum('assessments_count');
-        $overallStats['completed_assessments'] = $allSubjects->sum('completed_count');
-
-        return Inertia::render('Admin/Enrollments/Show', array_merge($data, [
-            'subjects' => $paginatedSubjects,
-            'overallStats' => $overallStats,
-        ]));
+        return response()->json($students);
     }
 
     /**
-     * Display assignments for a specific enrollment, optionally filtered by subject.
+     * Resolve the academic year that precedes the given year.
      */
-    public function assignments(Request $request, Enrollment $enrollment): Response
+    private function resolvePreviousAcademicYear(?int $selectedYearId): ?AcademicYear
     {
-        $this->authorize('view', $enrollment);
+        $referenceYear = $selectedYearId
+            ? AcademicYear::find($selectedYearId)
+            : AcademicYear::where('is_current', true)->first();
 
-        $enrollment->loadMissing(['student', 'class.level']);
+        if (! $referenceYear) {
+            return null;
+        }
 
-        $filters = $request->only(['search', 'class_subject_id', 'status']);
-        $perPage = (int) $request->input('per_page', 15);
-
-        $assignments = $this->gradeCalculationService->getEnrollmentAssignments(
-            $enrollment,
-            $filters,
-            $perPage
-        );
-
-        $subjects = $this->enrollmentService->getClassSubjectsForEnrollment($enrollment);
-
-        return Inertia::render('Admin/Enrollments/Assignments/Index', [
-            'enrollment' => $enrollment,
-            'assignments' => $assignments,
-            'subjects' => $subjects,
-            'filters' => $filters,
-        ]);
+        return AcademicYear::where('end_date', '<', $referenceYear->start_date)
+            ->orderByDesc('end_date')
+            ->first();
     }
 
     /**
-     * Display a specific assignment detail with answers for admin review.
+     * Search classes available for enrollment.
      */
-    public function assignmentShow(Enrollment $enrollment, AssessmentAssignment $assignment): Response
+    public function searchClasses(Request $request): JsonResponse
     {
-        $this->authorize('view', $enrollment);
+        $query = $request->string('q')->trim()->value();
+        $selectedYearId = $this->getSelectedAcademicYearId($request);
+        $perPage = min($request->integer('per_page', 15), 100);
 
-        $enrollment->loadMissing(['student', 'class.level']);
+        $classes = ClassModel::forAcademicYear($selectedYearId)
+            ->with(['level:id,name,description', 'academicYear:id,name'])
+            ->withCount([
+                'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
+            ])
+            ->when($query, fn ($q) => $q->where('name', 'like', "%{$query}%"))
+            ->orderBy('name')
+            ->paginate($perPage);
 
-        $assignment->loadMissing([
-            'assessment.questions.choices',
-            'assessment.classSubject.subject',
-            'assessment.classSubject.teacher',
-            'answers.question',
-            'answers.choice',
-            'answers.choices.choice',
-        ]);
-
-        $userAnswers = $assignment->answers->keyBy('question_id');
-
-        return Inertia::render('Admin/Enrollments/Assignments/Show', [
-            'enrollment' => $enrollment,
-            'assignment' => $assignment,
-            'assessment' => $assignment->assessment,
-            'userAnswers' => $userAnswers,
-        ]);
+        return response()->json($classes);
     }
 
     /**
@@ -211,9 +293,12 @@ class EnrollmentController extends Controller
             );
 
             return redirect()
-                ->route('admin.enrollments.show', $newEnrollment)
+                ->route('admin.classes.students.show', [
+                    'class' => $newEnrollment->class_id,
+                    'enrollment' => $newEnrollment->id,
+                ])
                 ->flashSuccess(__('messages.student_transferred'));
-        } catch (\InvalidArgumentException $e) {
+        } catch (EnrollmentException $e) {
             return back()->flashError($e->getMessage());
         }
     }
@@ -241,7 +326,7 @@ class EnrollmentController extends Controller
             $this->enrollmentService->reactivateEnrollment($enrollment);
 
             return back()->flashSuccess(__('messages.enrollment_reactivated'));
-        } catch (\InvalidArgumentException $e) {
+        } catch (EnrollmentException $e) {
             return back()->flashError($e->getMessage());
         }
     }
@@ -258,5 +343,38 @@ class EnrollmentController extends Controller
         return redirect()
             ->route('admin.enrollments.index')
             ->flashSuccess(__('messages.enrollment_deleted'));
+    }
+
+    /**
+     * Send credentials notification if requested after enrollment of a newly created student.
+     */
+    private function handleEnrollmentCredentials(StoreEnrollmentRequest $request): void
+    {
+        if (! $request->boolean('send_credentials')) {
+            return;
+        }
+
+        $enrollmentCredentials = session()->pull('pending_enrollment_credentials');
+
+        if (! $enrollmentCredentials) {
+            return;
+        }
+
+        $student = User::find($enrollmentCredentials['user_id']);
+
+        if (! $student) {
+            return;
+        }
+
+        $student->notify(new UserCredentialsNotification($enrollmentCredentials['password'], 'student'));
+
+        session()->put('new_user_credentials', [
+            'id' => $student->id,
+            'name' => $student->name,
+            'email' => $student->email,
+            'password' => $enrollmentCredentials['password'],
+        ]);
+
+        session()->flash('has_new_user', true);
     }
 }

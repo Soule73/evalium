@@ -19,7 +19,7 @@ return [
     '226' => 'IM utilisé',
     '300' => 'Choix multiples',
     '301' => 'Déplacé de façon permanente',
-    '302' => 'A trouvé',
+    '302' => 'Trouvé',
     '303' => 'Voir autre',
     '304' => 'Non modifié',
     '305' => 'Utiliser un proxy',

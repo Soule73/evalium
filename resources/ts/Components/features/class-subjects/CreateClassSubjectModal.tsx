@@ -5,7 +5,7 @@ import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Modal, Select, Input } from '@/Components';
 import { route } from 'ziggy-js';
 
-interface FormData {
+interface ClassSubjectFormData {
     classes: ClassModel[];
     subjects: Subject[];
     teachers: User[];
@@ -15,7 +15,7 @@ interface FormData {
 interface ClassSubjectFormValues {
     class_id: number;
     subject_id: number;
-    teacher_id: number;
+    teacher_id: number | null;
     semester_id?: number;
     coefficient: number;
 }
@@ -23,26 +23,34 @@ interface ClassSubjectFormValues {
 interface CreateClassSubjectModalProps {
     isOpen: boolean;
     onClose: () => void;
-    formData: FormData;
+    formData: ClassSubjectFormData;
+    classId?: number;
+    redirectTo?: string;
 }
 
-const INITIAL_FORM_VALUES: ClassSubjectFormValues = {
-    class_id: 0,
+const buildInitialValues = (classId?: number): ClassSubjectFormValues => ({
+    class_id: classId ?? 0,
     subject_id: 0,
-    teacher_id: 0,
+    teacher_id: null,
     semester_id: undefined,
     coefficient: 1,
-};
+});
 
 /**
  * Modal component for creating a new class-subject assignment.
+ * When classId is provided, the class selector is hidden and the class is pre-filled.
+ * Teacher selection is optional — an assignment can be created without a teacher and assigned later.
  */
 export function CreateClassSubjectModal({
     isOpen,
     onClose,
     formData,
+    classId,
+    redirectTo,
 }: CreateClassSubjectModalProps) {
-    const [formValues, setFormValues] = useState<ClassSubjectFormValues>(INITIAL_FORM_VALUES);
+    const [formValues, setFormValues] = useState<ClassSubjectFormValues>(() =>
+        buildInitialValues(classId),
+    );
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { t } = useTranslations();
@@ -71,7 +79,7 @@ export function CreateClassSubjectModal({
 
     const teacherOptions = useMemo(
         () => [
-            { value: 0, label: t('admin_pages.class_subjects.select_teacher') },
+            { value: 0, label: t('admin_pages.class_subjects.no_teacher_yet') },
             ...formData.teachers.map((teacher) => ({
                 value: teacher.id,
                 label: `${teacher.name} (${teacher.email})`,
@@ -97,11 +105,12 @@ export function CreateClassSubjectModal({
         setFormErrors({});
 
         const payload = {
-            class_id: formValues.class_id,
+            class_id: classId ?? formValues.class_id,
             subject_id: formValues.subject_id,
-            teacher_id: formValues.teacher_id,
+            teacher_id: formValues.teacher_id || null,
             semester_id: formValues.semester_id || null,
             coefficient: formValues.coefficient,
+            ...(redirectTo ? { redirect_to: redirectTo } : {}),
         };
 
         router.post(route('admin.class-subjects.store'), payload, {
@@ -117,34 +126,38 @@ export function CreateClassSubjectModal({
     };
 
     const resetAndClose = () => {
-        setFormValues(INITIAL_FORM_VALUES);
+        setFormValues(buildInitialValues(classId));
         setFormErrors({});
         onClose();
     };
 
     const isFormValid =
-        formValues.class_id !== 0 && formValues.subject_id !== 0 && formValues.teacher_id !== 0;
+        (classId !== undefined ? classId > 0 : formValues.class_id !== 0) &&
+        formValues.subject_id !== 0;
 
     return (
         <Modal
             isOpen={isOpen}
             onClose={resetAndClose}
             title={t('admin_pages.class_subjects.create_title')}
-            size="md"
+            size="2xl"
+            isCloseableInside={false}
         >
             <form onSubmit={handleSubmit} className="space-y-4">
-                <Select
-                    label={t('admin_pages.class_subjects.class')}
-                    name="class_id"
-                    value={formValues.class_id}
-                    onChange={(value) =>
-                        setFormValues((prev) => ({ ...prev, class_id: value as number }))
-                    }
-                    error={formErrors.class_id}
-                    required
-                    searchable
-                    options={classOptions}
-                />
+                {classId === undefined && (
+                    <Select
+                        label={t('admin_pages.class_subjects.class')}
+                        name="class_id"
+                        value={formValues.class_id}
+                        onChange={(value) =>
+                            setFormValues((prev) => ({ ...prev, class_id: value as number }))
+                        }
+                        error={formErrors.class_id}
+                        required
+                        searchable
+                        options={classOptions}
+                    />
+                )}
 
                 <Select
                     label={t('admin_pages.class_subjects.subject')}
@@ -162,12 +175,14 @@ export function CreateClassSubjectModal({
                 <Select
                     label={t('admin_pages.class_subjects.teacher')}
                     name="teacher_id"
-                    value={formValues.teacher_id}
+                    value={formValues.teacher_id ?? 0}
                     onChange={(value) =>
-                        setFormValues((prev) => ({ ...prev, teacher_id: value as number }))
+                        setFormValues((prev) => ({
+                            ...prev,
+                            teacher_id: value === 0 ? null : (value as number),
+                        }))
                     }
                     error={formErrors.teacher_id}
-                    required
                     searchable
                     options={teacherOptions}
                 />
@@ -208,7 +223,9 @@ export function CreateClassSubjectModal({
 
                 <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
                     <div className="text-sm text-indigo-800">
-                        {t('admin_pages.class_subjects.create_info')}
+                        {classId !== undefined
+                            ? t('admin_pages.class_subjects.create_info_class_scoped')
+                            : t('admin_pages.class_subjects.create_info')}
                     </div>
                 </div>
 
@@ -220,7 +237,7 @@ export function CreateClassSubjectModal({
                         onClick={resetAndClose}
                         disabled={isSubmitting}
                     >
-                        {t('admin_pages.common.cancel')}
+                        {t('commons/ui.cancel')}
                     </Button>
                     <Button
                         type="submit"

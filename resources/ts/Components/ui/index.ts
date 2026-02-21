@@ -17,6 +17,8 @@ export { default as Stat } from './Stat/Stat';
 export type { StatItemProps, StatGroupProps } from './Stat/Stat';
 export { default as Textarea } from './Texterea/Textarea';
 export { default as TextEntry } from './TextEntry/TextEntry';
+export { default as Timeline } from './Timeline/index';
+export type { TimelineProps, TimelineStep } from './Timeline/index';
 export { default as Toggle } from './Toggle/Toggle';
 export { default as Tooltip } from './Tooltip/Tooltip';
 export type { TooltipProps, TooltipPosition } from './Tooltip/Tooltip';

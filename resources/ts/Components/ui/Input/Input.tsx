@@ -12,7 +12,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
  */
 const Input = forwardRef<HTMLInputElement, InputProps>(
     ({ label, error, helperText, className = '', id, ...props }, ref) => {
-        const generatedId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+        const generatedId = id || `input-${Math.random().toString(36).slice(2, 11)}`;
         const errorId = error ? `${generatedId}-error` : undefined;
         const helperId = helperText ? `${generatedId}-helper` : undefined;
 

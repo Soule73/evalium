@@ -72,7 +72,7 @@ class DashboardController extends Controller
         $filters = $request->only(['status', 'search']);
         $perPage = 3;
 
-        $assessmentAssignments = $this->studentAssessmentService->getStudentAssessmentsForIndex(
+        $assessmentResult = $this->studentAssessmentService->getStudentAssessmentsForIndex(
             $user,
             $selectedYearId,
             $filters,
@@ -83,7 +83,7 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard/Student', [
             'user' => $user,
             'stats' => $stats,
-            'assessmentAssignments' => $assessmentAssignments,
+            'assessmentAssignments' => $assessmentResult['assignments'] ?? [],
         ]);
     }
 

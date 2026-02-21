@@ -18,7 +18,7 @@ class ClassSubjectException extends Exception
      */
     public static function invalidCoefficient(): self
     {
-        return new self('Coefficient must be greater than 0');
+        return new self(__('messages.class_subject_invalid_coefficient'));
     }
 
     /**
@@ -26,6 +26,6 @@ class ClassSubjectException extends Exception
      */
     public static function levelMismatch(): self
     {
-        return new self('Subject level must match class level');
+        return new self(__('messages.class_subject_level_mismatch'));
     }
 }

@@ -39,11 +39,17 @@ export function BaseEntityList<T extends { id: number | string }>({
         () =>
             config.filters
                 ?.filter((filter) => !filter.conditional || filter.conditional(variant))
-                .filter((filter) => filter.type === 'text' || filter.type === 'select')
+                .filter(
+                    (filter) =>
+                        filter.type === 'text' ||
+                        filter.type === 'select' ||
+                        filter.type === 'boolean',
+                )
                 .map((filter) => ({
                     key: filter.key,
                     label: t(filter.labelKey),
-                    type: filter.type as 'text' | 'select',
+                    type: filter.type as 'text' | 'select' | 'boolean',
+                    trueValue: filter.trueValue,
                     ...(filter.type === 'select' && filter.options
                         ? {
                               options: filter.options.map((opt) => ({
@@ -69,7 +75,7 @@ export function BaseEntityList<T extends { id: number | string }>({
         if (config.actions && config.actions.length > 0) {
             columns.push({
                 key: 'actions',
-                label: t('common.actions'),
+                label: t('commons/table.actions'),
                 render: (item: T) => {
                     const visibleActions = config.actions?.filter(
                         (action) =>
@@ -109,16 +115,16 @@ export function BaseEntityList<T extends { id: number | string }>({
             columns,
             filters: visibleFilters,
             searchable: showSearch,
-            searchPlaceholder: searchPlaceholder ?? t('common.search'),
+            searchPlaceholder: searchPlaceholder ?? t('commons/ui.search'),
             showPagination,
             emptyState: {
-                title: emptyMessage ?? t('common.no_data'),
-                subtitle: t('common.no_results_subtitle'),
+                title: emptyMessage ?? t('commons/table.no_data'),
+                subtitle: t('commons/table.no_data_subtitle'),
             },
             emptySearchState: {
-                title: t('common.no_search_results'),
-                subtitle: t('common.no_search_results_subtitle'),
-                resetLabel: t('common.reset_filters'),
+                title: t('commons/table.no_results'),
+                subtitle: t('commons/table.no_results_subtitle'),
+                resetLabel: t('commons/table.reset_filters'),
             },
         };
     }, [

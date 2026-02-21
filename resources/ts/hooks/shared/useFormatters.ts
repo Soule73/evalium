@@ -9,7 +9,7 @@ type TranslateFn = (key: string, replacements?: Record<string, string | number>)
  */
 function createTranslatedFormatters(t: TranslateFn) {
     const formatDuration = (minutes: number): string => {
-        if (minutes < 0) return t('formatters.duration_min', { value: 0 });
+        if (minutes <= 0) return '-';
         if (minutes < 60) return t('formatters.duration_min', { value: minutes });
         const hrs = Math.floor(minutes / 60);
         const mins = minutes % 60;

@@ -115,7 +115,7 @@ export function UpdateCoefficientModal({
                         onClick={resetAndClose}
                         disabled={isSubmitting}
                     >
-                        {t('admin_pages.common.cancel')}
+                        {t('commons/ui.cancel')}
                     </Button>
                     <Button type="submit" variant="solid" color="primary" disabled={isSubmitting}>
                         {isSubmitting

@@ -128,7 +128,7 @@ const QuestionResultReadOnlyChoices: React.FC<QuestionResultReadOnlyChoicesProps
     userChoices,
     type,
     isTeacherView = false,
-    showCorrectAnswers = true,
+    showCorrectAnswers = false,
 }) => {
     const shouldShowCorrect = showCorrectAnswers || isTeacherView;
 
@@ -153,34 +153,4 @@ const QuestionResultReadOnlyChoices: React.FC<QuestionResultReadOnlyChoicesProps
     );
 };
 
-interface QuestionTeacherReadOnlyChoicesProps {
-    choices: Choice[];
-    type: 'one_choice' | 'multiple' | 'boolean';
-}
-
-const QuestionTeacherReadOnlyChoices: React.FC<QuestionTeacherReadOnlyChoicesProps> = ({
-    choices,
-    type,
-}) => {
-    return (
-        <div className="space-y-2">
-            {(choices ?? []).map((choice, idx) => (
-                <ChoiceItem
-                    key={choice.id}
-                    choice={choice}
-                    index={idx}
-                    type={type}
-                    isSelected={false}
-                    shouldShowCorrect={true}
-                    isTeacherView={true}
-                />
-            ))}
-        </div>
-    );
-};
-
-export {
-    QuestionResultReadOnlyText,
-    QuestionTeacherReadOnlyChoices,
-    QuestionResultReadOnlyChoices,
-};
+export { QuestionResultReadOnlyText, QuestionResultReadOnlyChoices };

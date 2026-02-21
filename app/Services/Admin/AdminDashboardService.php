@@ -2,9 +2,6 @@
 
 namespace App\Services\Admin;
 
-use App\Models\ClassModel;
-use App\Models\ClassSubject;
-use App\Models\Enrollment;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -43,9 +40,20 @@ class AdminDashboardService
         $classSubjectsCount = 0;
 
         if ($academicYearId) {
-            $classesCount = ClassModel::forAcademicYear($academicYearId)->count();
-            $enrollmentsCount = Enrollment::forAcademicYear($academicYearId)->count();
-            $classSubjectsCount = ClassSubject::forAcademicYear($academicYearId)->count();
+            $yearRow = DB::table('classes')
+                ->where('classes.academic_year_id', $academicYearId)
+                ->leftJoin('enrollments', 'enrollments.class_id', '=', 'classes.id')
+                ->leftJoin('class_subjects', 'class_subjects.class_id', '=', 'classes.id')
+                ->selectRaw('
+                    COUNT(DISTINCT classes.id) as classes_count,
+                    COUNT(DISTINCT enrollments.id) as enrollments_count,
+                    COUNT(DISTINCT class_subjects.id) as class_subjects_count
+                ')
+                ->first();
+
+            $classesCount = (int) ($yearRow->classes_count ?? 0);
+            $enrollmentsCount = (int) ($yearRow->enrollments_count ?? 0);
+            $classSubjectsCount = (int) ($yearRow->class_subjects_count ?? 0);
         }
 
         return [

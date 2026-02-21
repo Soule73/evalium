@@ -51,6 +51,16 @@ Route::middleware('auth')->group(function () {
         'setCurrent',
     ])->name('api.academic-years.set-current');
 
+    Route::get('/attachments/{attachment}/download', [
+        \App\Http\Controllers\AttachmentController::class,
+        'download',
+    ])->name('attachments.download');
+
+    Route::get('/attachments/{attachment}/preview', [
+        \App\Http\Controllers\AttachmentController::class,
+        'preview',
+    ])->name('attachments.preview');
+
     /**
      * Admin Routes
      * Routes for managing academic years, subjects, classes, enrollments
@@ -62,6 +72,20 @@ Route::middleware('auth')->group(function () {
             /**
              * User Management operations
              */
+            /**
+             * Teacher Management
+             */
+            Route::prefix('teachers')
+                ->name('teachers.')
+                ->controller(\App\Http\Controllers\Admin\TeacherController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{user}', 'show')->name('show');
+                    Route::post('/', 'store')->name('store');
+                    Route::patch('/{user}/toggle-status', 'toggleStatus')->name('toggle-status');
+                    Route::delete('/{user}', 'destroy')->name('destroy');
+                });
+
             Route::prefix('users')
                 ->name('users.')
                 ->controller(UserController::class)
@@ -69,8 +93,11 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'index')
                         ->name('index');
 
-                    Route::get('/teachers/{user}', 'showTeacher')
-                        ->name('show.teacher');
+                    Route::get('/pending-credentials', 'pendingCredentials')
+                        ->name('pending-credentials');
+
+                    Route::get('/{user}', 'show')
+                        ->name('show');
 
                     Route::post('/', 'store')
                         ->name('store');
@@ -101,6 +128,7 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'archives')->name('archives');
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
+                    Route::post('/wizard', 'storeWizard')->name('wizard-store');
                     Route::get('/{academic_year}/edit', 'edit')->name('edit');
                     Route::put('/{academic_year}', 'update')->name('update');
                     Route::delete('/{academic_year}', 'destroy')->name('destroy');
@@ -135,9 +163,27 @@ Route::middleware('auth')->group(function () {
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
                     Route::get('/{class}', 'show')->name('show');
+                    Route::get('/{class}/assessments', 'classAssessments')->name('assessments');
+                    Route::get('/{class}/assessments/{assessment}', 'assessmentShow')
+                        ->middleware('role:admin,super_admin')
+                        ->name('assessments.show');
+                    Route::get('/{class}/subjects', 'classSubjectsList')->name('subjects');
+                    Route::get('/{class}/subjects/{class_subject}', 'subjectShow')->name('subjects.show');
                     Route::get('/{class}/edit', 'edit')->name('edit');
                     Route::put('/{class}', 'update')->name('update');
                     Route::delete('/{class}', 'destroy')->name('destroy');
+                });
+
+            /**
+             * Class Students (nested under classes)
+             */
+            Route::prefix('classes/{class}/students')
+                ->name('classes.students.')
+                ->controller(\App\Http\Controllers\Admin\ClassStudentController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{enrollment}', 'show')->name('show');
+                    Route::get('/{enrollment}/assignments', 'assignments')->name('assignments');
                 });
 
             /**
@@ -150,10 +196,10 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'index')->name('index');
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
-                    Route::post('/quick-student', 'storeQuickStudent')->name('quick-student');
-                    Route::get('/{enrollment}', 'show')->name('show');
-                    Route::get('/{enrollment}/assignments', 'assignments')->name('assignments');
-                    Route::get('/{enrollment}/assignments/{assignment}', 'assignmentShow')->name('assignments.show');
+                    Route::post('/create-student', 'createStudent')->name('create-student');
+                    Route::post('/bulk', 'bulkStore')->name('bulk-store');
+                    Route::get('/search-students', 'searchStudents')->name('search-students');
+                    Route::get('/search-classes', 'searchClasses')->name('search-classes');
                     Route::post('/{enrollment}/transfer', 'transfer')->name('transfer');
                     Route::post('/{enrollment}/withdraw', 'withdraw')->name('withdraw');
                     Route::post('/{enrollment}/reactivate', 'reactivate')->name('reactivate');
@@ -169,7 +215,6 @@ Route::middleware('auth')->group(function () {
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
                     Route::post('/', 'store')->name('store');
-                    Route::get('/{class_subject}', 'show')->name('show');
                     Route::get('/history', 'history')->name('history');
                     Route::post('/{class_subject}/replace-teacher', 'replaceTeacher')->name('replace-teacher');
                     Route::post('/{class_subject}/update-coefficient', 'updateCoefficient')->name('update-coefficient');
@@ -214,7 +259,6 @@ Route::middleware('auth')->group(function () {
                 ->controller(\App\Http\Controllers\Admin\AdminAssessmentController::class)
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
-                    Route::get('/{assessment}', 'show')->name('show');
                     Route::get('/{assessment}/assignments/{assignment}/review', 'review')->name('review');
                     Route::get('/{assessment}/assignments/{assignment}/grade', 'grade')->name('grade');
                     Route::post('/{assessment}/assignments/{assignment}/grade', 'saveGrade')->name('saveGrade');
@@ -227,6 +271,7 @@ Route::middleware('auth')->group(function () {
      */
     Route::prefix('teacher')
         ->name('teacher.')
+        ->middleware('role:teacher,admin,super_admin')
         ->group(function () {
 
             /**

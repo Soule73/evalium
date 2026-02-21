@@ -169,7 +169,7 @@ export function TransferEnrollmentModal({
                         onClick={resetAndClose}
                         disabled={isSubmitting}
                     >
-                        {t('admin_pages.common.cancel')}
+                        {t('commons/ui.cancel')}
                     </Button>
                     <Button
                         type="submit"

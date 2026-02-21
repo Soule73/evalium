@@ -26,7 +26,7 @@ export function BulkActions({ selectedCount, onDeselectAll, children }: BulkActi
                         <button
                             onClick={onDeselectAll}
                             className="text-indigo-600 hover:text-indigo-800 transition-colors"
-                            aria-label={t('components.datatable.deselect_all')}
+                            aria-label={t('commons/table.deselect_all')}
                         >
                             <XMarkIcon className="h-5 w-5" />
                         </button>

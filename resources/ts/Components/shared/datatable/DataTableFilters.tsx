@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Select } from '@/Components';
-import { Input } from '@evalium/ui';
+import { Input, Toggle } from '@evalium/ui';
 import { FunnelIcon } from '@heroicons/react/24/outline';
 import { type FilterConfig } from '@/types/datatable';
 import { useTranslations } from '@/hooks/shared/useTranslations';
@@ -42,9 +42,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(
                     <div className="flex-1 max-w-sm">
                         <Input
                             type="search"
-                            placeholder={
-                                searchPlaceholder ?? t('admin_pages.common.search_placeholder')
-                            }
+                            placeholder={searchPlaceholder ?? t('commons/table.search_placeholder')}
                             value={searchValue}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                 onSearchChange(e.target.value)
@@ -60,7 +58,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(
                             data-e2e="datatable-loading-indicator"
                         >
                             <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                            <span className="text-sm">{t('admin_pages.common.loading')}</span>
+                            <span className="text-sm">{t('commons/ui.loading')}</span>
                         </div>
                     )}
                 </div>
@@ -78,6 +76,22 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(
                                     className="min-w-37.5 text-sm"
                                     searchable={filter.options.length > 5}
                                 />
+                            ) : filter.type === 'boolean' ? (
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-gray-600">{filter.label}</span>
+                                    <Toggle
+                                        id={`datatable-filter-${filter.key}`}
+                                        checked={values[filter.key] === (filter.trueValue ?? '1')}
+                                        onChange={(checked) =>
+                                            onFilterChange(
+                                                filter.key,
+                                                checked ? (filter.trueValue ?? '1') : '',
+                                            )
+                                        }
+                                        size="sm"
+                                        color="blue"
+                                    />
+                                </div>
                             ) : (
                                 <Input
                                     type="text"
@@ -98,7 +112,7 @@ export const DataTableFilters: React.FC<DataTableFiltersProps> = memo(
                             data-e2e={testIdResetFiltersButton}
                         >
                             <FunnelIcon className="w-4 h-4 mr-1" />
-                            {t('admin_pages.common.reset')}
+                            {t('commons/ui.reset')}
                         </button>
                     )}
                 </div>

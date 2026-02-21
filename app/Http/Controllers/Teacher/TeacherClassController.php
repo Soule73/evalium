@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Teacher;
 
+use App\Contracts\Repositories\TeacherClassRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Models\ClassModel;
-use App\Services\Teacher\TeacherClassQueryService;
+use App\Models\Level;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,7 +16,7 @@ class TeacherClassController extends Controller
     use FiltersAcademicYear;
 
     public function __construct(
-        private readonly TeacherClassQueryService $classQueryService
+        private readonly TeacherClassRepositoryInterface $classQueryService
     ) {}
 
     /**
@@ -35,9 +36,12 @@ class TeacherClassController extends Controller
             $perPage
         );
 
+        $levels = Level::where('is_active', true)->orderBy('order')->get(['id', 'name']);
+
         return Inertia::render('Teacher/Classes/Index', [
             'classes' => $paginatedClasses->withQueryString(),
             'filters' => $filters,
+            'levels' => $levels,
         ]);
     }
 

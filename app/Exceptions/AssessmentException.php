@@ -18,7 +18,7 @@ class AssessmentException extends Exception
      */
     public static function invalidCoefficient(): self
     {
-        return new self('Coefficient must be greater than 0');
+        return new self(__('messages.assessment_invalid_coefficient'));
     }
 
     /**
@@ -26,7 +26,7 @@ class AssessmentException extends Exception
      */
     public static function invalidDuration(): self
     {
-        return new self('Duration must be greater than 0');
+        return new self(__('messages.assessment_invalid_duration'));
     }
 
     /**
@@ -34,7 +34,7 @@ class AssessmentException extends Exception
      */
     public static function invalidType(string $type): self
     {
-        return new self("Invalid assessment type: {$type}");
+        return new self(__('messages.assessment_invalid_type', ['type' => $type]));
     }
 
     /**
@@ -42,6 +42,6 @@ class AssessmentException extends Exception
      */
     public static function hasExistingAssignments(): self
     {
-        return new self('Cannot delete assessment with existing student assignments');
+        return new self(__('messages.assessment_has_assignments'));
     }
 }

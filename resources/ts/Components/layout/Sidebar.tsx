@@ -194,8 +194,13 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
         const configItems: NavItem[] = [];
         if (hasPermission(auth.permissions, 'view users')) {
             configItems.push({
-                name: t('sidebar.navigation.users'),
+                name: t('sidebar.navigation.admins'),
                 href: navRoutes.users(),
+                icon: 'users',
+            });
+            configItems.push({
+                name: t('sidebar.navigation.teachers'),
+                href: navRoutes.teachers(),
                 icon: 'users',
             });
         }

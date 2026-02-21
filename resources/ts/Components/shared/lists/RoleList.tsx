@@ -83,7 +83,7 @@ export function RoleList({ data, permissions = {}, onEdit, onDelete }: RoleListP
                 },
                 {
                     key: 'actions',
-                    labelKey: 'admin_pages.common.actions',
+                    labelKey: 'commons/table.actions',
                     render: (role) => {
                         const roleLabel = getRoleLabel(role.name);
                         return permissions.canUpdate || permissions.canDelete ? (
@@ -97,8 +97,8 @@ export function RoleList({ data, permissions = {}, onEdit, onDelete }: RoleListP
                                         data-e2e={`role-edit-${role.name.toLowerCase()}`}
                                     >
                                         {isSystemRole(role.name)
-                                            ? t('admin_pages.common.view')
-                                            : t('admin_pages.common.edit')}
+                                            ? t('commons/ui.view')
+                                            : t('commons/ui.edit')}
                                     </Button>
                                 )}
                                 {!isSystemRole(role.name) && permissions.canDelete && onDelete && (
@@ -108,7 +108,7 @@ export function RoleList({ data, permissions = {}, onEdit, onDelete }: RoleListP
                                         color="danger"
                                         data-e2e={`role-delete-${role.name.toLowerCase()}`}
                                     >
-                                        {t('admin_pages.common.delete')}
+                                        {t('commons/ui.delete')}
                                     </Button>
                                 )}
                             </div>

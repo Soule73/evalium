@@ -2,10 +2,8 @@
 
 namespace App\Services\Admin;
 
+use App\Contracts\Services\LevelServiceInterface;
 use App\Models\Level;
-use App\Services\Traits\Paginatable;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -15,30 +13,12 @@ use Illuminate\Support\Facades\Log;
  * Single Responsibility: Manage academic level lifecycle and related cache
  * Dependencies: Level Model
  */
-class LevelService
+class LevelService implements LevelServiceInterface
 {
-    use Paginatable;
-
     /**
      * Cache key for active classes with levels
      */
     private const CACHE_KEY_CLASSES = 'classes_active_with_levels';
-
-    /**
-     * Get paginated list of levels with filtering
-     *
-     * @param  array  $params  Filter criteria (search, status, per_page)
-     */
-    public function getLevelsWithPagination(array $params): LengthAwarePaginator
-    {
-        $perPage = $params['per_page'] ?? 10;
-        $search = $params['search'] ?? null;
-        $status = $params['status'] ?? null;
-
-        $query = $this->buildLevelQuery($search, $status)->ordered();
-
-        return $this->paginateQuery($query, $perPage);
-    }
 
     /**
      * Create a new level
@@ -148,30 +128,5 @@ class LevelService
     private function invalidateClassesCache(): void
     {
         Cache::forget(self::CACHE_KEY_CLASSES);
-    }
-
-    /**
-     * Build query for levels with filters
-     *
-     * @param  string|null  $search  Search term
-     * @param  string|null  $status  Status filter (null, '0', '1')
-     */
-    private function buildLevelQuery(?string $search, ?string $status): Builder
-    {
-        $query = Level::query()->withCount(['classes']);
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        if ($status !== null && $status !== '') {
-            $query->where('is_active', $status === '1');
-        }
-
-        return $query;
     }
 }

@@ -1,11 +1,12 @@
 import { useCallback, useRef, useState } from 'react';
 import axios from 'axios';
 import { route } from 'ziggy-js';
-import { ArrowUpTrayIcon, TrashIcon, PaperClipIcon } from '@heroicons/react/24/outline';
+import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import { type AssignmentAttachment } from '@/types';
 import { formatFileSize } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { AlertEntry, Button } from '@/Components';
+import { AlertEntry } from '@/Components';
+import { FileList } from '@/Components/shared/lists/FileList';
 
 interface FileUploadZoneProps {
     assessmentId: number;
@@ -220,41 +221,12 @@ export function FileUploadZone({
             </div>
 
             {attachments.length > 0 && (
-                <ul className="divide-y divide-gray-200 border border-gray-200 rounded-lg">
-                    {attachments.map((attachment) => (
-                        <li
-                            key={attachment.id}
-                            className="flex items-center justify-between px-4 py-3"
-                        >
-                            <div className="flex items-center min-w-0">
-                                <PaperClipIcon className="h-5 w-5 text-gray-400 shrink-0" />
-                                <div className="ml-3 min-w-0">
-                                    <p className="text-sm font-medium text-gray-900 truncate">
-                                        {attachment.file_name}
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        {formatFileSize(attachment.file_size)} &middot;{' '}
-                                        {attachment.mime_type}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {!disabled && (
-                                <Button
-                                    size="xs"
-                                    color="danger"
-                                    variant="ghost"
-                                    onClick={() => handleDelete(attachment)}
-                                    disabled={deleting === attachment.id}
-                                    loading={deleting === attachment.id}
-                                    title={t('student_assessment_pages.work.delete_file')}
-                                >
-                                    <TrashIcon className="h-4 w-4" />
-                                </Button>
-                            )}
-                        </li>
-                    ))}
-                </ul>
+                <FileList
+                    attachments={attachments}
+                    onDelete={disabled ? undefined : (attachment) => handleDelete(attachment)}
+                    deleteLoading={deleting}
+                    readOnly={disabled}
+                />
             )}
         </div>
     );

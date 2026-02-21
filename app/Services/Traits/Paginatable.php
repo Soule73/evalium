@@ -7,6 +7,7 @@ namespace App\Services\Traits;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Collection;
 
 /**
  * Paginatable Trait
@@ -82,5 +83,30 @@ trait Paginatable
         int $perPage = 10
     ): LengthAwarePaginator {
         return $query->paginate($perPage)->withQueryString();
+    }
+
+    /**
+     * Paginate an in-memory collection with query string preservation.
+     *
+     * @param  Collection  $collection  The collection to paginate
+     * @param  int  $perPage  Items per page
+     * @param  int|null  $page  Current page number (defaults to request input)
+     */
+    protected function paginateCollection(
+        Collection $collection,
+        int $perPage,
+        ?int $page = null
+    ): LengthAwarePaginator {
+        $page = $page ?? (int) request()->input('page', 1);
+        $total = $collection->count();
+        $items = $collection->slice(($page - 1) * $perPage, $perPage)->values();
+
+        return new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
     }
 }

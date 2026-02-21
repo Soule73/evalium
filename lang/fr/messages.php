@@ -65,11 +65,19 @@ return [
     'enrollment_deleted' => 'L\'inscription a été supprimée avec succès',
     'enrollment_reactivated' => 'L\'inscription a été réactivée avec succès',
     'enrollment_not_in_selected_year' => 'Cette inscription n\'appartient pas à l\'année académique sélectionnée',
+    'enrollment_class_full' => 'Cette classe est complète',
+    'enrollment_class_full_slots' => 'Cette classe n\'a plus que :slots place(s) disponible(s)',
+    'enrollment_invalid_student_role' => 'L\'utilisateur doit avoir le rôle étudiant pour être inscrit',
+    'enrollment_invalid_status' => 'Seules les inscriptions retirées peuvent être réactivées (statut actuel : :status)',
+    'enrollment_target_class_full' => 'La classe cible est complète',
     'student_transferred' => 'L\'étudiant a été transféré avec succès',
     'student_withdrawn' => 'L\'étudiant a été retiré avec succès',
 
     // Classes
     'class_not_in_selected_year' => 'Cette classe n\'appartient pas à l\'année académique sélectionnée',
+    'class_has_enrolled_students' => 'Impossible de supprimer cette classe car elle contient des étudiants inscrits',
+    'class_has_subject_assignments' => 'Impossible de supprimer cette classe car elle a des matières assignées',
+    'class_duplicate_name' => 'Une classe portant ce nom existe déjà pour ce niveau et cette année académique',
 
     // Assessments
     'assessment_created' => 'L\'évaluation a été créée avec succès',
@@ -80,7 +88,11 @@ return [
     'assessment_unpublished' => 'L\'évaluation a été dépubliée avec succès',
     'assessment_submitted' => 'L\'évaluation a été soumise avec succès',
     'assessment_must_start_before_submit' => 'Vous devez commencer l\'évaluation avant de la soumettre',
-    'answers_saved' => 'Réponses enregistrées',
+    'assessment_invalid_coefficient' => 'Le coefficient de l\'évaluation doit être supérieur à 0',
+    'assessment_invalid_duration' => 'La durée de l\'évaluation doit être supérieure à 0',
+    'assessment_invalid_type' => 'Type d\'évaluation invalide : :type',
+    'assessment_has_assignments' => 'Impossible de supprimer cette évaluation car des étudiants y ont des copies',
+    'answers_saved' => 'Réponses enregistrées avec succès',
     'error_saving_answers' => 'Erreur lors de l\'enregistrement des réponses',
     'security_violation_processed' => 'Violation de sécurité enregistrée',
     'security_violations_not_applicable' => 'Les violations de sécurité ne sont pas applicables pour ce mode d\'évaluation',
@@ -106,8 +118,11 @@ return [
     'class_subject_created' => 'Matière assignée à la classe avec succès',
     'class_subject_deleted' => 'Matière retirée de la classe avec succès',
     'class_subject_has_assessments' => 'Impossible de supprimer : cette assignation a des évaluations',
+    'class_subject_invalid_coefficient' => 'Le coefficient doit être supérieur à 0',
+    'class_subject_level_mismatch' => 'Le niveau de la matière doit correspondre au niveau de la classe',
     'class_and_subject_required' => 'La classe et la matière sont requises',
     'teacher_replaced' => 'Enseignant remplacé avec succès',
+    'teacher_has_active_assignments' => 'Cet enseignant est affecté à des classes dans l\'année académique courante et ne peut pas être modifié.',
     'coefficient_updated' => 'Coefficient mis à jour avec succès',
     'assignment_terminated' => 'Assignation terminée avec succès',
 
@@ -116,13 +131,16 @@ return [
     'subject_updated' => 'Matière mise à jour avec succès',
     'subject_deleted' => 'Matière supprimée avec succès',
     'subject_has_class_subjects' => 'Impossible de supprimer : cette matière est assignée à des classes',
-
+    'subject_not_found' => 'Matière introuvable',
     // Academic Years
     'academic_year_created' => 'Année académique créée avec succès',
     'academic_year_updated' => 'Année académique mise à jour avec succès',
     'academic_year_deleted' => 'Année académique supprimée avec succès',
     'academic_year_set_current' => 'Année académique définie comme courante avec succès',
     'academic_year_archived' => 'Année académique archivée avec succès',
+    'future_year_already_exists' => 'Une année académique future existe déjà. Une seule année future peut être créée à la fois.',
+    'academic_year_cannot_delete_current' => 'Impossible de supprimer l\'année académique en cours',
+    'academic_year_cannot_delete_with_classes' => 'Impossible de supprimer une année académique qui contient des classes',
     'resource_wrong_academic_year' => 'Cette ressource n\'appartient pas à l\'année académique sélectionnée',
 
     // Grading
@@ -155,6 +173,10 @@ return [
     'subject_code' => 'code de la matière',
     'teacher' => 'enseignant',
     'student' => 'Étudiant',
+    'email' => 'email',
+    'name' => 'nom',
+    'password' => 'mot de passe',
+    'role' => 'rôle',
     'scores' => 'notes',
     'score' => 'note',
     'question' => 'question',
@@ -172,6 +194,7 @@ return [
     'new_teacher_must_be_different' => 'Le nouvel enseignant doit être différent de l\'enseignant actuel',
 
     'file' => 'fichier',
+    'file_not_found' => 'Fichier introuvable',
     'file_too_large' => 'Le fichier est trop volumineux',
     'file_extension_not_allowed' => 'Ce type de fichier n\'est pas autorisé',
     'file_upload_limit_reached' => 'Vous avez atteint le nombre maximum de fichiers',
@@ -187,7 +210,6 @@ return [
 
     'cannot_access_assessment' => 'Vous ne pouvez pas accéder à cette évaluation',
     'do_not_own_attachment' => 'Ce fichier ne vous appartient pas',
-    'answers_saved' => 'Réponses enregistrées avec succès',
     'security_violation_recorded' => 'Violation de sécurité enregistrée',
     'delivery_mode_supervised' => 'Surveillé',
     'delivery_mode_homework' => 'Devoir maison',

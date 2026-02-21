@@ -120,8 +120,8 @@ function Take({
             confirmSubmitTitle: t('student_assessment_pages.take.confirm_submit_title'),
             confirmSubmitMessage: t('student_assessment_pages.take.confirm_submit_message'),
             confirmSubmitCheck: t('student_assessment_pages.take.confirm_submit_check'),
-            modalConfirmText: t('components.confirmation_modal.confirm'),
-            modalCancelText: t('components.confirmation_modal.cancel'),
+            modalConfirmText: t('commons/ui.confirm'),
+            modalCancelText: t('commons/ui.cancel'),
         }),
         [t],
     );

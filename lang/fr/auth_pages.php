@@ -1,7 +1,6 @@
 <?php
 
 return [
-    // Login Page
     'login' => [
         'title' => 'Connexion',
         'subtitle' => 'Connectez-vous à votre compte',
@@ -15,7 +14,6 @@ return [
         'forgot_password' => 'Mot de passe oublié ? Contactez l\'administrateur.',
     ],
 
-    // Profile Page
     'profile' => [
         'page_title' => 'Profil',
         'title' => 'Votre profil',

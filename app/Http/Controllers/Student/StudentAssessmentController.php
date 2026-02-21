@@ -58,10 +58,10 @@ class StudentAssessmentController extends Controller
         $student = $request->user();
         $selectedYearId = $this->getSelectedAcademicYearId($request);
 
-        $filters = $request->only(['status', 'search']);
+        $filters = $request->only(['status', 'search', 'class_subject_id']);
         $perPage = $request->input('per_page', 15);
 
-        $assignments = $this->assessmentService->getStudentAssessmentsForIndex(
+        $result = $this->assessmentService->getStudentAssessmentsForIndex(
             $student,
             $selectedYearId,
             $filters,
@@ -69,7 +69,8 @@ class StudentAssessmentController extends Controller
         );
 
         return Inertia::render('Student/Assessments/Index', [
-            'assignments' => $assignments,
+            'assignments' => $result['assignments'],
+            'subjects' => $result['subjects'],
             'filters' => $filters,
         ]);
     }
@@ -117,7 +118,7 @@ class StudentAssessmentController extends Controller
         $availability = $assessment->getAvailabilityStatus();
 
         if (! $availability['available']) {
-            return back()->with('error', __('messages.'.$availability['reason']));
+            return back()->flashError(__('messages.'.$availability['reason']));
         }
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
@@ -153,7 +154,7 @@ class StudentAssessmentController extends Controller
         if ($this->assessmentService->autoSubmitIfExpired($assignment, $assessment)) {
             return redirect()
                 ->route('student.assessments.results', $assessment)
-                ->with('error', __('messages.assessment_time_expired'));
+                ->flashError(__('messages.assessment_time_expired'));
         }
 
         $availability = $assessment->getAvailabilityStatus();
@@ -161,15 +162,18 @@ class StudentAssessmentController extends Controller
         if (! $availability['available']) {
             return redirect()
                 ->route('student.assessments.show', $assessment)
-                ->with('error', __('messages.'.$availability['reason']));
+                ->flashError(__('messages.'.$availability['reason']));
         }
 
         $assignment->load([
             'assessment.classSubject.class',
             'assessment.classSubject.subject',
+            'assessment.classSubject.teacher',
             'assessment.questions.choices',
             'answers',
         ]);
+
+        $assessment = $assignment->assessment;
 
         $remainingSeconds = $this->assessmentService->calculateRemainingSeconds($assignment, $assessment);
 
@@ -179,17 +183,13 @@ class StudentAssessmentController extends Controller
 
         $props = [
             'assignment' => $assignment,
-            'assessment' => $assessment->load(['questions.choices']),
+            'assessment' => $assessment,
             'questions' => $assessment->questions,
             'userAnswers' => $assignment->answers,
             'remainingSeconds' => $remainingSeconds,
         ];
 
         $this->hideCorrectAnswers($assessment);
-
-        if ($assignment->relationLoaded('assessment')) {
-            $this->hideCorrectAnswers($assignment->assessment);
-        }
 
         if ($assessment->isHomeworkMode()) {
             $props['attachments'] = $this->attachmentService->getAttachments($assignment);
@@ -256,7 +256,7 @@ class StudentAssessmentController extends Controller
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
         if ($assignment->submitted_at) {
-            return back()->with('error', __('messages.assessment_already_submitted'));
+            return back()->flashError(__('messages.assessment_already_submitted'));
         }
 
         if ($this->assessmentService->isTimeExpired($assignment, $assessment)) {
@@ -264,20 +264,20 @@ class StudentAssessmentController extends Controller
 
             return redirect()
                 ->route('student.assessments.show', $assessment)
-                ->with('error', __('messages.assessment_time_expired'));
+                ->flashError(__('messages.assessment_time_expired'));
         }
 
         if ($this->assessmentService->isDueDatePassed($assessment)) {
             return redirect()
                 ->route('student.assessments.show', $assessment)
-                ->with('error', __('messages.assessment_due_date_passed'));
+                ->flashError(__('messages.assessment_due_date_passed'));
         }
 
         $this->assessmentService->submitAssessment($assignment, $assessment, $request->input('answers', []));
 
         return redirect()
             ->route('student.assessments.results', $assessment)
-            ->with('success', __('messages.assessment_submitted'));
+            ->flashSuccess(__('messages.assessment_submitted'));
     }
 
     /**
@@ -304,7 +304,7 @@ class StudentAssessmentController extends Controller
 
         if (! $assessment->show_results_immediately && ! $assignment->graded_at) {
             return redirect()->route('student.assessments.show', $assessment)
-                ->with('info', __('messages.results_not_available_yet'));
+                ->flashInfo(__('messages.results_not_available_yet'));
         }
 
         $canRevealAnswers = $this->shouldRevealCorrectAnswers($assessment, $assignment);

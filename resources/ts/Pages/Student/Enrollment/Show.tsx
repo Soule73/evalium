@@ -72,7 +72,7 @@ export default function Show({ enrollment, subjects, overallStats }: StudentEnro
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <TextEntry
                         label={translations.className}
-                        value={enrollment.class?.name || '-'}
+                        value={enrollment.class?.display_name ?? enrollment.class?.name ?? '-'}
                     />
                     <TextEntry
                         label={translations.level}

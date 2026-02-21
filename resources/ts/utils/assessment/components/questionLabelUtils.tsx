@@ -30,7 +30,7 @@ export const getIndexBgClass = (
     shouldShowCorrect: boolean,
 ): string => {
     if (!shouldShowCorrect) {
-        return 'bg-gray-100 text-gray-800';
+        return isSelected ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800';
     }
 
     if (isCorrect) {

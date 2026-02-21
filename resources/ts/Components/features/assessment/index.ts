@@ -1,4 +1,5 @@
 export * from './AlertSecurityViolation';
+export * from './AssessmentContextInfo';
 export * from './AssessmentHeader';
 export * from './FileUploadZone';
 export * from './FullscreenModal';
@@ -7,7 +8,6 @@ export * from './QuestionNavigation';
 export * from './QuestionReadOnlySection';
 export * from './QuestionRenderer';
 export * from './QuestionResultReadOnly';
-export * from './QuestionReviewList';
 export * from './QuestionsManager';
 export * from './SortableQuestionItem';
 export * from './TakeQuestion';

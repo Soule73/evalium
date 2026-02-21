@@ -7,15 +7,23 @@ import { AssessmentList } from '@/Components/shared/lists';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 
+interface ClassSubjectOption {
+    id: number;
+    subject_name: string;
+    teacher_name: string;
+}
+
 interface StudentAssessmentsIndexProps extends PageProps {
     assignments: PaginationType<AssessmentAssignment & { assessment: Assessment }>;
+    subjects: ClassSubjectOption[];
     filters: {
         status?: string;
         search?: string;
+        class_subject_id?: string;
     };
 }
 
-export default function Index({ assignments }: StudentAssessmentsIndexProps) {
+export default function Index({ assignments, subjects }: StudentAssessmentsIndexProps) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 
@@ -33,7 +41,7 @@ export default function Index({ assignments }: StudentAssessmentsIndexProps) {
             breadcrumb={breadcrumbs.student.assessments()}
         >
             <Section title={translations.title} subtitle={translations.subtitle}>
-                <AssessmentList data={assignments} variant="student" />
+                <AssessmentList data={assignments} variant="student" subjects={subjects} />
             </Section>
         </AuthenticatedLayout>
     );

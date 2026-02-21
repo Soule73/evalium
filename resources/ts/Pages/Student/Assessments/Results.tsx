@@ -5,7 +5,7 @@ import useAssessmentScoring from '@/hooks/features/assessment/useAssessmentScori
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { useMemo } from 'react';
-import { AlertEntry, Badge, Button, Section, QuestionRenderer, TextEntry } from '@/Components';
+import { AlertEntry, Badge, Button, Section, QuestionList, TextEntry } from '@/Components';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { formatDate } from '@/utils';
@@ -121,7 +121,11 @@ const AssessmentResults: React.FC<Props> = ({
                                 />
                                 <TextEntry
                                     label={translations.class}
-                                    value={assessment.class_subject?.class?.name || '-'}
+                                    value={
+                                        assessment.class_subject?.class?.display_name ??
+                                        assessment.class_subject?.class?.name ??
+                                        '-'
+                                    }
                                 />
                                 <TextEntry
                                     label={translations.teacher}
@@ -185,7 +189,7 @@ const AssessmentResults: React.FC<Props> = ({
                     </AlertEntry>
                 )}
 
-                <QuestionRenderer
+                <QuestionList
                     questions={assessment.questions || []}
                     getQuestionResult={getQuestionResult}
                     isTeacherView={false}

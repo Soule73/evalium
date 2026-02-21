@@ -16,7 +16,7 @@ class UserCredentialsNotification extends Notification implements ShouldQueue
      */
     public function __construct(
         public string $password,
-        public string $role
+        public string $role,
     ) {}
 
     /**
@@ -34,18 +34,28 @@ class UserCredentialsNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $roleName = __($this->role);
+        $locale = $notifiable->locale ?? config('app.locale', 'en');
+        $roleKey = $this->resolveRoleKey();
+
+        $subject = trans("notifications.credentials.subject_{$roleKey}", [], $locale)
+            ?: trans('notifications.credentials.subject_default', [], $locale);
+
+        $intro = trans("notifications.credentials.intro_{$roleKey}", [], $locale)
+            ?: trans('notifications.credentials.intro_default', [], $locale);
+
+        $features = trans("notifications.credentials.features_{$roleKey}", [], $locale);
 
         return (new MailMessage)
-            ->subject(__('Your Login Credentials - Evalium'))
-            ->greeting(__('Hello :name,', ['name' => $notifiable->name]))
-            ->line(__('Your :role account has been successfully created on the Evalium platform.', ['role' => $roleName]))
-            ->line(__('Here are your login credentials:'))
-            ->line('**'.__('Email:')."** {$notifiable->email}")
-            ->line('**'.__('Temporary Password:')."** {$this->password}")
-            ->action(__('Log In'), url('/login'))
-            ->line(__('For security reasons, we recommend changing your password after your first login.'))
-            ->line(__('If you did not request this account, please contact the administrator.'));
+            ->subject($subject)
+            ->greeting(trans('notifications.credentials.greeting', ['name' => $notifiable->name], $locale))
+            ->line($intro)
+            ->line($features)
+            ->line(trans('notifications.credentials.credentials_intro', [], $locale))
+            ->line(trans('notifications.credentials.email_label', ['email' => $notifiable->email], $locale))
+            ->line(trans('notifications.credentials.password_label', ['password' => $this->password], $locale))
+            ->action(trans('notifications.credentials.action', [], $locale), url('/login'))
+            ->line(trans('notifications.credentials.security_hint', [], $locale))
+            ->line(trans('notifications.credentials.disclaimer', [], $locale));
     }
 
     /**
@@ -59,5 +69,19 @@ class UserCredentialsNotification extends Notification implements ShouldQueue
             'email' => $notifiable->email,
             'role' => $this->role,
         ];
+    }
+
+    /**
+     * Resolves the role to a translation key segment.
+     * Maps 'super_admin' and 'admin' both to 'admin'.
+     */
+    private function resolveRoleKey(): string
+    {
+        return match ($this->role) {
+            'student' => 'student',
+            'teacher' => 'teacher',
+            'admin', 'super_admin' => 'admin',
+            default => 'default',
+        };
     }
 }

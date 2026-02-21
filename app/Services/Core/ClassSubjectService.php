@@ -2,11 +2,14 @@
 
 namespace App\Services\Core;
 
+use App\Contracts\Services\ClassSubjectServiceInterface;
 use App\Exceptions\ClassSubjectException;
 use App\Exceptions\ValidationException;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
+use App\Models\Semester;
 use App\Models\Subject;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -16,8 +19,26 @@ use Illuminate\Support\Facades\DB;
  *
  * Single Responsibility: Manage teacher-subject-class assignments with historization
  */
-class ClassSubjectService
+class ClassSubjectService implements ClassSubjectServiceInterface
 {
+    /**
+     * Get form data for creation of a class-subject assignment.
+     */
+    public function getFormDataForCreate(int $selectedYearId): array
+    {
+        return [
+            'classes' => ClassModel::forAcademicYear($selectedYearId)
+                ->with('level:id,name,description')
+                ->orderBy('name')
+                ->get(['id', 'name', 'level_id', 'academic_year_id']),
+            'subjects' => Subject::orderBy('name')->get(['id', 'name', 'code', 'level_id']),
+            'teachers' => User::role('teacher')->orderBy('name')->get(['id', 'name', 'email']),
+            'semesters' => Semester::where('academic_year_id', $selectedYearId)
+                ->orderBy('order_number')
+                ->get(['id', 'name', 'order_number', 'academic_year_id']),
+        ];
+    }
+
     /**
      * Assign a teacher to teach a subject in a class
      */
@@ -29,10 +50,10 @@ class ClassSubjectService
             return ClassSubject::create([
                 'class_id' => $data['class_id'],
                 'subject_id' => $data['subject_id'],
-                'teacher_id' => $data['teacher_id'],
-                'semester_id' => $data['semester_id'],
+                'teacher_id' => $data['teacher_id'] ?? null,
+                'semester_id' => $data['semester_id'] ?? null,
                 'coefficient' => $data['coefficient'],
-                'valid_from' => $data['valid_from'] ?? now(),
+                'valid_from' => $data['valid_from'] ?? now()->toDateString(),
                 'valid_to' => null,
             ]);
         });
@@ -122,7 +143,7 @@ class ClassSubjectService
      */
     private function validateAssignment(array $data): void
     {
-        $required = ['class_id', 'subject_id', 'teacher_id', 'semester_id', 'coefficient'];
+        $required = ['class_id', 'subject_id', 'coefficient'];
         foreach ($required as $field) {
             if (! isset($data[$field])) {
                 throw ValidationException::missingRequiredField($field);

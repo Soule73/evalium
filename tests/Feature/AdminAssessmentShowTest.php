@@ -72,7 +72,10 @@ class AdminAssessmentShowTest extends TestCase
     public function test_admin_can_view_assessment_show(): void
     {
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.assessments.show', $this->assessment));
+            ->get(route('admin.classes.assessments.show', [
+                'class' => $this->classModel,
+                'assessment' => $this->assessment,
+            ]));
 
         $response->assertOk();
         $response->assertInertia(
@@ -82,7 +85,7 @@ class AdminAssessmentShowTest extends TestCase
                 ->has('assignments')
                 ->has('routeContext')
                 ->where('routeContext.role', 'admin')
-                ->where('routeContext.showRoute', 'admin.assessments.show')
+                ->where('routeContext.showRoute', null)
                 ->where('routeContext.reviewRoute', 'admin.assessments.review')
                 ->where('routeContext.gradeRoute', 'admin.assessments.grade')
                 ->where('routeContext.editRoute', null)
@@ -94,7 +97,10 @@ class AdminAssessmentShowTest extends TestCase
     public function test_admin_show_returns_correct_route_context(): void
     {
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.assessments.show', $this->assessment));
+            ->get(route('admin.classes.assessments.show', [
+                'class' => $this->classModel,
+                'assessment' => $this->assessment,
+            ]));
 
         $response->assertOk();
         $response->assertInertia(
@@ -108,7 +114,10 @@ class AdminAssessmentShowTest extends TestCase
     public function test_teacher_cannot_access_admin_assessment_show(): void
     {
         $response = $this->actingAs($this->teacher)
-            ->get(route('admin.assessments.show', $this->assessment));
+            ->get(route('admin.classes.assessments.show', [
+                'class' => $this->classModel,
+                'assessment' => $this->assessment,
+            ]));
 
         $response->assertForbidden();
     }
@@ -116,7 +125,10 @@ class AdminAssessmentShowTest extends TestCase
     public function test_student_cannot_access_admin_assessment_show(): void
     {
         $response = $this->actingAs($this->student)
-            ->get(route('admin.assessments.show', $this->assessment));
+            ->get(route('admin.classes.assessments.show', [
+                'class' => $this->classModel,
+                'assessment' => $this->assessment,
+            ]));
 
         $response->assertForbidden();
     }
@@ -255,7 +267,10 @@ class AdminAssessmentShowTest extends TestCase
 
     public function test_unauthenticated_user_redirected_from_admin_show(): void
     {
-        $response = $this->get(route('admin.assessments.show', $this->assessment));
+        $response = $this->get(route('admin.classes.assessments.show', [
+            'class' => $this->classModel,
+            'assessment' => $this->assessment,
+        ]));
 
         $response->assertRedirect(route('login'));
     }
@@ -265,7 +280,10 @@ class AdminAssessmentShowTest extends TestCase
         $superAdmin = $this->createSuperAdmin();
 
         $response = $this->actingAs($superAdmin)
-            ->get(route('admin.assessments.show', $this->assessment));
+            ->get(route('admin.classes.assessments.show', [
+                'class' => $this->classModel,
+                'assessment' => $this->assessment,
+            ]));
 
         $response->assertOk();
         $response->assertInertia(

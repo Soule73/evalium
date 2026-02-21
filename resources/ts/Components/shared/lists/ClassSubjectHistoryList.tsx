@@ -65,7 +65,7 @@ export function ClassSubjectHistoryList({ data }: ClassSubjectHistoryListProps) 
                 },
                 {
                     key: 'status',
-                    labelKey: 'admin_pages.common.status',
+                    labelKey: 'commons/table.status',
                     render: (item) => {
                         const isActive = !item.valid_to;
                         return (

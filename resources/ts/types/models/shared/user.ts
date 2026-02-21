@@ -17,6 +17,11 @@ export interface User {
     roles?: Role[];
     permissions?: string[];
 
+    previous_class?: {
+        id: number;
+        name: string;
+        level?: { id: number; name: string } | null;
+    } | null;
     current_enrollment?: Enrollment;
     enrollments?: Enrollment[];
     classes?: ClassModel[];

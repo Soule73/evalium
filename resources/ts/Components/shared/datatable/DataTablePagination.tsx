@@ -106,7 +106,7 @@ function DataTablePaginationInner<T>({
                     className="inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <ChevronLeftIcon className="h-4 w-4" />
-                    <span className="sr-only">{t('components.datatable.previous')}</span>
+                    <span className="sr-only">{t('commons/table.previous')}</span>
                 </button>
 
                 {visiblePages.map((page, index) => (
@@ -137,7 +137,7 @@ function DataTablePaginationInner<T>({
                     className="inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <ChevronRightIcon className="h-4 w-4" />
-                    <span className="sr-only">{t('components.datatable.next')}</span>
+                    <span className="sr-only">{t('commons/table.next')}</span>
                 </button>
             </div>
         </div>

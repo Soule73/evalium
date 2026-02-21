@@ -3,23 +3,19 @@ import {
     type Assessment,
     type AssessmentAssignment,
     type Answer,
+    type AssignmentAttachment,
     type User,
     type AssessmentRouteContext,
 } from '@/types';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
-import {
-    Badge,
-    Button,
-    Section,
-    Stat,
-    QuestionReviewList,
-    TeacherNotesDisplay,
-} from '@/Components';
+import { Badge, Button, Section, Stat, QuestionList, TeacherNotesDisplay } from '@/Components';
+import { FileList } from '@/Components/shared/lists';
 import { formatDate } from '@/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useAssessmentReview } from '@/hooks/features/assessment';
+import { AssessmentContextInfo, AssessmentHeader } from '@/Components/features/assessment';
 import { DocumentTextIcon, ChartPieIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 interface Props {
@@ -27,6 +23,7 @@ interface Props {
     student: User;
     assignment: AssessmentAssignment;
     userAnswers: Record<number, Answer>;
+    attachments?: AssignmentAttachment[];
     routeContext?: AssessmentRouteContext;
 }
 
@@ -35,6 +32,7 @@ export default function ReviewAssignment({
     student,
     assignment,
     userAnswers = {},
+    attachments = [],
     routeContext,
 }: Props) {
     const { t } = useTranslations();
@@ -47,9 +45,18 @@ export default function ReviewAssignment({
         ? breadcrumbs.assessment.review(routeContext, assessment, student)
         : breadcrumbs.assessmentReview(assessment, assignment, student);
 
-    const backRoute = routeContext
-        ? route(routeContext.showRoute, assessment.id)
-        : route('teacher.assessments.show', assessment.id);
+    const backUrl = (() => {
+        if (!routeContext) return route('teacher.assessments.show', assessment.id);
+        if (routeContext.showRoute) return route(routeContext.showRoute, assessment.id);
+        const classId = assessment.class_subject?.class?.id;
+        if (classId) {
+            return route('admin.classes.assessments.show', {
+                class: classId,
+                assessment: assessment.id,
+            });
+        }
+        return route(routeContext.backRoute);
+    })();
 
     const gradeRouteUrl = routeContext
         ? route(routeContext.gradeRoute, { assessment: assessment.id, assignment: assignment.id })
@@ -67,12 +74,16 @@ export default function ReviewAssignment({
             breadcrumb={pageBreadcrumbs}
         >
             <div className="max-w-6xl mx-auto space-y-6">
+                <Section title={assessment.title} collapsible defaultOpen={false}>
+                    <AssessmentHeader assessment={assessment} showDescription showMetadata />
+                </Section>
+
                 <Section
                     title={t('grading_pages.review.result_title', { student: student.name })}
                     actions={
                         <div className="flex items-center space-x-4">
                             <Button
-                                onClick={() => router.visit(backRoute)}
+                                onClick={() => router.visit(backUrl)}
                                 variant="outline"
                                 size="sm"
                             >
@@ -84,6 +95,12 @@ export default function ReviewAssignment({
                         </div>
                     }
                 >
+                    <AssessmentContextInfo
+                        assessment={assessment}
+                        role={routeContext?.role ?? 'teacher'}
+                        student={student}
+                    />
+                    <div className="my-4 border-t border-gray-100" />
                     <Stat.Group columns={4}>
                         <Stat.Item
                             title={t('grading_pages.show.total_score')}
@@ -122,12 +139,18 @@ export default function ReviewAssignment({
                     </Stat.Group>
                 </Section>
 
-                <QuestionReviewList
+                <QuestionList
                     title={t('grading_pages.review.questions_review')}
                     questions={assessment.questions ?? []}
                     getQuestionResult={getQuestionResult}
                     scores={scores}
                 />
+
+                {attachments.length > 0 && (
+                    <Section title={t('grading_pages.show.student_files_title')}>
+                        <FileList attachments={attachments} readOnly />
+                    </Section>
+                )}
 
                 <TeacherNotesDisplay
                     notes={assignment.teacher_notes}

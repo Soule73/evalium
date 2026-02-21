@@ -87,7 +87,7 @@ export function LevelForm({ title, subtitle, level, onCancel }: LevelFormProps) 
                             onClick={onCancel}
                             disabled={isSubmitting}
                         >
-                            {t('admin_pages.common.cancel')}
+                            {t('commons/ui.cancel')}
                         </Button>
                         <Button
                             type="submit"
@@ -152,8 +152,8 @@ export function LevelForm({ title, subtitle, level, onCancel }: LevelFormProps) 
                             <Toggle
                                 checked={formData.is_active}
                                 onChange={() => handleChange('is_active', !formData.is_active)}
-                                activeLabel={t('admin_pages.common.active')}
-                                inactiveLabel={t('admin_pages.common.inactive')}
+                                activeLabel={t('commons/status.active')}
+                                inactiveLabel={t('commons/status.inactive')}
                                 showLabel={true}
                             />
                         </div>

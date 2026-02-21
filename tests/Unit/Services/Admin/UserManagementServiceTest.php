@@ -3,8 +3,11 @@
 namespace Tests\Unit\Services\Admin;
 
 use App\Models\User;
+use App\Notifications\UserCredentialsNotification;
+use App\Repositories\Admin\UserRepository;
 use App\Services\Admin\UserManagementService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
@@ -15,12 +18,15 @@ class UserManagementServiceTest extends TestCase
 
     private UserManagementService $service;
 
+    private UserRepository $queryService;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->seedRolesAndPermissions();
         $this->service = app(UserManagementService::class);
+        $this->queryService = app(UserRepository::class);
     }
 
     #[Test]
@@ -90,7 +96,7 @@ class UserManagementServiceTest extends TestCase
         $currentUser = $this->createTeacher();
         collect()->times(15, fn () => $this->createStudent());
 
-        $result = $this->service->getUserWithPagination(
+        $result = $this->queryService->getUserWithPagination(
             ['per_page' => 10],
             10,
             $currentUser
@@ -106,7 +112,7 @@ class UserManagementServiceTest extends TestCase
         $currentUser = $this->createTeacher();
         collect()->times(5, fn () => $this->createStudent());
 
-        $result = $this->service->getUserWithPagination([], 10, $currentUser);
+        $result = $this->queryService->getUserWithPagination([], 10, $currentUser);
 
         $userIds = collect($result->items())->pluck('id');
         $this->assertFalse($userIds->contains($currentUser->id));
@@ -119,7 +125,7 @@ class UserManagementServiceTest extends TestCase
         collect()->times(3, fn () => $this->createStudent());
         collect()->times(2, fn () => $this->createTeacher());
 
-        $result = $this->service->getUserWithPagination(
+        $result = $this->queryService->getUserWithPagination(
             ['role' => 'student'],
             10,
             $currentUser
@@ -135,7 +141,7 @@ class UserManagementServiceTest extends TestCase
         collect()->times(3, fn () => $this->createStudent([]));
         collect()->times(2, fn () => $this->createStudent(['is_active' => false]));
 
-        $result = $this->service->getUserWithPagination(
+        $result = $this->queryService->getUserWithPagination(
             ['status' => 'active'],
             10,
             $currentUser
@@ -153,7 +159,7 @@ class UserManagementServiceTest extends TestCase
         $this->createStudent(['name' => 'John Doe', 'email' => 'john@example.com']);
         $this->createStudent(['name' => 'Jane Smith', 'email' => 'jane@example.com']);
 
-        $result = $this->service->getUserWithPagination(
+        $result = $this->queryService->getUserWithPagination(
             ['search' => 'John'],
             10,
             $currentUser
@@ -191,5 +197,57 @@ class UserManagementServiceTest extends TestCase
         $this->service->delete($user);
 
         $this->assertSoftDeleted('users', ['id' => $user->id]);
+    }
+
+    #[Test]
+    public function it_store_returns_user_and_generated_password()
+    {
+        Notification::fake();
+
+        $result = $this->service->store([
+            'name' => 'Test User',
+            'email' => 'testuser@example.com',
+            'role' => 'student',
+            'send_credentials' => false,
+        ]);
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('user', $result);
+        $this->assertArrayHasKey('password', $result);
+        $this->assertInstanceOf(User::class, $result['user']);
+        $this->assertNotEmpty($result['password']);
+        $this->assertEquals('testuser@example.com', $result['user']->email);
+        $this->assertTrue($result['user']->hasRole('student'));
+    }
+
+    #[Test]
+    public function it_sends_notification_when_send_credentials_is_true()
+    {
+        Notification::fake();
+
+        $result = $this->service->store([
+            'name' => 'Notified User',
+            'email' => 'notified@example.com',
+            'role' => 'teacher',
+            'send_credentials' => true,
+        ]);
+
+        Notification::assertSentTo($result['user'], UserCredentialsNotification::class);
+    }
+
+    #[Test]
+    public function it_does_not_send_notification_when_send_credentials_is_false()
+    {
+        Notification::fake();
+
+        $result = $this->service->store([
+            'name' => 'Silent User',
+            'email' => 'silent@example.com',
+            'role' => 'student',
+            'send_credentials' => false,
+        ]);
+
+        Notification::assertNothingSent();
+        $this->assertNotEmpty($result['password']);
     }
 }

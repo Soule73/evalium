@@ -103,7 +103,7 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({ errors = {} }) => {
         noQuestionsTitle: t('components.questions_manager.no_questions_title'),
         noQuestionsSubtitle: t('components.questions_manager.no_questions_subtitle'),
         deleteConfirm: t('components.questions_manager.delete_confirm'),
-        deleteCancel: t('components.questions_manager.delete_cancel'),
+        deleteCancel: t('commons/ui.cancel'),
         deleteNotice: t('components.questions_manager.delete_notice'),
     };
 

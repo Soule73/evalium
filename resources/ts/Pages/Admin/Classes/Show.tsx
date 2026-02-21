@@ -4,8 +4,10 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import {
     type ClassModel,
     type Assessment,
-    type Enrollment,
     type ClassSubject,
+    type Subject,
+    type User,
+    type Semester,
     type PageProps,
     type PaginationType,
     type ClassStatistics,
@@ -14,7 +16,8 @@ import { hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section, Badge, ConfirmationModal, Stat } from '@/Components';
-import { EnrollmentList, ClassSubjectList, AssessmentList } from '@/Components/shared/lists';
+import { ClassSubjectList, AssessmentList } from '@/Components/shared/lists';
+import { CreateClassSubjectModal } from '@/Components/features';
 import { route } from 'ziggy-js';
 import {
     AcademicCapIcon,
@@ -22,43 +25,40 @@ import {
     BookOpenIcon,
     CalendarIcon,
     DocumentTextIcon,
+    PlusIcon,
 } from '@heroicons/react/24/outline';
+
+interface ClassSubjectFormData {
+    classes: ClassModel[];
+    subjects: Subject[];
+    teachers: User[];
+    semesters: Semester[];
+}
 
 interface Props extends PageProps {
     class: ClassModel;
-    enrollments: PaginationType<Enrollment>;
-    classSubjects: PaginationType<ClassSubject>;
-    assessments?: PaginationType<Assessment>;
+    recentClassSubjects: PaginationType<ClassSubject>;
+    recentAssessments?: PaginationType<Assessment>;
     statistics: ClassStatistics;
-    studentsFilters?: {
-        search?: string;
-    };
-    subjectsFilters?: {
-        search?: string;
-    };
-    assessmentsFilters?: {
-        search?: string;
-        subject_id?: string;
-        teacher_id?: string;
-        type?: string;
-        delivery_mode?: string;
-    };
+    classSubjectFormData: ClassSubjectFormData;
 }
 
 export default function ClassShow({
     class: classItem,
-    enrollments,
-    classSubjects,
-    assessments,
+    recentClassSubjects,
+    recentAssessments,
     statistics,
     auth,
+    classSubjectFormData,
 }: Props) {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isAssignSubjectModalOpen, setIsAssignSubjectModalOpen] = useState(false);
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 
     const canUpdate = hasPermission(auth.permissions, 'update classes');
     const canDelete = hasPermission(auth.permissions, 'delete classes');
+    const canCreateSubject = hasPermission(auth.permissions, 'create class subjects');
     const canBeSafelyDeleted = classItem.can_delete ?? false;
 
     const handleEdit = () => {
@@ -83,41 +83,48 @@ export default function ClassShow({
     const translations = useMemo(
         () => ({
             showSubtitle: t('admin_pages.classes.show_subtitle'),
-            back: t('admin_pages.common.back'),
-            edit: t('admin_pages.common.edit'),
+            back: t('commons/ui.back'),
+            edit: t('commons/ui.edit'),
             cannotDeleteHasData: t('admin_pages.classes.cannot_delete_has_data'),
-            delete: t('admin_pages.common.delete'),
+            delete: t('commons/ui.delete'),
             level: t('admin_pages.classes.level'),
             academicYear: t('admin_pages.classes.academic_year'),
             students: t('admin_pages.classes.students'),
             full: t('admin_pages.classes.full'),
             subjects: t('admin_pages.classes.subjects'),
             assessmentsLabel: t('admin_pages.classes.assessments'),
-            enrollmentsSection: t('admin_pages.classes.enrollments_section'),
-            enrollmentsSectionSubtitle: t('admin_pages.classes.enrollments_section_subtitle'),
+            studentsSection: t('admin_pages.classes.students_section'),
+            studentsSectionSubtitle: t('admin_pages.classes.students_section_subtitle'),
+            seeAllStudents: t('admin_pages.classes.see_all_students'),
             subjectsSection: t('admin_pages.classes.subjects_section'),
             subjectsSectionSubtitle: t('admin_pages.classes.subjects_section_subtitle'),
+            assignSubject: t('admin_pages.classes.assign_subject'),
+            seeAllSubjects: t('admin_pages.classes.see_all_subjects'),
             assessmentsSection: t('admin_pages.classes.assessments_section'),
             assessmentsSectionSubtitle: t('admin_pages.classes.assessments_section_subtitle'),
+            seeAllAssessments: t('admin_pages.classes.see_all_assessments'),
             deleteTitle: t('admin_pages.classes.delete_title'),
-            cancel: t('admin_pages.common.cancel'),
+            cancel: t('commons/ui.cancel'),
         }),
         [t],
     );
 
     const deleteMessage = useMemo(
-        () => t('admin_pages.classes.delete_message', { name: classItem.name }),
-        [t, classItem.name],
+        () =>
+            t('admin_pages.classes.delete_message', {
+                name: classItem.display_name ?? classItem.name,
+            }),
+        [t, classItem.display_name, classItem.name],
     );
 
     return (
         <AuthenticatedLayout
-            title={classItem.name || '-'}
+            title={classItem.display_name ?? classItem.name ?? '-'}
             breadcrumb={breadcrumbs.admin.showClass(classItem)}
         >
             <div className="space-y-6">
                 <Section
-                    title={classItem.name || '-'}
+                    title={classItem.display_name ?? classItem.name ?? '-'}
                     subtitle={translations.showSubtitle}
                     actions={
                         <div className="flex space-x-3">
@@ -213,44 +220,100 @@ export default function ClassShow({
                 </Section>
 
                 <Section
-                    title={translations.enrollmentsSection}
-                    subtitle={translations.enrollmentsSectionSubtitle}
+                    title={translations.studentsSection}
+                    subtitle={translations.studentsSectionSubtitle}
+                    actions={
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            color="secondary"
+                            onClick={() =>
+                                router.visit(route('admin.classes.students.index', classItem.id))
+                            }
+                        >
+                            {translations.seeAllStudents}
+                        </Button>
+                    }
                 >
-                    <EnrollmentList
-                        data={enrollments}
-                        variant="admin"
-                        showClassColumn={false}
-                        permissions={{ canView: true }}
-                        onView={(enrollment) =>
-                            enrollment.student_id &&
-                            router.visit(route('admin.users.show', enrollment.student_id))
-                        }
-                    />
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <UserGroupIcon className="h-5 w-5" />
+                        <span>
+                            {statistics.active_students} / {statistics.max_students}{' '}
+                            {translations.students}
+                        </span>
+                        {enrollmentPercentage >= 90 && (
+                            <Badge label={translations.full} type="warning" size="sm" />
+                        )}
+                    </div>
                 </Section>
 
                 <Section
                     title={translations.subjectsSection}
                     subtitle={translations.subjectsSectionSubtitle}
+                    actions={
+                        <div className="flex items-center gap-3">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                color="secondary"
+                                onClick={() =>
+                                    router.visit(route('admin.classes.subjects', classItem.id))
+                                }
+                            >
+                                {translations.seeAllSubjects}
+                            </Button>
+                            {canCreateSubject && (
+                                <Button
+                                    size="sm"
+                                    variant="solid"
+                                    color="primary"
+                                    onClick={() => setIsAssignSubjectModalOpen(true)}
+                                >
+                                    <PlusIcon className="w-4 h-4 mr-1" />
+                                    {translations.assignSubject}
+                                </Button>
+                            )}
+                        </div>
+                    }
                 >
                     <ClassSubjectList
-                        data={classSubjects}
+                        data={recentClassSubjects}
                         variant="admin"
                         showClassColumn={false}
+                        showPagination={false}
                     />
                 </Section>
 
-                {assessments && (
+                {recentAssessments && (
                     <Section
                         title={translations.assessmentsSection}
                         subtitle={translations.assessmentsSectionSubtitle}
+                        actions={
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                color="secondary"
+                                onClick={() =>
+                                    router.visit(route('admin.classes.assessments', classItem.id))
+                                }
+                            >
+                                {translations.seeAllAssessments}
+                            </Button>
+                        }
                     >
                         <AssessmentList
-                            data={assessments}
+                            data={recentAssessments}
                             variant="admin"
                             showClassColumn={false}
+                            showPagination={false}
                             onView={(item) => {
                                 const assessment = item as Assessment;
-                                router.visit(route('admin.assessments.show', assessment.id));
+                                router.visit(
+                                    route('admin.classes.assessments.show', {
+                                        class: assessment.class_subject?.class_id ?? classItem.id,
+                                        assessment: assessment.id,
+                                    }),
+                                );
                             }}
                         />
                     </Section>
@@ -266,6 +329,14 @@ export default function ClassShow({
                 confirmText={translations.delete}
                 cancelText={translations.cancel}
                 type="danger"
+            />
+
+            <CreateClassSubjectModal
+                isOpen={isAssignSubjectModalOpen}
+                onClose={() => setIsAssignSubjectModalOpen(false)}
+                formData={classSubjectFormData}
+                classId={classItem.id}
+                redirectTo={route('admin.classes.show', classItem.id)}
             />
         </AuthenticatedLayout>
     );

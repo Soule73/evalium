@@ -11,4 +11,5 @@ export { UserList } from './UserList';
 export { EnrollmentList } from './EnrollmentList';
 export { RoleList } from './RoleList';
 export { LevelList } from './LevelList';
+export { FileList } from './FileList';
 export * from './types/listConfig';

@@ -49,9 +49,9 @@ export default function SubjectShow({ subject, classSubjects, auth }: Props) {
     const translations = useMemo(
         () => ({
             showSubtitle: t('admin_pages.subjects.show_subtitle'),
-            back: t('admin_pages.common.back'),
-            edit: t('admin_pages.common.edit'),
-            delete: t('admin_pages.common.delete'),
+            back: t('commons/ui.back'),
+            edit: t('commons/ui.edit'),
+            delete: t('commons/ui.delete'),
             code: t('admin_pages.subjects.code'),
             level: t('admin_pages.subjects.level'),
             classesCount: t('admin_pages.subjects.classes_count'),
@@ -59,7 +59,7 @@ export default function SubjectShow({ subject, classSubjects, auth }: Props) {
             classesSection: t('admin_pages.subjects.classes_section'),
             classesSectionSubtitle: t('admin_pages.subjects.classes_section_subtitle'),
             deleteTitle: t('admin_pages.subjects.delete_title'),
-            cancel: t('admin_pages.common.cancel'),
+            cancel: t('commons/ui.cancel'),
         }),
         [t],
     );

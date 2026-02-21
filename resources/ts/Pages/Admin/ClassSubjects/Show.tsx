@@ -50,7 +50,7 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
         () => ({
             showTitle: t('admin_pages.class_subjects.show_title'),
             showSubtitle: t('admin_pages.class_subjects.show_subtitle'),
-            back: t('admin_pages.common.back'),
+            back: t('commons/ui.back'),
             replaceTeacher: t('admin_pages.class_subjects.replace_teacher'),
             updateCoefficient: t('admin_pages.class_subjects.update_coefficient'),
             terminate: t('admin_pages.class_subjects.terminate'),
@@ -58,7 +58,7 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
             subject: t('admin_pages.class_subjects.subject'),
             teacher: t('admin_pages.class_subjects.teacher'),
             coefficient: t('admin_pages.class_subjects.coefficient'),
-            status: t('admin_pages.common.status'),
+            status: t('commons/table.status'),
             active: t('admin_pages.class_subjects.active'),
             archived: t('admin_pages.class_subjects.archived'),
             validityPeriod: t('admin_pages.class_subjects.validity_period'),
@@ -69,18 +69,10 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
         [t],
     );
 
-    const levelInfo = useMemo(
-        () =>
-            classSubject.class?.level
-                ? `${classSubject.class.level.name} (${classSubject.class.level.description})`
-                : '',
-        [classSubject.class?.level],
-    );
-
     return (
         <AuthenticatedLayout
             title={translations.showTitle}
-            breadcrumb={breadcrumbs.admin.showClassSubject(classSubject)}
+            breadcrumb={breadcrumbs.admin.classSubjects()}
         >
             <div className="space-y-6">
                 <Section
@@ -133,11 +125,8 @@ export default function ClassSubjectShow({ classSubject, history, teachers = [],
                             icon={AcademicCapIcon}
                             title={translations.class}
                             value={
-                                <div>
-                                    <div className="text-sm font-semibold text-gray-900">
-                                        {classSubject.class?.name}
-                                    </div>
-                                    <div className="text-xs text-gray-500">{levelInfo}</div>
+                                <div className="text-sm font-semibold text-gray-900">
+                                    {classSubject.class?.display_name ?? classSubject.class?.name}
                                 </div>
                             }
                         />

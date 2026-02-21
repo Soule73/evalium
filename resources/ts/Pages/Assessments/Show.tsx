@@ -1,10 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { Button, ConfirmationModal, Section, Stat } from '@/Components';
+import { Button, ConfirmationModal, Section, Stat, QuestionList } from '@/Components';
 import { useFormatters } from '@/hooks/shared/useFormatters';
-import { TextEntry, Toggle } from '@evalium/ui';
-import { type Assessment, type AssessmentAssignment, type AssessmentRouteContext } from '@/types';
+import { Toggle } from '@evalium/ui';
+import { AssessmentContextInfo } from '@/Components/features/assessment';
+import {
+    type Assessment,
+    type AssessmentAssignment,
+    type AssessmentRouteContext,
+    type Question,
+    type QuestionResult,
+} from '@/types';
 import { type PaginationType } from '@/types/datatable';
 import {
     ClockIcon,
@@ -12,15 +19,14 @@ import {
     StarIcon,
     DocumentDuplicateIcon,
     UserGroupIcon,
+    CheckCircleIcon,
+    ArrowPathIcon,
+    MinusCircleIcon,
+    ChartBarIcon,
 } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { QuestionReadOnlySection } from '@/Components';
-import {
-    QuestionResultReadOnlyText,
-    QuestionTeacherReadOnlyChoices,
-} from '@/Components/features/assessment/QuestionResultReadOnly';
 import { AssessmentHeader } from '@/Components/features/assessment/AssessmentHeader';
 import { AssignmentList } from '@/Components/shared/lists';
 
@@ -28,13 +34,25 @@ interface AssignmentWithVirtual extends AssessmentAssignment {
     is_virtual?: boolean;
 }
 
+interface AssessmentStats {
+    total_assigned: number;
+    graded: number;
+    submitted: number;
+    in_progress: number;
+    not_started: number;
+    not_submitted: number;
+    average_score: number | null;
+    completion_rate: number;
+}
+
 interface Props {
     assessment: Assessment;
     assignments: PaginationType<AssignmentWithVirtual>;
+    stats?: AssessmentStats;
     routeContext?: AssessmentRouteContext;
 }
 
-const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext }) => {
+const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, routeContext }) => {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
     const { formatDuration } = useFormatters();
@@ -91,6 +109,19 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
         router.visit(route(routeContext!.editRoute!, assessment.id));
     };
 
+    const getQuestionResult = useCallback(
+        (question: Question): QuestionResult => ({
+            isCorrect: null,
+            userChoices: [],
+            hasMultipleAnswers: question.type === 'multiple',
+            feedback: null,
+            score: undefined,
+            userText:
+                question.type === 'text' ? t('assessment_pages.common.free_text_info') : undefined,
+        }),
+        [t],
+    );
+
     const handleGradeStudent = (assignment: AssignmentWithVirtual) => {
         if (!assignment.id || !routeContext) return;
         router.visit(
@@ -110,8 +141,6 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
             }),
         );
     };
-
-    const levelNameDescription = `${assessment?.class_subject?.class?.level?.name} (${assessment?.class_subject?.class?.level?.description})`;
 
     const pageBreadcrumbs = routeContext
         ? breadcrumbs.assessment.show(routeContext, assessment)
@@ -170,22 +199,13 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
                         showDescription={true}
                         showMetadata={false}
                     />
-                    <Stat.Group columns={3} className="border-b border-b-gray-300 pb-3">
-                        <TextEntry
-                            label={t('assessment_pages.common.class')}
-                            value={assessment?.class_subject?.class?.name || '-'}
+                    <div className="border-b border-b-gray-300 pb-4">
+                        <AssessmentContextInfo
+                            assessment={assessment}
+                            role={routeContext?.role ?? 'teacher'}
+                            showLevel
                         />
-                        <TextEntry
-                            label={t('assessment_pages.common.level')}
-                            value={
-                                assessment?.class_subject?.class?.level ? levelNameDescription : '-'
-                            }
-                        />
-                        <TextEntry
-                            label={t('assessment_pages.common.subject')}
-                            value={assessment?.class_subject?.subject?.name || '-'}
-                        />
-                    </Stat.Group>
+                    </div>
 
                     <Stat.Group columns={4} className="mt-6">
                         <Stat.Item
@@ -209,6 +229,35 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
                             icon={UserGroupIcon}
                         />
                     </Stat.Group>
+
+                    {stats && (
+                        <Stat.Group columns={4} className="mt-4">
+                            <Stat.Item
+                                title={t('assessment_pages.show.stats_graded')}
+                                value={stats.graded}
+                                icon={CheckCircleIcon}
+                            />
+                            <Stat.Item
+                                title={t('assessment_pages.show.stats_in_progress')}
+                                value={stats.in_progress}
+                                icon={ArrowPathIcon}
+                            />
+                            <Stat.Item
+                                title={t('assessment_pages.show.stats_not_started')}
+                                value={stats.not_started}
+                                icon={MinusCircleIcon}
+                            />
+                            <Stat.Item
+                                title={t('assessment_pages.show.stats_average_score')}
+                                value={
+                                    stats.average_score !== null
+                                        ? `${stats.average_score}/100`
+                                        : '—'
+                                }
+                                icon={ChartBarIcon}
+                            />
+                        </Stat.Group>
+                    )}
                 </Section>
 
                 <Section
@@ -246,36 +295,13 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, routeContext
                             )}
                         </div>
                     ) : (
-                        <div className="divide-y divide-gray-200">
-                            {(assessment.questions ?? []).map((question, index) => (
-                                <QuestionReadOnlySection
-                                    key={question.id}
-                                    question={question}
-                                    questionIndex={index}
-                                >
-                                    {question.type !== 'text' &&
-                                        (question.choices ?? []).length > 0 && (
-                                            <div className="ml-4">
-                                                <h5 className="text-sm font-medium text-gray-700 mb-2">
-                                                    {t('assessment_pages.common.answer_choices')}
-                                                </h5>
-                                                <div className="space-y-2">
-                                                    <QuestionTeacherReadOnlyChoices
-                                                        type={question.type}
-                                                        choices={question.choices ?? []}
-                                                    />
-                                                </div>
-                                            </div>
-                                        )}
-                                    {question.type === 'text' && (
-                                        <QuestionResultReadOnlyText
-                                            userText={t('assessment_pages.common.free_text_info')}
-                                            label=""
-                                        />
-                                    )}
-                                </QuestionReadOnlySection>
-                            ))}
-                        </div>
+                        <QuestionList
+                            questions={assessment.questions ?? []}
+                            getQuestionResult={getQuestionResult}
+                            isTeacherView={true}
+                            showCorrectAnswers={true}
+                            previewMode={true}
+                        />
                     )}
                 </Section>
             </div>

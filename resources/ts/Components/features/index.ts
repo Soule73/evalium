@@ -6,3 +6,4 @@ export * from './enrollments';
 export * from './levels';
 export * from './roles';
 export * from './subjects';
+export * from './users';

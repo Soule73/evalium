@@ -56,7 +56,7 @@ export default function EditRole({ role, groupedPermissions }: Props) {
         () => ({
             configurePermissions: t('admin_pages.roles.configure_permissions'),
             configureSubtitle: t('admin_pages.roles.configure_subtitle'),
-            cancel: t('common.cancel'),
+            cancel: t('commons/ui.cancel'),
             saving: t('admin_pages.roles.saving'),
             savePermissions: t('admin_pages.roles.save_permissions'),
             systemRoleNotice: t('admin_pages.roles.system_role_notice'),

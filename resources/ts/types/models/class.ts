@@ -8,6 +8,7 @@ export interface ClassModel {
     academic_year_id: number;
     level_id: number;
     name: string;
+    display_name?: string;
     description?: string;
     max_students: number;
     created_at: string;
