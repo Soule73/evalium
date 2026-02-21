@@ -158,11 +158,6 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                 label: t('sidebar.groups.academic'),
                 items: [
                     {
-                        name: t('sidebar.navigation.archives'),
-                        href: navRoutes.adminAcademicYears(),
-                        icon: 'academic-years',
-                    },
-                    {
                         name: t('sidebar.navigation.assessments'),
                         href: navRoutes.adminAssessments(),
                         icon: 'assessments',
@@ -192,6 +187,13 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
         }
 
         const configItems: NavItem[] = [];
+        if (isAdmin) {
+            configItems.push({
+                name: t('sidebar.navigation.archives'),
+                href: navRoutes.adminAcademicYears(),
+                icon: 'academic-years',
+            });
+        }
         if (hasPermission(auth.permissions, 'view users')) {
             configItems.push({
                 name: t('sidebar.navigation.admins'),

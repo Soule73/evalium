@@ -1,4 +1,4 @@
-import { type FormEvent, useCallback, useMemo } from 'react';
+import React, { type FormEvent, useCallback, useMemo } from 'react';
 import { type AcademicYearFormData, type SemesterFormData } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Checkbox, Input, Section } from '@/Components';
@@ -19,6 +19,7 @@ interface AcademicYearFormProps {
     onCancel: () => void;
     warningMessage?: string;
     showNameHelper?: boolean;
+    actionsSlot?: React.ReactNode;
 }
 
 export default function AcademicYearForm({
@@ -35,6 +36,7 @@ export default function AcademicYearForm({
     onCancel,
     warningMessage,
     showNameHelper = false,
+    actionsSlot,
 }: AcademicYearFormProps) {
     const { t } = useTranslations();
 
@@ -113,7 +115,7 @@ export default function AcademicYearForm({
 
     return (
         <form onSubmit={onSubmit} className="space-y-6">
-            <Section title={sectionTitle} subtitle={sectionSubtitle}>
+            <Section title={sectionTitle} subtitle={sectionSubtitle} actions={actionsSlot}>
                 <div className="grid grid-cols-1 gap-6">
                     <Input
                         label={translations.nameLabel}
@@ -248,20 +250,29 @@ export default function AcademicYearForm({
                 </div>
             </Section>
 
-            <div className="flex justify-end space-x-3 pt-2">
-                <Button
-                    type="button"
-                    variant="outline"
-                    color="secondary"
-                    onClick={onCancel}
-                    disabled={isSubmitting}
-                >
-                    {translations.cancel}
-                </Button>
-                <Button type="submit" variant="solid" color="primary" disabled={isSubmitting}>
-                    {isSubmitting ? submittingLabel : submitLabel}
-                </Button>
-            </div>
+            {!actionsSlot && (
+                <div className="flex justify-end space-x-3 pt-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        color="secondary"
+                        size="sm"
+                        onClick={onCancel}
+                        disabled={isSubmitting}
+                    >
+                        {translations.cancel}
+                    </Button>
+                    <Button
+                        type="submit"
+                        variant="solid"
+                        color="primary"
+                        size="sm"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? submittingLabel : submitLabel}
+                    </Button>
+                </div>
+            )}
         </form>
     );
 }

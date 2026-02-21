@@ -63,30 +63,32 @@ export function AcademicYearConfirmStep({ currentYear }: AcademicYearConfirmStep
     );
 
     const actionsSlot = (
-        <>
+        <div className="flex items-center gap-2">
             <Button
                 type="button"
                 variant="outline"
                 color="secondary"
+                size="sm"
                 onClick={handleBack}
                 disabled={isSubmitting}
             >
-                <ArrowLeftIcon className="h-4 w-4 mr-1" />
+                <ArrowLeftIcon className="mr-1 h-4 w-4" />
                 {t('commons/ui.back')}
             </Button>
             <Button
                 type="button"
                 variant="solid"
                 color="primary"
+                size="sm"
                 onClick={handleConfirm}
                 disabled={isSubmitting}
             >
-                <CheckIcon className="h-4 w-4 mr-1" />
+                <CheckIcon className="mr-1 h-4 w-4" />
                 {isSubmitting
                     ? t('admin_pages.academic_years.wizard_creating')
                     : t('admin_pages.academic_years.wizard_confirm')}
             </Button>
-        </>
+        </div>
     );
 
     return (

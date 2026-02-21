@@ -78,16 +78,22 @@ export function ClassDuplicationStep({ currentYear }: ClassDuplicationStepProps)
     });
 
     const actionsSlot = (
-        <>
-            <Button type="button" variant="outline" color="secondary" onClick={handleBack}>
-                <ArrowLeftIcon className="h-4 w-4 mr-1" />
+        <div className="flex items-center gap-2">
+            <Button
+                type="button"
+                variant="outline"
+                color="secondary"
+                size="sm"
+                onClick={handleBack}
+            >
+                <ArrowLeftIcon className="mr-1 h-4 w-4" />
                 {t('commons/ui.back')}
             </Button>
-            <Button type="button" variant="solid" color="primary" onClick={handleNext}>
+            <Button type="button" variant="solid" color="primary" size="sm" onClick={handleNext}>
                 {t('commons/ui.next')}
-                <ArrowRightIcon className="h-4 w-4 ml-1" />
+                <ArrowRightIcon className="ml-1 h-4 w-4" />
             </Button>
-        </>
+        </div>
     );
 
     return (

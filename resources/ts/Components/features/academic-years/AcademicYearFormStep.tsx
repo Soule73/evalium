@@ -1,6 +1,6 @@
 import { type FormEvent, useCallback, useMemo, useState } from 'react';
-import { Section } from '@evalium/ui';
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { Button, Section } from '@evalium/ui';
+import { ArrowRightIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import {
     AcademicYearForm,
     buildDefaultSemesters,
@@ -91,6 +91,24 @@ export function AcademicYearFormStep({ currentYear, futureYearExists }: Academic
         [t],
     );
 
+    const actionsSlot = (
+        <div className="flex items-center gap-2">
+            <Button
+                type="button"
+                variant="outline"
+                color="secondary"
+                size="sm"
+                onClick={handleCancel}
+            >
+                {t('commons/ui.cancel')}
+            </Button>
+            <Button type="submit" variant="solid" color="primary" size="sm">
+                {translations.next}
+                <ArrowRightIcon className="ml-1 h-4 w-4" />
+            </Button>
+        </div>
+    );
+
     if (futureYearExists) {
         return (
             <Section title={translations.futureTitle}>
@@ -127,6 +145,7 @@ export function AcademicYearFormStep({ currentYear, futureYearExists }: Academic
             onSubmit={handleSubmit}
             onCancel={handleCancel}
             showNameHelper
+            actionsSlot={actionsSlot}
         />
     );
 }

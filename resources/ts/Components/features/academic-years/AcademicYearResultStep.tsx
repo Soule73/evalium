@@ -25,18 +25,18 @@ export function AcademicYearResultStep() {
     }, [result, t]);
 
     const actionsSlot = (
-        <>
+        <div className="flex items-center gap-2">
             <Link href={route('admin.classes.index')}>
-                <Button type="button" variant="outline" color="secondary">
+                <Button type="button" variant="outline" color="secondary" size="sm">
                     {t('admin_pages.academic_years.wizard_result_manage')}
                 </Button>
             </Link>
             <Link href={route('admin.academic-years.archives')}>
-                <Button type="button" variant="solid" color="primary">
+                <Button type="button" variant="solid" color="primary" size="sm">
                     {t('admin_pages.academic_years.wizard_result_view_years')}
                 </Button>
             </Link>
-        </>
+        </div>
     );
 
     return (
