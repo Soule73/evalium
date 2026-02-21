@@ -37,11 +37,9 @@ class AdminSubjectTest extends TestCase
             ->assertStatus(200)
             ->assertInertia(
                 fn ($page) => $page
-                    ->component('Subjects/Index')
+                    ->component('Admin/Subjects/Index')
                     ->has('subjects')
                     ->has('levels')
-                    ->where('routeContext.role', 'admin')
-                    ->where('routeContext.editRoute', 'admin.subjects.edit')
             );
     }
 
@@ -52,11 +50,9 @@ class AdminSubjectTest extends TestCase
             ->assertStatus(200)
             ->assertInertia(
                 fn ($page) => $page
-                    ->component('Subjects/Show')
+                    ->component('Admin/Subjects/Show')
                     ->has('subject')
                     ->has('classSubjects')
-                    ->where('routeContext.role', 'admin')
-                    ->where('routeContext.deleteRoute', 'admin.subjects.destroy')
             );
     }
 

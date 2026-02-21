@@ -15,22 +15,15 @@ export interface ClassRouteContext {
     assessmentSaveGradeRoute: string | null;
 }
 
-export interface SubjectRouteContext {
-    role: 'admin' | 'teacher';
-    indexRoute: string;
-    showRoute: string | null;
-    editRoute: string | null;
-    deleteRoute: string | null;
-    assessmentShowRoute: string | null;
-}
 
 export interface AssessmentRouteContext {
     role: 'admin' | 'teacher';
     backRoute: string;
     showRoute: string | null;
+    classAssessmentShowRoute: string | null;
     reviewRoute: string;
     gradeRoute: string;
-    saveGradeRoute?: string;
+    saveGradeRoute: string;
     editRoute?: string | null;
     publishRoute?: string | null;
     unpublishRoute?: string | null;

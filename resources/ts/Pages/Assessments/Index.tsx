@@ -65,6 +65,18 @@ export default function AssessmentsIndex({
     );
   };
 
+  const teacherOnView = (item: Assessment) => {
+    const classId = item.class_subject?.class_id;
+    if (classId) {
+      router.visit(
+        route('teacher.classes.assessments.show', {
+          class: classId,
+          assessment: item.id,
+        }),
+      );
+    }
+  };
+
   return (
     <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumb}>
       <div className="space-y-6">
@@ -96,6 +108,7 @@ export default function AssessmentsIndex({
               data={assessments}
               variant="teacher"
               classes={classes}
+              onView={(item) => teacherOnView(item as Assessment)}
             />
           )}
         </Section>

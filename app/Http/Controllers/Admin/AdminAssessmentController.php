@@ -98,6 +98,7 @@ class AdminAssessmentController extends Controller
             'role' => 'admin',
             'backRoute' => 'admin.assessments.index',
             'showRoute' => null,
+            'classAssessmentShowRoute' => 'admin.classes.assessments.show',
             'reviewRoute' => 'admin.assessments.review',
             'gradeRoute' => 'admin.assessments.grade',
             'saveGradeRoute' => 'admin.assessments.saveGrade',

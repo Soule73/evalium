@@ -120,7 +120,7 @@ class AssessmentController extends Controller
         $assessment = $this->assessmentService->createAssessment($request->validated());
 
         return redirect()
-            ->route('teacher.assessments.show', $assessment)
+            ->route('teacher.assessments.index')
             ->flashSuccess(__('messages.assessment_created'));
     }
 
@@ -156,7 +156,7 @@ class AssessmentController extends Controller
         $this->assessmentService->updateAssessment($assessment, $request->validated());
 
         return redirect()
-            ->route('teacher.assessments.show', $assessment)
+            ->route('teacher.assessments.index')
             ->flashSuccess(__('messages.assessment_updated'));
     }
 
@@ -210,7 +210,7 @@ class AssessmentController extends Controller
         $newAssessment = $this->assessmentService->duplicateAssessment($assessment, $overrides);
 
         return redirect()
-            ->route('teacher.assessments.show', $newAssessment)
+            ->route('teacher.assessments.index')
             ->flashSuccess(__('messages.assessment_duplicated'));
     }
 
@@ -254,7 +254,8 @@ class AssessmentController extends Controller
         return [
             'role' => 'teacher',
             'backRoute' => 'teacher.assessments.index',
-            'showRoute' => 'teacher.assessments.show',
+            'showRoute' => null,
+            'classAssessmentShowRoute' => 'teacher.classes.assessments.show',
             'reviewRoute' => 'teacher.assessments.review',
             'gradeRoute' => 'teacher.assessments.grade',
             'saveGradeRoute' => 'teacher.assessments.saveGrade',

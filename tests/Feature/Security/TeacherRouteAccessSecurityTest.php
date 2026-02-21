@@ -96,14 +96,6 @@ class TeacherRouteAccessSecurityTest extends TestCase
         ]);
     }
 
-    public function test_student_cannot_access_teacher_assessment_show(): void
-    {
-        $response = $this->actingAs($this->student)
-            ->get(route('teacher.assessments.show', $this->assessment));
-
-        $response->assertForbidden();
-    }
-
     public function test_student_cannot_access_teacher_assessment_review(): void
     {
         $response = $this->actingAs($this->student)
@@ -124,14 +116,6 @@ class TeacherRouteAccessSecurityTest extends TestCase
             ]));
 
         $response->assertForbidden();
-    }
-
-    public function test_teacher_can_access_their_own_assessment_show(): void
-    {
-        $response = $this->actingAs($this->teacher)
-            ->get(route('teacher.assessments.show', $this->assessment));
-
-        $response->assertOk();
     }
 
     public function test_teacher_can_access_their_own_assessment_review(): void

@@ -257,12 +257,6 @@ export function SubjectList({
                                 onView?.(subject) ||
                                 router.visit(route('admin.subjects.show', subject.id))
                             );
-                        } else if (variant === 'teacher') {
-                            const subject = item as TeacherSubject;
-                            return (
-                                onView?.(subject) ||
-                                router.visit(route('teacher.subjects.show', subject.id))
-                            );
                         } else {
                             const classSubject = item as ClassSubject;
                             if (classSubject.class) {

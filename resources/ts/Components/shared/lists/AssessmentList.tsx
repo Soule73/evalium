@@ -345,9 +345,7 @@ function buildActions(deps: ActionDeps): ActionConfig<AssessmentItem>[] {
                 const assessment = item as Assessment;
                 if (onView) {
                     onView(assessment);
-                    return;
                 }
-                router.visit(route('teacher.assessments.show', assessment.id));
             },
             color: 'secondary',
             variant: 'outline',
@@ -566,10 +564,10 @@ export function AssessmentList({
         const filters = isAssignmentVariant(variant)
             ? buildAssignmentFilters(variant, subjects, t)
             : variant === 'admin' && (filterSubjects.length > 0 || filterTeachers.length > 0)
-              ? buildAdminFilters(filterSubjects, filterTeachers, t)
-              : variant === 'teacher' && classes.length > 0
-                ? buildTeacherFilters(classes, t)
-                : undefined;
+                ? buildAdminFilters(filterSubjects, filterTeachers, t)
+                : variant === 'teacher' && classes.length > 0
+                    ? buildTeacherFilters(classes, t)
+                    : undefined;
 
         return {
             entity: 'assessment',

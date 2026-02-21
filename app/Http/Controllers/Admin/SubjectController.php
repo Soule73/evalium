@@ -41,18 +41,10 @@ class SubjectController extends Controller
         $subjects = $this->subjectQueryService->getSubjectsForIndex($selectedYearId, $filters, $perPage);
         $levels = $this->subjectQueryService->getAllLevels();
 
-        return Inertia::render('Subjects/Index', [
+        return Inertia::render('Admin/Subjects/Index', [
             'subjects' => $subjects,
             'filters' => $filters,
             'levels' => $levels,
-            'routeContext' => [
-                'role' => 'admin',
-                'indexRoute' => 'admin.subjects.index',
-                'showRoute' => 'admin.subjects.show',
-                'editRoute' => 'admin.subjects.edit',
-                'deleteRoute' => 'admin.subjects.destroy',
-                'assessmentShowRoute' => null,
-            ],
         ]);
     }
 
@@ -101,16 +93,7 @@ class SubjectController extends Controller
             $classSubjectsFilters
         );
 
-        return Inertia::render('Subjects/Show', array_merge($data, [
-            'routeContext' => [
-                'role' => 'admin',
-                'indexRoute' => 'admin.subjects.index',
-                'showRoute' => 'admin.subjects.show',
-                'editRoute' => 'admin.subjects.edit',
-                'deleteRoute' => 'admin.subjects.destroy',
-                'assessmentShowRoute' => null,
-            ],
-        ]));
+        return Inertia::render('Admin/Subjects/Show', $data);
     }
 
     /**

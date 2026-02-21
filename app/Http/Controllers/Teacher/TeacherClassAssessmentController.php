@@ -62,6 +62,7 @@ class TeacherClassAssessmentController extends Controller
             'role' => 'teacher',
             'backRoute' => 'teacher.assessments.index',
             'showRoute' => null,
+            'classAssessmentShowRoute' => 'teacher.classes.assessments.show',
             'reviewRoute' => 'teacher.assessments.review',
             'gradeRoute' => 'teacher.assessments.grade',
             'saveGradeRoute' => 'teacher.assessments.saveGrade',

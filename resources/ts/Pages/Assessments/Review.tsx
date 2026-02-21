@@ -24,7 +24,7 @@ interface Props {
     assignment: AssessmentAssignment;
     userAnswers: Record<number, Answer>;
     attachments?: AssignmentAttachment[];
-    routeContext?: AssessmentRouteContext;
+    routeContext: AssessmentRouteContext;
 }
 
 export default function ReviewAssignment({
@@ -41,16 +41,13 @@ export default function ReviewAssignment({
     const { totalPoints, calculatedTotalScore, percentage, scores, getQuestionResult } =
         useAssessmentReview({ assessment, userAnswers });
 
-    const pageBreadcrumbs = routeContext
-        ? breadcrumbs.assessment.review(routeContext, assessment, student)
-        : breadcrumbs.assessmentReview(assessment, assignment, student);
+    const pageBreadcrumbs = breadcrumbs.assessment.review(routeContext, assessment, student);
 
     const backUrl = (() => {
-        if (!routeContext) return route('teacher.assessments.show', assessment.id);
         if (routeContext.showRoute) return route(routeContext.showRoute, assessment.id);
         const classId = assessment.class_subject?.class?.id;
-        if (classId) {
-            return route('admin.classes.assessments.show', {
+        if (classId && routeContext.classAssessmentShowRoute) {
+            return route(routeContext.classAssessmentShowRoute, {
                 class: classId,
                 assessment: assessment.id,
             });
@@ -58,12 +55,10 @@ export default function ReviewAssignment({
         return route(routeContext.backRoute);
     })();
 
-    const gradeRouteUrl = routeContext
-        ? route(routeContext.gradeRoute, { assessment: assessment.id, assignment: assignment.id })
-        : route('teacher.assessments.grade', {
-              assessment: assessment.id,
-              assignment: assignment.id,
-          });
+    const gradeRouteUrl = route(routeContext.gradeRoute, {
+        assessment: assessment.id,
+        assignment: assignment.id,
+    });
 
     return (
         <AuthenticatedLayout

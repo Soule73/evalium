@@ -173,8 +173,6 @@ export default function ClassShow({
           assessment: assessment.id,
         }),
       );
-    } else {
-      router.visit(route('teacher.assessments.show', assessment.id));
     }
   };
 

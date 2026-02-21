@@ -189,20 +189,9 @@ function createBreadcrumbs(t: TranslateFn) {
             ],
     };
 
-    const teacherSubjectsBc = {
-        index: (): BreadcrumbItem[] => [
-            { label: t('breadcrumbs.subjects'), href: route('teacher.subjects.index') },
-        ],
-        show: (subject: { id: number; name?: string }): BreadcrumbItem[] => [
-            { label: t('breadcrumbs.subjects'), href: route('teacher.subjects.index') },
-            { label: subject.name || '' },
-        ],
-    };
-
     const assessmentsBc = createEntityBreadcrumbs<{ id: number; title: string }>({
         labelKey: 'breadcrumbs.assessments',
         indexRoute: 'teacher.assessments.index',
-        showRoute: 'teacher.assessments.show',
     });
 
     const adminAssessmentsBc = {
@@ -400,29 +389,11 @@ function createBreadcrumbs(t: TranslateFn) {
             classAssessmentReview: teacherClassesBc.classAssessmentReview,
             showClassStudent: teacherClassesBc.showClassStudent,
             classStudentAssignments: teacherClassesBc.classStudentAssignments,
-            subjects: teacherSubjectsBc.index,
-            showSubject: teacherSubjectsBc.show,
         },
         teacherAssessments: assessmentsBc.index,
         createTeacherAssessment: assessmentsBc.create,
         showTeacherAssessment: assessmentsBc.show,
         editTeacherAssessment: assessmentsBc.edit,
-        assessmentGrade: (
-            assessment: { id: number; title: string },
-            _assignment: { id: number },
-            student: { name: string },
-        ): BreadcrumbItem[] => [
-                ...assessmentsBc.show(assessment),
-                { label: t('breadcrumbs.grading') + ': ' + student.name },
-            ],
-        assessmentReview: (
-            assessment: { id: number; title: string },
-            _assignment: { id: number },
-            student: { name: string },
-        ): BreadcrumbItem[] => [
-                ...assessmentsBc.show(assessment),
-                { label: t('breadcrumbs.review') + ': ' + student.name },
-            ],
         adminAcademicYears: (): BreadcrumbItem[] => [
             { label: t('admin_pages.academic_years.title') },
         ],

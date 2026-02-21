@@ -49,7 +49,7 @@ interface Props {
     assessment: Assessment;
     assignments: PaginationType<AssignmentWithVirtual>;
     stats?: AssessmentStats;
-    routeContext?: AssessmentRouteContext;
+    routeContext: AssessmentRouteContext;
 }
 
 const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, routeContext }) => {
@@ -60,10 +60,10 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
     const [isDuplicating, setIsDuplicating] = useState(false);
     const [showDuplicateModal, setShowDuplicateModal] = useState(false);
 
-    const isTeacher = routeContext?.role === 'teacher';
-    const canToggle = isTeacher && routeContext?.publishRoute && routeContext?.unpublishRoute;
-    const canDuplicate = isTeacher && routeContext?.duplicateRoute;
-    const canEdit = isTeacher && routeContext?.editRoute;
+    const isTeacher = routeContext.role === 'teacher';
+    const canToggle = isTeacher && routeContext.publishRoute && routeContext.unpublishRoute;
+    const canDuplicate = isTeacher && routeContext.duplicateRoute;
+    const canEdit = isTeacher && routeContext.editRoute;
 
     const totalPoints = useMemo(
         () => (assessment.questions ?? []).reduce((sum, q) => sum + q.points, 0),
@@ -77,8 +77,8 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
         if (isToggling || !canToggle) return;
         setIsToggling(true);
         const toggleRoute = assessment.is_published
-            ? routeContext!.unpublishRoute!
-            : routeContext!.publishRoute!;
+            ? routeContext.unpublishRoute!
+            : routeContext.publishRoute!;
         router.post(
             route(toggleRoute, assessment.id),
             {},
@@ -93,7 +93,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
         if (isDuplicating || !canDuplicate) return;
         setIsDuplicating(true);
         router.post(
-            route(routeContext!.duplicateRoute!, assessment.id),
+            route(routeContext.duplicateRoute!, assessment.id),
             {},
             {
                 onFinish: () => {
@@ -106,7 +106,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
 
     const handleEditNavigation = () => {
         if (!canEdit) return;
-        router.visit(route(routeContext!.editRoute!, assessment.id));
+        router.visit(route(routeContext.editRoute!, assessment.id));
     };
 
     const getQuestionResult = useCallback(
@@ -123,7 +123,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
     );
 
     const handleGradeStudent = (assignment: AssignmentWithVirtual) => {
-        if (!assignment.id || !routeContext) return;
+        if (!assignment.id) return;
         router.visit(
             route(routeContext.gradeRoute, {
                 assessment: assessment.id,
@@ -133,7 +133,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
     };
 
     const handleViewResult = (assignment: AssignmentWithVirtual) => {
-        if (!assignment.id || !routeContext) return;
+        if (!assignment.id) return;
         router.visit(
             route(routeContext.reviewRoute, {
                 assessment: assessment.id,
@@ -142,9 +142,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
         );
     };
 
-    const pageBreadcrumbs = routeContext
-        ? breadcrumbs.assessment.show(routeContext, assessment)
-        : breadcrumbs.showTeacherAssessment(assessment);
+    const pageBreadcrumbs = breadcrumbs.assessment.show(routeContext, assessment);
 
     return (
         <AuthenticatedLayout title={assessment.title} breadcrumb={pageBreadcrumbs}>
@@ -202,7 +200,7 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
                     <div className="border-b border-b-gray-300 pb-4">
                         <AssessmentContextInfo
                             assessment={assessment}
-                            role={routeContext?.role ?? 'teacher'}
+                            role={routeContext.role}
                             showLevel
                         />
                     </div>

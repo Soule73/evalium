@@ -33,7 +33,7 @@ interface Props {
     assignment: AssessmentAssignment;
     userAnswers: Record<number, Answer>;
     attachments?: AssignmentAttachment[];
-    routeContext?: AssessmentRouteContext;
+    routeContext: AssessmentRouteContext;
 }
 
 export default function GradeAssignment({
@@ -94,15 +94,10 @@ export default function GradeAssignment({
         setShowConfirmModal(true);
     }, []);
 
-    const saveGradeUrl = routeContext?.saveGradeRoute
-        ? route(routeContext.saveGradeRoute, {
-            assessment: assessment.id,
-            assignment: assignment.id,
-        })
-        : route('teacher.assessments.saveGrade', {
-            assessment: assessment.id,
-            assignment: assignment.id,
-        });
+    const saveGradeUrl = route(routeContext.saveGradeRoute, {
+        assessment: assessment.id,
+        assignment: assignment.id,
+    });
 
     const handleConfirmSubmit = useCallback(() => {
         setIsSubmitting(true);
@@ -188,22 +183,13 @@ export default function GradeAssignment({
         ],
     );
 
-    const pageBreadcrumbs = routeContext
-        ? breadcrumbs.assessment.grade(routeContext, assessment, student)
-        : breadcrumbs.assessmentGrade(assessment, assignment, student);
+    const pageBreadcrumbs = breadcrumbs.assessment.grade(routeContext, assessment, student);
 
     const backUrl = (() => {
-        if (!routeContext) return route('teacher.assessments.show', assessment.id);
         if (routeContext.showRoute) return route(routeContext.showRoute, assessment.id);
         const classId = assessment.class_subject?.class?.id;
-        if (classId) {
-            if (routeContext.role === 'teacher') {
-                return route('teacher.classes.assessments.show', {
-                    class: classId,
-                    assessment: assessment.id,
-                });
-            }
-            return route('admin.classes.assessments.show', {
+        if (classId && routeContext.classAssessmentShowRoute) {
+            return route(routeContext.classAssessmentShowRoute, {
                 class: classId,
                 assessment: assessment.id,
             });
