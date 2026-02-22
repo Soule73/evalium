@@ -21,7 +21,7 @@ interface AssessmentGeneralConfigProps {
         due_date?: string;
         delivery_mode: DeliveryMode;
         type: AssessmentType;
-        class_subject_id: number;
+        class_subject_id: number | null;
         is_published: boolean;
         shuffle_questions: boolean;
         show_results_immediately: boolean;
@@ -159,7 +159,7 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
                 <div>
                     <Select
                         label={t('components.assessment_general_config.class_subject_label')}
-                        value={String(data.class_subject_id)}
+                        value={data.class_subject_id !== null ? String(data.class_subject_id) : ''}
                         onChange={(value) => {
                             const parsed = typeof value === 'number' ? value : parseInt(value, 10);
                             if (!isNaN(parsed)) {

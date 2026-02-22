@@ -123,9 +123,10 @@ class AssessmentController extends Controller
     public function store(StoreAssessmentRequest $request): RedirectResponse
     {
         $assessment = $this->assessmentService->createAssessment($request->validated());
+        $assessment->loadMissing('classSubject');
 
         return redirect()
-            ->route('teacher.assessments.index')
+            ->route('teacher.classes.assessments.show', [$assessment->classSubject->class_id, $assessment])
             ->flashSuccess(__('messages.assessment_created'));
     }
 
@@ -160,8 +161,10 @@ class AssessmentController extends Controller
     {
         $this->assessmentService->updateAssessment($assessment, $request->validated());
 
+        $assessment->loadMissing('classSubject');
+
         return redirect()
-            ->route('teacher.assessments.index')
+            ->route('teacher.classes.assessments.show', [$assessment->classSubject->class_id, $assessment])
             ->flashSuccess(__('messages.assessment_updated'));
     }
 

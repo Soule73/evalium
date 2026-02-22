@@ -13,7 +13,7 @@ interface AssessmentCreateData {
     due_date: string;
     delivery_mode: DeliveryMode;
     type: AssessmentType;
-    class_subject_id: number;
+    class_subject_id: number | null;
     is_published: boolean;
     shuffle_questions: boolean;
     show_results_immediately: boolean;
@@ -40,7 +40,7 @@ export const useCreateAssessment = () => {
             due_date: '',
             delivery_mode: 'homework',
             type: 'homework',
-            class_subject_id: 0,
+            class_subject_id: null,
             is_published: false,
             shuffle_questions: false,
             show_results_immediately: true,
@@ -55,7 +55,10 @@ export const useCreateAssessment = () => {
     }, [resetStore]);
 
     const handleFieldChange = (field: string, value: string | number | boolean) => {
-        setData(field as keyof AssessmentCreateData, value);
+        setData(field as keyof AssessmentCreateData, value as never);
+        if (field === 'delivery_mode' && value !== 'supervised') {
+            setData('duration', 0);
+        }
     };
 
     const handleSubmit = (e: React.FormEvent) => {

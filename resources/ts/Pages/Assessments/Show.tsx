@@ -218,7 +218,11 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
                         />
                         <Stat.Item
                             title={t('assessment_pages.common.duration')}
-                            value={formatDuration(assessment.duration_minutes ?? 0)}
+                            value={
+                                assessment.duration_minutes
+                                    ? formatDuration(assessment.duration_minutes)
+                                    : '—'
+                            }
                             icon={ClockIcon}
                         />
                         <Stat.Item

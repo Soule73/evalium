@@ -18,7 +18,7 @@ interface AssessmentEditData {
     due_date: string;
     delivery_mode: DeliveryMode;
     type: AssessmentType;
-    class_subject_id: number;
+    class_subject_id: number | null;
     is_published: boolean;
     shuffle_questions: boolean;
     show_results_immediately: boolean;
@@ -66,7 +66,7 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
             due_date: assessment.due_date ? assessment.due_date.slice(0, 16) : '',
             delivery_mode: assessment.delivery_mode || 'homework',
             type: assessment.type,
-            class_subject_id: assessment.class_subject_id || 0,
+            class_subject_id: assessment.class_subject_id ?? null,
             is_published: assessment.is_published ?? false,
             shuffle_questions: assessment.shuffle_questions ?? false,
             show_results_immediately: assessment.show_results_immediately ?? true,
@@ -115,7 +115,10 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
 
     const handleFieldChange = useCallback(
         (field: string, value: string | number | boolean) => {
-            setData(field as keyof AssessmentEditData, value);
+            setData(field as keyof AssessmentEditData, value as never);
+            if (field === 'delivery_mode' && value !== 'supervised') {
+                setData('duration', 0);
+            }
         },
         [setData],
     );
@@ -137,9 +140,7 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
                 onSuccess: () => {
                     clearDeletedHistory();
                 },
-                onError: (errors: Record<string, string>) => {
-                    console.error('Submission errors:', errors);
-                },
+                onError: () => {},
             });
         },
         [

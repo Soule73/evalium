@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, QuestionsManager, Section } from '@/Components';
 import { AssessmentGeneralConfig } from '@/Components/shared/AssessmentGeneralConfig';
 import { useEditAssessment } from '@/hooks/features/assessment';
-// import { useAssessmentFormStore } from '@/stores';
+import { useAssessmentFormStore } from '@/stores';
 import { type Assessment, type ClassSubject } from '@/types';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
@@ -16,6 +16,7 @@ interface Props {
 export default function AssessmentEdit({ assessment, classSubjects }: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
+    const hasQuestions = useAssessmentFormStore((state) => state.questions.length > 0);
 
     const { data, errors, processing, handleFieldChange, handleSubmit } =
         useEditAssessment(assessment);
@@ -56,6 +57,7 @@ export default function AssessmentEdit({ assessment, classSubjects }: Props) {
                                 variant="solid"
                                 size="sm"
                                 loading={processing}
+                                disabled={!hasQuestions}
                             >
                                 {translations.submit}
                             </Button>
