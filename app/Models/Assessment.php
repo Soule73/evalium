@@ -257,6 +257,8 @@ class Assessment extends Model
      *
      * For homework: due_date has passed.
      * For supervised: scheduled_at + duration_minutes has passed.
+     * Edge case: if scheduled_at is set but duration_minutes is null,
+     * the assessment is treated as instantaneous — ended when scheduled_at passed.
      */
     public function hasEnded(): bool
     {
@@ -264,6 +266,10 @@ class Assessment extends Model
 
         if ($this->isHomeworkMode()) {
             return $this->due_date !== null && $now->gt($this->due_date);
+        }
+
+        if ($this->scheduled_at !== null && $this->duration_minutes === null) {
+            return $now->gt($this->scheduled_at);
         }
 
         $endsAt = $this->ends_at;
@@ -315,11 +321,18 @@ class Assessment extends Model
 
     /**
      * Get the end time for this assessment.
+     *
+     * When duration_minutes is null but scheduled_at is set, the assessment is
+     * treated as instantaneous and ends exactly at scheduled_at.
      */
     public function getEndsAtAttribute(): ?\Carbon\Carbon
     {
-        if (! $this->scheduled_at || ! $this->duration_minutes) {
+        if (! $this->scheduled_at) {
             return null;
+        }
+
+        if (! $this->duration_minutes) {
+            return $this->scheduled_at->copy();
         }
 
         return $this->scheduled_at->copy()->addMinutes($this->duration_minutes);

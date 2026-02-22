@@ -42,7 +42,7 @@ class MaterialiseAssessmentAssignments extends Command
             ->where('is_published', true)
             ->with(['classSubject'])
             ->cursor()
-            ->filter(fn(Assessment $assessment) => $assessment->hasEnded())
+            ->filter(fn (Assessment $assessment) => $assessment->hasEnded())
             ->each(function (Assessment $assessment) use ($dryRun, &$created, &$skipped): void {
                 [$c, $s] = $this->materialise($assessment, $dryRun);
                 $created += $c;
