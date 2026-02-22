@@ -185,8 +185,8 @@ export function EnrollmentList({
                     labelKey: 'student_enrollment_pages.history.completed_on',
                     render: (enrollment) => (
                         <span className="text-gray-700">
-                            {enrollment.status === 'completed'
-                                ? formatDate(enrollment.enrolled_at)
+                            {enrollment.status === 'completed' && enrollment.withdrawn_at
+                                ? formatDate(enrollment.withdrawn_at)
                                 : t('student_enrollment_pages.history.not_available')}
                         </span>
                     ),

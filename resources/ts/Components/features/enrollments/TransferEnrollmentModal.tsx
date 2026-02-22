@@ -50,16 +50,21 @@ export function TransferEnrollmentModal({
             { value: 0, label: t('admin_pages.enrollments.select_target_class') },
             ...availableClasses.map((classItem) => ({
                 value: classItem.id,
-                label: `${classItem.name} - ${classItem.level?.name} (${classItem.active_enrollments_count || 0}/${classItem.max_students})`,
+                label:
+                    classItem.max_students !== null
+                        ? `${classItem.name} - ${classItem.level?.name} (${classItem.active_enrollments_count || 0}/${classItem.max_students})`
+                        : `${classItem.name} - ${classItem.level?.name}`,
             })),
         ],
         [availableClasses, t],
     );
 
     const selectedClass = classes.find((c) => c.id === formValues.new_class_id);
-    const availableSlots = selectedClass
-        ? selectedClass.max_students - (selectedClass.active_enrollments_count || 0)
-        : 0;
+    const isUnlimited = selectedClass ? selectedClass.max_students === null : false;
+    const availableSlots =
+        selectedClass && !isUnlimited
+            ? selectedClass.max_students! - (selectedClass.active_enrollments_count || 0)
+            : null;
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -132,7 +137,7 @@ export function TransferEnrollmentModal({
                 {selectedClass && (
                     <div
                         className={`p-4 rounded-lg ${
-                            availableSlots > 0
+                            isUnlimited || (availableSlots !== null && availableSlots > 0)
                                 ? 'bg-green-50 border border-green-200'
                                 : 'bg-red-50 border border-red-200'
                         }`}
@@ -142,12 +147,18 @@ export function TransferEnrollmentModal({
                                 {t('admin_pages.enrollments.available_slots')}:
                             </span>
                             <span
-                                className={`ml-2 ${availableSlots > 0 ? 'text-green-900' : 'text-red-900'}`}
+                                className={`ml-2 ${
+                                    isUnlimited || (availableSlots !== null && availableSlots > 0)
+                                        ? 'text-green-900'
+                                        : 'text-red-900'
+                                }`}
                             >
-                                {availableSlots} / {selectedClass.max_students}
+                                {isUnlimited
+                                    ? t('admin_pages.enrollments.unlimited')
+                                    : `${availableSlots} / ${selectedClass.max_students}`}
                             </span>
                         </div>
-                        {availableSlots === 0 && (
+                        {!isUnlimited && availableSlots !== null && availableSlots <= 0 && (
                             <div className="mt-2 text-sm text-red-700">
                                 {t('admin_pages.enrollments.class_full')}
                             </div>
@@ -176,7 +187,9 @@ export function TransferEnrollmentModal({
                         variant="solid"
                         color="primary"
                         disabled={
-                            isSubmitting || formValues.new_class_id === 0 || availableSlots === 0
+                            isSubmitting ||
+                            formValues.new_class_id === 0 ||
+                            (!isUnlimited && availableSlots !== null && availableSlots <= 0)
                         }
                     >
                         {isSubmitting

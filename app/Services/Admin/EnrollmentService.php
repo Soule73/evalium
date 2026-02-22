@@ -51,6 +51,15 @@ class EnrollmentService implements EnrollmentServiceInterface
             throw EnrollmentException::invalidStudentRole();
         }
 
+        $alreadyInTargetClass = Enrollment::active()
+            ->where('student_id', $enrollment->student_id)
+            ->where('class_id', $newClass->id)
+            ->exists();
+
+        if ($alreadyInTargetClass) {
+            throw EnrollmentException::alreadyEnrolled();
+        }
+
         if ($this->isClassAtCapacity($newClass)) {
             throw EnrollmentException::targetClassFull();
         }

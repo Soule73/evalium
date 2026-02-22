@@ -310,6 +310,7 @@ return [
         'withdraw_confirm_message' => 'Are you sure you want to withdraw this student from the class?',
         'available_slots' => 'Available slots',
         'class_full' => 'This class is full',
+        'unlimited' => 'Unlimited',
         'current_enrollment' => 'Current Enrollment',
         'withdrawal_info' => 'Withdrawal Information',
         'transfer_warning' => 'The student will be withdrawn from the current class and enrolled in the selected class.',

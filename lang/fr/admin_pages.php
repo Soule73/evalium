@@ -311,6 +311,7 @@ return [
         'withdraw_confirm_message' => 'Êtes-vous sûr de vouloir retirer cet étudiant de la classe ?',
         'available_slots' => 'Places disponibles',
         'class_full' => 'Cette classe est complète',
+        'unlimited' => 'Illimité',
         'current_enrollment' => 'Inscription actuelle',
         'withdrawal_info' => 'Information de retrait',
         'transfer_warning' => 'L\'étudiant sera retiré de la classe actuelle et inscrit dans la classe sélectionnée.',
