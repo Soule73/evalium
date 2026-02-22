@@ -7,6 +7,7 @@ use App\Enums\QuestionType;
 use App\Models\AssessmentAssignment;
 use App\Models\Question;
 use App\Strategies\Scoring\BooleanScoringStrategy;
+use App\Strategies\Scoring\FileQuestionScoringStrategy;
 use App\Strategies\Scoring\MultipleChoiceScoringStrategy;
 use App\Strategies\Scoring\OneChoiceScoringStrategy;
 use App\Strategies\Scoring\TextQuestionScoringStrategy;
@@ -32,6 +33,7 @@ class ScoringService
             new MultipleChoiceScoringStrategy,
             new BooleanScoringStrategy,
             new TextQuestionScoringStrategy,
+            new FileQuestionScoringStrategy,
         ];
     }
 

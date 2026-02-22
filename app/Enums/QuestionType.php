@@ -11,6 +11,7 @@ enum QuestionType: string
     case Multiple = 'multiple';
     case OneChoice = 'one_choice';
     case Boolean = 'boolean';
+    case File = 'file';
 
     /**
      * Get all valid values as an array.
@@ -27,7 +28,7 @@ enum QuestionType: string
      */
     public function requiresManualGrading(): bool
     {
-        return $this === self::Text;
+        return in_array($this, [self::Text, self::File], true);
     }
 
     /**
