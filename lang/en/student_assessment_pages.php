@@ -61,6 +61,12 @@ return [
         'no_description' => 'No description provided.',
         'view_results' => 'View Results',
         'assessment_unavailable' => 'Assessment Unavailable',
+        'countdown_title' => 'Assessment starts in',
+        'countdown_days' => 'days',
+        'countdown_hours' => 'hours',
+        'countdown_minutes' => 'min',
+        'countdown_seconds' => 'sec',
+        'countdown_starting' => 'Starting...',
     ],
     'take' => [
         'title' => 'Assessment - :assessment',

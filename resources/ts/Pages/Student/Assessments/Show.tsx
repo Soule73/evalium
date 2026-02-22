@@ -12,6 +12,7 @@ import { AlertEntry, Button, Modal, Section, Stat, TextEntry } from '@/Component
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { formatDate } from '@/utils';
+import { useAssessmentCountdown } from '@/hooks/features/assessment';
 import {
     ClockIcon,
     DocumentTextIcon,
@@ -31,6 +32,11 @@ export default function Show({ assessment, assignment, availability }: StudentAs
     const [isModalOpen, setIsModalOpen] = useState(false);
     const isHomework = assessment.delivery_mode === 'homework';
     const hasStarted = !!assignment.started_at;
+
+    const { countdown, isStarting } = useAssessmentCountdown(
+        assessment.scheduled_at ?? null,
+        availability.reason === 'assessment_not_started' && !isHomework,
+    );
 
     const translations = useMemo(
         () => ({
@@ -65,6 +71,12 @@ export default function Show({ assessment, assignment, availability }: StudentAs
             viewResults: t('student_assessment_pages.show.view_results'),
             startedDate: t('student_assessment_pages.show.started_date'),
             assessmentUnavailable: t('student_assessment_pages.show.assessment_unavailable'),
+            countdownTitle: t('student_assessment_pages.show.countdown_title'),
+            countdownDays: t('student_assessment_pages.show.countdown_days'),
+            countdownHours: t('student_assessment_pages.show.countdown_hours'),
+            countdownMinutes: t('student_assessment_pages.show.countdown_minutes'),
+            countdownSeconds: t('student_assessment_pages.show.countdown_seconds'),
+            countdownStarting: t('student_assessment_pages.show.countdown_starting'),
         }),
         [t],
     );
@@ -319,7 +331,65 @@ export default function Show({ assessment, assignment, availability }: StudentAs
                         </div>
                     </div>
 
-                    {unavailabilityMessage && (
+                    {availability.reason === 'assessment_not_started' && !isSubmitted && (
+                        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                                <ClockIcon className="h-5 w-5 text-amber-600 shrink-0" />
+                                <p className="text-sm font-semibold text-amber-800">
+                                    {translations.countdownTitle}
+                                </p>
+                            </div>
+                            {isStarting ? (
+                                <p className="text-center text-amber-700 animate-pulse font-medium">
+                                    {translations.countdownStarting}
+                                </p>
+                            ) : (
+                                countdown && (
+                                    <div className="flex justify-center gap-6">
+                                        {countdown.days > 0 && (
+                                            <div className="text-center">
+                                                <span className="text-3xl font-bold text-amber-700">
+                                                    {String(countdown.days).padStart(2, '0')}
+                                                </span>
+                                                <p className="text-xs text-amber-600 mt-1">
+                                                    {translations.countdownDays}
+                                                </p>
+                                            </div>
+                                        )}
+                                        <div className="text-center">
+                                            <span className="text-3xl font-bold text-amber-700">
+                                                {String(countdown.hours).padStart(2, '0')}
+                                            </span>
+                                            <p className="text-xs text-amber-600 mt-1">
+                                                {translations.countdownHours}
+                                            </p>
+                                        </div>
+                                        <div className="text-center">
+                                            <span className="text-3xl font-bold text-amber-700">
+                                                {String(countdown.minutes).padStart(2, '0')}
+                                            </span>
+                                            <p className="text-xs text-amber-600 mt-1">
+                                                {translations.countdownMinutes}
+                                            </p>
+                                        </div>
+                                        <div className="text-center">
+                                            <span className="text-3xl font-bold text-amber-700">
+                                                {String(countdown.seconds).padStart(2, '0')}
+                                            </span>
+                                            <p className="text-xs text-amber-600 mt-1">
+                                                {translations.countdownSeconds}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )
+                            )}
+                            <p className="text-xs text-amber-600 text-center mt-3">
+                                {formatDate(assessment.scheduled_at ?? '', 'datetime')}
+                            </p>
+                        </div>
+                    )}
+
+                    {unavailabilityMessage && availability.reason !== 'assessment_not_started' && (
                         <AlertEntry type="error" title={translations.assessmentUnavailable}>
                             <p className="text-sm">{unavailabilityMessage}</p>
                         </AlertEntry>

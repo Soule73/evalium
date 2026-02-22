@@ -61,6 +61,12 @@ return [
         'no_description' => 'Aucune description fournie.',
         'view_results' => 'Voir les résultats',
         'assessment_unavailable' => 'Évaluation indisponible',
+        'countdown_title' => 'L\'évaluation commence dans',
+        'countdown_days' => 'jours',
+        'countdown_hours' => 'heures',
+        'countdown_minutes' => 'min',
+        'countdown_seconds' => 'sec',
+        'countdown_starting' => 'Démarrage...',
     ],
     'take' => [
         'title' => 'Évaluation - :assessment',
