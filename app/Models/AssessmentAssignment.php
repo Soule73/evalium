@@ -87,7 +87,7 @@ class AssessmentAssignment extends Model
     {
         $studentId = $student instanceof User ? $student->id : $student;
 
-        return $query->whereHas('enrollment', fn (Builder $q) => $q->where('student_id', $studentId));
+        return $query->whereHas('enrollment', fn(Builder $q) => $q->where('student_id', $studentId));
     }
 
     /**
@@ -96,14 +96,6 @@ class AssessmentAssignment extends Model
     public function answers(): HasMany
     {
         return $this->hasMany(Answer::class, 'assessment_assignment_id');
-    }
-
-    /**
-     * Get the file attachments for this assignment.
-     */
-    public function attachments(): HasMany
-    {
-        return $this->hasMany(AssignmentAttachment::class);
     }
 
     /**

@@ -17,9 +17,6 @@ export interface Assessment {
     duration_minutes: number | null;
     scheduled_at: string | null;
     due_date?: string;
-    max_file_size?: number;
-    allowed_extensions?: string;
-    max_files?: number;
     is_published: boolean;
     has_ended: boolean;
     shuffle_questions: boolean;
@@ -51,9 +48,6 @@ export interface AssessmentFormData {
     duration: number;
     assessment_date: string;
     due_date?: string;
-    max_file_size?: number;
-    allowed_extensions?: string;
-    max_files?: number;
     is_published?: boolean;
     shuffle_questions?: boolean;
     show_results_immediately?: boolean;
@@ -68,7 +62,7 @@ export interface AssessmentFormData {
 export interface QuestionFormData {
     id?: number;
     content: string;
-    type: 'multiple' | 'text' | 'one_choice' | 'boolean';
+    type: 'multiple' | 'text' | 'one_choice' | 'boolean' | 'file';
     points: number;
     order_index: number;
     choices: ChoiceFormData[];

@@ -30,9 +30,6 @@ class Assessment extends Model
         'duration_minutes',
         'scheduled_at',
         'due_date',
-        'max_file_size',
-        'allowed_extensions',
-        'max_files',
         'is_published',
         'settings',
     ];
@@ -51,8 +48,6 @@ class Assessment extends Model
             'duration_minutes' => 'integer',
             'scheduled_at' => 'datetime',
             'due_date' => 'datetime',
-            'max_file_size' => 'integer',
-            'max_files' => 'integer',
             'is_published' => 'boolean',
             'settings' => 'array',
         ];
@@ -344,27 +339,5 @@ class Assessment extends Model
     public function isHomeworkMode(): bool
     {
         return $this->delivery_mode === DeliveryMode::Homework;
-    }
-
-    /**
-     * Check if file uploads are enabled for this assessment.
-     */
-    public function hasFileUploads(): bool
-    {
-        return $this->max_files > 0;
-    }
-
-    /**
-     * Get the allowed file extensions as an array.
-     *
-     * @return array<string>
-     */
-    public function getAllowedExtensionsArray(): array
-    {
-        if (! $this->allowed_extensions) {
-            return [];
-        }
-
-        return array_map('trim', explode(',', $this->allowed_extensions));
     }
 }

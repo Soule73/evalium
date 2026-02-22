@@ -37,7 +37,7 @@ export default function Classmates({ enrollment, classmates }: StudentEnrollment
             t('student_enrollment_pages.classmates.subtitle', {
                 class: enrollment.class?.display_name ?? enrollment.class?.name ?? '-',
             }),
-        [t, enrollment.class?.name],
+        [t, enrollment.class?.display_name, enrollment.class?.name],
     );
 
     const paginatedClassmates: PaginationType<User> = {

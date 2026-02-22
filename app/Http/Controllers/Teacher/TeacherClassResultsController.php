@@ -14,24 +14,24 @@ use Inertia\Response;
  */
 class TeacherClassResultsController extends Controller
 {
-  public function __construct(
-    private readonly TeacherClassResultsService $resultsService
-  ) {}
+    public function __construct(
+        private readonly TeacherClassResultsService $resultsService
+    ) {}
 
-  /**
-   * Display the class results page with per-assessment and per-student statistics.
-   */
-  public function index(Request $request, ClassModel $class): Response
-  {
-    $teacherId = $request->user()->id;
+    /**
+     * Display the class results page with per-assessment and per-student statistics.
+     */
+    public function index(Request $request, ClassModel $class): Response
+    {
+        $teacherId = $request->user()->id;
 
-    $class->load(['academicYear', 'level']);
+        $class->load(['academicYear', 'level']);
 
-    $results = $this->resultsService->getClassResults($class, $teacherId);
+        $results = $this->resultsService->getClassResults($class, $teacherId);
 
-    return Inertia::render('Teacher/Classes/Results', [
-      'class' => $class,
-      'results' => $results,
-    ]);
-  }
+        return Inertia::render('Teacher/Classes/Results', [
+            'class' => $class,
+            'results' => $results,
+        ]);
+    }
 }

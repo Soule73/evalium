@@ -36,8 +36,8 @@ class TeacherDashboardService
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->whereHas('class', fn($query) => $query->where('name', 'like', "%{$search}%"))
-                    ->orWhereHas('subject', fn($query) => $query->where('name', 'like', "%{$search}%"));
+                $q->whereHas('class', fn ($query) => $query->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('subject', fn ($query) => $query->where('name', 'like', "%{$search}%"));
             });
         }
 
@@ -55,7 +55,7 @@ class TeacherDashboardService
      */
     public function getRecentAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $limit = 3): LengthAwarePaginator
     {
-        $query = Assessment::whereHas('classSubject', fn($q) => $q->where('teacher_id', $teacherId))
+        $query = Assessment::whereHas('classSubject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->forAcademicYear($academicYearId)
             ->with(['classSubject'])
             ->orderBy('scheduled_at', 'desc');
@@ -89,13 +89,13 @@ class TeacherDashboardService
 
         $totalAssessmentsCount = Assessment::whereHas('classSubject', function ($query) use ($teacherId, $academicYearId) {
             $query->where('teacher_id', $teacherId)
-                ->whereHas('class', fn($q) => $q->where('academic_year_id', $academicYearId));
+                ->whereHas('class', fn ($q) => $q->where('academic_year_id', $academicYearId));
         })->count();
 
         $inProgressCount = Assessment::whereHas('classSubject', function ($query) use ($teacherId, $academicYearId) {
             $query->where('teacher_id', $teacherId)
-                ->whereHas('class', fn($q) => $q->where('academic_year_id', $academicYearId));
-        })->whereHas('assignments', fn($q) => $q->inProgress())->count();
+                ->whereHas('class', fn ($q) => $q->where('academic_year_id', $academicYearId));
+        })->whereHas('assignments', fn ($q) => $q->inProgress())->count();
 
         return [
             'total_classes' => (int) ($stats->total_classes ?? 0),

@@ -42,6 +42,10 @@ class Answer extends Model
         'question_id',
         'choice_id',
         'answer_text',
+        'file_name',
+        'file_path',
+        'file_size',
+        'mime_type',
         'score',
         'feedback',
     ];
@@ -54,6 +58,7 @@ class Answer extends Model
     protected function casts(): array
     {
         return [
+            'file_size' => 'integer',
             'score' => 'float',
         ];
     }

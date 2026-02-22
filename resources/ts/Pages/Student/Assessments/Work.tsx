@@ -4,20 +4,13 @@ import {
     AlertEntry,
     Button,
     ConfirmationModal,
-    FileUploadZone,
     QuestionNavigation,
     Section,
     TakeQuestion,
     TextEntry,
 } from '@/Components';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import {
-    type Answer,
-    type Assessment,
-    type AssessmentAssignment,
-    type AssignmentAttachment,
-    type Question,
-} from '@/types';
+import { type Answer, type Assessment, type AssessmentAssignment, type Question } from '@/types';
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import {
     useAssessmentAnswers,
@@ -38,7 +31,7 @@ interface WorkProps {
     questions: Question[];
     userAnswers: Answer[];
     remainingSeconds: number | null;
-    attachments?: AssignmentAttachment[];
+    fileAnswers?: Answer[];
 }
 
 function Work({
@@ -46,20 +39,25 @@ function Work({
     assignment,
     questions = [],
     userAnswers = [],
-    attachments: initialAttachments = [],
+    fileAnswers: initialFileAnswers = [],
 }: WorkProps) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
     const [savingStatus, setSavingStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-    const [fileAttachments, setFileAttachments] =
-        useState<AssignmentAttachment[]>(initialAttachments);
+    const [fileAnswersByQuestion, setFileAnswersByQuestion] = useState<Record<number, Answer>>(() =>
+        Object.fromEntries(initialFileAnswers.map((a) => [a.question_id, a])),
+    );
 
-    const handleAttachmentAdded = useCallback((attachment: AssignmentAttachment) => {
-        setFileAttachments((prev) => [attachment, ...prev]);
+    const handleFileAnswerSaved = useCallback((questionId: number, answer: Answer) => {
+        setFileAnswersByQuestion((prev) => ({ ...prev, [questionId]: answer }));
     }, []);
 
-    const handleAttachmentRemoved = useCallback((attachmentId: number) => {
-        setFileAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
+    const handleFileAnswerRemoved = useCallback((questionId: number) => {
+        setFileAnswersByQuestion((prev) => {
+            const next = { ...prev };
+            delete next[questionId];
+            return next;
+        });
     }, []);
 
     const { answers, showConfirmModal, setShowConfirmModal, isSubmitting, shuffledQuestionIds } =
@@ -293,19 +291,6 @@ function Work({
                                 {assessment.due_date && <li>{translations.instructionDueDate}</li>}
                             </ul>
                         </AlertEntry>
-
-                        {(assessment.max_files ?? 0) > 0 && (
-                            <FileUploadZone
-                                assessmentId={assessment.id}
-                                attachments={fileAttachments}
-                                maxFiles={assessment.max_files ?? 0}
-                                maxFileSize={assessment.max_file_size ?? 10240}
-                                allowedExtensions={assessment.allowed_extensions ?? null}
-                                onAttachmentAdded={handleAttachmentAdded}
-                                onAttachmentRemoved={handleAttachmentRemoved}
-                                disabled={!!assignment.submitted_at}
-                            />
-                        )}
                     </div>
                 </Section>
 
@@ -315,6 +300,11 @@ function Work({
                         question={currentQ}
                         answers={answers}
                         onAnswerChange={handleAnswerChange}
+                        assessmentId={assessment.id}
+                        fileAnswers={fileAnswersByQuestion}
+                        onFileAnswerSaved={handleFileAnswerSaved}
+                        onFileAnswerRemoved={handleFileAnswerRemoved}
+                        disabled={!!assignment.submitted_at}
                     />
                 ))}
 

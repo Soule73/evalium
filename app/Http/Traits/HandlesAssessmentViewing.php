@@ -77,15 +77,16 @@ trait HandlesAssessmentViewing
         $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
         $this->afterGradingLoad($request, $assessment);
 
-        $assignment->load(['enrollment.student', 'answers.choice', 'attachments']);
+        $assignment->load(['enrollment.student', 'answers.choice']);
         $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
+        $fileAnswers = $assignment->answers()->whereNotNull('file_path')->get();
 
         return Inertia::render('Assessments/Review', [
             'assignment' => $assignment,
             'assessment' => $assessment,
             'student' => $assignment->enrollment?->student,
             'userAnswers' => $userAnswers,
-            'attachments' => $assignment->attachments,
+            'fileAnswers' => $fileAnswers,
             'routeContext' => $this->buildRouteContext(),
         ]);
     }
@@ -107,15 +108,16 @@ trait HandlesAssessmentViewing
         $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
         $this->afterGradingLoad($request, $assessment);
 
-        $assignment->load(['enrollment.student', 'answers.choice', 'attachments']);
+        $assignment->load(['enrollment.student', 'answers.choice']);
         $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
+        $fileAnswers = $assignment->answers()->whereNotNull('file_path')->get();
 
         return Inertia::render('Assessments/Grade', [
             'assignment' => $assignment,
             'assessment' => $assessment,
             'student' => $assignment->enrollment?->student,
             'userAnswers' => $userAnswers,
-            'attachments' => $assignment->attachments,
+            'fileAnswers' => $fileAnswers,
             'gradingState' => $gradingState,
             'routeContext' => $this->buildRouteContext(),
         ]);

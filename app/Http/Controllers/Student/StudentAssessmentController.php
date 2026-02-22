@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Student\UploadAttachmentRequest;
+use App\Http\Requests\Student\UploadFileAnswerRequest;
+use App\Models\Answer;
 use App\Models\Assessment;
-use App\Models\AssignmentAttachment;
-use App\Services\Student\AttachmentService;
+use App\Services\Student\FileAnswerService;
 use App\Services\Student\StudentAssessmentService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -23,7 +23,7 @@ class StudentAssessmentController extends Controller
 
     public function __construct(
         private readonly StudentAssessmentService $assessmentService,
-        private readonly AttachmentService $attachmentService
+        private readonly FileAnswerService $fileAnswerService
     ) {}
 
     /**
@@ -118,7 +118,7 @@ class StudentAssessmentController extends Controller
         $availability = $assessment->getAvailabilityStatus();
 
         if (! $availability['available']) {
-            return back()->flashError(__('messages.'.$availability['reason']));
+            return back()->flashError(__('messages.' . $availability['reason']));
         }
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
@@ -162,7 +162,7 @@ class StudentAssessmentController extends Controller
         if (! $availability['available']) {
             return redirect()
                 ->route('student.assessments.show', $assessment)
-                ->flashError(__('messages.'.$availability['reason']));
+                ->flashError(__('messages.' . $availability['reason']));
         }
 
         $assignment->load([
@@ -192,7 +192,7 @@ class StudentAssessmentController extends Controller
         $this->hideCorrectAnswers($assessment);
 
         if ($assessment->isHomeworkMode()) {
-            $props['attachments'] = $this->attachmentService->getAttachments($assignment);
+            $props['fileAnswers'] = $assignment->answers()->whereNotNull('file_path')->get();
         }
 
         return Inertia::render($page, $props);
@@ -344,9 +344,9 @@ class StudentAssessmentController extends Controller
     }
 
     /**
-     * Upload a file attachment for a homework assessment.
+     * Upload a file for a QuestionType::File answer in a homework assessment.
      */
-    public function uploadAttachment(UploadAttachmentRequest $request, Assessment $assessment): JsonResponse
+    public function uploadFileAnswer(UploadFileAnswerRequest $request, Assessment $assessment): JsonResponse
     {
         $student = Auth::user();
 
@@ -355,14 +355,6 @@ class StudentAssessmentController extends Controller
             403,
             __('messages.cannot_access_assessment')
         );
-
-        if (! $assessment->isHomeworkMode()) {
-            return response()->json(['message' => __('messages.file_uploads_not_allowed')], 422);
-        }
-
-        if (! $assessment->hasFileUploads()) {
-            return response()->json(['message' => __('messages.file_uploads_not_allowed')], 422);
-        }
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
@@ -374,22 +366,22 @@ class StudentAssessmentController extends Controller
             return response()->json(['message' => __('messages.assessment_due_date_passed')], 409);
         }
 
-        if ($this->attachmentService->hasReachedFileLimit($assignment, $assessment)) {
-            return response()->json(['message' => __('messages.file_upload_limit_reached')], 422);
-        }
-
-        $attachment = $this->attachmentService->uploadAttachment($assignment, $assessment, $request->file('file'));
+        $answer = $this->fileAnswerService->saveFileAnswer(
+            $assignment,
+            $request->integer('question_id'),
+            $request->file('file')
+        );
 
         return response()->json([
             'message' => __('messages.file_uploaded'),
-            'attachment' => $attachment,
+            'answer' => $answer,
         ], 201);
     }
 
     /**
-     * Delete a file attachment from a homework assessment.
+     * Delete a file answer for a QuestionType::File question in a homework assessment.
      */
-    public function deleteAttachment(Assessment $assessment, AssignmentAttachment $attachment): JsonResponse
+    public function deleteFileAnswer(Assessment $assessment, Answer $answer): JsonResponse
     {
         $student = Auth::user();
 
@@ -401,7 +393,7 @@ class StudentAssessmentController extends Controller
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
-        if ($attachment->assessment_assignment_id !== $assignment->id) {
+        if ($answer->assessment_assignment_id !== $assignment->id) {
             abort(403, __('messages.do_not_own_attachment'));
         }
 
@@ -409,7 +401,7 @@ class StudentAssessmentController extends Controller
             return response()->json(['message' => __('messages.assessment_already_submitted')], 400);
         }
 
-        $this->attachmentService->deleteAttachment($attachment);
+        $this->fileAnswerService->deleteFileAnswer($answer);
 
         return response()->json(['message' => __('messages.file_deleted')]);
     }

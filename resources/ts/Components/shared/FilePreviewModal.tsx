@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { route } from 'ziggy-js';
 import { XMarkIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
-import { type AssignmentAttachment } from '@/types';
+import { type Answer } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import Modal from '../ui/Modal/Modal';
 import { Button } from '@evalium/ui';
@@ -26,7 +26,7 @@ function getPreviewType(mimeType: string): PreviewType {
 }
 
 interface FilePreviewModalProps {
-    attachment: AssignmentAttachment | null;
+    attachment: Answer | null;
     isOpen: boolean;
     onClose: () => void;
 }
@@ -48,9 +48,9 @@ export function FilePreviewModal({ attachment, isOpen, onClose }: FilePreviewMod
 
     if (!attachment) return null;
 
-    const previewType = getPreviewType(attachment.mime_type);
-    const previewUrl = route('attachments.preview', attachment.id);
-    const downloadUrl = route('attachments.download', attachment.id);
+    const previewType = getPreviewType(attachment.mime_type ?? '');
+    const previewUrl = route('file-answers.preview', attachment.id);
+    const downloadUrl = route('file-answers.download', attachment.id);
 
     return (
         <Modal

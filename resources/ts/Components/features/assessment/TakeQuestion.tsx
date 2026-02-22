@@ -1,5 +1,5 @@
 import React from 'react';
-import { type Choice, type Question } from '@/types';
+import { type Choice, type Question, type Answer } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useQuestionTypeUtils } from '@/hooks/shared/useQuestionTypeUtils';
 import { useChoiceUtils } from '@/hooks/shared/useChoiceUtils';
@@ -12,6 +12,7 @@ import {
     getBooleanBadgeClass,
     questionIndexLabel,
 } from '@/utils/assessment/components';
+import { FileUploadZone } from './FileUploadZone';
 
 type AnswerValue = string | number | number[];
 
@@ -19,6 +20,11 @@ interface TakeQuestionProps {
     question: Question;
     answers: Record<number, AnswerValue>;
     onAnswerChange: (questionId: number, value: AnswerValue) => void;
+    assessmentId?: number;
+    fileAnswers?: Record<number, Answer>;
+    onFileAnswerSaved?: (questionId: number, answer: Answer) => void;
+    onFileAnswerRemoved?: (questionId: number, answerId: number) => void;
+    disabled?: boolean;
 }
 
 interface BaseChoiceProps {
@@ -147,7 +153,8 @@ const TakeQuestionText: React.FC<{
     questionId: number;
     answers: Record<number, AnswerValue>;
     onAnswerChange: (questionId: number, value: AnswerValue) => void;
-}> = ({ questionId, answers, onAnswerChange }) => {
+    disabled?: boolean;
+}> = ({ questionId, answers, onAnswerChange, disabled }) => {
     const { t } = useTranslations();
 
     return (
@@ -163,15 +170,45 @@ const TakeQuestionText: React.FC<{
                 onChange={(value) => onAnswerChange(questionId, value)}
                 placeholder={t('components.take_question.your_answer_placeholder')}
                 rows={6}
+                disabled={disabled}
                 helpText={t('components.take_question.your_answer_help')}
             />
         </div>
     );
 };
 
+/* ---------- File subcomponent ---------- */
+
+const TakeQuestionFile: React.FC<{
+    question: Question;
+    assessmentId: number;
+    fileAnswer?: Answer;
+    onFileAnswerSaved: (questionId: number, answer: Answer) => void;
+    onFileAnswerRemoved: (questionId: number, answerId: number) => void;
+    disabled?: boolean;
+}> = ({ question, assessmentId, fileAnswer, onFileAnswerSaved, onFileAnswerRemoved, disabled }) => (
+    <FileUploadZone
+        assessmentId={assessmentId}
+        questionId={question.id}
+        fileAnswer={fileAnswer}
+        onFileAnswerSaved={(answer) => onFileAnswerSaved(question.id, answer)}
+        onFileAnswerRemoved={(answerId) => onFileAnswerRemoved(question.id, answerId)}
+        disabled={disabled}
+    />
+);
+
 /* ---------- Main Component ---------- */
 
-const TakeQuestion: React.FC<TakeQuestionProps> = ({ question, answers, onAnswerChange }) => {
+const TakeQuestion: React.FC<TakeQuestionProps> = ({
+    question,
+    answers,
+    onAnswerChange,
+    assessmentId,
+    fileAnswers,
+    onFileAnswerSaved,
+    onFileAnswerRemoved,
+    disabled = false,
+}) => {
     const { t } = useTranslations();
     const { getTypeLabel } = useQuestionTypeUtils();
 
@@ -226,8 +263,23 @@ const TakeQuestion: React.FC<TakeQuestionProps> = ({ question, answers, onAnswer
                     questionId={question.id}
                     answers={answers}
                     onAnswerChange={onAnswerChange}
+                    disabled={disabled}
                 />
             )}
+
+            {question.type === 'file' &&
+                assessmentId !== null &&
+                onFileAnswerSaved !== null &&
+                onFileAnswerRemoved !== null && (
+                    <TakeQuestionFile
+                        question={question}
+                        assessmentId={assessmentId}
+                        fileAnswer={fileAnswers?.[question.id]}
+                        onFileAnswerSaved={onFileAnswerSaved}
+                        onFileAnswerRemoved={onFileAnswerRemoved}
+                        disabled={disabled}
+                    />
+                )}
         </Section>
     );
 };
@@ -238,4 +290,5 @@ export {
     TakeQuestionOneChoice,
     TakeQuestionBoolean,
     TakeQuestionText,
+    TakeQuestionFile,
 };

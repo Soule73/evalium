@@ -3,7 +3,6 @@ import {
     type Assessment,
     type AssessmentAssignment,
     type Answer,
-    type AssignmentAttachment,
     type User,
     type AssessmentRouteContext,
 } from '@/types';
@@ -23,7 +22,7 @@ interface Props {
     student: User;
     assignment: AssessmentAssignment;
     userAnswers: Record<number, Answer>;
-    attachments?: AssignmentAttachment[];
+    fileAnswers?: Answer[];
     routeContext: AssessmentRouteContext;
 }
 
@@ -32,7 +31,7 @@ export default function ReviewAssignment({
     student,
     assignment,
     userAnswers = {},
-    attachments = [],
+    fileAnswers = [],
     routeContext,
 }: Props) {
     const { t } = useTranslations();
@@ -141,9 +140,9 @@ export default function ReviewAssignment({
                     scores={scores}
                 />
 
-                {attachments.length > 0 && (
+                {fileAnswers.length > 0 && (
                     <Section title={t('grading_pages.show.student_files_title')}>
-                        <FileList attachments={attachments} readOnly />
+                        <FileList attachments={fileAnswers} readOnly />
                     </Section>
                 )}
 

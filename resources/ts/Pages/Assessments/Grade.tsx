@@ -4,7 +4,6 @@ import {
     type Assessment,
     type AssessmentAssignment,
     type Answer,
-    type AssignmentAttachment,
     type User,
     type Question,
     type PageProps,
@@ -39,7 +38,7 @@ interface Props {
     student: User;
     assignment: AssessmentAssignment;
     userAnswers: Record<number, Answer>;
-    attachments?: AssignmentAttachment[];
+    fileAnswers?: Answer[];
     gradingState: GradingState;
     routeContext: AssessmentRouteContext;
 }
@@ -49,7 +48,7 @@ export default function GradeAssignment({
     student,
     assignment,
     userAnswers = {},
-    attachments = [],
+    fileAnswers = [],
     gradingState,
     routeContext,
 }: Props) {
@@ -297,9 +296,9 @@ export default function GradeAssignment({
                     renderScoreInput={renderScoreInput}
                 />
 
-                {attachments.length > 0 && (
+                {fileAnswers.length > 0 && (
                     <Section title={t('grading_pages.show.student_files_title')}>
-                        <FileList attachments={attachments} readOnly />
+                        <FileList attachments={fileAnswers} readOnly />
                     </Section>
                 )}
 

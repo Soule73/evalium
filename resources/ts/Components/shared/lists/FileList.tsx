@@ -1,9 +1,9 @@
 import { useState, useMemo, useCallback, type ReactNode } from 'react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { type AssignmentAttachment } from '@/types';
+import { type Answer } from '@/types';
 import { Badge } from '@evalium/ui';
-import { formatDate, formatFileSize } from '@/utils';
+import { formatFileSize } from '@/utils';
 import { useTranslations } from '@/hooks';
 import { FilePreviewModal } from '../FilePreviewModal';
 import type { EntityListConfig } from './types/listConfig';
@@ -54,7 +54,7 @@ function isPreviewable(mimeType: string): boolean {
     return IMAGE_TYPES.includes(mimeType) || PDF_TYPES.includes(mimeType);
 }
 
-function buildColumns(t: TranslateFn): EntityListConfig<AssignmentAttachment>['columns'] {
+function buildColumns(t: TranslateFn): EntityListConfig<Answer>['columns'] {
     return [
         {
             key: 'file_name',
@@ -66,7 +66,7 @@ function buildColumns(t: TranslateFn): EntityListConfig<AssignmentAttachment>['c
                             {attachment.file_name}
                         </p>
                         <p className="text-xs text-gray-500">
-                            {formatFileSize(attachment.file_size)}
+                            {formatFileSize(attachment.file_size ?? 0)}
                         </p>
                     </div>
                 </div>
@@ -75,24 +75,15 @@ function buildColumns(t: TranslateFn): EntityListConfig<AssignmentAttachment>['c
         {
             key: 'mime_type',
             labelKey: 'components.file_list.file_type',
-            render: (attachment) => getFileTypeBadge(attachment.mime_type, t),
-        },
-        {
-            key: 'uploaded_at',
-            labelKey: 'components.file_list.uploaded_at',
-            render: (attachment) => (
-                <span className="text-sm text-gray-500">
-                    {formatDate(attachment.uploaded_at || attachment.created_at, 'datetime')}
-                </span>
-            ),
+            render: (attachment) => getFileTypeBadge(attachment.mime_type ?? '', t),
         },
     ];
 }
 
 interface FileListProps {
-    attachments: AssignmentAttachment[];
+    attachments: Answer[];
     showPagination?: boolean;
-    onDelete?: (attachment: AssignmentAttachment) => void;
+    onDelete?: (answer: Answer) => void;
     deleteLoading?: number | null;
     readOnly?: boolean;
 }
@@ -111,13 +102,13 @@ export function FileList({
     readOnly = false,
 }: FileListProps) {
     const { t } = useTranslations();
-    const [previewAttachment, setPreviewAttachment] = useState<AssignmentAttachment | null>(null);
+    const [previewAttachment, setPreviewAttachment] = useState<Answer | null>(null);
 
-    const handlePreview = useCallback((attachment: AssignmentAttachment) => {
-        if (isPreviewable(attachment.mime_type)) {
-            setPreviewAttachment(attachment);
+    const handlePreview = useCallback((answer: Answer) => {
+        if (isPreviewable(answer.mime_type ?? '')) {
+            setPreviewAttachment(answer);
         } else {
-            window.open(route('attachments.download', attachment.id), '_blank');
+            window.open(route('file-answers.download', answer.id), '_blank');
         }
     }, []);
 
@@ -125,7 +116,7 @@ export function FileList({
         setPreviewAttachment(null);
     }, []);
 
-    const data: PaginationType<AssignmentAttachment> = useMemo(
+    const data: PaginationType<Answer> = useMemo(
         () => ({
             data: attachments,
             current_page: 1,
@@ -144,21 +135,21 @@ export function FileList({
         [attachments],
     );
 
-    const config: EntityListConfig<AssignmentAttachment> = useMemo(() => {
+    const config: EntityListConfig<Answer> = useMemo(() => {
         const columns = buildColumns(t);
 
-        const actions: EntityListConfig<AssignmentAttachment>['actions'] = [
+        const actions: EntityListConfig<Answer>['actions'] = [
             {
                 labelKey: 'components.file_list.preview',
-                onClick: (attachment) => handlePreview(attachment),
+                onClick: (answer) => handlePreview(answer),
                 color: 'secondary',
                 variant: 'outline',
-                conditional: (item) => isPreviewable(item.mime_type),
+                conditional: (item) => isPreviewable(item.mime_type ?? ''),
             },
             {
                 labelKey: 'components.file_list.download',
-                onClick: (attachment) => {
-                    window.open(route('attachments.download', attachment.id), '_blank');
+                onClick: (answer) => {
+                    window.open(route('file-answers.download', answer.id), '_blank');
                 },
                 color: 'primary',
                 variant: 'outline',
@@ -168,7 +159,7 @@ export function FileList({
         if (onDelete && !readOnly) {
             actions.push({
                 labelKey: 'commons/ui.delete',
-                onClick: (attachment) => onDelete(attachment),
+                onClick: (answer) => onDelete(answer),
                 color: 'danger',
                 variant: 'outline',
                 conditional: (item) => deleteLoading !== item.id,

@@ -307,7 +307,7 @@ export function AssignmentList({
                 }),
             );
         },
-        [onGrade, assessment.id, routeContext?.gradeRoute],
+        [onGrade, assessment.id, assessment.has_ended, routeContext?.gradeRoute],
     );
 
     const handleView = useCallback(

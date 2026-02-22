@@ -233,7 +233,8 @@ class DeliveryModeValidationTest extends TestCase
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->classSubject->teacher_id,
             'due_date' => now()->subDay(),
-            'is_published' => true, 'allow_late_submission' => false,
+            'is_published' => true,
+            'allow_late_submission' => false,
         ]);
 
         $status = $assessment->getAvailabilityStatus();
@@ -248,7 +249,8 @@ class DeliveryModeValidationTest extends TestCase
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->classSubject->teacher_id,
             'due_date' => now()->subDay(),
-            'is_published' => true, 'allow_late_submission' => true,
+            'is_published' => true,
+            'allow_late_submission' => true,
         ]);
 
         $status = $assessment->getAvailabilityStatus();
@@ -296,11 +298,7 @@ class DeliveryModeValidationTest extends TestCase
 
         $response = $this->actingAs($teacher)->post(
             route('teacher.assessments.store'),
-            $this->validHomeworkData([
-                'max_file_size' => 5120,
-                'allowed_extensions' => 'pdf,docx,zip',
-                'max_files' => 3,
-            ])
+            $this->validHomeworkData()
         );
 
         $response->assertRedirect();
@@ -308,9 +306,7 @@ class DeliveryModeValidationTest extends TestCase
 
         $this->assertDatabaseHas('assessments', [
             'title' => 'Homework Assignment',
-            'max_file_size' => 5120,
-            'allowed_extensions' => 'pdf,docx,zip',
-            'max_files' => 3,
+            'delivery_mode' => 'homework',
         ]);
     }
 }

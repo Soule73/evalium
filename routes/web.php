@@ -51,15 +51,15 @@ Route::middleware('auth')->group(function () {
         'setCurrent',
     ])->name('api.academic-years.set-current');
 
-    Route::get('/attachments/{attachment}/download', [
-        \App\Http\Controllers\AttachmentController::class,
+    Route::get('/file-answers/{answer}/download', [
+        \App\Http\Controllers\FileAnswerController::class,
         'download',
-    ])->name('attachments.download');
+    ])->name('file-answers.download');
 
-    Route::get('/attachments/{attachment}/preview', [
-        \App\Http\Controllers\AttachmentController::class,
+    Route::get('/file-answers/{answer}/preview', [
+        \App\Http\Controllers\FileAnswerController::class,
         'preview',
-    ])->name('attachments.preview');
+    ])->name('file-answers.preview');
 
     /**
      * Admin Routes
@@ -359,8 +359,8 @@ Route::middleware('auth')->group(function () {
                     Route::post('/{assessment}/submit', 'submit')->name('submit');
                     Route::post('/{assessment}/security-violation', 'securityViolation')->name('security-violation');
                     Route::get('/{assessment}/results', 'results')->name('results');
-                    Route::post('/{assessment}/attachments', 'uploadAttachment')->name('attachments.upload');
-                    Route::delete('/{assessment}/attachments/{attachment}', 'deleteAttachment')->name('attachments.delete');
+                    Route::post('/{assessment}/file-answers', 'uploadFileAnswer')->name('file-answers.upload');
+                    Route::delete('/{assessment}/file-answers/{answer}', 'deleteFileAnswer')->name('file-answers.delete');
                 });
 
             /**

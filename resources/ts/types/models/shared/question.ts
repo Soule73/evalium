@@ -1,6 +1,6 @@
 import type { Choice } from './choice';
 
-export type QuestionType = 'multiple' | 'text' | 'one_choice' | 'boolean';
+export type QuestionType = 'multiple' | 'text' | 'one_choice' | 'boolean' | 'file';
 
 export interface Question {
     id: number;

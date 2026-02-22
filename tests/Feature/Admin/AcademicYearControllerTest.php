@@ -68,7 +68,7 @@ class AcademicYearControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Admin/AcademicYears/Archives')
                 ->has('academicYears')
                 ->has('filters')
@@ -85,7 +85,7 @@ class AcademicYearControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Admin/AcademicYears/Archives')
                 ->where('filters.search', '2024')
         );
@@ -107,7 +107,7 @@ class AcademicYearControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Admin/AcademicYears/Archives')
                 ->has('academicYears.data.0.semesters')
         );
@@ -141,7 +141,7 @@ class AcademicYearControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Admin/AcademicYears/Create')
                 ->has('currentYear')
                 ->has('futureYearExists')
@@ -366,7 +366,7 @@ class AcademicYearControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Admin/AcademicYears/Edit')
                 ->has('academicYear')
                 ->has('academicYear.semesters')
