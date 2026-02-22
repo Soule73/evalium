@@ -12,3 +12,8 @@ Schedule::command('assessment:materialise-assignments')
     ->everyThirtyMinutes()
     ->withoutOverlapping()
     ->runInBackground();
+
+Schedule::command('assessment:auto-submit-expired')
+    ->everyFiveMinutes()
+    ->withoutOverlapping()
+    ->runInBackground();
