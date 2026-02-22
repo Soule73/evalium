@@ -14,6 +14,8 @@ interface UseNotificationsReturn extends NotificationState {
     fetchNotifications: () => Promise<void>;
     markRead: (id: string) => void;
     markAllRead: () => Promise<void>;
+    deleteNotification: (id: string) => void;
+    deleteAll: () => void;
 }
 
 /**
@@ -96,6 +98,45 @@ export function useNotifications(): UseNotificationsReturn {
         }));
     }, []);
 
+    const deleteNotification = useCallback((id: string) => {
+        setState((prev) => {
+            const target = prev.notifications.find((n) => n.id === id);
+            const wasUnread = target?.read_at === null;
+
+            return {
+                ...prev,
+                notifications: prev.notifications.filter((n) => n.id !== id),
+                unreadCount: wasUnread ? Math.max(0, prev.unreadCount - 1) : prev.unreadCount,
+            };
+        });
+
+        fetch(route('notifications.delete', { id }), {
+            method: 'DELETE',
+            keepalive: true,
+            headers: {
+                'X-CSRF-TOKEN':
+                    (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)
+                        ?.content ?? '',
+                Accept: 'application/json',
+            },
+        });
+    }, []);
+
+    const deleteAll = useCallback(() => {
+        setState((prev) => ({ ...prev, notifications: [], unreadCount: 0 }));
+
+        fetch(route('notifications.delete-all'), {
+            method: 'DELETE',
+            keepalive: true,
+            headers: {
+                'X-CSRF-TOKEN':
+                    (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)
+                        ?.content ?? '',
+                Accept: 'application/json',
+            },
+        });
+    }, []);
+
     useEffect(() => {
         const POLL_INTERVAL_MS = 60_000;
 
@@ -114,5 +155,5 @@ export function useNotifications(): UseNotificationsReturn {
         };
     }, []);
 
-    return { ...state, fetchNotifications, markRead, markAllRead };
+    return { ...state, fetchNotifications, markRead, markAllRead, deleteNotification, deleteAll };
 }

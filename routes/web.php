@@ -72,6 +72,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::post('/{id}/read', 'markRead')->name('read');
             Route::post('/read-all', 'markAllRead')->name('read-all');
+            Route::delete('/{id}', 'destroy')->name('delete');
+            Route::delete('/', 'destroyAll')->name('delete-all');
         });
 
     /**

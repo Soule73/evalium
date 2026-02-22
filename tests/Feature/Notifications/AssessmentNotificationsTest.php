@@ -269,4 +269,93 @@ class AssessmentNotificationsTest extends TestCase
         $this->assertSame($student->name, $data['student_name']);
         $this->assertArrayHasKey('url', $data);
     }
+
+    /**
+     * A user can delete one of their own notifications.
+     */
+    public function test_delete_single_notification(): void
+    {
+        $user = $this->createTeacher();
+        $notificationId = \Illuminate\Support\Str::uuid()->toString();
+
+        DatabaseNotification::create([
+            'id' => $notificationId,
+            'type' => AssessmentPublishedNotification::class,
+            'notifiable_type' => User::class,
+            'notifiable_id' => $user->id,
+            'data' => json_encode([
+                'type' => 'assessment_published',
+                'assessment_id' => 1,
+                'assessment_title' => 'Test',
+                'url' => '/student/assessments/1',
+            ]),
+            'read_at' => null,
+        ]);
+
+        $this->actingAs($user)
+            ->deleteJson(route('notifications.delete', ['id' => $notificationId]))
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        $this->assertDatabaseMissing('notifications', ['id' => $notificationId]);
+    }
+
+    /**
+     * A user cannot delete another user's notification.
+     */
+    public function test_delete_notification_belonging_to_another_user_returns_404(): void
+    {
+        $owner = $this->createTeacher();
+        $other = $this->createTeacher();
+        $notificationId = \Illuminate\Support\Str::uuid()->toString();
+
+        DatabaseNotification::create([
+            'id' => $notificationId,
+            'type' => AssessmentPublishedNotification::class,
+            'notifiable_type' => User::class,
+            'notifiable_id' => $owner->id,
+            'data' => json_encode([
+                'type' => 'assessment_published',
+                'assessment_id' => 1,
+                'assessment_title' => 'Test',
+                'url' => '/student/assessments/1',
+            ]),
+            'read_at' => null,
+        ]);
+
+        $this->actingAs($other)
+            ->deleteJson(route('notifications.delete', ['id' => $notificationId]))
+            ->assertNotFound();
+    }
+
+    /**
+     * A user can delete all their notifications at once.
+     */
+    public function test_delete_all_notifications(): void
+    {
+        $user = $this->createTeacher();
+
+        foreach (range(1, 3) as $i) {
+            DatabaseNotification::create([
+                'id' => \Illuminate\Support\Str::uuid()->toString(),
+                'type' => AssessmentPublishedNotification::class,
+                'notifiable_type' => User::class,
+                'notifiable_id' => $user->id,
+                'data' => json_encode([
+                    'type' => 'assessment_published',
+                    'assessment_id' => $i,
+                    'assessment_title' => "Test {$i}",
+                    'url' => "/student/assessments/{$i}",
+                ]),
+                'read_at' => null,
+            ]);
+        }
+
+        $this->actingAs($user)
+            ->deleteJson(route('notifications.delete-all'))
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        $this->assertSame(0, $user->notifications()->count());
+    }
 }

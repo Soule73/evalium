@@ -52,4 +52,28 @@ class NotificationController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    /**
+     * Delete a single notification belonging to the authenticated user.
+     */
+    public function destroy(string $id): JsonResponse
+    {
+        $notification = Auth::user()
+            ->notifications()
+            ->findOrFail($id);
+
+        $notification->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Delete all notifications of the authenticated user.
+     */
+    public function destroyAll(): JsonResponse
+    {
+        Auth::user()->notifications()->delete();
+
+        return response()->json(['success' => true]);
+    }
 }

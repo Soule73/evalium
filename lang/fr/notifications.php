@@ -36,6 +36,8 @@ return [
 
     'title' => 'Notifications',
     'mark_all_read' => 'Tout marquer comme lu',
+    'delete' => 'Supprimer la notification',
+    'delete_all' => 'Tout supprimer',
     'close' => 'Fermer',
     'empty' => 'Aucune notification',
 

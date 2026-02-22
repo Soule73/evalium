@@ -4,6 +4,7 @@ import { usePage } from '@inertiajs/react';
 import { type PageProps } from '@/types';
 import { useNotifications } from '@/hooks/shared/useNotifications';
 import { NotificationPanel } from './NotificationPanel';
+import { Button } from '@/Components/ui';
 
 /**
  * Bell icon button with unread badge that opens the NotificationPanel.
@@ -22,6 +23,8 @@ export function NotificationBell() {
         fetchNotifications,
         markRead,
         markAllRead,
+        deleteNotification,
+        deleteAll,
     } = useNotifications();
 
     const displayUnread = isOpen ? unreadCount : unreadCountFromShared;
@@ -37,19 +40,14 @@ export function NotificationBell() {
 
     return (
         <>
-            <button
-                type="button"
-                onClick={handleOpen}
-                className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label="Notifications"
-            >
-                <BellIcon className="w-5 h-5" />
+            <Button type="button" variant="ghost" onClick={handleOpen}>
+                <BellIcon className="w-5 h-5 cursor-pointer" />
                 {displayUnread > 0 && (
                     <span className="absolute top-1 right-1 inline-flex items-center justify-center h-4 min-w-4 px-0.5 rounded-full text-xs font-bold bg-red-500 text-white leading-none">
                         {displayUnread > 99 ? '99+' : displayUnread}
                     </span>
                 )}
-            </button>
+            </Button>
 
             <NotificationPanel
                 isOpen={isOpen}
@@ -60,6 +58,8 @@ export function NotificationBell() {
                 loading={loading}
                 onMarkRead={markRead}
                 onMarkAllRead={markAllRead}
+                onDelete={deleteNotification}
+                onDeleteAll={deleteAll}
             />
         </>
     );
