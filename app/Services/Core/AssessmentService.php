@@ -43,9 +43,6 @@ class AssessmentService
                 'duration_minutes' => $data['duration_minutes'] ?? null,
                 'scheduled_at' => $data['scheduled_at'] ?? null,
                 'due_date' => $data['due_date'] ?? null,
-                'max_file_size' => $data['max_file_size'] ?? null,
-                'allowed_extensions' => $data['allowed_extensions'] ?? null,
-                'max_files' => $data['max_files'] ?? 0,
             ]);
 
             $assessment->is_published = $data['is_published'] ?? false;
@@ -82,9 +79,6 @@ class AssessmentService
                 'duration_minutes',
                 'scheduled_at',
                 'due_date',
-                'max_file_size',
-                'allowed_extensions',
-                'max_files',
             ];
 
             $updateData = [];
@@ -177,7 +171,7 @@ class AssessmentService
     {
         return DB::transaction(function () use ($assessment, $overrides) {
             $newAssessment = $assessment->replicate();
-            $newAssessment->title = $overrides['title'] ?? ($assessment->title.' (Copy)');
+            $newAssessment->title = $overrides['title'] ?? ($assessment->title . ' (Copy)');
             $newAssessment->is_published = false;
             $newAssessment->scheduled_at = $overrides['scheduled_at'] ?? null;
             $newAssessment->save();

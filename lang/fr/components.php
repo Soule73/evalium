@@ -91,12 +91,6 @@ return [
         'show_correct_answers_label' => 'Révéler les bonnes réponses après la correction',
         'allow_late_submission_label' => 'Autoriser les soumissions tardives',
         'one_question_per_page_label' => 'Une question par page',
-        'file_upload_title' => 'Paramètres d\'envoi de fichiers',
-        'max_files_label' => 'Nombre maximal de fichiers',
-        'max_files_help' => 'Laissez vide ou 0 pour désactiver l\'envoi de fichiers',
-        'max_file_size_label' => 'Taille maximale du fichier (Ko)',
-        'allowed_extensions_label' => 'Extensions autorisées',
-        'allowed_extensions_help' => 'Liste séparée par des virgules (ex : pdf,docx,jpg)',
     ],
     'question_renderer' => [
         'no_answer' => 'Aucune réponse fournie',

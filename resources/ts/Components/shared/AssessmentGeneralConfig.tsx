@@ -28,9 +28,6 @@ interface AssessmentGeneralConfigProps {
         show_correct_answers: boolean;
         allow_late_submission: boolean;
         one_question_per_page: boolean;
-        max_files?: number | null;
-        max_file_size?: number | null;
-        allowed_extensions?: string | null;
     };
     errors: {
         title?: string;
@@ -44,9 +41,6 @@ interface AssessmentGeneralConfigProps {
         type?: string;
         class_subject_id?: string;
         is_published?: string;
-        max_files?: string;
-        max_file_size?: string;
-        allowed_extensions?: string;
     };
     onFieldChange: (field: string, value: string | number | boolean) => void;
     classSubjects: ClassSubject[];
@@ -204,67 +198,6 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
                     </div>
                 )}
             </div>
-
-            {!isSupervised && (
-                <div className="border-t border-gray-200 pt-6">
-                    <h4 className="text-md font-medium text-gray-900 mb-4">
-                        {t('components.assessment_general_config.file_upload_title')}
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <Input
-                                label={t('components.assessment_general_config.max_files_label')}
-                                type="number"
-                                value={data.max_files?.toString() || ''}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                    onFieldChange(
-                                        'max_files',
-                                        e.target.value ? parseInt(e.target.value) : 0,
-                                    )
-                                }
-                                error={errors.max_files}
-                                min="0"
-                            />
-                            <p className="mt-1 text-sm text-gray-500">
-                                {t('components.assessment_general_config.max_files_help')}
-                            </p>
-                        </div>
-                        <div>
-                            <Input
-                                label={t(
-                                    'components.assessment_general_config.max_file_size_label',
-                                )}
-                                type="number"
-                                value={data.max_file_size?.toString() || ''}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                    onFieldChange(
-                                        'max_file_size',
-                                        e.target.value ? parseInt(e.target.value) : 0,
-                                    )
-                                }
-                                error={errors.max_file_size}
-                                min="0"
-                            />
-                        </div>
-                        <div>
-                            <Input
-                                label={t(
-                                    'components.assessment_general_config.allowed_extensions_label',
-                                )}
-                                type="text"
-                                value={data.allowed_extensions || ''}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                    onFieldChange('allowed_extensions', e.target.value)
-                                }
-                                error={errors.allowed_extensions}
-                            />
-                            <p className="mt-1 text-sm text-gray-500">
-                                {t('components.assessment_general_config.allowed_extensions_help')}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             <div>
                 <MarkdownEditor

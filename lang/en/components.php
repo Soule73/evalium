@@ -190,12 +190,6 @@ return [
         'show_correct_answers_label' => 'Reveal correct answers after grading',
         'allow_late_submission_label' => 'Allow late submission',
         'one_question_per_page_label' => 'One question per page',
-        'file_upload_title' => 'File Upload Settings',
-        'max_files_label' => 'Maximum number of files',
-        'max_files_help' => 'Leave empty or 0 to disable file uploads',
-        'max_file_size_label' => 'Maximum file size (KB)',
-        'allowed_extensions_label' => 'Allowed extensions',
-        'allowed_extensions_help' => 'Comma-separated list (e.g. pdf,docx,jpg)',
     ],
     'fullscreen_modal' => [
         'title' => 'Full Screen Required',
