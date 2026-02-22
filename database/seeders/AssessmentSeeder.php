@@ -48,9 +48,6 @@ class AssessmentSeeder extends Seeder
                     'duration_minutes' => $isSupervisedMode ? 90 : null,
                     'scheduled_at' => $isSupervisedMode ? now()->addDays($dayCounter) : null,
                     'due_date' => $isSupervisedMode ? null : now()->addDays($dayCounter + 7),
-                    'max_files' => $isSupervisedMode ? 0 : 3,
-                    'max_file_size' => $isSupervisedMode ? null : 5120,
-                    'allowed_extensions' => $isSupervisedMode ? null : 'pdf,docx,zip',
                     'settings' => [],
                 ]);
 
