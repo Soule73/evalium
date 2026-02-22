@@ -147,6 +147,7 @@ return [
 
     // Grading
     'grade_saved' => 'Grade saved successfully',
+    'grade_blocked_assessment_running' => 'Cannot grade: the student has not submitted and the assessment is still in progress.',
     'assessment_already_submitted' => 'This assessment has already been submitted',
     'results_not_available_yet' => 'Results are not available until the assessment has been graded',
 

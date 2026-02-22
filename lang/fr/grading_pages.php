@@ -28,6 +28,8 @@ return [
         'confirm_save_message' => 'Enregistrer les notes et commentaires pour :student ?',
         'confirm_save' => 'Enregistrer',
         'cancel' => 'Annuler',
+        'warning_not_submitted_ended_title' => 'Évaluation terminée — aucune copie reçue',
+        'warning_not_submitted_ended_message' => 'Cet étudiant n\'a pas rendu sa copie avant la fin de l\'évaluation. Vous pouvez attribuer une note finale (ex. 0) pour clôturer son évaluation.',
     ],
     'review' => [
         'title' => 'Consultation - :student - :assessment',

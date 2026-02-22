@@ -59,6 +59,7 @@ class Assessment extends Model
     protected $appends = [
         'duration',
         'is_published',
+        'has_ended',
         'shuffle_questions',
         'show_results_immediately',
         'show_correct_answers',
@@ -269,6 +270,67 @@ class Assessment extends Model
     public function isAvailableToTake(): bool
     {
         return $this->getAvailabilityStatus()['available'];
+    }
+
+    /**
+     * Determine whether the assessment window has fully closed.
+     *
+     * For homework: due_date has passed.
+     * For supervised: scheduled_at + duration_minutes has passed.
+     */
+    public function hasEnded(): bool
+    {
+        $now = now();
+
+        if ($this->isHomeworkMode()) {
+            return $this->due_date !== null && $now->gt($this->due_date);
+        }
+
+        $endsAt = $this->ends_at;
+
+        return $endsAt !== null && $now->gt($endsAt);
+    }
+
+    /**
+     * Appended accessor for serialization to frontend.
+     */
+    public function getHasEndedAttribute(): bool
+    {
+        return $this->hasEnded();
+    }
+
+    /**
+     * Determine whether grading is allowed for a given assignment.
+     *
+     * - submitted_at set           → allowed (normal grading flow)
+     * - submitted_at null + ended  → allowed with warning (exception: give 0 or final score)
+     * - submitted_at null + active → blocked (student still has time)
+     *
+     * @return array{allowed: bool, reason: string, warning: string|null}
+     */
+    public function getGradingState(AssessmentAssignment $assignment): array
+    {
+        if ($assignment->submitted_at !== null) {
+            return [
+                'allowed' => true,
+                'reason' => 'submitted',
+                'warning' => null,
+            ];
+        }
+
+        if ($this->hasEnded()) {
+            return [
+                'allowed' => true,
+                'reason' => 'not_submitted_assessment_ended',
+                'warning' => 'grading_without_submission',
+            ];
+        }
+
+        return [
+            'allowed' => false,
+            'reason' => 'assessment_still_running',
+            'warning' => null,
+        ];
     }
 
     /**

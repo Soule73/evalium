@@ -93,10 +93,16 @@ trait HandlesAssessmentViewing
     /**
      * Display the grading interface for a specific student assignment.
      */
-    public function grade(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response
+    public function grade(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response|RedirectResponse
     {
         $this->authorize('update', $assessment);
         abort_unless($assignment->assessment_id === $assessment->id, 404);
+
+        $gradingState = $assessment->getGradingState($assignment);
+
+        if (! $gradingState['allowed']) {
+            return redirect()->back()->flashError(__('messages.grade_blocked_assessment_running'));
+        }
 
         $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
         $this->afterGradingLoad($request, $assessment);
@@ -110,6 +116,7 @@ trait HandlesAssessmentViewing
             'student' => $assignment->enrollment?->student,
             'userAnswers' => $userAnswers,
             'attachments' => $assignment->attachments,
+            'gradingState' => $gradingState,
             'routeContext' => $this->buildRouteContext(),
         ]);
     }
@@ -120,6 +127,10 @@ trait HandlesAssessmentViewing
     public function saveGrade(SaveManualGradeRequest $request, Assessment $assessment, AssessmentAssignment $assignment): RedirectResponse
     {
         abort_unless($assignment->assessment_id === $assessment->id, 404);
+
+        $gradingState = $assessment->getGradingState($assignment);
+
+        abort_if(! $gradingState['allowed'], 422, __('messages.grade_blocked_assessment_running'));
 
         $this->scoringService->saveManualGrades(
             $assignment,

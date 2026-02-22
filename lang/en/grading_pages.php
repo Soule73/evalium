@@ -28,6 +28,8 @@ return [
         'confirm_save_message' => 'Save grades and feedback for :student?',
         'confirm_save' => 'Save',
         'cancel' => 'Cancel',
+        'warning_not_submitted_ended_title' => 'Assessment ended — no submission received',
+        'warning_not_submitted_ended_message' => 'This student did not submit their copy before the end of the assessment. You can assign a final score (e.g. 0) to close their evaluation.',
     ],
     'review' => [
         'title' => 'Review - :student - :assessment',

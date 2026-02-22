@@ -25,7 +25,14 @@ import {
     ChartPieIcon,
     CheckCircleIcon,
     XCircleIcon,
+    ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
+
+interface GradingState {
+    allowed: boolean;
+    reason: string;
+    warning: string | null;
+}
 
 interface Props {
     assessment: Assessment;
@@ -33,6 +40,7 @@ interface Props {
     assignment: AssessmentAssignment;
     userAnswers: Record<number, Answer>;
     attachments?: AssignmentAttachment[];
+    gradingState: GradingState;
     routeContext: AssessmentRouteContext;
 }
 
@@ -42,6 +50,7 @@ export default function GradeAssignment({
     assignment,
     userAnswers = {},
     attachments = [],
+    gradingState,
     routeContext,
 }: Props) {
     const { t } = useTranslations();
@@ -206,6 +215,20 @@ export default function GradeAssignment({
             breadcrumb={pageBreadcrumbs}
         >
             <div className="max-w-6xl mx-auto space-y-6">
+                {gradingState.warning === 'grading_without_submission' && (
+                    <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                        <ExclamationTriangleIcon className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
+                        <div>
+                            <p className="font-medium text-amber-800">
+                                {t('grading_pages.show.warning_not_submitted_ended_title')}
+                            </p>
+                            <p className="mt-1 text-sm text-amber-700">
+                                {t('grading_pages.show.warning_not_submitted_ended_message')}
+                            </p>
+                        </div>
+                    </div>
+                )}
+
                 <Section title={assessment.title} collapsible defaultOpen={false}>
                     <AssessmentHeader assessment={assessment} showDescription showMetadata />
                 </Section>

@@ -21,6 +21,7 @@ export interface Assessment {
     allowed_extensions?: string;
     max_files?: number;
     is_published: boolean;
+    has_ended: boolean;
     shuffle_questions: boolean;
     show_results_immediately: boolean;
     show_correct_answers: boolean;

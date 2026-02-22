@@ -91,6 +91,7 @@ interface AssignmentActionsProps {
     assignment: AssignmentWithVirtual;
     isSupervisedMode: boolean;
     hasReopenRoute: boolean;
+    assessmentHasEnded: boolean;
     onReopen: (assignment: AssignmentWithVirtual) => void;
     onGrade: (assignment: AssignmentWithVirtual) => void;
     onView: (assignment: AssignmentWithVirtual) => void;
@@ -101,6 +102,7 @@ const AssignmentActions = memo(
         assignment,
         isSupervisedMode,
         hasReopenRoute,
+        assessmentHasEnded,
         onReopen,
         onGrade,
         onView,
@@ -110,8 +112,10 @@ const AssignmentActions = memo(
         const canGrade = hasPermission(auth.permissions, 'grade assessments');
         const canView = hasPermission(auth.permissions, 'view assessments');
 
+        const isGradeable =
+            !assignment.is_virtual && (!!assignment.submitted_at || assessmentHasEnded);
         const showReopen = canGrade && canReopen(assignment, isSupervisedMode, hasReopenRoute);
-        const showGradeActions = canGrade && !assignment.is_virtual;
+        const showGradeActions = canGrade && isGradeable;
         const showView = canView && !assignment.is_virtual && assignment.score;
         const isUngraded = !assignment.score;
 
@@ -207,6 +211,7 @@ interface ColumnDeps {
     totalPoints: number;
     isSupervisedMode: boolean;
     hasReopenRoute: boolean;
+    assessmentHasEnded: boolean;
     t: (key: string) => string;
     onReopen: (a: AssignmentWithVirtual) => void;
     onGrade: (a: AssignmentWithVirtual) => void;
@@ -214,7 +219,16 @@ interface ColumnDeps {
 }
 
 function buildColumns(deps: ColumnDeps): EntityListConfig<AssignmentWithVirtual>['columns'] {
-    const { totalPoints, isSupervisedMode, hasReopenRoute, t, onReopen, onGrade, onView } = deps;
+    const {
+        totalPoints,
+        isSupervisedMode,
+        hasReopenRoute,
+        assessmentHasEnded,
+        t,
+        onReopen,
+        onGrade,
+        onView,
+    } = deps;
     return [
         {
             key: 'student',
@@ -247,6 +261,7 @@ function buildColumns(deps: ColumnDeps): EntityListConfig<AssignmentWithVirtual>
                     assignment={a}
                     isSupervisedMode={isSupervisedMode}
                     hasReopenRoute={hasReopenRoute}
+                    assessmentHasEnded={assessmentHasEnded}
                     onReopen={onReopen}
                     onGrade={onGrade}
                     onView={onView}
@@ -279,12 +294,8 @@ export function AssignmentList({
 
     const handleGrade = useCallback(
         (assignment: AssignmentWithVirtual) => {
-            if (
-                !assignment.id ||
-                // !assignment.submitted_at ||
-                assignment.is_virtual
-            )
-                return;
+            if (!assignment.id || assignment.is_virtual) return;
+            if (!assignment.submitted_at && !assessment.has_ended) return;
             if (onGrade) {
                 onGrade(assignment);
                 return;
@@ -323,6 +334,7 @@ export function AssignmentList({
                 totalPoints,
                 isSupervisedMode,
                 hasReopenRoute,
+                assessmentHasEnded: assessment.has_ended,
                 t,
                 onReopen: reopen.open,
                 onGrade: handleGrade,
@@ -330,7 +342,16 @@ export function AssignmentList({
             }),
             actions: [],
         }),
-        [totalPoints, isSupervisedMode, hasReopenRoute, t, reopen.open, handleGrade, handleView],
+        [
+            totalPoints,
+            isSupervisedMode,
+            hasReopenRoute,
+            assessment.has_ended,
+            t,
+            reopen.open,
+            handleGrade,
+            handleView,
+        ],
     );
 
     return (
