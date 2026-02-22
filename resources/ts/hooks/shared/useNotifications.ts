@@ -12,7 +12,7 @@ interface NotificationState {
 
 interface UseNotificationsReturn extends NotificationState {
     fetchNotifications: () => Promise<void>;
-    markRead: (id: string) => Promise<void>;
+    markRead: (id: string) => void;
     markAllRead: () => Promise<void>;
 }
 
@@ -54,17 +54,7 @@ export function useNotifications(): UseNotificationsReturn {
         }
     }, []);
 
-    const markRead = useCallback(async (id: string) => {
-        await fetch(route('notifications.read', { id }), {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN':
-                    (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)
-                        ?.content ?? '',
-                Accept: 'application/json',
-            },
-        });
-
+    const markRead = useCallback((id: string) => {
         setState((prev) => ({
             ...prev,
             notifications: prev.notifications.map((n) =>
@@ -72,6 +62,17 @@ export function useNotifications(): UseNotificationsReturn {
             ),
             unreadCount: Math.max(0, prev.unreadCount - 1),
         }));
+
+        fetch(route('notifications.read', { id }), {
+            method: 'POST',
+            keepalive: true,
+            headers: {
+                'X-CSRF-TOKEN':
+                    (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)
+                        ?.content ?? '',
+                Accept: 'application/json',
+            },
+        });
     }, []);
 
     const markAllRead = useCallback(async () => {

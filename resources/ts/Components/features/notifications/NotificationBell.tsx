@@ -58,7 +58,6 @@ export function NotificationBell() {
                 unreadCount={unreadCount}
                 hasMore={hasMore}
                 loading={loading}
-                onOpen={handleOpen}
                 onMarkRead={markRead}
                 onMarkAllRead={markAllRead}
             />

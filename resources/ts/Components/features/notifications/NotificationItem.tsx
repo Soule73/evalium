@@ -5,7 +5,7 @@ import { formatDate } from '@/utils';
 
 interface NotificationItemProps {
     notification: AppNotification;
-    onRead: (id: string) => Promise<void>;
+    onRead: (id: string) => void;
 }
 
 /**
@@ -24,9 +24,9 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
         assessment_starting_soon: t('notifications.types.assessment_starting_soon'),
     };
 
-    const handleClick = async () => {
+    const handleClick = () => {
         if (isUnread) {
-            await onRead(notification.id);
+            onRead(notification.id);
         }
         router.visit(data.url);
     };
