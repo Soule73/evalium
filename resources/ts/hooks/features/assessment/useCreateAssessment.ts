@@ -14,6 +14,7 @@ interface AssessmentCreateData {
     delivery_mode: DeliveryMode;
     type: AssessmentType;
     class_subject_id: number | null;
+    coefficient: number;
     is_published: boolean;
     shuffle_questions: boolean;
     show_results_immediately: boolean;
@@ -42,6 +43,7 @@ export const useCreateAssessment = () => {
             type: 'homework',
             class_subject_id: null,
             is_published: false,
+            coefficient: 1,
             shuffle_questions: false,
             show_results_immediately: true,
             show_correct_answers: false,

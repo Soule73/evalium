@@ -171,7 +171,7 @@ class AssessmentService
     {
         return DB::transaction(function () use ($assessment, $overrides) {
             $newAssessment = $assessment->replicate();
-            $newAssessment->title = $overrides['title'] ?? ($assessment->title . ' (Copy)');
+            $newAssessment->title = $overrides['title'] ?? ($assessment->title.' (Copy)');
             $newAssessment->is_published = false;
             $newAssessment->scheduled_at = $overrides['scheduled_at'] ?? null;
             $newAssessment->save();

@@ -5,11 +5,11 @@ import { MarkdownEditor } from '@evalium/ui';
 import { type ClassSubject, type AssessmentType, type DeliveryMode } from '@/types';
 
 const DEFAULT_DELIVERY_MODES: Record<string, DeliveryMode> = {
-    examen: 'supervised',
-    controle: 'supervised',
-    devoir: 'homework',
-    tp: 'homework',
-    projet: 'homework',
+    exam: 'supervised',
+    quiz: 'supervised',
+    homework: 'homework',
+    practical: 'homework',
+    project: 'homework',
 };
 
 interface AssessmentGeneralConfigProps {
@@ -22,6 +22,7 @@ interface AssessmentGeneralConfigProps {
         delivery_mode: DeliveryMode;
         type: AssessmentType;
         class_subject_id: number | null;
+        coefficient: number;
         is_published: boolean;
         shuffle_questions: boolean;
         show_results_immediately: boolean;
@@ -41,6 +42,7 @@ interface AssessmentGeneralConfigProps {
         type?: string;
         class_subject_id?: string;
         is_published?: string;
+        coefficient?: string;
     };
     onFieldChange: (field: string, value: string | number | boolean) => void;
     classSubjects: ClassSubject[];
@@ -130,6 +132,21 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
                         onChange={(value) => onFieldChange('delivery_mode', value)}
                         error={errors.delivery_mode}
                         options={deliveryModeOptions}
+                        required
+                    />
+                </div>
+
+                <div>
+                    <Input
+                        label={t('components.assessment_general_config.coefficient_label')}
+                        type="number"
+                        value={data.coefficient?.toString() || '1'}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            onFieldChange('coefficient', parseFloat(e.target.value) || 1)
+                        }
+                        error={errors.coefficient}
+                        min="0.01"
+                        step="0.01"
                         required
                     />
                 </div>

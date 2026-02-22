@@ -186,7 +186,7 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
 
                     {question.type === 'file' && (
                         <div className="rounded-lg bg-orange-50 border border-orange-200 p-4 flex items-start space-x-3">
-                            <PaperClipIcon className="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" />
+                            <PaperClipIcon className="h-5 w-5 text-orange-500 mt-0.5 shrink-0" />
                             <div>
                                 <p className="text-sm font-medium text-orange-800">
                                     {t('components.question_item.file_upload_info_title')}

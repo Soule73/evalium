@@ -19,6 +19,7 @@ interface AssessmentEditData {
     delivery_mode: DeliveryMode;
     type: AssessmentType;
     class_subject_id: number | null;
+    coefficient: number;
     is_published: boolean;
     shuffle_questions: boolean;
     show_results_immediately: boolean;
@@ -68,6 +69,7 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
             type: assessment.type,
             class_subject_id: assessment.class_subject_id ?? null,
             is_published: assessment.is_published ?? false,
+            coefficient: assessment.coefficient ?? 1,
             shuffle_questions: assessment.shuffle_questions ?? false,
             show_results_immediately: assessment.show_results_immediately ?? true,
             show_correct_answers: assessment.show_correct_answers ?? false,
