@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="C:\laragon\www\examena\phpunit.xml" tests="1" assertions="1" errors="0" failures="1" skipped="0" time="4.339556">
+  <testsuite name="C:\laragon\www\evaluim\phpunit.xml" tests="1" assertions="1" errors="0" failures="1" skipped="0" time="4.339556">
     <testsuite name="Unit" tests="1" assertions="1" errors="0" failures="1" skipped="0" time="4.339556">
-      <testsuite name="Tests\Unit\Services\Core\Scoring\ScoringServiceTest" file="C:\laragon\www\examena\tests\Unit\Services\Core\Scoring\ScoringServiceTest.php" tests="1" assertions="1" errors="0" failures="1" skipped="0" time="4.339556">
-        <testcase name="it_calculates_score_for_correct_multiple_choice_question" file="C:\laragon\www\examena\tests\Unit\Services\Core\Scoring\ScoringServiceTest.php" line="80" class="Tests\Unit\Services\Core\Scoring\ScoringServiceTest" classname="Tests.Unit.Services.Core.Scoring.ScoringServiceTest" assertions="1" time="4.339556">
+      <testsuite name="Tests\Unit\Services\Core\Scoring\ScoringServiceTest" file="C:\laragon\www\evaluim\tests\Unit\Services\Core\Scoring\ScoringServiceTest.php" tests="1" assertions="1" errors="0" failures="1" skipped="0" time="4.339556">
+        <testcase name="it_calculates_score_for_correct_multiple_choice_question" file="C:\laragon\www\evaluim\tests\Unit\Services\Core\Scoring\ScoringServiceTest.php" line="80" class="Tests\Unit\Services\Core\Scoring\ScoringServiceTest" classname="Tests.Unit.Services.Core.Scoring.ScoringServiceTest" assertions="1" time="4.339556">
           <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Unit\Services\Core\Scoring\ScoringServiceTest::it_calculates_score_for_correct_multiple_choice_question&#13;
 Failed asserting that 0.0 matches expected 15.
 &#13;
-C:\laragon\www\examena\tests\Unit\Services\Core\Scoring\ScoringServiceTest.php:124</failure>
+C:\laragon\www\evaluim\tests\Unit\Services\Core\Scoring\ScoringServiceTest.php:124</failure>
         </testcase>
       </testsuite>
     </testsuite>

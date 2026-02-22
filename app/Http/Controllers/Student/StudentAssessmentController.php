@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Student\SaveAnswersRequest;
+use App\Http\Requests\Student\SecurityViolationRequest;
 use App\Http\Requests\Student\UploadFileAnswerRequest;
 use App\Models\Answer;
 use App\Models\Assessment;
@@ -201,7 +203,7 @@ class StudentAssessmentController extends Controller
     /**
      * Save answers (auto-save during assessment).
      */
-    public function saveAnswers(Request $request, Assessment $assessment)
+    public function saveAnswers(SaveAnswersRequest $request, Assessment $assessment)
     {
         $student = Auth::user();
 
@@ -210,10 +212,6 @@ class StudentAssessmentController extends Controller
             403,
             __('messages.cannot_access_assessment')
         );
-
-        $request->validate([
-            'answers' => ['required', 'array'],
-        ]);
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
@@ -239,7 +237,7 @@ class StudentAssessmentController extends Controller
     /**
      * Submit answers for an assessment.
      */
-    public function submit(Request $request, Assessment $assessment)
+    public function submit(SaveAnswersRequest $request, Assessment $assessment)
     {
         $student = Auth::user();
 
@@ -248,10 +246,6 @@ class StudentAssessmentController extends Controller
             403,
             __('messages.cannot_access_assessment')
         );
-
-        $request->validate([
-            'answers' => ['required', 'array'],
-        ]);
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
@@ -413,7 +407,7 @@ class StudentAssessmentController extends Controller
     /**
      * Handle security violation during assessment.
      */
-    public function securityViolation(Request $request, Assessment $assessment)
+    public function securityViolation(SecurityViolationRequest $request, Assessment $assessment)
     {
         $student = Auth::user();
 
@@ -426,12 +420,6 @@ class StudentAssessmentController extends Controller
         if ($assessment->isHomeworkMode()) {
             return response()->json(['message' => __('messages.security_violations_not_applicable')], 422);
         }
-
-        $request->validate([
-            'violation_type' => ['required', 'string'],
-            'violation_details' => ['nullable', 'string'],
-            'answers' => ['nullable', 'array'],
-        ]);
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 

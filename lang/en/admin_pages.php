@@ -203,6 +203,8 @@ return [
         'save_permissions' => 'Save Permissions',
         'saving' => 'Saving...',
         'system_role_notice' => 'This is a predefined system role. Only permissions can be modified.',
+        'admin_role' => 'Admin',
+        'super_admin_role' => 'Super Admin',
     ],
     'subjects' => [
         'title' => 'Subjects Management',

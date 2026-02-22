@@ -18,6 +18,7 @@ return [
         'graded' => 'Graded',
         'delivery_mode_supervised' => 'Supervised',
         'delivery_mode_homework' => 'Homework',
+        'view' => 'View',
     ],
     'show' => [
         'title' => 'Assessment Details',

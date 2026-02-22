@@ -390,13 +390,13 @@ function buildActions(deps: ActionDeps): ActionConfig<AssessmentItem>[] {
             },
         },
         {
-            labelKey: 'student_assessment_pages.index.take_assessment',
+            labelKey: 'student_assessment_pages.index.view',
             onClick: (item) => {
                 const assignment = item as AssignmentWithAssessment;
                 router.visit(route('student.assessments.show', assignment.assessment.id));
             },
             color: 'primary',
-            variant: 'solid',
+            variant: 'outline',
             conditional: (item, cv) => {
                 if (cv !== 'student') return false;
                 const assignment = item as AssignmentWithAssessment;
@@ -564,10 +564,10 @@ export function AssessmentList({
         const filters = isAssignmentVariant(variant)
             ? buildAssignmentFilters(variant, subjects, t)
             : variant === 'admin' && (filterSubjects.length > 0 || filterTeachers.length > 0)
-              ? buildAdminFilters(filterSubjects, filterTeachers, t)
-              : variant === 'teacher' && classes.length > 0
-                ? buildTeacherFilters(classes, t)
-                : undefined;
+                ? buildAdminFilters(filterSubjects, filterTeachers, t)
+                : variant === 'teacher' && classes.length > 0
+                    ? buildTeacherFilters(classes, t)
+                    : undefined;
 
         return {
             entity: 'assessment',

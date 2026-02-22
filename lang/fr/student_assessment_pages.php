@@ -18,6 +18,7 @@ return [
         'graded' => 'Corrigé',
         'delivery_mode_supervised' => 'Surveillé',
         'delivery_mode_homework' => 'Devoir maison',
+        'view' => 'Voir',
     ],
     'show' => [
         'title' => 'Détails de l\'évaluation',

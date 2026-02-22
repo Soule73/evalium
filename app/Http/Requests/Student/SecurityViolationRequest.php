@@ -32,7 +32,7 @@ class SecurityViolationRequest extends FormRequest
         return [
             'violation_type' => ['required', 'string'],
             'violation_details' => ['nullable', 'string'],
-            'answers' => ['array'],
+            'answers' => ['nullable', 'array'],
         ];
     }
 }
