@@ -3,6 +3,7 @@ import {
     Squares2X2Icon,
     QuestionMarkCircleIcon,
     PencilIcon,
+    PaperClipIcon,
 } from '@heroicons/react/24/outline';
 import type { ComponentType, SVGProps } from 'react';
 
@@ -32,6 +33,11 @@ export const QUESTION_TYPE_CONFIG: Record<string, IconConfig> = {
         icon: PencilIcon,
         bgColor: 'bg-yellow-100',
         textColor: 'text-yellow-600',
+    },
+    file: {
+        icon: PaperClipIcon,
+        bgColor: 'bg-orange-100',
+        textColor: 'text-orange-600',
     },
 };
 

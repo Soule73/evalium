@@ -61,6 +61,8 @@ return [
         'add_option' => 'Add Option',
         'true' => 'True',
         'false' => 'False',
+        'file_upload_info_title' => 'File submission question',
+        'file_upload_info_subtitle' => 'Students will upload one or more files as their answer. Grading is manual.',
     ],
     'question_renderer' => [
         'no_answer' => 'No answer provided',
@@ -75,6 +77,7 @@ return [
         'one_choice' => 'Single Choice',
         'boolean' => 'True/False',
         'text' => 'Text Answer',
+        'file' => 'File Upload',
         'true' => 'True',
         'false' => 'False',
         'your_answer_placeholder' => 'Type your answer here... (Markdown supported)',
@@ -114,6 +117,8 @@ return [
         'boolean_subtitle' => 'Boolean question',
         'text_title' => 'Free Response',
         'text_subtitle' => 'Free text response',
+        'file_title' => 'File Upload',
+        'file_subtitle' => 'Student file submission (homework only)',
     ],
     'assessment_list' => [
         'view_assessment' => 'View',

@@ -262,7 +262,7 @@ class AssessmentController extends Controller
         return [
             'role' => 'teacher',
             'backRoute' => 'teacher.assessments.index',
-            'showRoute' => null,
+            'showRoute' => 'teacher.assessments.show',
             'classAssessmentShowRoute' => 'teacher.classes.assessments.show',
             'reviewRoute' => 'teacher.assessments.review',
             'gradeRoute' => 'teacher.assessments.grade',

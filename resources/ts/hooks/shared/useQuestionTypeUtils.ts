@@ -13,6 +13,7 @@ export function useQuestionTypeUtils() {
             one_choice: t('components.take_question.one_choice'),
             boolean: t('components.take_question.boolean'),
             text: t('components.take_question.text'),
+            file: t('components.take_question.file'),
         }),
         [t],
     );

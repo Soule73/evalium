@@ -77,7 +77,7 @@ class TeacherAssessmentIndexTest extends TestCase
                     ->has('classes')
                     ->where('routeContext.role', 'teacher')
                     ->where('routeContext.createRoute', 'teacher.assessments.create')
-                    ->where('routeContext.showRoute', null)
+                    ->where('routeContext.showRoute', 'teacher.assessments.show')
             );
     }
 

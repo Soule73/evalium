@@ -10,6 +10,7 @@ return [
     'question_type_one_choice' => 'Single Choice',
     'question_type_boolean' => 'True/False',
     'question_type_text' => 'Free Response',
+    'question_type_file' => 'File Upload',
     'role_admin' => 'Administrator',
     'role_super_admin' => 'Super Administrator',
     'role_teacher' => 'Teacher',

@@ -10,6 +10,7 @@ return [
     'question_type_one_choice' => 'Choix unique',
     'question_type_boolean' => 'Vrai/Faux',
     'question_type_text' => 'Réponse libre',
+    'question_type_file' => 'Dépôt de fichier',
     'role_admin' => 'Administrateur',
     'role_super_admin' => 'Super Administrateur',
     'role_teacher' => 'Enseignant',

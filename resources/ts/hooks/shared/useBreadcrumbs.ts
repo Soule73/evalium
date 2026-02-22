@@ -205,6 +205,7 @@ function createBreadcrumbs(t: TranslateFn) {
     const assessmentsBc = createEntityBreadcrumbs<{ id: number; title: string }>({
         labelKey: 'breadcrumbs.assessments',
         indexRoute: 'teacher.assessments.index',
+        showRoute: 'teacher.assessments.show',
     });
 
     const adminAssessmentsBc = {

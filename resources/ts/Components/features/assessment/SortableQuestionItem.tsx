@@ -5,6 +5,7 @@ import {
     ChevronDownIcon,
     ChevronRightIcon,
     Bars3Icon,
+    PaperClipIcon,
 } from '@heroicons/react/24/outline';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -182,6 +183,20 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
                         helpText={t('components.question_item.question_help')}
                         error={errors[`questions.${index}.content`]}
                     />
+
+                    {question.type === 'file' && (
+                        <div className="rounded-lg bg-orange-50 border border-orange-200 p-4 flex items-start space-x-3">
+                            <PaperClipIcon className="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" />
+                            <div>
+                                <p className="text-sm font-medium text-orange-800">
+                                    {t('components.question_item.file_upload_info_title')}
+                                </p>
+                                <p className="text-sm text-orange-700 mt-1">
+                                    {t('components.question_item.file_upload_info_subtitle')}
+                                </p>
+                            </div>
+                        </div>
+                    )}
 
                     {(question.type === 'multiple' ||
                         question.type === 'one_choice' ||

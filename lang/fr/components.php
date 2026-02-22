@@ -61,6 +61,8 @@ return [
         'add_option' => 'Ajouter une option',
         'true' => 'Vrai',
         'false' => 'Faux',
+        'file_upload_info_title' => 'Question de dépôt de fichier',
+        'file_upload_info_subtitle' => 'Les étudiants déposeront un ou plusieurs fichiers comme réponse. La correction est manuelle.',
     ],
     'assessment_general_config' => [
         'title' => 'Paramètres généraux',
@@ -109,6 +111,7 @@ return [
         'one_choice' => 'Choix unique',
         'boolean' => 'Vrai/Faux',
         'text' => 'Réponse texte',
+        'file' => 'Dépôt de fichier',
         'true' => 'Vrai',
         'false' => 'Faux',
         'your_answer_placeholder' => 'Tapez votre réponse ici... (Markdown supporté)',
@@ -148,6 +151,8 @@ return [
         'boolean_subtitle' => 'Question booléenne',
         'text_title' => 'Réponse libre',
         'text_subtitle' => 'Texte de réponse libre',
+        'file_title' => 'Dépôt de fichier',
+        'file_subtitle' => 'Rendu de fichier par l\'étudiant (devoir uniquement)',
     ],
     'assessment_header' => [
         'questions_count' => 'Questions',

@@ -290,6 +290,7 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'index')->name('index');
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
+                    Route::get('/{assessment}', 'show')->name('show');
                     Route::get('/{assessment}/edit', 'edit')->name('edit');
                     Route::put('/{assessment}', 'update')->name('update');
                     Route::delete('/{assessment}', 'destroy')->name('destroy');

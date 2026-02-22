@@ -66,11 +66,12 @@ class TeacherClassAssessmentController extends Controller
             'reviewRoute' => 'teacher.assessments.review',
             'gradeRoute' => 'teacher.assessments.grade',
             'saveGradeRoute' => 'teacher.assessments.saveGrade',
-            'editRoute' => null,
-            'publishRoute' => null,
-            'unpublishRoute' => null,
-            'duplicateRoute' => null,
-            'reopenRoute' => null,
+            'editRoute' => 'teacher.assessments.edit',
+            'publishRoute' => 'teacher.assessments.publish',
+            'unpublishRoute' => 'teacher.assessments.unpublish',
+            'duplicateRoute' => 'teacher.assessments.duplicate',
+            'reopenRoute' => 'teacher.assessments.reopen',
+            'createRoute' => 'teacher.assessments.create',
         ];
     }
 
