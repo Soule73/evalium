@@ -5,7 +5,7 @@ import {
     AcademicCapIcon,
     BookOpenIcon,
     ClipboardDocumentListIcon,
-    CalendarDaysIcon,
+    PlayCircleIcon,
 } from '@heroicons/react/24/outline';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
@@ -18,23 +18,16 @@ interface Stats {
     total_classes: number;
     total_subjects: number;
     total_assessments: number;
-    past_assessments: number;
-    upcoming_assessments: number;
+    in_progress_assessments: number;
 }
 
 interface Props {
     activeAssignments: PaginationType<ClassSubject>;
-    pastAssessments: PaginationType<Assessment>;
-    upcomingAssessments: PaginationType<Assessment>;
+    recentAssessments: PaginationType<Assessment>;
     stats: Stats;
 }
 
-export default function TeacherDashboard({
-    stats,
-    activeAssignments,
-    pastAssessments,
-    upcomingAssessments,
-}: Props) {
+export default function TeacherDashboard({ stats, activeAssignments, recentAssessments }: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 
@@ -60,9 +53,9 @@ export default function TeacherDashboard({
                     icon={ClipboardDocumentListIcon}
                 />
                 <Stat.Item
-                    title={t('dashboard.teacher.upcoming_assessments')}
-                    value={stats.upcoming_assessments}
-                    icon={CalendarDaysIcon}
+                    title={t('dashboard.teacher.in_progress_assessments')}
+                    value={stats.in_progress_assessments}
+                    icon={PlayCircleIcon}
                 />
             </Stat.Group>
 
@@ -71,12 +64,12 @@ export default function TeacherDashboard({
                 subtitle={t('dashboard.teacher.active_assignments_subtitle')}
                 actions={
                     <Button
-                        onClick={() => router.visit(route('teacher.classes.index'))}
+                        onClick={() => router.visit('/teacher/class-subjects')}
                         color="secondary"
                         variant="outline"
                         size="sm"
                     >
-                        {t('dashboard.teacher.view_all_classes')}
+                        {t('dashboard.teacher.view_all_assignments')}
                     </Button>
                 }
             >
@@ -86,12 +79,15 @@ export default function TeacherDashboard({
                     showTeacherColumn={false}
                     showAssessmentsColumn={false}
                     showPagination={false}
+                    onView={(cs) =>
+                        router.visit(route('teacher.classes.show', { id: cs.class_id }))
+                    }
                 />
             </Section>
 
             <Section
-                title={t('dashboard.teacher.past_assessments')}
-                subtitle={t('dashboard.teacher.past_assessments_subtitle')}
+                title={t('dashboard.teacher.recent_assessments')}
+                subtitle={t('dashboard.teacher.recent_assessments_subtitle')}
                 actions={
                     <Button
                         onClick={() => router.visit(route('teacher.assessments.index'))}
@@ -103,17 +99,20 @@ export default function TeacherDashboard({
                     </Button>
                 }
             >
-                <AssessmentList data={pastAssessments} variant="teacher" showPagination={false} />
-            </Section>
-
-            <Section
-                title={t('dashboard.teacher.upcoming_assessments_section')}
-                subtitle={t('dashboard.teacher.upcoming_assessments_subtitle')}
-            >
                 <AssessmentList
-                    data={upcomingAssessments}
+                    data={recentAssessments}
                     variant="teacher"
                     showPagination={false}
+                    showClassColumn={false}
+                    onView={(item) => {
+                        const assessment = item as Assessment;
+                        router.visit(
+                            route('teacher.classes.assessments.show', {
+                                class: assessment.class_subject?.class_id,
+                                assessment: assessment.id,
+                            }),
+                        );
+                    }}
                 />
             </Section>
         </AuthenticatedLayout>

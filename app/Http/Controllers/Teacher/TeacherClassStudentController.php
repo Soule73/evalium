@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Teacher;
 
+use App\Contracts\Repositories\ClassRepositoryInterface;
 use App\Contracts\Repositories\EnrollmentRepositoryInterface;
 use App\Http\Controllers\Controller;
+use App\Http\Traits\HandlesIndexRequests;
 use App\Models\ClassModel;
 use App\Models\Enrollment;
 use App\Services\Core\GradeCalculationService;
@@ -19,11 +21,12 @@ use Inertia\Response;
  */
 class TeacherClassStudentController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear;
+    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests;
 
     public function __construct(
         private readonly GradeCalculationService $gradeCalculationService,
         private readonly EnrollmentRepositoryInterface $enrollmentRepository,
+        private readonly ClassRepositoryInterface $classRepository,
     ) {}
 
     /**
@@ -40,13 +43,38 @@ class TeacherClassStudentController extends Controller
             'assessmentsRoute' => 'teacher.classes.assessments',
             'subjectShowRoute' => null,
             'studentShowRoute' => 'teacher.classes.students.show',
-            'studentIndexRoute' => null,
+            'studentIndexRoute' => 'teacher.classes.students.index',
             'studentAssignmentsRoute' => 'teacher.classes.students.assignments',
             'assessmentShowRoute' => 'teacher.classes.assessments.show',
             'assessmentGradeRoute' => 'teacher.assessments.grade',
             'assessmentReviewRoute' => 'teacher.assessments.review',
             'assessmentSaveGradeRoute' => 'teacher.assessments.saveGrade',
         ];
+    }
+
+    /**
+     * Display a paginated list of students enrolled in a class taught by the teacher.
+     */
+    public function index(Request $request, ClassModel $class): Response
+    {
+        $this->authorize('view', $class);
+
+        ['filters' => $filters, 'per_page' => $perPage] = $this->extractIndexParams(
+            $request,
+            ['search', 'status']
+        );
+
+        $enrollments = $this->classRepository->getPaginatedEnrollments(
+            $class,
+            array_merge($filters, ['per_page' => $perPage, 'page' => $request->input('page', 1)])
+        );
+
+        return Inertia::render('Classes/Students/Index', [
+            'class' => $class->load('level', 'academicYear'),
+            'enrollments' => $enrollments,
+            'filters' => $filters,
+            'routeContext' => $this->buildRouteContext(),
+        ]);
     }
 
     /**

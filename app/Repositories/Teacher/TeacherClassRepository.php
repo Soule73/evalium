@@ -87,13 +87,14 @@ class TeacherClassRepository implements TeacherClassRepositoryInterface
         array $filters,
         int $perPage
     ): LengthAwarePaginator {
-        $classSubjectIds = ClassSubject::where('class_id', $class->id)
-            ->where('teacher_id', $teacherId)
-            ->pluck('id');
-
         return Assessment::query()
-            ->whereIn('class_subject_id', $classSubjectIds)
-            ->with(['classSubject.subject'])
+            ->whereIn('class_subject_id', function ($query) use ($class, $teacherId) {
+                $query->select('id')
+                    ->from('class_subjects')
+                    ->where('class_id', $class->id)
+                    ->where('teacher_id', $teacherId);
+            })
+            ->with(['classSubject'])
             ->when(
                 $filters['assessments_search'] ?? null,
                 fn ($query, $search) => $query->where('title', 'like', "%{$search}%")

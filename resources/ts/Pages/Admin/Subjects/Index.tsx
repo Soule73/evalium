@@ -10,44 +10,41 @@ import { Button, Section } from '@/Components';
 import { SubjectList } from '@/Components/shared/lists';
 
 interface Props extends PageProps {
-  subjects: PaginationType<Subject>;
-  levels?: Level[];
-  filters?: Record<string, string>;
+    subjects: PaginationType<Subject>;
+    levels?: Level[];
+    filters?: Record<string, string>;
 }
 
 export default function AdminSubjectsIndex({ subjects, levels }: Props) {
-  const { t } = useTranslations();
-  const breadcrumbs = useBreadcrumbs();
+    const { t } = useTranslations();
+    const breadcrumbs = useBreadcrumbs();
 
-  const translations = useMemo(
-    () => ({
-      title: t('admin_pages.subjects.title'),
-      subtitle: t('admin_pages.subjects.subtitle'),
-      create: t('admin_pages.subjects.create'),
-    }),
-    [t],
-  );
+    const translations = useMemo(
+        () => ({
+            title: t('admin_pages.subjects.title'),
+            subtitle: t('admin_pages.subjects.subtitle'),
+            create: t('admin_pages.subjects.create'),
+        }),
+        [t],
+    );
 
-  const handleCreate = () => {
-    router.visit(route('admin.subjects.create'));
-  };
+    const handleCreate = () => {
+        router.visit(route('admin.subjects.create'));
+    };
 
-  return (
-    <AuthenticatedLayout
-      title={translations.title}
-      breadcrumb={breadcrumbs.admin.subjects()}
-    >
-      <Section
-        title={translations.title}
-        subtitle={translations.subtitle}
-        actions={
-          <Button size="sm" variant="solid" color="primary" onClick={handleCreate}>
-            {translations.create}
-          </Button>
-        }
-      >
-        <SubjectList data={subjects} variant="admin" levels={levels ?? []} />
-      </Section>
-    </AuthenticatedLayout>
-  );
+    return (
+        <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.admin.subjects()}>
+            <Section
+                title={translations.title}
+                subtitle={translations.subtitle}
+                actions={
+                    <Button size="sm" variant="solid" color="primary" onClick={handleCreate}>
+                        {translations.create}
+                    </Button>
+                }
+            >
+                <SubjectList data={subjects} variant="admin" levels={levels ?? []} />
+            </Section>
+        </AuthenticatedLayout>
+    );
 }

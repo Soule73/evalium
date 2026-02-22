@@ -148,4 +148,32 @@ class TeacherClassStudentTest extends TestCase
         ]))
             ->assertRedirect(route('login'));
     }
+
+    public function test_teacher_can_view_class_students_index(): void
+    {
+        $this->actingAs($this->teacher)
+            ->get(route('teacher.classes.students.index', $this->class))
+            ->assertStatus(200)
+            ->assertInertia(
+                fn ($page) => $page
+                    ->component('Classes/Students/Index')
+                    ->has('class')
+                    ->has('enrollments')
+                    ->where('routeContext.role', 'teacher')
+                    ->where('routeContext.studentIndexRoute', 'teacher.classes.students.index')
+            );
+    }
+
+    public function test_student_cannot_access_teacher_class_students_index(): void
+    {
+        $this->actingAs($this->student)
+            ->get(route('teacher.classes.students.index', $this->class))
+            ->assertStatus(403);
+    }
+
+    public function test_unauthenticated_cannot_access_class_students_index(): void
+    {
+        $this->get(route('teacher.classes.students.index', $this->class))
+            ->assertRedirect(route('login'));
+    }
 }

@@ -159,7 +159,8 @@ export function ClassSubjectList({
                     },
                     color: 'secondary' as const,
                     variant: 'outline' as const,
-                    conditional: (_item: ClassSubject, v) => v === 'admin',
+                    conditional: (_item: ClassSubject, v) =>
+                        v === 'admin' || (v === 'teacher' && !!onView),
                 },
                 {
                     labelKey: 'teacher_class_pages.show.create_assessment',

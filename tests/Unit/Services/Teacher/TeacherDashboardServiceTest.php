@@ -82,15 +82,13 @@ class TeacherDashboardServiceTest extends TestCase
 
         $stats = $this->service->getDashboardStats(
             $teacher->id,
-            $this->academicYear->id,
-            5,
-            3
+            $this->academicYear->id
         );
 
         $queryLog = DB::getQueryLog();
         $queryCount = count($queryLog);
 
-        $this->assertLessThanOrEqual(3, $queryCount, "Expected <= 3 queries (COUNT DISTINCT + assessments count), but got {$queryCount}");
+        $this->assertLessThanOrEqual(3, $queryCount, "Expected <= 3 queries (COUNT DISTINCT + assessments count + in_progress count), but got {$queryCount}");
 
         $firstQuery = $queryLog[0]['query'] ?? '';
         $this->assertStringContainsString('COUNT(DISTINCT', $firstQuery, 'Should use COUNT(DISTINCT) in SQL, not PHP counting');
@@ -98,8 +96,7 @@ class TeacherDashboardServiceTest extends TestCase
         $this->assertEquals(3, $stats['total_classes']);
         $this->assertEquals(2, $stats['total_subjects']);
         $this->assertEquals(12, $stats['total_assessments']);
-        $this->assertEquals(5, $stats['past_assessments']);
-        $this->assertEquals(3, $stats['upcoming_assessments']);
+        $this->assertArrayHasKey('in_progress_assessments', $stats);
     }
 
     #[Test]
@@ -109,9 +106,7 @@ class TeacherDashboardServiceTest extends TestCase
 
         $stats = $this->service->getDashboardStats(
             $teacher->id,
-            $this->academicYear->id,
-            0,
-            0
+            $this->academicYear->id
         );
 
         $this->assertEquals(0, $stats['total_classes']);
@@ -147,9 +142,7 @@ class TeacherDashboardServiceTest extends TestCase
 
         $stats = $this->service->getDashboardStats(
             $teacher->id,
-            $this->academicYear->id,
-            0,
-            0
+            $this->academicYear->id
         );
 
         $this->assertEquals(1, $stats['total_classes'], 'Should count unique classes only');
@@ -200,9 +193,7 @@ class TeacherDashboardServiceTest extends TestCase
 
         $stats = $this->service->getDashboardStats(
             $teacher->id,
-            $this->academicYear->id,
-            0,
-            0
+            $this->academicYear->id
         );
 
         $this->assertEquals(1, $stats['total_classes'], 'Should only count classes from current academic year');
@@ -238,11 +229,76 @@ class TeacherDashboardServiceTest extends TestCase
 
         $stats = $this->service->getDashboardStats(
             $teacher->id,
-            $this->academicYear->id,
-            0,
-            0
+            $this->academicYear->id
         );
 
         $this->assertEquals(1, $stats['total_classes'], 'Should only count active assignments (valid_to = null)');
+    }
+
+    #[Test]
+    public function get_recent_assessments_returns_latest_limited_to_three(): void
+    {
+        $teacher = $this->createTeacher(['email' => 'teacher6@test.com']);
+
+        $class = \App\Models\ClassModel::factory()->create([
+            'academic_year_id' => $this->academicYear->id,
+            'level_id' => $this->level->id,
+        ]);
+
+        $subject = \App\Models\Subject::factory()->create(['code' => 'MATH05', 'name' => 'Math']);
+
+        $classSubject = ClassSubject::factory()->create([
+            'semester_id' => $this->semester->id,
+            'teacher_id' => $teacher->id,
+            'class_id' => $class->id,
+            'subject_id' => $subject->id,
+        ]);
+
+        Assessment::factory()->count(5)->sequence(
+            ['scheduled_at' => now()->subDays(5), 'class_subject_id' => $classSubject->id],
+            ['scheduled_at' => now()->subDays(3), 'class_subject_id' => $classSubject->id],
+            ['scheduled_at' => now()->subDays(1), 'class_subject_id' => $classSubject->id],
+            ['scheduled_at' => now()->addDays(1), 'class_subject_id' => $classSubject->id],
+            ['scheduled_at' => now()->addDays(3), 'class_subject_id' => $classSubject->id],
+        )->create();
+
+        $result = $this->service->getRecentAssessments($teacher->id, $this->academicYear->id);
+
+        $this->assertCount(3, $result->items());
+    }
+
+    #[Test]
+    public function get_recent_assessments_excludes_other_teachers_assessments(): void
+    {
+        $teacher = $this->createTeacher(['email' => 'teacher7@test.com']);
+        $otherTeacher = $this->createTeacher(['email' => 'teacher8@test.com']);
+
+        $class = \App\Models\ClassModel::factory()->create([
+            'academic_year_id' => $this->academicYear->id,
+            'level_id' => $this->level->id,
+        ]);
+
+        $subject = \App\Models\Subject::factory()->create(['code' => 'MATH06', 'name' => 'Math']);
+
+        $ownClassSubject = ClassSubject::factory()->create([
+            'semester_id' => $this->semester->id,
+            'teacher_id' => $teacher->id,
+            'class_id' => $class->id,
+            'subject_id' => $subject->id,
+        ]);
+
+        $otherClassSubject = ClassSubject::factory()->create([
+            'semester_id' => $this->semester->id,
+            'teacher_id' => $otherTeacher->id,
+            'class_id' => $class->id,
+            'subject_id' => $subject->id,
+        ]);
+
+        Assessment::factory()->create(['class_subject_id' => $ownClassSubject->id]);
+        Assessment::factory()->create(['class_subject_id' => $otherClassSubject->id]);
+
+        $result = $this->service->getRecentAssessments($teacher->id, $this->academicYear->id);
+
+        $this->assertCount(1, $result->items());
     }
 }

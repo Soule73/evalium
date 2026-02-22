@@ -319,6 +319,7 @@ Route::middleware('auth')->group(function () {
                     });
 
                     Route::controller(\App\Http\Controllers\Teacher\TeacherClassStudentController::class)->group(function () {
+                        Route::get('/{class}/students', 'index')->name('students.index');
                         Route::get('/{class}/students/{enrollment}', 'show')->name('students.show');
                         Route::get('/{class}/students/{enrollment}/assignments', 'assignments')->name('students.assignments');
                     });

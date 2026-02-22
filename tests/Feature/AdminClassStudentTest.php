@@ -89,9 +89,10 @@ class AdminClassStudentTest extends TestCase
             ->assertStatus(200)
             ->assertInertia(
                 fn ($page) => $page
-                    ->component('Admin/Classes/Students/Index')
+                    ->component('Classes/Students/Index')
                     ->has('class')
                     ->has('enrollments')
+                    ->where('routeContext.role', 'admin')
             );
     }
 
@@ -105,7 +106,7 @@ class AdminClassStudentTest extends TestCase
             ->assertStatus(200)
             ->assertInertia(
                 fn ($page) => $page
-                    ->component('Admin/Classes/Students/Index')
+                    ->component('Classes/Students/Index')
                     ->has('enrollments.data', 1)
             );
     }

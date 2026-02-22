@@ -564,10 +564,10 @@ export function AssessmentList({
         const filters = isAssignmentVariant(variant)
             ? buildAssignmentFilters(variant, subjects, t)
             : variant === 'admin' && (filterSubjects.length > 0 || filterTeachers.length > 0)
-                ? buildAdminFilters(filterSubjects, filterTeachers, t)
-                : variant === 'teacher' && classes.length > 0
-                    ? buildTeacherFilters(classes, t)
-                    : undefined;
+              ? buildAdminFilters(filterSubjects, filterTeachers, t)
+              : variant === 'teacher' && classes.length > 0
+                ? buildTeacherFilters(classes, t)
+                : undefined;
 
         return {
             entity: 'assessment',

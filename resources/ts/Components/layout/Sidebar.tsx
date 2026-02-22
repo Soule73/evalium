@@ -142,7 +142,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                         name: t('sidebar.navigation.my_classes'),
                         href: navRoutes.teacherClasses(),
                         icon: 'classes',
-                    }
+                    },
                 ],
             });
         }
@@ -394,9 +394,10 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                     href={navRoutes.profile()}
                                     className={`
                                         flex items-center space-x-3 p-3 transition-all mb-3
-                                        ${isActive(navRoutes.profile())
-                                            ? 'bg-indigo-50 border-b border-indigo-200'
-                                            : 'bg-white border-b border-gray-200 hover:border-indigo-200 hover:bg-indigo-50'
+                                        ${
+                                            isActive(navRoutes.profile())
+                                                ? 'bg-indigo-50 border-b border-indigo-200'
+                                                : 'bg-white border-b border-gray-200 hover:border-indigo-200 hover:bg-indigo-50'
                                         }
                                     `}
                                 >

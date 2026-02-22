@@ -43,10 +43,26 @@ class ClassStudentController extends Controller
             array_merge($filters, ['per_page' => $perPage, 'page' => $request->input('page', 1)])
         );
 
-        return Inertia::render('Admin/Classes/Students/Index', [
+        return Inertia::render('Classes/Students/Index', [
             'class' => $class->load('level', 'academicYear'),
             'enrollments' => $enrollments,
             'filters' => $filters,
+            'routeContext' => [
+                'role' => 'admin',
+                'indexRoute' => 'admin.classes.index',
+                'showRoute' => 'admin.classes.show',
+                'editRoute' => 'admin.classes.edit',
+                'deleteRoute' => 'admin.classes.destroy',
+                'assessmentsRoute' => 'admin.classes.assessments',
+                'subjectShowRoute' => 'admin.classes.subjects.show',
+                'studentShowRoute' => 'admin.classes.students.show',
+                'studentIndexRoute' => 'admin.classes.students.index',
+                'studentAssignmentsRoute' => 'admin.classes.students.assignments',
+                'assessmentShowRoute' => 'admin.classes.assessments.show',
+                'assessmentGradeRoute' => 'admin.assessments.grade',
+                'assessmentReviewRoute' => 'admin.assessments.review',
+                'assessmentSaveGradeRoute' => 'admin.assessments.saveGrade',
+            ],
         ]);
     }
 

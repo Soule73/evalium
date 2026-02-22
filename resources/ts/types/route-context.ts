@@ -15,7 +15,6 @@ export interface ClassRouteContext {
     assessmentSaveGradeRoute: string | null;
 }
 
-
 export interface AssessmentRouteContext {
     role: 'admin' | 'teacher';
     backRoute: string;

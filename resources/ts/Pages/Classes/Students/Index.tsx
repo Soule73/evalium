@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type ClassModel, type Enrollment, type PageProps, type PaginationType } from '@/types';
+import type { ClassModel, ClassRouteContext, Enrollment, PageProps, PaginationType } from '@/types';
 import { hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
@@ -16,19 +16,30 @@ interface Props extends PageProps {
         search?: string;
         status?: string;
     };
+    routeContext: ClassRouteContext;
 }
 
 /**
- * Admin page listing all students enrolled in a given class.
+ * Shared page listing all students enrolled in a class.
+ * Used by both admin and teacher contexts via routeContext.
  */
-export default function ClassStudents({ class: classItem, enrollments, auth }: Props) {
+export default function ClassStudentsIndex({
+    class: classItem,
+    enrollments,
+    auth,
+    routeContext,
+}: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
-    const canCreate = hasPermission(auth.permissions, 'create enrollments');
+    const isAdmin = routeContext.role === 'admin';
+    const canCreate = isAdmin && hasPermission(auth.permissions, 'create enrollments');
 
     const pageBreadcrumbs = useMemo(
-        () => breadcrumbs.admin.classStudentsList(classItem),
-        [breadcrumbs, classItem],
+        () =>
+            isAdmin
+                ? breadcrumbs.admin.classStudentsList(classItem)
+                : breadcrumbs.teacher.classStudentsList(classItem),
+        [breadcrumbs, classItem, isAdmin],
     );
 
     return (
@@ -45,7 +56,9 @@ export default function ClassStudents({ class: classItem, enrollments, auth }: P
                             size="sm"
                             variant="outline"
                             color="secondary"
-                            onClick={() => router.visit(route('admin.classes.show', classItem.id))}
+                            onClick={() =>
+                                router.visit(route(routeContext.showRoute, classItem.id))
+                            }
                         >
                             {t('commons/ui.back')}
                         </Button>
@@ -64,15 +77,18 @@ export default function ClassStudents({ class: classItem, enrollments, auth }: P
             >
                 <EnrollmentList
                     data={enrollments}
-                    variant="admin"
+                    variant={routeContext.role}
                     showClassColumn={false}
-                    onView={(enrollment) =>
-                        router.visit(
-                            route('admin.classes.students.show', {
-                                class: classItem.id,
-                                enrollment: enrollment.id,
-                            }),
-                        )
+                    onView={
+                        routeContext.studentShowRoute
+                            ? (enrollment) =>
+                                  router.visit(
+                                      route(routeContext.studentShowRoute!, {
+                                          class: classItem.id,
+                                          enrollment: enrollment.id,
+                                      }),
+                                  )
+                            : undefined
                     }
                 />
             </Section>

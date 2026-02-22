@@ -44,7 +44,7 @@ class TeacherClassAssessmentController extends Controller
             'assessmentsRoute' => 'teacher.classes.assessments',
             'subjectShowRoute' => null,
             'studentShowRoute' => 'teacher.classes.students.show',
-            'studentIndexRoute' => null,
+            'studentIndexRoute' => 'teacher.classes.students.index',
             'studentAssignmentsRoute' => 'teacher.classes.students.assignments',
             'assessmentShowRoute' => 'teacher.classes.assessments.show',
             'assessmentGradeRoute' => 'teacher.assessments.grade',
