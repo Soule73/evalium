@@ -94,6 +94,9 @@ function Take({
             assessmentTerminatedTitle: t(
                 'student_assessment_pages.take.assessment_terminated_title',
             ),
+            assessmentAlreadySubmittedTitle: t(
+                'student_assessment_pages.take.assessment_already_submitted_title',
+            ),
             assessmentAlreadySubmitted: t(
                 'student_assessment_pages.take.assessment_already_submitted',
             ),
@@ -101,7 +104,7 @@ function Take({
             noQuestionsSubtitle: t('student_assessment_pages.take.no_questions_subtitle'),
             noQuestionsMessage: t('student_assessment_pages.take.no_questions_message'),
             timeRemaining: t('student_assessment_pages.take.time_remaining'),
-            fullscreenRequired: t('student_assessment_pages.take.fullscreen_required'),
+            fullscreenExitWarning: t('student_assessment_pages.take.fullscreen_exit_warning'),
             submitting: t('student_assessment_pages.take.submitting'),
             finishAssessment: t('student_assessment_pages.take.finish_assessment'),
             importantInstructions: t('student_assessment_pages.take.important_instructions'),
@@ -120,6 +123,9 @@ function Take({
             confirmSubmitTitle: t('student_assessment_pages.take.confirm_submit_title'),
             confirmSubmitMessage: t('student_assessment_pages.take.confirm_submit_message'),
             confirmSubmitCheck: t('student_assessment_pages.take.confirm_submit_check'),
+            saving: t('student_assessment_pages.take.saving'),
+            saved: t('student_assessment_pages.take.saved'),
+            saveError: t('student_assessment_pages.take.save_error'),
             modalConfirmText: t('commons/ui.confirm'),
             modalCancelText: t('commons/ui.cancel'),
         }),
@@ -138,6 +144,8 @@ function Take({
         handleSubmit,
         enterFullscreen,
         assessmentCanStart,
+        fullscreenRequired,
+        saveStatus,
     } = useTakeAssessment({
         assessment,
         questions,
@@ -160,7 +168,7 @@ function Take({
     if (assignment.submitted_at) {
         return (
             <CanNotTakeAssessment
-                title={translations.assessmentTerminatedTitle}
+                title={translations.assessmentAlreadySubmittedTitle}
                 message={translations.assessmentAlreadySubmitted}
                 icon={<ExclamationCircleIcon className="h-12 w-12 text-yellow-500 mx-auto mb-4" />}
             />
@@ -182,10 +190,13 @@ function Take({
         <div className="bg-gray-50 min-h-screen">
             <Head title={titleTranslation} />
 
-            <div className="bg-white py-4 border-b border-gray-200 fixed w-full z-10 top-0">
-                <div className="container mx-auto flex justify-between items-center px-4">
+            <header
+                role="banner"
+                className="bg-white py-4 border-b border-gray-200 fixed w-full z-10 top-0"
+            >
+                <div className="container mx-auto flex justify-between items-center gap-4 px-4">
                     <TextEntry
-                        className="text-start"
+                        className="text-start min-w-0"
                         label={assessment.title}
                         value={
                             assessment.description
@@ -196,18 +207,37 @@ function Take({
                         }
                     />
 
-                    <TextEntry
-                        className="text-center"
-                        label={translations.timeRemaining}
-                        value={formatTime(timeLeft)}
-                    />
-
-                    {!security.isFullscreen && (
+                    <div className="flex flex-col items-center shrink-0">
                         <TextEntry
                             className="text-center"
-                            label={translations.fullscreenRequired}
-                            value=""
+                            label={translations.timeRemaining}
+                            value={formatTime(timeLeft)}
                         />
+                        {saveStatus === 'saving' && (
+                            <span className="text-xs text-gray-400 mt-1">
+                                {translations.saving}
+                            </span>
+                        )}
+                        {saveStatus === 'saved' && (
+                            <span className="text-xs text-green-500 mt-1">
+                                {translations.saved}
+                            </span>
+                        )}
+                        {saveStatus === 'error' && (
+                            <span className="text-xs text-red-500 mt-1">
+                                {translations.saveError}
+                            </span>
+                        )}
+                    </div>
+
+                    {fullscreenRequired && !security.isFullscreen && (
+                        <button
+                            type="button"
+                            onClick={enterFullscreen}
+                            className="text-sm text-amber-600 font-medium animate-pulse hover:text-amber-700 shrink-0"
+                        >
+                            {translations.fullscreenExitWarning}
+                        </button>
                     )}
 
                     <Button
@@ -216,20 +246,21 @@ function Take({
                         onClick={() => setShowConfirmModal(true)}
                         disabled={isSubmitting || processing}
                         loading={isSubmitting || processing}
+                        aria-label={translations.finishAssessment}
                     >
                         {isSubmitting || processing
                             ? translations.submitting
                             : translations.finishAssessment}
                     </Button>
                 </div>
-            </div>
+            </header>
 
             <div className="pt-20 max-w-6xl mx-auto">
                 <div className="container mx-auto px-4 py-8">
                     <Section
                         title={translations.importantInstructions}
                         collapsible
-                        defaultOpen={false}
+                        defaultOpen={true}
                     >
                         <AlertEntry type="warning" title={translations.warningTitle}>
                             <p>
@@ -288,7 +319,14 @@ function Take({
                 confirmText={translations.modalConfirmText}
                 cancelText={translations.modalCancelText}
             >
-                <p className="text-gray-600 mb-6 text-center">{translations.confirmSubmitCheck}</p>
+                <p className="text-gray-600 mb-4 text-center">{translations.confirmSubmitCheck}</p>
+                {totalQuestions - answeredQuestionIds.size > 0 && (
+                    <p className="text-amber-600 text-sm font-medium text-center mb-2">
+                        {t('student_assessment_pages.take.unanswered_warning', {
+                            count: totalQuestions - answeredQuestionIds.size,
+                        })}
+                    </p>
+                )}
             </ConfirmationModal>
 
             <FullscreenModal isOpen={showFullscreenModal} onEnterFullscreen={enterFullscreen} />

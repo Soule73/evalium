@@ -4,8 +4,6 @@ import axios from 'axios';
 import {
     VIOLATION_TYPES,
     applyConfigurableSecurityMeasures,
-    attachConfigurableEventListeners,
-    detachConfigurableEventListeners,
     removeSecurityMeasures,
 } from '@/utils';
 import { getViolationTranslationKey } from '@/utils/assessment/take';
@@ -57,12 +55,9 @@ export function useAssessmentSecurityViolation({
             tabSwitchDetection: isFeatureEnabled(assessmentConfig, 'tabSwitchDetection'),
         };
 
-        const handlers = applyConfigurableSecurityMeasures(securityConfig);
-
-        attachConfigurableEventListeners(handlers, securityConfig);
+        applyConfigurableSecurityMeasures(securityConfig);
 
         return () => {
-            detachConfigurableEventListeners(handlers, securityConfig);
             removeSecurityMeasures();
         };
     }, [securityEnabled, assessmentConfig]);

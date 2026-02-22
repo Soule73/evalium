@@ -268,9 +268,9 @@ const TakeQuestion: React.FC<TakeQuestionProps> = ({
             )}
 
             {question.type === 'file' &&
-                assessmentId !== null &&
-                onFileAnswerSaved !== null &&
-                onFileAnswerRemoved !== null && (
+                assessmentId != null &&
+                onFileAnswerSaved != null &&
+                onFileAnswerRemoved != null && (
                     <TakeQuestionFile
                         question={question}
                         assessmentId={assessmentId}

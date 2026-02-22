@@ -1,6 +1,8 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { route } from 'ziggy-js';
 import axios from 'axios';
+
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 interface UseAssessmentAnswerSaveParams {
     assessmentId: number;
@@ -12,6 +14,16 @@ interface UseAssessmentAnswerSaveParams {
  */
 export const useAssessmentAnswerSave = ({ assessmentId }: UseAssessmentAnswerSaveParams) => {
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const savedTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+
+    const markSaved = useCallback(() => {
+        setSaveStatus('saved');
+        if (savedTimeoutRef.current) {
+            clearTimeout(savedTimeoutRef.current);
+        }
+        savedTimeoutRef.current = setTimeout(() => setSaveStatus('idle'), 3000);
+    }, []);
 
     const saveAnswerIndividual = useCallback(
         (
@@ -23,31 +35,37 @@ export const useAssessmentAnswerSave = ({ assessmentId }: UseAssessmentAnswerSav
                 clearTimeout(saveTimeoutRef.current);
             }
 
+            setSaveStatus('saving');
+
             saveTimeoutRef.current = setTimeout(() => {
                 axios
                     .post(route('student.assessments.save-answers', assessmentId), {
                         answers: allAnswers,
                     })
-                    .catch(() => {});
+                    .then(() => markSaved())
+                    .catch(() => setSaveStatus('error'));
             }, 500);
         },
-        [assessmentId],
+        [assessmentId, markSaved],
     );
 
     const saveAllAnswers = useCallback(
         async (answers: Record<number, string | number | number[]>) => {
+            setSaveStatus('saving');
             try {
                 await axios.post(route('student.assessments.save-answers', assessmentId), {
                     answers,
                 });
+                markSaved();
             } catch (error) {
+                setSaveStatus('error');
                 const message = error instanceof Error ? error.message : 'Unknown error';
                 const wrappedError = new Error(`Failed to save answers: ${message}`);
                 (wrappedError as unknown as Record<string, unknown>).cause = error;
                 throw wrappedError;
             }
         },
-        [assessmentId],
+        [assessmentId, markSaved],
     );
 
     const forceSave = useCallback(
@@ -66,6 +84,10 @@ export const useAssessmentAnswerSave = ({ assessmentId }: UseAssessmentAnswerSav
             clearTimeout(saveTimeoutRef.current);
             saveTimeoutRef.current = null;
         }
+        if (savedTimeoutRef.current) {
+            clearTimeout(savedTimeoutRef.current);
+            savedTimeoutRef.current = null;
+        }
     }, []);
 
     return {
@@ -73,5 +95,6 @@ export const useAssessmentAnswerSave = ({ assessmentId }: UseAssessmentAnswerSav
         saveAllAnswers,
         forceSave,
         cleanup,
+        saveStatus,
     };
 };
