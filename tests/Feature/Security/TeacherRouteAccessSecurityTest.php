@@ -79,7 +79,7 @@ class TeacherRouteAccessSecurityTest extends TestCase
             'teacher_id' => $this->teacher->id,
             'coefficient' => 1,
             'scheduled_at' => now()->subHour(),
-            'settings' => ['is_published' => true, 'show_correct_answers' => true],
+            'is_published' => true, 'settings' => ['show_correct_answers' => true],
         ]);
 
         Question::factory()->count(2)->create([

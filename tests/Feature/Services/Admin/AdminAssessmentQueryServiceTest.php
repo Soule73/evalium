@@ -56,7 +56,7 @@ class AdminAssessmentQueryServiceTest extends TestCase
         $this->assessment = Assessment::factory()->homework()->create([
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->classSubject->teacher_id,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
     }
 
@@ -147,7 +147,7 @@ class AdminAssessmentQueryServiceTest extends TestCase
         $secondAssessment = Assessment::factory()->supervised()->create([
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->classSubject->teacher_id,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         AssessmentAssignment::create([

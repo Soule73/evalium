@@ -44,17 +44,17 @@ class StudentDashboardServiceTest extends TestCase
 
         $assessment1 = $this->createAssessmentWithQuestions($teacher, [
             'class_subject_id' => $classSubject->id,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ], 2);
 
         $assessment2 = $this->createAssessmentWithQuestions($teacher, [
             'class_subject_id' => $classSubject->id,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ], 2);
 
         $assessment3 = $this->createAssessmentWithQuestions($teacher, [
             'class_subject_id' => $classSubject->id,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ], 2);
 
         AssessmentAssignment::factory()->create([
@@ -104,12 +104,12 @@ class StudentDashboardServiceTest extends TestCase
 
         $assessment1 = $this->createAssessmentWithQuestions($teacher, [
             'class_subject_id' => $classSubject->id,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ], 2);
 
         $assessment2 = $this->createAssessmentWithQuestions($teacher, [
             'class_subject_id' => $classSubject->id,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ], 2);
 
         AssessmentAssignment::factory()->create([
@@ -173,7 +173,7 @@ class StudentDashboardServiceTest extends TestCase
 
         $assessment = $this->createAssessmentWithQuestions($teacher, [
             'class_subject_id' => $classSubject->id,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ], 2);
 
         $result = $this->service->getDashboardStats($student, $class->academic_year_id);

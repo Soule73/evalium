@@ -63,7 +63,7 @@ class FileUploadTest extends TestCase
             'teacher_id' => $this->classSubject->teacher_id,
             'due_date' => now()->addDays(7),
             'scheduled_at' => now()->subDay(),
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ], $assessmentOverrides));
 
         $assignment = AssessmentAssignment::factory()->create([
@@ -179,7 +179,7 @@ class FileUploadTest extends TestCase
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->classSubject->teacher_id,
             'scheduled_at' => now()->subDay(),
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         $file = UploadedFile::fake()->create('homework.pdf', 100, 'application/pdf');
@@ -260,7 +260,7 @@ class FileUploadTest extends TestCase
             'due_date' => now()->addDays(7),
             'scheduled_at' => now()->subDay(),
             'max_files' => 0,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         $file = UploadedFile::fake()->create('homework.pdf', 100, 'application/pdf');

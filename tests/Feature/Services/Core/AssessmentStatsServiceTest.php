@@ -51,7 +51,7 @@ class AssessmentStatsServiceTest extends TestCase
         $this->assessment = Assessment::factory()->supervised()->create([
             'class_subject_id' => $classSubject->id,
             'teacher_id' => $classSubject->teacher_id,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
     }
 

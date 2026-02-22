@@ -93,7 +93,7 @@ class GradeCalculationService
         })
             ->forStudent($student)
             ->with(['assessment' => function ($query) {
-                $query->select('id', 'title', 'type', 'coefficient', 'class_subject_id', 'settings')
+                $query->select('id', 'title', 'type', 'coefficient', 'class_subject_id', 'is_published', 'settings')
                     ->withCount('questions');
             }, 'assessment.questions:id,assessment_id,points'])
             ->get()
@@ -101,7 +101,7 @@ class GradeCalculationService
 
         $publishedAssessmentsBySubject = DB::table('assessments')
             ->whereIn('class_subject_id', $classSubjectIds)
-            ->whereRaw("JSON_EXTRACT(settings, '$.is_published') = true")
+            ->where('is_published', true)
             ->whereNull('deleted_at')
             ->select('class_subject_id', DB::raw('COUNT(*) as total'))
             ->groupBy('class_subject_id')
@@ -378,7 +378,7 @@ class GradeCalculationService
                     ->where('aa.enrollment_id', '=', $enrollment->id);
             })
             ->where('cs.class_id', $enrollment->class_id)
-            ->whereRaw("JSON_EXTRACT(a.settings, '$.is_published') = true")
+            ->where('a.is_published', true)
             ->whereNull('a.deleted_at')
             ->selectRaw('
                 COUNT(*) as total_assessments,

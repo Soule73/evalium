@@ -61,7 +61,7 @@ class HomeworkStudentFlowTest extends TestCase
             'teacher_id' => $this->classSubject->teacher_id,
             'due_date' => now()->addDays(7),
             'scheduled_at' => now()->subDay(),
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ], $assessmentOverrides));
 
         Question::factory()->create([
@@ -245,7 +245,7 @@ class HomeworkStudentFlowTest extends TestCase
         ['student' => $student, 'assessment' => $assessment] = $this->createEnrolledStudentWithHomework([
             'due_date' => Carbon::parse('2026-05-30 23:59:59'),
             'scheduled_at' => Carbon::parse('2026-05-20 00:00:00'),
-            'settings' => ['is_published' => true, 'allow_late_submission' => true],
+            'is_published' => true, 'allow_late_submission' => true,
         ]);
 
         $question = $assessment->questions->first();

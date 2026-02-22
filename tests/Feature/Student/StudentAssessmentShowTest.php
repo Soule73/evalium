@@ -81,7 +81,7 @@ class StudentAssessmentShowTest extends TestCase
             'teacher_id' => $this->teacher->id,
             'coefficient' => 1,
             'scheduled_at' => now()->subHour(),
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         Question::factory()->count(2)->create([
@@ -169,7 +169,7 @@ class StudentAssessmentShowTest extends TestCase
 
     public function test_show_availability_unavailable_when_not_published(): void
     {
-        $this->assessment->update(['settings' => ['is_published' => false]]);
+        $this->assessment->update(['is_published' => false]);
 
         $response = $this->actingAs($this->student)
             ->get(route('student.assessments.show', $this->assessment));
@@ -188,7 +188,8 @@ class StudentAssessmentShowTest extends TestCase
         $this->assessment->update([
             'delivery_mode' => 'homework',
             'due_date' => now()->subDay(),
-            'settings' => ['is_published' => true, 'allow_late_submission' => false],
+            'is_published' => true,
+            'allow_late_submission' => false,
         ]);
 
         $response = $this->actingAs($this->student)
@@ -208,7 +209,7 @@ class StudentAssessmentShowTest extends TestCase
             'delivery_mode' => 'supervised',
             'scheduled_at' => now()->addDay(),
             'duration_minutes' => 60,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         $response = $this->actingAs($this->student)
@@ -228,7 +229,7 @@ class StudentAssessmentShowTest extends TestCase
             'delivery_mode' => 'supervised',
             'scheduled_at' => now()->subMinutes(5),
             'duration_minutes' => 60,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         $this->actingAs($this->student)

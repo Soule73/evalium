@@ -92,7 +92,7 @@ class AssessmentFactory extends Factory
     public function published(): static
     {
         return $this->state(fn (array $attributes) => [
-            'settings' => array_merge($attributes['settings'] ?? [], ['is_published' => true]),
+            'is_published' => true,
         ]);
     }
 }

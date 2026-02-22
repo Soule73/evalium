@@ -33,6 +33,7 @@ class Assessment extends Model
         'max_file_size',
         'allowed_extensions',
         'max_files',
+        'is_published',
         'settings',
     ];
 
@@ -52,13 +53,13 @@ class Assessment extends Model
             'due_date' => 'datetime',
             'max_file_size' => 'integer',
             'max_files' => 'integer',
+            'is_published' => 'boolean',
             'settings' => 'array',
         ];
     }
 
     protected $appends = [
         'duration',
-        'is_published',
         'has_ended',
         'shuffle_questions',
         'show_results_immediately',
@@ -130,22 +131,6 @@ class Assessment extends Model
     public function getDurationAttribute(): ?int
     {
         return $this->duration_minutes;
-    }
-
-    /**
-     * Get whether the assessment is published.
-     */
-    public function getIsPublishedAttribute(): bool
-    {
-        return $this->getBooleanSetting('is_published', false);
-    }
-
-    /**
-     * Set whether the assessment is published.
-     */
-    public function setIsPublishedAttribute(bool $value): void
-    {
-        $this->setSettingValue('is_published', $value);
     }
 
     /**

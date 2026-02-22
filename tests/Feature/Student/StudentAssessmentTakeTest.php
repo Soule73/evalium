@@ -83,7 +83,7 @@ class StudentAssessmentTakeTest extends TestCase
             'coefficient' => 1,
             'duration_minutes' => 60,
             'scheduled_at' => now()->subMinutes(5),
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
     }
 

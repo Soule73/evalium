@@ -53,7 +53,7 @@ class ServerSideTimerTest extends TestCase
             'teacher_id' => $this->classSubject->teacher_id,
             'duration_minutes' => 60,
             'scheduled_at' => now()->subMinutes(5),
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ], $attributes));
     }
 
@@ -62,7 +62,7 @@ class ServerSideTimerTest extends TestCase
         return Assessment::factory()->homework()->create(array_merge([
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->classSubject->teacher_id,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ], $attributes));
     }
 

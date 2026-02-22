@@ -196,7 +196,7 @@ class DeliveryModeValidationTest extends TestCase
         $assessment = Assessment::factory()->supervised()->create([
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $teacher->id,
-            'settings' => ['is_published' => false],
+            'is_published' => false,
         ]);
 
         $response = $this->actingAs($teacher)->put(
@@ -219,7 +219,7 @@ class DeliveryModeValidationTest extends TestCase
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->classSubject->teacher_id,
             'due_date' => now()->addDays(3),
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         $status = $assessment->getAvailabilityStatus();
@@ -233,7 +233,7 @@ class DeliveryModeValidationTest extends TestCase
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->classSubject->teacher_id,
             'due_date' => now()->subDay(),
-            'settings' => ['is_published' => true, 'allow_late_submission' => false],
+            'is_published' => true, 'allow_late_submission' => false,
         ]);
 
         $status = $assessment->getAvailabilityStatus();
@@ -248,7 +248,7 @@ class DeliveryModeValidationTest extends TestCase
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->classSubject->teacher_id,
             'due_date' => now()->subDay(),
-            'settings' => ['is_published' => true, 'allow_late_submission' => true],
+            'is_published' => true, 'allow_late_submission' => true,
         ]);
 
         $status = $assessment->getAvailabilityStatus();
@@ -263,7 +263,7 @@ class DeliveryModeValidationTest extends TestCase
             'teacher_id' => $this->classSubject->teacher_id,
             'duration_minutes' => 60,
             'scheduled_at' => now()->subMinutes(30),
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         $status = $assessment->getAvailabilityStatus();

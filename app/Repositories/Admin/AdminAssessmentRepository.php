@@ -47,7 +47,7 @@ class AdminAssessmentRepository implements AdminAssessmentRepositoryInterface
             ->when($filters['delivery_mode'] ?? null, fn ($query, $mode) => $query->where('delivery_mode', $mode))
             ->when(isset($filters['status']) && $filters['status'] !== '', function ($query) use ($filters) {
                 $isPublished = $filters['status'] === 'published';
-                $query->whereJsonContains('settings->is_published', $isPublished);
+                $query->where('is_published', $isPublished);
             })
             ->orderBy('created_at', 'desc');
 
@@ -161,7 +161,7 @@ class AdminAssessmentRepository implements AdminAssessmentRepositoryInterface
         $row = Assessment::query()
             ->where('teacher_id', $teacher->id)
             ->selectRaw(
-                "COUNT(*) as total, SUM(CASE WHEN json_extract(`settings`, '$.is_published') = true THEN 1 ELSE 0 END) as published"
+                'COUNT(*) as total, SUM(CASE WHEN is_published = 1 THEN 1 ELSE 0 END) as published'
             )
             ->first();
 
