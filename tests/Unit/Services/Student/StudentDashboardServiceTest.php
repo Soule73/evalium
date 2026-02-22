@@ -62,7 +62,6 @@ class StudentDashboardServiceTest extends TestCase
             'enrollment_id' => $enrollment->id,
             'submitted_at' => now(),
             'graded_at' => now(),
-            'score' => 15,
         ]);
 
         AssessmentAssignment::factory()->create([
@@ -117,7 +116,6 @@ class StudentDashboardServiceTest extends TestCase
             'enrollment_id' => $enrollment->id,
             'submitted_at' => now(),
             'graded_at' => now(),
-            'score' => 20,
         ]);
 
         AssessmentAssignment::factory()->create([
@@ -125,7 +123,6 @@ class StudentDashboardServiceTest extends TestCase
             'enrollment_id' => $enrollment->id,
             'submitted_at' => now()->subHour(),
             'graded_at' => now()->subMinute(),
-            'score' => 12,
         ]);
 
         $result = $this->service->getDashboardStats($student);

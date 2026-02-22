@@ -238,7 +238,6 @@ class ScoringService
         $totalScore = $this->calculateAssignmentScore($assignment);
 
         $assignment->update([
-            'score' => $totalScore,
             'teacher_notes' => $teacherNotes,
             'graded_at' => now(),
         ]);

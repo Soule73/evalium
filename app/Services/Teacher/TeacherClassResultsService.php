@@ -69,7 +69,7 @@ class TeacherClassResultsService
                 SUM(CASE WHEN aa.graded_at IS NOT NULL THEN 1 ELSE 0 END) as graded,
                 SUM(CASE WHEN aa.submitted_at IS NOT NULL AND aa.graded_at IS NULL THEN 1 ELSE 0 END) as submitted,
                 SUM(CASE WHEN aa.started_at IS NOT NULL AND aa.submitted_at IS NULL THEN 1 ELSE 0 END) as in_progress,
-                AVG(CASE WHEN aa.score IS NOT NULL THEN aa.score ELSE NULL END) as average_score
+                AVG(CASE WHEN aa.graded_at IS NOT NULL THEN (SELECT COALESCE(SUM(ans.score), 0) FROM answers ans WHERE ans.assessment_assignment_id = aa.id) ELSE NULL END) as average_score
             ')
             ->orderBy('a.scheduled_at', 'desc')
             ->get();
@@ -124,7 +124,7 @@ class TeacherClassResultsService
                 u.email as student_email,
                 SUM(CASE WHEN aa.graded_at IS NOT NULL THEN 1 ELSE 0 END) as graded_count,
                 SUM(CASE WHEN aa.submitted_at IS NOT NULL THEN 1 ELSE 0 END) as submitted_count,
-                AVG(CASE WHEN aa.score IS NOT NULL THEN aa.score ELSE NULL END) as average_score
+                AVG(CASE WHEN aa.graded_at IS NOT NULL THEN (SELECT COALESCE(SUM(ans.score), 0) FROM answers ans WHERE ans.assessment_assignment_id = aa.id) ELSE NULL END) as average_score
             ')
             ->orderBy('u.name')
             ->get();
@@ -148,12 +148,12 @@ class TeacherClassResultsService
         $withScores = $collection->filter(fn ($a) => $a['average_score'] !== null);
 
         $averageScore = $withScores->isNotEmpty()
-          ? round((float) $withScores->avg('average_score'), 2)
-          : null;
+            ? round((float) $withScores->avg('average_score'), 2)
+            : null;
 
         $completionRate = $collection->isNotEmpty()
-          ? round((float) $collection->avg('completion_rate'), 2)
-          : 0.0;
+            ? round((float) $collection->avg('completion_rate'), 2)
+            : 0.0;
 
         return [
             'total_students' => $totalStudents,

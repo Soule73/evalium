@@ -118,7 +118,7 @@ class StudentAssessmentController extends Controller
         $availability = $assessment->getAvailabilityStatus();
 
         if (! $availability['available']) {
-            return back()->flashError(__('messages.' . $availability['reason']));
+            return back()->flashError(__('messages.'.$availability['reason']));
         }
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
@@ -162,7 +162,7 @@ class StudentAssessmentController extends Controller
         if (! $availability['available']) {
             return redirect()
                 ->route('student.assessments.show', $assessment)
-                ->flashError(__('messages.' . $availability['reason']));
+                ->flashError(__('messages.'.$availability['reason']));
         }
 
         $assignment->load([
@@ -355,6 +355,10 @@ class StudentAssessmentController extends Controller
             403,
             __('messages.cannot_access_assessment')
         );
+
+        if (! $assessment->isHomeworkMode()) {
+            return response()->json(['message' => __('messages.file_uploads_not_allowed')], 422);
+        }
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 

@@ -124,7 +124,6 @@ class AdminAssessmentQueryServiceTest extends TestCase
             'started_at' => now()->subHours(2),
             'submitted_at' => now()->subHour(),
             'graded_at' => now(),
-            'score' => 85,
         ]);
 
         /** @var \Illuminate\Database\Eloquent\Collection $result */

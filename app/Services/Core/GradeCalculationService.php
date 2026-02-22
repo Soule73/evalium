@@ -92,6 +92,7 @@ class GradeCalculationService
             $query->whereIn('class_subject_id', $classSubjectIds);
         })
             ->forStudent($student)
+            ->withSum('answers', 'score')
             ->with(['assessment' => function ($query) {
                 $query->select('id', 'title', 'type', 'coefficient', 'class_subject_id', 'is_published', 'settings')
                     ->withCount('questions');
@@ -263,7 +264,8 @@ class GradeCalculationService
             $query->where('class_subject_id', $classSubject->id);
         })
             ->forStudent($student)
-            ->whereNotNull('score')
+            ->whereNotNull('graded_at')
+            ->withSum('answers', 'score')
             ->with(['assessment.questions'])
             ->get()
             ->map(function ($assignment) {
@@ -382,7 +384,7 @@ class GradeCalculationService
             ->whereNull('a.deleted_at')
             ->selectRaw('
                 COUNT(*) as total_assessments,
-                SUM(CASE WHEN aa.score IS NOT NULL THEN 1 ELSE 0 END) as graded_assessments,
+                SUM(CASE WHEN aa.graded_at IS NOT NULL THEN 1 ELSE 0 END) as graded_assessments,
                 SUM(CASE WHEN aa.submitted_at IS NULL THEN 1 ELSE 0 END) as pending_assessments
             ')
             ->first();
@@ -418,11 +420,11 @@ class GradeCalculationService
             });
         }
 
-        return $query->get()->map(function ($assignment) {
+        return $query->withSum('answers', 'score')->get()->map(function ($assignment) {
             $maxPoints = $assignment->assessment->questions->sum('points');
             $normalizedGrade = null;
 
-            if ($assignment->score !== null && $maxPoints > 0) {
+            if ($assignment->graded_at !== null && $maxPoints > 0) {
                 $normalizedGrade = round(($assignment->score / $maxPoints) * 20, 2);
             }
 

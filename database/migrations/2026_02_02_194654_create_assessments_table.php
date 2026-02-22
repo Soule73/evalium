@@ -24,10 +24,8 @@ return new class extends Migration
             $table->integer('duration_minutes')->nullable();
             $table->timestamp('scheduled_at')->nullable();
             $table->timestamp('due_date')->nullable();
-            $table->unsignedInteger('max_file_size')->nullable();
-            $table->string('allowed_extensions')->nullable();
-            $table->unsignedInteger('max_files')->default(0);
             $table->json('settings')->nullable();
+            $table->boolean('is_published')->default(false);
             $table->softDeletes();
             $table->timestamps();
 

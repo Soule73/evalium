@@ -28,12 +28,14 @@ class SubjectFactory extends Factory
             'Géographie' => 'GEOG',
         ];
 
-        $subject = $this->faker->randomElement(array_keys($subjects));
+        $base = $this->faker->randomElement(array_keys($subjects));
+        $prefix = $subjects[$base];
+        $suffix = $this->faker->unique()->numerify('###');
 
         return [
             'level_id' => Level::factory(),
-            'name' => $subject,
-            'code' => $subjects[$subject].'-'.$this->faker->unique()->numerify('###'),
+            'name' => $base.' '.$suffix,
+            'code' => $prefix.'-'.$suffix,
             'description' => $this->faker->optional()->sentence(),
         ];
     }

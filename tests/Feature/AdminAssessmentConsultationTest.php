@@ -233,9 +233,13 @@ class AdminAssessmentConsultationTest extends TestCase
             'order_index' => 1,
         ]);
 
-        AssessmentAssignment::factory()->graded()->create([
+        $assignment = AssessmentAssignment::factory()->graded()->create([
             'assessment_id' => $assessment->id,
             'enrollment_id' => $enrollment->id,
+        ]);
+
+        $assignment->answers()->create([
+            'question_id' => $question->id,
             'score' => 15.0,
         ]);
 

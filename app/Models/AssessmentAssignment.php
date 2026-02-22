@@ -24,7 +24,6 @@ class AssessmentAssignment extends Model
         'started_at',
         'submitted_at',
         'graded_at',
-        'score',
         'teacher_notes',
         'forced_submission',
         'security_violation',
@@ -34,12 +33,12 @@ class AssessmentAssignment extends Model
         'started_at' => 'datetime',
         'submitted_at' => 'datetime',
         'graded_at' => 'datetime',
-        'score' => 'decimal:2',
         'forced_submission' => 'boolean',
     ];
 
     protected $appends = [
         'status',
+        'score',
     ];
 
     /**
@@ -87,7 +86,7 @@ class AssessmentAssignment extends Model
     {
         $studentId = $student instanceof User ? $student->id : $student;
 
-        return $query->whereHas('enrollment', fn(Builder $q) => $q->where('student_id', $studentId));
+        return $query->whereHas('enrollment', fn (Builder $q) => $q->where('student_id', $studentId));
     }
 
     /**
@@ -140,6 +139,27 @@ class AssessmentAssignment extends Model
     public function scopeInProgress($query)
     {
         return $query->whereNotNull('started_at')->whereNull('submitted_at');
+    }
+
+    /**
+     * Compute the total score from associated answers.
+     *
+     * Returns null when the assignment has not been graded yet.
+     * Uses the eager-loaded `answers_sum_score` when available to avoid N+1 queries.
+     */
+    public function getScoreAttribute(): ?float
+    {
+        if (! $this->graded_at) {
+            return null;
+        }
+
+        if (array_key_exists('answers_sum_score', $this->attributes)) {
+            $val = $this->attributes['answers_sum_score'];
+
+            return $val !== null ? (float) $val : null;
+        }
+
+        return (float) $this->answers()->sum('score');
     }
 
     /**

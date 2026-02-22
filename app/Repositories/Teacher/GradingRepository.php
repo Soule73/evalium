@@ -42,7 +42,7 @@ class GradingRepository
                 'assessment_assignments.id as assignment_id',
                 'assessment_assignments.assessment_id',
                 'assessment_assignments.submitted_at',
-                'assessment_assignments.score',
+                'assessment_assignments.graded_at',
                 'enrollments.id as enrollment_id',
                 'enrollments.student_id',
                 'users.name as student_name',
@@ -60,9 +60,9 @@ class GradingRepository
         $query->orderByRaw(
             'CASE
                 WHEN assessment_assignments.submitted_at IS NOT NULL
-                     AND assessment_assignments.score IS NULL THEN 0
+                     AND assessment_assignments.graded_at IS NULL THEN 0
                 WHEN assessment_assignments.submitted_at IS NOT NULL
-                     AND assessment_assignments.score IS NOT NULL THEN 1
+                     AND assessment_assignments.graded_at IS NOT NULL THEN 1
                 ELSE 2
             END'
         );
@@ -82,7 +82,7 @@ class GradingRepository
                     $assignment->assessment_id = $row->assessment_id ?? $assessment->id;
                     $assignment->enrollment_id = $row->enrollment_id;
                     $assignment->submitted_at = $row->submitted_at;
-                    $assignment->score = $row->score;
+                    $assignment->graded_at = $row->graded_at;
                     $assignment->setRelation('student', $student);
                     $assignment->is_virtual = false;
 
@@ -95,6 +95,7 @@ class GradingRepository
                     'enrollment_id' => $row->enrollment_id,
                     'student' => $student,
                     'submitted_at' => null,
+                    'graded_at' => null,
                     'score' => null,
                     'is_virtual' => true,
                 ];

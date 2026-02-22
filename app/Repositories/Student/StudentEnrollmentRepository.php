@@ -43,7 +43,8 @@ class StudentEnrollmentRepository
                             'questions:id,assessment_id,points',
                             'assignments' => function ($q) use ($enrollment) {
                                 $q->where('enrollment_id', $enrollment->id)
-                                    ->select('id', 'assessment_id', 'enrollment_id', 'score', 'submitted_at');
+                                    ->select('id', 'assessment_id', 'enrollment_id', 'submitted_at', 'graded_at')
+                                    ->withSum('answers', 'score');
                             },
                         ]);
                 },
@@ -89,7 +90,8 @@ class StudentEnrollmentRepository
                             'questions:id,assessment_id,points',
                             'assignments' => function ($q) use ($enrollment) {
                                 $q->where('enrollment_id', $enrollment->id)
-                                    ->select('id', 'assessment_id', 'enrollment_id', 'score', 'submitted_at');
+                                    ->select('id', 'assessment_id', 'enrollment_id', 'submitted_at', 'graded_at')
+                                    ->withSum('answers', 'score');
                             },
                         ]);
                 },

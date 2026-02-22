@@ -92,7 +92,6 @@ class TeacherRouteAccessSecurityTest extends TestCase
             'enrollment_id' => $enrollment->id,
             'submitted_at' => now(),
             'graded_at' => now(),
-            'score' => 15,
         ]);
     }
 

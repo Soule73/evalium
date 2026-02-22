@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('assessment_id')->constrained('assessments')->onDelete('cascade');
             $table->text('content');
-            $table->enum('type', ['text', 'multiple', 'one_choice', 'boolean'])->default('text');
+            $table->enum('type', ['text', 'multiple', 'one_choice', 'boolean', 'file'])->default('text');
             $table->integer('points')->default(1);
             $table->integer('order_index')->default(1);
 

@@ -2,7 +2,6 @@
 
 namespace App\Services\Student;
 
-use App\Enums\QuestionType;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\Enrollment;
@@ -261,7 +260,7 @@ class StudentAssessmentService
         $assignment->loadMissing('answers.choice');
 
         $autoScorableQuestions = $assessment->questions
-            ->whereNotIn('type', [QuestionType::Text])
+            ->filter(fn ($q) => ! $q->type->requiresManualGrading())
             ->keyBy('id');
 
         if ($autoScorableQuestions->isEmpty()) {
@@ -299,9 +298,7 @@ class StudentAssessmentService
         $hasTextQuestions = $assessment->questions->contains(fn ($q) => $q->type->requiresManualGrading());
 
         if (! $hasTextQuestions) {
-            $totalScore = $this->scoringService->calculateAssignmentScore($assignment);
             $assignment->update([
-                'score' => $totalScore,
                 'graded_at' => now(),
             ]);
         }

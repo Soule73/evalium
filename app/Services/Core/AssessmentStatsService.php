@@ -63,7 +63,7 @@ class AssessmentStatsService
                 SUM(CASE WHEN aa.submitted_at IS NOT NULL AND aa.graded_at IS NULL THEN 1 ELSE 0 END) as submitted,
                 SUM(CASE WHEN aa.started_at IS NOT NULL AND aa.submitted_at IS NULL THEN 1 ELSE 0 END) as in_progress,
                 SUM(CASE WHEN aa.id IS NULL OR aa.started_at IS NULL THEN 1 ELSE 0 END) as not_started,
-                AVG(CASE WHEN aa.score IS NOT NULL THEN aa.score ELSE NULL END) as average_score
+                AVG(CASE WHEN aa.graded_at IS NOT NULL THEN (SELECT COALESCE(SUM(ans.score), 0) FROM answers ans WHERE ans.assessment_assignment_id = aa.id) ELSE NULL END) as average_score
             ')
             ->first();
 

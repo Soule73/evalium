@@ -43,7 +43,7 @@ class FileAnswerController extends Controller
 
         return response()->file($path, [
             'Content-Type' => $answer->mime_type,
-            'Content-Disposition' => 'inline; filename="' . $answer->file_name . '"',
+            'Content-Disposition' => 'inline; filename="'.$answer->file_name.'"',
         ]);
     }
 

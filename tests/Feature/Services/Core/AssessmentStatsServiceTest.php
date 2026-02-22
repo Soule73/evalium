@@ -117,6 +117,13 @@ class AssessmentStatsServiceTest extends TestCase
             ]);
         }
 
+        $question = $this->assessment->questions()->create([
+            'content' => 'Test question',
+            'type' => 'text',
+            'points' => 100,
+            'order_index' => 1,
+        ]);
+
         AssessmentAssignment::create([
             'assessment_id' => $this->assessment->id,
             'enrollment_id' => $enrollments[0]->id,
@@ -135,12 +142,16 @@ class AssessmentStatsServiceTest extends TestCase
             'submitted_at' => now(),
         ]);
 
-        AssessmentAssignment::create([
+        $gradedAssignment = AssessmentAssignment::create([
             'assessment_id' => $this->assessment->id,
             'enrollment_id' => $enrollments[3]->id,
             'started_at' => now()->subHours(2),
             'submitted_at' => now()->subHour(),
             'graded_at' => now(),
+        ]);
+
+        $gradedAssignment->answers()->create([
+            'question_id' => $question->id,
             'score' => 80,
         ]);
 
