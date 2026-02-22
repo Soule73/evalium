@@ -13,6 +13,7 @@ import { Button, Section, Stat } from '@/Components';
 import { AssessmentList, ClassSubjectList } from '@/Components/shared/lists';
 import { type Assessment, type ClassSubject } from '@/types';
 import { type PaginationType } from '@/types/datatable';
+import { navRoutes } from '@/utils';
 
 interface Stats {
     total_classes: number;
@@ -64,7 +65,7 @@ export default function TeacherDashboard({ stats, activeAssignments, recentAsses
                 subtitle={t('dashboard.teacher.active_assignments_subtitle')}
                 actions={
                     <Button
-                        onClick={() => router.visit('/teacher/class-subjects')}
+                        onClick={() => router.visit(navRoutes.teacherClassSubjects())}
                         color="secondary"
                         variant="outline"
                         size="sm"

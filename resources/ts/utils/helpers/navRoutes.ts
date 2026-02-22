@@ -11,6 +11,7 @@ export const navRoutes = {
     teacherDashboard: () => route('teacher.dashboard'),
     teacherAssessments: () => route('teacher.assessments.index'),
     teacherClasses: () => route('teacher.classes.index'),
+    teacherClassSubjects: () => route('teacher.class-subjects.index'),
 
     // Admin Routes
     adminAcademicYears: () => route('admin.academic-years.archives'),

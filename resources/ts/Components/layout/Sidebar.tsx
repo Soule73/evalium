@@ -143,6 +143,11 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                         href: navRoutes.teacherClasses(),
                         icon: 'classes',
                     },
+                    {
+                        name: t('sidebar.navigation.class_subjects'),
+                        href: navRoutes.teacherClassSubjects(),
+                        icon: 'class-subjects',
+                    },
                 ],
             });
         }

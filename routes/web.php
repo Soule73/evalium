@@ -303,6 +303,12 @@ Route::middleware('auth')->group(function () {
                 });
 
             /**
+             * Teacher Class Subjects
+             */
+            Route::get('/class-subjects', [\App\Http\Controllers\Teacher\TeacherClassSubjectController::class, 'index'])
+                ->name('class-subjects.index');
+
+            /**
              * Teacher Classes
              */
             Route::prefix('classes')

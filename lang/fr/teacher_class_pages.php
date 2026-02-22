@@ -30,4 +30,8 @@ return [
         'students_section_title' => 'Étudiants inscrits',
         'students_section_subtitle' => ':count étudiant(s) dans cette classe',
     ],
+    'class_subjects' => [
+        'title' => 'Mes Affectations',
+        'subtitle' => 'Toutes vos affectations de classes et matières actives.',
+    ],
 ];

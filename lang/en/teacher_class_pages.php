@@ -30,4 +30,8 @@ return [
         'students_section_title' => 'Enrolled Students',
         'students_section_subtitle' => ':count student(s) in this class',
     ],
+    'class_subjects' => [
+        'title' => 'My Assignments',
+        'subtitle' => 'All your active class-subject assignments.',
+    ],
 ];
