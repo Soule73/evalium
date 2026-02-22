@@ -16,7 +16,7 @@ class GradingRepository
     public function getAssignmentsForGrading(Assessment $assessment, int $perPage): LengthAwarePaginator
     {
         return AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->with(['enrollment.student', 'answers.question'])
+            ->withStudentData()
             ->paginate($perPage);
     }
 

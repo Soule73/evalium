@@ -7,6 +7,7 @@ use App\Enums\DeliveryMode;
 use App\Exceptions\AssessmentException;
 use App\Exceptions\ValidationException;
 use App\Models\Assessment;
+use App\Models\AssessmentAssignment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -188,6 +189,42 @@ class AssessmentService
 
             return $newAssessment->load(['questions.choices']);
         });
+    }
+
+    /**
+     * Determine whether grading is allowed for a given assignment.
+     *
+     * Extracted from the Assessment model to keep business logic out of Eloquent models.
+     *
+     * - submitted_at set           → allowed (normal grading flow)
+     * - submitted_at null + ended  → allowed with warning banner
+     * - submitted_at null + active → blocked (student still has time)
+     *
+     * @return array{allowed: bool, reason: string, warning: string|null}
+     */
+    public function resolveGradingState(Assessment $assessment, AssessmentAssignment $assignment): array
+    {
+        if ($assignment->submitted_at !== null) {
+            return [
+                'allowed' => true,
+                'reason' => 'submitted',
+                'warning' => null,
+            ];
+        }
+
+        if ($assessment->hasEnded()) {
+            return [
+                'allowed' => true,
+                'reason' => 'not_submitted_assessment_ended',
+                'warning' => 'grading_without_submission',
+            ];
+        }
+
+        return [
+            'allowed' => false,
+            'reason' => 'assessment_still_running',
+            'warning' => null,
+        ];
     }
 
     /**

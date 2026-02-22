@@ -50,6 +50,11 @@ class AssessmentController extends Controller
         return $this->assessmentQueryService;
     }
 
+    protected function resolveAssessmentService(): AssessmentService
+    {
+        return $this->assessmentService;
+    }
+
     protected function afterGradingLoad(Request $request, Assessment $assessment): void
     {
         $selectedYearId = $this->getSelectedAcademicYearId($request);

@@ -286,40 +286,6 @@ class Assessment extends Model
     }
 
     /**
-     * Determine whether grading is allowed for a given assignment.
-     *
-     * - submitted_at set           → allowed (normal grading flow)
-     * - submitted_at null + ended  → allowed with warning (exception: give 0 or final score)
-     * - submitted_at null + active → blocked (student still has time)
-     *
-     * @return array{allowed: bool, reason: string, warning: string|null}
-     */
-    public function getGradingState(AssessmentAssignment $assignment): array
-    {
-        if ($assignment->submitted_at !== null) {
-            return [
-                'allowed' => true,
-                'reason' => 'submitted',
-                'warning' => null,
-            ];
-        }
-
-        if ($this->hasEnded()) {
-            return [
-                'allowed' => true,
-                'reason' => 'not_submitted_assessment_ended',
-                'warning' => 'grading_without_submission',
-            ];
-        }
-
-        return [
-            'allowed' => false,
-            'reason' => 'assessment_still_running',
-            'warning' => null,
-        ];
-    }
-
-    /**
      * Get the end time for this assessment.
      *
      * When duration_minutes is null but scheduled_at is set, the assessment is

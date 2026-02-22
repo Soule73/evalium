@@ -6,6 +6,7 @@ use App\Contracts\Repositories\TeacherAssessmentRepositoryInterface;
 use App\Http\Requests\Teacher\SaveManualGradeRequest;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
+use App\Services\Core\AssessmentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,6 +19,7 @@ use Inertia\Response;
  * AdminAssessmentController and TeacherAssessmentController.
  *
  * Requires the using class to have these injected properties:
+ * - AssessmentService $assessmentService
  * - GradingRepository $gradingQueryService
  * - AnswerFormatterService $answerFormatterService
  * - ScoringService $scoringService
@@ -33,6 +35,8 @@ trait HandlesAssessmentViewing
     abstract protected function buildRouteContext(): array;
 
     abstract protected function resolveAssessmentQueryService(): TeacherAssessmentRepositoryInterface;
+
+    abstract protected function resolveAssessmentService(): AssessmentService;
 
     /**
      * Hook called after loading assessment data in review/grade methods.
@@ -99,7 +103,7 @@ trait HandlesAssessmentViewing
         $this->authorize('update', $assessment);
         abort_unless($assignment->assessment_id === $assessment->id, 404);
 
-        $gradingState = $assessment->getGradingState($assignment);
+        $gradingState = $this->resolveAssessmentService()->resolveGradingState($assessment, $assignment);
 
         if (! $gradingState['allowed']) {
             return redirect()->back()->flashError(__('messages.grade_blocked_assessment_running'));
@@ -130,7 +134,7 @@ trait HandlesAssessmentViewing
     {
         abort_unless($assignment->assessment_id === $assessment->id, 404);
 
-        $gradingState = $assessment->getGradingState($assignment);
+        $gradingState = $this->resolveAssessmentService()->resolveGradingState($assessment, $assignment);
 
         abort_if(! $gradingState['allowed'], 422, __('messages.grade_blocked_assessment_running'));
 

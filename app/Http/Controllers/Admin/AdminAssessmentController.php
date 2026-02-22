@@ -13,6 +13,7 @@ use App\Models\Subject;
 use App\Models\User;
 use App\Repositories\Teacher\GradingRepository;
 use App\Services\Core\Answer\AnswerFormatterService;
+use App\Services\Core\AssessmentService;
 use App\Services\Core\AssessmentStatsService;
 use App\Services\Core\Scoring\ScoringService;
 use App\Traits\FiltersAcademicYear;
@@ -34,6 +35,7 @@ class AdminAssessmentController extends Controller
     public function __construct(
         private readonly AdminAssessmentRepositoryInterface $assessmentQueryService,
         private readonly TeacherAssessmentRepositoryInterface $teacherAssessmentQueryService,
+        private readonly AssessmentService $assessmentService,
         private readonly GradingRepository $gradingQueryService,
         private readonly AnswerFormatterService $answerFormatterService,
         private readonly ScoringService $scoringService,
@@ -43,6 +45,11 @@ class AdminAssessmentController extends Controller
     protected function resolveAssessmentQueryService(): TeacherAssessmentRepositoryInterface
     {
         return $this->teacherAssessmentQueryService;
+    }
+
+    protected function resolveAssessmentService(): AssessmentService
+    {
+        return $this->assessmentService;
     }
 
     /**
