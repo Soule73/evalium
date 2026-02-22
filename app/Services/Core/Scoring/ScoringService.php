@@ -6,6 +6,7 @@ use App\Contracts\Scoring\ScoringStrategyInterface;
 use App\Enums\QuestionType;
 use App\Models\AssessmentAssignment;
 use App\Models\Question;
+use App\Notifications\AssessmentGradedNotification;
 use App\Strategies\Scoring\BooleanScoringStrategy;
 use App\Strategies\Scoring\FileQuestionScoringStrategy;
 use App\Strategies\Scoring\MultipleChoiceScoringStrategy;
@@ -241,6 +242,14 @@ class ScoringService
             'teacher_notes' => $teacherNotes,
             'graded_at' => now(),
         ]);
+
+        $assignment->loadMissing(['enrollment.student', 'assessment.classSubject.subject']);
+
+        $student = $assignment->student;
+
+        if ($student) {
+            $student->notify(new AssessmentGradedNotification($assignment->assessment, $assignment));
+        }
 
         return [
             'updated_count' => $updatedCount,

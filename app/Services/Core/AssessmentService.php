@@ -8,8 +8,10 @@ use App\Exceptions\AssessmentException;
 use App\Exceptions\ValidationException;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
+use App\Notifications\AssessmentPublishedNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 /**
  * Assessment Service - Manage assessments (exams, devoirs, tp, etc.)
@@ -149,6 +151,16 @@ class AssessmentService
     {
         $assessment->is_published = true;
         $assessment->save();
+
+        $assessment->loadMissing('classSubject.class.enrollments.student');
+
+        $activeStudents = $assessment->classSubject?->class?->enrollments
+            ?->filter(fn ($e) => $e->status->value === 'active')
+            ->map(fn ($e) => $e->student)
+            ->filter()
+            ->values() ?? collect();
+
+        Notification::send($activeStudents, new AssessmentPublishedNotification($assessment));
 
         return $assessment->fresh();
     }

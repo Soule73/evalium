@@ -34,4 +34,16 @@ return [
         'footer_rights' => 'Tous droits réservés.',
     ],
 
+    'title' => 'Notifications',
+    'mark_all_read' => 'Tout marquer comme lu',
+    'close' => 'Fermer',
+    'empty' => 'Aucune notification',
+
+    'types' => [
+        'assessment_published' => 'Nouvelle évaluation publiée',
+        'assessment_graded' => 'Évaluation corrigée',
+        'assessment_submitted' => 'Évaluation soumise',
+        'assessment_starting_soon' => 'Évaluation bientôt disponible',
+    ],
+
 ];

@@ -60,4 +60,7 @@ export type PageProps<T = Record<string, unknown>> = {
     };
     flash: FlashMessages;
     locale: string;
+    notifications?: {
+        unread_count: number;
+    };
 } & T;

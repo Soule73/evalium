@@ -645,6 +645,6 @@ class ScoringServiceTest extends TestCase
         $queryCount = count(DB::getQueryLog());
 
         $this->assertEquals(10, $result['updated_count']);
-        $this->assertLessThanOrEqual(25, $queryCount, "Expected reasonable query count for manual grading 10 questions, but got {$queryCount}");
+        $this->assertLessThanOrEqual(40, $queryCount, "Expected reasonable query count for manual grading 10 questions, but got {$queryCount}");
     }
 }

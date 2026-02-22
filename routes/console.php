@@ -17,3 +17,8 @@ Schedule::command('assessment:auto-submit-expired')
     ->everyFiveMinutes()
     ->withoutOverlapping()
     ->runInBackground();
+
+Schedule::command('notifications:send-reminders')
+    ->everyFiveMinutes()
+    ->withoutOverlapping()
+    ->runInBackground();

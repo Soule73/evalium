@@ -1,7 +1,7 @@
 import { Head, usePage } from '@inertiajs/react';
 import { type PageProps } from '@/types';
 import { useMemo, useState, useEffect } from 'react';
-import { Sidebar, Breadcrumb, FlashToastHandler, UserMenu } from '@/Components';
+import { Sidebar, Breadcrumb, FlashToastHandler, UserMenu, NotificationBell } from '@/Components';
 import { type BreadcrumbItem } from '@/Components/layout/Breadcrumb';
 import { AcademicYearSelector } from './AcademicYearSelector';
 
@@ -23,7 +23,6 @@ const AuthenticatedLayout = ({
 
     const currentPath = useMemo(() => window.location.pathname, []);
 
-    // Écouter les changements de l'état collapsed depuis localStorage
     useEffect(() => {
         const checkCollapsed = () => {
             const collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
@@ -33,7 +32,6 @@ const AuthenticatedLayout = ({
         checkCollapsed();
         window.addEventListener('storage', checkCollapsed);
 
-        // Custom event pour les changements dans la même fenêtre
         window.addEventListener('sidebarToggle', checkCollapsed);
 
         return () => {
@@ -50,17 +48,13 @@ const AuthenticatedLayout = ({
                 {/* Sidebar */}
                 <Sidebar currentPath={currentPath} user={auth.user} />
 
-                {/* Main container avec marge ajustée selon l'état de la sidebar */}
                 <div
                     className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}
                 >
                     {/* Header */}
                     <header className="sticky top-0 z-2 bg-white border-b border-gray-200 h-16">
                         <div className="flex items-center justify-between h-full px-4 lg:px-8">
-                            {/* Espace pour le bouton hamburger mobile (géré par Sidebar) */}
                             <div className="lg:hidden w-10"></div>
-
-                            {/* Breadcrumb ou Titre */}
                             <div className="flex-1">
                                 {breadcrumb ? (
                                     <Breadcrumb items={breadcrumb} />
@@ -77,6 +71,7 @@ const AuthenticatedLayout = ({
                                     <div className="flex items-center">{headerActions}</div>
                                 )}
                                 <AcademicYearSelector user={auth.user} />
+                                <NotificationBell />
                                 <UserMenu
                                     user={auth.user}
                                     isSuperAdmin={

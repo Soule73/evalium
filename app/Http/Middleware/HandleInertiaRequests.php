@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 /**
@@ -80,6 +81,9 @@ class HandleInertiaRequests extends Middleware
                     'autoSubmitOnTimeEnd' => config('assessment.timing.auto_submit_on_time_end', true),
                 ],
             ],
+            'notifications' => Inertia::lazy(fn () => [
+                'unread_count' => $user?->unreadNotifications()->count() ?? 0,
+            ]),
         ];
     }
 

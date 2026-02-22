@@ -7,3 +7,4 @@ export * from './enrollment';
 export * from './assessment';
 export * from './assessmentAssignment';
 export * from './grades';
+export * from './notification';

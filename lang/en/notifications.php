@@ -34,4 +34,16 @@ return [
         'footer_rights' => 'All rights reserved.',
     ],
 
+    'title' => 'Notifications',
+    'mark_all_read' => 'Mark all as read',
+    'close' => 'Close',
+    'empty' => 'No notifications',
+
+    'types' => [
+        'assessment_published' => 'New assessment published',
+        'assessment_graded' => 'Assessment graded',
+        'assessment_submitted' => 'Assessment submitted',
+        'assessment_starting_soon' => 'Assessment starting soon',
+    ],
+
 ];

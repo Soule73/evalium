@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -60,6 +61,18 @@ Route::middleware('auth')->group(function () {
         \App\Http\Controllers\FileAnswerController::class,
         'preview',
     ])->name('file-answers.preview');
+
+    /**
+     * Notification Routes
+     */
+    Route::prefix('notifications')
+        ->name('notifications.')
+        ->controller(NotificationController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/{id}/read', 'markRead')->name('read');
+            Route::post('/read-all', 'markAllRead')->name('read-all');
+        });
 
     /**
      * Admin Routes

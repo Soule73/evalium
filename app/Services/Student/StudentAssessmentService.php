@@ -6,6 +6,7 @@ use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\Enrollment;
 use App\Models\User;
+use App\Notifications\AssessmentGradedNotification;
 use App\Services\Core\Scoring\ScoringService;
 use App\Services\Traits\Paginatable;
 use Illuminate\Support\Collection;
@@ -301,6 +302,14 @@ class StudentAssessmentService
             $assignment->update([
                 'graded_at' => now(),
             ]);
+
+            $assignment->loadMissing(['enrollment.student', 'assessment.classSubject.subject']);
+
+            $student = $assignment->student;
+
+            if ($student) {
+                $student->notify(new AssessmentGradedNotification($assignment->assessment, $assignment));
+            }
         }
     }
 
