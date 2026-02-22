@@ -45,26 +45,38 @@ export function isTimeCritical(timeLeft: number, duration: number): boolean {
 }
 
 /**
- * Gets color class based on remaining time percentage
+ * Gets color class based on remaining time.
+ *
+ * - Default: neutral gray (plenty of time)
+ * - Warning: amber when 1/6 or less of total time remains
+ * - Danger: red when 60 seconds or fewer remain
  *
  * @param timeLeft - Remaining time in seconds
  * @param duration - Total duration in minutes
- * @returns Tailwind color class
- *
- * @example
- * getTimeColorClass(900, 30) // "text-yellow-600"
- * getTimeColorClass(120, 30) // "text-red-600"
+ * @returns Tailwind text color class
  */
 export function getTimeColorClass(timeLeft: number, duration: number): string {
-    const percentage = getTimeRemainingPercentage(timeLeft, duration);
-
-    if (percentage < 10) {
+    if (timeLeft <= 60) {
         return 'text-red-600';
-    } else if (percentage < 25) {
-        return 'text-yellow-600';
     }
 
-    return 'text-green-600';
+    const totalSeconds = duration * 60;
+    const warningThreshold = totalSeconds / 6;
+
+    if (timeLeft <= warningThreshold) {
+        return 'text-amber-500';
+    }
+
+    return 'text-gray-900';
+}
+
+/**
+ * Returns true when the timer should pulse (last 60 seconds).
+ *
+ * @param timeLeft - Remaining time in seconds
+ */
+export function isTimePulsing(timeLeft: number): boolean {
+    return timeLeft <= 60;
 }
 
 /**

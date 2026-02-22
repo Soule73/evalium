@@ -16,7 +16,7 @@ import { type Answer, type Assessment, type AssessmentAssignment, type Question 
 import { ExclamationCircleIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { useTakeAssessment, useQuestionNavigation } from '@/hooks/features/assessment';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { formatTime } from '@/utils';
+import { formatTime, getTimeColorClass, isTimePulsing } from '@/utils';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -208,11 +208,24 @@ function Take({
                     />
 
                     <div className="flex flex-col items-center shrink-0">
-                        <TextEntry
-                            className="text-center"
-                            label={translations.timeRemaining}
-                            value={formatTime(timeLeft)}
-                        />
+                        <p className="text-xs font-medium text-gray-500 mb-0.5">
+                            {translations.timeRemaining}
+                        </p>
+                        <span
+                            className={[
+                                'text-xl font-bold tabular-nums transition-colors duration-700',
+                                assessment.duration_minutes
+                                    ? getTimeColorClass(timeLeft ?? 0, assessment.duration_minutes)
+                                    : 'text-gray-900',
+                                assessment.duration_minutes && isTimePulsing(timeLeft ?? 0)
+                                    ? 'animate-pulse'
+                                    : '',
+                            ]
+                                .filter(Boolean)
+                                .join(' ')}
+                        >
+                            {formatTime(timeLeft)}
+                        </span>
                         {saveStatus === 'saving' && (
                             <span className="text-xs text-gray-400 mt-1">
                                 {translations.saving}
