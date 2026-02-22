@@ -13,6 +13,7 @@ export interface ClassRouteContext {
     assessmentGradeRoute: string | null;
     assessmentReviewRoute: string | null;
     assessmentSaveGradeRoute: string | null;
+    resultsRoute?: string | null;
 }
 
 export interface AssessmentRouteContext {

@@ -57,6 +57,7 @@ class TeacherClassController extends Controller
                 'assessmentGradeRoute' => 'teacher.assessments.grade',
                 'assessmentReviewRoute' => 'teacher.assessments.review',
                 'assessmentSaveGradeRoute' => 'teacher.assessments.saveGrade',
+                'resultsRoute' => 'teacher.classes.results',
             ],
         ]);
     }
@@ -126,6 +127,7 @@ class TeacherClassController extends Controller
                 'assessmentGradeRoute' => 'teacher.assessments.grade',
                 'assessmentReviewRoute' => 'teacher.assessments.review',
                 'assessmentSaveGradeRoute' => 'teacher.assessments.saveGrade',
+                'resultsRoute' => 'teacher.classes.results',
             ],
         ]);
     }

@@ -319,6 +319,9 @@ Route::middleware('auth')->group(function () {
                         Route::get('/{class}', 'show')->name('show');
                     });
 
+                    Route::get('/{class}/results', [\App\Http\Controllers\Teacher\TeacherClassResultsController::class, 'index'])
+                        ->name('results');
+
                     Route::controller(\App\Http\Controllers\Teacher\TeacherClassAssessmentController::class)->group(function () {
                         Route::get('/{class}/assessments', 'index')->name('assessments');
                         Route::get('/{class}/assessments/{assessment}', 'show')->name('assessments.show');

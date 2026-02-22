@@ -118,6 +118,7 @@ export default function ClassShow({
             studentsSectionTeacher: t('teacher_class_pages.show.students_section_title'),
             deleteTitle: t('admin_pages.classes.delete_title'),
             cancel: t('commons/ui.cancel'),
+            viewResults: t('teacher_class_pages.results.view_results'),
         }),
         [t, isAdmin],
     );
@@ -202,6 +203,16 @@ export default function ClassShow({
             <Button size="sm" variant="outline" color="secondary" onClick={handleBack}>
                 {translations.back}
             </Button>
+            {routeContext.resultsRoute && (
+                <Button
+                    size="sm"
+                    variant="outline"
+                    color="secondary"
+                    onClick={() => router.visit(route(routeContext.resultsRoute!, classItem.id))}
+                >
+                    {translations.viewResults}
+                </Button>
+            )}
             <Button size="sm" variant="solid" color="primary" onClick={handleViewAssessments}>
                 {translations.allAssessments}
             </Button>
