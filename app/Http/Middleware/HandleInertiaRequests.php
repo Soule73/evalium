@@ -65,22 +65,6 @@ class HandleInertiaRequests extends Middleware
             ],
             'locale' => app()->getLocale(),
             'language' => $this->getTranslations(),
-            'assessmentConfig' => [
-                'devMode' => config('assessment.dev_mode', false),
-                'securityEnabled' => config('assessment.security_enabled', true),
-                'features' => [
-                    'fullscreenRequired' => config('assessment.features.fullscreen_required', true),
-                    'tabSwitchDetection' => config('assessment.features.tab_switch_detection', true),
-                    'devToolsDetection' => config('assessment.features.dev_tools_detection', true),
-                    'copyPastePrevention' => config('assessment.features.copy_paste_prevention', true),
-                    'contextMenuDisabled' => config('assessment.features.context_menu_disabled', true),
-                    'printPrevention' => config('assessment.features.print_prevention', true),
-                ],
-                'timing' => [
-                    'minAssessmentDurationMinutes' => config('assessment.timing.min_assessment_duration_minutes', 2),
-                    'autoSubmitOnTimeEnd' => config('assessment.timing.auto_submit_on_time_end', true),
-                ],
-            ],
             'notifications' => Inertia::lazy(fn () => [
                 'unread_count' => $user?->unreadNotifications()->count() ?? 0,
             ]),

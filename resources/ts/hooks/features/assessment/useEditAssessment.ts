@@ -73,7 +73,9 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
             title: assessment.title || '',
             description: assessment.description || '',
             duration: assessment.duration_minutes || 60,
-            scheduled_date: assessment.scheduled_at ? toLocalDatetimeInput(assessment.scheduled_at) : '',
+            scheduled_date: assessment.scheduled_at
+                ? toLocalDatetimeInput(assessment.scheduled_at)
+                : '',
             due_date: assessment.due_date ? toLocalDatetimeInput(assessment.due_date) : '',
             delivery_mode: assessment.delivery_mode || 'homework',
             type: assessment.type,
@@ -152,7 +154,7 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
                 onSuccess: () => {
                     clearDeletedHistory();
                 },
-                onError: () => { },
+                onError: () => {},
             });
         },
         [

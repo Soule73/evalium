@@ -196,6 +196,8 @@ class StudentAssessmentController extends Controller
 
         if ($assessment->isHomeworkMode()) {
             $props['fileAnswers'] = $assignment->answers()->whereNotNull('file_path')->get();
+        } else {
+            $props['assessmentConfig'] = ['devMode' => config('assessment.dev_mode', false)];
         }
 
         return Inertia::render($page, $props);
