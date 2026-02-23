@@ -394,16 +394,16 @@ class StudentAssessmentService
 
         foreach ($answers->groupBy('question_id') as $questionId => $answersForQuestion) {
             if ($answersForQuestion->count() === 1) {
-                $userAnswers[$questionId] = $answersForQuestion->first();
+                $userAnswers[$questionId] = $answersForQuestion->first()->toArray();
             } else {
-                $firstAnswer = $answersForQuestion->first();
-                $firstAnswer->choices = $answersForQuestion->filter(function ($answer) {
+                $answerArray = $answersForQuestion->first()->toArray();
+                $answerArray['choices'] = $answersForQuestion->filter(function ($answer) {
                     return $answer->choice_id !== null;
                 })->map(function ($answer) {
-                    return ['choice' => $answer->choice];
+                    return ['choice' => $answer->choice ? $answer->choice->toArray() : null];
                 })->values()->all();
 
-                $userAnswers[$questionId] = $firstAnswer;
+                $userAnswers[$questionId] = $answerArray;
             }
         }
 
