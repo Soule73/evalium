@@ -4,7 +4,6 @@ import {
     AlertEntry,
     Button,
     ConfirmationModal,
-    QuestionNavigation,
     Section,
     TakeQuestion,
     TextEntry,
@@ -60,31 +59,18 @@ function Work({
         });
     }, []);
 
-    const { answers, showConfirmModal, setShowConfirmModal, isSubmitting, shuffledQuestionIds } =
-        useAssessmentTakeStore(
-            useShallow((state) => ({
-                answers: state.answers,
-                showConfirmModal: state.showConfirmModal,
-                setShowConfirmModal: state.setShowConfirmModal,
-                isSubmitting: state.isSubmitting,
-                shuffledQuestionIds: state.shuffledQuestionIds,
-            })),
-        );
+    const { answers, showConfirmModal, setShowConfirmModal, isSubmitting } = useAssessmentTakeStore(
+        useShallow((state) => ({
+            answers: state.answers,
+            showConfirmModal: state.showConfirmModal,
+            setShowConfirmModal: state.setShowConfirmModal,
+            isSubmitting: state.isSubmitting,
+        })),
+    );
 
-    const {
-        displayedQuestions,
-        currentQuestionIndex,
-        totalQuestions,
-        isFirstQuestion,
-        isLastQuestion,
-        handleNextQuestion,
-        handlePreviousQuestion,
-        goToQuestion,
-        oneQuestionPerPage,
-    } = useQuestionNavigation({
+    const { displayedQuestions } = useQuestionNavigation({
         questions,
         shuffleEnabled: assessment.shuffle_questions ?? false,
-        oneQuestionPerPage: assessment.one_question_per_page ?? false,
     });
 
     const { updateAnswer } = useAssessmentAnswers({ questions, userAnswers });
@@ -99,18 +85,6 @@ function Work({
     useEffect(() => {
         return cleanup;
     }, [cleanup]);
-
-    const answeredQuestionIds = useMemo(() => {
-        return new Set(
-            Object.keys(answers)
-                .map(Number)
-                .filter((id) => {
-                    const answer = answers[id];
-                    if (Array.isArray(answer)) return answer.length > 0;
-                    return answer !== undefined && answer !== '' && answer !== null;
-                }),
-        );
-    }, [answers]);
 
     const handleAnswerChange = useCallback(
         (questionId: number, value: string | number | number[]) => {
@@ -307,20 +281,6 @@ function Work({
                         disabled={!!assignment.submitted_at}
                     />
                 ))}
-
-                {oneQuestionPerPage && displayedQuestions.length > 0 && (
-                    <QuestionNavigation
-                        currentIndex={currentQuestionIndex}
-                        totalQuestions={totalQuestions}
-                        isFirstQuestion={isFirstQuestion}
-                        isLastQuestion={isLastQuestion}
-                        onPrevious={handlePreviousQuestion}
-                        onNext={handleNextQuestion}
-                        onGoToQuestion={goToQuestion}
-                        answeredQuestions={answeredQuestionIds}
-                        questionIds={shuffledQuestionIds}
-                    />
-                )}
 
                 <div className="flex justify-end space-x-3 pb-8">
                     <Button

@@ -20,7 +20,6 @@ interface AssessmentCreateData {
     show_results_immediately: boolean;
     show_correct_answers: boolean;
     allow_late_submission: boolean;
-    one_question_per_page: boolean;
     questions: QuestionFormData[];
 }
 
@@ -48,7 +47,6 @@ export const useCreateAssessment = () => {
             show_results_immediately: true,
             show_correct_answers: false,
             allow_late_submission: false,
-            one_question_per_page: false,
             questions: [],
         });
 

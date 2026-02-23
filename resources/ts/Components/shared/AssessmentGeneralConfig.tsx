@@ -28,7 +28,6 @@ interface AssessmentGeneralConfigProps {
         show_results_immediately: boolean;
         show_correct_answers: boolean;
         allow_late_submission: boolean;
-        one_question_per_page: boolean;
     };
     errors: {
         title?: string;
@@ -258,13 +257,6 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
                         )}
                         checked={data.allow_late_submission}
                         onChange={(e) => onFieldChange('allow_late_submission', e.target.checked)}
-                    />
-                    <Checkbox
-                        label={t(
-                            'components.assessment_general_config.one_question_per_page_label',
-                        )}
-                        checked={data.one_question_per_page}
-                        onChange={(e) => onFieldChange('one_question_per_page', e.target.checked)}
                     />
                 </div>
             </div>

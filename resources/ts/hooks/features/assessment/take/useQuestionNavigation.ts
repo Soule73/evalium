@@ -7,7 +7,6 @@ import { shuffleQuestions, reorderQuestionsByIds } from '@/utils/assessment/take
 interface UseQuestionNavigationParams {
     questions: Question[];
     shuffleEnabled: boolean;
-    oneQuestionPerPage: boolean;
     enforceOnePerPage?: boolean;
 }
 
@@ -17,10 +16,9 @@ interface UseQuestionNavigationParams {
 export function useQuestionNavigation({
     questions,
     shuffleEnabled,
-    oneQuestionPerPage,
     enforceOnePerPage = false,
 }: UseQuestionNavigationParams) {
-    const effectiveOnePerPage = enforceOnePerPage || oneQuestionPerPage;
+    const effectiveOnePerPage = enforceOnePerPage;
     const {
         currentQuestionIndex,
         shuffledQuestionIds,
@@ -91,6 +89,5 @@ export function useQuestionNavigation({
         handleNextQuestion,
         handlePreviousQuestion,
         goToQuestion,
-        oneQuestionPerPage: effectiveOnePerPage,
     };
 }

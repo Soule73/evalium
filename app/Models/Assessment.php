@@ -60,7 +60,6 @@ class Assessment extends Model
         'show_results_immediately',
         'show_correct_answers',
         'allow_late_submission',
-        'one_question_per_page',
     ];
 
     /**
@@ -190,22 +189,6 @@ class Assessment extends Model
     public function setAllowLateSubmissionAttribute(bool $value): void
     {
         $this->setSettingValue('allow_late_submission', $value);
-    }
-
-    /**
-     * Get whether to show one question per page.
-     */
-    public function getOneQuestionPerPageAttribute(): bool
-    {
-        return $this->getBooleanSetting('one_question_per_page', false);
-    }
-
-    /**
-     * Set whether to show one question per page.
-     */
-    public function setOneQuestionPerPageAttribute(bool $value): void
-    {
-        $this->setSettingValue('one_question_per_page', $value);
     }
 
     /**

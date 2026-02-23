@@ -52,7 +52,6 @@ class AssessmentService
             $assessment->show_results_immediately = $data['show_results_immediately'] ?? true;
             $assessment->show_correct_answers = $data['show_correct_answers'] ?? false;
             $assessment->allow_late_submission = $data['allow_late_submission'] ?? false;
-            $assessment->one_question_per_page = $data['one_question_per_page'] ?? false;
             $assessment->save();
 
             if (isset($data['questions']) && is_array($data['questions'])) {
@@ -110,9 +109,6 @@ class AssessmentService
             }
             if (array_key_exists('allow_late_submission', $data)) {
                 $assessment->allow_late_submission = $data['allow_late_submission'];
-            }
-            if (array_key_exists('one_question_per_page', $data)) {
-                $assessment->one_question_per_page = $data['one_question_per_page'];
             }
             $assessment->save();
 
