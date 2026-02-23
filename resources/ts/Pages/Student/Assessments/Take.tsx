@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import {
     AlertEntry,
     AlertSecurityViolation,
-    Button,
     CanNotTakeAssessment,
     ConfirmationModal,
     FullscreenModal,
@@ -128,7 +127,6 @@ function Take({
             noQuestionsSubtitle: t('student_assessment_pages.take.no_questions_subtitle'),
             noQuestionsMessage: t('student_assessment_pages.take.no_questions_message'),
             fullscreenExitWarning: t('student_assessment_pages.take.fullscreen_exit_warning'),
-            finishAssessment: t('student_assessment_pages.take.finish_assessment'),
             fullscreenActivationTitle: t(
                 'student_assessment_pages.take.fullscreen_activation_title',
             ),
@@ -254,51 +252,41 @@ function Take({
                     </Section>
                 )}
 
-                {assessmentCanStart && wizardStep === 'answering' && displayedQuestions.length > 0 && (
-                    <>
-                        <div className="mb-4 text-center">
-                            <span className="text-sm font-medium text-gray-500">
-                                {t('student_assessment_pages.take.question_progress', {
-                                    current: currentQuestionIndex + 1,
-                                    total: totalQuestions,
-                                })}
-                            </span>
-                        </div>
-
-                        {displayedQuestions.map((currentQ) => (
-                            <TakeQuestion
-                                key={currentQ.id}
-                                question={currentQ}
-                                answers={answers}
-                                onAnswerChange={handleAnswerChange}
-                            />
-                        ))}
-
-                        <div className="mt-2 min-h-5">
-                            {saveStatus === 'saving' && (
-                                <p className="text-xs text-gray-400">{translations.saving}</p>
-                            )}
-                            {saveStatus === 'saved' && (
-                                <p className="text-xs text-green-500">{translations.saved}</p>
-                            )}
-                            {saveStatus === 'error' && (
-                                <p className="text-xs text-red-500">{translations.saveError}</p>
-                            )}
-                        </div>
-
-                        {isLastQuestion && (
-                            <div className="flex justify-end mt-6 mb-24">
-                                <Button
-                                    color="primary"
-                                    onClick={() => setWizardStep('reviewing')}
-                                    disabled={isSubmitting || processing}
-                                >
-                                    {translations.finishAssessment}
-                                </Button>
+                {assessmentCanStart &&
+                    wizardStep === 'answering' &&
+                    displayedQuestions.length > 0 && (
+                        <>
+                            <div className="mb-4 text-center">
+                                <span className="text-sm font-medium text-gray-500">
+                                    {t('student_assessment_pages.take.question_progress', {
+                                        current: currentQuestionIndex + 1,
+                                        total: totalQuestions,
+                                    })}
+                                </span>
                             </div>
-                        )}
-                    </>
-                )}
+
+                            {displayedQuestions.map((currentQ) => (
+                                <TakeQuestion
+                                    key={currentQ.id}
+                                    question={currentQ}
+                                    answers={answers}
+                                    onAnswerChange={handleAnswerChange}
+                                />
+                            ))}
+
+                            <div className="mt-2 min-h-5">
+                                {saveStatus === 'saving' && (
+                                    <p className="text-xs text-gray-400">{translations.saving}</p>
+                                )}
+                                {saveStatus === 'saved' && (
+                                    <p className="text-xs text-green-500">{translations.saved}</p>
+                                )}
+                                {saveStatus === 'error' && (
+                                    <p className="text-xs text-red-500">{translations.saveError}</p>
+                                )}
+                            </div>
+                        </>
+                    )}
 
                 {assessmentCanStart && wizardStep === 'reviewing' && (
                     <TakeReviewStep
@@ -324,6 +312,7 @@ function Take({
                     isLastQuestion={isLastQuestion}
                     onPrevious={handlePreviousQuestion}
                     onNext={handleNextQuestion}
+                    onFinish={() => setWizardStep('reviewing')}
                     onGoToQuestion={goToQuestion}
                     answeredQuestions={answeredQuestionIds}
                     questionIds={shuffledQuestionIds}

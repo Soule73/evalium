@@ -1,5 +1,5 @@
 import { Button } from '@evalium/ui';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, ChevronRightIcon, FlagIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface QuestionNavigationProps {
@@ -10,6 +10,7 @@ interface QuestionNavigationProps {
     onPrevious: () => void;
     onNext: () => void;
     onGoToQuestion: (index: number) => void;
+    onFinish?: () => void;
     answeredQuestions?: Set<number>;
     questionIds?: number[];
 }
@@ -22,6 +23,7 @@ export function QuestionNavigation({
     onPrevious,
     onNext,
     onGoToQuestion,
+    onFinish,
     answeredQuestions = new Set(),
     questionIds = [],
 }: QuestionNavigationProps) {
@@ -39,7 +41,7 @@ export function QuestionNavigation({
                     <ChevronLeftIcon className="h-4 w-4" />
                     {t('student_assessment_pages.take.previous_question')}
                 </Button>
-                <div className=" flex flex-col items-center space-y-2">
+                <div className="flex flex-col items-center space-y-2">
                     {totalQuestions <= 20 && (
                         <div className="flex flex-wrap gap-2 justify-center items-center">
                             {Array.from({ length: totalQuestions }, (_, i) => {
@@ -69,23 +71,29 @@ export function QuestionNavigation({
                             })}
                         </div>
                     )}
-                    <span className="text-sm font-medium text-gray-700">
-                        {t('student_assessment_pages.take.question_progress', {
-                            current: currentIndex + 1,
-                            total: totalQuestions,
-                        })}
-                    </span>
                 </div>
 
-                <Button
-                    size="sm"
-                    onClick={onNext}
-                    disabled={isLastQuestion}
-                    className="flex items-center gap-1"
-                >
-                    {t('student_assessment_pages.take.next_question')}
-                    <ChevronRightIcon className="h-4 w-4" />
-                </Button>
+                {isLastQuestion && onFinish ? (
+                    <Button
+                        size="sm"
+                        color="primary"
+                        onClick={onFinish}
+                        className="flex items-center gap-1"
+                    >
+                        {t('student_assessment_pages.take.finish_assessment')}
+                        <FlagIcon className="h-4 w-4" />
+                    </Button>
+                ) : (
+                    <Button
+                        size="sm"
+                        onClick={onNext}
+                        disabled={isLastQuestion}
+                        className="flex items-center gap-1"
+                    >
+                        {t('student_assessment_pages.take.next_question')}
+                        <ChevronRightIcon className="h-4 w-4" />
+                    </Button>
+                )}
             </div>
         </div>
     );
