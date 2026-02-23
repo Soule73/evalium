@@ -150,6 +150,7 @@ return [
     'grade_blocked_assessment_running' => 'Cannot grade: the student has not submitted and the assessment is still in progress.',
     'assessment_already_submitted' => 'This assessment has already been submitted',
     'results_not_available_yet' => 'Results are not available until the assessment has been graded',
+    'results_under_embargo' => 'The exam is still ongoing for other students. Results will be available once the session has fully ended.',
 
     // Validation - Form labels
     'assessment_title' => 'assessment title',

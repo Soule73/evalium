@@ -60,6 +60,7 @@ class Assessment extends Model
         'show_results_immediately',
         'show_correct_answers',
         'allow_late_submission',
+        'results_available_at',
     ];
 
     /**
@@ -285,6 +286,47 @@ class Assessment extends Model
         }
 
         return $this->scheduled_at->copy()->addMinutes($this->duration_minutes);
+    }
+
+    /**
+     * Determine from which point in time results can be revealed to students.
+     *
+     * For supervised assessments an embargo of one hour after the session ends
+     * is enforced so that early finishers cannot leak questions to peers who
+     * are still taking the exam.
+     * For homework assessments there is no embargo: results follow the
+     * show_results_immediately / graded_at rules only.
+     */
+    public function getResultsAvailableAtAttribute(): ?\Carbon\Carbon
+    {
+        if ($this->isHomeworkMode()) {
+            return null;
+        }
+
+        $endsAt = $this->ends_at;
+
+        if ($endsAt === null) {
+            return null;
+        }
+
+        return $endsAt->copy()->addHour();
+    }
+
+    /**
+     * Check whether the results embargo has lifted for this assessment.
+     *
+     * For supervised assessments: true only after scheduled_at + duration + 1 hour.
+     * For homework assessments: always true (no embargo applies).
+     */
+    public function isResultsEmbargoLifted(): bool
+    {
+        if ($this->isHomeworkMode()) {
+            return true;
+        }
+
+        $availableAt = $this->results_available_at;
+
+        return $availableAt !== null && now()->gte($availableAt);
     }
 
     /**

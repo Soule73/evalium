@@ -64,6 +64,8 @@ const AssessmentResults: React.FC<Props> = ({
             teacher: t('student_assessment_pages.results.teacher'),
             resultsHiddenTitle: t('student_assessment_pages.results.results_hidden_title'),
             resultsHiddenMessage: t('student_assessment_pages.results.results_hidden_message'),
+            preliminaryScore: t('student_assessment_pages.results.preliminary_score'),
+            awaitingGrading: t('student_assessment_pages.results.awaiting_grading'),
         }),
         [t],
     );
@@ -139,14 +141,38 @@ const AssessmentResults: React.FC<Props> = ({
                                 <div>
                                     <p className="text-sm text-gray-600 mb-1">
                                         {translations.yourScore}
+                                        {isPendingReview && (
+                                            <span className="ml-2 text-xs font-medium text-amber-600">
+                                                (
+                                                {(assignment.score !== null &&
+                                                    assignment.score !== undefined) ||
+                                                (assignment.auto_score !== null &&
+                                                    assignment.auto_score !== undefined)
+                                                    ? translations.preliminaryScore
+                                                    : translations.awaitingGrading}
+                                                )
+                                            </span>
+                                        )}
                                     </p>
-                                    <p className="text-3xl font-bold text-gray-900">
-                                        {Number(finalScore || 0).toFixed(2)} / {totalPoints}
-                                    </p>
-                                    <p className="text-lg text-gray-600">
-                                        {translations.percentage}:{' '}
-                                        {Number(finalPercentage || 0).toFixed(1)}%
-                                    </p>
+                                    {(assignment.score !== null &&
+                                        assignment.score !== undefined) ||
+                                    (assignment.auto_score !== null &&
+                                        assignment.auto_score !== undefined) ||
+                                    !isPendingReview ? (
+                                        <>
+                                            <p className="text-3xl font-bold text-gray-900">
+                                                {Number(finalScore || 0).toFixed(2)} / {totalPoints}
+                                            </p>
+                                            <p className="text-lg text-gray-600">
+                                                {translations.percentage}:{' '}
+                                                {Number(finalPercentage || 0).toFixed(1)}%
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <p className="text-xl text-amber-600 font-medium">
+                                            &mdash; / {totalPoints}
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div>

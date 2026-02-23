@@ -60,6 +60,9 @@ return [
         'description' => 'Description',
         'no_description' => 'No description provided.',
         'view_results' => 'View Results',
+        'results_not_yet_available' => 'Results Not Yet Available',
+        'results_available_after' => 'Results will be available from',
+        'results_waiting_grading' => 'Your submission is awaiting grading by your teacher.',
         'assessment_unavailable' => 'Assessment Unavailable',
         'countdown_title' => 'Assessment starts in',
         'countdown_days' => 'days',
@@ -161,5 +164,7 @@ return [
         'teacher' => 'Teacher',
         'results_hidden_title' => 'Results Not Yet Available',
         'results_hidden_message' => 'The correct answers will be displayed after your teacher has graded this assessment.',
+        'preliminary_score' => 'provisional',
+        'awaiting_grading' => 'awaiting grading',
     ],
 ];

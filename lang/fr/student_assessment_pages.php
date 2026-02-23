@@ -60,6 +60,9 @@ return [
         'description' => 'Description',
         'no_description' => 'Aucune description fournie.',
         'view_results' => 'Voir les résultats',
+        'results_not_yet_available' => 'Résultats pas encore disponibles',
+        'results_available_after' => 'Les résultats seront disponibles à partir du',
+        'results_waiting_grading' => 'Votre soumission est en attente de correction par votre enseignant.',
         'assessment_unavailable' => 'Évaluation indisponible',
         'countdown_title' => 'L\'évaluation commence dans',
         'countdown_days' => 'jours',
@@ -161,5 +164,7 @@ return [
         'teacher' => 'Professeur',
         'results_hidden_title' => 'Résultats non encore disponibles',
         'results_hidden_message' => 'Les réponses correctes seront affichées après que votre professeur aura corrigé cette évaluation.',
+        'preliminary_score' => 'provisoire',
+        'awaiting_grading' => 'en attente de correction',
     ],
 ];

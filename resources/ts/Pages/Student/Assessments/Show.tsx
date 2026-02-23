@@ -24,9 +24,15 @@ interface StudentAssessmentShowProps extends PageProps {
     assessment: Assessment;
     assignment: AssessmentAssignment;
     availability: AvailabilityStatus;
+    canViewResults: boolean;
 }
 
-export default function Show({ assessment, assignment, availability }: StudentAssessmentShowProps) {
+export default function Show({
+    assessment,
+    assignment,
+    availability,
+    canViewResults,
+}: StudentAssessmentShowProps) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -69,6 +75,9 @@ export default function Show({ assessment, assignment, availability }: StudentAs
             description: t('student_assessment_pages.show.description'),
             noDescription: t('student_assessment_pages.show.no_description'),
             viewResults: t('student_assessment_pages.show.view_results'),
+            resultsNotYetAvailable: t('student_assessment_pages.show.results_not_yet_available'),
+            resultsAvailableAfter: t('student_assessment_pages.show.results_available_after'),
+            resultsWaitingGrading: t('student_assessment_pages.show.results_waiting_grading'),
             startedDate: t('student_assessment_pages.show.started_date'),
             assessmentUnavailable: t('student_assessment_pages.show.assessment_unavailable'),
             countdownTitle: t('student_assessment_pages.show.countdown_title'),
@@ -128,7 +137,7 @@ export default function Show({ assessment, assignment, availability }: StudentAs
             ? unavailabilityReasonMap[availability.reason] || translations.assessmentUnavailable
             : null;
 
-    const alertMessage = isHomework ? (
+    const alertMessage = isSubmitted ? null : isHomework ? (
         <AlertEntry type="info" title={translations.importantTitle}>
             <ul className="list-disc list-inside space-y-1 text-sm">
                 <li>{translations.alertStableConnection}</li>
@@ -155,7 +164,10 @@ export default function Show({ assessment, assignment, availability }: StudentAs
             : statsTranslations.startAssessment
         : null;
 
-    const showViewResults = isSubmitted;
+    const showViewResults = canViewResults;
+
+    const showResultsPending = isSubmitted && !canViewResults;
+    const resultsAvailableAt = assessment.results_available_at;
 
     const handleStartAssessment = () => {
         setIsModalOpen(false);
@@ -392,6 +404,16 @@ export default function Show({ assessment, assignment, availability }: StudentAs
                     {unavailabilityMessage && availability.reason !== 'assessment_not_started' && (
                         <AlertEntry type="error" title={translations.assessmentUnavailable}>
                             <p className="text-sm">{unavailabilityMessage}</p>
+                        </AlertEntry>
+                    )}
+
+                    {showResultsPending && (
+                        <AlertEntry type="info" title={translations.resultsNotYetAvailable}>
+                            <p className="text-sm">
+                                {resultsAvailableAt
+                                    ? `${translations.resultsAvailableAfter} ${formatDate(resultsAvailableAt, 'datetime')}`
+                                    : translations.resultsWaitingGrading}
+                            </p>
                         </AlertEntry>
                     )}
 

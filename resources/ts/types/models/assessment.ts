@@ -23,6 +23,7 @@ export interface Assessment {
     show_results_immediately: boolean;
     show_correct_answers: boolean;
     allow_late_submission: boolean;
+    results_available_at: string | null;
     created_at: string;
     updated_at: string;
 

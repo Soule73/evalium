@@ -98,10 +98,16 @@ class StudentAssessmentController extends Controller
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
+        $embargoLifted = $assessment->isResultsEmbargoLifted();
+        $canViewResults = $assignment->submitted_at !== null
+            && $embargoLifted
+            && ($assessment->show_results_immediately || $assignment->graded_at !== null);
+
         return Inertia::render('Student/Assessments/Show', [
             'assignment' => $assignment,
             'assessment' => $assessment,
             'availability' => $assessment->getAvailabilityStatus(),
+            'canViewResults' => $canViewResults,
         ]);
     }
 
@@ -279,6 +285,12 @@ class StudentAssessmentController extends Controller
             $teacher->notify(new AssessmentSubmittedNotification($assessment, $assignment));
         }
 
+        if ($assessment->isSupervisedMode() && ! $assessment->isResultsEmbargoLifted()) {
+            return redirect()
+                ->route('student.assessments.show', $assessment)
+                ->flashSuccess(__('messages.assessment_submitted'));
+        }
+
         return redirect()
             ->route('student.assessments.results', $assessment)
             ->flashSuccess(__('messages.assessment_submitted'));
@@ -304,6 +316,11 @@ class StudentAssessmentController extends Controller
 
         if (! $assignment || ! $assignment->submitted_at) {
             return redirect()->route('student.assessments.show', $assessment);
+        }
+
+        if ($assessment->isSupervisedMode() && ! $assessment->isResultsEmbargoLifted()) {
+            return redirect()->route('student.assessments.show', $assessment)
+                ->flashInfo(__('messages.results_under_embargo'));
         }
 
         if (! $assessment->show_results_immediately && ! $assignment->graded_at) {

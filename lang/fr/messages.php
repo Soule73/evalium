@@ -148,6 +148,7 @@ return [
     'grade_blocked_assessment_running' => 'Correction impossible : l\'étudiant n\'a pas encore soumis sa copie et l\'évaluation est toujours en cours.',
     'assessment_already_submitted' => 'Cette évaluation a déjà été soumise',
     'results_not_available_yet' => 'Les résultats ne sont pas disponibles avant la correction de l\'évaluation',
+    'results_under_embargo' => 'L\'évaluation est encore en cours pour d\'autres étudiants. Les résultats seront disponibles une fois la séance totalement terminée.',
 
     // Validation - Form labels
     'assessment_title' => 'titre de l\'évaluation',
