@@ -10,15 +10,34 @@ import {
     QuestionNavigation,
     Section,
     TakeQuestion,
-    TextEntry,
+    TakeReviewStep,
 } from '@/Components';
 import { type Answer, type Assessment, type AssessmentAssignment, type Question } from '@/types';
-import { ExclamationCircleIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import {
+    ArrowsPointingOutIcon,
+    ClockIcon,
+    ExclamationCircleIcon,
+    QuestionMarkCircleIcon,
+} from '@heroicons/react/24/outline';
 import { useTakeAssessment, useQuestionNavigation } from '@/hooks/features/assessment';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { formatTime, getTimeColorClass, isTimePulsing } from '@/utils';
+import { formatTime } from '@/utils';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
+
+function getTimerClasses(timeLeft: number, durationMinutes: number | null): string {
+    if (!durationMinutes || durationMinutes <= 0) {
+        return 'text-gray-700 font-semibold tabular-nums';
+    }
+    const percent = timeLeft / (durationMinutes * 60);
+    if (percent <= 0.1) {
+        return 'text-red-600 text-lg font-bold tabular-nums animate-pulse';
+    }
+    if (percent <= 0.25) {
+        return 'text-amber-500 font-bold tabular-nums';
+    }
+    return 'text-gray-600 text-sm font-semibold tabular-nums';
+}
 
 interface TakeAssessmentProps {
     assessment: Assessment;
@@ -47,6 +66,8 @@ function Take({
         terminationReason,
         showFullscreenModal,
         shuffledQuestionIds,
+        wizardStep,
+        setWizardStep,
     } = useAssessmentTakeStore(
         useShallow((state) => ({
             answers: state.answers,
@@ -58,11 +79,14 @@ function Take({
             terminationReason: state.terminationReason,
             showFullscreenModal: state.showFullscreenModal,
             shuffledQuestionIds: state.shuffledQuestionIds,
+            wizardStep: state.wizardStep,
+            setWizardStep: state.setWizardStep,
         })),
     );
 
     const {
         displayedQuestions,
+        orderedQuestions,
         currentQuestionIndex,
         totalQuestions,
         isFirstQuestion,
@@ -70,7 +94,6 @@ function Take({
         handleNextQuestion,
         handlePreviousQuestion,
         goToQuestion,
-        oneQuestionPerPage,
     } = useQuestionNavigation({
         questions,
         shuffleEnabled: assessment.shuffle_questions ?? false,
@@ -104,16 +127,8 @@ function Take({
             noQuestionsTitle: t('student_assessment_pages.take.no_questions_title'),
             noQuestionsSubtitle: t('student_assessment_pages.take.no_questions_subtitle'),
             noQuestionsMessage: t('student_assessment_pages.take.no_questions_message'),
-            timeRemaining: t('student_assessment_pages.take.time_remaining'),
             fullscreenExitWarning: t('student_assessment_pages.take.fullscreen_exit_warning'),
-            submitting: t('student_assessment_pages.take.submitting'),
             finishAssessment: t('student_assessment_pages.take.finish_assessment'),
-            importantInstructions: t('student_assessment_pages.take.important_instructions'),
-            warningTitle: t('student_assessment_pages.take.warning_title'),
-            warningMessage1: t('student_assessment_pages.take.warning_message_1'),
-            warningMessage2: t('student_assessment_pages.take.warning_message_2'),
-            warningMessage3: t('student_assessment_pages.take.warning_message_3'),
-            warningAutoSave: t('student_assessment_pages.take.warning_auto_save'),
             fullscreenActivationTitle: t(
                 'student_assessment_pages.take.fullscreen_activation_title',
             ),
@@ -132,6 +147,11 @@ function Take({
         }),
         [t],
     );
+
+    const handleGoToQuestionInWizard = (index: number) => {
+        setWizardStep('answering');
+        goToQuestion(index);
+    };
 
     const titleTranslation = useMemo(
         () => t('student_assessment_pages.take.title', { assessment: assessment.title }),
@@ -193,102 +213,59 @@ function Take({
 
             <header
                 role="banner"
-                className="bg-white py-4 border-b border-gray-200 fixed w-full z-10 top-0"
+                className="bg-white py-3 border-b border-gray-200 fixed w-full z-10 top-0"
             >
-                <div className="container mx-auto flex justify-between items-center gap-4 px-4">
-                    <TextEntry
-                        className="text-start min-w-0"
-                        label={assessment.title}
-                        value={
-                            assessment.description
-                                ? assessment.description.length > 100
-                                    ? assessment.description.substring(0, 100) + '...'
-                                    : assessment.description
-                                : ''
-                        }
-                    />
+                <div className="container mx-auto flex items-center justify-between gap-4 px-4">
+                    <h1 className="text-sm font-semibold text-gray-900 truncate min-w-0">
+                        {assessment.title}
+                    </h1>
 
-                    <div className="flex flex-col items-center shrink-0">
-                        <p className="text-xs font-medium text-gray-500 mb-0.5">
-                            {translations.timeRemaining}
-                        </p>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        <ClockIcon className="h-4 w-4 text-gray-400" />
                         <span
-                            className={[
-                                'text-xl font-bold tabular-nums transition-colors duration-700',
-                                assessment.duration_minutes
-                                    ? getTimeColorClass(timeLeft ?? 0, assessment.duration_minutes)
-                                    : 'text-gray-900',
-                                assessment.duration_minutes && isTimePulsing(timeLeft ?? 0)
-                                    ? 'animate-pulse'
-                                    : '',
-                            ]
-                                .filter(Boolean)
-                                .join(' ')}
+                            className={getTimerClasses(
+                                timeLeft,
+                                assessment.duration_minutes ?? null,
+                            )}
                         >
                             {formatTime(timeLeft)}
                         </span>
-                        {saveStatus === 'saving' && (
-                            <span className="text-xs text-gray-400 mt-1">
-                                {translations.saving}
-                            </span>
-                        )}
-                        {saveStatus === 'saved' && (
-                            <span className="text-xs text-green-500 mt-1">
-                                {translations.saved}
-                            </span>
-                        )}
-                        {saveStatus === 'error' && (
-                            <span className="text-xs text-red-500 mt-1">
-                                {translations.saveError}
-                            </span>
-                        )}
                     </div>
 
                     {fullscreenRequired && !security.isFullscreen && (
                         <button
                             type="button"
                             onClick={enterFullscreen}
-                            className="text-sm text-amber-600 font-medium animate-pulse hover:text-amber-700 shrink-0"
+                            title={translations.fullscreenExitWarning}
+                            className="shrink-0 p-1.5 rounded-md text-amber-600 hover:bg-amber-50 animate-pulse"
                         >
-                            {translations.fullscreenExitWarning}
+                            <ArrowsPointingOutIcon className="h-5 w-5" />
                         </button>
                     )}
-
-                    <Button
-                        size="sm"
-                        color="primary"
-                        onClick={() => setShowConfirmModal(true)}
-                        disabled={isSubmitting || processing}
-                        loading={isSubmitting || processing}
-                        aria-label={translations.finishAssessment}
-                    >
-                        {isSubmitting || processing
-                            ? translations.submitting
-                            : translations.finishAssessment}
-                    </Button>
                 </div>
             </header>
 
-            <div className="pt-20 max-w-6xl mx-auto">
-                <div className="container mx-auto px-4 py-8">
-                    <Section
-                        title={translations.importantInstructions}
-                        collapsible
-                        defaultOpen={true}
-                    >
-                        <AlertEntry type="warning" title={translations.warningTitle}>
-                            <p>
-                                {translations.warningMessage1}
-                                <strong> {translations.warningMessage2}</strong>{' '}
-                                {translations.warningMessage3}
-                            </p>
-                            <p>{translations.warningAutoSave}</p>
+            <div className="pt-14 max-w-3xl mx-auto px-4 py-8">
+                {!assessmentCanStart && (
+                    <Section title={translations.fullscreenActivationTitle} collapsible={false}>
+                        <AlertEntry type="info" title={translations.attention}>
+                            <p>{translations.fullscreenActivationMessage}</p>
                         </AlertEntry>
                     </Section>
+                )}
 
-                    {assessmentCanStart &&
-                        displayedQuestions.length > 0 &&
-                        displayedQuestions.map((currentQ) => (
+                {assessmentCanStart && wizardStep === 'answering' && displayedQuestions.length > 0 && (
+                    <>
+                        <div className="mb-4 text-center">
+                            <span className="text-sm font-medium text-gray-500">
+                                {t('student_assessment_pages.take.question_progress', {
+                                    current: currentQuestionIndex + 1,
+                                    total: totalQuestions,
+                                })}
+                            </span>
+                        </div>
+
+                        {displayedQuestions.map((currentQ) => (
                             <TakeQuestion
                                 key={currentQ.id}
                                 question={currentQ}
@@ -297,29 +274,61 @@ function Take({
                             />
                         ))}
 
-                    {assessmentCanStart && oneQuestionPerPage && displayedQuestions.length > 0 && (
-                        <QuestionNavigation
-                            currentIndex={currentQuestionIndex}
-                            totalQuestions={totalQuestions}
-                            isFirstQuestion={isFirstQuestion}
-                            isLastQuestion={isLastQuestion}
-                            onPrevious={handlePreviousQuestion}
-                            onNext={handleNextQuestion}
-                            onGoToQuestion={goToQuestion}
-                            answeredQuestions={answeredQuestionIds}
-                            questionIds={shuffledQuestionIds}
-                        />
-                    )}
+                        <div className="mt-2 min-h-5">
+                            {saveStatus === 'saving' && (
+                                <p className="text-xs text-gray-400">{translations.saving}</p>
+                            )}
+                            {saveStatus === 'saved' && (
+                                <p className="text-xs text-green-500">{translations.saved}</p>
+                            )}
+                            {saveStatus === 'error' && (
+                                <p className="text-xs text-red-500">{translations.saveError}</p>
+                            )}
+                        </div>
 
-                    {!assessmentCanStart && (
-                        <Section title={translations.fullscreenActivationTitle} collapsible={false}>
-                            <AlertEntry type="info" title={translations.attention}>
-                                <p>{translations.fullscreenActivationMessage}</p>
-                            </AlertEntry>
-                        </Section>
-                    )}
-                </div>
+                        {isLastQuestion && (
+                            <div className="flex justify-end mt-6 mb-24">
+                                <Button
+                                    color="primary"
+                                    onClick={() => setWizardStep('reviewing')}
+                                    disabled={isSubmitting || processing}
+                                >
+                                    {translations.finishAssessment}
+                                </Button>
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {assessmentCanStart && wizardStep === 'reviewing' && (
+                    <TakeReviewStep
+                        questions={orderedQuestions}
+                        answers={answers}
+                        totalQuestions={totalQuestions}
+                        onGoToQuestion={handleGoToQuestionInWizard}
+                        onConfirmSubmit={() => setShowConfirmModal(true)}
+                        onBack={() => {
+                            goToQuestion(totalQuestions - 1);
+                            setWizardStep('answering');
+                        }}
+                        isSubmitting={isSubmitting || processing}
+                    />
+                )}
             </div>
+
+            {assessmentCanStart && wizardStep === 'answering' && (
+                <QuestionNavigation
+                    currentIndex={currentQuestionIndex}
+                    totalQuestions={totalQuestions}
+                    isFirstQuestion={isFirstQuestion}
+                    isLastQuestion={isLastQuestion}
+                    onPrevious={handlePreviousQuestion}
+                    onNext={handleNextQuestion}
+                    onGoToQuestion={goToQuestion}
+                    answeredQuestions={answeredQuestionIds}
+                    questionIds={shuffledQuestionIds}
+                />
+            )}
 
             <ConfirmationModal
                 title={translations.confirmSubmitTitle}
