@@ -75,6 +75,7 @@ function Take({
         questions,
         shuffleEnabled: assessment.shuffle_questions ?? false,
         oneQuestionPerPage: assessment.one_question_per_page ?? false,
+        enforceOnePerPage: true,
     });
 
     const answeredQuestionIds = useMemo(() => {
