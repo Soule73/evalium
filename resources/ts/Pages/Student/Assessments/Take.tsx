@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
     AlertEntry,
     AlertSecurityViolation,
@@ -10,6 +10,7 @@ import {
     Section,
     TakeQuestion,
     TakeReviewStep,
+    useToast,
 } from '@/Components';
 import { type Answer, type Assessment, type AssessmentAssignment, type Question } from '@/types';
 import {
@@ -54,6 +55,21 @@ function Take({
     remainingSeconds = null,
 }: TakeAssessmentProps) {
     const { t } = useTranslations();
+    const { addToast } = useToast();
+
+    useEffect(() => {
+        const key = `instructions_shown_${assignment.id}`;
+        if (!sessionStorage.getItem(key)) {
+            addToast({
+                type: 'warning',
+                title: t('student_assessment_pages.take.attention'),
+                message: t('student_assessment_pages.take.toast_instructions'),
+                autoClose: true,
+                duration: 4000,
+            });
+            sessionStorage.setItem(key, '1');
+        }
+    }, [addToast, assignment.id, t]);
 
     const {
         answers,
