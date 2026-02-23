@@ -40,8 +40,7 @@ export const useAssessmentTimer = ({
         if (remainingSeconds !== null && remainingSeconds >= 0) {
             setTimeLeft(remainingSeconds);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [remainingSeconds, setTimeLeft]);
 
     const tick = useCallback(() => {
         setTimeLeft((prev) => {
