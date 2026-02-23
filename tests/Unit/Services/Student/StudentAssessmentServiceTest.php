@@ -741,8 +741,8 @@ class StudentAssessmentServiceTest extends TestCase
 
         $this->assertArrayHasKey($question->id, $result);
         $formatted = $result[$question->id];
-        $this->assertIsArray($formatted->choices);
-        $this->assertCount(2, $formatted->choices);
+        $this->assertIsArray($formatted['choices']);
+        $this->assertCount(2, $formatted['choices']);
     }
 
     public function test_format_user_answers_single_answer_returns_directly(): void
@@ -787,6 +787,6 @@ class StudentAssessmentServiceTest extends TestCase
         $result = $this->service->formatUserAnswers($answers);
 
         $this->assertArrayHasKey($question->id, $result);
-        $this->assertEquals($choice->id, $result[$question->id]->choice_id);
+        $this->assertEquals($choice->id, $result[$question->id]['choice_id']);
     }
 }
