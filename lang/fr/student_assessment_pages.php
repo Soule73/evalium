@@ -131,6 +131,15 @@ return [
         'max_file_size' => 'Taille maximale : :size',
         'allowed_types' => 'Types autorisés : :types',
     ],
+    'review' => [
+        'title'            => 'Vérifiez vos réponses',
+        'answered'         => ':count répondue(s)',
+        'unanswered'       => ':count sans réponse',
+        'back_to_question' => 'Retour',
+        'submit_final'     => 'Soumettre définitivement',
+        'question_label'   => 'Q:number',
+        'go_to_question'   => 'Répondre à cette question',
+    ],
     'results' => [
         'title' => 'Résultats - :assessment',
         'section_title' => 'Résultats de l\'évaluation',

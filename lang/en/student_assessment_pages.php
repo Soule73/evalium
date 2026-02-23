@@ -131,6 +131,15 @@ return [
         'max_file_size' => 'Maximum file size: :size',
         'allowed_types' => 'Allowed types: :types',
     ],
+    'review' => [
+        'title'            => 'Review your answers',
+        'answered'         => ':count answered',
+        'unanswered'       => ':count unanswered',
+        'back_to_question' => 'Back',
+        'submit_final'     => 'Submit definitively',
+        'question_label'   => 'Q:number',
+        'go_to_question'   => 'Answer this question',
+    ],
     'results' => [
         'title' => 'Results - :assessment',
         'section_title' => 'Assessment Results',

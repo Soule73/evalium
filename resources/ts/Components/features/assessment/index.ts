@@ -11,4 +11,5 @@ export * from './QuestionResultReadOnly';
 export * from './QuestionsManager';
 export * from './SortableQuestionItem';
 export * from './TakeQuestion';
+export * from './TakeReviewStep';
 export * from './TeacherNotesDisplay';
