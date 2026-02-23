@@ -234,7 +234,7 @@ class Assessment extends Model
         }
 
         if ($this->scheduled_at && $this->duration_minutes) {
-            $endsAt = $this->scheduled_at->addMinutes($this->duration_minutes);
+            $endsAt = $this->scheduled_at->copy()->addMinutes($this->duration_minutes);
 
             if ($now->gt($endsAt) && ! $this->allow_late_submission) {
                 return ['available' => false, 'reason' => 'assessment_ended'];

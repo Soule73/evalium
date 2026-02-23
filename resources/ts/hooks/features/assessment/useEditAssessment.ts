@@ -10,6 +10,16 @@ import {
 } from '@/types';
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
 
+/**
+ * Converts a UTC ISO datetime string to a local datetime-local input value (YYYY-MM-DDTHH:MM).
+ * Uses the browser's local timezone so the displayed time matches the user's clock.
+ */
+const toLocalDatetimeInput = (isoString: string): string => {
+    const d = new Date(isoString);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
 interface AssessmentEditData {
     title: string;
     description: string;
@@ -63,8 +73,8 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
             title: assessment.title || '',
             description: assessment.description || '',
             duration: assessment.duration_minutes || 60,
-            scheduled_date: assessment.scheduled_at ? assessment.scheduled_at.slice(0, 16) : '',
-            due_date: assessment.due_date ? assessment.due_date.slice(0, 16) : '',
+            scheduled_date: assessment.scheduled_at ? toLocalDatetimeInput(assessment.scheduled_at) : '',
+            due_date: assessment.due_date ? toLocalDatetimeInput(assessment.due_date) : '',
             delivery_mode: assessment.delivery_mode || 'homework',
             type: assessment.type,
             class_subject_id: assessment.class_subject_id ?? null,
@@ -142,7 +152,7 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
                 onSuccess: () => {
                     clearDeletedHistory();
                 },
-                onError: () => {},
+                onError: () => { },
             });
         },
         [
