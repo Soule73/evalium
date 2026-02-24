@@ -103,6 +103,7 @@ return [
         'correct_answer' => 'Correct answer',
         'boolean_true_short' => 'T',
         'boolean_false_short' => 'F',
+        'submitted_file' => 'Submitted file:',
     ],
     'question_readonly_section' => [
         'correct' => 'Correct',

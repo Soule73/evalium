@@ -49,7 +49,19 @@ export const buildQuestionResult = (
             userChoices: [],
             hasMultipleAnswers: question.type === 'multiple',
             feedback: overrides?.feedbacks?.[question.id] ?? null,
-            score: overrides?.scores?.[question.id] ?? 0,
+            score: overrides?.scores?.[question.id] ?? (question.type === 'text' ? undefined : 0),
+        };
+    }
+
+    if (question.type === 'file') {
+        const explicitScore = overrides?.scores?.[question.id];
+        return {
+            isCorrect: null,
+            userChoices: [],
+            hasMultipleAnswers: false,
+            fileAnswer: answer.file_path ? answer : undefined,
+            feedback: overrides?.feedbacks?.[question.id] ?? answer.feedback ?? null,
+            score: explicitScore !== undefined ? explicitScore : answer.score,
         };
     }
 
@@ -80,10 +92,12 @@ export const buildQuestionResult = (
         overrides?.scores?.[question.id] !== undefined
             ? overrides.scores[question.id]
             : answer.score !== undefined && answer.score !== null
-              ? answer.score
-              : isCorrect === true
-                ? (question.points ?? 0)
-                : 0;
+                ? answer.score
+                : isCorrect === true
+                    ? (question.points ?? 0)
+                    : question.type === 'text'
+                        ? undefined
+                        : 0;
 
     return {
         isCorrect,
@@ -146,7 +160,9 @@ export const formatScoresForSave = (
 export const hasUserResponse = (result: {
     userChoices?: unknown[];
     userText?: string;
+    fileAnswer?: { file_path?: string };
 }): boolean => {
+    if (result.fileAnswer?.file_path) return true;
     if (result.userChoices && result.userChoices.length > 0) {
         return true;
     }

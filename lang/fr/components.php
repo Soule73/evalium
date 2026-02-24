@@ -131,6 +131,7 @@ return [
         'correct_answer' => 'Réponse correcte',
         'boolean_true_short' => 'V',
         'boolean_false_short' => 'F',
+        'submitted_file' => 'Fichier soumis :',
     ],
     'question_readonly_section' => [
         'correct' => 'Correct',

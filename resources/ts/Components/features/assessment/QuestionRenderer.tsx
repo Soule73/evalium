@@ -8,6 +8,7 @@ import { QuestionReadOnlySection } from './QuestionReadOnlySection';
 import {
     QuestionResultReadOnlyText,
     QuestionResultReadOnlyChoices,
+    QuestionResultReadOnlyFile,
 } from './QuestionResultReadOnly';
 
 interface QuestionItemProps {
@@ -63,17 +64,21 @@ const QuestionItem: React.FC<QuestionItemProps> = memo(
                         />
                     )}
 
+                    {question.type === 'file' && result.fileAnswer && (
+                        <QuestionResultReadOnlyFile fileAnswer={result.fileAnswer} />
+                    )}
+
                     {(question.type === 'one_choice' ||
                         question.type === 'multiple' ||
                         question.type === 'boolean') && (
-                        <QuestionResultReadOnlyChoices
-                            choices={question.choices ?? []}
-                            userChoices={result.userChoices}
-                            type={question.type}
-                            isTeacherView={isTeacherView}
-                            showCorrectAnswers={showCorrectAnswers}
-                        />
-                    )}
+                            <QuestionResultReadOnlyChoices
+                                choices={question.choices ?? []}
+                                userChoices={result.userChoices}
+                                type={question.type}
+                                isTeacherView={isTeacherView}
+                                showCorrectAnswers={showCorrectAnswers}
+                            />
+                        )}
 
                     {!hasResponse && !previewMode && (
                         <AlertEntry

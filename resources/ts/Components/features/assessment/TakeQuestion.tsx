@@ -32,6 +32,7 @@ interface BaseChoiceProps {
     choices: Choice[];
     answers: Record<number, AnswerValue>;
     onAnswerChange: (questionId: number, value: AnswerValue) => void;
+    disabled?: boolean;
 }
 
 /* ---------- Subcomponents ---------- */
@@ -41,10 +42,12 @@ const TakeQuestionMultiple: React.FC<BaseChoiceProps> = ({
     choices,
     answers,
     onAnswerChange,
+    disabled,
 }) => {
     const current = Array.isArray(answers[questionId]) ? (answers[questionId] as number[]) : [];
 
     const toggleChoice = (choiceId: number, checked: boolean) => {
+        if (disabled) return;
         if (checked) onAnswerChange(questionId, [...current, choiceId]);
         else
             onAnswerChange(
@@ -68,6 +71,7 @@ const TakeQuestionMultiple: React.FC<BaseChoiceProps> = ({
                     checked={current.includes(choice.id)}
                     onChange={(e) => toggleChoice(choice.id, e.target.checked)}
                     value={choice.id}
+                    disabled={disabled}
                     labelClassName="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors w-full"
                 />
             ))}
@@ -80,8 +84,11 @@ const TakeQuestionOneChoice: React.FC<BaseChoiceProps> = ({
     choices,
     answers,
     onAnswerChange,
+    disabled,
 }) => {
-    const onChange = (value: number) => onAnswerChange(questionId, value);
+    const onChange = (value: number) => {
+        if (!disabled) onAnswerChange(questionId, value);
+    };
 
     return (
         <div className="space-y-3 flex flex-col w-full">
@@ -99,6 +106,7 @@ const TakeQuestionOneChoice: React.FC<BaseChoiceProps> = ({
                     checked={answers[questionId] === choice.id}
                     onChange={() => onChange(choice.id)}
                     value={choice.id}
+                    disabled={disabled}
                     labelClassName="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors w-full"
                 />
             ))}
@@ -111,9 +119,12 @@ const TakeQuestionBoolean: React.FC<BaseChoiceProps> = ({
     choices,
     answers,
     onAnswerChange,
+    disabled,
 }) => {
     const { getBooleanLabel, getBooleanShortLabel } = useChoiceUtils();
-    const onChange = (value: number) => onAnswerChange(questionId, value);
+    const onChange = (value: number) => {
+        if (!disabled) onAnswerChange(questionId, value);
+    };
 
     return (
         <div className="space-y-3 flex flex-col w-full">
@@ -131,6 +142,7 @@ const TakeQuestionBoolean: React.FC<BaseChoiceProps> = ({
                         checked={answers[questionId] === choice.id}
                         onChange={() => onChange(choice.id)}
                         value={choice.id}
+                        disabled={disabled}
                         labelClassName="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors w-full"
                         label={
                             <>
@@ -237,6 +249,7 @@ const TakeQuestion: React.FC<TakeQuestionProps> = ({
                     choices={question.choices ?? []}
                     answers={answers}
                     onAnswerChange={onAnswerChange}
+                    disabled={disabled}
                 />
             )}
 
@@ -246,6 +259,7 @@ const TakeQuestion: React.FC<TakeQuestionProps> = ({
                     choices={question.choices ?? []}
                     answers={answers}
                     onAnswerChange={onAnswerChange}
+                    disabled={disabled}
                 />
             )}
 
@@ -255,6 +269,7 @@ const TakeQuestion: React.FC<TakeQuestionProps> = ({
                     choices={question.choices ?? []}
                     answers={answers}
                     onAnswerChange={onAnswerChange}
+                    disabled={disabled}
                 />
             )}
 
