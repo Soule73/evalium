@@ -41,12 +41,14 @@ export function NotificationBell() {
     return (
         <>
             <Button type="button" variant="ghost" onClick={handleOpen}>
-                <BellIcon className="w-5 h-5 cursor-pointer" />
-                {displayUnread > 0 && (
-                    <span className="absolute top-1 right-1 inline-flex items-center justify-center h-4 min-w-4 px-0.5 rounded-full text-xs font-bold bg-red-500 text-white leading-none">
-                        {displayUnread > 99 ? '99+' : displayUnread}
-                    </span>
-                )}
+                <span className="relative">
+                    <BellIcon className="w-5 h-5 cursor-pointer" />
+                    {displayUnread > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center h-4 min-w-4 px-0.5 rounded-full text-xs font-bold bg-red-500 text-white leading-none">
+                            {displayUnread > 99 ? '99+' : displayUnread}
+                        </span>
+                    )}
+                </span>
             </Button>
 
             <NotificationPanel
