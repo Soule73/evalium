@@ -43,7 +43,7 @@ class AssessmentGradedNotification extends Notification implements ShouldQueue
             'assessment_title' => $this->assessment->title,
             'subject' => $this->assessment->classSubject?->subject?->name,
             'assignment_id' => $this->assignment->id,
-            'url' => route('student.assessments.results', $this->assessment->id),
+            'url' => route('student.assessments.result', $this->assessment->id),
         ];
     }
 }

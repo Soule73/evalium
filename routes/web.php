@@ -374,7 +374,7 @@ Route::middleware('auth')->group(function () {
                     Route::post('/{assessment}/save-answers', 'saveAnswers')->name('save-answers');
                     Route::post('/{assessment}/submit', 'submit')->name('submit');
                     Route::post('/{assessment}/security-violation', 'securityViolation')->name('security-violation');
-                    Route::get('/{assessment}/results', 'results')->name('results');
+                    Route::get('/{assessment}/result', 'results')->name('result');
                     Route::post('/{assessment}/file-answers', 'uploadFileAnswer')->name('file-answers.upload');
                     Route::delete('/{assessment}/file-answers/{answer}', 'deleteFileAnswer')->name('file-answers.delete');
                 });

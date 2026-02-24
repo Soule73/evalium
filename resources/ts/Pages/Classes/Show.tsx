@@ -118,7 +118,7 @@ export default function ClassShow({
             studentsSectionTeacher: t('teacher_class_pages.show.students_section_title'),
             deleteTitle: t('admin_pages.classes.delete_title'),
             cancel: t('commons/ui.cancel'),
-            viewResults: t('teacher_class_pages.results.view_results'),
+            viewResults: t('teacher_class_pages.results.view_result'),
         }),
         [t, isAdmin],
     );

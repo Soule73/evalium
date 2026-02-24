@@ -54,6 +54,6 @@ return [
         'score' => 'Avg score',
         'no_assessments' => 'No assessments found for this class.',
         'no_students' => 'No students enrolled in this class.',
-        'view_results' => 'View Results',
+        'view_result' => 'View Result',
     ],
 ];

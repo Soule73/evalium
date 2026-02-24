@@ -443,7 +443,7 @@ class StudentAssessmentTakeTest extends TestCase
         );
     }
 
-    public function test_show_passes_can_view_results_false_during_embargo(): void
+    public function test_show_passes_can_view_result_false_during_embargo(): void
     {
         AssessmentAssignment::create([
             'assessment_id' => $this->assessment->id,

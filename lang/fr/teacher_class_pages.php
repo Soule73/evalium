@@ -54,6 +54,6 @@ return [
         'score' => 'Note moy.',
         'no_assessments' => 'Aucune évaluation trouvée pour cette classe.',
         'no_students' => 'Aucun étudiant inscrit dans cette classe.',
-        'view_results' => 'Voir les résultats',
+        'view_result' => 'Voir le résultat',
     ],
 ];

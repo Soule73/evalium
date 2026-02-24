@@ -74,7 +74,7 @@ export default function Show({
             alertHomeworkDueDate: t('student_assessment_pages.show.alert_homework_due_date'),
             description: t('student_assessment_pages.show.description'),
             noDescription: t('student_assessment_pages.show.no_description'),
-            viewResults: t('student_assessment_pages.show.view_results'),
+            viewResults: t('student_assessment_pages.show.view_result'),
             resultsNotYetAvailable: t('student_assessment_pages.show.results_not_yet_available'),
             resultsAvailableAfter: t('student_assessment_pages.show.results_available_after'),
             resultsWaitingGrading: t('student_assessment_pages.show.results_waiting_grading'),
@@ -237,9 +237,7 @@ export default function Show({
                                 color="primary"
                                 size="sm"
                                 onClick={() =>
-                                    router.visit(
-                                        route('student.assessments.results', assessment.id),
-                                    )
+                                    router.visit(route('student.assessments.result', assessment.id))
                                 }
                             >
                                 <EyeIcon className="w-4 h-4 mr-1" />

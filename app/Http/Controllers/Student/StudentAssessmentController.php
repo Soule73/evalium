@@ -154,7 +154,7 @@ class StudentAssessmentController extends Controller
 
         if ($assignment->submitted_at) {
             $redirectRoute = $assessment->isSupervisedMode()
-                ? 'student.assessments.results'
+                ? 'student.assessments.result'
                 : 'student.assessments.show';
 
             return redirect()->route($redirectRoute, $assessment);
@@ -162,7 +162,7 @@ class StudentAssessmentController extends Controller
 
         if ($this->assessmentService->autoSubmitIfExpired($assignment, $assessment)) {
             return redirect()
-                ->route('student.assessments.results', $assessment)
+                ->route('student.assessments.result', $assessment)
                 ->flashError(__('messages.assessment_time_expired'));
         }
 
@@ -292,7 +292,7 @@ class StudentAssessmentController extends Controller
         }
 
         return redirect()
-            ->route('student.assessments.results', $assessment)
+            ->route('student.assessments.result', $assessment)
             ->flashSuccess(__('messages.assessment_submitted'));
     }
 
@@ -356,7 +356,7 @@ class StudentAssessmentController extends Controller
             unset($answer, $answerChoice);
         }
 
-        return Inertia::render('Student/Assessments/Results', [
+        return Inertia::render('Student/Assessments/Result', [
             'assignment' => $assignment,
             'assessment' => $assessment,
             'userAnswers' => $userAnswers,

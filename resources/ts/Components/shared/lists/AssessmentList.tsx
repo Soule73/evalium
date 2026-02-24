@@ -404,10 +404,10 @@ function buildActions(deps: ActionDeps): ActionConfig<AssessmentItem>[] {
             },
         },
         {
-            labelKey: 'student_assessment_pages.index.view_results',
+            labelKey: 'student_assessment_pages.index.view_result',
             onClick: (item) => {
                 const assignment = item as AssignmentWithAssessment;
-                router.visit(route('student.assessments.results', assignment.assessment.id));
+                router.visit(route('student.assessments.result', assignment.assessment.id));
             },
             color: 'secondary',
             variant: 'outline',
