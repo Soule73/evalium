@@ -8,15 +8,18 @@ import {
 } from '@/types';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
-import { Badge, Button, Section, Stat, QuestionList, TeacherNotesDisplay } from '@/Components';
+import { Button, Section, QuestionList, TeacherNotesDisplay } from '@/Components';
 import { FileList } from '@/Components/shared/lists';
 import { QuestionProvider } from '@/Components/features/assessment/question';
-import { formatDate } from '@/utils';
+import { getAssessmentBackUrl } from '@/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useAssessmentReview } from '@/hooks/features/assessment';
-import { AssessmentContextInfo, AssessmentHeader } from '@/Components/features/assessment';
-import { DocumentTextIcon, ChartPieIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import {
+    AssessmentContextInfo,
+    AssessmentHeader,
+    AssignmentScoreStats,
+} from '@/Components/features/assessment';
 
 interface Props {
     assessment: Assessment;
@@ -45,17 +48,7 @@ export default function ReviewAssignment({
 
     const pageBreadcrumbs = breadcrumbs.assessment.review(routeContext, assessment, student);
 
-    const backUrl = (() => {
-        if (routeContext.showRoute) return route(routeContext.showRoute, assessment.id);
-        const classId = assessment.class_subject?.class?.id;
-        if (classId && routeContext.classAssessmentShowRoute) {
-            return route(routeContext.classAssessmentShowRoute, {
-                class: classId,
-                assessment: assessment.id,
-            });
-        }
-        return route(routeContext.backRoute);
-    })();
+    const backUrl = getAssessmentBackUrl(routeContext, assessment);
 
     const gradeRouteUrl = route(routeContext.gradeRoute, {
         assessment: assessment.id,
@@ -98,42 +91,13 @@ export default function ReviewAssignment({
                         student={student}
                     />
                     <div className="my-4 border-t border-gray-100" />
-                    <Stat.Group columns={4}>
-                        <Stat.Item
-                            title={t('grading_pages.show.total_score')}
-                            value={`${calculatedTotalScore} / ${totalPoints}`}
-                            icon={DocumentTextIcon}
-                        />
-                        <Stat.Item
-                            title={t('grading_pages.show.percentage')}
-                            value={`${percentage}%`}
-                            icon={ChartPieIcon}
-                        />
-                        <Stat.Item
-                            title={t('grading_pages.show.status')}
-                            value={
-                                <Badge
-                                    size="sm"
-                                    label={
-                                        assignment.submitted_at
-                                            ? t('grading_pages.show.submitted')
-                                            : t('grading_pages.show.not_submitted')
-                                    }
-                                    type={assignment.submitted_at ? 'success' : 'gray'}
-                                />
-                            }
-                            icon={CheckCircleIcon}
-                        />
-                        <Stat.Item
-                            title={t('grading_pages.review.graded_at')}
-                            value={
-                                assignment.graded_at
-                                    ? formatDate(assignment.graded_at, 'datetime')
-                                    : '-'
-                            }
-                            icon={DocumentTextIcon}
-                        />
-                    </Stat.Group>
+                    <AssignmentScoreStats
+                        calculatedTotalScore={calculatedTotalScore}
+                        totalPoints={totalPoints}
+                        percentage={percentage}
+                        assignment={assignment}
+                        showGradedAt
+                    />
                 </Section>
 
                 <QuestionProvider

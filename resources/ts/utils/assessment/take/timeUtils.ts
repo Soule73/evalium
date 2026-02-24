@@ -105,3 +105,29 @@ export function minutesToSeconds(minutes: number): number {
 export function secondsToMinutes(seconds: number): number {
     return Math.floor(seconds / 60);
 }
+
+/**
+ * Derives Tailwind class string for the timer display based on remaining time percentage.
+ *
+ * Thresholds:
+ * - ≤ 10%: red, large, bold, pulsing
+ * - ≤ 25%: amber, bold
+ * - > 25%: neutral gray, small, semibold
+ *
+ * @param timeLeft - Remaining time in seconds
+ * @param durationMinutes - Total assessment duration in minutes (null = no limit)
+ * @returns Tailwind class string for the timer element
+ */
+export function getTimerClasses(timeLeft: number, durationMinutes: number | null): string {
+    if (!durationMinutes || durationMinutes <= 0) {
+        return 'text-gray-700 font-semibold tabular-nums';
+    }
+    const percent = timeLeft / (durationMinutes * 60);
+    if (percent <= 0.1) {
+        return 'text-red-600 text-lg font-bold tabular-nums animate-pulse';
+    }
+    if (percent <= 0.25) {
+        return 'text-amber-500 font-bold tabular-nums';
+    }
+    return 'text-gray-600 text-sm font-semibold tabular-nums';
+}

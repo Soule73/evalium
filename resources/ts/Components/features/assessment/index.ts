@@ -1,6 +1,7 @@
 export * from './AlertSecurityViolation';
 export * from './AssessmentContextInfo';
 export * from './AssessmentHeader';
+export * from './AssignmentScoreStats';
 export * from './FileUploadZone';
 export * from './FullscreenModal';
 export * from './questionOptions';
@@ -11,3 +12,4 @@ export * from './QuestionsManager';
 export * from './SortableQuestionItem';
 export * from './TakeReviewStep';
 export * from './TeacherNotesDisplay';
+export * from './WorkSubmitActions';

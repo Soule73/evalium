@@ -107,89 +107,84 @@ const AssessmentResults: React.FC<Props> = ({
                     </Button>
                 }
             >
-                <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                                {assessment.title}
-                            </h3>
-                            <div className="space-y-3">
-                                <TextEntry
-                                    label={translations.subject}
-                                    value={assessment.class_subject?.subject?.name || '-'}
-                                />
-                                <TextEntry
-                                    label={translations.class}
-                                    value={
-                                        assessment.class_subject?.class?.display_name ??
-                                        assessment.class_subject?.class?.name ??
-                                        '-'
-                                    }
-                                />
-                                <TextEntry
-                                    label={translations.teacher}
-                                    value={assessment.class_subject?.teacher?.name || '-'}
-                                />
-                            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                            {assessment.title}
+                        </h3>
+                        <div className="space-y-3">
+                            <TextEntry
+                                label={translations.subject}
+                                value={assessment.class_subject?.subject?.name || '-'}
+                            />
+                            <TextEntry
+                                label={translations.class}
+                                value={
+                                    assessment.class_subject?.class?.display_name ??
+                                    assessment.class_subject?.class?.name ??
+                                    '-'
+                                }
+                            />
+                            <TextEntry
+                                label={translations.teacher}
+                                value={assessment.class_subject?.teacher?.name || '-'}
+                            />
                         </div>
+                    </div>
 
-                        <div className="border-l border-gray-200 pl-6">
-                            <div className="space-y-4">
-                                <div>
-                                    <p className="text-sm text-gray-600 mb-1">
-                                        {translations.yourScore}
-                                        {isPendingReview && (
-                                            <span className="ml-2 text-xs font-medium text-amber-600">
-                                                (
-                                                {(assignment.score !== null &&
-                                                    assignment.score !== undefined) ||
-                                                (assignment.auto_score !== null &&
-                                                    assignment.auto_score !== undefined)
-                                                    ? translations.preliminaryScore
-                                                    : translations.awaitingGrading}
-                                                )
-                                            </span>
-                                        )}
-                                    </p>
-                                    {(assignment.score !== null &&
-                                        assignment.score !== undefined) ||
-                                    (assignment.auto_score !== null &&
-                                        assignment.auto_score !== undefined) ||
-                                    !isPendingReview ? (
-                                        <>
-                                            <p className="text-3xl font-bold text-gray-900">
-                                                {Number(finalScore || 0).toFixed(2)} / {totalPoints}
-                                            </p>
-                                            <p className="text-lg text-gray-600">
-                                                {translations.percentage}:{' '}
-                                                {Number(finalPercentage || 0).toFixed(1)}%
-                                            </p>
-                                        </>
-                                    ) : (
-                                        <p className="text-xl text-amber-600 font-medium">
-                                            &mdash; / {totalPoints}
+                    <div className="border-l border-gray-200 pl-6">
+                        <div className="space-y-4">
+                            <div>
+                                <p className="text-sm text-gray-600 mb-1">
+                                    {translations.yourScore}
+                                    {isPendingReview && (
+                                        <span className="ml-2 text-xs font-medium text-amber-600">
+                                            (
+                                            {(assignment.score !== null &&
+                                                assignment.score !== undefined) ||
+                                            (assignment.auto_score !== null &&
+                                                assignment.auto_score !== undefined)
+                                                ? translations.preliminaryScore
+                                                : translations.awaitingGrading}
+                                            )
+                                        </span>
+                                    )}
+                                </p>
+                                {(assignment.score !== null && assignment.score !== undefined) ||
+                                (assignment.auto_score !== null &&
+                                    assignment.auto_score !== undefined) ||
+                                !isPendingReview ? (
+                                    <>
+                                        <p className="text-3xl font-bold text-gray-900">
+                                            {Number(finalScore || 0).toFixed(2)} / {totalPoints}
                                         </p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <p className="text-sm text-gray-600 mb-1">
-                                        {translations.status}
+                                        <p className="text-lg text-gray-600">
+                                            {translations.percentage}:{' '}
+                                            {Number(finalPercentage || 0).toFixed(1)}%
+                                        </p>
+                                    </>
+                                ) : (
+                                    <p className="text-xl text-amber-600 font-medium">
+                                        &mdash; / {totalPoints}
                                     </p>
-                                    {isPendingReview ? (
-                                        <Badge label={translations.pendingReview} type="warning" />
-                                    ) : (
-                                        <Badge label={translations.graded} type="success" />
-                                    )}
-                                </div>
-
-                                {assignment.submitted_at && (
-                                    <TextEntry
-                                        label={translations.submittedAt}
-                                        value={formatDate(assignment.submitted_at)}
-                                    />
                                 )}
                             </div>
+
+                            <div>
+                                <p className="text-sm text-gray-600 mb-1">{translations.status}</p>
+                                {isPendingReview ? (
+                                    <Badge label={translations.pendingReview} type="warning" />
+                                ) : (
+                                    <Badge label={translations.graded} type="success" />
+                                )}
+                            </div>
+
+                            {assignment.submitted_at && (
+                                <TextEntry
+                                    label={translations.submittedAt}
+                                    value={formatDate(assignment.submitted_at)}
+                                />
+                            )}
                         </div>
                     </div>
                 </div>

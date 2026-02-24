@@ -2,6 +2,7 @@ import { Head, router } from '@inertiajs/react';
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import { AlertEntry, Button, ConfirmationModal, Section, TextEntry } from '@/Components';
 import { QuestionProvider, QuestionCard } from '@/Components/features/assessment/question';
+import { WorkSubmitActions, getSaveButtonLabel } from '@/Components/features/assessment';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Answer, type Assessment, type AssessmentAssignment, type Question } from '@/types';
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
@@ -138,18 +139,12 @@ function Work({
         [t, assessment.title],
     );
 
-    const saveButtonLabel = useMemo(() => {
-        switch (savingStatus) {
-            case 'saving':
-                return translations.saving;
-            case 'saved':
-                return translations.saved;
-            case 'error':
-                return translations.saveError;
-            default:
-                return translations.saveProgress;
-        }
-    }, [savingStatus, translations]);
+    const saveButtonLabel = getSaveButtonLabel(savingStatus, {
+        idle: translations.saveProgress,
+        saving: translations.saving,
+        saved: translations.saved,
+        error: translations.saveError,
+    });
 
     if (assignment.submitted_at) {
         return (
@@ -205,29 +200,16 @@ function Work({
                 <Section
                     title={assessment.title}
                     actions={
-                        <div className="flex items-center space-x-3">
-                            <Button
-                                size="sm"
-                                color="secondary"
-                                variant="outline"
-                                onClick={handleManualSave}
-                                disabled={savingStatus === 'saving'}
-                                loading={savingStatus === 'saving'}
-                            >
-                                {saveButtonLabel}
-                            </Button>
-                            <Button
-                                size="sm"
-                                color="primary"
-                                onClick={() => setShowConfirmModal(true)}
-                                disabled={isSubmitting || processing}
-                                loading={isSubmitting || processing}
-                            >
-                                {isSubmitting || processing
-                                    ? translations.submitting
-                                    : translations.submitWork}
-                            </Button>
-                        </div>
+                        <WorkSubmitActions
+                            savingStatus={savingStatus}
+                            isSubmitting={isSubmitting}
+                            processing={processing}
+                            saveButtonLabel={saveButtonLabel}
+                            submitLabel={translations.submitWork}
+                            submittingLabel={translations.submitting}
+                            onSave={handleManualSave}
+                            onSubmit={() => setShowConfirmModal(true)}
+                        />
                     }
                 >
                     <div className="space-y-4">
@@ -279,28 +261,17 @@ function Work({
                     </QuestionProvider>
                 ))}
 
-                <div className="flex justify-end space-x-3 pb-8">
-                    <Button
-                        size="sm"
-                        color="secondary"
-                        variant="outline"
-                        onClick={handleManualSave}
-                        disabled={savingStatus === 'saving'}
-                        loading={savingStatus === 'saving'}
-                    >
-                        {saveButtonLabel}
-                    </Button>
-                    <Button
-                        size="sm"
-                        color="primary"
-                        onClick={() => setShowConfirmModal(true)}
-                        disabled={isSubmitting || processing}
-                        loading={isSubmitting || processing}
-                    >
-                        {isSubmitting || processing
-                            ? translations.submitting
-                            : translations.submitWork}
-                    </Button>
+                <div className="flex justify-end pb-8">
+                    <WorkSubmitActions
+                        savingStatus={savingStatus}
+                        isSubmitting={isSubmitting}
+                        processing={processing}
+                        saveButtonLabel={saveButtonLabel}
+                        submitLabel={translations.submitWork}
+                        submittingLabel={translations.submitting}
+                        onSave={handleManualSave}
+                        onSubmit={() => setShowConfirmModal(true)}
+                    />
                 </div>
             </div>
 

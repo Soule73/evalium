@@ -1,4 +1,3 @@
-import { useState, useCallback } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import {
     type Assessment,
@@ -8,23 +7,20 @@ import {
     type PageProps,
     type AssessmentRouteContext,
 } from '@/types';
-import { route } from 'ziggy-js';
 import { router, usePage } from '@inertiajs/react';
-import { Button, Section, Textarea, ConfirmationModal, Stat, QuestionList } from '@/Components';
+import { Button, Section, Textarea, ConfirmationModal, QuestionList } from '@/Components';
 import { FileList } from '@/Components/shared/lists';
 import { hasPermission } from '@/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { useAssessmentReview } from '@/hooks/features/assessment';
-import { AssessmentContextInfo, AssessmentHeader } from '@/Components/features/assessment';
-import { QuestionProvider } from '@/Components/features/assessment/question';
+import { useAssessmentReview, useGradeState } from '@/hooks/features/assessment';
 import {
-    DocumentTextIcon,
-    ChartPieIcon,
-    CheckCircleIcon,
-    XCircleIcon,
-    ExclamationTriangleIcon,
-} from '@heroicons/react/24/outline';
+    AssessmentContextInfo,
+    AssessmentHeader,
+    AssignmentScoreStats,
+} from '@/Components/features/assessment';
+import { QuestionProvider } from '@/Components/features/assessment/question';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 interface GradingState {
     allowed: boolean;
@@ -56,29 +52,20 @@ export default function GradeAssignment({
     const { auth } = usePage<PageProps>().props;
     const canGradeAssessments = hasPermission(auth.permissions, 'grade assessments');
 
-    const [editableScores, setEditableScores] = useState<Record<number, number>>(() => {
-        const initialScores: Record<number, number> = {};
-        (assessment.questions ?? []).forEach((question) => {
-            const answer = userAnswers[question.id];
-            initialScores[question.id] = answer?.score ?? 0;
-        });
-        return initialScores;
-    });
-
-    const [feedbacks, setFeedbacks] = useState<Record<number, string>>(() => {
-        const initialFeedbacks: Record<number, string> = {};
-        (assessment.questions ?? []).forEach((question) => {
-            const answer = userAnswers[question.id];
-            if (answer?.feedback) {
-                initialFeedbacks[question.id] = answer.feedback;
-            }
-        });
-        return initialFeedbacks;
-    });
-
-    const [teacherNotes, setTeacherNotes] = useState(assignment.teacher_notes || '');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const {
+        editableScores,
+        setEditableScores,
+        feedbacks,
+        teacherNotes,
+        setTeacherNotes,
+        isSubmitting,
+        showConfirmModal,
+        setShowConfirmModal,
+        backUrl,
+        handleFeedbackChange,
+        handleSubmit,
+        handleConfirmSubmit,
+    } = useGradeState({ assessment, assignment, userAnswers, routeContext });
 
     const { totalPoints, calculatedTotalScore, percentage } = useAssessmentReview({
         assessment,
@@ -86,54 +73,7 @@ export default function GradeAssignment({
         scoreOverrides: editableScores,
     });
 
-    const handleFeedbackChange = useCallback((questionId: number, value: string) => {
-        setFeedbacks((prev) => ({ ...prev, [questionId]: value }));
-    }, []);
-
-    const handleSubmit = useCallback(() => {
-        setShowConfirmModal(true);
-    }, []);
-
-    const saveGradeUrl = route(routeContext.saveGradeRoute, {
-        assessment: assessment.id,
-        assignment: assignment.id,
-    });
-
-    const handleConfirmSubmit = useCallback(() => {
-        setIsSubmitting(true);
-        setShowConfirmModal(false);
-
-        const scoresWithFeedback = (assessment.questions ?? []).map((question) => ({
-            question_id: question.id,
-            score: editableScores[question.id] || 0,
-            feedback: feedbacks[question.id] || null,
-        }));
-
-        router.post(
-            saveGradeUrl,
-            {
-                scores: scoresWithFeedback,
-                teacher_notes: teacherNotes,
-            },
-            {
-                onFinish: () => setIsSubmitting(false),
-            },
-        );
-    }, [assessment, editableScores, feedbacks, teacherNotes, saveGradeUrl]);
-
     const pageBreadcrumbs = breadcrumbs.assessment.grade(routeContext, assessment, student);
-
-    const backUrl = (() => {
-        if (routeContext.showRoute) return route(routeContext.showRoute, assessment.id);
-        const classId = assessment.class_subject?.class?.id;
-        if (classId && routeContext.classAssessmentShowRoute) {
-            return route(routeContext.classAssessmentShowRoute, {
-                class: classId,
-                assessment: assessment.id,
-            });
-        }
-        return route(routeContext.backRoute);
-    })();
 
     return (
         <AuthenticatedLayout
@@ -194,27 +134,12 @@ export default function GradeAssignment({
                         student={student}
                     />
                     <div className="my-4 border-t border-gray-100" />
-                    <Stat.Group columns={3}>
-                        <Stat.Item
-                            title={t('grading_pages.show.total_score')}
-                            value={`${calculatedTotalScore} / ${totalPoints}`}
-                            icon={DocumentTextIcon}
-                        />
-                        <Stat.Item
-                            title={t('grading_pages.show.percentage')}
-                            value={`${percentage}%`}
-                            icon={ChartPieIcon}
-                        />
-                        <Stat.Item
-                            title={t('grading_pages.show.status')}
-                            value={
-                                assignment.submitted_at
-                                    ? t('grading_pages.show.submitted')
-                                    : t('grading_pages.show.not_submitted')
-                            }
-                            icon={assignment.submitted_at ? CheckCircleIcon : XCircleIcon}
-                        />
-                    </Stat.Group>
+                    <AssignmentScoreStats
+                        calculatedTotalScore={calculatedTotalScore}
+                        totalPoints={totalPoints}
+                        percentage={percentage}
+                        assignment={assignment}
+                    />
                 </Section>
 
                 <QuestionProvider

@@ -120,3 +120,22 @@ export function getUnansweredQuestions(
 ): number[] {
     return questionIds.filter((id) => !isAnswerValid(answers[id]));
 }
+
+/**
+ * Gets the set of answered question IDs from the current answers map.
+ *
+ * @param answers - Current answers object keyed by question ID
+ * @returns Set of question IDs that have a valid (non-empty) answer
+ *
+ * @example
+ * getAnsweredQuestionIds({ 1: [2], 2: '', 3: 5 }) // Set { 1, 3 }
+ */
+export function getAnsweredQuestionIds(
+    answers: Record<number, string | number | number[]>,
+): Set<number> {
+    return new Set(
+        Object.keys(answers)
+            .map(Number)
+            .filter((id) => isAnswerValid(answers[id])),
+    );
+}

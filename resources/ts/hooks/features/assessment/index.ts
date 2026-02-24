@@ -3,4 +3,5 @@ export { useEditAssessment } from './useEditAssessment';
 export { default as useAssessmentResults } from './useAssessmentResults';
 export { default as useAssessmentReview } from './useAssessmentReview';
 export { useAssessmentCountdown } from './useAssessmentCountdown';
+export { useGradeState } from './useGradeState';
 export * from './take';
