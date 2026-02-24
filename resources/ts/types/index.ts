@@ -2,6 +2,7 @@ export * from './models';
 export * from './models/shared';
 export * from './datatable';
 export * from './route-context';
+export * from './question-rendering';
 
 export type FlashMessageObject = { id: string; message: string } | null;
 

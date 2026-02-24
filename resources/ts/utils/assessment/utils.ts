@@ -92,12 +92,12 @@ export const buildQuestionResult = (
         overrides?.scores?.[question.id] !== undefined
             ? overrides.scores[question.id]
             : answer.score !== undefined && answer.score !== null
-                ? answer.score
-                : isCorrect === true
-                    ? (question.points ?? 0)
-                    : question.type === 'text'
-                        ? undefined
-                        : 0;
+              ? answer.score
+              : isCorrect === true
+                ? (question.points ?? 0)
+                : question.type === 'text'
+                  ? undefined
+                  : 0;
 
     return {
         isCorrect,

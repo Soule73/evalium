@@ -1,17 +1,12 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, ConfirmationModal, Section, Stat, QuestionList } from '@/Components';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { Toggle } from '@evalium/ui';
 import { AssessmentContextInfo } from '@/Components/features/assessment';
-import {
-    type Assessment,
-    type AssessmentAssignment,
-    type AssessmentRouteContext,
-    type Question,
-    type QuestionResult,
-} from '@/types';
+import { QuestionProvider } from '@/Components/features/assessment/question';
+import { type Assessment, type AssessmentAssignment, type AssessmentRouteContext } from '@/types';
 import { type PaginationType } from '@/types/datatable';
 import {
     ClockIcon,
@@ -108,19 +103,6 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
         if (!canEdit) return;
         router.visit(route(routeContext.editRoute!, assessment.id));
     };
-
-    const getQuestionResult = useCallback(
-        (question: Question): QuestionResult => ({
-            isCorrect: null,
-            userChoices: [],
-            hasMultipleAnswers: question.type === 'multiple',
-            feedback: null,
-            score: undefined,
-            userText:
-                question.type === 'text' ? t('assessment_pages.common.free_text_info') : undefined,
-        }),
-        [t],
-    );
 
     const handleGradeStudent = (assignment: AssignmentWithVirtual) => {
         if (!assignment.id) return;
@@ -297,13 +279,9 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
                             )}
                         </div>
                     ) : (
-                        <QuestionList
-                            questions={assessment.questions ?? []}
-                            getQuestionResult={getQuestionResult}
-                            isTeacherView={true}
-                            showCorrectAnswers={true}
-                            previewMode={true}
-                        />
+                        <QuestionProvider mode="preview" role={routeContext.role} userAnswers={{}}>
+                            <QuestionList questions={assessment.questions ?? []} />
+                        </QuestionProvider>
                     )}
                 </Section>
             </div>

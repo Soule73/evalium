@@ -10,6 +10,7 @@ import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { Badge, Button, Section, Stat, QuestionList, TeacherNotesDisplay } from '@/Components';
 import { FileList } from '@/Components/shared/lists';
+import { QuestionProvider } from '@/Components/features/assessment/question';
 import { formatDate } from '@/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
@@ -37,8 +38,10 @@ export default function ReviewAssignment({
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 
-    const { totalPoints, calculatedTotalScore, percentage, scores, getQuestionResult } =
-        useAssessmentReview({ assessment, userAnswers });
+    const { totalPoints, calculatedTotalScore, percentage } = useAssessmentReview({
+        assessment,
+        userAnswers,
+    });
 
     const pageBreadcrumbs = breadcrumbs.assessment.review(routeContext, assessment, student);
 
@@ -133,12 +136,16 @@ export default function ReviewAssignment({
                     </Stat.Group>
                 </Section>
 
-                <QuestionList
-                    title={t('grading_pages.review.questions_review')}
-                    questions={assessment.questions ?? []}
-                    getQuestionResult={getQuestionResult}
-                    scores={scores}
-                />
+                <QuestionProvider
+                    mode="review"
+                    role={routeContext?.role ?? 'teacher'}
+                    userAnswers={userAnswers}
+                >
+                    <QuestionList
+                        title={t('grading_pages.review.questions_review')}
+                        questions={assessment.questions ?? []}
+                    />
+                </QuestionProvider>
 
                 {fileAnswers.length > 0 && (
                     <Section title={t('grading_pages.show.student_files_title')}>

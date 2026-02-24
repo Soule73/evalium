@@ -8,10 +8,10 @@ import {
     FullscreenModal,
     QuestionNavigation,
     Section,
-    TakeQuestion,
     TakeReviewStep,
     useToast,
 } from '@/Components';
+import { QuestionProvider, QuestionCard } from '@/Components/features/assessment/question';
 import { type Answer, type Assessment, type AssessmentAssignment, type Question } from '@/types';
 import {
     ArrowsPointingOutIcon,
@@ -281,12 +281,18 @@ function Take({
                             </div>
 
                             {displayedQuestions.map((currentQ) => (
-                                <TakeQuestion
+                                <QuestionProvider
                                     key={currentQ.id}
-                                    question={currentQ}
+                                    mode="take"
+                                    role="student"
                                     answers={answers}
                                     onAnswerChange={handleAnswerChange}
-                                />
+                                >
+                                    <QuestionCard
+                                        question={currentQ}
+                                        questionIndex={currentQuestionIndex}
+                                    />
+                                </QuestionProvider>
                             ))}
 
                             <div className="mt-2 min-h-5">

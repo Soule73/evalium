@@ -6,6 +6,7 @@ import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { useMemo } from 'react';
 import { AlertEntry, Badge, Button, Section, QuestionList, TextEntry } from '@/Components';
+import { QuestionProvider } from '@/Components/features/assessment/question';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { formatDate } from '@/utils';
@@ -215,12 +216,14 @@ const AssessmentResults: React.FC<Props> = ({
                     </AlertEntry>
                 )}
 
-                <QuestionList
-                    questions={assessment.questions || []}
-                    getQuestionResult={getQuestionResult}
-                    isTeacherView={false}
+                <QuestionProvider
+                    mode="results"
+                    role="student"
+                    userAnswers={userAnswers}
                     showCorrectAnswers={showCorrectAnswers}
-                />
+                >
+                    <QuestionList questions={assessment.questions || []} />
+                </QuestionProvider>
             </Section>
         </AuthenticatedLayout>
     );

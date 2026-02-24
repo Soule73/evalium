@@ -5,11 +5,9 @@ import {
     type AssessmentAssignment,
     type Answer,
     type User,
-    type Question,
     type PageProps,
     type AssessmentRouteContext,
 } from '@/types';
-import { requiresManualGrading } from '@/utils';
 import { route } from 'ziggy-js';
 import { router, usePage } from '@inertiajs/react';
 import { Button, Section, Textarea, ConfirmationModal, Stat, QuestionList } from '@/Components';
@@ -19,6 +17,7 @@ import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useAssessmentReview } from '@/hooks/features/assessment';
 import { AssessmentContextInfo, AssessmentHeader } from '@/Components/features/assessment';
+import { QuestionProvider } from '@/Components/features/assessment/question';
 import {
     DocumentTextIcon,
     ChartPieIcon,
@@ -81,18 +80,12 @@ export default function GradeAssignment({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-    const { totalPoints, calculatedTotalScore, percentage, scores, getQuestionResult } =
-        useAssessmentReview({
-            assessment,
-            userAnswers,
-            scoreOverrides: editableScores,
-            feedbackOverrides: feedbacks,
-        });
-
-    const handleScoreChange = useCallback((questionId: number, value: string) => {
-        const numValue = parseFloat(value) || 0;
-        setEditableScores((prev) => ({ ...prev, [questionId]: numValue }));
-    }, []);
+    const { totalPoints, calculatedTotalScore, percentage } = useAssessmentReview({
+        assessment,
+        userAnswers,
+        scoreOverrides: editableScores,
+        feedbackOverrides: feedbacks,
+    });
 
     const handleFeedbackChange = useCallback((questionId: number, value: string) => {
         setFeedbacks((prev) => ({ ...prev, [questionId]: value }));
@@ -128,68 +121,6 @@ export default function GradeAssignment({
             },
         );
     }, [assessment, editableScores, feedbacks, teacherNotes, saveGradeUrl]);
-
-    const renderScoreInput = useCallback(
-        (question: Question) => {
-            const questionScore = editableScores[question.id] || 0;
-            const maxScore = question.points || 0;
-            const isAutoGraded = !requiresManualGrading(question);
-
-            return (
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">
-                                {t('grading_pages.show.question_score_label', { max: maxScore })}
-                            </label>
-                            {isAutoGraded && (
-                                <p className="text-xs text-indigo-600 mt-1">
-                                    {t('grading_pages.show.auto_graded_info')}
-                                </p>
-                            )}
-                            {!isAutoGraded && (
-                                <p className="text-xs text-orange-600 mt-1">
-                                    {t('grading_pages.show.manual_grading_required')}
-                                </p>
-                            )}
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <input
-                                type="number"
-                                min="0"
-                                max={maxScore}
-                                step="0.5"
-                                value={questionScore}
-                                onChange={(e) => handleScoreChange(question.id, e.target.value)}
-                                className="w-20 px-2 py-1 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                                disabled={!canGradeAssessments}
-                            />
-                            <span className="text-sm text-gray-500">/ {maxScore}</span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <Textarea
-                            label={t('grading_pages.show.question_comment_label')}
-                            value={feedbacks[question.id] || ''}
-                            onChange={(e) => handleFeedbackChange(question.id, e.target.value)}
-                            placeholder={t('grading_pages.show.question_comment_placeholder')}
-                            rows={2}
-                            disabled={!canGradeAssessments}
-                        />
-                    </div>
-                </div>
-            );
-        },
-        [
-            editableScores,
-            feedbacks,
-            canGradeAssessments,
-            handleScoreChange,
-            handleFeedbackChange,
-            t,
-        ],
-    );
 
     const pageBreadcrumbs = breadcrumbs.assessment.grade(routeContext, assessment, student);
 
@@ -287,14 +218,23 @@ export default function GradeAssignment({
                     </Stat.Group>
                 </Section>
 
-                <QuestionList
-                    title={t('grading_pages.show.questions_correction')}
-                    questions={assessment.questions ?? []}
-                    getQuestionResult={getQuestionResult}
-                    scores={scores}
-                    isEditMode={canGradeAssessments}
-                    renderScoreInput={renderScoreInput}
-                />
+                <QuestionProvider
+                    mode="grade"
+                    role={routeContext?.role ?? 'teacher'}
+                    userAnswers={userAnswers}
+                    canEditScores={canGradeAssessments}
+                    scoreOverrides={editableScores}
+                    onScoreChange={(questionId, value) =>
+                        setEditableScores((prev) => ({ ...prev, [questionId]: value }))
+                    }
+                    feedbackOverrides={feedbacks}
+                    onFeedbackChange={handleFeedbackChange}
+                >
+                    <QuestionList
+                        title={t('grading_pages.show.questions_correction')}
+                        questions={assessment.questions ?? []}
+                    />
+                </QuestionProvider>
 
                 {fileAnswers.length > 0 && (
                     <Section title={t('grading_pages.show.student_files_title')}>

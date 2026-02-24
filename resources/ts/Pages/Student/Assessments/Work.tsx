@@ -1,13 +1,7 @@
 import { Head, router } from '@inertiajs/react';
 import { useMemo, useState, useCallback, useEffect } from 'react';
-import {
-    AlertEntry,
-    Button,
-    ConfirmationModal,
-    Section,
-    TakeQuestion,
-    TextEntry,
-} from '@/Components';
+import { AlertEntry, Button, ConfirmationModal, Section, TextEntry } from '@/Components';
+import { QuestionProvider, QuestionCard } from '@/Components/features/assessment/question';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type Answer, type Assessment, type AssessmentAssignment, type Question } from '@/types';
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
@@ -268,18 +262,21 @@ function Work({
                     </div>
                 </Section>
 
-                {displayedQuestions.map((currentQ) => (
-                    <TakeQuestion
+                {displayedQuestions.map((currentQ, index) => (
+                    <QuestionProvider
                         key={currentQ.id}
-                        question={currentQ}
+                        mode="take"
+                        role="student"
+                        isDisabled={!!assignment.submitted_at}
+                        assessmentId={assessment.id}
                         answers={answers}
                         onAnswerChange={handleAnswerChange}
-                        assessmentId={assessment.id}
                         fileAnswers={fileAnswersByQuestion}
                         onFileAnswerSaved={handleFileAnswerSaved}
                         onFileAnswerRemoved={handleFileAnswerRemoved}
-                        disabled={!!assignment.submitted_at}
-                    />
+                    >
+                        <QuestionCard question={currentQ} questionIndex={index} />
+                    </QuestionProvider>
                 ))}
 
                 <div className="flex justify-end space-x-3 pb-8">
