@@ -1,25 +1,21 @@
-import { useMemo, useCallback } from 'react';
-import type { Assessment, Answer, Question, QuestionResult } from '@/types';
+import { useMemo } from 'react';
+import type { Assessment, Answer } from '@/types';
 import {
     calculateTotalPoints,
     calculatePercentage,
     buildScoresMap,
-    buildQuestionResult,
 } from '@/utils/assessment/utils';
 
 interface UseAssessmentReviewParams {
     assessment: Assessment;
     userAnswers: Record<number, Answer>;
     scoreOverrides?: Record<number, number>;
-    feedbackOverrides?: Record<number, string>;
 }
 
 interface UseAssessmentReviewReturn {
     totalPoints: number;
     calculatedTotalScore: number;
     percentage: number;
-    scores: Record<number, number>;
-    getQuestionResult: (question: Question) => QuestionResult;
 }
 
 /**
@@ -33,7 +29,6 @@ const useAssessmentReview = ({
     assessment,
     userAnswers,
     scoreOverrides,
-    feedbackOverrides,
 }: UseAssessmentReviewParams): UseAssessmentReviewReturn => {
     const questions = useMemo(() => assessment.questions ?? [], [assessment.questions]);
 
@@ -56,18 +51,7 @@ const useAssessmentReview = ({
         [calculatedTotalScore, totalPoints],
     );
 
-    const overrides = useMemo(() => {
-        if (!scoreOverrides && !feedbackOverrides) return undefined;
-        return { scores: scoreOverrides, feedbacks: feedbackOverrides };
-    }, [scoreOverrides, feedbackOverrides]);
-
-    const getQuestionResult = useCallback(
-        (question: Question): QuestionResult =>
-            buildQuestionResult(question, userAnswers[question.id], overrides),
-        [userAnswers, overrides],
-    );
-
-    return { totalPoints, calculatedTotalScore, percentage, scores, getQuestionResult };
+    return { totalPoints, calculatedTotalScore, percentage };
 };
 
 export default useAssessmentReview;

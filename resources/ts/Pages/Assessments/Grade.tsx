@@ -84,7 +84,6 @@ export default function GradeAssignment({
         assessment,
         userAnswers,
         scoreOverrides: editableScores,
-        feedbackOverrides: feedbacks,
     });
 
     const handleFeedbackChange = useCallback((questionId: number, value: string) => {

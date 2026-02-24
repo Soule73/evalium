@@ -34,15 +34,11 @@ const AssessmentResults: React.FC<Props> = ({
         showResultsImmediately,
         assessmentIsActive,
         totalPoints,
-        getQuestionResult,
-    } = useAssessmentResults({ assessment, assignment, userAnswers, canShowCorrectAnswers });
+    } = useAssessmentResults({ assessment, assignment, canShowCorrectAnswers });
 
     const { finalScore, finalPercentage } = useAssessmentScoring({
-        assessment,
         assignment,
-        userAnswers,
         totalPoints,
-        getQuestionResult,
     });
 
     const translations = useMemo(
