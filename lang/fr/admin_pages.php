@@ -147,6 +147,7 @@ return [
         'switch_year' => 'Basculer vers cette année',
         'future' => 'Future',
         'confirm_delete' => 'Êtes-vous sûr de vouloir supprimer cette année académique ?',
+        'delete_modal_title' => "Supprimer l'année académique",
         'view_archives' => 'Voir toutes les archives',
         'details' => 'Détails',
         'details_title' => 'Détails de l\'année académique',

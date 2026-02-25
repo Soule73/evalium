@@ -146,6 +146,7 @@ return [
         'switch_year' => 'Switch context',
         'future' => 'Future',
         'confirm_delete' => 'Are you sure you want to delete this academic year?',
+        'delete_modal_title' => 'Delete Academic Year',
         'view_archives' => 'View all archives',
         'details' => 'Details',
         'details_title' => 'Academic Year Details',

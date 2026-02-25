@@ -67,6 +67,8 @@ class AcademicYearController extends Controller
      */
     public function store(StoreAcademicYearRequest $request): RedirectResponse
     {
+        $this->authorize('create', AcademicYear::class);
+
         $this->academicYearService->createNewYear($request->validated());
 
         return redirect()
@@ -126,6 +128,8 @@ class AcademicYearController extends Controller
      */
     public function update(UpdateAcademicYearRequest $request, AcademicYear $academicYear): RedirectResponse
     {
+        $this->authorize('update', $academicYear);
+
         $this->academicYearService->updateYear($academicYear, $request->validated());
 
         return redirect()

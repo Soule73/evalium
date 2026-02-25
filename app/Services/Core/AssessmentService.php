@@ -151,8 +151,8 @@ class AssessmentService
         $assessment->loadMissing('classSubject.class.enrollments.student');
 
         $activeStudents = $assessment->classSubject?->class?->enrollments
-            ?->filter(fn($e) => $e->status->value === 'active')
-            ->map(fn($e) => $e->student)
+            ?->filter(fn ($e) => $e->status->value === 'active')
+            ->map(fn ($e) => $e->student)
             ->filter()
             ->values() ?? collect();
 
@@ -179,7 +179,7 @@ class AssessmentService
     {
         return DB::transaction(function () use ($assessment, $overrides) {
             $newAssessment = $assessment->replicate();
-            $newAssessment->title = $overrides['title'] ?? ($assessment->title . ' (Copy)');
+            $newAssessment->title = $overrides['title'] ?? ($assessment->title.' (Copy)');
             $newAssessment->is_published = false;
             $newAssessment->scheduled_at = $overrides['scheduled_at'] ?? null;
             $newAssessment->save();

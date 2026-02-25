@@ -14,7 +14,7 @@ class StoreAcademicYearRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('create', \App\Models\AcademicYear::class);
+        return true;
     }
 
     /**

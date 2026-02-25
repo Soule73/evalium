@@ -176,8 +176,7 @@ export function AcademicYearList({
                     color: 'danger' as const,
                     variant: 'outline' as const,
                     permission: 'delete academic years',
-                    conditional: (year: AcademicYear) =>
-                        year.classes_count === 0 && year.semesters_count === 0 && !!onDelete,
+                    conditional: (year: AcademicYear) => year.classes_count === 0 && !!onDelete,
                 },
             ],
         }),
