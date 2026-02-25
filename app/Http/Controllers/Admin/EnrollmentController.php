@@ -9,6 +9,7 @@ use App\Exceptions\EnrollmentException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkStoreEnrollmentRequest;
 use App\Http\Requests\Admin\StoreEnrollmentRequest;
+use App\Http\Requests\Admin\StoreEnrollmentStudentRequest;
 use App\Http\Requests\Admin\TransferStudentRequest;
 use App\Http\Traits\HandlesIndexRequests;
 use App\Models\AcademicYear;
@@ -71,6 +72,8 @@ class EnrollmentController extends Controller
      */
     public function store(StoreEnrollmentRequest $request): RedirectResponse
     {
+        $this->authorize('create', Enrollment::class);
+
         try {
             $this->enrollmentService->enrollStudent(
                 $request->integer('student_id'),
@@ -92,14 +95,11 @@ class EnrollmentController extends Controller
      *
      * Stores credentials in session for optional later sending after enrollment confirmation.
      */
-    public function createStudent(Request $request): RedirectResponse
+    public function createStudent(StoreEnrollmentStudentRequest $request): RedirectResponse
     {
         $this->authorize('create', User::class);
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-        ]);
+        $validated = $request->validated();
 
         ['user' => $user, 'password' => $password] = $this->userManagementService->store([
             ...$validated,
@@ -133,6 +133,8 @@ class EnrollmentController extends Controller
      */
     public function bulkStore(BulkStoreEnrollmentRequest $request): JsonResponse
     {
+        $this->authorize('create', Enrollment::class);
+
         $classId = $request->integer('class_id');
         $studentIds = $request->array('student_ids');
         $newStudentIds = $request->array('new_student_ids', []);
@@ -195,6 +197,8 @@ class EnrollmentController extends Controller
      */
     public function searchStudents(Request $request): JsonResponse
     {
+        $this->authorize('viewAny', Enrollment::class);
+
         $query = $request->string('q')->trim()->value();
         $selectedYearId = $this->getSelectedAcademicYearId($request);
         $perPage = min($request->integer('per_page', 15), 100);
@@ -265,6 +269,8 @@ class EnrollmentController extends Controller
      */
     public function searchClasses(Request $request): JsonResponse
     {
+        $this->authorize('viewAny', Enrollment::class);
+
         $query = $request->string('q')->trim()->value();
         $selectedYearId = $this->getSelectedAcademicYearId($request);
         $perPage = min($request->integer('per_page', 15), 100);
@@ -286,6 +292,8 @@ class EnrollmentController extends Controller
      */
     public function transfer(TransferStudentRequest $request, Enrollment $enrollment): RedirectResponse
     {
+        $this->authorize('transfer', $enrollment);
+
         try {
             $newEnrollment = $this->enrollmentService->transferStudent(
                 $enrollment,
@@ -338,7 +346,11 @@ class EnrollmentController extends Controller
     {
         $this->authorize('delete', $enrollment);
 
-        $enrollment->delete();
+        try {
+            $this->enrollmentService->deleteEnrollment($enrollment);
+        } catch (EnrollmentException $e) {
+            return back()->flashError($e->getMessage());
+        }
 
         return redirect()
             ->route('admin.enrollments.index')

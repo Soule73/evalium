@@ -31,4 +31,9 @@ interface EnrollmentServiceInterface
      * Get the current enrollment for a student.
      */
     public function getCurrentEnrollment(User $student, ?int $academicYearId = null): ?Enrollment;
+
+    /**
+     * Delete an enrollment, throwing if assessment assignments are linked.
+     */
+    public function deleteEnrollment(Enrollment $enrollment): void;
 }

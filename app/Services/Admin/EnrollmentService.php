@@ -166,4 +166,16 @@ class EnrollmentService implements EnrollmentServiceInterface
 
         return $activeCount >= $class->max_students;
     }
+
+    /**
+     * Delete an enrollment, throwing if assessment assignments exist.
+     */
+    public function deleteEnrollment(Enrollment $enrollment): void
+    {
+        if ($enrollment->assessmentAssignments()->exists()) {
+            throw EnrollmentException::hasAssignments();
+        }
+
+        $enrollment->delete();
+    }
 }

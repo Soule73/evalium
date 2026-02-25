@@ -50,30 +50,6 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
     }
 
     /**
-     * Get form data for create page.
-     */
-    public function getCreateFormData(?int $academicYearId): array
-    {
-        $classes = ClassModel::forAcademicYear($academicYearId)
-            ->with(['academicYear', 'level', 'enrollments' => fn ($q) => $q->where('status', 'active')->with('student:id,name,email,avatar')])
-            ->withCount([
-                'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
-            ])
-            ->orderBy('name')
-            ->get();
-
-        $students = \App\Models\User::role('student')
-            ->select(['id', 'name', 'email', 'avatar'])
-            ->orderBy('name')
-            ->get();
-
-        return [
-            'classes' => $classes,
-            'students' => $students,
-        ];
-    }
-
-    /**
      * Get data for show page with classes for transfer modal.
      */
     public function getShowData(Enrollment $enrollment, ?int $academicYearId): array

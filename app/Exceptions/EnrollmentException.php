@@ -56,4 +56,12 @@ class EnrollmentException extends Exception
     {
         return new self(__('messages.enrollment_target_class_full'));
     }
+
+    /**
+     * Create exception when enrollment has linked assessment assignments
+     */
+    public static function hasAssignments(): self
+    {
+        return new self(__('messages.enrollment_has_assignments'));
+    }
 }

@@ -12,11 +12,6 @@ interface EnrollmentRepositoryInterface
     public function getEnrollmentsForIndex(?int $academicYearId, array $filters, int $perPage = 15): array;
 
     /**
-     * Get data required for the create enrollment form.
-     */
-    public function getCreateFormData(?int $academicYearId): array;
-
-    /**
      * Get data required for the show enrollment page.
      */
     public function getShowData(Enrollment $enrollment, ?int $academicYearId): array;

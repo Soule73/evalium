@@ -70,6 +70,7 @@ return [
     'enrollment_invalid_student_role' => 'L\'utilisateur doit avoir le rôle étudiant pour être inscrit',
     'enrollment_invalid_status' => 'Seules les inscriptions retirées peuvent être réactivées (statut actuel : :status)',
     'enrollment_target_class_full' => 'La classe cible est complète',
+    'enrollment_has_assignments' => 'Impossible de supprimer cette inscription car elle possède des évaluations assignées',
     'student_transferred' => 'L\'étudiant a été transféré avec succès',
     'student_withdrawn' => 'L\'étudiant a été retiré avec succès',
 

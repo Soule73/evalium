@@ -71,6 +71,7 @@ return [
     'enrollment_invalid_student_role' => 'The user must have the student role to be enrolled',
     'enrollment_invalid_status' => 'Only withdrawn enrollments can be reactivated (current status: :status)',
     'enrollment_target_class_full' => 'The target class is full',
+    'enrollment_has_assignments' => 'Cannot delete this enrollment as it has assessment assignments',
     'student_transferred' => 'Student transferred successfully',
     'student_withdrawn' => 'Student withdrawn successfully',
 
