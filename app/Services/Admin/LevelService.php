@@ -3,9 +3,9 @@
 namespace App\Services\Admin;
 
 use App\Contracts\Services\LevelServiceInterface;
+use App\Exceptions\LevelException;
 use App\Models\Level;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Level Service - Handle level CRUD operations and cache management
@@ -27,20 +27,11 @@ class LevelService implements LevelServiceInterface
      */
     public function createLevel(array $data): Level
     {
-        try {
-            $level = Level::create($data);
+        $level = Level::create($data);
 
-            $this->invalidateClassesCache();
+        $this->invalidateClassesCache();
 
-            return $level;
-        } catch (\Exception $e) {
-            Log::error('Failed to create level', [
-                'data' => $data,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw $e;
-        }
+        return $level;
     }
 
     /**
@@ -51,21 +42,11 @@ class LevelService implements LevelServiceInterface
      */
     public function updateLevel(Level $level, array $data): Level
     {
-        try {
-            $level->update($data);
+        $level->update($data);
 
-            $this->invalidateClassesCache();
+        $this->invalidateClassesCache();
 
-            return $level->fresh();
-        } catch (\Exception $e) {
-            Log::error('Failed to update level', [
-                'level_id' => $level->id,
-                'data' => $data,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw $e;
-        }
+        return $level->fresh();
     }
 
     /**
@@ -77,24 +58,15 @@ class LevelService implements LevelServiceInterface
      */
     public function deleteLevel(Level $level): bool
     {
-        if ($level->classes()->count() > 0) {
-            throw new \Exception(__('messages.level_cannot_delete_with_classes'));
+        if ($level->classes()->exists()) {
+            throw LevelException::hasClasses();
         }
 
-        try {
-            $level->delete();
+        $level->delete();
 
-            $this->invalidateClassesCache();
+        $this->invalidateClassesCache();
 
-            return true;
-        } catch (\Exception $e) {
-            Log::error('Failed to delete level', [
-                'level_id' => $level->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw $e;
-        }
+        return true;
     }
 
     /**
@@ -104,22 +76,13 @@ class LevelService implements LevelServiceInterface
      */
     public function toggleStatus(Level $level): Level
     {
-        try {
-            $level->update([
-                'is_active' => ! $level->is_active,
-            ]);
+        $level->update([
+            'is_active' => ! $level->is_active,
+        ]);
 
-            $this->invalidateClassesCache();
+        $this->invalidateClassesCache();
 
-            return $level->fresh();
-        } catch (\Exception $e) {
-            Log::error('Failed to toggle level status', [
-                'level_id' => $level->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw $e;
-        }
+        return $level->fresh();
     }
 
     /**

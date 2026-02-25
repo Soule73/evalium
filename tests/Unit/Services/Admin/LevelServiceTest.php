@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services\Admin;
 
+use App\Exceptions\LevelException;
 use App\Repositories\Admin\LevelRepository;
 use App\Services\Admin\LevelService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -161,7 +162,7 @@ class LevelServiceTest extends TestCase
         $level = $this->createLevel();
         $this->createClassWithStudents(studentCount: 0, classAttributes: ['level_id' => $level->id]);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(LevelException::class);
         $this->expectExceptionMessage(__('messages.level_cannot_delete_with_classes'));
 
         $this->levelService->deleteLevel($level);
