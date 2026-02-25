@@ -103,6 +103,8 @@ class ClassController extends Controller
      */
     public function store(StoreClassRequest $request): RedirectResponse
     {
+        $this->authorize('create', ClassModel::class);
+
         $selectedYearId = $this->getSelectedAcademicYearId($request);
 
         $data = array_merge($request->validated(), [
@@ -336,6 +338,8 @@ class ClassController extends Controller
      */
     public function update(UpdateClassRequest $request, ClassModel $class): RedirectResponse
     {
+        $this->authorize('update', $class);
+
         $this->classService->updateClass($class, $request->validated());
 
         return redirect()

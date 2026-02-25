@@ -5,7 +5,6 @@ namespace App\Services\Admin;
 use App\Contracts\Repositories\ClassRepositoryInterface;
 use App\Contracts\Services\ClassServiceInterface;
 use App\Exceptions\ClassException;
-use App\Exceptions\ValidationException;
 use App\Models\AcademicYear;
 use App\Models\ClassModel;
 use Illuminate\Support\Collection;
@@ -50,8 +49,6 @@ class ClassService implements ClassServiceInterface
      */
     public function createClass(array $data): ClassModel
     {
-        $this->validateClassData($data);
-
         $class = ClassModel::create([
             'academic_year_id' => $data['academic_year_id'],
             'level_id' => $data['level_id'],
@@ -131,27 +128,5 @@ class ClassService implements ClassServiceInterface
         });
 
         return $newClasses;
-    }
-
-    /**
-     * Validate class data
-     */
-    private function validateClassData(array $data): void
-    {
-        $required = ['academic_year_id', 'level_id', 'name'];
-        foreach ($required as $field) {
-            if (! isset($data[$field])) {
-                throw ValidationException::missingRequiredField($field);
-            }
-        }
-
-        $existingClass = ClassModel::where('academic_year_id', $data['academic_year_id'])
-            ->where('level_id', $data['level_id'])
-            ->where('name', $data['name'])
-            ->exists();
-
-        if ($existingClass) {
-            throw ClassException::duplicateName();
-        }
     }
 }
