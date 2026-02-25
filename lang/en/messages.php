@@ -34,6 +34,7 @@ return [
     'role_cannot_rename_system' => 'System roles cannot be renamed',
     'role_cannot_delete_system' => 'System roles cannot be deleted',
     'role_cannot_delete_assigned' => 'Cannot delete this role as it is assigned to users',
+    'role_permissions_locked' => 'The permissions of this role cannot be modified',
     'role_required_for_update' => 'A role is required to update this user',
     'permissions_updated' => 'Permissions updated successfully',
     'permission_created' => 'Permission created successfully',

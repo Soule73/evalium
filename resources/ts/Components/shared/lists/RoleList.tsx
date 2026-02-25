@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Badge, Button } from '@/Components';
+import { Button } from '@/Components';
 import { BaseEntityList } from './BaseEntityList';
 import { type EntityListConfig } from './types/listConfig';
 import { type Role } from '@/types';
@@ -13,21 +13,16 @@ interface RoleListProps {
     permissions?: {
         canCreate?: boolean;
         canUpdate?: boolean;
-        canDelete?: boolean;
     };
     onEdit?: (roleId: number) => void;
     onDelete?: (roleId: number, roleName: string) => void;
 }
 
-export function RoleList({ data, permissions = {}, onEdit, onDelete }: RoleListProps) {
+export function RoleList({ data, permissions = {}, onEdit }: RoleListProps) {
     const { t } = useTranslations();
     const { getRoleLabel } = useFormatters();
 
     const config: EntityListConfig<Role> = useMemo(() => {
-        const isSystemRole = (roleName: string) => {
-            return ['super_admin', 'admin', 'teacher', 'student'].includes(roleName);
-        };
-
         return {
             entity: 'role',
             columns: [
@@ -43,9 +38,6 @@ export function RoleList({ data, permissions = {}, onEdit, onDelete }: RoleListP
                             >
                                 {getRoleLabel(role.name)}
                             </p>
-                            {isSystemRole(role.name) && (
-                                <Badge label={t('admin_pages.roles.system_role')} type="info" />
-                            )}
                         </div>
                     ),
                     sortable: true,
@@ -85,8 +77,7 @@ export function RoleList({ data, permissions = {}, onEdit, onDelete }: RoleListP
                     key: 'actions',
                     labelKey: 'commons/table.actions',
                     render: (role) => {
-                        const roleLabel = getRoleLabel(role.name);
-                        return permissions.canUpdate || permissions.canDelete ? (
+                        return permissions.canUpdate ? (
                             <div className="flex gap-2">
                                 {permissions.canUpdate && onEdit && (
                                     <Button
@@ -96,19 +87,9 @@ export function RoleList({ data, permissions = {}, onEdit, onDelete }: RoleListP
                                         variant="outline"
                                         data-e2e={`role-edit-${role.name.toLowerCase()}`}
                                     >
-                                        {isSystemRole(role.name)
-                                            ? t('commons/ui.view')
-                                            : t('commons/ui.edit')}
-                                    </Button>
-                                )}
-                                {!isSystemRole(role.name) && permissions.canDelete && onDelete && (
-                                    <Button
-                                        onClick={() => onDelete(role.id, roleLabel)}
-                                        size="sm"
-                                        color="danger"
-                                        data-e2e={`role-delete-${role.name.toLowerCase()}`}
-                                    >
-                                        {t('commons/ui.delete')}
+                                        {role.is_editable
+                                            ? t('commons/ui.edit')
+                                            : t('commons/ui.view')}
                                     </Button>
                                 )}
                             </div>
@@ -117,7 +98,7 @@ export function RoleList({ data, permissions = {}, onEdit, onDelete }: RoleListP
                 },
             ],
         };
-    }, [permissions.canUpdate, permissions.canDelete, onEdit, onDelete, getRoleLabel, t]);
+    }, [permissions.canUpdate, onEdit, getRoleLabel, t]);
 
     return <BaseEntityList data={data} config={config} variant="admin" />;
 }

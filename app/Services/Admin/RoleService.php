@@ -26,6 +26,8 @@ class RoleService
 
     private const SYSTEM_ROLES = ['super_admin', 'admin', 'teacher', 'student'];
 
+    private const LOCKED_ROLES = ['super_admin', 'teacher', 'student'];
+
     private const CATEGORY_MAPPINGS = [
         'category_users' => ['user', 'student', 'teacher', 'admin'],
         'category_assessments' => ['assessment', 'result'],
@@ -37,6 +39,14 @@ class RoleService
         'category_academic_years' => ['academic year'],
         'category_roles_permissions' => ['role', 'permission'],
     ];
+
+    /**
+     * Check if a role's permissions can be modified
+     */
+    public function isRoleEditable(Role $role): bool
+    {
+        return ! in_array($role->name, self::LOCKED_ROLES, true);
+    }
 
     /**
      * Load a role with its permissions
@@ -110,7 +120,7 @@ class RoleService
             }
         }
 
-        return array_filter($grouped, fn($items) => ! empty($items));
+        return array_filter($grouped, fn ($items) => ! empty($items));
     }
 
     /**
@@ -157,9 +167,15 @@ class RoleService
      * Synchronize role permissions
      *
      * @param  array<int>  $permissionIds
+     *
+     * @throws RoleException If role permissions are locked
      */
     public function syncRolePermissions(Role $role, array $permissionIds): Role
     {
+        if (! $this->isRoleEditable($role)) {
+            throw RoleException::permissionsLocked();
+        }
+
         $role->syncPermissions($permissionIds);
 
         return $role->fresh(['permissions']);

@@ -34,6 +34,7 @@ return [
     'role_cannot_rename_system' => 'Les rôles système ne peuvent pas être renommés',
     'role_cannot_delete_system' => 'Les rôles système ne peuvent pas être supprimés',
     'role_cannot_delete_assigned' => 'Impossible de supprimer ce rôle car il est assigné à des utilisateurs',
+    'role_permissions_locked' => 'Les permissions de ce rôle ne peuvent pas être modifiées',
     'permissions_updated' => 'Les permissions ont été mises à jour avec succès',
     'permission_created' => 'La permission a été créée avec succès',
     'permission_deleted' => 'La permission a été supprimée avec succès',

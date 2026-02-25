@@ -205,6 +205,7 @@ return [
         'save_permissions' => 'Enregistrer les permissions',
         'saving' => 'Enregistrement...',
         'system_role_notice' => 'Ceci est un rôle système prédéfini. Seules les permissions peuvent être modifiées.',
+        'permissions_locked_notice' => 'Les permissions de ce rôle sont verrouillées et ne peuvent pas être modifiées.',
         'admin_role' => 'Administrateur',
         'super_admin_role' => 'Super administrateur',
     ],

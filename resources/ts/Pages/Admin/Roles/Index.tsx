@@ -48,7 +48,6 @@ export default function RoleIndex({ roles }: Props) {
                     permissions={{
                         canCreate: false,
                         canUpdate: canUpdateRoles,
-                        canDelete: false,
                     }}
                     onEdit={handleEdit}
                 />

@@ -204,6 +204,7 @@ return [
         'save_permissions' => 'Save Permissions',
         'saving' => 'Saving...',
         'system_role_notice' => 'This is a predefined system role. Only permissions can be modified.',
+        'permissions_locked_notice' => 'The permissions of this role are locked and cannot be modified.',
         'admin_role' => 'Admin',
         'super_admin_role' => 'Super Admin',
     ],
