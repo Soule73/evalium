@@ -341,7 +341,7 @@ class TeacherControllerTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    public function test_teacher_show_exposes_has_active_classes_flag(): void
+    public function test_teacher_show_disallows_delete_and_toggle_when_teaching_in_current_year(): void
     {
         $teacher = $this->createTeacherWithCurrentYearAssignment();
 
@@ -352,7 +352,6 @@ class TeacherControllerTest extends TestCase
         $response->assertInertia(
             fn ($page) => $page
                 ->component('Admin/Teachers/Show')
-                ->where('hasActiveClassesInCurrentYear', true)
                 ->where('canDelete', false)
                 ->where('canToggleStatus', false)
         );

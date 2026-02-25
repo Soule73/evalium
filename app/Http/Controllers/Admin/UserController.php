@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Admin;
 
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\UserManagementServiceInterface;
@@ -59,8 +59,6 @@ class UserController extends Controller
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
             'roles' => $availableRoles,
-            'canManageAdmins' => $currentUser->hasRole('super_admin'),
-            'canDeleteUsers' => $currentUser->can('delete users'),
             'adminCount' => User::role('admin')->count(),
             'superAdminCount' => User::role('super_admin')->count(),
         ]);

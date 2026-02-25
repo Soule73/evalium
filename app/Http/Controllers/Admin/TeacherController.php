@@ -48,7 +48,6 @@ class TeacherController extends Controller
 
         return Inertia::render('Admin/Teachers/Index', [
             'teachers' => $teachers,
-            'canDeleteUsers' => $currentUser->can('delete users'),
         ]);
     }
 
@@ -86,7 +85,6 @@ class TeacherController extends Controller
             'user' => $user,
             'assessments' => $assessments,
             'stats' => $stats,
-            'hasActiveClassesInCurrentYear' => $isTeaching,
             'canDelete' => $currentUser->hasRole('super_admin') && ! $isTeaching,
             'canToggleStatus' => $currentUser->can('update users') && ! $isTeaching,
         ]);
@@ -111,7 +109,7 @@ class TeacherController extends Controller
 
         $this->userService->toggleStatus($user);
 
-        $messageKey = $user->is_active ? 'messages.user_deactivated' : 'messages.user_activated';
+        $messageKey = $user->is_active ? 'messages.user_activated' : 'messages.user_deactivated';
 
         return back()->flashSuccess(__($messageKey));
     }

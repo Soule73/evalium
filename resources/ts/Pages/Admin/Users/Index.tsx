@@ -15,7 +15,6 @@ import { UserList } from '@/Components/shared/lists';
 interface Props extends PageProps {
     users: PaginationType<User>;
     roles: string[];
-    canManageAdmins: boolean;
     adminCount: number;
     superAdminCount: number;
 }
