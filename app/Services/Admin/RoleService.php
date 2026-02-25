@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Admin;
 
+use App\Exceptions\RoleException;
 use App\Services\Traits\Paginatable;
 use Illuminate\Support\Collection;
 use Spatie\Permission\Models\Permission;
@@ -109,7 +110,7 @@ class RoleService
             }
         }
 
-        return array_filter($grouped, fn ($items) => ! empty($items));
+        return array_filter($grouped, fn($items) => ! empty($items));
     }
 
     /**
@@ -138,7 +139,7 @@ class RoleService
     public function updateRole(Role $role, array $data): Role
     {
         if ($this->isSystemRole($role) && isset($data['name']) && $data['name'] !== $role->name) {
-            throw new \Exception(__('messages.role_cannot_rename_system'));
+            throw RoleException::cannotRenameSystem();
         }
 
         if (isset($data['name'])) {
@@ -172,11 +173,11 @@ class RoleService
     public function deleteRole(Role $role): bool
     {
         if ($this->isSystemRole($role)) {
-            throw new \Exception(__('messages.role_cannot_delete_system'));
+            throw RoleException::isSystem();
         }
 
-        if ($role->users()->count() > 0) {
-            throw new \Exception(__('messages.role_cannot_delete_assigned'));
+        if ($role->users()->exists()) {
+            throw RoleException::hasUsers();
         }
 
         return $role->delete();
@@ -199,8 +200,8 @@ class RoleService
      */
     public function deletePermission(Permission $permission): bool
     {
-        if ($permission->roles()->count() > 0) {
-            throw new \Exception(__('messages.permission_cannot_delete_assigned'));
+        if ($permission->roles()->exists()) {
+            throw RoleException::permissionAssignedToRoles();
         }
 
         return $permission->delete();

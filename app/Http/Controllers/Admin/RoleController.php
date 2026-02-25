@@ -77,6 +77,8 @@ class RoleController extends Controller
      */
     public function syncPermissions(SyncRolePermissionsRequest $request, Role $role): RedirectResponse
     {
+        $this->authorize('update', $role);
+
         $this->roleService->syncRolePermissions($role, $request->validated()['permissions']);
 
         return redirect()->route('admin.roles.index')->flashSuccess(__('messages.permissions_updated'));
