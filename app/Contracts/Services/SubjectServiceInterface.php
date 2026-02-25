@@ -17,12 +17,7 @@ interface SubjectServiceInterface
     public function updateSubject(Subject $subject, array $validatedData): Subject;
 
     /**
-     * Delete a subject.
+     * Delete a subject, throwing if class subject assignments exist.
      */
     public function deleteSubject(Subject $subject): bool;
-
-    /**
-     * Check whether a subject has class subject assignments.
-     */
-    public function hasClassSubjects(Subject $subject): bool;
 }

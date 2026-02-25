@@ -14,7 +14,7 @@ class UpdateSubjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('update', $this->route('subject'));
+        return true;
     }
 
     /**

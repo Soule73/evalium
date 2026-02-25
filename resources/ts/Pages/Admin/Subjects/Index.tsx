@@ -4,6 +4,7 @@ import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type PaginationType } from '@/types/datatable';
 import { type Subject, type Level, type PageProps } from '@/types';
+import { hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section } from '@/Components';
@@ -15,9 +16,10 @@ interface Props extends PageProps {
     filters?: Record<string, string>;
 }
 
-export default function AdminSubjectsIndex({ subjects, levels }: Props) {
+export default function AdminSubjectsIndex({ subjects, levels, auth }: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
+    const canCreate = hasPermission(auth.permissions, 'create subjects');
 
     const translations = useMemo(
         () => ({
@@ -39,9 +41,11 @@ export default function AdminSubjectsIndex({ subjects, levels }: Props) {
                 title={translations.title}
                 subtitle={translations.subtitle}
                 actions={
-                    <Button size="sm" variant="solid" color="primary" onClick={handleCreate}>
-                        {translations.create}
-                    </Button>
+                    canCreate && (
+                        <Button size="sm" variant="solid" color="primary" onClick={handleCreate}>
+                            {translations.create}
+                        </Button>
+                    )
                 }
             >
                 <SubjectList data={subjects} variant="admin" levels={levels ?? []} />

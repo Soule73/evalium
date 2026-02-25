@@ -65,6 +65,8 @@ class SubjectController extends Controller
      */
     public function store(StoreSubjectRequest $request): RedirectResponse
     {
+        $this->authorize('create', Subject::class);
+
         $this->subjectService->createSubject($request->validated());
 
         return redirect()
@@ -113,6 +115,8 @@ class SubjectController extends Controller
      */
     public function update(UpdateSubjectRequest $request, Subject $subject): RedirectResponse
     {
+        $this->authorize('update', $subject);
+
         $this->subjectService->updateSubject($subject, $request->validated());
 
         return redirect()
@@ -127,11 +131,11 @@ class SubjectController extends Controller
     {
         $this->authorize('delete', $subject);
 
-        if ($this->subjectService->hasClassSubjects($subject)) {
-            return back()->flashError(__('messages.subject_has_class_subjects'));
+        try {
+            $this->subjectService->deleteSubject($subject);
+        } catch (\App\Exceptions\SubjectException $e) {
+            return back()->flashError($e->getMessage());
         }
-
-        $this->subjectService->deleteSubject($subject);
 
         return redirect()
             ->route('admin.subjects.index')

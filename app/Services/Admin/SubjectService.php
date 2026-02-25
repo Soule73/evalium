@@ -3,12 +3,11 @@
 namespace App\Services\Admin;
 
 use App\Contracts\Services\SubjectServiceInterface;
+use App\Exceptions\SubjectException;
 use App\Models\Subject;
 
 /**
  * Subject Service - Manage subjects
- *
- * Performance: Uses cache for frequently accessed data
  */
 class SubjectService implements SubjectServiceInterface
 {
@@ -31,18 +30,14 @@ class SubjectService implements SubjectServiceInterface
     }
 
     /**
-     * Delete a subject
+     * Delete a subject, throwing if class subject assignments exist.
      */
     public function deleteSubject(Subject $subject): bool
     {
-        return $subject->delete();
-    }
+        if (! $subject->canBeDeleted()) {
+            throw SubjectException::hasClassSubjects();
+        }
 
-    /**
-     * Check if subject has class subjects
-     */
-    public function hasClassSubjects(Subject $subject): bool
-    {
-        return $subject->classSubjects()->exists();
+        return $subject->delete();
     }
 }
