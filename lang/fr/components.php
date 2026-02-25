@@ -78,7 +78,7 @@ return [
         'due_date_label' => 'Date limite',
         'delivery_mode_label' => 'Mode de passation',
         'delivery_mode_supervised' => 'Supervisé',
-        'delivery_mode_homework' => 'Devoir maison',
+        'delivery_mode_homework' => 'Travail à domicile',
         'class_subject_label' => 'Classe & Matière',
         'class_subject_placeholder' => 'Sélectionner classe et matière',
         'scheduled_date_label' => 'Date planifiée',

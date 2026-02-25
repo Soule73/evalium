@@ -54,6 +54,7 @@ export default function EnrollmentIndex({ enrollments, classes, auth }: Props) {
             breadcrumb={breadcrumbs.admin.enrollments()}
         >
             <Section
+                variant="flat"
                 title={translations.title}
                 subtitle={translations.subtitle}
                 actions={

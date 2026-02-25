@@ -25,6 +25,7 @@ export default function TeacherClassSubjectsIndex({ classSubjects }: Props) {
             breadcrumb={breadcrumbs.teacher.classSubjects()}
         >
             <Section
+                variant="flat"
                 title={t('teacher_class_pages.class_subjects.title')}
                 subtitle={t('teacher_class_pages.class_subjects.subtitle')}
             >

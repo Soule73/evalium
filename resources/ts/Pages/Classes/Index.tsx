@@ -42,6 +42,7 @@ export default function ClassIndex({ classes, levels, auth, routeContext }: Prop
     return (
         <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumb}>
             <Section
+                variant="flat"
                 title={translations.title}
                 subtitle={translations.subtitle}
                 actions={

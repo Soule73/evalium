@@ -28,7 +28,7 @@ return [
 
     // Assessment types (display labels)
     'supervised' => 'Supervisé',
-    'homework' => 'Devoir maison',
+    'homework' => 'Travail à domicile',
 
     // Generic filter options
     'all_statuses' => 'Tous les statuts',

@@ -48,6 +48,7 @@ export default function LevelIndex({ levels }: Props) {
     return (
         <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.levels()}>
             <Section
+                variant="flat"
                 title={translations.title}
                 subtitle={translations.subtitle}
                 actions={

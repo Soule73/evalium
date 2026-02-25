@@ -70,7 +70,7 @@ const AssessmentCreate: React.FC<Props> = ({ classSubjects }) => {
                     />
                 </Section>
 
-                <QuestionsManager errors={errors} />
+                <QuestionsManager errors={errors} deliveryMode={data.delivery_mode} />
             </form>
         </AuthenticatedLayout>
     );

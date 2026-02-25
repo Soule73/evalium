@@ -214,7 +214,7 @@ return [
     'do_not_own_attachment' => 'Ce fichier ne vous appartient pas',
     'security_violation_recorded' => 'Violation de sécurité enregistrée',
     'delivery_mode_supervised' => 'Surveillé',
-    'delivery_mode_homework' => 'Devoir maison',
+    'delivery_mode_homework' => 'Travail à domicile',
 
     // Semester validation
     'semesters_required' => 'Au moins un semestre est requis.',

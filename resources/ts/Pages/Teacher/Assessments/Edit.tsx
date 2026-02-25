@@ -72,7 +72,7 @@ export default function AssessmentEdit({ assessment, classSubjects }: Props) {
                     />
                 </Section>
 
-                <QuestionsManager errors={errors} />
+                <QuestionsManager errors={errors} deliveryMode={data.delivery_mode} />
             </form>
         </AuthenticatedLayout>
     );

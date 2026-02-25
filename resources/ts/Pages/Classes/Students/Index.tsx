@@ -48,6 +48,7 @@ export default function ClassStudentsIndex({
             breadcrumb={pageBreadcrumbs}
         >
             <Section
+                variant="flat"
                 title={t('admin_pages.classes.class_students')}
                 subtitle={`${classItem?.name} (${classItem.level?.name}, ${classItem.level?.description})`}
                 actions={

@@ -35,6 +35,7 @@ export default function AdminSubjectsIndex({ subjects, levels }: Props) {
     return (
         <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.admin.subjects()}>
             <Section
+                variant="flat"
                 title={translations.title}
                 subtitle={translations.subtitle}
                 actions={

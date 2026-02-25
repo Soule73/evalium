@@ -88,6 +88,7 @@ export default function ClassAssessments({
             breadcrumb={pageBreadcrumbs}
         >
             <Section
+                variant="flat"
                 title={`${classItem.display_name ?? classItem.name} \u2013 ${translations.title}`}
                 subtitle={translations.subtitle}
                 actions={

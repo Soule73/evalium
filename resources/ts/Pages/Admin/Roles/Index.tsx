@@ -38,7 +38,11 @@ export default function RoleIndex({ roles }: Props) {
 
     return (
         <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.roles()}>
-            <Section title={translations.title} subtitle={translations.configSubtitle}>
+            <Section
+                variant="flat"
+                title={translations.title}
+                subtitle={translations.configSubtitle}
+            >
                 <RoleList
                     data={roles}
                     permissions={{

@@ -64,6 +64,7 @@ export default function UserIndex({ users, roles, adminCount, superAdminCount }:
                 />
             </Stat.Group>
             <Section
+                variant="flat"
                 title={translations.subtitle}
                 actions={
                     canCreateUsers && (

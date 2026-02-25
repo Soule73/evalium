@@ -97,6 +97,7 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
     return (
         <AuthenticatedLayout breadcrumb={breadcrumbs.adminAcademicYears()}>
             <Section
+                variant="flat"
                 title={translations.archivesTitle}
                 subtitle={translations.archivesSubtitle}
                 actions={

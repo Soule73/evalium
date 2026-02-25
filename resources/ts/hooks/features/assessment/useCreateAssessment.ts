@@ -56,8 +56,11 @@ export const useCreateAssessment = () => {
 
     const handleFieldChange = (field: string, value: string | number | boolean) => {
         setData(field as keyof AssessmentCreateData, value as never);
-        if (field === 'delivery_mode' && value !== 'supervised') {
-            setData('duration', 0);
+        if (field === 'delivery_mode') {
+            setData('shuffle_questions', value === 'supervised');
+            if (value !== 'supervised') {
+                setData('duration', 0);
+            }
         }
     };
 

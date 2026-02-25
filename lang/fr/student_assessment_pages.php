@@ -17,7 +17,7 @@ return [
         'completed' => 'Terminé',
         'graded' => 'Corrigé',
         'delivery_mode_supervised' => 'Surveillé',
-        'delivery_mode_homework' => 'Devoir maison',
+        'delivery_mode_homework' => 'Travail à domicile',
         'view' => 'Voir',
     ],
     'show' => [

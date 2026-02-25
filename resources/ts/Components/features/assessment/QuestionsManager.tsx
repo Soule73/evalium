@@ -19,7 +19,7 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { type QuestionType } from '@/types';
+import { type QuestionType, type DeliveryMode } from '@/types';
 import { useAssessmentFormStore } from '@/stores';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { useQuestionOptions } from './questionOptions';
@@ -30,14 +30,16 @@ import { useQuestionsManager } from '@/hooks/features/assessment/useQuestionsMan
 
 interface QuestionsManagerProps {
     errors?: Record<string, string>;
+    deliveryMode?: DeliveryMode;
 }
 
 interface Props {
     addQuestion: (kind: QuestionType) => void;
+    deliveryMode?: DeliveryMode;
 }
 
-function QuestionMenu({ addQuestion }: Props) {
-    const questionOptions = useQuestionOptions();
+function QuestionMenu({ addQuestion, deliveryMode }: Props) {
+    const questionOptions = useQuestionOptions(deliveryMode);
 
     return (
         <div className="absolute right-0 mt-2 w-64 rounded-xl shadow-lg bg-white ring-1 ring-gray-100 z-10">
@@ -66,7 +68,7 @@ function QuestionMenu({ addQuestion }: Props) {
     );
 }
 
-const QuestionsManager: React.FC<QuestionsManagerProps> = ({ errors = {} }) => {
+const QuestionsManager: React.FC<QuestionsManagerProps> = ({ errors = {}, deliveryMode }) => {
     const { getQuestionTypeLabel } = useFormatters();
     const questions = useAssessmentFormStore((state) => state.questions);
 
@@ -147,7 +149,12 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({ errors = {} }) => {
                         </Button>
                         <div className="flex justify-end">
                             <div className="relative">
-                                {showAddDropdown && <QuestionMenu addQuestion={addQuestion} />}
+                                {showAddDropdown && (
+                                    <QuestionMenu
+                                        addQuestion={addQuestion}
+                                        deliveryMode={deliveryMode}
+                                    />
+                                )}
                             </div>
                         </div>
                     </div>

@@ -73,6 +73,7 @@ export default function TeachersIndex({ teachers }: Props) {
             </Stat.Group>
 
             <Section
+                variant="flat"
                 title={translations.subtitle}
                 actions={
                     canCreateUsers && (

@@ -1,4 +1,5 @@
-import { type QuestionType } from '@/types';
+import React from 'react';
+import { type QuestionType, type DeliveryMode } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 
 export interface QuestionOption {
@@ -11,10 +12,11 @@ export interface QuestionOption {
     svg: React.ReactNode;
 }
 
-export const useQuestionOptions = (): QuestionOption[] => {
+export const useQuestionOptions = (deliveryMode?: DeliveryMode): QuestionOption[] => {
     const { t } = useTranslations();
+    const isSupervised = deliveryMode === 'supervised';
 
-    return [
+    const options: QuestionOption[] = [
         {
             key: 'multiple',
             title: t('components.question_options.multiple_title'),
@@ -142,4 +144,5 @@ export const useQuestionOptions = (): QuestionOption[] => {
             ),
         },
     ];
+    return options.filter((opt) => !(isSupervised && opt.key === 'file'));
 };

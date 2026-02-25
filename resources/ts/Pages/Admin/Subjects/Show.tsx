@@ -138,6 +138,7 @@ export default function AdminSubjectsShow({ subject, classSubjects }: Props) {
 
                 {classSubjects && (
                     <Section
+                        variant="flat"
                         title={translations.classesSection}
                         subtitle={translations.classesSectionSubtitle}
                     >

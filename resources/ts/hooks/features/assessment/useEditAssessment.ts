@@ -128,8 +128,11 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
     const handleFieldChange = useCallback(
         (field: string, value: string | number | boolean) => {
             setData(field as keyof AssessmentEditData, value as never);
-            if (field === 'delivery_mode' && value !== 'supervised') {
-                setData('duration', 0);
+            if (field === 'delivery_mode') {
+                setData('shuffle_questions', value === 'supervised');
+                if (value !== 'supervised') {
+                    setData('duration', 0);
+                }
             }
         },
         [setData],
