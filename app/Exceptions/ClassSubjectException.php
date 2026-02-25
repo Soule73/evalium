@@ -28,4 +28,12 @@ class ClassSubjectException extends Exception
     {
         return new self(__('messages.class_subject_level_mismatch'));
     }
+
+    /**
+     * Create exception when class subject has linked assessments
+     */
+    public static function hasAssessments(): self
+    {
+        return new self(__('messages.class_subject_has_assessments'));
+    }
 }

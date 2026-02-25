@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\ReplaceTeacherRequest;
 use App\Http\Requests\Admin\StoreClassSubjectRequest;
 use App\Models\ClassSubject;
 use App\Traits\FiltersAcademicYear;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,12 +44,9 @@ class ClassSubjectController extends Controller
             $perPage
         );
 
-        $formData = $this->classSubjectService->getFormDataForCreate($selectedYearId);
-
         return Inertia::render('Admin/ClassSubjects/Index', [
             'classSubjects' => $classSubjects,
             'filters' => $filters,
-            'formData' => $formData,
         ]);
     }
 
@@ -57,6 +55,8 @@ class ClassSubjectController extends Controller
      */
     public function store(StoreClassSubjectRequest $request): RedirectResponse
     {
+        $this->authorize('create', ClassSubject::class);
+
         try {
             $classSubject = $this->classSubjectService->assignTeacherToClassSubject($request->validated());
 
@@ -105,11 +105,13 @@ class ClassSubjectController extends Controller
      */
     public function replaceTeacher(ReplaceTeacherRequest $request, ClassSubject $classSubject): RedirectResponse
     {
+        $this->authorize('update', $classSubject);
+
         try {
             $newClassSubject = $this->classSubjectService->replaceTeacher(
                 $classSubject,
                 $request->input('new_teacher_id'),
-                $request->input('effective_date')
+                Carbon::parse($request->input('effective_date'))
             );
 
             return redirect()
@@ -150,7 +152,7 @@ class ClassSubjectController extends Controller
             'end_date' => ['required', 'date'],
         ]);
 
-        $this->classSubjectService->terminateAssignment($classSubject, $request->input('end_date'));
+        $this->classSubjectService->terminateAssignment($classSubject, Carbon::parse($request->input('end_date')));
 
         return back()->flashSuccess(__('messages.assignment_terminated'));
     }
@@ -162,11 +164,11 @@ class ClassSubjectController extends Controller
     {
         $this->authorize('delete', $classSubject);
 
-        if ($classSubject->assessments()->exists()) {
-            return back()->flashError(__('messages.class_subject_has_assessments'));
+        try {
+            $this->classSubjectService->deleteClassSubject($classSubject);
+        } catch (\App\Exceptions\ClassSubjectException $e) {
+            return back()->flashError($e->getMessage());
         }
-
-        $classSubject->delete();
 
         return redirect()
             ->route('admin.class-subjects.index')

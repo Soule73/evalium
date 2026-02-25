@@ -11,7 +11,7 @@ class StoreClassSubjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('create', \App\Models\ClassSubject::class);
+        return true;
     }
 
     /**

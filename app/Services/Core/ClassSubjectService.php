@@ -4,7 +4,6 @@ namespace App\Services\Core;
 
 use App\Contracts\Services\ClassSubjectServiceInterface;
 use App\Exceptions\ClassSubjectException;
-use App\Exceptions\ValidationException;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
 use App\Models\Semester;
@@ -143,22 +142,23 @@ class ClassSubjectService implements ClassSubjectServiceInterface
      */
     private function validateAssignment(array $data): void
     {
-        $required = ['class_id', 'subject_id', 'coefficient'];
-        foreach ($required as $field) {
-            if (! isset($data[$field])) {
-                throw ValidationException::missingRequiredField($field);
-            }
-        }
-
-        if ($data['coefficient'] <= 0) {
-            throw ClassSubjectException::invalidCoefficient();
-        }
-
         $class = ClassModel::find($data['class_id']);
         $subject = Subject::find($data['subject_id']);
 
         if ($class && $subject && $class->level_id !== $subject->level_id) {
             throw ClassSubjectException::levelMismatch();
         }
+    }
+
+    /**
+     * Delete a class-subject assignment, throwing if assessments exist.
+     */
+    public function deleteClassSubject(ClassSubject $classSubject): void
+    {
+        if ($classSubject->assessments()->exists()) {
+            throw ClassSubjectException::hasAssessments();
+        }
+
+        $classSubject->delete();
     }
 }
