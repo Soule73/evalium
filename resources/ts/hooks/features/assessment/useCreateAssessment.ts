@@ -17,7 +17,7 @@ interface AssessmentCreateData {
     coefficient: number;
     is_published: boolean;
     shuffle_questions: boolean;
-    show_results_immediately: boolean;
+    release_results_after_grading: boolean;
     show_correct_answers: boolean;
     allow_late_submission: boolean;
     questions: QuestionFormData[];
@@ -44,7 +44,7 @@ export const useCreateAssessment = () => {
             is_published: false,
             coefficient: 1,
             shuffle_questions: false,
-            show_results_immediately: true,
+            release_results_after_grading: false,
             show_correct_answers: false,
             allow_late_submission: false,
             questions: [],

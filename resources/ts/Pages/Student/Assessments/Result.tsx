@@ -42,7 +42,7 @@ export default function AssessmentResult({
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 
-    const { isPendingReview, showCorrectAnswers, showResultsImmediately, totalPoints } =
+    const { isPendingReview, showCorrectAnswers, releaseResultsAfterGrading, totalPoints } =
         useAssessmentResults({ assessment, assignment, canShowCorrectAnswers });
 
     const { finalScore, finalPercentage } = useAssessmentScoring({ assignment, totalPoints });
@@ -155,7 +155,7 @@ export default function AssessmentResult({
                         </AlertEntry>
                     )}
 
-                    {!showCorrectAnswers && !showResultsImmediately && isPendingReview && (
+                    {!showCorrectAnswers && releaseResultsAfterGrading && isPendingReview && (
                         <AlertEntry
                             title={t('student_assessment_pages.results.results_hidden_title')}
                             type="warning"

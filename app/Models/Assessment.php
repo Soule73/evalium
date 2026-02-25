@@ -57,7 +57,7 @@ class Assessment extends Model
         'duration',
         'has_ended',
         'shuffle_questions',
-        'show_results_immediately',
+        'release_results_after_grading',
         'show_correct_answers',
         'allow_late_submission',
         'results_available_at',
@@ -145,19 +145,21 @@ class Assessment extends Model
     }
 
     /**
-     * Get whether results should be shown immediately after submission.
+     * Get whether results require manual grading before being released to students.
+     * When true, results are withheld until the teacher completes grading.
+     * When false (default), automatically scored results are shown immediately.
      */
-    public function getShowResultsImmediatelyAttribute(): bool
+    public function getReleaseResultsAfterGradingAttribute(): bool
     {
-        return $this->getBooleanSetting('show_results_immediately', true);
+        return ! $this->getBooleanSetting('show_results_immediately', true);
     }
 
     /**
-     * Set whether results should be shown immediately after submission.
+     * Set whether results require manual grading before release.
      */
-    public function setShowResultsImmediatelyAttribute(bool $value): void
+    public function setReleaseResultsAfterGradingAttribute(bool $value): void
     {
-        $this->setSettingValue('show_results_immediately', $value);
+        $this->setSettingValue('show_results_immediately', ! $value);
     }
 
     /**

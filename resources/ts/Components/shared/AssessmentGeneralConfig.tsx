@@ -25,7 +25,7 @@ interface AssessmentGeneralConfigProps {
         coefficient: number;
         is_published: boolean;
         shuffle_questions: boolean;
-        show_results_immediately: boolean;
+        release_results_after_grading: boolean;
         show_correct_answers: boolean;
         allow_late_submission: boolean;
     };
@@ -237,27 +237,47 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
                         checked={data.shuffle_questions}
                         onChange={(e) => onFieldChange('shuffle_questions', e.target.checked)}
                     />
-                    <Checkbox
-                        label={t(
-                            'components.assessment_general_config.show_results_immediately_label',
-                        )}
-                        checked={data.show_results_immediately}
-                        onChange={(e) =>
-                            onFieldChange('show_results_immediately', e.target.checked)
-                        }
-                    />
-                    <Checkbox
-                        label={t('components.assessment_general_config.show_correct_answers_label')}
-                        checked={data.show_correct_answers}
-                        onChange={(e) => onFieldChange('show_correct_answers', e.target.checked)}
-                    />
-                    <Checkbox
-                        label={t(
-                            'components.assessment_general_config.allow_late_submission_label',
-                        )}
-                        checked={data.allow_late_submission}
-                        onChange={(e) => onFieldChange('allow_late_submission', e.target.checked)}
-                    />
+                    <div>
+                        <Checkbox
+                            label={t(
+                                'components.assessment_general_config.release_results_after_grading_label',
+                            )}
+                            checked={data.release_results_after_grading}
+                            onChange={(e) =>
+                                onFieldChange('release_results_after_grading', e.target.checked)
+                            }
+                        />
+                        <p className="mt-1 ml-6 text-xs text-gray-500">
+                            {t(
+                                'components.assessment_general_config.release_results_after_grading_help',
+                            )}
+                        </p>
+                    </div>
+                    <div>
+                        <Checkbox
+                            label={t(
+                                'components.assessment_general_config.show_correct_answers_label',
+                            )}
+                            checked={data.show_correct_answers}
+                            onChange={(e) =>
+                                onFieldChange('show_correct_answers', e.target.checked)
+                            }
+                        />
+                        <p className="mt-1 ml-6 text-xs text-gray-500">
+                            {t('components.assessment_general_config.show_correct_answers_help')}
+                        </p>
+                    </div>
+                    {!isSupervised && (
+                        <Checkbox
+                            label={t(
+                                'components.assessment_general_config.allow_late_submission_label',
+                            )}
+                            checked={data.allow_late_submission}
+                            onChange={(e) =>
+                                onFieldChange('allow_late_submission', e.target.checked)
+                            }
+                        />
+                    )}
                 </div>
             </div>
         </div>

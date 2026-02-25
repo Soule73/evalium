@@ -47,6 +47,7 @@ return [
     ],
     'show' => [
         'students_section_title' => 'Students',
+        'stats_section_title' => 'Completion Progress',
         'students_section_subtitle' => ':count student(s) concerned',
         'student' => 'Student',
         'stats_graded' => 'Graded',

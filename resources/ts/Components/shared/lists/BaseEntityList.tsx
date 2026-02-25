@@ -64,7 +64,11 @@ export function BaseEntityList<T extends { id: number | string }>({
 
     const dataTableConfig: DataTableConfig<T> = useMemo(() => {
         const columns = config.columns
-            .filter((col) => !col.conditional || col.conditional(variant))
+            .filter((col) => {
+                if (col.variants) return col.variants.includes(variant);
+                if (col.conditional) return col.conditional(variant);
+                return true;
+            })
             .map((col) => ({
                 key: col.key,
                 label: t(col.labelKey),

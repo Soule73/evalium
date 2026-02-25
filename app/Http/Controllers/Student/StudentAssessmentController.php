@@ -88,7 +88,7 @@ class StudentAssessmentController extends Controller
         $this->authorize('view', $assessment);
 
         $assessment->load([
-            'classSubject.class',
+            'classSubject.class.level',
             'classSubject.subject',
             'classSubject.teacher',
             'questions.choices',
@@ -101,7 +101,7 @@ class StudentAssessmentController extends Controller
         $embargoLifted = $assessment->isResultsEmbargoLifted();
         $canViewResults = $assignment->submitted_at !== null
             && $embargoLifted
-            && ($assessment->show_results_immediately || $assignment->graded_at !== null);
+            && (! $assessment->release_results_after_grading || $assignment->graded_at !== null);
 
         return Inertia::render('Student/Assessments/Show', [
             'assignment' => $assignment,
@@ -127,7 +127,7 @@ class StudentAssessmentController extends Controller
         $availability = $assessment->getAvailabilityStatus();
 
         if (! $availability['available']) {
-            return back()->flashError(__('messages.'.$availability['reason']));
+            return back()->flashError(__('messages.' . $availability['reason']));
         }
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
@@ -171,11 +171,11 @@ class StudentAssessmentController extends Controller
         if (! $availability['available']) {
             return redirect()
                 ->route('student.assessments.show', $assessment)
-                ->flashError(__('messages.'.$availability['reason']));
+                ->flashError(__('messages.' . $availability['reason']));
         }
 
         $assignment->load([
-            'assessment.classSubject.class',
+            'assessment.classSubject.class.level',
             'assessment.classSubject.subject',
             'assessment.classSubject.teacher',
             'assessment.questions.choices',
@@ -306,7 +306,7 @@ class StudentAssessmentController extends Controller
         $this->authorize('view', $assessment);
 
         $assessment->load([
-            'classSubject.class',
+            'classSubject.class.level',
             'classSubject.subject',
             'classSubject.teacher',
             'questions.choices',

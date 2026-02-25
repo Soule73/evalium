@@ -130,7 +130,7 @@ class StudentAssessmentTakeTest extends TestCase
         $response = $this->actingAs($this->student)
             ->get(route('student.assessments.take', $this->assessment));
 
-        $response->assertRedirect(route('student.assessments.results', $this->assessment));
+        $response->assertRedirect(route('student.assessments.result', $this->assessment));
     }
 
     public function test_save_answers_requires_enrollment(): void
@@ -271,7 +271,7 @@ class StudentAssessmentTakeTest extends TestCase
                 'answers' => [$question->id => 'My answer'],
             ]);
 
-        $response->assertRedirect(route('student.assessments.results', $assessment));
+        $response->assertRedirect(route('student.assessments.result', $assessment));
     }
 
     public function test_submit_auto_scores_non_text_questions(): void
@@ -405,7 +405,7 @@ class StudentAssessmentTakeTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->student)
-            ->get(route('student.assessments.results', $this->assessment));
+            ->get(route('student.assessments.result', $this->assessment));
 
         $response->assertRedirect(route('student.assessments.show', $this->assessment));
     }
@@ -435,11 +435,11 @@ class StudentAssessmentTakeTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->student)
-            ->get(route('student.assessments.results', $assessment));
+            ->get(route('student.assessments.result', $assessment));
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page->component('Student/Assessments/Results')
+            fn ($page) => $page->component('Student/Assessments/Result')
         );
     }
 

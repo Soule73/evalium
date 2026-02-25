@@ -91,12 +91,7 @@ export default function ClassStudentAssignmentsIndex({
                     </Button>
                 }
             >
-                <AssessmentList
-                    data={assignments}
-                    variant="class-assignment"
-                    enrollment={enrollment}
-                    subjects={subjects}
-                />
+                <AssessmentList data={assignments} variant="class-assignment" subjects={subjects} />
             </Section>
         </AuthenticatedLayout>
     );

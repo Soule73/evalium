@@ -76,7 +76,7 @@ trait AssessmentValidationRules
             'coefficient' => [$requiredOrSometimes, 'numeric', 'min:0.01'],
             'is_published' => ['sometimes', 'boolean'],
             'shuffle_questions' => ['sometimes', 'boolean'],
-            'show_results_immediately' => ['sometimes', 'boolean'],
+            'release_results_after_grading' => ['sometimes', 'boolean'],
             'show_correct_answers' => ['sometimes', 'boolean'],
             'allow_late_submission' => ['sometimes', 'boolean'],
             'questions' => ['sometimes', 'array'],

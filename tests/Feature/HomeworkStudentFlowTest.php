@@ -150,7 +150,7 @@ class HomeworkStudentFlowTest extends TestCase
                 'answers' => [$question->id => 'My homework answer'],
             ]);
 
-        $response->assertRedirect(route('student.assessments.results', $assessment));
+        $response->assertRedirect(route('student.assessments.result', $assessment));
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
             ->forStudent($student)
@@ -255,7 +255,7 @@ class HomeworkStudentFlowTest extends TestCase
                 'answers' => [$question->id => 'Late but allowed'],
             ]);
 
-        $response->assertRedirect(route('student.assessments.results', $assessment));
+        $response->assertRedirect(route('student.assessments.result', $assessment));
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
             ->forStudent($student)

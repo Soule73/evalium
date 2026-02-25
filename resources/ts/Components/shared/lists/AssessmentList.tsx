@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, type ReactNode } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { type Assessment, type AssessmentAssignment, type Enrollment } from '@/types';
+import { type Assessment, type AssessmentAssignment } from '@/types';
 import { Badge, MarkdownRenderer, Toggle } from '@evalium/ui';
 import { formatDate } from '@/utils';
 import { useTranslations } from '@/hooks';
@@ -39,7 +39,6 @@ interface AssessmentListProps {
     showClassColumn?: boolean;
     subjects?: ClassSubjectOption[];
     classes?: ClassOption[];
-    enrollment?: Enrollment;
     filterSubjects?: SimpleFilterOption[];
     filterTeachers?: SimpleFilterOption[];
 }
@@ -81,272 +80,224 @@ function getDeliveryModeBadge(deliveryMode: string, t: TranslateFn): ReactNode {
     );
 }
 
-interface ColumnDeps {
-    t: TranslateFn;
-    variant: AssessmentListProps['variant'];
-    showClassColumn: boolean;
-    formatDuration: (minutes: number) => string;
-    handleToggleStatus: (id: number, isPublished: boolean) => void;
-}
+const ASSIGNMENT_VARIANTS: EntityListVariant[] = ['student', 'class-assignment'];
 
-function buildColumns(deps: ColumnDeps): ColumnConfig<AssessmentItem>[] {
-    const { t, variant, showClassColumn, formatDuration, handleToggleStatus } = deps;
-
-    const titleColumn: ColumnConfig<AssessmentItem> = {
-        key: 'title',
-        labelKey:
-            variant === 'student'
-                ? 'student_assessment_pages.index.title'
-                : 'components.assessment_list.assessment_label',
-        render: (item, currentVariant) => {
-            if (isAssignmentVariant(currentVariant)) {
-                const assignment = item as AssignmentWithAssessment;
+/**
+ * Builds the column definitions for all assessment list variants.
+ *
+ * Each column declares its `variants` whitelist so BaseEntityList
+ * can filter declaratively instead of evaluating callbacks at render time.
+ * The `class_subject` column retains `conditional` because visibility
+ * also depends on the `showClassColumn` prop.
+ */
+function buildColumns(
+    t: TranslateFn,
+    showClassColumn: boolean,
+    formatDuration: (minutes: number) => string,
+    handleToggleStatus: (id: number, isPublished: boolean) => void,
+): ColumnConfig<AssessmentItem>[] {
+    return [
+        {
+            key: 'title',
+            labelKey: 'components.assessment_list.assessment_label',
+            render: (item, variant) => {
+                if (isAssignmentVariant(variant)) {
+                    const a = item as AssignmentWithAssessment;
+                    return (
+                        <div>
+                            <span className="font-medium text-gray-900">{a.assessment.title}</span>
+                            <div className="flex items-center gap-2">
+                                {getDeliveryModeBadge(a.assessment.delivery_mode, t)}
+                                {variant === 'student' && (
+                                    <span className="text-sm text-gray-500">
+                                        {' '}
+                                        - {a.assessment.questions_count || 0}{' '}
+                                        {t('assessment_pages.common.questions')}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    );
+                }
+                const assessment = item as Assessment;
                 return (
                     <div>
-                        <span className="font-medium text-gray-900">
-                            {assignment.assessment.title}
-                        </span>
                         <div className="flex items-center gap-2">
-                            {getDeliveryModeBadge(assignment.assessment.delivery_mode, t)}
-                            {variant === 'student' && (
-                                <span className="text-sm text-gray-500">
-                                    {' '}
-                                    - {assignment.assessment.questions_count || 0}{' '}
-                                    {t('assessment_pages.common.questions')}
-                                </span>
-                            )}
+                            <span className="text-sm font-medium text-gray-900">
+                                {assessment.title}
+                            </span>
+                            {getDeliveryModeBadge(assessment.delivery_mode, t)}
+                        </div>
+                        {assessment.description && (
+                            <div className="text-sm text-gray-500 truncate max-w-sm line-clamp-2">
+                                <MarkdownRenderer>{assessment.description}</MarkdownRenderer>
+                            </div>
+                        )}
+                    </div>
+                );
+            },
+        },
+        {
+            key: 'subject',
+            labelKey: 'student_assessment_pages.index.subject',
+            conditional: (cv) => isAssignmentVariant(cv) || showClassColumn,
+            render: (item, variant) => {
+                if (isAssignmentVariant(variant)) {
+                    const a = item as AssignmentWithAssessment;
+                    return (
+                        <div>
+                            <span className="text-sm font-medium">
+                                {a.assessment.class_subject?.subject?.name || '-'}
+                            </span>
+                            <div className="text-sm text-gray-500 truncate max-w-sm line-clamp-2">
+                                {t('student_assessment_pages.index.teacher')}:{' '}
+                                {a.assessment.class_subject?.teacher?.name || '-'}
+                            </div>
+                        </div>
+                    );
+                }
+                const assessment = item as Assessment;
+                return (
+                    <div>
+                        <div className="font-medium text-gray-900">
+                            {assessment.class_subject?.class?.display_name ??
+                                assessment.class_subject?.class?.name ??
+                                '-'}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                            {t('student_assessment_pages.index.subject')}:{' '}
+                            {assessment.class_subject?.subject?.name || '-'}
                         </div>
                     </div>
                 );
-            }
-            const assessment = item as Assessment;
-            return (
-                <div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-900">
-                            {assessment.title}
+            },
+        },
+        {
+            key: 'assessment_date',
+            labelKey: 'student_assessment_pages.index.assessment_date',
+            variants: ASSIGNMENT_VARIANTS,
+            render: (item) => {
+                const a = item as AssignmentWithAssessment;
+                const isHomework =
+                    a.assessment.delivery_mode === 'homework' && a.assessment.due_date;
+                const dateValue = isHomework ? a.assessment.due_date : a.assessment.scheduled_at;
+                const dateLabel = isHomework
+                    ? t('student_assessment_pages.show.due_date')
+                    : t('student_assessment_pages.show.scheduled_date');
+                return (
+                    <div>
+                        <div className="text-xs text-gray-500">{dateLabel}</div>
+                        <span className="text-gray-700">
+                            {formatDate(dateValue ?? '', 'datetime')}
                         </span>
-                        {getDeliveryModeBadge(assessment.delivery_mode, t)}
                     </div>
-                    {assessment.description && (
-                        <div className="text-sm text-gray-500 truncate max-w-sm line-clamp-2">
-                            <MarkdownRenderer>{assessment.description}</MarkdownRenderer>
-                        </div>
-                    )}
-                </div>
-            );
+                );
+            },
         },
-    };
-
-    const subjectColumn: ColumnConfig<AssessmentItem> = {
-        key: 'subject',
-        labelKey: 'student_assessment_pages.index.subject',
-        render: (item) => {
-            const assignment = item as AssignmentWithAssessment;
-            return (
-                <div>
-                    <span className="text-sm font-medium">
-                        {assignment.assessment.class_subject?.subject?.name || '-'}
-                    </span>
-                    <div className="text-sm text-gray-500 truncate max-w-sm line-clamp-2">
-                        {t('student_assessment_pages.index.teacher')}:{' '}
-                        {assignment.assessment.class_subject?.teacher?.name || '-'}
-                    </div>
-                </div>
-            );
-        },
-        conditional: (cv) => isAssignmentVariant(cv),
-    };
-
-    const dateColumn: ColumnConfig<AssessmentItem> = {
-        key: 'assessment_date',
-        labelKey: 'student_assessment_pages.index.assessment_date',
-        render: (item) => {
-            const assignment = item as AssignmentWithAssessment;
-            const isHomework =
-                assignment.assessment.delivery_mode === 'homework' &&
-                assignment.assessment.due_date;
-            const dateValue = isHomework
-                ? assignment.assessment.due_date
-                : assignment.assessment.scheduled_at;
-            const dateLabel = isHomework
-                ? t('student_assessment_pages.show.due_date')
-                : t('student_assessment_pages.show.scheduled_date');
-            return (
-                <div>
-                    <div className="text-xs text-gray-500">{dateLabel}</div>
-                    <span className="text-gray-700">{formatDate(dateValue ?? '', 'datetime')}</span>
-                </div>
-            );
-        },
-        conditional: (cv) => isAssignmentVariant(cv),
-    };
-
-    const statusColumn: ColumnConfig<AssessmentItem> = {
-        key: 'status',
-        labelKey: 'student_assessment_pages.index.status',
-        render: (item) => {
-            const assignment = item as AssignmentWithAssessment;
-            return getStatusBadge(assignment.status, t);
-        },
-        conditional: (cv) => isAssignmentVariant(cv),
-    };
-
-    const scoreColumn: ColumnConfig<AssessmentItem> = {
-        key: 'score',
-        labelKey: 'admin_pages.enrollments.score',
-        render: (item) => {
-            const assignment = item as AssignmentWithAssessment;
-            if (assignment.score === null || assignment.score === undefined) {
-                return <span className="text-gray-400">-</span>;
-            }
-            const maxPoints =
-                assignment.assessment?.questions?.reduce(
-                    (sum: number, q: { points: number }) => sum + q.points,
-                    0,
-                ) ?? 0;
-            const percentage =
-                maxPoints > 0 ? Math.round((Number(assignment.score) / maxPoints) * 100) : 0;
-            return (
-                <div>
-                    <div className="text-sm font-medium text-gray-900">
-                        {assignment.score} / {maxPoints}
-                    </div>
-                    <div className="text-xs text-gray-500">{percentage}%</div>
-                </div>
-            );
-        },
-        conditional: (cv) => cv === 'class-assignment',
-    };
-
-    const durationColumn: ColumnConfig<AssessmentItem> = {
-        key: 'duration',
-        labelKey: 'components.assessment_list.duration_label',
-        render: (item, currentVariant) => {
-            const durationMinutes =
-                currentVariant === 'class-assignment'
-                    ? (item as AssessmentAssignment).assessment?.duration_minutes
-                    : (item as Assessment).duration_minutes;
-            return (
-                <span className="text-sm text-gray-900">
-                    {formatDuration(durationMinutes || 0)}
-                </span>
-            );
-        },
-        conditional: (cv) => cv !== 'student',
-    };
-
-    const classSubjectColumn: ColumnConfig<AssessmentItem> = {
-        key: 'class_subject',
-        labelKey: 'components.assessment_list.class_label',
-        render: (item) => {
-            const assessment = item as Assessment;
-            return (
-                <div>
-                    <div className="font-medium text-gray-900">
-                        {assessment.class_subject?.class?.display_name ??
-                            assessment.class_subject?.class?.name ??
-                            '-'}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                        {t('student_assessment_pages.index.subject')}:{' '}
-                        {assessment.class_subject?.subject?.name || '-'}
-                    </div>
-                </div>
-            );
-        },
-        conditional: (cv) => (cv === 'teacher' || cv === 'admin') && showClassColumn,
-    };
-
-    const teacherColumn: ColumnConfig<AssessmentItem> = {
-        key: 'teacher_name',
-        labelKey: 'components.assessment_list.teacher_label',
-        render: (item) => {
-            const assessment = item as Assessment;
-            return (
-                <span className="text-sm text-gray-700">
-                    {assessment.class_subject?.teacher?.name || assessment.teacher?.name || '-'}
-                </span>
-            );
-        },
-        conditional: (cv) => cv === 'admin',
-    };
-
-    const publishedColumn: ColumnConfig<AssessmentItem> = {
-        key: 'is_published',
-        labelKey: 'components.assessment_list.status_label',
-        render: (item) => {
-            const assessment = item as Assessment;
-            return (
-                <div className="flex items-center space-x-2">
-                    <Badge
-                        label={
-                            assessment.is_published
-                                ? t('components.assessment_list.status_published')
-                                : t('components.assessment_list.status_unpublished')
-                        }
-                        type={assessment.is_published ? 'success' : 'gray'}
-                        size="sm"
-                    />
-                    {variant === 'teacher' && (
-                        <Toggle
-                            checked={assessment.is_published}
-                            onChange={() =>
-                                handleToggleStatus(assessment.id, assessment.is_published)
+        {
+            key: 'status',
+            labelKey: 'components.assessment_list.status_label',
+            render: (item, variant) => {
+                if (isAssignmentVariant(variant)) {
+                    return getStatusBadge((item as AssignmentWithAssessment).status, t);
+                }
+                const assessment = item as Assessment;
+                return (
+                    <div className="flex items-center space-x-2">
+                        <Badge
+                            label={
+                                assessment.is_published
+                                    ? t('components.assessment_list.status_published')
+                                    : t('components.assessment_list.status_unpublished')
                             }
+                            type={assessment.is_published ? 'success' : 'gray'}
+                            size="sm"
                         />
-                    )}
-                </div>
-            );
+                        {variant === 'teacher' && (
+                            <Toggle
+                                checked={assessment.is_published}
+                                onChange={() =>
+                                    handleToggleStatus(assessment.id, assessment.is_published)
+                                }
+                            />
+                        )}
+                    </div>
+                );
+            },
         },
-        conditional: (cv) => !isAssignmentVariant(cv),
-    };
+        {
+            key: 'score',
+            labelKey: 'admin_pages.enrollments.score',
+            variants: ['class-assignment'],
+            render: (item) => {
+                const a = item as AssignmentWithAssessment;
+                if (a.score === null || a.score === undefined) {
+                    return <span className="text-gray-400">-</span>;
+                }
+                const maxPoints =
+                    a.assessment?.questions?.reduce(
+                        (sum: number, q: { points: number }) => sum + q.points,
+                        0,
+                    ) ?? 0;
+                const percentage =
+                    maxPoints > 0 ? Math.round((Number(a.score) / maxPoints) * 100) : 0;
+                return (
+                    <div>
+                        <div className="text-sm font-medium text-gray-900">
+                            {a.score} / {maxPoints}
+                        </div>
+                        <div className="text-xs text-gray-500">{percentage}%</div>
+                    </div>
+                );
+            },
+        },
+        {
+            key: 'duration',
+            labelKey: 'components.assessment_list.duration_label',
+            variants: ASSIGNMENT_VARIANTS,
+            render: (item) => {
+                const minutes = (item as AssessmentAssignment).assessment?.duration_minutes;
+                return (
+                    <span className="text-sm text-gray-900">{formatDuration(minutes || 0)}</span>
+                );
+            },
+        },
 
-    const createdAtColumn: ColumnConfig<AssessmentItem> = {
-        key: 'created_at',
-        labelKey: 'components.assessment_list.created_on',
-        render: (item) => {
-            const assessment = item as Assessment;
-            return (
+        {
+            key: 'teacher_name',
+            labelKey: 'components.assessment_list.teacher_label',
+            variants: ['admin'],
+            render: (item) => {
+                const assessment = item as Assessment;
+                return (
+                    <span className="text-sm text-gray-700">
+                        {assessment.class_subject?.teacher?.name || assessment.teacher?.name || '-'}
+                    </span>
+                );
+            },
+        },
+
+        {
+            key: 'created_at',
+            labelKey: 'components.assessment_list.created_on',
+            variants: ['teacher', 'admin'],
+            render: (item) => (
                 <span className="text-sm text-gray-500">
-                    {formatDate(assessment.created_at, 'datetime')}
+                    {formatDate((item as Assessment).created_at, 'datetime')}
                 </span>
-            );
+            ),
         },
-        conditional: (cv) => !isAssignmentVariant(cv),
-    };
-
-    return [
-        titleColumn,
-        subjectColumn,
-        dateColumn,
-        statusColumn,
-        scoreColumn,
-        durationColumn,
-        classSubjectColumn,
-        teacherColumn,
-        publishedColumn,
-        createdAtColumn,
     ];
 }
 
-interface ActionDeps {
-    onView?: AssessmentListProps['onView'];
-    enrollment?: Enrollment;
-}
-
-function buildActions(deps: ActionDeps): ActionConfig<AssessmentItem>[] {
-    const { onView } = deps;
-
+/**
+ * Builds actions for all assessment list variants.
+ */
+function buildActions(onView: AssessmentListProps['onView']): ActionConfig<AssessmentItem>[] {
     return [
         {
             labelKey: 'components.assessment_list.view_assessment',
-            onClick: (item) => {
-                const assessment = item as Assessment;
-                if (onView) {
-                    onView(assessment);
-                }
-            },
+            onClick: (item) => onView?.(item as Assessment),
             color: 'secondary',
             variant: 'outline',
             conditional: (_item, cv) => !isAssignmentVariant(cv),
@@ -354,11 +305,11 @@ function buildActions(deps: ActionDeps): ActionConfig<AssessmentItem>[] {
         {
             labelKey: 'admin_pages.enrollments.view_details',
             onClick: (item) => {
-                const assignment = item as AssessmentAssignment;
+                const a = item as AssessmentAssignment;
                 router.visit(
                     route('admin.assessments.review', {
-                        assessment: assignment.assessment_id,
-                        assignment: assignment.id,
+                        assessment: a.assessment_id,
+                        assignment: a.id,
                     }),
                 );
             },
@@ -366,18 +317,18 @@ function buildActions(deps: ActionDeps): ActionConfig<AssessmentItem>[] {
             variant: 'outline',
             conditional: (item, cv) => {
                 if (cv !== 'class-assignment') return false;
-                const assignment = item as AssessmentAssignment;
-                return !!assignment.id && assignment.status !== 'submitted';
+                const a = item as AssessmentAssignment;
+                return !!a.id && a.status !== 'submitted';
             },
         },
         {
             labelKey: 'admin_pages.assessments.grade',
             onClick: (item) => {
-                const assignment = item as AssessmentAssignment;
+                const a = item as AssessmentAssignment;
                 router.visit(
                     route('admin.assessments.grade', {
-                        assessment: assignment.assessment_id,
-                        assignment: assignment.id,
+                        assessment: a.assessment_id,
+                        assignment: a.id,
                     }),
                 );
             },
@@ -385,119 +336,131 @@ function buildActions(deps: ActionDeps): ActionConfig<AssessmentItem>[] {
             variant: 'solid',
             conditional: (item, cv) => {
                 if (cv !== 'class-assignment') return false;
-                const assignment = item as AssessmentAssignment;
-                return !!assignment.id && assignment.status === 'submitted';
+                const a = item as AssessmentAssignment;
+                return !!a.id && a.status === 'submitted';
             },
         },
         {
             labelKey: 'student_assessment_pages.index.view',
             onClick: (item) => {
-                const assignment = item as AssignmentWithAssessment;
-                router.visit(route('student.assessments.show', assignment.assessment.id));
+                const a = item as AssignmentWithAssessment;
+                router.visit(route('student.assessments.show', a.assessment.id));
             },
             color: 'primary',
             variant: 'outline',
             conditional: (item, cv) => {
                 if (cv !== 'student') return false;
-                const assignment = item as AssignmentWithAssessment;
-                return assignment.status === 'not_submitted' || assignment.status === 'in_progress';
+                const a = item as AssignmentWithAssessment;
+                return a.status === 'not_submitted' || a.status === 'in_progress';
             },
         },
         {
             labelKey: 'student_assessment_pages.index.view_result',
             onClick: (item) => {
-                const assignment = item as AssignmentWithAssessment;
-                router.visit(route('student.assessments.result', assignment.assessment.id));
+                const a = item as AssignmentWithAssessment;
+                router.visit(route('student.assessments.result', a.assessment.id));
             },
             color: 'secondary',
             variant: 'outline',
             conditional: (item, cv) => {
                 if (cv !== 'student') return false;
-                const assignment = item as AssignmentWithAssessment;
-                return assignment.status === 'submitted' || assignment.status === 'graded';
+                const a = item as AssignmentWithAssessment;
+                return a.status === 'submitted' || a.status === 'graded';
             },
         },
     ];
 }
 
-function buildAssignmentFilters(
+/**
+ * Builds filters for the active variant.
+ * Assignment variants get subject + status filters.
+ * Admin gets subject + teacher filters. Teacher gets class filter.
+ */
+function buildFilters(
     variant: AssessmentListProps['variant'],
     subjects: ClassSubjectOption[],
-    t: TranslateFn,
-): FilterConfig[] | undefined {
-    if (!isAssignmentVariant(variant)) return undefined;
-
-    return [
-        {
-            key: 'class_subject_id',
-            labelKey: 'student_assessment_pages.index.subject',
-            type: 'select',
-            options: [
-                { value: '', label: t('admin_pages.enrollments.all_subjects') },
-                ...subjects.map((s) => ({ value: s.id, label: s.subject_name })),
-            ],
-        },
-        {
-            key: 'status',
-            labelKey: 'student_assessment_pages.index.status',
-            type: 'select',
-            options: [
-                { value: '', label: t('admin_pages.enrollments.all_assignment_statuses') },
-                { value: 'graded', label: t('student_assessment_pages.index.graded') },
-                { value: 'submitted', label: t('student_assessment_pages.index.completed') },
-                { value: 'in_progress', label: t('student_assessment_pages.index.in_progress') },
-                { value: 'not_submitted', label: t('student_assessment_pages.index.not_started') },
-            ],
-        },
-    ];
-}
-
-function buildAdminFilters(
+    classes: ClassOption[],
     filterSubjects: SimpleFilterOption[],
     filterTeachers: SimpleFilterOption[],
     t: TranslateFn,
-): FilterConfig[] {
-    const filters: FilterConfig[] = [];
-
-    if (filterSubjects.length > 0) {
-        filters.push({
-            key: 'subject_id',
-            labelKey: 'components.assessment_list.subject_label',
-            type: 'select',
-            options: [
-                { value: '', label: t('components.assessment_list.all_subjects') },
-                ...filterSubjects.map((s) => ({ value: s.id, label: s.name })),
-            ],
-        });
+): FilterConfig[] | undefined {
+    if (variant === 'student' || variant === 'class-assignment') {
+        return [
+            {
+                key: 'class_subject_id',
+                labelKey: 'student_assessment_pages.index.subject',
+                type: 'select',
+                options: [
+                    { value: '', label: t('admin_pages.enrollments.all_subjects') },
+                    ...subjects.map((s) => ({ value: s.id, label: s.subject_name })),
+                ],
+            },
+            {
+                key: 'status',
+                labelKey: 'student_assessment_pages.index.status',
+                type: 'select',
+                options: [
+                    { value: '', label: t('admin_pages.enrollments.all_assignment_statuses') },
+                    { value: 'graded', label: t('student_assessment_pages.index.graded') },
+                    { value: 'submitted', label: t('student_assessment_pages.index.completed') },
+                    {
+                        value: 'in_progress',
+                        label: t('student_assessment_pages.index.in_progress'),
+                    },
+                    {
+                        value: 'not_submitted',
+                        label: t('student_assessment_pages.index.not_started'),
+                    },
+                ],
+            },
+        ];
     }
 
-    if (filterTeachers.length > 0) {
-        filters.push({
-            key: 'teacher_id',
-            labelKey: 'components.assessment_list.teacher_label',
-            type: 'select',
-            options: [
-                { value: '', label: t('components.assessment_list.all_teachers') },
-                ...filterTeachers.map((t) => ({ value: t.id, label: t.name })),
-            ],
-        });
+    if (variant === 'admin') {
+        const filters: FilterConfig[] = [];
+        if (filterSubjects.length > 0) {
+            filters.push({
+                key: 'subject_id',
+                labelKey: 'components.assessment_list.subject_label',
+                type: 'select',
+                options: [
+                    { value: '', label: t('components.assessment_list.all_subjects') },
+                    ...filterSubjects.map((s) => ({ value: s.id, label: s.name })),
+                ],
+            });
+        }
+        if (filterTeachers.length > 0) {
+            filters.push({
+                key: 'teacher_id',
+                labelKey: 'components.assessment_list.teacher_label',
+                type: 'select',
+                options: [
+                    { value: '', label: t('components.assessment_list.all_teachers') },
+                    ...filterTeachers.map((teacher) => ({
+                        value: teacher.id,
+                        label: teacher.name,
+                    })),
+                ],
+            });
+        }
+        return filters.length > 0 ? filters : undefined;
     }
 
-    return filters;
-}
+    if (variant === 'teacher' && classes.length > 0) {
+        return [
+            {
+                key: 'class_id',
+                labelKey: 'components.assessment_list.class_label',
+                type: 'select',
+                options: [
+                    { value: '', label: t('components.assessment_list.all_classes') },
+                    ...classes.map((c) => ({ value: c.id, label: c.name })),
+                ],
+            },
+        ];
+    }
 
-function buildTeacherFilters(classes: ClassOption[], t: TranslateFn): FilterConfig[] {
-    return [
-        {
-            key: 'class_id',
-            labelKey: 'components.assessment_list.class_label',
-            type: 'select',
-            options: [
-                { value: '', label: t('components.assessment_list.all_classes') },
-                ...classes.map((c) => ({ value: c.id, label: c.name })),
-            ],
-        },
-    ];
+    return undefined;
 }
 
 /**
@@ -516,7 +479,6 @@ export function AssessmentList({
     showClassColumn = true,
     subjects = [],
     classes = [],
-    enrollment,
     filterSubjects = [],
     filterTeachers = [],
 }: AssessmentListProps) {
@@ -552,42 +514,26 @@ export function AssessmentList({
         );
     }, []);
 
-    const config = useMemo(() => {
-        const columns = buildColumns({
-            t,
+    const config = useMemo(
+        () => ({
+            entity: 'assessment',
+            columns: buildColumns(t, showClassColumn, formatDuration, handleToggleStatus),
+            actions: buildActions(onView),
+            filters: buildFilters(variant, subjects, classes, filterSubjects, filterTeachers, t),
+        }),
+        [
             variant,
             showClassColumn,
-            formatDuration,
+            onView,
             handleToggleStatus,
-        });
-        const actions = buildActions({ onView, enrollment });
-        const filters = isAssignmentVariant(variant)
-            ? buildAssignmentFilters(variant, subjects, t)
-            : variant === 'admin' && (filterSubjects.length > 0 || filterTeachers.length > 0)
-              ? buildAdminFilters(filterSubjects, filterTeachers, t)
-              : variant === 'teacher' && classes.length > 0
-                ? buildTeacherFilters(classes, t)
-                : undefined;
-
-        return {
-            entity: 'assessment',
-            columns,
-            actions,
-            ...(filters && { filters }),
-        };
-    }, [
-        variant,
-        showClassColumn,
-        onView,
-        handleToggleStatus,
-        formatDuration,
-        t,
-        enrollment,
-        subjects,
-        classes,
-        filterSubjects,
-        filterTeachers,
-    ]);
+            formatDuration,
+            t,
+            subjects,
+            classes,
+            filterSubjects,
+            filterTeachers,
+        ],
+    );
 
     return (
         <BaseEntityList

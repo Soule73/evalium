@@ -122,7 +122,7 @@ const AssignmentActions = memo(
         if (!showReopen && !showGradeActions && !showView) return null;
 
         return (
-            <div className="flex items-center justify-end space-x-2">
+            <div className="flex items-center justify-start space-x-2">
                 {showReopen && (
                     <Button
                         size="sm"

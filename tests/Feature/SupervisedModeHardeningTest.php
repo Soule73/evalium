@@ -116,7 +116,7 @@ class SupervisedModeHardeningTest extends TestCase
         $response = $this->actingAs($student)
             ->get(route('student.assessments.take', $assessment));
 
-        $response->assertRedirect(route('student.assessments.results', $assessment));
+        $response->assertRedirect(route('student.assessments.result', $assessment));
     }
 
     public function test_supervised_take_auto_submits_when_time_expired(): void
@@ -139,7 +139,7 @@ class SupervisedModeHardeningTest extends TestCase
         $response = $this->actingAs($student)
             ->get(route('student.assessments.take', $assessment));
 
-        $response->assertRedirect(route('student.assessments.results', $assessment));
+        $response->assertRedirect(route('student.assessments.result', $assessment));
 
         $assignment = AssessmentAssignment::where('assessment_id', $assessment->id)
             ->forStudent($student)

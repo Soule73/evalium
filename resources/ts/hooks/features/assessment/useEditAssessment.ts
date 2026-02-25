@@ -32,7 +32,7 @@ interface AssessmentEditData {
     coefficient: number;
     is_published: boolean;
     shuffle_questions: boolean;
-    show_results_immediately: boolean;
+    release_results_after_grading: boolean;
     show_correct_answers: boolean;
     allow_late_submission: boolean;
     questions: QuestionFormData[];
@@ -82,7 +82,7 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
             is_published: assessment.is_published ?? false,
             coefficient: assessment.coefficient ?? 1,
             shuffle_questions: assessment.shuffle_questions ?? false,
-            show_results_immediately: assessment.show_results_immediately ?? true,
+            release_results_after_grading: assessment.release_results_after_grading ?? false,
             show_correct_answers: assessment.show_correct_answers ?? false,
             allow_late_submission: assessment.allow_late_submission ?? false,
             questions: [],

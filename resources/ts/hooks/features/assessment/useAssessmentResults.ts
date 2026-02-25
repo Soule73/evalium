@@ -21,7 +21,7 @@ const useAssessmentResults = ({
     const questions = useMemo(() => assessment?.questions ?? [], [assessment?.questions]);
     const assessmentIsActive = assessment.is_published;
     const assignmentStatus = assignment.status;
-    const showResultsImmediately = assessment.show_results_immediately ?? true;
+    const releaseResultsAfterGrading = assessment.release_results_after_grading ?? false;
 
     const totalPoints = useMemo(
         () => questions.reduce((sum, q) => sum + (q.points || 0), 0),
@@ -39,7 +39,7 @@ const useAssessmentResults = ({
         isPendingReview,
         assignmentStatus: formattedAssignmentStatus,
         showCorrectAnswers,
-        showResultsImmediately,
+        releaseResultsAfterGrading,
         assessmentIsActive,
     };
 };

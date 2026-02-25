@@ -49,7 +49,7 @@ class AssessmentService
 
             $assessment->is_published = $data['is_published'] ?? false;
             $assessment->shuffle_questions = $data['shuffle_questions'] ?? false;
-            $assessment->show_results_immediately = $data['show_results_immediately'] ?? true;
+            $assessment->release_results_after_grading = $data['release_results_after_grading'] ?? false;
             $assessment->show_correct_answers = $data['show_correct_answers'] ?? false;
             $assessment->allow_late_submission = $data['allow_late_submission'] ?? false;
             $assessment->save();
@@ -101,8 +101,8 @@ class AssessmentService
             if (array_key_exists('shuffle_questions', $data)) {
                 $assessment->shuffle_questions = $data['shuffle_questions'];
             }
-            if (array_key_exists('show_results_immediately', $data)) {
-                $assessment->show_results_immediately = $data['show_results_immediately'];
+            if (array_key_exists('release_results_after_grading', $data)) {
+                $assessment->release_results_after_grading = $data['release_results_after_grading'];
             }
             if (array_key_exists('show_correct_answers', $data)) {
                 $assessment->show_correct_answers = $data['show_correct_answers'];
@@ -151,8 +151,8 @@ class AssessmentService
         $assessment->loadMissing('classSubject.class.enrollments.student');
 
         $activeStudents = $assessment->classSubject?->class?->enrollments
-            ?->filter(fn ($e) => $e->status->value === 'active')
-            ->map(fn ($e) => $e->student)
+            ?->filter(fn($e) => $e->status->value === 'active')
+            ->map(fn($e) => $e->student)
             ->filter()
             ->values() ?? collect();
 
@@ -179,7 +179,7 @@ class AssessmentService
     {
         return DB::transaction(function () use ($assessment, $overrides) {
             $newAssessment = $assessment->replicate();
-            $newAssessment->title = $overrides['title'] ?? ($assessment->title.' (Copy)');
+            $newAssessment->title = $overrides['title'] ?? ($assessment->title . ' (Copy)');
             $newAssessment->is_published = false;
             $newAssessment->scheduled_at = $overrides['scheduled_at'] ?? null;
             $newAssessment->save();

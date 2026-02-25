@@ -72,6 +72,7 @@ export default function AssessmentsIndex({ assessments, classes, teachers, route
         <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumb}>
             <div className="space-y-6">
                 <Section
+                    variant="flat"
                     title={translations.title}
                     subtitle={translations.subtitle}
                     actions={

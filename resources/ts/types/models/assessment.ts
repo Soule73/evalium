@@ -20,7 +20,7 @@ export interface Assessment {
     is_published: boolean;
     has_ended: boolean;
     shuffle_questions: boolean;
-    show_results_immediately: boolean;
+    release_results_after_grading: boolean;
     show_correct_answers: boolean;
     allow_late_submission: boolean;
     results_available_at: string | null;
@@ -50,7 +50,7 @@ export interface AssessmentFormData {
     due_date?: string;
     is_published?: boolean;
     shuffle_questions?: boolean;
-    show_results_immediately?: boolean;
+    release_results_after_grading?: boolean;
     show_correct_answers?: boolean;
     allow_late_submission?: boolean;
     questions?: QuestionFormData[];

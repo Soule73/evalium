@@ -44,15 +44,17 @@ const AuthenticatedLayout = ({
         <>
             <Head title={title} />
 
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-gray-50/90">
                 {/* Sidebar */}
                 <Sidebar currentPath={currentPath} user={auth.user} />
 
                 <div
-                    className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}
+                    className={`transition-all relative duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}
                 >
                     {/* Header */}
-                    <header className="sticky top-0 z-2 bg-white border-b border-gray-200 h-16">
+                    <header
+                        className={`fixed top-0 z-20 bg-white border-b border-gray-200 h-16 ${sidebarCollapsed ? 'w-[calc(100%-5rem)]' : 'w-[calc(100%-16rem)]'} transition-all duration-300`}
+                    >
                         <div className="flex items-center justify-between h-full px-4 lg:px-8">
                             <div className="lg:hidden w-10"></div>
                             <div className="flex-1">
@@ -98,8 +100,8 @@ const AuthenticatedLayout = ({
                     </header>
 
                     {/* Main content */}
-                    <main className="p-4 lg:p-8 min-h-[calc(100vh-4rem)]">
-                        <div className="max-w-7xl mx-auto">{children}</div>
+                    <main className="px-4 pt-14 lg:pt-20 min-h-[calc(100vh-4rem)]">
+                        <div className="max-w-340 mx-auto">{children}</div>
                     </main>
                 </div>
 

@@ -198,10 +198,10 @@ export const truncateText = (text: string, maxLength: number): string => {
  */
 export const canShowAssessmentResults = (
     assignmentStatus: string,
-    showResultsImmediately: boolean = false,
+    releaseResultsAfterGrading: boolean = false,
 ): boolean => {
     if (
-        showResultsImmediately &&
+        !releaseResultsAfterGrading &&
         (assignmentStatus === 'submitted' || assignmentStatus === 'graded')
     ) {
         return true;

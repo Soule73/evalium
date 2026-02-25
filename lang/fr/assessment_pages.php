@@ -47,6 +47,7 @@ return [
     ],
     'show' => [
         'students_section_title' => 'Étudiants',
+        'stats_section_title' => 'Progression des réponses',
         'students_section_subtitle' => ':count étudiant(s) concerné(s)',
         'student' => 'Étudiant',
         'stats_graded' => 'Corrigé(s)',
