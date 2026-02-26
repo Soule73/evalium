@@ -14,7 +14,7 @@ use Exception;
 class ClassException extends Exception
 {
     /**
-     * Create exception for deletion with enrolled students
+     * Create exception for deletion with enrolled students.
      */
     public static function hasEnrolledStudents(): self
     {
@@ -22,18 +22,10 @@ class ClassException extends Exception
     }
 
     /**
-     * Create exception for deletion with subject assignments
+     * Create exception for deletion with subject assignments.
      */
     public static function hasSubjectAssignments(): self
     {
         return new self(__('messages.class_has_subject_assignments'));
-    }
-
-    /**
-     * Create exception for duplicate class name
-     */
-    public static function duplicateName(): self
-    {
-        return new self(__('messages.class_duplicate_name'));
     }
 }

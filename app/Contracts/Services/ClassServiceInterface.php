@@ -11,7 +11,7 @@ interface ClassServiceInterface
     /**
      * Get data required for the create class form.
      */
-    public function getCreateFormData(int $selectedYearId): array;
+    public function getCreateFormData(?int $selectedYearId): array;
 
     /**
      * Get data required for the edit class form.

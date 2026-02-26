@@ -28,10 +28,10 @@ class ClassRepository implements ClassRepositoryInterface
     /**
      * Get paginated classes for index page with filters
      */
-    public function getClassesForIndex(int $academicYearId, array $filters, int $perPage): LengthAwarePaginator
+    public function getClassesForIndex(?int $academicYearId, array $filters, int $perPage): LengthAwarePaginator
     {
         $query = ClassModel::query()
-            ->forAcademicYear($academicYearId)
+            ->when($academicYearId, fn ($q) => $q->forAcademicYear($academicYearId))
             ->with(['level'])
             ->withCount([
                 'enrollments as active_enrollments_count' => function ($query) {
@@ -67,39 +67,7 @@ class ClassRepository implements ClassRepositoryInterface
     }
 
     /**
-     * Get class details with paginated students and subjects
-     */
-    public function getClassDetailsWithPagination(
-        ClassModel $class,
-        array $studentsFilters,
-        array $subjectsFilters
-    ): array {
-        $class->load(['academicYear', 'level']);
-        $class->loadCount([
-            'enrollments',
-            'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
-        ]);
-        $class->can_delete = $class->canBeDeleted();
-
-        $enrollments = $this->getPaginatedEnrollments($class, $studentsFilters);
-        $classSubjects = $this->getPaginatedClassSubjects($class, $subjectsFilters);
-
-        return [
-            'class' => $class,
-            'enrollments' => $enrollments,
-            'classSubjects' => $classSubjects,
-            'statistics' => $this->getClassStatistics($class),
-            'studentsFilters' => [
-                'search' => $studentsFilters['search'],
-            ],
-            'subjectsFilters' => [
-                'search' => $subjectsFilters['search'],
-            ],
-        ];
-    }
-
-    /**
-     * Get paginated enrollments for a class
+     * Get paginated enrollments for a class.
      */
     public function getPaginatedEnrollments(ClassModel $class, array $filters): LengthAwarePaginator
     {

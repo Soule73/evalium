@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreClassRequest;
 use App\Http\Requests\Admin\UpdateClassRequest;
 use App\Http\Traits\HandlesIndexRequests;
+use App\Http\Traits\ProvidesAdminClassRouteContext;
 use App\Models\Assessment;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
@@ -28,7 +29,7 @@ use Inertia\Response;
 
 class ClassController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests;
+    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests, ProvidesAdminClassRouteContext;
 
     public function __construct(
         private readonly ClassServiceInterface $classService,
@@ -66,22 +67,7 @@ class ClassController extends Controller
             'classes' => $classes,
             'filters' => $filters,
             'levels' => $levels,
-            'routeContext' => [
-                'role' => 'admin',
-                'indexRoute' => 'admin.classes.index',
-                'showRoute' => 'admin.classes.show',
-                'editRoute' => 'admin.classes.edit',
-                'deleteRoute' => 'admin.classes.destroy',
-                'assessmentsRoute' => 'admin.classes.assessments',
-                'subjectShowRoute' => 'admin.classes.subjects.show',
-                'studentShowRoute' => 'admin.classes.students.show',
-                'studentIndexRoute' => 'admin.classes.students.index',
-                'studentAssignmentsRoute' => 'admin.classes.students.assignments',
-                'assessmentShowRoute' => 'admin.classes.assessments.show',
-                'assessmentGradeRoute' => 'admin.assessments.grade',
-                'assessmentReviewRoute' => 'admin.assessments.review',
-                'assessmentSaveGradeRoute' => 'admin.assessments.saveGrade',
-            ],
+            'routeContext' => $this->adminClassRouteContext(),
         ]);
     }
 
@@ -106,6 +92,12 @@ class ClassController extends Controller
         $this->authorize('create', ClassModel::class);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
+
+        if ($selectedYearId === null) {
+            return redirect()
+                ->back()
+                ->flashError(__('messages.no_active_academic_year'));
+        }
 
         $data = array_merge($request->validated(), [
             'academic_year_id' => $selectedYearId,
@@ -146,22 +138,7 @@ class ClassController extends Controller
             'statistics' => $this->classQueryService->getClassStatistics($class, $recentClassSubjects->total()),
             'assessments' => $this->assessmentQueryService->getAssessmentsForClass($class, [], 3),
             'classSubjectFormData' => $this->classSubjectService->getFormDataForCreate($selectedYearId),
-            'routeContext' => [
-                'role' => 'admin',
-                'indexRoute' => 'admin.classes.index',
-                'showRoute' => 'admin.classes.show',
-                'editRoute' => 'admin.classes.edit',
-                'deleteRoute' => 'admin.classes.destroy',
-                'assessmentsRoute' => 'admin.classes.assessments',
-                'subjectShowRoute' => 'admin.classes.subjects.show',
-                'studentShowRoute' => 'admin.classes.students.show',
-                'studentIndexRoute' => 'admin.classes.students.index',
-                'studentAssignmentsRoute' => 'admin.classes.students.assignments',
-                'assessmentShowRoute' => 'admin.classes.assessments.show',
-                'assessmentGradeRoute' => 'admin.assessments.grade',
-                'assessmentReviewRoute' => 'admin.assessments.review',
-                'assessmentSaveGradeRoute' => 'admin.assessments.saveGrade',
-            ],
+            'routeContext' => $this->adminClassRouteContext(),
         ]);
     }
 
@@ -240,22 +217,7 @@ class ClassController extends Controller
             'filters' => $filters,
             'subjects' => $subjects,
             'teachers' => $teachers,
-            'routeContext' => [
-                'role' => 'admin',
-                'indexRoute' => 'admin.classes.index',
-                'showRoute' => 'admin.classes.show',
-                'editRoute' => 'admin.classes.edit',
-                'deleteRoute' => 'admin.classes.destroy',
-                'assessmentsRoute' => 'admin.classes.assessments',
-                'subjectShowRoute' => 'admin.classes.subjects.show',
-                'studentShowRoute' => 'admin.classes.students.show',
-                'studentIndexRoute' => 'admin.classes.students.index',
-                'studentAssignmentsRoute' => 'admin.classes.students.assignments',
-                'assessmentShowRoute' => 'admin.classes.assessments.show',
-                'assessmentGradeRoute' => 'admin.assessments.grade',
-                'assessmentReviewRoute' => 'admin.assessments.review',
-                'assessmentSaveGradeRoute' => 'admin.assessments.saveGrade',
-            ],
+            'routeContext' => $this->adminClassRouteContext(),
         ]);
     }
 

@@ -72,13 +72,6 @@ class CustomExceptionsTest extends TestCase
         $this->assertStringContainsString('subject assignments', $exception->getMessage());
     }
 
-    public function test_class_exception_duplicate_name(): void
-    {
-        $exception = ClassException::duplicateName();
-
-        $this->assertStringContainsString('already exists', $exception->getMessage());
-    }
-
     public function test_assessment_exception_invalid_coefficient(): void
     {
         $exception = AssessmentException::invalidCoefficient();

@@ -25,7 +25,7 @@ class ClassService implements ClassServiceInterface
     /**
      * Get form data for the create page.
      */
-    public function getCreateFormData(int $selectedYearId): array
+    public function getCreateFormData(?int $selectedYearId): array
     {
         return [
             'levels' => $this->classQueryService->getAllLevels(),
@@ -63,17 +63,16 @@ class ClassService implements ClassServiceInterface
     }
 
     /**
-     * Update an existing class
+     * Update an existing class.
      */
     public function updateClass(ClassModel $class, array $data): ClassModel
     {
-        $updateData = array_filter([
-            'name' => $data['name'] ?? null,
+        $class->update([
+            'name' => $data['name'],
+            'level_id' => $data['level_id'],
             'description' => $data['description'] ?? null,
             'max_students' => $data['max_students'] ?? null,
-        ], fn ($value) => $value !== null);
-
-        $class->update($updateData);
+        ]);
 
         $this->classQueryService->invalidateLevelsCache();
 
@@ -81,15 +80,15 @@ class ClassService implements ClassServiceInterface
     }
 
     /**
-     * Delete a class (only if empty)
+     * Delete a class (only if empty).
      */
     public function deleteClass(ClassModel $class): bool
     {
-        if ($class->enrollments()->count() > 0) {
+        if ($class->enrollments()->exists()) {
             throw ClassException::hasEnrolledStudents();
         }
 
-        if ($class->classSubjects()->count() > 0) {
+        if ($class->classSubjects()->exists()) {
             throw ClassException::hasSubjectAssignments();
         }
 

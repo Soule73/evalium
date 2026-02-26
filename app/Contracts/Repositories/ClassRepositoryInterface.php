@@ -11,7 +11,7 @@ interface ClassRepositoryInterface
     /**
      * Get paginated classes for the index page.
      */
-    public function getClassesForIndex(int $academicYearId, array $filters, int $perPage): LengthAwarePaginator;
+    public function getClassesForIndex(?int $academicYearId, array $filters, int $perPage): LengthAwarePaginator;
 
     /**
      * Get all levels from cache.
@@ -22,11 +22,6 @@ interface ClassRepositoryInterface
      * Invalidate the levels cache.
      */
     public function invalidateLevelsCache(): void;
-
-    /**
-     * Get class details with paginated enrollments and class subjects.
-     */
-    public function getClassDetailsWithPagination(ClassModel $class, array $studentsFilters, array $subjectsFilters): array;
 
     /**
      * Get paginated enrollments for a class.
