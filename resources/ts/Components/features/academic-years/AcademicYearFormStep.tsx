@@ -24,8 +24,8 @@ function addOneYear(dateStr: string): string {
 
 function buildNextYearName(startDate: string, endDate: string): string {
     if (!startDate || !endDate) return '';
-    const startYear = new Date(startDate).getFullYear() + 1;
-    const endYear = new Date(endDate).getFullYear() + 1;
+    const startYear = new Date(toDateInputValue(startDate)).getFullYear() + 1;
+    const endYear = new Date(toDateInputValue(endDate)).getFullYear() + 1;
     if (startYear === endYear) return String(startYear);
     return `${startYear}-${endYear}`;
 }

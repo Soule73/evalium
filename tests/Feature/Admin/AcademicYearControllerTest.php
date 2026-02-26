@@ -910,6 +910,88 @@ class AcademicYearControllerTest extends TestCase
     }
 
     // ---------------------------------------------------------------
+    // Archive Policy
+    // ---------------------------------------------------------------
+
+    public function test_teacher_cannot_archive(): void
+    {
+        $year = AcademicYear::factory()->current()->create();
+
+        $response = $this->actingAs($this->teacher)
+            ->post(route('admin.academic-years.archive', $year));
+
+        $response->assertForbidden();
+    }
+
+    // ---------------------------------------------------------------
+    // Cache invalidation
+    // ---------------------------------------------------------------
+
+    public function test_create_invalidates_academic_years_cache(): void
+    {
+        \Illuminate\Support\Facades\Cache::put(
+            \App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT,
+            ['stale'],
+            3600
+        );
+        \Illuminate\Support\Facades\Cache::put(
+            \App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT.':admin',
+            ['stale'],
+            3600
+        );
+
+        $this->actingAs($this->admin)->post(route('admin.academic-years.store'), $this->validPayload());
+
+        $this->assertNull(\Illuminate\Support\Facades\Cache::get(\App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT));
+        $this->assertNull(\Illuminate\Support\Facades\Cache::get(\App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT.':admin'));
+    }
+
+    public function test_set_current_invalidates_academic_years_cache(): void
+    {
+        $year = AcademicYear::factory()->create();
+
+        \Illuminate\Support\Facades\Cache::put(
+            \App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT.':admin',
+            ['stale'],
+            3600
+        );
+
+        $this->actingAs($this->admin)->post(route('admin.academic-years.set-current', $year));
+
+        $this->assertNull(\Illuminate\Support\Facades\Cache::get(\App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT.':admin'));
+    }
+
+    public function test_archive_invalidates_academic_years_cache(): void
+    {
+        $year = AcademicYear::factory()->current()->create();
+
+        \Illuminate\Support\Facades\Cache::put(
+            \App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT.':admin',
+            ['stale'],
+            3600
+        );
+
+        $this->actingAs($this->admin)->post(route('admin.academic-years.archive', $year));
+
+        $this->assertNull(\Illuminate\Support\Facades\Cache::get(\App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT.':admin'));
+    }
+
+    public function test_destroy_invalidates_academic_years_cache(): void
+    {
+        $year = AcademicYear::factory()->create(['is_current' => false]);
+
+        \Illuminate\Support\Facades\Cache::put(
+            \App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT.':admin',
+            ['stale'],
+            3600
+        );
+
+        $this->actingAs($this->admin)->delete(route('admin.academic-years.destroy', $year));
+
+        $this->assertNull(\Illuminate\Support\Facades\Cache::get(\App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT.':admin'));
+    }
+
+    // ---------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------
 

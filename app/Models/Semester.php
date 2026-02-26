@@ -24,11 +24,17 @@ class Semester extends Model
         'order_number',
     ];
 
-    protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
-        'order_number' => 'integer',
-    ];
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'start_date' => 'date',
+            'end_date' => 'date',
+            'order_number' => 'integer',
+        ];
+    }
 
     /**
      * Get the academic year this semester belongs to.

@@ -156,11 +156,12 @@ class CacheService
     }
 
     /**
-     * Invalidate all academic years caches
+     * Invalidate all academic years caches (both admin and non-admin variants).
      */
     public function invalidateAcademicYearsCaches(): void
     {
         $this->forget(self::KEY_ACADEMIC_YEARS_RECENT);
+        $this->forget(self::KEY_ACADEMIC_YEARS_RECENT.':admin');
         $this->forget(self::KEY_ACADEMIC_YEAR_CURRENT);
     }
 }

@@ -72,10 +72,19 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * Get the selected academic year from session or default to current.
+     * Get the selected academic year.
+     *
+     * Uses the model already resolved and stored by InjectAcademicYear middleware
+     * to avoid issuing a redundant DB query on every request.
      */
     protected function getSelectedAcademicYear(Request $request): ?array
     {
+        $academicYear = $request->attributes->get('selected_academic_year');
+
+        if ($academicYear instanceof \App\Models\AcademicYear) {
+            return $academicYear->toArray();
+        }
+
         $academicYearId = $request->session()->get('academic_year_id');
 
         if (! $academicYearId) {
@@ -84,9 +93,9 @@ class HandleInertiaRequests extends Middleware
             return $currentYear ? $currentYear->toArray() : null;
         }
 
-        $academicYear = \App\Models\AcademicYear::find($academicYearId);
+        $year = \App\Models\AcademicYear::find($academicYearId);
 
-        return $academicYear ? $academicYear->toArray() : null;
+        return $year ? $year->toArray() : null;
     }
 
     /**
@@ -97,7 +106,7 @@ class HandleInertiaRequests extends Middleware
      */
     protected function getRecentAcademicYears(?\App\Models\User $user = null): array
     {
-        $isAdmin = $user && $user->hasRole('admin');
+        $isAdmin = $user && $user->hasAnyRole(['admin', 'super_admin']);
         $cacheKey = $isAdmin
             ? \App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT.':admin'
             : \App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT;

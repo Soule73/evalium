@@ -172,7 +172,7 @@ class AcademicYearController extends Controller
      */
     public function archive(AcademicYear $academicYear): RedirectResponse
     {
-        $this->authorize('update', $academicYear);
+        $this->authorize('archive', $academicYear);
 
         $this->academicYearService->archiveYear($academicYear);
 
