@@ -4,6 +4,7 @@ namespace App\Services\Core;
 
 use App\Enums\AssessmentType;
 use App\Enums\DeliveryMode;
+use App\Enums\EnrollmentStatus;
 use App\Exceptions\AssessmentException;
 use App\Exceptions\ValidationException;
 use App\Models\Assessment;
@@ -151,7 +152,7 @@ class AssessmentService
         $assessment->loadMissing('classSubject.class.enrollments.student');
 
         $activeStudents = $assessment->classSubject?->class?->enrollments
-            ?->filter(fn ($e) => $e->status->value === 'active')
+            ?->filter(fn ($e) => $e->status === EnrollmentStatus::Active)
             ->map(fn ($e) => $e->student)
             ->filter()
             ->values() ?? collect();

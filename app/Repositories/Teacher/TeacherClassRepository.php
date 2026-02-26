@@ -133,7 +133,7 @@ class TeacherClassRepository implements TeacherClassRepositoryInterface
      *
      * @return Collection<int, object{class_id: int, class_name: string, level_name: string, level_description: string}>
      */
-    public function getActiveClassesForTeacher(int $teacherId, int $selectedYearId): Collection
+    public function getActiveClassesForTeacher(int $teacherId, ?int $selectedYearId): Collection
     {
         return ClassSubject::query()
             ->select([
@@ -146,7 +146,7 @@ class TeacherClassRepository implements TeacherClassRepositoryInterface
             ->join('levels', 'levels.id', '=', 'classes.level_id')
             ->where('class_subjects.teacher_id', $teacherId)
             ->whereNull('class_subjects.valid_to')
-            ->where('classes.academic_year_id', $selectedYearId)
+            ->when($selectedYearId, fn ($q) => $q->where('classes.academic_year_id', $selectedYearId))
             ->distinct()
             ->get();
     }
@@ -159,6 +159,24 @@ class TeacherClassRepository implements TeacherClassRepositoryInterface
         if ($class->academic_year_id !== $selectedYearId) {
             throw new \Exception(__('messages.class_not_in_selected_year'));
         }
+    }
+
+    /**
+     * Get subject filter data for a teacher's class (used for filter dropdowns).
+     *
+     * @return Collection<int, array{id: int, name: string}>
+     */
+    public function getSubjectFilterDataForClass(ClassModel $class, int $teacherId): Collection
+    {
+        return ClassSubject::query()
+            ->where('class_id', $class->id)
+            ->where('teacher_id', $teacherId)
+            ->whereNull('valid_to')
+            ->with('subject:id,name')
+            ->get()
+            ->map(fn ($cs) => ['id' => $cs->subject_id, 'name' => $cs->subject?->name])
+            ->filter(fn ($s) => $s['name'] !== null)
+            ->values();
     }
 
     /**

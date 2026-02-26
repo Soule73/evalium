@@ -32,4 +32,11 @@ interface AdminAssessmentRepositoryInterface
      * Get all assessments with optional academic year and filters.
      */
     public function getAllAssessments(?int $academicYearId, array $filters = [], int $perPage = 15): LengthAwarePaginator;
+
+    /**
+     * Get filter data (classes, subjects, teachers) for the admin index page.
+     *
+     * @return array{classes: \Illuminate\Support\Collection, subjects: \Illuminate\Support\Collection, teachers: \Illuminate\Support\Collection}
+     */
+    public function getFilterData(?int $academicYearId): array;
 }

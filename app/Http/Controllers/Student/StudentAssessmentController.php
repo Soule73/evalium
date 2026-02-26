@@ -96,10 +96,10 @@ class StudentAssessmentController extends Controller
 
         $this->hideCorrectAnswers($assessment);
 
-        $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
+        $assignment = $this->assessmentService->findAssignment($student, $assessment);
 
         $embargoLifted = $assessment->isResultsEmbargoLifted();
-        $canViewResults = $assignment->submitted_at !== null
+        $canViewResults = $assignment?->submitted_at !== null
             && $embargoLifted
             && (! $assessment->release_results_after_grading || $assignment->graded_at !== null);
 

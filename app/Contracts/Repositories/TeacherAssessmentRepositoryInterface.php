@@ -11,17 +11,17 @@ interface TeacherAssessmentRepositoryInterface
     /**
      * Get paginated assessments for a teacher with filters.
      */
-    public function getAssessmentsForTeacher(int $teacherId, int $selectedYearId, array $filters, int $perPage): LengthAwarePaginator;
+    public function getAssessmentsForTeacher(int $teacherId, ?int $selectedYearId, array $filters, int $perPage): LengthAwarePaginator;
 
     /**
      * Get active class subjects for a teacher.
      */
-    public function getClassSubjectsForTeacher(int $teacherId, int $selectedYearId, array $withRelations = []): Collection;
+    public function getClassSubjectsForTeacher(int $teacherId, ?int $selectedYearId, array $withRelations = []): Collection;
 
     /**
      * Get distinct classes for the filter dropdown.
      */
-    public function getClassFilterDataForTeacher(int $teacherId, int $selectedYearId): Collection;
+    public function getClassFilterDataForTeacher(int $teacherId, ?int $selectedYearId): Collection;
 
     /**
      * Load detailed assessment relationships for display.

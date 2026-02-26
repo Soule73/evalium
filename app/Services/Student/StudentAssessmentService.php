@@ -45,6 +45,29 @@ class StudentAssessmentService
     }
 
     /**
+     * Find an existing assignment for a student without creating one.
+     *
+     * @param  User  $student  The student
+     * @param  Assessment  $assessment  The assessment
+     * @return AssessmentAssignment|null The assignment or null if not started
+     */
+    public function findAssignment(User $student, Assessment $assessment): ?AssessmentAssignment
+    {
+        $enrollment = Enrollment::where('student_id', $student->id)
+            ->where('class_id', $assessment->classSubject->class_id)
+            ->where('status', 'active')
+            ->first();
+
+        if (! $enrollment) {
+            return null;
+        }
+
+        return AssessmentAssignment::where('assessment_id', $assessment->id)
+            ->where('enrollment_id', $enrollment->id)
+            ->first();
+    }
+
+    /**
      * Start an assignment by setting started_at if not already set.
      *
      * Sets started_at for all delivery modes to enable consistent
@@ -119,7 +142,7 @@ class StudentAssessmentService
             return false;
         }
 
-        if ($assessment->settings['allow_late_submission'] ?? false) {
+        if ($assessment->allow_late_submission) {
             return false;
         }
 
@@ -414,18 +437,18 @@ class StudentAssessmentService
      * Get paginated assessments for a student with filtering
      *
      * @param  User  $student  The student
-     * @param  int  $academicYearId  The academic year ID
+     * @param  int|null  $academicYearId  The academic year ID
      * @param  array  $filters  Filter parameters (status, search)
      * @param  int  $perPage  Items per page
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|array Paginated assignments or empty array
      */
-    public function getStudentAssessmentsForIndex(User $student, int $academicYearId, array $filters, int $perPage, $enrollment = null)
+    public function getStudentAssessmentsForIndex(User $student, ?int $academicYearId, array $filters, int $perPage, $enrollment = null)
     {
         if (! $enrollment) {
             $enrollment = $student->enrollments()
                 ->where('status', 'active')
-                ->whereHas('class', function ($query) use ($academicYearId) {
-                    $query->where('academic_year_id', $academicYearId);
+                ->when($academicYearId, function ($query) use ($academicYearId) {
+                    $query->whereHas('class', fn ($q) => $q->where('academic_year_id', $academicYearId));
                 })
                 ->with(['class.classSubjects'])
                 ->first();
@@ -452,6 +475,8 @@ class StudentAssessmentService
             ->values()
             ->all();
 
+        $enrollmentId = $enrollment->id;
+
         $assessmentsQuery = Assessment::whereIn('class_subject_id', $classSubjectIds)
             ->with([
                 'classSubject:id,subject_id,teacher_id',
@@ -464,6 +489,15 @@ class StudentAssessmentService
             })
             ->when($filters['search'] ?? null, function ($query, $search) {
                 return $query->where('title', 'like', "%{$search}%");
+            })
+            ->when($filters['status'] ?? null, function ($query, $status) use ($enrollmentId) {
+                match ($status) {
+                    'graded' => $query->whereHas('assignments', fn ($q) => $q->where('enrollment_id', $enrollmentId)->whereNotNull('graded_at')),
+                    'submitted' => $query->whereHas('assignments', fn ($q) => $q->where('enrollment_id', $enrollmentId)->whereNotNull('submitted_at')->whereNull('graded_at')),
+                    'in_progress' => $query->whereHas('assignments', fn ($q) => $q->where('enrollment_id', $enrollmentId)->whereNotNull('started_at')->whereNull('submitted_at')),
+                    'not_started' => $query->whereDoesntHave('assignments', fn ($q) => $q->where('enrollment_id', $enrollmentId)->whereNotNull('started_at')),
+                    default => null,
+                };
             })
             ->orderBy('scheduled_at', 'asc');
 
@@ -479,14 +513,6 @@ class StudentAssessmentService
             $assessments->setCollection($assignments);
         } else {
             $assessments = $assignments;
-        }
-
-        if ($filters['status'] ?? null) {
-            $assessments->setCollection(
-                $assessments->getCollection()->filter(function ($assignment) use ($filters) {
-                    return $assignment->status === $filters['status'];
-                })->values()
-            );
         }
 
         return [

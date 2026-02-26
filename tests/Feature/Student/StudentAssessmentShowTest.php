@@ -128,7 +128,7 @@ class StudentAssessmentShowTest extends TestCase
         );
     }
 
-    public function test_show_creates_assignment_if_not_exists(): void
+    public function test_show_does_not_create_assignment_on_browse(): void
     {
         $this->assertDatabaseMissing('assessment_assignments', [
             'assessment_id' => $this->assessment->id,
@@ -138,7 +138,7 @@ class StudentAssessmentShowTest extends TestCase
         $this->actingAs($this->student)
             ->get(route('student.assessments.show', $this->assessment));
 
-        $this->assertDatabaseHas('assessment_assignments', [
+        $this->assertDatabaseMissing('assessment_assignments', [
             'assessment_id' => $this->assessment->id,
             'enrollment_id' => $this->enrollment->id,
         ]);
@@ -223,7 +223,7 @@ class StudentAssessmentShowTest extends TestCase
         );
     }
 
-    public function test_show_does_not_set_started_at_for_supervised_assessment(): void
+    public function test_show_does_not_create_assignment_for_supervised_assessment_on_browse(): void
     {
         $this->assessment->update([
             'delivery_mode' => 'supervised',
@@ -235,10 +235,9 @@ class StudentAssessmentShowTest extends TestCase
         $this->actingAs($this->student)
             ->get(route('student.assessments.show', $this->assessment));
 
-        $this->assertDatabaseHas('assessment_assignments', [
+        $this->assertDatabaseMissing('assessment_assignments', [
             'assessment_id' => $this->assessment->id,
             'enrollment_id' => $this->enrollment->id,
-            'started_at' => null,
         ]);
     }
 }

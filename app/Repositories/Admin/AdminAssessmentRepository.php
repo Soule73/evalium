@@ -6,6 +6,7 @@ use App\Contracts\Repositories\AdminAssessmentRepositoryInterface;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\ClassModel;
+use App\Models\Subject;
 use App\Models\User;
 use App\Services\Traits\Paginatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -212,5 +213,25 @@ class AdminAssessmentRepository implements AdminAssessmentRepositoryInterface
             ->orderBy('created_at', 'desc');
 
         return $this->paginateQuery($query, $perPage);
+    }
+
+    /**
+     * Get filter data (classes, subjects, teachers) for the admin assessment index.
+     *
+     * @return array{classes: \Illuminate\Support\Collection, subjects: \Illuminate\Support\Collection, teachers: \Illuminate\Support\Collection}
+     */
+    public function getFilterData(?int $academicYearId): array
+    {
+        return [
+            'classes' => ClassModel::query()
+                ->when($academicYearId, fn ($q) => $q->where('academic_year_id', $academicYearId))
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'subjects' => Subject::orderBy('name')->get(['id', 'name']),
+            'teachers' => User::role('teacher')
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name']),
+        ];
     }
 }

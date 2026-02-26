@@ -20,14 +20,14 @@ class TeacherAssessmentRepository implements TeacherAssessmentRepositoryInterfac
      */
     public function getAssessmentsForTeacher(
         int $teacherId,
-        int $selectedYearId,
+        ?int $selectedYearId,
         array $filters,
         int $perPage
     ): LengthAwarePaginator {
         return Assessment::query()
             ->with(['classSubject.class.level', 'classSubject.subject'])
             ->withCount('questions')
-            ->forAcademicYear($selectedYearId)
+            ->when($selectedYearId, fn ($q) => $q->forAcademicYear($selectedYearId))
             ->whereHas('classSubject', fn ($query) => $query->where('teacher_id', $teacherId))
             ->when(
                 $filters['search'] ?? null,
@@ -59,14 +59,14 @@ class TeacherAssessmentRepository implements TeacherAssessmentRepositoryInterfac
      */
     public function getClassSubjectsForTeacher(
         int $teacherId,
-        int $selectedYearId,
+        ?int $selectedYearId,
         array $withRelations = []
     ): Collection {
         $defaultRelations = ['class.level', 'subject'];
         $relations = array_unique(array_merge($defaultRelations, $withRelations));
 
         return ClassSubject::where('teacher_id', $teacherId)
-            ->forAcademicYear($selectedYearId)
+            ->when($selectedYearId, fn ($q) => $q->forAcademicYear($selectedYearId))
             ->with($relations)
             ->active()
             ->get();
@@ -77,7 +77,7 @@ class TeacherAssessmentRepository implements TeacherAssessmentRepositoryInterfac
      *
      * @return Collection<int, object{class_id: int, class_name: string, level_name: string, level_description: string}>
      */
-    public function getClassFilterDataForTeacher(int $teacherId, int $selectedYearId): Collection
+    public function getClassFilterDataForTeacher(int $teacherId, ?int $selectedYearId): Collection
     {
         return $this->classQueryService->getActiveClassesForTeacher($teacherId, $selectedYearId);
     }
@@ -93,7 +93,6 @@ class TeacherAssessmentRepository implements TeacherAssessmentRepositoryInterfac
             'classSubject.subject',
             'classSubject.teacher',
             'questions.choices',
-            'assignments.enrollment.student',
         ]);
     }
 

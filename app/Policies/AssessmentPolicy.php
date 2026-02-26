@@ -5,6 +5,12 @@ namespace App\Policies;
 use App\Models\Assessment;
 use App\Models\User;
 
+/**
+ * Defines authorization rules for the Assessment resource.
+ *
+ * Handles view, create, update, delete and publish permissions
+ * for admin, teacher and student roles.
+ */
 class AssessmentPolicy
 {
     /**

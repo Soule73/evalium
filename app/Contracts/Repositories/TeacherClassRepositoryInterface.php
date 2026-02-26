@@ -31,7 +31,14 @@ interface TeacherClassRepositoryInterface
     /**
      * Get distinct active classes for a teacher using a JOIN query.
      */
-    public function getActiveClassesForTeacher(int $teacherId, int $selectedYearId): Collection;
+    public function getActiveClassesForTeacher(int $teacherId, ?int $selectedYearId): Collection;
+
+    /**
+     * Get subject filter data for a teacher's class (for filter dropdowns).
+     *
+     * @return Collection<int, array{id: int, name: string}>
+     */
+    public function getSubjectFilterDataForClass(ClassModel $class, int $teacherId): Collection;
 
     /**
      * Validate that the class belongs to the selected academic year.

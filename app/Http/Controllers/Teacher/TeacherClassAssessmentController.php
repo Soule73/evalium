@@ -7,7 +7,6 @@ use App\Contracts\Repositories\TeacherClassRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Models\Assessment;
 use App\Models\ClassModel;
-use App\Models\ClassSubject;
 use App\Repositories\Teacher\GradingRepository;
 use App\Services\Core\AssessmentStatsService;
 use App\Traits\FiltersAcademicYear;
@@ -95,15 +94,7 @@ class TeacherClassAssessmentController extends Controller
             $perPage
         );
 
-        $subjects = ClassSubject::query()
-            ->where('class_id', $class->id)
-            ->where('teacher_id', $teacherId)
-            ->whereNull('valid_to')
-            ->with('subject:id,name')
-            ->get()
-            ->map(fn ($cs) => ['id' => $cs->subject_id, 'name' => $cs->subject?->name])
-            ->filter(fn ($s) => $s['name'])
-            ->values();
+        $subjects = $this->classQueryService->getSubjectFilterDataForClass($class, $teacherId);
 
         $class->load(['academicYear', 'level']);
 

@@ -8,9 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\HandlesAssessmentViewing;
 use App\Http\Traits\HandlesIndexRequests;
 use App\Models\Assessment;
-use App\Models\ClassModel;
-use App\Models\Subject;
-use App\Models\User;
 use App\Repositories\Teacher\GradingRepository;
 use App\Services\Core\Answer\AnswerFormatterService;
 use App\Services\Core\AssessmentService;
@@ -72,24 +69,14 @@ class AdminAssessmentController extends Controller
             $perPage
         );
 
-        $classes = ClassModel::query()
-            ->when($selectedYearId, fn ($q, $id) => $q->where('academic_year_id', $id))
-            ->orderBy('name')
-            ->get(['id', 'name']);
-
-        $subjects = Subject::orderBy('name')->get(['id', 'name']);
-
-        $teachers = User::role('teacher')
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name']);
+        $filterData = $this->assessmentQueryService->getFilterData($selectedYearId);
 
         return Inertia::render('Assessments/Index', [
             'assessments' => $assessments,
             'filters' => $filters,
-            'classes' => $classes,
-            'subjects' => $subjects,
-            'teachers' => $teachers,
+            'classes' => $filterData['classes'],
+            'subjects' => $filterData['subjects'],
+            'teachers' => $filterData['teachers'],
             'routeContext' => $this->buildRouteContext(),
         ]);
     }
