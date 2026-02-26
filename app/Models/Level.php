@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Cache;
 
 class Level extends Model
 {
@@ -19,27 +18,28 @@ class Level extends Model
         'is_active',
     ];
 
-    protected $casts = [
-        'is_active' => 'boolean',
-        'order' => 'integer',
-    ];
-
     /**
-     * Événements du modèle pour gérer le cache
+     * @return array<string, string>
      */
-    protected static function booted(): void
+    protected function casts(): array
     {
-        // Invalider le cache des classes quand un niveau change
-        static::created(fn () => Cache::forget('classes_active_with_levels'));
-        static::updated(fn () => Cache::forget('classes_active_with_levels'));
-        static::deleted(fn () => Cache::forget('classes_active_with_levels'));
+        return [
+            'is_active' => 'boolean',
+            'order' => 'integer',
+        ];
     }
 
+    /**
+     * Get the classes belonging to this level.
+     */
     public function classes(): HasMany
     {
         return $this->hasMany(ClassModel::class);
     }
 
+    /**
+     * Get the subjects belonging to this level.
+     */
     public function subjects(): HasMany
     {
         return $this->hasMany(Subject::class);
@@ -53,10 +53,5 @@ class Level extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('order')->orderBy('name');
-    }
-
-    public static function options(): array
-    {
-        return self::active()->ordered()->pluck('name', 'id')->toArray();
     }
 }

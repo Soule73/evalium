@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Level;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -12,7 +13,11 @@ class LevelRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $level = $this->route('level');
+
+        return $level instanceof Level
+            ? $this->user()->can('update', $level)
+            : $this->user()->can('create', Level::class);
     }
 
     /**

@@ -147,7 +147,7 @@ class LevelController extends Controller
      */
     public function toggleStatus(Level $level): RedirectResponse
     {
-        $this->authorize('update', $level);
+        $this->authorize('toggleStatus', $level);
 
         $level = $this->levelService->toggleStatus($level);
 

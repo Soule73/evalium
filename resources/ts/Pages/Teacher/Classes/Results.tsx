@@ -164,8 +164,8 @@ export default function TeacherClassResults({ class: classItem, results }: Props
                                                     row.completion_rate >= 80
                                                         ? 'font-medium text-green-600'
                                                         : row.completion_rate >= 50
-                                                            ? 'font-medium text-yellow-600'
-                                                            : 'font-medium text-red-500'
+                                                          ? 'font-medium text-yellow-600'
+                                                          : 'font-medium text-red-500'
                                                 }
                                             >
                                                 {row.completion_rate}%
@@ -232,6 +232,6 @@ export default function TeacherClassResults({ class: classItem, results }: Props
                     </div>
                 )}
             </Section>
-        </AuthenticatedLayout >
+        </AuthenticatedLayout>
     );
 }

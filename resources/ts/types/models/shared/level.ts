@@ -9,5 +9,4 @@ export interface Level {
     updated_at: string;
 
     classes_count?: number;
-    subjects_count?: number;
 }
