@@ -46,7 +46,7 @@ class TeacherAssessmentRepository implements TeacherAssessmentRepositoryInterfac
                 fn ($query, $type) => $query->where('type', $type)
             )
             ->when(
-                isset($filters['is_published']),
+                isset($filters['is_published']) && $filters['is_published'] !== '',
                 fn ($query) => $query->where('is_published', (bool) $filters['is_published'])
             )
             ->orderBy('scheduled_at', 'desc')

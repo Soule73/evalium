@@ -40,6 +40,7 @@ class AssessmentAssignment extends Model
         'status',
         'score',
         'auto_score',
+        'is_virtual',
     ];
 
     /**
@@ -217,5 +218,17 @@ class AssessmentAssignment extends Model
         }
 
         return 'not_submitted';
+    }
+
+    /**
+     * Indicate that persisted assignment records are never virtual.
+     *
+     * Virtual (not-started) placeholders are plain objects returned alongside
+     * real assignments in grading views. This accessor ensures real assignments
+     * always include the `is_virtual` key in JSON serialization.
+     */
+    public function getIsVirtualAttribute(): bool
+    {
+        return false;
     }
 }

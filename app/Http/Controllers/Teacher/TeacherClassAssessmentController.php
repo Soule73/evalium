@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Teacher;
 use App\Contracts\Repositories\TeacherAssessmentRepositoryInterface;
 use App\Contracts\Repositories\TeacherClassRepositoryInterface;
 use App\Http\Controllers\Controller;
+use App\Http\Traits\HasTeacherClassRouteContext;
 use App\Models\Assessment;
 use App\Models\ClassModel;
 use App\Repositories\Teacher\GradingRepository;
@@ -20,7 +21,7 @@ use Inertia\Response;
  */
 class TeacherClassAssessmentController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear;
+    use AuthorizesRequests, FiltersAcademicYear, HasTeacherClassRouteContext;
 
     public function __construct(
         private readonly TeacherClassRepositoryInterface $classQueryService,
@@ -34,22 +35,7 @@ class TeacherClassAssessmentController extends Controller
      */
     private function buildClassRouteContext(): array
     {
-        return [
-            'role' => 'teacher',
-            'indexRoute' => 'teacher.classes.index',
-            'showRoute' => 'teacher.classes.show',
-            'editRoute' => null,
-            'deleteRoute' => null,
-            'assessmentsRoute' => 'teacher.classes.assessments',
-            'subjectShowRoute' => null,
-            'studentShowRoute' => 'teacher.classes.students.show',
-            'studentIndexRoute' => 'teacher.classes.students.index',
-            'studentAssignmentsRoute' => 'teacher.classes.students.assignments',
-            'assessmentShowRoute' => 'teacher.classes.assessments.show',
-            'assessmentGradeRoute' => 'teacher.assessments.grade',
-            'assessmentReviewRoute' => 'teacher.assessments.review',
-            'assessmentSaveGradeRoute' => 'teacher.assessments.saveGrade',
-        ];
+        return $this->buildTeacherClassRouteContext();
     }
 
     /**

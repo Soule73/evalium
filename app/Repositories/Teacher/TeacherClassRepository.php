@@ -157,7 +157,7 @@ class TeacherClassRepository implements TeacherClassRepositoryInterface
     public function validateAcademicYearAccess(ClassModel $class, int $selectedYearId): void
     {
         if ($class->academic_year_id !== $selectedYearId) {
-            throw new \Exception(__('messages.class_not_in_selected_year'));
+            abort(403, __('messages.class_not_in_selected_year'));
         }
     }
 

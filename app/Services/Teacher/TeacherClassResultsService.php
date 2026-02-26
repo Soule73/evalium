@@ -30,10 +30,10 @@ class TeacherClassResultsService
         $assessmentStats = $this->computeAssessmentStats($classId, $teacherId, $totalStudents);
         $studentStats = $this->computeStudentStats($classId, $teacherId);
 
-        $Overview = $this->buildOverview($totalStudents, $assessmentStats);
+        $overview = $this->buildOverview($totalStudents, $assessmentStats);
 
         return [
-            'overview' => $Overview,
+            'overview' => $overview,
             'assessment_stats' => $assessmentStats,
             'student_stats' => $studentStats,
         ];

@@ -84,7 +84,6 @@ class GradingRepository
                     $assignment->submitted_at = $row->submitted_at;
                     $assignment->graded_at = $row->graded_at;
                     $assignment->setRelation('student', $student);
-                    $assignment->is_virtual = false;
 
                     return $assignment;
                 }

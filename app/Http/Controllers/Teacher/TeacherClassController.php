@@ -20,6 +20,30 @@ class TeacherClassController extends Controller
     ) {}
 
     /**
+     * @return array<string, string|null>
+     */
+    private function buildRouteContext(): array
+    {
+        return [
+            'role' => 'teacher',
+            'indexRoute' => 'teacher.classes.index',
+            'showRoute' => 'teacher.classes.show',
+            'editRoute' => null,
+            'deleteRoute' => null,
+            'assessmentsRoute' => 'teacher.classes.assessments',
+            'subjectShowRoute' => null,
+            'studentShowRoute' => 'teacher.classes.students.show',
+            'studentIndexRoute' => 'teacher.classes.students.index',
+            'studentAssignmentsRoute' => 'teacher.classes.students.assignments',
+            'assessmentShowRoute' => 'teacher.classes.assessments.show',
+            'assessmentGradeRoute' => 'teacher.assessments.grade',
+            'assessmentReviewRoute' => 'teacher.assessments.review',
+            'assessmentSaveGradeRoute' => 'teacher.assessments.saveGrade',
+            'resultsRoute' => 'teacher.classes.results',
+        ];
+    }
+
+    /**
      * Display all classes where the teacher is assigned.
      */
     public function index(Request $request): Response
@@ -42,23 +66,7 @@ class TeacherClassController extends Controller
             'classes' => $paginatedClasses->withQueryString(),
             'filters' => $filters,
             'levels' => $levels,
-            'routeContext' => [
-                'role' => 'teacher',
-                'indexRoute' => 'teacher.classes.index',
-                'showRoute' => 'teacher.classes.show',
-                'editRoute' => null,
-                'deleteRoute' => null,
-                'assessmentsRoute' => 'teacher.classes.assessments',
-                'subjectShowRoute' => null,
-                'studentShowRoute' => 'teacher.classes.students.show',
-                'studentIndexRoute' => 'teacher.classes.students.index',
-                'studentAssignmentsRoute' => 'teacher.classes.students.assignments',
-                'assessmentShowRoute' => 'teacher.classes.assessments.show',
-                'assessmentGradeRoute' => 'teacher.assessments.grade',
-                'assessmentReviewRoute' => 'teacher.assessments.review',
-                'assessmentSaveGradeRoute' => 'teacher.assessments.saveGrade',
-                'resultsRoute' => 'teacher.classes.results',
-            ],
+            'routeContext' => $this->buildRouteContext(),
         ]);
     }
 
@@ -112,23 +120,7 @@ class TeacherClassController extends Controller
             'assessments' => $assessments,
             'students' => $students,
             'filters' => $filters,
-            'routeContext' => [
-                'role' => 'teacher',
-                'indexRoute' => 'teacher.classes.index',
-                'showRoute' => 'teacher.classes.show',
-                'editRoute' => null,
-                'deleteRoute' => null,
-                'assessmentsRoute' => 'teacher.classes.assessments',
-                'subjectShowRoute' => null,
-                'studentShowRoute' => 'teacher.classes.students.show',
-                'studentIndexRoute' => 'teacher.classes.students.index',
-                'studentAssignmentsRoute' => 'teacher.classes.students.assignments',
-                'assessmentShowRoute' => 'teacher.classes.assessments.show',
-                'assessmentGradeRoute' => 'teacher.assessments.grade',
-                'assessmentReviewRoute' => 'teacher.assessments.review',
-                'assessmentSaveGradeRoute' => 'teacher.assessments.saveGrade',
-                'resultsRoute' => 'teacher.classes.results',
-            ],
+            'routeContext' => $this->buildRouteContext(),
         ]);
     }
 }

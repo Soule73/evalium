@@ -320,4 +320,27 @@ class UserPolicyTest extends TestCase
 
         $this->assertTrue($this->policy->forceDelete($teacher, $student));
     }
+
+    /**
+     * @test
+     */
+    public function super_admin_can_manage_admins(): void
+    {
+        $superAdmin = User::factory()->create();
+        $superAdmin->assignRole('super_admin');
+
+        $this->assertTrue($this->policy->manageAdmins($superAdmin));
+    }
+
+    /**
+     * @test
+     */
+    public function admin_with_update_permission_cannot_manage_admins(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $admin->givePermissionTo('update users');
+
+        $this->assertFalse($this->policy->manageAdmins($admin));
+    }
 }

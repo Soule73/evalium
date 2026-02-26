@@ -6,6 +6,7 @@ use App\Contracts\Repositories\ClassRepositoryInterface;
 use App\Contracts\Repositories\EnrollmentRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\HandlesIndexRequests;
+use App\Http\Traits\HasTeacherClassRouteContext;
 use App\Models\ClassModel;
 use App\Models\Enrollment;
 use App\Services\Core\GradeCalculationService;
@@ -21,7 +22,7 @@ use Inertia\Response;
  */
 class TeacherClassStudentController extends Controller
 {
-    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests;
+    use AuthorizesRequests, FiltersAcademicYear, HandlesIndexRequests, HasTeacherClassRouteContext;
 
     public function __construct(
         private readonly GradeCalculationService $gradeCalculationService,
@@ -34,22 +35,7 @@ class TeacherClassStudentController extends Controller
      */
     private function buildRouteContext(): array
     {
-        return [
-            'role' => 'teacher',
-            'indexRoute' => 'teacher.classes.index',
-            'showRoute' => 'teacher.classes.show',
-            'editRoute' => null,
-            'deleteRoute' => null,
-            'assessmentsRoute' => 'teacher.classes.assessments',
-            'subjectShowRoute' => null,
-            'studentShowRoute' => 'teacher.classes.students.show',
-            'studentIndexRoute' => 'teacher.classes.students.index',
-            'studentAssignmentsRoute' => 'teacher.classes.students.assignments',
-            'assessmentShowRoute' => 'teacher.classes.assessments.show',
-            'assessmentGradeRoute' => 'teacher.assessments.grade',
-            'assessmentReviewRoute' => 'teacher.assessments.review',
-            'assessmentSaveGradeRoute' => 'teacher.assessments.saveGrade',
-        ];
+        return $this->buildTeacherClassRouteContext();
     }
 
     /**
