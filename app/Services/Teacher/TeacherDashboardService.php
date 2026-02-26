@@ -22,15 +22,15 @@ class TeacherDashboardService
      * Get active class-subject assignments for a teacher.
      *
      * @param  int  $teacherId  The teacher ID
-     * @param  int  $academicYearId  The academic year ID
+     * @param  int|null  $academicYearId  The academic year ID
      * @param  string|null  $search  Optional search query
      * @param  int  $perPage  Items per page
      * @return LengthAwarePaginator Paginated active assignments
      */
-    public function getActiveAssignments(int $teacherId, int $academicYearId, ?string $search = null, int $perPage = 3): LengthAwarePaginator
+    public function getActiveAssignments(int $teacherId, ?int $academicYearId, ?string $search = null, int $perPage = 3): LengthAwarePaginator
     {
         $query = ClassSubject::where('teacher_id', $teacherId)
-            ->forAcademicYear($academicYearId)
+            ->when($academicYearId, fn ($q) => $q->forAcademicYear($academicYearId))
             ->active()
             ->with(['class.level', 'subject']);
 
@@ -48,15 +48,15 @@ class TeacherDashboardService
      * Get the most recent assessments for a teacher.
      *
      * @param  int  $teacherId  The teacher ID
-     * @param  int  $academicYearId  The academic year ID
+     * @param  int|null  $academicYearId  The academic year ID
      * @param  string|null  $search  Optional search query
      * @param  int  $limit  Maximum number of assessments to return
      * @return LengthAwarePaginator Paginated recent assessments
      */
-    public function getRecentAssessments(int $teacherId, int $academicYearId, ?string $search = null, int $limit = 3): LengthAwarePaginator
+    public function getRecentAssessments(int $teacherId, ?int $academicYearId, ?string $search = null, int $limit = 3): LengthAwarePaginator
     {
         $query = Assessment::whereHas('classSubject', fn ($q) => $q->where('teacher_id', $teacherId))
-            ->forAcademicYear($academicYearId)
+            ->when($academicYearId, fn ($q) => $q->forAcademicYear($academicYearId))
             ->with(['classSubject'])
             ->orderBy('scheduled_at', 'desc');
 
@@ -71,15 +71,15 @@ class TeacherDashboardService
      * Get dashboard statistics for a teacher.
      *
      * @param  int  $teacherId  The teacher ID
-     * @param  int  $academicYearId  The academic year ID
+     * @param  int|null  $academicYearId  The academic year ID
      * @return array{total_classes: int, total_subjects: int, total_assessments: int, in_progress_assessments: int} Statistics
      */
-    public function getDashboardStats(int $teacherId, int $academicYearId): array
+    public function getDashboardStats(int $teacherId, ?int $academicYearId): array
     {
         $stats = DB::table('class_subjects')
             ->join('classes', 'class_subjects.class_id', '=', 'classes.id')
             ->where('class_subjects.teacher_id', $teacherId)
-            ->where('classes.academic_year_id', $academicYearId)
+            ->when($academicYearId, fn ($q) => $q->where('classes.academic_year_id', $academicYearId))
             ->whereNull('class_subjects.valid_to')
             ->selectRaw('
                 COUNT(DISTINCT class_subjects.class_id) as total_classes,
@@ -89,12 +89,12 @@ class TeacherDashboardService
 
         $totalAssessmentsCount = Assessment::whereHas('classSubject', function ($query) use ($teacherId, $academicYearId) {
             $query->where('teacher_id', $teacherId)
-                ->whereHas('class', fn ($q) => $q->where('academic_year_id', $academicYearId));
+                ->when($academicYearId, fn ($q) => $q->whereHas('class', fn ($c) => $c->where('academic_year_id', $academicYearId)));
         })->count();
 
         $inProgressCount = Assessment::whereHas('classSubject', function ($query) use ($teacherId, $academicYearId) {
             $query->where('teacher_id', $teacherId)
-                ->whereHas('class', fn ($q) => $q->where('academic_year_id', $academicYearId));
+                ->when($academicYearId, fn ($q) => $q->whereHas('class', fn ($c) => $c->where('academic_year_id', $academicYearId)));
         })->whereHas('assignments', fn ($q) => $q->inProgress())->count();
 
         return [

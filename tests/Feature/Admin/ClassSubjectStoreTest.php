@@ -188,4 +188,21 @@ class ClassSubjectStoreTest extends TestCase
 
         $response->assertSessionHasErrors('teacher_id');
     }
+
+    public function test_admin_cannot_create_duplicate_active_assignment(): void
+    {
+        $this->actingAs($this->admin)->post(
+            route('admin.class-subjects.store'),
+            $this->validPayload(),
+        );
+
+        $response = $this->actingAs($this->admin)->post(
+            route('admin.class-subjects.store'),
+            $this->validPayload(),
+        );
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+        $this->assertDatabaseCount('class_subjects', 1);
+    }
 }

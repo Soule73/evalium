@@ -31,4 +31,9 @@ interface ClassSubjectRepositoryInterface
      * Get paginated teaching history for a class-subject pair.
      */
     public function getPaginatedHistory(int $classId, int $subjectId, int $perPage = 10, ?int $excludeId = null): LengthAwarePaginator;
+
+    /**
+     * Get full teaching history for a class-subject pair as a collection.
+     */
+    public function getHistory(int $classId, int $subjectId): \Illuminate\Support\Collection;
 }

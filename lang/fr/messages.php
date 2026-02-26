@@ -122,6 +122,8 @@ return [
     'class_subject_has_assessments' => 'Impossible de supprimer : cette assignation a des évaluations',
     'class_subject_invalid_coefficient' => 'Le coefficient doit être supérieur à 0',
     'class_subject_level_mismatch' => 'Le niveau de la matière doit correspondre au niveau de la classe',
+    'class_subject_already_active' => 'Une assignation active existe déjà pour cette classe et cette matière',
+    'class_subject_already_terminated' => 'Cette assignation a déjà été terminée',
     'class_and_subject_required' => 'La classe et la matière sont requises',
     'teacher_replaced' => 'Enseignant remplacé avec succès',
     'teacher_has_active_assignments' => 'Cet enseignant est affecté à des classes dans l\'année académique courante et ne peut pas être modifié.',

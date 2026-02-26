@@ -100,4 +100,16 @@ class ClassSubjectRepository implements ClassSubjectRepositoryInterface
             ->paginate($perPage, ['*'], 'history_page')
             ->withQueryString();
     }
+
+    /**
+     * Get full teaching history for a class-subject pair as a collection.
+     */
+    public function getHistory(int $classId, int $subjectId): \Illuminate\Support\Collection
+    {
+        return ClassSubject::where('class_id', $classId)
+            ->where('subject_id', $subjectId)
+            ->with(['teacher', 'semester'])
+            ->orderBy('valid_from')
+            ->get();
+    }
 }

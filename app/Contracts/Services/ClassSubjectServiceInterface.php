@@ -39,11 +39,6 @@ interface ClassSubjectServiceInterface
     public function terminateAssignment(ClassSubject $classSubject, ?Carbon $endDate = null): ClassSubject;
 
     /**
-     * Get all class subjects for an academic year.
-     */
-    public function getClassSubjectsForAcademicYear(int $academicYearId, bool $activeOnly = true): Collection;
-
-    /**
      * Delete class subject, throwing if assessments are linked.
      */
     public function deleteClassSubject(ClassSubject $classSubject): void;

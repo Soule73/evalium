@@ -167,6 +167,20 @@ class ClassSubjectControllerTest extends TestCase
         $response->assertSessionHasErrors('effective_date');
     }
 
+    public function test_admin_cannot_replace_teacher_on_terminated_assignment(): void
+    {
+        $this->classSubject->update(['valid_to' => now()->subDay()->toDateString()]);
+        $newTeacher = $this->createTeacher();
+
+        $response = $this->actingAs($this->admin)->post(
+            route('admin.class-subjects.replace-teacher', $this->classSubject),
+            ['new_teacher_id' => $newTeacher->id, 'effective_date' => now()->toDateString()]
+        );
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+    }
+
     // ---------------------------------------------------------------
     // Update Coefficient
     // ---------------------------------------------------------------

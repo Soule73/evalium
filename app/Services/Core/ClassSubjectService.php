@@ -2,6 +2,7 @@
 
 namespace App\Services\Core;
 
+use App\Contracts\Repositories\ClassSubjectRepositoryInterface;
 use App\Contracts\Services\ClassSubjectServiceInterface;
 use App\Exceptions\ClassSubjectException;
 use App\Models\ClassModel;
@@ -20,6 +21,10 @@ use Illuminate\Support\Facades\DB;
  */
 class ClassSubjectService implements ClassSubjectServiceInterface
 {
+    public function __construct(
+        private readonly ClassSubjectRepositoryInterface $classSubjectRepository
+    ) {}
+
     /**
      * Get form data for creation of a class-subject assignment.
      */
@@ -68,6 +73,10 @@ class ClassSubjectService implements ClassSubjectServiceInterface
         int $newTeacherId,
         ?Carbon $effectiveDate = null
     ): ClassSubject {
+        if ($classSubject->valid_to !== null) {
+            throw ClassSubjectException::alreadyTerminated();
+        }
+
         $effectiveDate = $effectiveDate ?? now();
 
         return DB::transaction(function () use ($classSubject, $newTeacherId, $effectiveDate) {
@@ -90,11 +99,7 @@ class ClassSubjectService implements ClassSubjectServiceInterface
      */
     public function getTeachingHistory(int $classId, int $subjectId): Collection
     {
-        return ClassSubject::where('class_id', $classId)
-            ->where('subject_id', $subjectId)
-            ->with(['teacher', 'semester'])
-            ->orderBy('valid_from')
-            ->get();
+        return $this->classSubjectRepository->getHistory($classId, $subjectId);
     }
 
     /**
@@ -124,26 +129,17 @@ class ClassSubjectService implements ClassSubjectServiceInterface
     }
 
     /**
-     * Get all class-subjects for an academic year
-     */
-    public function getClassSubjectsForAcademicYear(int $academicYearId, bool $activeOnly = true): Collection
-    {
-        $query = ClassSubject::whereHas('class', function ($q) use ($academicYearId) {
-            $q->where('academic_year_id', $academicYearId);
-        })->with(['class', 'subject', 'teacher', 'semester']);
-
-        if ($activeOnly) {
-            $query->active();
-        }
-
-        return $query->get();
-    }
-
-    /**
      * Validate assignment data
      */
     private function validateAssignment(array $data): void
     {
+        if (ClassSubject::where('class_id', $data['class_id'])
+            ->where('subject_id', $data['subject_id'])
+            ->whereNull('valid_to')
+            ->exists()) {
+            throw ClassSubjectException::alreadyActive();
+        }
+
         $class = ClassModel::find($data['class_id']);
         $subject = Subject::find($data['subject_id']);
 

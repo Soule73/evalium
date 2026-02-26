@@ -123,6 +123,8 @@ return [
     'class_subject_has_assessments' => 'Cannot delete: this assignment has assessments',
     'class_subject_invalid_coefficient' => 'The coefficient must be greater than 0',
     'class_subject_level_mismatch' => 'The subject level must match the class level',
+    'class_subject_already_active' => 'An active assignment already exists for this class and subject',
+    'class_subject_already_terminated' => 'This assignment has already been terminated',
     'class_and_subject_required' => 'Class and subject are required',
     'teacher_replaced' => 'Teacher replaced successfully',
     'teacher_has_active_assignments' => 'This teacher is assigned to classes in the current academic year and cannot be modified.',
