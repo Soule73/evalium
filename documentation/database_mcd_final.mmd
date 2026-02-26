@@ -6,7 +6,7 @@ erDiagram
 
     %% ============================================================
     %% Evalium - Final Database Schema (MCD)
-    %% Generated from consolidated migrations - 2026-02-15
+    %% Generated from consolidated migrations - 2026-02-26
     %% ============================================================
 
     %% ========================
@@ -138,7 +138,7 @@ erDiagram
         bigint id PK
         bigint class_id FK
         bigint subject_id FK
-        bigint teacher_id FK
+        bigint teacher_id FK "nullable"
         bigint semester_id FK "nullable"
         decimal coefficient "CHECK: > 0"
         date valid_from
@@ -157,16 +157,14 @@ erDiagram
         bigint teacher_id FK
         varchar title
         text description "nullable"
-        enum type "devoir|examen|tp|controle|projet"
+        enum type "homework|exam|practical|quiz|project"
         enum delivery_mode "supervised|homework, default: supervised"
         decimal coefficient "CHECK: > 0"
         integer duration_minutes "nullable, CHECK: > 0"
         timestamp scheduled_at "nullable"
         timestamp due_date "nullable"
-        int max_file_size "unsigned, nullable"
-        varchar allowed_extensions "nullable"
-        int max_files "unsigned, default: 0"
-        json settings "nullable (is_published, shuffle_questions, etc.)"
+        boolean is_published "default: false"
+        json settings "nullable"
         timestamp deleted_at "nullable, softDeletes"
         timestamp created_at
         timestamp updated_at
@@ -179,7 +177,6 @@ erDiagram
         timestamp started_at "nullable"
         timestamp submitted_at "nullable"
         timestamp graded_at "nullable"
-        decimal score "nullable, CHECK: 0..20"
         text teacher_notes "nullable"
         boolean forced_submission "default: false"
         varchar security_violation "nullable"
@@ -191,7 +188,7 @@ erDiagram
         bigint id PK
         bigint assessment_id FK
         text content
-        enum type "text|multiple|one_choice|boolean, default: text"
+        enum type "text|multiple|one_choice|boolean|file, default: text"
         integer points "default: 1"
         integer order_index "default: 1"
         timestamp created_at
@@ -214,20 +211,23 @@ erDiagram
         bigint question_id FK
         bigint choice_id FK "nullable"
         text answer_text "nullable"
+        varchar file_name "nullable"
+        varchar file_path "nullable"
+        int file_size "unsigned, nullable"
+        varchar mime_type "nullable"
         float score "nullable"
         text feedback "nullable"
         timestamp created_at
         timestamp updated_at
     }
 
-    assignment_attachments {
-        bigint id PK
-        bigint assessment_assignment_id FK
-        varchar file_name
-        varchar file_path
-        int file_size "unsigned"
-        varchar mime_type
-        timestamp uploaded_at
+    notifications {
+        uuid id PK
+        varchar type
+        varchar notifiable_type
+        bigint notifiable_id
+        text data
+        timestamp read_at "nullable"
         timestamp created_at
         timestamp updated_at
     }
@@ -275,5 +275,5 @@ erDiagram
     questions ||--o{ answers : "answered by"
     choices ||--o{ answers : "selected in"
 
-    %% Attachments
-    assessment_assignments ||--o{ assignment_attachments : "has files"
+    %% Notifications
+    users ||--o{ notifications : "receives"
