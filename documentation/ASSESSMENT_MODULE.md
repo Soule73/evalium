@@ -292,21 +292,3 @@ The `buildRouteContext()` method on each controller provides the correct route n
 ## Notifications
 
 `AssessmentPublishedNotification` — sent via `Notification::send()` to all active students in the class when an assessment is published. Implements Laravel's `ShouldQueue` for non-blocking delivery.
-
----
-
-## Bugs Fixed (this session)
-
-| # | Severity | Description | Fix |
-|---|----------|-------------|-----|
-| 1 | High | `TeacherAssessmentRepositoryInterface` — `int $selectedYearId` but callers pass `?int` → TypeError | Changed to `?int`, added `->when()` guards in all 3 methods + cascade to `TeacherClassRepository` |
-| 2 | High | `StudentAssessmentController::show()` used `getOrCreateAssignment()` → phantom DB rows on browse | Added `findAssignment()` to service; `show()` uses it (nullable, read-only) |
-| 3 | High | Status filter applied post-pagination → wrong `total` in paginator metadata | Moved filter pre-pagination using `whereHas`/`whereDoesntHave` SQL |
-| 4 | Medium | `AdminAssessmentController::index()` ran 3 Eloquent queries directly (SRP violation) | Added `getFilterData()` to `AdminAssessmentRepository` and its interface |
-| 5 | Medium | `TeacherClassAssessmentController::index()` ran `ClassSubject::query()` directly (SRP) | Added `getSubjectFilterDataForClass()` to `TeacherClassRepository` and its interface |
-| 6 | Medium | `loadAssessmentDetails()` eagerly loaded all assignments unnecessarily (N+1 waste) | Removed `'assignments.enrollment.student'` from eager load |
-| 7 | Medium | `isDueDatePassed()` accessed `$assessment->settings['allow_late_submission']` directly | Replaced with `$assessment->allow_late_submission` model accessor |
-| 8 | Low | `publishAssessment()` compared `$e->status->value === 'active'` (fragile string) | Changed to `$e->status === EnrollmentStatus::Active` |
-| 9 | Low | `AssessmentPolicy` missing class-level PHPDoc | Added PHPDoc block |
-
-**Tests**: 847/847 passing after fixes + test updates for BUG-02 behavioral change.

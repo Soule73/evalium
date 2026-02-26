@@ -235,27 +235,6 @@ Student views results
 
 ---
 
-## Audit Findings (2025)
-
-### Fixed
-
-| # | Severity | File | Issue | Fix |
-|---|----------|------|-------|-----|
-| B1 | Critical | `StudentAssessmentService` | `getStudentAssessmentsForIndex()` missing `->where('is_published', true)` — draft assessments visible to students | Added `->where('is_published', true)` |
-| B2 | High | `StudentAssessmentService` | `saveAnswers()` had no `DB::transaction()` — partial writes on failure | Wrapped in `DB::transaction()` |
-| B3 | High | `StudentAssessmentService` | `is_numeric($value)` treated numeric strings like `"2024"` as choice IDs | Changed to `is_int($value)` |
-| B4 | Medium | `StudentAssessmentController` | `results()` had redundant `unset($answer['choice']['is_correct'])` loop after `makeHidden()` had already hidden the field | Removed redundant loop |
-
-### Documented — Not Fixed
-
-| # | Severity | Issue |
-|---|----------|-------|
-| B5 | Medium/DRY | `canStudentAccessAssessment()` in service duplicates `AssessmentPolicy::view()` student branch — both run the same enrollment SQL |
-| B6 | Low/DRY | `findAssignment()` and `resolveEnrollment()` are near-identical private methods in `StudentAssessmentService` |
-| B7 | Low | `StudentEnrollmentRepository::getSubjectsWithStatsForEnrollment()` is defined in interface and implemented but never called by any controller |
-
----
-
 ## Tests
 
 | File | Coverage |
