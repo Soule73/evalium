@@ -2,6 +2,7 @@
 
 namespace App\Contracts\Repositories;
 
+use App\Models\AcademicYear;
 use App\Models\Enrollment;
 
 interface EnrollmentRepositoryInterface
@@ -20,4 +21,9 @@ interface EnrollmentRepositoryInterface
      * Get class subjects available for an enrollment.
      */
     public function getClassSubjectsForEnrollment(Enrollment $enrollment): array;
+
+    /**
+     * Resolve the academic year that precedes the given year ID (or the current year).
+     */
+    public function resolvePreviousAcademicYear(?int $selectedYearId): ?AcademicYear;
 }

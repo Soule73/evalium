@@ -7,6 +7,7 @@ use App\Contracts\Repositories\ClassRepositoryInterface;
 use App\Contracts\Repositories\ClassSubjectRepositoryInterface;
 use App\Contracts\Repositories\EnrollmentRepositoryInterface;
 use App\Contracts\Repositories\LevelRepositoryInterface;
+use App\Contracts\Repositories\StudentEnrollmentRepositoryInterface;
 use App\Contracts\Repositories\SubjectRepositoryInterface;
 use App\Contracts\Repositories\TeacherAssessmentRepositoryInterface;
 use App\Contracts\Repositories\TeacherClassRepositoryInterface;
@@ -24,6 +25,7 @@ use App\Repositories\Admin\EnrollmentRepository;
 use App\Repositories\Admin\LevelRepository;
 use App\Repositories\Admin\SubjectRepository;
 use App\Repositories\Admin\UserRepository;
+use App\Repositories\Student\StudentEnrollmentRepository;
 use App\Repositories\Teacher\TeacherAssessmentRepository;
 use App\Repositories\Teacher\TeacherClassRepository;
 use App\Services\Admin\AdminDashboardService;
@@ -69,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(ClassRepositoryInterface::class, ClassRepository::class);
         $this->app->bind(EnrollmentRepositoryInterface::class, EnrollmentRepository::class);
+        $this->app->bind(StudentEnrollmentRepositoryInterface::class, StudentEnrollmentRepository::class);
         $this->app->bind(SubjectRepositoryInterface::class, SubjectRepository::class);
         $this->app->bind(LevelRepositoryInterface::class, LevelRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);

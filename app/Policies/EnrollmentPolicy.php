@@ -5,6 +5,12 @@ namespace App\Policies;
 use App\Models\Enrollment;
 use App\Models\User;
 
+/**
+ * Defines authorization rules for the Enrollment resource.
+ *
+ * Covers view, create, update, delete and transfer permissions
+ * for admin and related roles.
+ */
 class EnrollmentPolicy
 {
     public function viewAny(User $user): bool

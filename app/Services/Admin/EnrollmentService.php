@@ -32,12 +32,10 @@ class EnrollmentService implements EnrollmentServiceInterface
             throw EnrollmentException::classFull();
         }
 
-        return Enrollment::create([
-            'class_id' => $class->id,
-            'student_id' => $student->id,
-            'enrolled_at' => now(),
-            'status' => 'active',
-        ]);
+        return Enrollment::updateOrCreate(
+            ['class_id' => $class->id, 'student_id' => $student->id],
+            ['enrolled_at' => now(), 'status' => EnrollmentStatus::Active, 'withdrawn_at' => null]
+        );
     }
 
     /**
@@ -66,16 +64,14 @@ class EnrollmentService implements EnrollmentServiceInterface
 
         return DB::transaction(function () use ($enrollment, $newClass) {
             $enrollment->update([
-                'status' => 'withdrawn',
+                'status' => EnrollmentStatus::Withdrawn,
                 'withdrawn_at' => now(),
             ]);
 
-            return Enrollment::create([
-                'class_id' => $newClass->id,
-                'student_id' => $enrollment->student_id,
-                'enrolled_at' => now(),
-                'status' => 'active',
-            ]);
+            return Enrollment::updateOrCreate(
+                ['class_id' => $newClass->id, 'student_id' => $enrollment->student_id],
+                ['enrolled_at' => now(), 'status' => EnrollmentStatus::Active, 'withdrawn_at' => null]
+            );
         });
     }
 
@@ -85,7 +81,7 @@ class EnrollmentService implements EnrollmentServiceInterface
     public function withdrawStudent(Enrollment $enrollment): Enrollment
     {
         $enrollment->update([
-            'status' => 'withdrawn',
+            'status' => EnrollmentStatus::Withdrawn,
             'withdrawn_at' => now(),
         ]);
 
@@ -106,7 +102,7 @@ class EnrollmentService implements EnrollmentServiceInterface
         }
 
         $enrollment->update([
-            'status' => 'active',
+            'status' => EnrollmentStatus::Active,
             'withdrawn_at' => null,
         ]);
 

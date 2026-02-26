@@ -3,6 +3,8 @@
 namespace App\Repositories\Admin;
 
 use App\Contracts\Repositories\EnrollmentRepositoryInterface;
+use App\Enums\EnrollmentStatus;
+use App\Models\AcademicYear;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
 use App\Models\Enrollment;
@@ -24,7 +26,7 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
     public function getEnrollmentsForIndex(?int $academicYearId, array $filters, int $perPage = 15): array
     {
         $query = Enrollment::query()
-            ->forAcademicYear($academicYearId)
+            ->when($academicYearId, fn ($q) => $q->forAcademicYear($academicYearId))
             ->with(['student', 'class.level'])
             ->when($filters['search'] ?? null, function ($query, $search) {
                 return $query->whereHas('student', function ($q) use ($search) {
@@ -38,7 +40,8 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
 
         $enrollments = $this->paginateQuery($query, $perPage);
 
-        $classes = ClassModel::forAcademicYear($academicYearId)
+        $classes = ClassModel::query()
+            ->when($academicYearId, fn ($q) => $q->forAcademicYear($academicYearId))
             ->orderBy('name')
             ->get();
 
@@ -56,10 +59,11 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
     {
         $enrollment->load(['student', 'class.academicYear', 'class.level']);
 
-        $classes = ClassModel::forAcademicYear($academicYearId)
+        $classes = ClassModel::query()
+            ->when($academicYearId, fn ($q) => $q->forAcademicYear($academicYearId))
             ->with(['level', 'academicYear'])
             ->withCount([
-                'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
+                'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', EnrollmentStatus::Active),
             ])
             ->orderBy('name')
             ->get();
@@ -87,5 +91,23 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
                 'teacher_name' => $cs->teacher?->name ?? '-',
             ])
             ->all();
+    }
+
+    /**
+     * Resolve the academic year that precedes the given year.
+     */
+    public function resolvePreviousAcademicYear(?int $selectedYearId): ?AcademicYear
+    {
+        $referenceYear = $selectedYearId
+            ? AcademicYear::find($selectedYearId)
+            : AcademicYear::where('is_current', true)->first();
+
+        if (! $referenceYear) {
+            return null;
+        }
+
+        return AcademicYear::where('end_date', '<', $referenceYear->start_date)
+            ->orderByDesc('end_date')
+            ->first();
     }
 }

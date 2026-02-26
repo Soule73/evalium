@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Student;
 
+use App\Contracts\Repositories\StudentEnrollmentRepositoryInterface;
+use App\Enums\EnrollmentStatus;
 use App\Models\ClassSubject;
 use App\Models\Enrollment;
 use App\Models\User;
@@ -14,7 +16,7 @@ use Illuminate\Support\Collection;
  * Handles all read operations for student enrollments.
  * Single Responsibility: Query student enrollment data only.
  */
-class StudentEnrollmentRepository
+class StudentEnrollmentRepository implements StudentEnrollmentRepositoryInterface
 {
     /**
      * Get all subjects with stats for a student's enrollment (non-paginated).
@@ -117,10 +119,10 @@ class StudentEnrollmentRepository
      * @param  int  $academicYearId  Academic year ID
      * @return Collection Collection of enrollments
      */
-    public function getEnrollmentHistory(User $student, int $academicYearId): Collection
+    public function getEnrollmentHistory(User $student, ?int $academicYearId): Collection
     {
         return Enrollment::where('student_id', $student->id)
-            ->forAcademicYear($academicYearId)
+            ->when($academicYearId, fn ($q) => $q->forAcademicYear($academicYearId))
             ->with([
                 'class.academicYear',
                 'class.level',
@@ -140,7 +142,7 @@ class StudentEnrollmentRepository
     {
         return Enrollment::where('class_id', $enrollment->class_id)
             ->where('student_id', '!=', $student->id)
-            ->where('status', 'active')
+            ->where('status', EnrollmentStatus::Active)
             ->with('student:id,name,email')
             ->get()
             ->pluck('student');

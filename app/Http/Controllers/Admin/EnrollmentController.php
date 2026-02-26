@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Contracts\Repositories\EnrollmentRepositoryInterface;
 use App\Contracts\Services\EnrollmentServiceInterface;
 use App\Contracts\Services\UserManagementServiceInterface;
+use App\Enums\EnrollmentStatus;
 use App\Exceptions\EnrollmentException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkStoreEnrollmentRequest;
@@ -12,7 +13,6 @@ use App\Http\Requests\Admin\StoreEnrollmentRequest;
 use App\Http\Requests\Admin\StoreEnrollmentStudentRequest;
 use App\Http\Requests\Admin\TransferStudentRequest;
 use App\Http\Traits\HandlesIndexRequests;
-use App\Models\AcademicYear;
 use App\Models\ClassModel;
 use App\Models\Enrollment;
 use App\Models\User;
@@ -160,7 +160,7 @@ class EnrollmentController extends Controller
 
                     if ($sendCredentials) {
                         $enrollment->student->notify(
-                            new \App\Notifications\UserCredentialsNotification($password, 'student')
+                            new UserCredentialsNotification($password, 'student')
                         );
                     }
                 }
@@ -203,7 +203,7 @@ class EnrollmentController extends Controller
         $selectedYearId = $this->getSelectedAcademicYearId($request);
         $perPage = min($request->integer('per_page', 15), 100);
 
-        $previousYear = $this->resolvePreviousAcademicYear($selectedYearId);
+        $previousYear = $this->enrollmentQueryService->resolvePreviousAcademicYear($selectedYearId);
 
         $students = User::role('student')
             ->select(['id', 'name', 'email', 'avatar'])
@@ -247,24 +247,6 @@ class EnrollmentController extends Controller
     }
 
     /**
-     * Resolve the academic year that precedes the given year.
-     */
-    private function resolvePreviousAcademicYear(?int $selectedYearId): ?AcademicYear
-    {
-        $referenceYear = $selectedYearId
-            ? AcademicYear::find($selectedYearId)
-            : AcademicYear::where('is_current', true)->first();
-
-        if (! $referenceYear) {
-            return null;
-        }
-
-        return AcademicYear::where('end_date', '<', $referenceYear->start_date)
-            ->orderByDesc('end_date')
-            ->first();
-    }
-
-    /**
      * Search classes available for enrollment.
      */
     public function searchClasses(Request $request): JsonResponse
@@ -275,10 +257,11 @@ class EnrollmentController extends Controller
         $selectedYearId = $this->getSelectedAcademicYearId($request);
         $perPage = min($request->integer('per_page', 15), 100);
 
-        $classes = ClassModel::forAcademicYear($selectedYearId)
+        $classes = ClassModel::query()
+            ->when($selectedYearId, fn ($q) => $q->forAcademicYear($selectedYearId))
             ->with(['level:id,name,description', 'academicYear:id,name'])
             ->withCount([
-                'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
+                'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', EnrollmentStatus::Active),
             ])
             ->when($query, fn ($q) => $q->where('name', 'like', "%{$query}%"))
             ->orderBy('name')
