@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\ClassSubject;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreClassSubjectRequest extends FormRequest
@@ -11,7 +12,7 @@ class StoreClassSubjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create', ClassSubject::class);
     }
 
     /**

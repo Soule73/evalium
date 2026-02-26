@@ -7,6 +7,8 @@ use App\Contracts\Services\ClassSubjectServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ReplaceTeacherRequest;
 use App\Http\Requests\Admin\StoreClassSubjectRequest;
+use App\Http\Requests\Admin\TerminateAssignmentRequest;
+use App\Http\Requests\Admin\UpdateCoefficientRequest;
 use App\Models\ClassSubject;
 use App\Traits\FiltersAcademicYear;
 use Carbon\Carbon;
@@ -128,13 +130,9 @@ class ClassSubjectController extends Controller
     /**
      * Update the coefficient for a class subject.
      */
-    public function updateCoefficient(Request $request, ClassSubject $classSubject): RedirectResponse
+    public function updateCoefficient(UpdateCoefficientRequest $request, ClassSubject $classSubject): RedirectResponse
     {
         $this->authorize('update', $classSubject);
-
-        $request->validate([
-            'coefficient' => ['required', 'numeric', 'min:0.01'],
-        ]);
 
         $this->classSubjectService->updateCoefficient($classSubject, $request->input('coefficient'));
 
@@ -144,13 +142,9 @@ class ClassSubjectController extends Controller
     /**
      * Terminate a class subject assignment.
      */
-    public function terminate(Request $request, ClassSubject $classSubject): RedirectResponse
+    public function terminate(TerminateAssignmentRequest $request, ClassSubject $classSubject): RedirectResponse
     {
         $this->authorize('update', $classSubject);
-
-        $request->validate([
-            'end_date' => ['required', 'date'],
-        ]);
 
         $this->classSubjectService->terminateAssignment($classSubject, Carbon::parse($request->input('end_date')));
 

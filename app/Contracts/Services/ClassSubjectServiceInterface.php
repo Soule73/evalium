@@ -11,7 +11,7 @@ interface ClassSubjectServiceInterface
     /**
      * Get data required for the create class-subject form.
      */
-    public function getFormDataForCreate(int $selectedYearId): array;
+    public function getFormDataForCreate(?int $selectedYearId): array;
 
     /**
      * Assign a teacher to a class subject.

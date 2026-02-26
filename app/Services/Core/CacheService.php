@@ -16,8 +16,6 @@ class CacheService
 
     public const KEY_LEVELS_ALL = 'levels:all';
 
-    public const KEY_SUBJECTS_ALL = 'subjects:all';
-
     public const KEY_ACADEMIC_YEARS_RECENT = 'academic_years:recent';
 
     public const KEY_ACADEMIC_YEAR_CURRENT = 'academic_year:current';
@@ -145,14 +143,6 @@ class CacheService
     public function invalidateLevelsCaches(): void
     {
         $this->forget(self::KEY_LEVELS_ALL);
-    }
-
-    /**
-     * Invalidate all subjects caches
-     */
-    public function invalidateSubjectsCaches(): void
-    {
-        $this->forget(self::KEY_SUBJECTS_ALL);
     }
 
     /**

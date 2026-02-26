@@ -15,13 +15,13 @@ class ClassSubjectRepository implements ClassSubjectRepositoryInterface
      * Get class subjects with filters and pagination.
      */
     public function getClassSubjectsForIndex(
-        int $selectedYearId,
+        ?int $selectedYearId,
         array $filters,
         bool $activeOnly,
         int $perPage
     ): LengthAwarePaginator {
         return ClassSubject::query()
-            ->forAcademicYear($selectedYearId)
+            ->when($selectedYearId, fn ($query) => $query->forAcademicYear($selectedYearId))
             ->with(['class.level', 'subject', 'teacher', 'semester'])
             ->withCount('assessments')
             ->when(

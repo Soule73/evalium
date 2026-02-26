@@ -10,7 +10,7 @@ interface ClassSubjectRepositoryInterface
     /**
      * Get paginated class subjects for the index page.
      */
-    public function getClassSubjectsForIndex(int $selectedYearId, array $filters, bool $activeOnly, int $perPage): LengthAwarePaginator;
+    public function getClassSubjectsForIndex(?int $selectedYearId, array $filters, bool $activeOnly, int $perPage): LengthAwarePaginator;
 
     /**
      * Load detailed relationships for a class subject.

@@ -23,16 +23,18 @@ class ClassSubjectService implements ClassSubjectServiceInterface
     /**
      * Get form data for creation of a class-subject assignment.
      */
-    public function getFormDataForCreate(int $selectedYearId): array
+    public function getFormDataForCreate(?int $selectedYearId): array
     {
         return [
-            'classes' => ClassModel::forAcademicYear($selectedYearId)
+            'classes' => ClassModel::query()
+                ->when($selectedYearId, fn ($q) => $q->forAcademicYear($selectedYearId))
                 ->with('level:id,name,description')
                 ->orderBy('name')
                 ->get(['id', 'name', 'level_id', 'academic_year_id']),
             'subjects' => Subject::orderBy('name')->get(['id', 'name', 'code', 'level_id']),
             'teachers' => User::role('teacher')->orderBy('name')->get(['id', 'name', 'email']),
-            'semesters' => Semester::where('academic_year_id', $selectedYearId)
+            'semesters' => Semester::query()
+                ->when($selectedYearId, fn ($q) => $q->where('academic_year_id', $selectedYearId))
                 ->orderBy('order_number')
                 ->get(['id', 'name', 'order_number', 'academic_year_id']),
         ];

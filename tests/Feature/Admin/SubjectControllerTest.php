@@ -42,7 +42,7 @@ class SubjectControllerTest extends TestCase
         return array_merge([
             'level_id' => $level->id,
             'name' => 'Mathématiques avancées',
-            'code' => 'MATH-'.rand(100, 999),
+            'code' => 'MATH-' . rand(100, 999),
             'description' => null,
         ], $overrides);
     }
@@ -72,7 +72,7 @@ class SubjectControllerTest extends TestCase
             ->get(route('admin.subjects.index'))
             ->assertOk()
             ->assertInertia(
-                fn ($page) => $page
+                fn($page) => $page
                     ->component('Admin/Subjects/Index')
                     ->has('subjects')
                     ->has('levels')
@@ -100,7 +100,7 @@ class SubjectControllerTest extends TestCase
             ->get(route('admin.subjects.create'))
             ->assertOk()
             ->assertInertia(
-                fn ($page) => $page
+                fn($page) => $page
                     ->component('Admin/Subjects/Create')
                     ->has('levels')
             );
@@ -159,6 +159,35 @@ class SubjectControllerTest extends TestCase
             ->assertSessionHasErrors('code');
     }
 
+    public function test_store_rejects_duplicate_name_within_same_level(): void
+    {
+        $level = Level::factory()->create();
+        Subject::factory()->create(['level_id' => $level->id, 'name' => 'Mathématiques']);
+
+        $this->actingAs($this->admin)
+            ->post(route('admin.subjects.store'), [
+                'level_id' => $level->id,
+                'name' => 'Mathématiques',
+                'code' => 'MATH-' . rand(100, 999),
+            ])
+            ->assertSessionHasErrors('name');
+    }
+
+    public function test_store_allows_same_name_in_different_levels(): void
+    {
+        $levelA = Level::factory()->create();
+        $levelB = Level::factory()->create();
+        Subject::factory()->create(['level_id' => $levelA->id, 'name' => 'Mathématiques']);
+
+        $this->actingAs($this->admin)
+            ->post(route('admin.subjects.store'), [
+                'level_id' => $levelB->id,
+                'name' => 'Mathématiques',
+                'code' => 'MATH-' . rand(100, 999),
+            ])
+            ->assertSessionHasNoErrors();
+    }
+
     // ---------------------------------------------------------------
     // Show
     // ---------------------------------------------------------------
@@ -181,7 +210,7 @@ class SubjectControllerTest extends TestCase
             ->get(route('admin.subjects.show', $this->subject))
             ->assertOk()
             ->assertInertia(
-                fn ($page) => $page
+                fn($page) => $page
                     ->component('Admin/Subjects/Show')
                     ->has('subject')
                     ->has('classSubjects')
@@ -210,7 +239,7 @@ class SubjectControllerTest extends TestCase
             ->get(route('admin.subjects.edit', $this->subject))
             ->assertOk()
             ->assertInertia(
-                fn ($page) => $page
+                fn($page) => $page
                     ->component('Admin/Subjects/Edit')
                     ->has('subject')
                     ->has('levels')
@@ -261,6 +290,35 @@ class SubjectControllerTest extends TestCase
             ->assertRedirect();
 
         $this->assertDatabaseHas('subjects', ['id' => $this->subject->id, 'code' => $this->subject->code]);
+    }
+
+    public function test_update_rejects_duplicate_name_within_same_level(): void
+    {
+        $level = Level::factory()->create();
+        Subject::factory()->create(['level_id' => $level->id, 'name' => 'Mathématiques']);
+        $subjectToUpdate = Subject::factory()->create(['level_id' => $level->id, 'name' => 'Physique']);
+
+        $this->actingAs($this->admin)
+            ->put(route('admin.subjects.update', $subjectToUpdate), [
+                'level_id' => $level->id,
+                'name' => 'Mathématiques',
+                'code' => 'PHYS-' . rand(100, 999),
+            ])
+            ->assertSessionHasErrors('name');
+    }
+
+    public function test_update_name_unique_ignores_self(): void
+    {
+        $level = Level::factory()->create();
+        $subjectToUpdate = Subject::factory()->create(['level_id' => $level->id, 'name' => 'Mathématiques']);
+
+        $this->actingAs($this->admin)
+            ->put(route('admin.subjects.update', $subjectToUpdate), [
+                'level_id' => $level->id,
+                'name' => 'Mathématiques',
+                'code' => $subjectToUpdate->code,
+            ])
+            ->assertRedirect();
     }
 
     // ---------------------------------------------------------------
