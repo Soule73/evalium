@@ -54,10 +54,7 @@ class StudentAssessmentService
      */
     public function findAssignment(User $student, Assessment $assessment): ?AssessmentAssignment
     {
-        $enrollment = Enrollment::where('student_id', $student->id)
-            ->where('class_id', $assessment->classSubject->class_id)
-            ->where('status', 'active')
-            ->first();
+        $enrollment = $this->findActiveEnrollment($student, $assessment);
 
         if (! $enrollment) {
             return null;
@@ -347,23 +344,6 @@ class StudentAssessmentService
     }
 
     /**
-     * Validate if student can access an assessment
-     *
-     * @param  User  $student  The student
-     * @param  Assessment  $assessment  The assessment
-     * @return bool True if student has access
-     */
-    public function canStudentAccessAssessment(User $student, Assessment $assessment): bool
-    {
-        return $student->enrollments()
-            ->where('status', 'active')
-            ->whereHas('class.classSubjects', function ($query) use ($assessment) {
-                $query->where('id', $assessment->class_subject_id);
-            })
-            ->exists();
-    }
-
-    /**
      * Get assessments for a student with assignments and status
      *
      * @param  User  $student  The student
@@ -537,11 +517,27 @@ class StudentAssessmentService
      */
     private function resolveEnrollment(User $student, Assessment $assessment): Enrollment
     {
+        $enrollment = $this->findActiveEnrollment($student, $assessment);
+
+        abort_if(! $enrollment, 404);
+
+        return $enrollment;
+    }
+
+    /**
+     * Find the student's active enrollment for the assessment's class.
+     *
+     * @param  User  $student  The student
+     * @param  Assessment  $assessment  The assessment
+     * @return Enrollment|null The active enrollment or null
+     */
+    private function findActiveEnrollment(User $student, Assessment $assessment): ?Enrollment
+    {
         $assessment->loadMissing('classSubject');
 
         return Enrollment::where('student_id', $student->id)
             ->where('class_id', $assessment->classSubject->class_id)
             ->where('status', 'active')
-            ->firstOrFail();
+            ->first();
     }
 }

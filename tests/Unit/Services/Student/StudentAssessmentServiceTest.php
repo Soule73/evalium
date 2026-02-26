@@ -373,67 +373,6 @@ class StudentAssessmentServiceTest extends TestCase
         $this->assertEquals($existing->id, $assignment->id);
     }
 
-    public function test_can_student_access_assessment_returns_true_when_enrolled(): void
-    {
-        $student = User::factory()->create();
-        $student->assignRole('student');
-
-        $class = ClassModel::factory()->create(['academic_year_id' => $this->academicYear->id]);
-
-        Enrollment::create([
-            'student_id' => $student->id,
-            'class_id' => $class->id,
-            'status' => 'active',
-            'enrolled_at' => now(),
-        ]);
-
-        $classSubject = ClassSubject::factory()->create([
-            'class_id' => $class->id,
-            'subject_id' => $this->subject->id,
-            'teacher_id' => $this->teacher->id,
-        ]);
-
-        $assessment = Assessment::create([
-            'class_subject_id' => $classSubject->id,
-            'teacher_id' => $this->teacher->id,
-            'title' => 'Test',
-            'type' => 'exam',
-            'duration_minutes' => 60,
-            'coefficient' => 1.0,
-            'scheduled_at' => now()->addDay(),
-        ]);
-
-        $result = $this->service->canStudentAccessAssessment($student, $assessment);
-
-        $this->assertTrue($result);
-    }
-
-    public function test_can_student_access_assessment_returns_false_when_not_enrolled(): void
-    {
-        $student = User::factory()->create();
-        $student->assignRole('student');
-
-        $classSubject = ClassSubject::factory()->create([
-            'class_id' => $this->classModel->id,
-            'subject_id' => $this->subject->id,
-            'teacher_id' => $this->teacher->id,
-        ]);
-
-        $assessment = Assessment::create([
-            'class_subject_id' => $classSubject->id,
-            'teacher_id' => $this->teacher->id,
-            'title' => 'Test',
-            'type' => 'exam',
-            'duration_minutes' => 60,
-            'coefficient' => 1.0,
-            'scheduled_at' => now()->addDay(),
-        ]);
-
-        $result = $this->service->canStudentAccessAssessment($student, $assessment);
-
-        $this->assertFalse($result);
-    }
-
     public function test_get_assessment_status_returns_not_submitted_when_no_assignment(): void
     {
         $status = $this->service->getAssessmentStatus(null);

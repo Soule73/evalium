@@ -118,11 +118,7 @@ class StudentAssessmentController extends Controller
     {
         $student = Auth::user();
 
-        abort_unless(
-            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
-            403,
-            __('messages.cannot_access_assessment')
-        );
+        $this->authorize('view', $assessment);
 
         $availability = $assessment->getAvailabilityStatus();
 
@@ -143,11 +139,7 @@ class StudentAssessmentController extends Controller
     {
         $student = Auth::user();
 
-        abort_unless(
-            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
-            403,
-            __('messages.cannot_access_assessment')
-        );
+        $this->authorize('view', $assessment);
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
         $this->assessmentService->startAssignment($assignment, $assessment);
@@ -216,11 +208,7 @@ class StudentAssessmentController extends Controller
     {
         $student = Auth::user();
 
-        abort_unless(
-            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
-            403,
-            __('messages.cannot_access_assessment')
-        );
+        $this->authorize('view', $assessment);
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
@@ -250,11 +238,7 @@ class StudentAssessmentController extends Controller
     {
         $student = Auth::user();
 
-        abort_unless(
-            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
-            403,
-            __('messages.cannot_access_assessment')
-        );
+        $this->authorize('view', $assessment);
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
@@ -355,11 +339,7 @@ class StudentAssessmentController extends Controller
     {
         $student = Auth::user();
 
-        abort_unless(
-            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
-            403,
-            __('messages.cannot_access_assessment')
-        );
+        $this->authorize('view', $assessment);
 
         if (! $assessment->isHomeworkMode()) {
             return response()->json(['message' => __('messages.file_uploads_not_allowed')], 422);
@@ -394,11 +374,7 @@ class StudentAssessmentController extends Controller
     {
         $student = Auth::user();
 
-        abort_unless(
-            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
-            403,
-            __('messages.cannot_access_assessment')
-        );
+        $this->authorize('view', $assessment);
 
         $assignment = $this->assessmentService->getOrCreateAssignment($student, $assessment);
 
@@ -422,11 +398,7 @@ class StudentAssessmentController extends Controller
     {
         $student = Auth::user();
 
-        abort_unless(
-            $this->assessmentService->canStudentAccessAssessment($student, $assessment),
-            403,
-            __('messages.cannot_access_assessment')
-        );
+        $this->authorize('view', $assessment);
 
         if ($assessment->isHomeworkMode()) {
             return response()->json(['message' => __('messages.security_violations_not_applicable')], 422);

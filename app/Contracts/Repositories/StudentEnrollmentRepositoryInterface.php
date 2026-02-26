@@ -4,7 +4,6 @@ namespace App\Contracts\Repositories;
 
 use App\Models\Enrollment;
 use App\Models\User;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 /**
@@ -24,21 +23,6 @@ interface StudentEnrollmentRepositoryInterface
      * @return Collection<int, \App\Models\ClassSubject>
      */
     public function getAllSubjectsWithStats(Enrollment $enrollment, User $student, array $filters = []): Collection;
-
-    /**
-     * Get paginated subjects with grade statistics for a student's enrollment.
-     *
-     * @param  Enrollment  $enrollment  The student's active enrollment
-     * @param  User  $student  The student user
-     * @param  array  $filters  Optional search filters
-     * @param  int  $perPage  Items per page
-     */
-    public function getSubjectsWithStatsForEnrollment(
-        Enrollment $enrollment,
-        User $student,
-        array $filters = [],
-        int $perPage = 10
-    ): LengthAwarePaginator;
 
     /**
      * Get enrollment history for a student across academic years.

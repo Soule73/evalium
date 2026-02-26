@@ -7,7 +7,6 @@ use App\Enums\EnrollmentStatus;
 use App\Models\ClassSubject;
 use App\Models\Enrollment;
 use App\Models\User;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 /**
@@ -62,54 +61,6 @@ class StudentEnrollmentRepository implements StudentEnrollmentRepositoryInterfac
                 });
             })
             ->get();
-    }
-
-    /**
-     * Get subjects with stats for a student's enrollment.
-     *
-     * Optimized query that eager loads all necessary relationships to avoid N+1.
-     *
-     * @param  Enrollment  $enrollment  The student's enrollment
-     * @param  User  $student  The student user
-     * @param  array  $filters  Search filters
-     * @param  int  $perPage  Items per page
-     * @return LengthAwarePaginator Paginated subjects with stats
-     */
-    public function getSubjectsWithStatsForEnrollment(
-        Enrollment $enrollment,
-        User $student,
-        array $filters = [],
-        int $perPage = 10
-    ): LengthAwarePaginator {
-        $query = ClassSubject::active()
-            ->where('class_id', $enrollment->class_id)
-            ->with([
-                'subject',
-                'teacher',
-                'assessments' => function ($query) use ($enrollment) {
-                    $query->select('id', 'class_subject_id', 'coefficient', 'settings')
-                        ->with([
-                            'questions:id,assessment_id,points',
-                            'assignments' => function ($q) use ($enrollment) {
-                                $q->where('enrollment_id', $enrollment->id)
-                                    ->select('id', 'assessment_id', 'enrollment_id', 'submitted_at', 'graded_at')
-                                    ->withSum('answers', 'score');
-                            },
-                        ]);
-                },
-            ])
-            ->when($filters['search'] ?? null, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->whereHas('subject', function ($subjectQuery) use ($search) {
-                        $subjectQuery->where('name', 'like', "%{$search}%");
-                    })
-                        ->orWhereHas('teacher', function ($teacherQuery) use ($search) {
-                            $teacherQuery->where('name', 'like', "%{$search}%");
-                        });
-                });
-            });
-
-        return $query->paginate($perPage)->withQueryString();
     }
 
     /**
