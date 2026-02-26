@@ -233,7 +233,9 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
                         <Stat.Item
                             title={t('assessment_pages.show.stats_average_score')}
                             value={
-                                stats.average_score !== null ? `${stats.average_score}/100` : '—'
+                                stats.average_score !== null && totalPoints > 0
+                                    ? `${stats.average_score}/${totalPoints}`
+                                    : '—'
                             }
                             icon={ChartBarIcon}
                         />

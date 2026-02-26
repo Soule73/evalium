@@ -131,7 +131,7 @@ class ClassController extends Controller
         $class->load(['academicYear', 'level']);
         $class->loadCount([
             'enrollments',
-            'enrollments as active_enrollments_count' => fn($q) => $q->where('status', 'active'),
+            'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
         ]);
         $class->can_delete = $class->canBeDeleted();
 

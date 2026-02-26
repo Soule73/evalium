@@ -53,6 +53,6 @@ return [
         'stats_graded' => 'Graded',
         'stats_in_progress' => 'In Progress',
         'stats_not_started' => 'Not Started',
-        'stats_average_score' => 'Average Score',
+        'stats_average_score' => 'Average grade',
     ],
 ];

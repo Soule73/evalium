@@ -152,7 +152,7 @@ return [
         'back_to_assessments' => 'Retour aux évaluations',
         'answers_detail' => 'Détails des réponses',
         'teacher_comments' => 'Commentaires du professeur',
-        'your_score' => 'Votre score',
+        'your_score' => 'Votre note',
         'percentage' => 'Pourcentage',
         'status' => 'Statut',
         'submitted_at' => 'Soumis le',

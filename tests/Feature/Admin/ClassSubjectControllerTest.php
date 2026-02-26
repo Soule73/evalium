@@ -87,7 +87,7 @@ class ClassSubjectControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn($page) => $page
+            fn ($page) => $page
                 ->component('Admin/ClassSubjects/Index')
                 ->has('classSubjects')
                 ->has('filters')

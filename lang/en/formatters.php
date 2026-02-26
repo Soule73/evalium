@@ -22,6 +22,6 @@ return [
     'security_tab_switch' => 'Tab switch detected',
     'security_fullscreen_exit' => 'Fullscreen exit detected',
     'security_violation_default' => 'Security violation detected',
-    'partial_score_mcq' => 'Partial score (MCQ): :score / :total points',
-    'score_format' => ':score / :total points',
+    'partial_score_mcq' => 'Partial points (MCQ): :score / :total pts',
+    'score_format' => ':score / :total pts',
 ];

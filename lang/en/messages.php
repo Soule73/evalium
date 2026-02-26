@@ -107,10 +107,10 @@ return [
     'unable_to_remove_class' => 'Unable to remove assessment from this class',
 
     // Corrections
-    'scores_saved' => 'Correction saved successfully! :updated_answers answer(s) updated. Total score: :total_score points',
+    'scores_saved' => 'Correction saved successfully! :updated_answers answer(s) updated. Total points: :total_score',
     'error_saving_correction' => 'Error saving correction',
-    'score_updated' => 'Score updated successfully',
-    'error_updating_score' => 'Error updating score',
+    'score_updated' => 'Grade updated successfully',
+    'error_updating_score' => 'Error updating grade',
 
     // Classes
     'class_created' => 'Class created successfully',

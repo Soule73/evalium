@@ -323,7 +323,7 @@ class StudentAssessmentController extends Controller
                 ->flashInfo(__('messages.results_under_embargo'));
         }
 
-        if (! $assessment->show_results_immediately && ! $assignment->graded_at) {
+        if ($assessment->release_results_after_grading && ! $assignment->graded_at) {
             return redirect()->route('student.assessments.show', $assessment)
                 ->flashInfo(__('messages.results_not_available_yet'));
         }

@@ -351,7 +351,7 @@ return [
         'assignments_subtitle' => 'Voir toutes les évaluations de :student dans :class',
         'all_subjects' => 'Toutes les matières',
         'all_assignment_statuses' => 'Tous les statuts',
-        'score' => 'Score',
+        'score' => 'Note',
         'view_details' => 'Voir',
         'back_to_enrollment' => 'Retour à l\'inscription',
         'view_assignments' => 'Voir les évaluations',

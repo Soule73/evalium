@@ -139,7 +139,7 @@ return [
     'assignment_list' => [
         'student' => 'Student',
         'status' => 'Status',
-        'score' => 'Score',
+        'score' => 'Points',
         'submitted_at' => 'Submitted at',
         'actions' => 'Actions',
         'status_not_started' => 'Not started',

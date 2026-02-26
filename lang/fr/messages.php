@@ -106,7 +106,7 @@ return [
     'unable_to_remove_class' => 'Impossible de retirer l\'évaluation de cette classe',
 
     // Corrections
-    'scores_saved' => 'Correction enregistrée avec succès ! :updated_answers réponse(s) mise(s) à jour. Score total : :total_score points',
+    'scores_saved' => 'Correction enregistrée avec succès ! :updated_answers réponse(s) mise(s) à jour. Note totale : :total_score points',
     'error_saving_correction' => 'Erreur lors de l\'enregistrement de la correction',
     'score_updated' => 'Note mise à jour avec succès',
     'error_updating_score' => 'Erreur lors de la mise à jour de la note',

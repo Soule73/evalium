@@ -42,6 +42,11 @@ class AssessmentStatsService
      * - assignment exists with started_at only → in progress
      * - assignment submitted but not graded → submitted
      * - assignment graded → graded
+     *
+     * NOTE: average_score is intentionally returned as raw points (not /20) because
+     * this service is used for a single-assessment view where the denominator is
+     * displayed alongside as totalPoints (e.g. "8.5 / 15").
+     * Normalization to /20 is the responsibility of GradeCalculationService.
      */
     private function computeAssessmentStats(int $assessmentId): array
     {

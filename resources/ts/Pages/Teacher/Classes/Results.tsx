@@ -81,7 +81,7 @@ export default function TeacherClassResults({ class: classItem, results }: Props
                 <Stat.Item
                     icon={ChartBarIcon}
                     title={t('teacher_class_pages.results.average_score')}
-                    value={overview.average_score !== null ? `${overview.average_score}` : '—'}
+                    value={overview.average_score !== null ? `${overview.average_score} / 20` : '—'}
                 />
                 <Stat.Item
                     icon={CheckCircleIcon}
@@ -155,7 +155,7 @@ export default function TeacherClassResults({ class: classItem, results }: Props
                                         </td>
                                         <td className="px-4 py-3 text-right font-medium text-gray-900">
                                             {row.average_score !== null
-                                                ? `${row.average_score}`
+                                                ? `${row.average_score} / 20`
                                                 : '—'}
                                         </td>
                                         <td className="px-4 py-3 text-right">
@@ -164,8 +164,8 @@ export default function TeacherClassResults({ class: classItem, results }: Props
                                                     row.completion_rate >= 80
                                                         ? 'font-medium text-green-600'
                                                         : row.completion_rate >= 50
-                                                          ? 'font-medium text-yellow-600'
-                                                          : 'font-medium text-red-500'
+                                                            ? 'font-medium text-yellow-600'
+                                                            : 'font-medium text-red-500'
                                                 }
                                             >
                                                 {row.completion_rate}%
@@ -222,7 +222,7 @@ export default function TeacherClassResults({ class: classItem, results }: Props
                                         </td>
                                         <td className="px-4 py-3 text-right font-medium text-gray-900">
                                             {row.average_score !== null
-                                                ? `${row.average_score}`
+                                                ? `${row.average_score} / 20`
                                                 : '—'}
                                         </td>
                                     </tr>
@@ -232,6 +232,6 @@ export default function TeacherClassResults({ class: classItem, results }: Props
                     </div>
                 )}
             </Section>
-        </AuthenticatedLayout>
+        </AuthenticatedLayout >
     );
 }

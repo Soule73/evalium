@@ -22,6 +22,6 @@ return [
     'security_tab_switch' => 'Changement d\'onglet détecté',
     'security_fullscreen_exit' => 'Sortie du mode plein écran détectée',
     'security_violation_default' => 'Violation de sécurité détectée',
-    'partial_score_mcq' => 'Note partielle (QCM) : :score / :total points',
-    'score_format' => ':score / :total points',
+    'partial_score_mcq' => 'Points partiels (QCM) : :score / :total pts',
+    'score_format' => ':score / :total pts',
 ];

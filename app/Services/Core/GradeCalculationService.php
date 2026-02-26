@@ -36,18 +36,7 @@ class GradeCalculationService
             return null;
         }
 
-        $totalWeightedScore = 0;
-        $totalCoefficients = 0;
-
-        foreach ($assessmentGrades as $grade) {
-            if ($grade['max_points'] > 0) {
-                $normalizedScore = ($grade['score'] / $grade['max_points']) * 20;
-                $totalWeightedScore += $grade['coefficient'] * $normalizedScore;
-                $totalCoefficients += $grade['coefficient'];
-            }
-        }
-
-        return $totalCoefficients > 0 ? round($totalWeightedScore / $totalCoefficients, 2) : null;
+        return $this->computeWeightedGrade($assessmentGrades->toArray());
     }
 
     /**
@@ -119,17 +108,15 @@ class GradeCalculationService
             $completedCount = 0;
 
             if ($assignments->isNotEmpty()) {
-                $totalWeightedScore = 0;
-                $totalAssessmentCoefficients = 0;
+                $triplets = [];
 
                 foreach ($assignments as $assignment) {
                     if ($assignment->score !== null && $assignment->assessment) {
-                        $maxPoints = $assignment->assessment->questions->sum('points');
-                        if ($maxPoints > 0) {
-                            $normalizedScore = ($assignment->score / $maxPoints) * 20;
-                            $totalWeightedScore += $assignment->assessment->coefficient * $normalizedScore;
-                            $totalAssessmentCoefficients += $assignment->assessment->coefficient;
-                        }
+                        $triplets[] = [
+                            'score' => (float) $assignment->score,
+                            'max_points' => (float) $assignment->assessment->questions->sum('points'),
+                            'coefficient' => (float) $assignment->assessment->coefficient,
+                        ];
                     }
 
                     if ($assignment->submitted_at) {
@@ -137,9 +124,7 @@ class GradeCalculationService
                     }
                 }
 
-                if ($totalAssessmentCoefficients > 0) {
-                    $subjectGrade = round($totalWeightedScore / $totalAssessmentCoefficients, 2);
-                }
+                $subjectGrade = $this->computeWeightedGrade($triplets);
             }
 
             $totalAssessments = $publishedAssessmentsBySubject->get($classSubject->id, 0);
@@ -194,21 +179,18 @@ class GradeCalculationService
         foreach ($classSubjects as $classSubject) {
             $subjectGrade = null;
             $completedCount = 0;
-            $totalWeightedScore = 0;
-            $totalAssessmentCoefficients = 0;
+            $triplets = [];
 
             foreach ($classSubject->assessments as $assessment) {
                 $assignment = $assessment->assignments->first();
 
                 if ($assignment) {
                     if ($assignment->score !== null) {
-                        $maxPoints = $assessment->questions->sum('points');
-
-                        if ($maxPoints > 0) {
-                            $normalizedScore = ($assignment->score / $maxPoints) * 20;
-                            $totalWeightedScore += $assessment->coefficient * $normalizedScore;
-                            $totalAssessmentCoefficients += $assessment->coefficient;
-                        }
+                        $triplets[] = [
+                            'score' => (float) $assignment->score,
+                            'max_points' => (float) $assessment->questions->sum('points'),
+                            'coefficient' => (float) $assessment->coefficient,
+                        ];
                     }
 
                     if ($assignment->submitted_at) {
@@ -217,9 +199,7 @@ class GradeCalculationService
                 }
             }
 
-            if ($totalAssessmentCoefficients > 0) {
-                $subjectGrade = round($totalWeightedScore / $totalAssessmentCoefficients, 2);
-            }
+            $subjectGrade = $this->computeWeightedGrade($triplets);
 
             $totalAssessments = $classSubject->assessments
                 ->filter(fn ($a) => $a->is_published)
@@ -253,6 +233,32 @@ class GradeCalculationService
             'annual_average' => $annualAverage,
             'total_coefficient' => $totalCoefficients,
         ];
+    }
+
+    /**
+     * Canonical implementation of the weighted grade formula.
+     *
+     * Note_Matière = Σ(coefficient × (score / max_points) × 20) / Σ(coefficient)
+     *
+     * All grade calculations in this service MUST delegate to this method.
+     * Do NOT re-implement this formula elsewhere in this class.
+     *
+     * @param  array<int, array{score: float, max_points: float, coefficient: float}>  $triplets
+     */
+    private function computeWeightedGrade(array $triplets): ?float
+    {
+        $totalWeightedScore = 0.0;
+        $totalCoefficients = 0.0;
+
+        foreach ($triplets as $triplet) {
+            if ($triplet['max_points'] > 0) {
+                $normalized = ($triplet['score'] / $triplet['max_points']) * 20;
+                $totalWeightedScore += $triplet['coefficient'] * $normalized;
+                $totalCoefficients += $triplet['coefficient'];
+            }
+        }
+
+        return $totalCoefficients > 0 ? round($totalWeightedScore / $totalCoefficients, 2) : null;
     }
 
     /**

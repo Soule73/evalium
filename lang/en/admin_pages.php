@@ -350,7 +350,7 @@ return [
         'assignments_subtitle' => 'View all assessments for :student in :class',
         'all_subjects' => 'All Subjects',
         'all_assignment_statuses' => 'All Statuses',
-        'score' => 'Score',
+        'score' => 'Points',
         'view_details' => 'View',
         'back_to_enrollment' => 'Back to enrollment',
         'view_assignments' => 'View Assessments',

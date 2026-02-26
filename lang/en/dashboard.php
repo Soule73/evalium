@@ -30,7 +30,7 @@ return [
         'total_assessments' => 'Total Assessments',
         'pending_assessments' => 'Pending assessments',
         'completed_assessments' => 'Completed assessments',
-        'average_score' => 'Average score',
+        'average_score' => 'Average grade',
         'assigned_assessments' => 'Assigned assessments',
         'view_my_assessments' => 'View my assessments',
         'view_all_assessments' => 'View all assessments',

@@ -152,7 +152,7 @@ return [
         'back_to_assessments' => 'Back to Assessments',
         'answers_detail' => 'Answer Details',
         'teacher_comments' => 'Teacher Comments',
-        'your_score' => 'Your Score',
+        'your_score' => 'Your Grade',
         'percentage' => 'Percentage',
         'status' => 'Status',
         'submitted_at' => 'Submitted at',
