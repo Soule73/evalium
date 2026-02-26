@@ -240,4 +240,40 @@ class StudentAssessmentShowTest extends TestCase
             'enrollment_id' => $this->enrollment->id,
         ]);
     }
+
+    public function test_unpublished_assessment_does_not_appear_in_student_index(): void
+    {
+        Assessment::factory()->create([
+            'class_subject_id' => $this->classSubject->id,
+            'teacher_id' => $this->classSubject->teacher_id,
+            'coefficient' => 1,
+            'scheduled_at' => now()->subHour(),
+            'is_published' => false,
+        ]);
+
+        $response = $this->actingAs($this->student)
+            ->get(route('student.assessments.index'));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('Student/Assessments/Index')
+                ->has('assignments.data', 1)
+                ->where('assignments.data.0.assessment_id', $this->assessment->id)
+        );
+    }
+
+    public function test_published_assessment_appears_in_student_index(): void
+    {
+        $response = $this->actingAs($this->student)
+            ->get(route('student.assessments.index'));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('Student/Assessments/Index')
+                ->has('assignments.data', 1)
+                ->where('assignments.data.0.assessment_id', $this->assessment->id)
+        );
+    }
 }

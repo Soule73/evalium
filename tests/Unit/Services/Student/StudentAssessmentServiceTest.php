@@ -107,6 +107,7 @@ class StudentAssessmentServiceTest extends TestCase
             'duration_minutes' => 60,
             'coefficient' => 1.0,
             'scheduled_at' => now()->addDay(),
+            'is_published' => true,
         ]);
 
         $result = $this->service->getStudentAssessmentsForIndex($student, $this->academicYear->id, [], 15);
@@ -147,6 +148,7 @@ class StudentAssessmentServiceTest extends TestCase
             'duration_minutes' => 60,
             'coefficient' => 1.0,
             'scheduled_at' => now()->addDay(),
+            'is_published' => true,
         ]);
 
         Assessment::create([
@@ -157,6 +159,7 @@ class StudentAssessmentServiceTest extends TestCase
             'duration_minutes' => 60,
             'coefficient' => 1.0,
             'scheduled_at' => now()->addDays(2),
+            'is_published' => true,
         ]);
 
         $result = $this->service->getStudentAssessmentsForIndex(
@@ -199,6 +202,7 @@ class StudentAssessmentServiceTest extends TestCase
             'duration_minutes' => 60,
             'coefficient' => 1.0,
             'scheduled_at' => now()->addDay(),
+            'is_published' => true,
         ]);
 
         $assessment2 = Assessment::create([
@@ -209,6 +213,7 @@ class StudentAssessmentServiceTest extends TestCase
             'duration_minutes' => 60,
             'coefficient' => 1.0,
             'scheduled_at' => now()->addDays(2),
+            'is_published' => true,
         ]);
 
         AssessmentAssignment::create([

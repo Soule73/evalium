@@ -340,22 +340,6 @@ class StudentAssessmentController extends Controller
 
         $userAnswers = $this->assessmentService->formatUserAnswers($assignment->answers);
 
-        if (! $canRevealAnswers) {
-            foreach ($userAnswers as &$answer) {
-                if (isset($answer['choice'])) {
-                    unset($answer['choice']['is_correct']);
-                }
-                if (isset($answer['choices'])) {
-                    foreach ($answer['choices'] as &$answerChoice) {
-                        if (isset($answerChoice['choice'])) {
-                            unset($answerChoice['choice']['is_correct']);
-                        }
-                    }
-                }
-            }
-            unset($answer, $answerChoice);
-        }
-
         return Inertia::render('Student/Assessments/Result', [
             'assignment' => $assignment,
             'assessment' => $assessment,

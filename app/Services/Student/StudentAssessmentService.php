@@ -10,6 +10,7 @@ use App\Notifications\AssessmentGradedNotification;
 use App\Services\Core\Scoring\ScoringService;
 use App\Services\Traits\Paginatable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Student Assessment Service
@@ -189,28 +190,30 @@ class StudentAssessmentService
             return false;
         }
 
-        foreach ($answers as $questionId => $value) {
-            $assignment->answers()->where('question_id', $questionId)->delete();
+        DB::transaction(function () use ($assignment, $answers) {
+            foreach ($answers as $questionId => $value) {
+                $assignment->answers()->where('question_id', $questionId)->delete();
 
-            if (is_array($value)) {
-                foreach ($value as $choiceId) {
+                if (is_array($value)) {
+                    foreach ($value as $choiceId) {
+                        $assignment->answers()->create([
+                            'question_id' => $questionId,
+                            'choice_id' => $choiceId,
+                        ]);
+                    }
+                } elseif (is_int($value)) {
                     $assignment->answers()->create([
                         'question_id' => $questionId,
-                        'choice_id' => $choiceId,
+                        'choice_id' => $value,
+                    ]);
+                } else {
+                    $assignment->answers()->create([
+                        'question_id' => $questionId,
+                        'answer_text' => $value,
                     ]);
                 }
-            } elseif (is_numeric($value)) {
-                $assignment->answers()->create([
-                    'question_id' => $questionId,
-                    'choice_id' => $value,
-                ]);
-            } else {
-                $assignment->answers()->create([
-                    'question_id' => $questionId,
-                    'answer_text' => $value,
-                ]);
             }
-        }
+        });
 
         return true;
     }
@@ -470,6 +473,7 @@ class StudentAssessmentService
         $enrollmentId = $enrollment->id;
 
         $assessmentsQuery = Assessment::whereIn('class_subject_id', $classSubjectIds)
+            ->where('is_published', true)
             ->with([
                 'classSubject:id,subject_id,teacher_id',
                 'classSubject.subject:id,name',

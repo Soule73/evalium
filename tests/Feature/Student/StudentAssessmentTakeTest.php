@@ -462,6 +462,35 @@ class StudentAssessmentTakeTest extends TestCase
         );
     }
 
+    public function test_save_answers_stores_numeric_string_as_answer_text_not_choice_id(): void
+    {
+        $this->actingAs($this->student)
+            ->postJson(route('student.assessments.start', $this->assessment));
+
+        $question = Question::factory()->create([
+            'assessment_id' => $this->assessment->id,
+            'type' => 'text',
+            'points' => 10,
+        ]);
+
+        $this->actingAs($this->student)
+            ->postJson(route('student.assessments.save-answers', $this->assessment), [
+                'answers' => [$question->id => '2024'],
+            ]);
+
+        $assignment = AssessmentAssignment::where('assessment_id', $this->assessment->id)
+            ->whereHas('enrollment', fn ($q) => $q->where('student_id', $this->student->id))
+            ->first();
+
+        $this->assertNotNull($assignment);
+
+        $answer = $assignment->answers()->where('question_id', $question->id)->first();
+
+        $this->assertNotNull($answer);
+        $this->assertEquals('2024', $answer->answer_text);
+        $this->assertNull($answer->choice_id);
+    }
+
     private function assertStringContains(string $needle, string $haystack): void
     {
         $this->assertTrue(
