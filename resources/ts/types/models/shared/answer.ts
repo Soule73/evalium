@@ -2,7 +2,7 @@ import type { Choice } from './choice';
 
 export interface Answer {
     id: number;
-    assignment_id: number;
+    assessment_assignment_id: number;
     question_id: number;
     choice_id?: number;
     answer_text?: string;

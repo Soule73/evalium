@@ -289,4 +289,66 @@ class DeliveryModeModelsTest extends TestCase
         $this->assertSame(DeliveryMode::Homework, $assessment->delivery_mode);
         $this->assertSame(AssessmentType::Practical, $assessment->type);
     }
+
+    public function test_auto_score_is_null_when_not_submitted(): void
+    {
+        $assignment = $this->createAssignment(['submitted_at' => null]);
+
+        $this->assertNull($assignment->auto_score);
+    }
+
+    public function test_auto_score_returns_sum_of_answer_scores_after_submission(): void
+    {
+        $question = Question::factory()->create([
+            'assessment_id' => $this->sharedAssessment->id,
+            'type' => 'one_choice',
+            'points' => 10,
+        ]);
+
+        $assignment = $this->createAssignment(['submitted_at' => now()]);
+
+        Answer::factory()->create([
+            'assessment_assignment_id' => $assignment->id,
+            'question_id' => $question->id,
+            'score' => 7.5,
+        ]);
+
+        $assignment->refresh();
+
+        $this->assertEquals(7.5, $assignment->auto_score);
+    }
+
+    public function test_score_is_null_when_not_graded(): void
+    {
+        $assignment = $this->createAssignment([
+            'submitted_at' => now(),
+            'graded_at' => null,
+        ]);
+
+        $this->assertNull($assignment->score);
+    }
+
+    public function test_score_returns_sum_after_grading(): void
+    {
+        $question = Question::factory()->create([
+            'assessment_id' => $this->sharedAssessment->id,
+            'type' => 'one_choice',
+            'points' => 10,
+        ]);
+
+        $assignment = $this->createAssignment([
+            'submitted_at' => now()->subMinute(),
+            'graded_at' => now(),
+        ]);
+
+        Answer::factory()->create([
+            'assessment_assignment_id' => $assignment->id,
+            'question_id' => $question->id,
+            'score' => 8.0,
+        ]);
+
+        $assignment->refresh();
+
+        $this->assertEquals(8.0, $assignment->score);
+    }
 }

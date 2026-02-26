@@ -647,4 +647,86 @@ class ScoringServiceTest extends TestCase
         $this->assertEquals(10, $result['updated_count']);
         $this->assertLessThanOrEqual(40, $queryCount, "Expected reasonable query count for manual grading 10 questions, but got {$queryCount}");
     }
+
+    #[Test]
+    public function has_manual_correction_questions_returns_true_for_text_questions(): void
+    {
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'Text Test']);
+        Question::factory()->create(['assessment_id' => $assessment->id, 'type' => QuestionType::Text]);
+
+        $assignment = $this->createAssignmentForStudent($assessment, $student);
+        $assignment->load('assessment.questions');
+
+        $this->assertTrue($this->scoringService->hasManualCorrectionQuestions($assignment));
+    }
+
+    #[Test]
+    public function has_manual_correction_questions_returns_true_for_file_questions(): void
+    {
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'File Test']);
+        Question::factory()->create(['assessment_id' => $assessment->id, 'type' => QuestionType::File]);
+
+        $assignment = $this->createAssignmentForStudent($assessment, $student);
+        $assignment->load('assessment.questions');
+
+        $this->assertTrue($this->scoringService->hasManualCorrectionQuestions($assignment));
+    }
+
+    #[Test]
+    public function has_manual_correction_questions_returns_false_for_auto_correctable_only(): void
+    {
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'MCQ Test']);
+        Question::factory()->create(['assessment_id' => $assessment->id, 'type' => QuestionType::OneChoice]);
+
+        $assignment = $this->createAssignmentForStudent($assessment, $student);
+        $assignment->load('assessment.questions');
+
+        $this->assertFalse($this->scoringService->hasManualCorrectionQuestions($assignment));
+    }
+
+    #[Test]
+    public function calculate_score_for_question_returns_score_via_matching_strategy(): void
+    {
+        $student = $this->createStudent(['email' => 'student@test.com']);
+        $assessment = $this->createAssessmentWithQuestions(questionCount: 0, assessmentAttributes: ['title' => 'CSQ Test']);
+        $question = Question::factory()->create(['assessment_id' => $assessment->id, 'type' => QuestionType::OneChoice, 'points' => 5]);
+
+        $correctChoice = Choice::factory()->create(['question_id' => $question->id, 'is_correct' => true]);
+        $assignment = $this->createAssignmentForStudent($assessment, $student);
+
+        $answer = Answer::factory()->create([
+            'assessment_assignment_id' => $assignment->id,
+            'question_id' => $question->id,
+            'choice_id' => $correctChoice->id,
+        ]);
+
+        $question->load('choices');
+        $answer->load('choice');
+        $answers = collect([$answer]);
+
+        $score = $this->scoringService->calculateScoreForQuestion($question, $answers);
+
+        $this->assertEquals(5.0, $score);
+    }
+
+    #[Test]
+    public function calculate_score_for_question_returns_zero_for_unsupported_type(): void
+    {
+        $question = new \App\Models\Question;
+        $question->type = QuestionType::Text;
+        $question->points = 10;
+        $question->setRelation('choices', collect());
+
+        $answer = new \App\Models\Answer;
+        $answer->score = null;
+        $answer->choice_id = null;
+        $answer->choice = null;
+
+        $score = $this->scoringService->calculateScoreForQuestion($question, collect([$answer]));
+
+        $this->assertEquals(0.0, $score);
+    }
 }

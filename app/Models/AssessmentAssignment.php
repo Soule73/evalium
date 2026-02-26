@@ -39,6 +39,7 @@ class AssessmentAssignment extends Model
     protected $appends = [
         'status',
         'score',
+        'auto_score',
     ];
 
     /**
@@ -153,6 +154,28 @@ class AssessmentAssignment extends Model
     public function scopeInProgress($query)
     {
         return $query->whereNotNull('started_at')->whereNull('submitted_at');
+    }
+
+    /**
+     * Compute the auto-scored total from associated answers.
+     *
+     * Returns the sum of all scored answers after submission, including
+     * auto-corrected MCQ scores. Returns null when not yet submitted.
+     * Used by the frontend to display partial scores before teacher grading.
+     */
+    public function getAutoScoreAttribute(): ?float
+    {
+        if (! $this->submitted_at) {
+            return null;
+        }
+
+        if (array_key_exists('answers_sum_score', $this->attributes)) {
+            $val = $this->attributes['answers_sum_score'];
+
+            return $val !== null ? (float) $val : 0.0;
+        }
+
+        return (float) $this->answers()->sum('score');
     }
 
     /**

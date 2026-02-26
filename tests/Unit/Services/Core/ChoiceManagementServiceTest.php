@@ -345,4 +345,29 @@ class ChoiceManagementServiceTest extends TestCase
         $this->assertDatabaseMissing('choices', ['content' => 'maybe']);
         $this->assertDatabaseCount('choices', 2);
     }
+
+    public function test_update_multiple_choice_removes_orphaned_choices(): void
+    {
+        /** @var Question $question */
+        $question = $this->createQuestionForTest(['type' => 'multiple']);
+
+        $choiceA = Choice::factory()->for($question)->create(['content' => 'Option A', 'is_correct' => true]);
+        $choiceB = Choice::factory()->for($question)->create(['content' => 'Option B', 'is_correct' => false]);
+        $choiceC = Choice::factory()->for($question)->create(['content' => 'Option C', 'is_correct' => false]);
+
+        $questionData = [
+            'type' => 'multiple',
+            'choices' => [
+                ['id' => $choiceA->id, 'content' => 'Option A updated', 'is_correct' => true, 'order_index' => 0],
+                ['id' => $choiceB->id, 'content' => 'Option B', 'is_correct' => true, 'order_index' => 1],
+            ],
+        ];
+
+        $this->service->updateChoicesForQuestion($question, $questionData);
+
+        $this->assertDatabaseMissing('choices', ['id' => $choiceC->id]);
+        $this->assertDatabaseHas('choices', ['id' => $choiceA->id, 'content' => 'Option A updated']);
+        $this->assertDatabaseHas('choices', ['id' => $choiceB->id, 'is_correct' => true]);
+        $this->assertDatabaseCount('choices', 2);
+    }
 }

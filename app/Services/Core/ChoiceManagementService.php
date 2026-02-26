@@ -135,6 +135,12 @@ class ChoiceManagementService
             return;
         }
 
+        $submittedChoiceIds = collect($questionData['choices'])
+            ->pluck('id')
+            ->filter(fn ($id) => is_numeric($id) && $id > 0)
+            ->values()
+            ->toArray();
+
         $choicesToCreate = [];
 
         foreach ($questionData['choices'] as $index => $choiceData) {
@@ -159,6 +165,16 @@ class ChoiceManagementService
                     'updated_at' => now(),
                 ];
             }
+        }
+
+        $orphanedChoiceIds = $question->choices()
+            ->when(! empty($submittedChoiceIds), fn ($q) => $q->whereNotIn('id', $submittedChoiceIds))
+            ->when(empty($submittedChoiceIds), fn ($q) => $q)
+            ->pluck('id')
+            ->toArray();
+
+        if (! empty($orphanedChoiceIds)) {
+            $this->deleteChoicesByIds($orphanedChoiceIds);
         }
 
         if (! empty($choicesToCreate)) {

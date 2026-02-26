@@ -146,14 +146,43 @@ class ScoringService
     /**
      * Check if an exam contains questions requiring manual grading.
      *
+     * Covers both Text and File question types.
+     *
      * @param  AssessmentAssignment  $assignment  The assignment to check
-     * @return bool True if the exam has text questions
+     * @return bool True if the exam has manually graded questions
      */
     public function hasManualCorrectionQuestions(AssessmentAssignment $assignment): bool
     {
+        $manualTypes = array_filter(
+            QuestionType::cases(),
+            fn (QuestionType $type) => $type->requiresManualGrading()
+        );
+
+        $manualValues = array_map(fn (QuestionType $type) => $type->value, $manualTypes);
+
         return $assignment->assessment->questions()
-            ->where('type', QuestionType::Text)
+            ->whereIn('type', $manualValues)
             ->exists();
+    }
+
+    /**
+     * Calculate the score for a single question given its answers.
+     *
+     * Returns 0.0 when no matching strategy exists.
+     *
+     * @param  Question  $question  The question to evaluate
+     * @param  Collection  $answers  Answers for this question
+     * @return float Earned score
+     */
+    public function calculateScoreForQuestion(Question $question, Collection $answers): float
+    {
+        $strategy = $this->getStrategyForQuestionType($question->type);
+
+        if (! $strategy) {
+            return 0.0;
+        }
+
+        return $strategy->calculateScore($question, $answers);
     }
 
     /**
@@ -171,16 +200,6 @@ class ScoringService
         }
 
         return null;
-    }
-
-    /**
-     * Get all registered scoring strategies.
-     *
-     * @return array<ScoringStrategyInterface>
-     */
-    public function getStrategies(): array
-    {
-        return $this->strategies;
     }
 
     /**

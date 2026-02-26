@@ -197,7 +197,7 @@ class AnswerFormatterService implements AnswerFormatterInterface
     /**
      * Prepare answer data based on question type.
      *
-     * @param  string  $questionType  Question type (multiple, one_choice, boolean, text)
+     * @param  string  $questionType  Question type (multiple, one_choice, boolean, text, file)
      * @param  array  $requestData  Request data containing the answer
      * @return array Prepared data for insertion
      */
@@ -206,6 +206,13 @@ class AnswerFormatterService implements AnswerFormatterInterface
         if (in_array($questionType, ['multiple', 'one_choice', 'boolean'])) {
             return [
                 'choice_id' => $requestData['choice_id'] ?? null,
+                'answer_text' => null,
+            ];
+        }
+
+        if ($questionType === 'file') {
+            return [
+                'choice_id' => null,
                 'answer_text' => null,
             ];
         }
