@@ -53,7 +53,7 @@ const AuthenticatedLayout = ({
                 >
                     {/* Header */}
                     <header
-                        className={`fixed top-0 z-20 bg-white border-b border-gray-200 h-16 ${sidebarCollapsed ? 'w-[calc(100%-5rem)]' : 'w-[calc(100%-16rem)]'} transition-all duration-300`}
+                        className={`fixed top-0 z-20 bg-white/95 backdrop-blur-sm shadow-[0_1px_3px_0_rgb(0_0_0/0.04)] h-16 ${sidebarCollapsed ? 'w-[calc(100%-5rem)]' : 'w-[calc(100%-16rem)]'} transition-all duration-300`}
                     >
                         <div className="flex items-center justify-between h-full px-4 lg:px-8">
                             <div className="lg:hidden w-10"></div>

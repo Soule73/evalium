@@ -342,12 +342,15 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                             <Link
                                                 href={item.href}
                                                 className={`
-                                                    flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full
-                                                    ${active ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}
+                                                    relative flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 w-full
+                                                    ${active ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
                                                     ${isCollapsed ? 'justify-center' : ''}
                                                 `}
                                                 onClick={closeMobile}
                                             >
+                                                {active && (
+                                                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.75 h-5 bg-indigo-600 rounded-r-full" />
+                                                )}
                                                 <NavIcon
                                                     type={item.icon}
                                                     className={`w-5 h-5 ${!isCollapsed && 'mr-3'}`}
@@ -387,7 +390,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                         href={navRoutes.logout()}
                                         method="post"
                                         as="button"
-                                        className="w-full flex items-center justify-center p-2.5 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                                        className="w-full flex items-center justify-center p-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 hover:text-gray-800 rounded-lg transition-colors"
                                     >
                                         <NavIcon type="logout" className="w-5 h-5" />
                                     </Link>
@@ -427,7 +430,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                         href={navRoutes.logout()}
                                         method="post"
                                         as="button"
-                                        className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                                        className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 hover:text-gray-800 rounded-lg transition-colors"
                                     >
                                         <NavIcon type="logout" className="w-4 h-4" />
                                         <span>{t('sidebar.actions.logout')}</span>
