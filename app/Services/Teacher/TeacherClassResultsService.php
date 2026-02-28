@@ -56,21 +56,23 @@ class TeacherClassResultsService
                 $join->on('aa.assessment_id', '=', 'a.id')
                     ->whereIn('aa.enrollment_id', $activeEnrollmentSubquery);
             })
+            ->leftJoin(DB::raw('(SELECT assessment_assignment_id, COALESCE(SUM(score), 0) as total_score FROM answers GROUP BY assessment_assignment_id) as ans_totals'), 'ans_totals.assessment_assignment_id', '=', 'aa.id')
+            ->leftJoin(DB::raw('(SELECT assessment_id, COALESCE(SUM(points), 0) as total_points FROM questions GROUP BY assessment_id) as q_totals'), 'q_totals.assessment_id', '=', 'a.id')
             ->where('cs.class_id', $classId)
             ->where('cs.teacher_id', $teacherId)
             ->whereNull('a.deleted_at')
-            ->groupBy('a.id', 'a.title', 'a.type', 'a.scheduled_at', 's.name')
+            ->groupBy('a.id', 'a.title', 'a.type', 'a.scheduled_at', 's.name', 'q_totals.total_points')
             ->selectRaw('
                 a.id,
                 a.title,
                 a.type,
                 a.scheduled_at,
                 s.name as subject_name,
-                (SELECT COALESCE(SUM(q.points), 0) FROM questions q WHERE q.assessment_id = a.id) as max_points,
+                COALESCE(q_totals.total_points, 0) as max_points,
                 SUM(CASE WHEN aa.graded_at IS NOT NULL THEN 1 ELSE 0 END) as graded,
                 SUM(CASE WHEN aa.submitted_at IS NOT NULL AND aa.graded_at IS NULL THEN 1 ELSE 0 END) as submitted,
                 SUM(CASE WHEN aa.started_at IS NOT NULL AND aa.submitted_at IS NULL THEN 1 ELSE 0 END) as in_progress,
-                AVG(CASE WHEN aa.graded_at IS NOT NULL THEN (SELECT COALESCE(SUM(ans.score), 0) FROM answers ans WHERE ans.assessment_assignment_id = aa.id) ELSE NULL END) as average_raw_score
+                AVG(CASE WHEN aa.graded_at IS NOT NULL THEN ans_totals.total_score ELSE NULL END) as average_raw_score
             ')
             ->orderBy('a.scheduled_at', 'desc')
             ->get();
@@ -146,13 +148,15 @@ class TeacherClassResultsService
                     ->whereNotNull('aa.graded_at');
             })
             ->join('assessments as a', 'a.id', '=', 'aa.assessment_id')
+            ->leftJoin(DB::raw('(SELECT assessment_assignment_id, COALESCE(SUM(score), 0) as total_score FROM answers GROUP BY assessment_assignment_id) as ans_totals'), 'ans_totals.assessment_assignment_id', '=', 'aa.id')
+            ->leftJoin(DB::raw('(SELECT assessment_id, COALESCE(SUM(points), 0) as total_points FROM questions GROUP BY assessment_id) as q_totals'), 'q_totals.assessment_id', '=', 'a.id')
             ->where('e.class_id', $classId)
             ->where('e.status', 'active')
             ->selectRaw('
                 e.id as enrollment_id,
                 a.coefficient,
-                (SELECT COALESCE(SUM(ans.score), 0) FROM answers ans WHERE ans.assessment_assignment_id = aa.id) as raw_score,
-                (SELECT COALESCE(SUM(q.points), 0) FROM questions q WHERE q.assessment_id = a.id) as max_points
+                COALESCE(ans_totals.total_score, 0) as raw_score,
+                COALESCE(q_totals.total_points, 0) as max_points
             ')
             ->get()
             ->groupBy('enrollment_id');

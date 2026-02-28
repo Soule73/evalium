@@ -6,16 +6,13 @@ use App\Contracts\Repositories\TeacherClassRepositoryInterface;
 use App\Models\Assessment;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
-use App\Services\Traits\Paginatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 class TeacherClassRepository implements TeacherClassRepositoryInterface
 {
-    use Paginatable;
-
     /**
-     * Get all classes where the teacher is assigned with optimized queries.
+     * Get paginated classes where the teacher is assigned using SQL-level filtering.
      */
     public function getClassesForTeacher(
         int $teacherId,
@@ -23,35 +20,40 @@ class TeacherClassRepository implements TeacherClassRepositoryInterface
         array $filters,
         int $perPage
     ): LengthAwarePaginator {
-        $classSubjects = ClassSubject::where('teacher_id', $teacherId)
-            ->forAcademicYear($selectedYearId)
-            ->active()
+        $query = ClassModel::query()
+            ->whereHas('classSubjects', function ($q) use ($teacherId, $selectedYearId) {
+                $q->where('teacher_id', $teacherId)
+                    ->whereNull('valid_to')
+                    ->whereHas('class', fn ($cq) => $cq->where('academic_year_id', $selectedYearId));
+            })
             ->with([
-                'class.level',
-                'subject',
+                'level',
+                'classSubjects' => function ($q) use ($teacherId) {
+                    $q->where('teacher_id', $teacherId)
+                        ->whereNull('valid_to')
+                        ->with('subject');
+                },
             ])
-            ->get();
+            ->withCount(['enrollments as active_enrollments_count' => function ($q) {
+                $q->where('status', 'active');
+            }]);
 
-        $classSubjectsByClassId = $classSubjects->groupBy('class_id');
+        if ($search = $filters['search'] ?? null) {
+            $like = '%'.strtolower($search).'%';
+            $query->where(function ($q) use ($like) {
+                $q->whereRaw('LOWER(name) LIKE ?', [$like])
+                    ->orWhereRaw('LOWER(description) LIKE ?', [$like])
+                    ->orWhereHas('level', fn ($lq) => $lq->whereRaw('LOWER(name) LIKE ?', [$like]));
+            });
+        }
 
-        $classIds = $classSubjectsByClassId->keys();
+        if ($levelId = $filters['level_id'] ?? null) {
+            $query->where('level_id', $levelId);
+        }
 
-        $classes = ClassModel::whereIn('id', $classIds)
-            ->with(['level'])
-            ->withCount(['enrollments as active_enrollments_count' => function ($query) {
-                $query->where('status', 'active');
-            }])
-            ->get();
-
-        $classes = $classes->map(function ($class) use ($classSubjectsByClassId) {
-            $class->setRelation('class_subjects', $classSubjectsByClassId->get($class->id, collect()));
-
-            return $class;
-        });
-
-        $classes = $this->applyClassFilters($classes, $filters);
-
-        return $this->paginateCollection($classes, $perPage);
+        return $query->orderBy('name')
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     /**
@@ -177,26 +179,5 @@ class TeacherClassRepository implements TeacherClassRepositoryInterface
             ->map(fn ($cs) => ['id' => $cs->subject_id, 'name' => $cs->subject?->name])
             ->filter(fn ($s) => $s['name'] !== null)
             ->values();
-    }
-
-    /**
-     * Apply search and level filters to the classes collection.
-     */
-    protected function applyClassFilters(Collection $classes, array $filters): Collection
-    {
-        if ($search = $filters['search'] ?? null) {
-            $search = strtolower($search);
-            $classes = $classes->filter(function ($class) use ($search) {
-                return str_contains(strtolower($class->name ?? ''), $search) ||
-                    str_contains(strtolower($class->description ?? ''), $search) ||
-                    str_contains(strtolower($class->level->name ?? ''), $search);
-            })->values();
-        }
-
-        if ($levelId = $filters['level_id'] ?? null) {
-            $classes = $classes->where('level_id', $levelId)->values();
-        }
-
-        return $classes;
     }
 }

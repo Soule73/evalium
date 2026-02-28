@@ -73,6 +73,9 @@ class GradeCalculationService
         $classSubjects = ClassSubject::active()
             ->where('class_id', $class->id)
             ->with(['subject', 'teacher'])
+            ->withCount(['assessments as published_assessments_count' => function ($q) {
+                $q->where('is_published', true);
+            }])
             ->get();
 
         $classSubjectIds = $classSubjects->pluck('id');
@@ -88,14 +91,6 @@ class GradeCalculationService
             }, 'assessment.questions:id,assessment_id,points'])
             ->get()
             ->groupBy('assessment.class_subject_id');
-
-        $publishedAssessmentsBySubject = DB::table('assessments')
-            ->whereIn('class_subject_id', $classSubjectIds)
-            ->where('is_published', true)
-            ->whereNull('deleted_at')
-            ->select('class_subject_id', DB::raw('COUNT(*) as total'))
-            ->groupBy('class_subject_id')
-            ->pluck('total', 'class_subject_id');
 
         $subjectGrades = [];
         $totalWeightedGrade = 0;
@@ -127,7 +122,7 @@ class GradeCalculationService
                 $subjectGrade = $this->computeWeightedGrade($triplets);
             }
 
-            $totalAssessments = $publishedAssessmentsBySubject->get($classSubject->id, 0);
+            $totalAssessments = $classSubject->published_assessments_count;
 
             $subjectGrades[] = [
                 'id' => $classSubject->id,

@@ -46,7 +46,7 @@ class LevelService implements LevelServiceInterface
 
         $this->invalidateClassesCache();
 
-        return $level->fresh();
+        return $level->refresh();
     }
 
     /**
@@ -82,7 +82,7 @@ class LevelService implements LevelServiceInterface
 
         $this->invalidateClassesCache();
 
-        return $level->fresh();
+        return $level->refresh();
     }
 
     /**

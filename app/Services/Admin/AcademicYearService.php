@@ -54,7 +54,7 @@ class AcademicYearService
 
             $academicYear->update(['is_current' => true]);
 
-            return $academicYear->fresh();
+            return $academicYear->refresh();
         });
 
         $this->cacheService->invalidateAcademicYearsCaches();
@@ -71,7 +71,7 @@ class AcademicYearService
 
         $this->cacheService->invalidateAcademicYearsCaches();
 
-        return $academicYear->fresh();
+        return $academicYear->refresh();
     }
 
     /**
@@ -95,7 +95,7 @@ class AcademicYearService
                 $this->syncSemesters($academicYear, $data['semesters']);
             }
 
-            return $academicYear->fresh()->load('semesters');
+            return $academicYear->refresh()->load('semesters');
         });
 
         $this->cacheService->invalidateAcademicYearsCaches();

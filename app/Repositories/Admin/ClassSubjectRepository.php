@@ -88,6 +88,26 @@ class ClassSubjectRepository implements ClassSubjectRepositoryInterface
     }
 
     /**
+     * Get options for index page filters (classes, subjects, teachers).
+     *
+     * @return array{classes: \Illuminate\Database\Eloquent\Collection, subjects: \Illuminate\Database\Eloquent\Collection, teachers: \Illuminate\Database\Eloquent\Collection}
+     */
+    public function getFilterOptions(?int $selectedYearId): array
+    {
+        return [
+            'classes' => ClassModel::query()
+                ->when($selectedYearId, fn ($q) => $q->where('academic_year_id', $selectedYearId))
+                ->with('level:id,name')
+                ->orderBy('name')
+                ->get(['id', 'name', 'level_id']),
+            'subjects' => Subject::query()
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'teachers' => $this->getTeachersForReplacement(),
+        ];
+    }
+
+    /**
      * Get paginated teaching history for a class-subject combination.
      */
     public function getPaginatedHistory(int $classId, int $subjectId, int $perPage = 10, ?int $excludeId = null): \Illuminate\Contracts\Pagination\LengthAwarePaginator

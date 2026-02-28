@@ -115,7 +115,6 @@ class AdminAssessmentRepository implements AdminAssessmentRepositoryInterface
                 'assessment.classSubject.subject',
                 'assessment.classSubject.class.level',
                 'assessment.classSubject.teacher',
-                'assessment.teacher',
             ])
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->whereHas('assessment', function ($q) use ($search) {

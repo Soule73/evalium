@@ -2,6 +2,7 @@
 
 namespace App\Services\Student;
 
+use App\Models\Answer;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\Enrollment;
@@ -188,27 +189,47 @@ class StudentAssessmentService
         }
 
         DB::transaction(function () use ($assignment, $answers) {
-            foreach ($answers as $questionId => $value) {
-                $assignment->answers()->where('question_id', $questionId)->delete();
+            $questionIds = array_keys($answers);
+            $assignment->answers()->whereIn('question_id', $questionIds)->delete();
 
+            $inserts = [];
+            $now = now();
+
+            foreach ($answers as $questionId => $value) {
                 if (is_array($value)) {
                     foreach ($value as $choiceId) {
-                        $assignment->answers()->create([
+                        $inserts[] = [
+                            'assessment_assignment_id' => $assignment->id,
                             'question_id' => $questionId,
                             'choice_id' => $choiceId,
-                        ]);
+                            'answer_text' => null,
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ];
                     }
                 } elseif (is_int($value)) {
-                    $assignment->answers()->create([
+                    $inserts[] = [
+                        'assessment_assignment_id' => $assignment->id,
                         'question_id' => $questionId,
                         'choice_id' => $value,
-                    ]);
+                        'answer_text' => null,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
                 } else {
-                    $assignment->answers()->create([
+                    $inserts[] = [
+                        'assessment_assignment_id' => $assignment->id,
                         'question_id' => $questionId,
+                        'choice_id' => null,
                         'answer_text' => $value,
-                    ]);
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
                 }
+            }
+
+            if (! empty($inserts)) {
+                Answer::insert($inserts);
             }
         });
 
@@ -295,6 +316,8 @@ class StudentAssessmentService
             ->whereIn('question_id', $autoScorableQuestions->keys())
             ->groupBy('question_id');
 
+        $scoreUpdates = [];
+
         foreach ($autoScorableQuestions as $questionId => $question) {
             $answers = $answersByQuestionId->get($questionId, collect());
 
@@ -304,11 +327,20 @@ class StudentAssessmentService
 
             $score = $this->scoringService->calculateScoreForQuestion($question, $answers);
 
-            $answers->first()->update(['score' => $score]);
+            $scoreUpdates[$answers->first()->id] = $score;
 
-            $answers->skip(1)->each(function ($answer) {
-                $answer->update(['score' => 0]);
+            $answers->skip(1)->each(function ($answer) use (&$scoreUpdates) {
+                $scoreUpdates[$answer->id] = 0;
             });
+        }
+
+        if (! empty($scoreUpdates)) {
+            $now = now()->toDateTimeString();
+            $cases = collect($scoreUpdates)
+                ->map(fn ($score, $id) => "WHEN id = {$id} THEN {$score}")
+                ->implode(' ');
+            $ids = implode(',', array_keys($scoreUpdates));
+            DB::statement("UPDATE answers SET score = CASE {$cases} END, updated_at = '{$now}' WHERE id IN ({$ids})");
         }
 
         $hasTextQuestions = $assessment->questions->contains(fn ($q) => $q->type->requiresManualGrading());
@@ -348,9 +380,10 @@ class StudentAssessmentService
      *
      * @param  User  $student  The student
      * @param  Collection  $assessments  Collection of assessments
+     * @param  Enrollment|null  $enrollment  The student's active enrollment
      * @return Collection Collection of assignments with assessment and status
      */
-    public function getAssessmentsWithAssignments(User $student, Collection $assessments): Collection
+    public function getAssessmentsWithAssignments(User $student, Collection $assessments, ?Enrollment $enrollment = null): Collection
     {
         $assessmentIds = $assessments->pluck('id');
 
@@ -359,10 +392,12 @@ class StudentAssessmentService
             ->get()
             ->keyBy('assessment_id');
 
-        $enrollment = $student->enrollments()
-            ->where('status', 'active')
-            ->whereHas('class.classSubjects.assessments', fn ($q) => $q->whereIn('id', $assessmentIds))
-            ->first();
+        if (! $enrollment) {
+            $enrollment = $student->enrollments()
+                ->where('status', 'active')
+                ->whereHas('class.classSubjects.assessments', fn ($q) => $q->whereIn('id', $assessmentIds))
+                ->first();
+        }
 
         return $assessments->map(function ($assessment) use ($enrollment, $assignments) {
             $assignment = $assignments->get($assessment->id);
@@ -483,7 +518,7 @@ class StudentAssessmentService
             ? collect($assessments->items())
             : $assessments;
 
-        $assignments = $this->getAssessmentsWithAssignments($student, $assessmentItems);
+        $assignments = $this->getAssessmentsWithAssignments($student, $assessmentItems, $enrollment);
 
         if ($assessments instanceof \Illuminate\Pagination\AbstractPaginator) {
             $assessments->setCollection($assignments);

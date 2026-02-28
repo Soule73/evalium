@@ -85,7 +85,7 @@ class EnrollmentService implements EnrollmentServiceInterface
             'withdrawn_at' => now(),
         ]);
 
-        return $enrollment->fresh();
+        return $enrollment->refresh();
     }
 
     /**
@@ -106,7 +106,7 @@ class EnrollmentService implements EnrollmentServiceInterface
             'withdrawn_at' => null,
         ]);
 
-        return $enrollment->fresh();
+        return $enrollment->refresh();
     }
 
     /**

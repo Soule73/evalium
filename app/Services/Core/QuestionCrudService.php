@@ -54,7 +54,7 @@ class QuestionCrudService
             'order_index' => $questionData['order_index'] ?? 0,
         ]);
 
-        return $question->fresh();
+        return $question->refresh();
     }
 
     /**
@@ -77,7 +77,7 @@ class QuestionCrudService
             'order_index' => $questionData['order_index'] ?? 0,
         ]);
 
-        return $question->fresh();
+        return $question->refresh();
     }
 
     /**

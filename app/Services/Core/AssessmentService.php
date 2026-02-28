@@ -159,7 +159,7 @@ class AssessmentService
 
         Notification::send($activeStudents, new AssessmentPublishedNotification($assessment));
 
-        return $assessment->fresh();
+        return $assessment->refresh();
     }
 
     /**
@@ -170,7 +170,7 @@ class AssessmentService
         $assessment->is_published = false;
         $assessment->save();
 
-        return $assessment->fresh();
+        return $assessment->refresh();
     }
 
     /**

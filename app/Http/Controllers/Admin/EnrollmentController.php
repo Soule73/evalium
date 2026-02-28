@@ -144,13 +144,21 @@ class EnrollmentController extends Controller
 
         $class = ClassModel::findOrFail($classId);
 
+        $studentsMap = User::whereIn('id', $studentIds)
+            ->get(['id', 'name', 'email'])
+            ->keyBy('id');
+
         $enrolled = [];
         $failed = [];
 
         foreach ($studentIds as $studentId) {
             try {
                 $enrollment = $this->enrollmentService->enrollStudent((int) $studentId, $classId);
-                $enrollment->load('student:id,name,email');
+                $student = $studentsMap->get((int) $studentId);
+
+                if ($student) {
+                    $enrollment->setRelation('student', $student);
+                }
 
                 $password = null;
                 $isNew = in_array((int) $studentId, array_map('intval', $newStudentIds));
@@ -158,8 +166,8 @@ class EnrollmentController extends Controller
                 if ($isNew && isset($credentialMap[$studentId])) {
                     $password = $credentialMap[$studentId];
 
-                    if ($sendCredentials) {
-                        $enrollment->student->notify(
+                    if ($sendCredentials && $student) {
+                        $student->notify(
                             new UserCredentialsNotification($password, 'student')
                         );
                     }
@@ -167,14 +175,14 @@ class EnrollmentController extends Controller
 
                 $enrolled[] = [
                     'student_id' => $enrollment->student_id,
-                    'student_name' => $enrollment->student->name,
-                    'student_email' => $enrollment->student->email,
+                    'student_name' => $student?->name ?? "#$studentId",
+                    'student_email' => $student?->email ?? '',
                     'enrollment_id' => $enrollment->id,
                     'status' => $enrollment->status,
                     'password' => $password,
                 ];
             } catch (\App\Exceptions\EnrollmentException $e) {
-                $student = User::find($studentId);
+                $student = $studentsMap->get((int) $studentId);
                 $failed[] = [
                     'student_id' => $studentId,
                     'student_name' => $student?->name ?? "#$studentId",

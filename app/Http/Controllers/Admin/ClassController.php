@@ -120,7 +120,7 @@ class ClassController extends Controller
         $selectedYearId = $this->getSelectedAcademicYearId($request);
         $this->validateAcademicYearAccess($class, $selectedYearId);
 
-        $class->load(['academicYear', 'level']);
+        $class->loadMissing(['academicYear', 'level']);
         $class->loadCount([
             'enrollments',
             'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'active'),
@@ -169,7 +169,7 @@ class ClassController extends Controller
         $selectedYearId = $this->getSelectedAcademicYearId($request);
 
         return Inertia::render('Admin/Classes/Subjects', [
-            'class' => $class->load('level', 'academicYear'),
+            'class' => $class->loadMissing('level', 'academicYear'),
             'classSubjects' => $classSubjects,
             'filters' => $filters,
             'teachers' => $teachers,
@@ -212,7 +212,7 @@ class ClassController extends Controller
             ->get(['users.id', 'users.name']);
 
         return Inertia::render('Classes/Assessments', [
-            'class' => $class->load('level', 'academicYear'),
+            'class' => $class->loadMissing('level', 'academicYear'),
             'assessments' => $assessments,
             'filters' => $filters,
             'subjects' => $subjects,

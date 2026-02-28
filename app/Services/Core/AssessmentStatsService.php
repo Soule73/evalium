@@ -60,6 +60,7 @@ class AssessmentStatsService
                 $join->on('aa.enrollment_id', '=', 'e.id')
                     ->where('aa.assessment_id', '=', $assessmentId);
             })
+            ->leftJoin(DB::raw('(SELECT assessment_assignment_id, COALESCE(SUM(score), 0) as total_score FROM answers GROUP BY assessment_assignment_id) as ans_totals'), 'ans_totals.assessment_assignment_id', '=', 'aa.id')
             ->where('e.class_id', $classId)
             ->where('e.status', 'active')
             ->selectRaw('
@@ -68,7 +69,7 @@ class AssessmentStatsService
                 SUM(CASE WHEN aa.submitted_at IS NOT NULL AND aa.graded_at IS NULL THEN 1 ELSE 0 END) as submitted,
                 SUM(CASE WHEN aa.started_at IS NOT NULL AND aa.submitted_at IS NULL THEN 1 ELSE 0 END) as in_progress,
                 SUM(CASE WHEN aa.id IS NULL OR aa.started_at IS NULL THEN 1 ELSE 0 END) as not_started,
-                AVG(CASE WHEN aa.graded_at IS NOT NULL THEN (SELECT COALESCE(SUM(ans.score), 0) FROM answers ans WHERE ans.assessment_assignment_id = aa.id) ELSE NULL END) as average_score
+                AVG(CASE WHEN aa.graded_at IS NOT NULL THEN ans_totals.total_score ELSE NULL END) as average_score
             ')
             ->first();
 

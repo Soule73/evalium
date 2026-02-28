@@ -95,6 +95,7 @@ class StudentEnrollmentRepository implements StudentEnrollmentRepositoryInterfac
             ->where('student_id', '!=', $student->id)
             ->where('status', EnrollmentStatus::Active)
             ->with('student:id,name,email')
+            ->limit(50)
             ->get()
             ->pluck('student');
     }
@@ -110,6 +111,8 @@ class StudentEnrollmentRepository implements StudentEnrollmentRepositoryInterfac
      */
     public function validateAcademicYearAccess(Enrollment $enrollment, int $selectedYearId): bool
     {
+        $enrollment->loadMissing('class');
+
         if ($enrollment->class->academic_year_id !== $selectedYearId) {
             abort(403, __('messages.enrollment_not_in_selected_year'));
         }

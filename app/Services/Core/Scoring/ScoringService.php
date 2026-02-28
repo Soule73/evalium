@@ -4,6 +4,7 @@ namespace App\Services\Core\Scoring;
 
 use App\Contracts\Scoring\ScoringStrategyInterface;
 use App\Enums\QuestionType;
+use App\Models\Answer;
 use App\Models\AssessmentAssignment;
 use App\Models\Question;
 use App\Notifications\AssessmentGradedNotification;
@@ -234,27 +235,40 @@ class ScoringService
         $answersByQuestionId = $assignment->answers->groupBy('question_id');
 
         $updatedCount = 0;
+        $answerUpdates = [];
 
         foreach ($scores as $scoreData) {
             $answers = $answersByQuestionId->get($scoreData['question_id'], collect());
 
             if ($answers->isNotEmpty()) {
-                $answers->first()->update([
+                $firstAnswer = $answers->first();
+                $answerUpdates[] = [
+                    'id' => $firstAnswer->id,
+                    'assessment_assignment_id' => $firstAnswer->assessment_assignment_id,
+                    'question_id' => $firstAnswer->question_id,
                     'score' => $scoreData['score'],
                     'feedback' => $scoreData['feedback'] ?? null,
-                ]);
+                ];
 
-                $answers->skip(1)->each(function ($answer) use ($scoreData) {
-                    $answer->update([
+                $answers->skip(1)->each(function ($answer) use ($scoreData, &$answerUpdates) {
+                    $answerUpdates[] = [
+                        'id' => $answer->id,
+                        'assessment_assignment_id' => $answer->assessment_assignment_id,
+                        'question_id' => $answer->question_id,
                         'score' => 0,
                         'feedback' => $scoreData['feedback'] ?? null,
-                    ]);
+                    ];
                 });
 
                 $updatedCount++;
             }
         }
 
+        if (! empty($answerUpdates)) {
+            Answer::upsert($answerUpdates, ['id'], ['score', 'feedback']);
+        }
+
+        $assignment->unsetRelation('answers');
         $totalScore = $this->calculateAssignmentScore($assignment);
 
         $assignment->update([

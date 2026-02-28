@@ -113,7 +113,7 @@ class ClassSubjectService implements ClassSubjectServiceInterface
 
         $classSubject->update(['coefficient' => $coefficient]);
 
-        return $classSubject->fresh();
+        return $classSubject->refresh();
     }
 
     /**
@@ -125,7 +125,7 @@ class ClassSubjectService implements ClassSubjectServiceInterface
 
         $classSubject->update(['valid_to' => $endDate]);
 
-        return $classSubject->fresh();
+        return $classSubject->refresh();
     }
 
     /**

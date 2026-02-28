@@ -57,7 +57,7 @@ class TeacherDashboardService
     {
         $query = Assessment::whereHas('classSubject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->when($academicYearId, fn ($q) => $q->forAcademicYear($academicYearId))
-            ->with(['classSubject'])
+            ->with(['classSubject.class.level', 'classSubject.subject'])
             ->orderBy('scheduled_at', 'desc');
 
         if ($search) {
@@ -87,15 +87,16 @@ class TeacherDashboardService
             ')
             ->first();
 
-        $totalAssessmentsCount = Assessment::whereHas('classSubject', function ($query) use ($teacherId, $academicYearId) {
+        $assessmentBaseQuery = Assessment::whereHas('classSubject', function ($query) use ($teacherId, $academicYearId) {
             $query->where('teacher_id', $teacherId)
                 ->when($academicYearId, fn ($q) => $q->whereHas('class', fn ($c) => $c->where('academic_year_id', $academicYearId)));
-        })->count();
+        });
 
-        $inProgressCount = Assessment::whereHas('classSubject', function ($query) use ($teacherId, $academicYearId) {
-            $query->where('teacher_id', $teacherId)
-                ->when($academicYearId, fn ($q) => $q->whereHas('class', fn ($c) => $c->where('academic_year_id', $academicYearId)));
-        })->whereHas('assignments', fn ($q) => $q->inProgress())->count();
+        $totalAssessmentsCount = (clone $assessmentBaseQuery)->count();
+
+        $inProgressCount = (clone $assessmentBaseQuery)
+            ->whereHas('assignments', fn ($q) => $q->inProgress())
+            ->count();
 
         return [
             'total_classes' => (int) ($stats->total_classes ?? 0),

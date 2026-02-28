@@ -11,16 +11,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 class GradingRepository
 {
     /**
-     * Get assignments for grading with pagination.
-     */
-    public function getAssignmentsForGrading(Assessment $assessment, int $perPage): LengthAwarePaginator
-    {
-        return AssessmentAssignment::where('assessment_id', $assessment->id)
-            ->withStudentData()
-            ->paginate($perPage);
-    }
-
-    /**
      * Get all enrolled students with their assignment status (including those who haven't started).
      */
     public function getAssignmentsWithEnrolledStudents(

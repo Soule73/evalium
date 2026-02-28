@@ -88,21 +88,10 @@ class AssessmentAssignment extends Model
     {
         $studentId = $student instanceof User ? $student->id : $student;
 
-        return $query->whereHas('enrollment', fn (Builder $q) => $q->where('student_id', $studentId));
-    }
-
-    /**
-     * Scope that enforces the correct eager loading for assignment listing views.
-     *
-     * Always use this scope when loading assignments that will render student names,
-     * emails, or answer data. Prevents silent N+1 regressions as the codebase grows.
-     *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
-     */
-    public function scopeWithStudentData(Builder $query): Builder
-    {
-        return $query->with(['enrollment.student', 'answers']);
+        return $query->whereIn(
+            'enrollment_id',
+            Enrollment::where('student_id', $studentId)->select('id')
+        );
     }
 
     /**

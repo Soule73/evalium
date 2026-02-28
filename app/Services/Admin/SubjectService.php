@@ -26,7 +26,7 @@ class SubjectService implements SubjectServiceInterface
     {
         $subject->update($validatedData);
 
-        return $subject->fresh();
+        return $subject->refresh();
     }
 
     /**

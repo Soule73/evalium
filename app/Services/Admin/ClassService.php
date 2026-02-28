@@ -76,7 +76,7 @@ class ClassService implements ClassServiceInterface
 
         $this->classQueryService->invalidateLevelsCache();
 
-        return $class->fresh();
+        return $class->refresh();
     }
 
     /**

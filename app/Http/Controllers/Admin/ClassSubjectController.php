@@ -49,6 +49,7 @@ class ClassSubjectController extends Controller
         return Inertia::render('Admin/ClassSubjects/Index', [
             'classSubjects' => $classSubjects,
             'filters' => $filters,
+            'filterOptions' => Inertia::defer(fn () => $this->classSubjectQueryService->getFilterOptions($selectedYearId)),
         ]);
     }
 

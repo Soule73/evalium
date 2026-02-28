@@ -72,7 +72,7 @@ class ClassRepository implements ClassRepositoryInterface
     public function getPaginatedEnrollments(ClassModel $class, array $filters): LengthAwarePaginator
     {
         $query = $class->enrollments()
-            ->with(['student', 'class.level'])
+            ->with(['student'])
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->whereHas('student', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")

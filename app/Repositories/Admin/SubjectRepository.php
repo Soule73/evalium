@@ -39,8 +39,10 @@ class SubjectRepository implements SubjectRepositoryInterface
                     });
                 }
             }])
-            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where('name', 'like', "%{$search}%")
-                ->orWhere('code', 'like', "%{$search}%"))
+            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            }))
             ->when($filters['level_id'] ?? null, fn ($query, $levelId) => $query->where('level_id', $levelId))
             ->orderBy('level_id')
             ->orderBy('name');
@@ -49,7 +51,7 @@ class SubjectRepository implements SubjectRepositoryInterface
         $paginated = $this->paginateQuery($query, $perPage);
 
         $paginated->getCollection()->transform(function ($subject) {
-            $subject->can_delete = $subject->canBeDeleted();
+            $subject->can_delete = ($subject->class_subjects_count ?? 0) === 0;
 
             return $subject;
         });
@@ -97,8 +99,9 @@ class SubjectRepository implements SubjectRepositoryInterface
         ?int $academicYearId,
         array $classSubjectsFilters
     ): array {
-        $subject->load('level');
-        $subject->can_delete = $subject->canBeDeleted();
+        $subject->loadMissing('level');
+        $subject->loadCount('classSubjects');
+        $subject->can_delete = ($subject->class_subjects_count ?? 0) === 0;
 
         $classSubjects = $this->getPaginatedClassSubjects($subject, $academicYearId, $classSubjectsFilters);
 

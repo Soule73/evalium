@@ -13,6 +13,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
@@ -56,11 +57,18 @@ class UserController extends Controller
 
         $availableRoles = $this->userQueryService->getAvailableRoles($currentUser);
 
+        $roleCounts = DB::table('model_has_roles')
+            ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+            ->whereIn('roles.name', ['admin', 'super_admin'])
+            ->select('roles.name', DB::raw('COUNT(*) as total'))
+            ->groupBy('roles.name')
+            ->pluck('total', 'name');
+
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
             'roles' => $availableRoles,
-            'adminCount' => User::role('admin')->count(),
-            'superAdminCount' => User::role('super_admin')->count(),
+            'adminCount' => $roleCounts->get('admin', 0),
+            'superAdminCount' => $roleCounts->get('super_admin', 0),
         ]);
     }
 

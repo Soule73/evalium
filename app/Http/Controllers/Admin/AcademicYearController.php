@@ -50,7 +50,7 @@ class AcademicYearController extends Controller
     {
         $this->authorize('create', AcademicYear::class);
 
-        $currentYear = AcademicYear::current()->with(['semesters', 'classes.level'])->first();
+        $currentYear = AcademicYear::current()->with(['semesters', 'classes:id,name,level_id,description,academic_year_id', 'classes.level:id,name'])->first();
 
         $futureYearExists = $currentYear
             ? AcademicYear::where('start_date', '>', $currentYear->end_date)->exists()
@@ -116,7 +116,7 @@ class AcademicYearController extends Controller
     {
         $this->authorize('update', $academicYear);
 
-        $academicYear->load('semesters');
+        $academicYear->loadMissing('semesters');
 
         return Inertia::render('Admin/AcademicYears/Edit', [
             'academicYear' => $academicYear,

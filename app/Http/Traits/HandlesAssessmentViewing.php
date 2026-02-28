@@ -83,7 +83,7 @@ trait HandlesAssessmentViewing
 
         $assignment->load(['enrollment.student', 'answers.choice']);
         $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
-        $fileAnswers = $assignment->answers()->whereNotNull('file_path')->get();
+        $fileAnswers = $assignment->answers->filter(fn ($a) => $a->file_path !== null)->values();
 
         return Inertia::render('Assessments/Review', [
             'assignment' => $assignment,
@@ -114,7 +114,7 @@ trait HandlesAssessmentViewing
 
         $assignment->load(['enrollment.student', 'answers.choice']);
         $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
-        $fileAnswers = $assignment->answers()->whereNotNull('file_path')->get();
+        $fileAnswers = $assignment->answers->filter(fn ($a) => $a->file_path !== null)->values();
 
         return Inertia::render('Assessments/Grade', [
             'assignment' => $assignment,

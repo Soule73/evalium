@@ -28,6 +28,13 @@ interface ClassSubjectRepositoryInterface
     public function getTeachersForReplacement(): \Illuminate\Database\Eloquent\Collection;
 
     /**
+     * Get options for index page filters (classes, subjects, teachers).
+     *
+     * @return array{classes: \Illuminate\Database\Eloquent\Collection, subjects: \Illuminate\Database\Eloquent\Collection, teachers: \Illuminate\Database\Eloquent\Collection}
+     */
+    public function getFilterOptions(?int $selectedYearId): array;
+
+    /**
      * Get paginated teaching history for a class-subject pair.
      */
     public function getPaginatedHistory(int $classId, int $subjectId, int $perPage = 10, ?int $excludeId = null): LengthAwarePaginator;
