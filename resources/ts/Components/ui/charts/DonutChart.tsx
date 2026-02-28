@@ -1,6 +1,6 @@
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { PieLabelRenderProps } from 'recharts';
-import { CHART_DEFAULTS, CHART_PALETTE } from './chartTheme';
+import { CHART_ANIMATION, CHART_DEFAULTS, CHART_PALETTE } from './chartTheme';
 
 interface DonutChartDataItem {
     name: string;
@@ -108,11 +108,14 @@ export default function DonutChart({
                         innerRadius={innerRadius}
                         outerRadius={outerRadius}
                         dataKey="value"
-                        animationDuration={CHART_DEFAULTS.animationDuration}
+                        animationDuration={CHART_ANIMATION.duration}
+                        animationEasing={CHART_ANIMATION.easing}
                         label={showLabels ? renderCustomLabel : undefined}
                         labelLine={false}
                         stroke="white"
-                        strokeWidth={2}
+                        strokeWidth={3}
+                        paddingAngle={data.length > 1 ? 3 : 0}
+                        cornerRadius={4}
                     />
 
                     {showTooltip && (
@@ -121,11 +124,11 @@ export default function DonutChart({
                             formatter={
                                 formatTooltipValue
                                     ? (value: number | undefined) => formatTooltipValue(value ?? 0)
-                                    : (value: number | undefined) => {
+                                    : (value: number | undefined, name: string | undefined) => {
                                           const v = value ?? 0;
-                                          return [
-                                              `${v} (${total > 0 ? ((v / total) * 100).toFixed(1) : 0}%)`,
-                                          ];
+                                          const pct =
+                                              total > 0 ? ((v / total) * 100).toFixed(1) : 0;
+                                          return [`${v} (${pct}%)`, name];
                                       }
                             }
                         />
@@ -133,7 +136,7 @@ export default function DonutChart({
 
                     {showLegend && (
                         <Legend
-                            wrapperStyle={{ fontSize: CHART_DEFAULTS.fontSize }}
+                            wrapperStyle={{ fontSize: CHART_DEFAULTS.fontSize, paddingTop: 8 }}
                             iconType="circle"
                             iconSize={8}
                         />

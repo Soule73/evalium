@@ -8,7 +8,7 @@ import {
     Legend,
     ResponsiveContainer,
 } from 'recharts';
-import { CHART_DEFAULTS, COMPLETION_STATUS_COLORS } from './chartTheme';
+import { CHART_ANIMATION, CHART_DEFAULTS, COMPLETION_STATUS_COLORS } from './chartTheme';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface CompletionDataItem {
@@ -66,18 +66,29 @@ export default function CompletionChart({
                     data={data}
                     layout={isVertical ? 'vertical' : 'horizontal'}
                     margin={CHART_DEFAULTS.margin}
+                    barCategoryGap="25%"
                 >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                    <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke={CHART_DEFAULTS.gridStroke}
+                        horizontal={!isVertical}
+                        vertical={isVertical}
+                    />
 
                     {isVertical ? (
                         <>
-                            <XAxis type="number" fontSize={CHART_DEFAULTS.fontSize} />
+                            <XAxis
+                                type="number"
+                                fontSize={CHART_DEFAULTS.fontSize}
+                                {...CHART_DEFAULTS.axisStyle}
+                            />
                             <YAxis
                                 type="category"
                                 dataKey="name"
-                                fontSize={CHART_DEFAULTS.fontSize}
+                                fontSize={11}
                                 width={120}
-                                tick={{ fontSize: 11 }}
+                                tickLine={false}
+                                tick={{ fill: '#6b7280', fontSize: 11 }}
                             />
                         </>
                     ) : (
@@ -85,14 +96,12 @@ export default function CompletionChart({
                             <XAxis
                                 dataKey="name"
                                 fontSize={CHART_DEFAULTS.fontSize}
-                                tickLine={false}
-                                axisLine={false}
-                                tick={{ fontSize: 11 }}
+                                {...CHART_DEFAULTS.axisStyle}
+                                tick={{ fill: '#6b7280', fontSize: 11 }}
                             />
                             <YAxis
                                 fontSize={CHART_DEFAULTS.fontSize}
-                                tickLine={false}
-                                axisLine={false}
+                                {...CHART_DEFAULTS.axisStyle}
                                 allowDecimals={false}
                             />
                         </>
@@ -100,26 +109,38 @@ export default function CompletionChart({
 
                     <Tooltip
                         contentStyle={CHART_DEFAULTS.tooltipStyle}
-                        formatter={(value: number | undefined, name: string | undefined) => [
-                            value ?? 0,
-                            statusLabels[name ?? ''] ?? name,
-                        ]}
+                        formatter={(value: number | undefined, name: string | undefined) => {
+                            const total = data[0]
+                                ? data[0].graded +
+                                  data[0].submitted +
+                                  data[0].in_progress +
+                                  data[0].not_started
+                                : 0;
+                            const v = value ?? 0;
+                            const pct = total > 0 ? ((v / total) * 100).toFixed(0) : 0;
+                            return [`${v} (${pct}%)`, statusLabels[name ?? ''] ?? name];
+                        }}
                     />
 
                     {showLegend && (
                         <Legend
-                            wrapperStyle={{ fontSize: CHART_DEFAULTS.fontSize }}
+                            wrapperStyle={{ fontSize: CHART_DEFAULTS.fontSize, paddingTop: 8 }}
+                            iconType="circle"
+                            iconSize={8}
                             formatter={(value: string) => statusLabels[value] ?? value}
                         />
                     )}
 
-                    {statuses.map((status) => (
+                    {statuses.map((status, idx) => (
                         <Bar
                             key={status}
                             dataKey={status}
                             stackId="completion"
                             fill={COMPLETION_STATUS_COLORS[status]}
-                            animationDuration={CHART_DEFAULTS.animationDuration}
+                            radius={status === 'not_started' ? CHART_DEFAULTS.barRadius : undefined}
+                            animationDuration={CHART_ANIMATION.duration}
+                            animationEasing={CHART_ANIMATION.easing}
+                            animationBegin={idx * 80}
                         />
                     ))}
                 </BarChart>

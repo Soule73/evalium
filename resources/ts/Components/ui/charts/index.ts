@@ -19,10 +19,14 @@ export type { ScoreDistributionProps, ScoreDistributionItem } from './ScoreDistr
 export { default as CompletionChart } from './CompletionChart';
 export type { CompletionChartProps, CompletionDataItem } from './CompletionChart';
 
+export { default as CustomTooltip } from './CustomTooltip';
+export type { CustomTooltipProps } from './CustomTooltip';
+
 export {
     CHART_COLORS,
     CHART_PALETTE,
     CHART_DEFAULTS,
+    CHART_ANIMATION,
     SCORE_RANGE_COLORS,
     SCORE_RANGES,
     COMPLETION_STATUS_COLORS,

@@ -1,8 +1,8 @@
 /**
  * Evalium chart theme configuration for Recharts.
  *
- * Provides a consistent color palette and shared styling constants
- * used across all chart components.
+ * Provides a consistent color palette, animation presets, and shared styling
+ * constants used across all chart components.
  */
 
 export const CHART_COLORS = {
@@ -57,17 +57,31 @@ export const ROLE_COLORS: Record<string, string> = {
     admin: CHART_COLORS.purple,
 };
 
+export const CHART_ANIMATION = {
+    duration: 800,
+    easing: 'ease-in-out' as const,
+    delayPerSeries: 150,
+} as const;
+
 export const CHART_DEFAULTS = {
     fontSize: 12,
     fontFamily: 'inherit',
     tooltipStyle: {
         backgroundColor: '#ffffff',
         borderColor: '#e5e7eb',
-        borderRadius: 8,
-        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+        borderRadius: 10,
+        boxShadow: '0 4px 14px -2px rgb(0 0 0 / 0.08), 0 2px 6px -2px rgb(0 0 0 / 0.04)',
+        padding: '8px 12px',
+        fontSize: 13,
     },
-    animationDuration: 800,
-    margin: { top: 5, right: 20, bottom: 5, left: 0 },
+    gridStroke: '#f3f4f6',
+    axisStyle: {
+        tickLine: false as const,
+        axisLine: false as const,
+        tick: { fill: '#9ca3af', fontSize: 12 },
+    },
+    margin: { top: 8, right: 12, bottom: 8, left: 0 },
+    barRadius: [6, 6, 0, 0] as [number, number, number, number],
 } as const;
 
 export const SCORE_RANGES = ['0-4', '5-8', '9-12', '13-16', '17-20'] as const;

@@ -8,7 +8,8 @@ import {
     Legend,
     ResponsiveContainer,
 } from 'recharts';
-import { CHART_COLORS, CHART_DEFAULTS, CHART_PALETTE } from './chartTheme';
+import { CHART_ANIMATION, CHART_COLORS, CHART_DEFAULTS, CHART_PALETTE } from './chartTheme';
+import CustomTooltip from './CustomTooltip';
 
 interface LineChartDataItem {
     name: string;
@@ -68,49 +69,73 @@ export default function LineChart({
     return (
         <div className={className}>
             <ResponsiveContainer width="100%" height={height}>
-                <RechartsLineChart data={data} margin={CHART_DEFAULTS.margin}>
-                    {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />}
+                <RechartsLineChart data={data} margin={{ ...CHART_DEFAULTS.margin, bottom: 12 }}>
+                    {showGrid && (
+                        <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke={CHART_DEFAULTS.gridStroke}
+                            vertical={false}
+                        />
+                    )}
 
                     <XAxis
                         dataKey="name"
                         fontSize={CHART_DEFAULTS.fontSize}
-                        tickLine={false}
-                        axisLine={false}
+                        {...CHART_DEFAULTS.axisStyle}
+                        dy={8}
                     />
                     <YAxis
                         fontSize={CHART_DEFAULTS.fontSize}
-                        tickLine={false}
-                        axisLine={false}
+                        {...CHART_DEFAULTS.axisStyle}
                         domain={yDomain}
+                        width={35}
                     />
 
                     {showTooltip && (
-                        <Tooltip
-                            contentStyle={CHART_DEFAULTS.tooltipStyle}
-                            formatter={
-                                formatTooltipValue
-                                    ? (value: number | undefined) => formatTooltipValue(value ?? 0)
-                                    : undefined
-                            }
+                        <Tooltip content={<CustomTooltip formatValue={formatTooltipValue} />} />
+                    )}
+
+                    {showLegend && (
+                        <Legend
+                            wrapperStyle={{ fontSize: CHART_DEFAULTS.fontSize, paddingTop: 12 }}
+                            iconType="circle"
+                            iconSize={8}
                         />
                     )}
 
-                    {showLegend && <Legend wrapperStyle={{ fontSize: CHART_DEFAULTS.fontSize }} />}
-
-                    {resolvedSeries.map((s, idx) => (
-                        <Line
-                            key={s.dataKey}
-                            type={curved ? 'monotone' : 'linear'}
-                            dataKey={s.dataKey}
-                            name={s.name}
-                            stroke={s.color ?? colors[idx % colors.length]}
-                            strokeWidth={2}
-                            strokeDasharray={s.dashed ? '5 5' : undefined}
-                            dot={showDots ? { r: 4, strokeWidth: 2 } : false}
-                            activeDot={{ r: 6 }}
-                            animationDuration={CHART_DEFAULTS.animationDuration}
-                        />
-                    ))}
+                    {resolvedSeries.map((s, idx) => {
+                        const color = s.color ?? colors[idx % colors.length];
+                        return (
+                            <Line
+                                key={s.dataKey}
+                                type={curved ? 'monotone' : 'linear'}
+                                dataKey={s.dataKey}
+                                name={s.name}
+                                stroke={color}
+                                strokeWidth={2.5}
+                                strokeDasharray={s.dashed ? '6 4' : undefined}
+                                dot={
+                                    showDots
+                                        ? {
+                                              r: 4,
+                                              strokeWidth: 2,
+                                              fill: '#fff',
+                                              stroke: color,
+                                          }
+                                        : false
+                                }
+                                activeDot={{
+                                    r: 6,
+                                    strokeWidth: 2,
+                                    fill: '#fff',
+                                    stroke: color,
+                                }}
+                                animationDuration={CHART_ANIMATION.duration}
+                                animationEasing={CHART_ANIMATION.easing}
+                                animationBegin={idx * CHART_ANIMATION.delayPerSeries}
+                            />
+                        );
+                    })}
                 </RechartsLineChart>
             </ResponsiveContainer>
         </div>

@@ -1,5 +1,15 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { CHART_DEFAULTS, SCORE_RANGE_COLORS, SCORE_RANGES } from './chartTheme';
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    Cell,
+    LabelList,
+} from 'recharts';
+import { CHART_ANIMATION, CHART_DEFAULTS, SCORE_RANGE_COLORS, SCORE_RANGES } from './chartTheme';
 
 interface ScoreDistributionItem {
     range: string;
@@ -10,6 +20,7 @@ interface ScoreDistributionProps {
     data: ScoreDistributionItem[];
     height?: number;
     showGrid?: boolean;
+    showValueLabels?: boolean;
     className?: string;
 }
 
@@ -34,6 +45,7 @@ export default function ScoreDistribution({
     data,
     height = 250,
     showGrid = true,
+    showValueLabels = true,
     className = '',
 }: ScoreDistributionProps) {
     const orderedData = SCORE_RANGES.map((range) => {
@@ -41,36 +53,66 @@ export default function ScoreDistribution({
         return { range, count: found?.count ?? 0, fill: SCORE_RANGE_COLORS[range] ?? '#6b7280' };
     });
 
+    const hasData = orderedData.some((d) => d.count > 0);
+
     return (
         <div className={className}>
             <ResponsiveContainer width="100%" height={height}>
-                <BarChart data={orderedData} margin={CHART_DEFAULTS.margin}>
-                    {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />}
+                <BarChart
+                    data={orderedData}
+                    margin={{ ...CHART_DEFAULTS.margin, top: 20 }}
+                    barCategoryGap="20%"
+                >
+                    {showGrid && (
+                        <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke={CHART_DEFAULTS.gridStroke}
+                            vertical={false}
+                        />
+                    )}
 
                     <XAxis
                         dataKey="range"
                         fontSize={CHART_DEFAULTS.fontSize}
-                        tickLine={false}
-                        axisLine={false}
+                        {...CHART_DEFAULTS.axisStyle}
                     />
                     <YAxis
                         fontSize={CHART_DEFAULTS.fontSize}
-                        tickLine={false}
-                        axisLine={false}
+                        {...CHART_DEFAULTS.axisStyle}
                         allowDecimals={false}
+                        width={30}
                     />
 
                     <Tooltip
                         contentStyle={CHART_DEFAULTS.tooltipStyle}
                         formatter={(value: number | undefined) => [`${value ?? 0}`, 'Students']}
                         labelFormatter={(label) => `Score: ${String(label)} / 20`}
+                        cursor={{ fill: 'rgba(0,0,0,0.03)', radius: 4 }}
                     />
 
                     <Bar
                         dataKey="count"
-                        radius={[4, 4, 0, 0]}
-                        animationDuration={CHART_DEFAULTS.animationDuration}
-                    />
+                        radius={CHART_DEFAULTS.barRadius}
+                        animationDuration={CHART_ANIMATION.duration}
+                        animationEasing={CHART_ANIMATION.easing}
+                    >
+                        {orderedData.map((entry) => (
+                            <Cell key={entry.range} fill={entry.fill} />
+                        ))}
+                        {showValueLabels && hasData && (
+                            <LabelList
+                                dataKey="count"
+                                position="top"
+                                fontSize={11}
+                                fontWeight={600}
+                                fill="#6b7280"
+                                formatter={(v: unknown) => {
+                                    const n = Number(v);
+                                    return n > 0 ? String(n) : '';
+                                }}
+                            />
+                        )}
+                    </Bar>
                 </BarChart>
             </ResponsiveContainer>
         </div>

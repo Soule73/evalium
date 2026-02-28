@@ -8,7 +8,7 @@ import {
     Legend,
     ResponsiveContainer,
 } from 'recharts';
-import { CHART_COLORS, CHART_DEFAULTS, CHART_PALETTE } from './chartTheme';
+import { CHART_ANIMATION, CHART_COLORS, CHART_DEFAULTS, CHART_PALETTE } from './chartTheme';
 
 interface RadarChartDataItem {
     subject: string;
@@ -66,18 +66,32 @@ export default function RadarChart({
     return (
         <div className={className}>
             <ResponsiveContainer width="100%" height={height}>
-                <RechartsRadarChart cx="50%" cy="50%" outerRadius="75%" data={data}>
-                    <PolarGrid stroke="#e5e7eb" />
+                <RechartsRadarChart cx="50%" cy="50%" outerRadius="72%" data={data}>
+                    <PolarGrid stroke="#e5e7eb" strokeDasharray="3 3" />
                     <PolarAngleAxis
                         dataKey="subject"
-                        fontSize={CHART_DEFAULTS.fontSize}
-                        tick={{ fill: '#6b7280' }}
+                        fontSize={11}
+                        tick={({ x, y, payload, textAnchor }) => (
+                            <text
+                                x={x}
+                                y={y}
+                                textAnchor={textAnchor}
+                                fill="#6b7280"
+                                fontSize={11}
+                                fontWeight={500}
+                            >
+                                {String(payload.value).length > 12
+                                    ? `${String(payload.value).slice(0, 12)}...`
+                                    : String(payload.value)}
+                            </text>
+                        )}
                     />
                     <PolarRadiusAxis
                         angle={90}
                         domain={[0, maxValue]}
                         fontSize={10}
-                        tick={{ fill: '#9ca3af' }}
+                        tick={{ fill: '#d1d5db', fontSize: 10 }}
+                        axisLine={false}
                     />
 
                     {resolvedSeries.map((s, idx) => {
@@ -91,7 +105,10 @@ export default function RadarChart({
                                 fill={color}
                                 fillOpacity={s.fillOpacity ?? 0.15}
                                 strokeWidth={2}
-                                animationDuration={CHART_DEFAULTS.animationDuration}
+                                dot={{ r: 3, fill: color, strokeWidth: 0 }}
+                                animationDuration={CHART_ANIMATION.duration}
+                                animationEasing={CHART_ANIMATION.easing}
+                                animationBegin={idx * CHART_ANIMATION.delayPerSeries}
                             />
                         );
                     })}
@@ -107,7 +124,13 @@ export default function RadarChart({
                         />
                     )}
 
-                    {showLegend && <Legend wrapperStyle={{ fontSize: CHART_DEFAULTS.fontSize }} />}
+                    {showLegend && (
+                        <Legend
+                            wrapperStyle={{ fontSize: CHART_DEFAULTS.fontSize, paddingTop: 8 }}
+                            iconType="circle"
+                            iconSize={8}
+                        />
+                    )}
                 </RechartsRadarChart>
             </ResponsiveContainer>
         </div>

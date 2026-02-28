@@ -8,7 +8,8 @@ import {
     Legend,
     ResponsiveContainer,
 } from 'recharts';
-import { CHART_COLORS, CHART_DEFAULTS, CHART_PALETTE } from './chartTheme';
+import { CHART_ANIMATION, CHART_COLORS, CHART_DEFAULTS, CHART_PALETTE } from './chartTheme';
+import CustomTooltip from './CustomTooltip';
 
 interface BarChartDataItem {
     name: string;
@@ -85,17 +86,30 @@ export default function BarChart({
                     data={chartData}
                     layout={isVertical ? 'vertical' : 'horizontal'}
                     margin={CHART_DEFAULTS.margin}
+                    barCategoryGap="20%"
                 >
-                    {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />}
+                    {showGrid && (
+                        <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke={CHART_DEFAULTS.gridStroke}
+                            vertical={false}
+                        />
+                    )}
 
                     {isVertical ? (
                         <>
-                            <XAxis type="number" fontSize={CHART_DEFAULTS.fontSize} />
+                            <XAxis
+                                type="number"
+                                fontSize={CHART_DEFAULTS.fontSize}
+                                {...CHART_DEFAULTS.axisStyle}
+                            />
                             <YAxis
                                 type="category"
                                 dataKey="name"
                                 fontSize={CHART_DEFAULTS.fontSize}
                                 width={100}
+                                tickLine={false}
+                                tick={CHART_DEFAULTS.axisStyle.tick}
                             />
                         </>
                     ) : (
@@ -103,29 +117,29 @@ export default function BarChart({
                             <XAxis
                                 dataKey="name"
                                 fontSize={CHART_DEFAULTS.fontSize}
-                                tickLine={false}
-                                axisLine={false}
+                                {...CHART_DEFAULTS.axisStyle}
                             />
                             <YAxis
                                 fontSize={CHART_DEFAULTS.fontSize}
-                                tickLine={false}
-                                axisLine={false}
+                                {...CHART_DEFAULTS.axisStyle}
                             />
                         </>
                     )}
 
                     {showTooltip && (
                         <Tooltip
-                            contentStyle={CHART_DEFAULTS.tooltipStyle}
-                            formatter={
-                                formatTooltipValue
-                                    ? (value: number | undefined) => formatTooltipValue(value ?? 0)
-                                    : undefined
-                            }
+                            content={<CustomTooltip formatValue={formatTooltipValue} />}
+                            cursor={{ fill: 'rgba(79, 70, 229, 0.04)', radius: 4 }}
                         />
                     )}
 
-                    {showLegend && <Legend wrapperStyle={{ fontSize: CHART_DEFAULTS.fontSize }} />}
+                    {showLegend && (
+                        <Legend
+                            wrapperStyle={{ fontSize: CHART_DEFAULTS.fontSize, paddingTop: 12 }}
+                            iconType="circle"
+                            iconSize={8}
+                        />
+                    )}
 
                     {resolvedSeries.map((s, idx) => (
                         <Bar
@@ -135,8 +149,10 @@ export default function BarChart({
                             fill={s.color ?? colors[idx % colors.length]}
                             stackId={s.stackId}
                             barSize={barSize}
-                            radius={[4, 4, 0, 0]}
-                            animationDuration={CHART_DEFAULTS.animationDuration}
+                            radius={CHART_DEFAULTS.barRadius}
+                            animationDuration={CHART_ANIMATION.duration}
+                            animationEasing={CHART_ANIMATION.easing}
+                            animationBegin={idx * CHART_ANIMATION.delayPerSeries}
                         />
                     ))}
                 </RechartsBarChart>
