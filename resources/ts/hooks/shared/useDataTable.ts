@@ -341,16 +341,21 @@ export function useDataTable<T extends { id: number | string }>(
         };
     }, []);
 
+    const selection = useMemo(
+        () => ({
+            selectedItems,
+            allItemsOnPageSelected,
+            someItemsOnPageSelected,
+            selectedCount: selectedItems.size,
+        }),
+        [selectedItems, allItemsOnPageSelected, someItemsOnPageSelected],
+    );
+
     return {
         state,
         actions,
         isNavigating,
         buildUrl,
-        selection: {
-            selectedItems,
-            allItemsOnPageSelected,
-            someItemsOnPageSelected,
-            selectedCount: selectedItems.size,
-        },
+        selection,
     };
 }

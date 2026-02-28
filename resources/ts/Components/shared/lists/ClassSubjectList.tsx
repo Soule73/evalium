@@ -182,7 +182,7 @@ export function ClassSubjectList({
                         { value: '', label: t('admin_pages.class_subjects.all_classes') },
                         ...classes.map((c) => ({
                             value: String(c.id),
-                            label: `${c.name} (${c.level?.name ?? ''})`,
+                            label: `${c.display_name ?? c.name}`,
                         })),
                     ],
                     conditional: (v) => v === 'admin',

@@ -42,7 +42,7 @@ class SubjectControllerTest extends TestCase
         return array_merge([
             'level_id' => $level->id,
             'name' => 'Mathématiques avancées',
-            'code' => 'MATH-' . rand(100, 999),
+            'code' => 'MATH-'.rand(100, 999),
             'description' => null,
         ], $overrides);
     }
@@ -72,7 +72,7 @@ class SubjectControllerTest extends TestCase
             ->get(route('admin.subjects.index'))
             ->assertOk()
             ->assertInertia(
-                fn($page) => $page
+                fn ($page) => $page
                     ->component('Admin/Subjects/Index')
                     ->has('subjects')
                     ->has('levels')
@@ -100,7 +100,7 @@ class SubjectControllerTest extends TestCase
             ->get(route('admin.subjects.create'))
             ->assertOk()
             ->assertInertia(
-                fn($page) => $page
+                fn ($page) => $page
                     ->component('Admin/Subjects/Create')
                     ->has('levels')
             );
@@ -168,7 +168,7 @@ class SubjectControllerTest extends TestCase
             ->post(route('admin.subjects.store'), [
                 'level_id' => $level->id,
                 'name' => 'Mathématiques',
-                'code' => 'MATH-' . rand(100, 999),
+                'code' => 'MATH-'.rand(100, 999),
             ])
             ->assertSessionHasErrors('name');
     }
@@ -183,7 +183,7 @@ class SubjectControllerTest extends TestCase
             ->post(route('admin.subjects.store'), [
                 'level_id' => $levelB->id,
                 'name' => 'Mathématiques',
-                'code' => 'MATH-' . rand(100, 999),
+                'code' => 'MATH-'.rand(100, 999),
             ])
             ->assertSessionHasNoErrors();
     }
@@ -210,7 +210,7 @@ class SubjectControllerTest extends TestCase
             ->get(route('admin.subjects.show', $this->subject))
             ->assertOk()
             ->assertInertia(
-                fn($page) => $page
+                fn ($page) => $page
                     ->component('Admin/Subjects/Show')
                     ->has('subject')
                     ->has('classSubjects')
@@ -239,7 +239,7 @@ class SubjectControllerTest extends TestCase
             ->get(route('admin.subjects.edit', $this->subject))
             ->assertOk()
             ->assertInertia(
-                fn($page) => $page
+                fn ($page) => $page
                     ->component('Admin/Subjects/Edit')
                     ->has('subject')
                     ->has('levels')
@@ -302,7 +302,7 @@ class SubjectControllerTest extends TestCase
             ->put(route('admin.subjects.update', $subjectToUpdate), [
                 'level_id' => $level->id,
                 'name' => 'Mathématiques',
-                'code' => 'PHYS-' . rand(100, 999),
+                'code' => 'PHYS-'.rand(100, 999),
             ])
             ->assertSessionHasErrors('name');
     }

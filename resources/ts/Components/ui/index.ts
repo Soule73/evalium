@@ -1,6 +1,6 @@
 export { default as ActionGroup } from './ActionGroup/ActionGroup';
 export type { ActionGroupProps, ActionItem } from './ActionGroup/ActionGroup';
-export { default as AlertEntry } from './AlerEntry/AlertEntry';
+export { default as AlertEntry } from './AlertEntry/AlertEntry';
 export { default as Badge } from './Badge/Badge';
 export { default as Button } from './Button/Button';
 export { default as Checkbox } from './Checkbox/Checkbox';
@@ -15,7 +15,7 @@ export { default as Section } from './Section/Section';
 export { default as Select } from './Select/Select';
 export { default as Stat } from './Stat/Stat';
 export type { StatItemProps, StatGroupProps } from './Stat/Stat';
-export { default as Textarea } from './Texterea/Textarea';
+export { default as Textarea } from './Textarea/Textarea';
 export { default as TextEntry } from './TextEntry/TextEntry';
 export { default as Timeline } from './Timeline/index';
 export type { TimelineProps, TimelineStep } from './Timeline/index';

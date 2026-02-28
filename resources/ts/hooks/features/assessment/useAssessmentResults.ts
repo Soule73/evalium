@@ -1,6 +1,7 @@
 import { type Assessment, type AssessmentAssignment } from '@/types';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { useMemo } from 'react';
+import { calculateTotalPoints } from '@/utils/assessment/utils';
 
 interface UseAssessmentResultParams {
     assessment: Assessment;
@@ -23,14 +24,14 @@ const useAssessmentResults = ({
     const assignmentStatus = assignment.status;
     const releaseResultsAfterGrading = assessment.release_results_after_grading ?? false;
 
-    const totalPoints = useMemo(
-        () => questions.reduce((sum, q) => sum + (q.points || 0), 0),
-        [questions],
-    );
+    const totalPoints = useMemo(() => calculateTotalPoints(questions), [questions]);
 
     const isPendingReview = useMemo(() => assignmentStatus !== 'graded', [assignmentStatus]);
 
-    const formattedAssignmentStatus = formatAssessmentAssignmentStatus(assignmentStatus);
+    const formattedAssignmentStatus = useMemo(
+        () => formatAssessmentAssignmentStatus(assignmentStatus),
+        [formatAssessmentAssignmentStatus, assignmentStatus],
+    );
 
     const showCorrectAnswers = canShowCorrectAnswers;
 

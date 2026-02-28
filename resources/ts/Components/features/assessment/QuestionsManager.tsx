@@ -89,7 +89,6 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({ errors = {}, delive
         historyModalOpen,
         setHistoryModalOpen,
         deleteHistory,
-        setConfirmationModal,
     } = useQuestionsManager();
 
     const { t } = useTranslations();
@@ -197,10 +196,10 @@ const QuestionsManager: React.FC<QuestionsManagerProps> = ({ errors = {}, delive
 
                 <ConfirmationModal
                     isOpen={confirmationModal.isOpen}
-                    onClose={() => setConfirmationModal((prev) => ({ ...prev, isOpen: false }))}
-                    onConfirm={confirmationModal.onConfirm}
-                    title={confirmationModal.title}
-                    message={confirmationModal.message}
+                    onClose={confirmationModal.closeModal}
+                    onConfirm={confirmationModal.data?.onConfirm ?? (() => {})}
+                    title={confirmationModal.data?.title ?? ''}
+                    message={confirmationModal.data?.message ?? ''}
                     confirmText={translations.deleteConfirm}
                     cancelText={translations.deleteCancel}
                     type="warning"

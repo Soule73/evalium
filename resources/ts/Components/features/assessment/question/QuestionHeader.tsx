@@ -1,7 +1,7 @@
 import { CheckCircleIcon, XMarkIcon } from '@heroicons/react/16/solid';
 import { type Question, type QuestionResult } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { useQuestionTypeUtils } from '@/hooks/shared/useQuestionTypeUtils';
+import { useFormatters } from '@/hooks/shared/useFormatters';
 import { MarkdownRenderer } from '@evalium/ui';
 import { getTypeColor } from '@/utils/assessment/components';
 import { useQuestionContext } from './QuestionContext';
@@ -19,7 +19,7 @@ interface QuestionHeaderProps {
  */
 export function QuestionHeader({ question, questionIndex, result }: QuestionHeaderProps) {
     const { t } = useTranslations();
-    const { getTypeLabel } = useQuestionTypeUtils();
+    const { getQuestionTypeLabel } = useFormatters();
     const { config } = useQuestionContext();
 
     const displayScore =
@@ -55,7 +55,7 @@ export function QuestionHeader({ question, questionIndex, result }: QuestionHead
                     <span
                         className={`text-xs px-2 py-1 min-w-fit rounded-full ${getTypeColor(question.type)}`}
                     >
-                        {getTypeLabel(question.type)}
+                        {getQuestionTypeLabel(question.type)}
                     </span>
                 </div>
             </div>

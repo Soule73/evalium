@@ -18,14 +18,14 @@ class SubjectFactory extends Factory
     public function definition(): array
     {
         $subjects = [
-            'Mathématiques' => 'MATH',
-            'Physique' => 'PHYS',
-            'Chimie' => 'CHEM',
-            'Informatique' => 'INFO',
-            'Français' => 'FRAN',
-            'Anglais' => 'ANGL',
-            'Histoire' => 'HIST',
-            'Géographie' => 'GEOG',
+            'Mathematics' => 'MATH',
+            'Physics' => 'PHYS',
+            'Chemistry' => 'CHEM',
+            'Computer Science' => 'INFO',
+            'French' => 'FRAN',
+            'English' => 'ANGL',
+            'History' => 'HIST',
+            'Geography' => 'GEOG',
         ];
 
         $base = $this->faker->randomElement(array_keys($subjects));

@@ -22,7 +22,7 @@ export const formatTime = (seconds: number): string => {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 };
 
-// Fonction pour convertir la date ISO en format YYYY-MM-DD
+// Converts an ISO date to YYYY-MM-DD format
 export const formatDateForInput = (isoDate: string) => {
     if (!isoDate) return '';
     return isoDate.split('T')[0];
@@ -122,38 +122,6 @@ export function capitalize(text: string): string {
     return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 }
 
-export const getRoleColor = (roleName: string) => {
-    switch (roleName) {
-        case 'admin':
-            return 'bg-red-100 text-red-800';
-        case 'super_admin':
-            return 'bg-purple-100 text-purple-800';
-        case 'teacher':
-            return 'bg-blue-100 text-blue-800';
-        case 'student':
-            return 'bg-green-100 text-green-800';
-        default:
-            return 'bg-gray-100 text-gray-800';
-    }
-};
-
-export const getAssignmentBadgeType = (status: string) => {
-    switch (status) {
-        case 'graded':
-            return 'success';
-        case 'submitted':
-            return 'info';
-        default:
-            return 'error';
-    }
-};
-
-export const assignmentStatusColors: Record<string, string> = {
-    submitted: 'bg-green-100 text-green-800',
-    graded: 'bg-purple-100 text-purple-800',
-    default: 'bg-gray-100 text-gray-800',
-};
-
 /**
  * Formats a number using French (France) locale conventions.
  *
@@ -166,14 +134,14 @@ export const formatNumber = (value: number, locale: string = 'fr-FR'): string =>
 };
 
 /**
- * Formats a given date as a human-readable relative time string in French.
+ * Formats a given date as a human-readable relative time string.
  *
- * Returns phrases such as "À l'instant", "Il y a 5 min", "Il y a 2h", or "Il y a 3 jours"
+ * Returns phrases such as "Just now", "5 min ago", "2h ago", or "3 days ago"
  * depending on how much time has passed since the given date. If the date is more than 7 days ago,
  * it falls back to a formatted date string using `formatDate`.
  *
  * @param date - The date to format, as a `Date` object, ISO string, or timestamp.
- * @returns A French relative time string representing the time elapsed since the given date.
+ * @returns A relative time string representing the time elapsed since the given date.
  */
 /**
  * Truncates a given string to a specified maximum length and appends an ellipsis ("...") if the string exceeds that length.
@@ -188,38 +156,6 @@ export const truncateText = (text: string, maxLength: number): string => {
 };
 
 /**
- * Returns a formatted label and color for a given assessment assignment status.
- *
- * Maps known status strings to their corresponding French label and color.
- * If the status is not recognized, returns the status as the label and 'gray' as the color.
- *
- * @param status - The status string of the assessment assignment (e.g., 'submitted', 'graded').
- * @returns An object containing the `label` (string) and `color` (string) for the given status.
- */
-export const canShowAssessmentResults = (
-    assignmentStatus: string,
-    releaseResultsAfterGrading: boolean = false,
-): boolean => {
-    if (
-        !releaseResultsAfterGrading &&
-        (assignmentStatus === 'submitted' || assignmentStatus === 'graded')
-    ) {
-        return true;
-    }
-    return assignmentStatus === 'graded';
-};
-
-/**
- * Returns an array of possible assignment status strings.
- *
- * @returns {string[]} An array containing the assignment statuses:
- * 'submitted' and 'graded'.
- */
-export const getAssignmentStatus = () => {
-    return ['submitted', 'graded'];
-};
-
-/**
  * Formats a file size in bytes to a human-readable string (B, KB, MB, GB).
  */
 export const formatFileSize = (bytes: number): string => {
@@ -228,4 +164,14 @@ export const formatFileSize = (bytes: number): string => {
     const index = Math.floor(Math.log(bytes) / Math.log(1024));
     const size = bytes / Math.pow(1024, index);
     return `${size.toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+};
+
+/**
+ * Converts a UTC ISO datetime string to a local datetime-local input value (YYYY-MM-DDTHH:MM).
+ * Uses the browser's local timezone so the displayed time matches the user's clock.
+ */
+export const toLocalDatetimeInput = (isoString: string): string => {
+    const d = new Date(isoString);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };

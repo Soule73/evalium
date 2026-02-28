@@ -37,6 +37,9 @@ return [
         'no_questions_subtitle' => 'Commencez par ajouter votre première question à cette évaluation.',
         'delete_confirm' => 'Confirmer la suppression',
         'delete_notice' => 'Cette action est irréversible.',
+        'confirm_delete_title' => 'Confirmer la suppression',
+        'confirm_delete_question_message' => 'Êtes-vous sûr de vouloir supprimer cette question ?',
+        'confirm_delete_choice_message' => 'Êtes-vous sûr de vouloir supprimer ce choix ?',
         'history_button' => 'Historique (:count)',
     ],
     'delete_history_modal' => [

@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useAssessmentConfig, isSecurityEnabled, isFeatureEnabled } from '../useAssessmentConfig';
+import { useAssessmentConfig } from '../useAssessmentConfig';
+import { isSecurityEnabled, isFeatureEnabled } from '@/utils/assessment/security';
 import { isInFullscreen, type AssessmentViolationType } from '@/utils/assessment/take';
+import { disableTextSelection, enableTextSelection } from '@/utils';
 
 interface SecurityConfig {
     maxAttempts?: number;
@@ -236,6 +238,10 @@ export function useAssessmentSecurity(config: SecurityConfig = {}): UseAssessmen
 
         document.addEventListener('fullscreenchange', handleFullscreenChange);
 
+        if (securityFeatures.copyPastePrevention) {
+            disableTextSelection();
+        }
+
         let originalPrint: (() => void) | null = null;
         if (securityFeatures.printPrevention) {
             originalPrint = window.print;
@@ -260,6 +266,8 @@ export function useAssessmentSecurity(config: SecurityConfig = {}): UseAssessmen
             if (originalPrint) {
                 window.print = originalPrint;
             }
+
+            enableTextSelection();
         };
     }, [securityEnabled, addViolation, securityFeatures, isFullscreen, programmaticExit]);
 

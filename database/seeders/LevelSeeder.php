@@ -16,14 +16,14 @@ class LevelSeeder extends Seeder
             [
                 'name' => 'L1',
                 'code' => 'l1',
-                'description' => 'Licence 1ère année',
+                'description' => 'Bachelor Year 1',
                 'order' => 1,
                 'is_active' => true,
             ],
             [
                 'name' => 'M1',
                 'code' => 'm1',
-                'description' => 'Master 1ère année',
+                'description' => 'Master Year 1',
                 'order' => 2,
                 'is_active' => true,
             ],

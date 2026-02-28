@@ -5,7 +5,7 @@ import { PlusIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, ConfirmationModal, Section } from '@/Components';
-import { useListLevels } from '@/hooks';
+import { useListLevels } from '@/hooks/features/levels';
 import { type Level } from '@/types';
 import { LevelList } from '@/Components/shared/lists';
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useAssessmentConfig, isFeatureEnabled, isSecurityEnabled } from '../useAssessmentConfig';
+import { useAssessmentConfig } from '../useAssessmentConfig';
+import { isFeatureEnabled, isSecurityEnabled } from '@/utils/assessment/security';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 import { isFullscreenSupported } from '@/utils/assessment/take';

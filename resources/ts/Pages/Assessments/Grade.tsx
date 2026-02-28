@@ -7,7 +7,7 @@ import {
     type PageProps,
     type AssessmentRouteContext,
 } from '@/types';
-import { router, usePage } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { Button, Section, Textarea, ConfirmationModal, QuestionList } from '@/Components';
 import { FileList } from '@/Components/shared/lists';
 import { hasPermission } from '@/utils';
@@ -28,7 +28,7 @@ interface GradingState {
     warning: string | null;
 }
 
-interface Props {
+interface Props extends PageProps {
     assessment: Assessment;
     student: User;
     assignment: AssessmentAssignment;
@@ -39,6 +39,7 @@ interface Props {
 }
 
 export default function GradeAssignment({
+    auth,
     assessment,
     student,
     assignment,
@@ -49,7 +50,6 @@ export default function GradeAssignment({
 }: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
-    const { auth } = usePage<PageProps>().props;
     const canGradeAssessments = hasPermission(auth.permissions, 'grade assessments');
 
     const {

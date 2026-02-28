@@ -85,7 +85,7 @@ function CanNotTakeAssessment({
                     }
                 >
                     <div className="px-6 py-8 text-center">
-                        {/* Icon de sécurité */}
+                        {/* Security icon */}
                         <div className="mx-auto mb-4">{icon && icon}</div>
                         {message && <TextEntry label={''} value={message} />}
                         {children}

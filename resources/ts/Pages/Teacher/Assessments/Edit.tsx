@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, QuestionsManager, Section } from '@/Components';
 import { AssessmentGeneralConfig } from '@/Components/shared/AssessmentGeneralConfig';
@@ -47,7 +49,9 @@ export default function AssessmentEdit({ assessment, classSubjects }: Props) {
                                 color="secondary"
                                 variant="outline"
                                 size="sm"
-                                onClick={() => window.history.back()}
+                                onClick={() =>
+                                    router.visit(route('teacher.assessments.show', assessment.id))
+                                }
                             >
                                 {translations.cancel}
                             </Button>

@@ -21,10 +21,13 @@ interface FormData {
 
 interface Props extends PageProps {
     classSubjects: PaginationType<ClassSubject>;
-    formData: FormData;
+    filterOptions: FormData;
 }
 
-export default function ClassSubjectIndex({ classSubjects, formData }: Props) {
+export default function ClassSubjectIndex({
+    classSubjects,
+    filterOptions = { classes: [], subjects: [], teachers: [] },
+}: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 
@@ -45,9 +48,9 @@ export default function ClassSubjectIndex({ classSubjects, formData }: Props) {
                 <ClassSubjectList
                     data={classSubjects}
                     variant="admin"
-                    classes={formData.classes}
-                    subjects={formData.subjects}
-                    teachers={formData.teachers}
+                    classes={filterOptions.classes}
+                    subjects={filterOptions.subjects}
+                    teachers={filterOptions.teachers}
                     showAssessmentsColumn={false}
                 />
             </Section>

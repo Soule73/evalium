@@ -14,13 +14,13 @@ class LevelFactory extends Factory
         static $order = 1;
 
         $levelTypes = [
-            ['name' => 'BTS 1ère année', 'code' => 'bts_1'],
-            ['name' => 'BTS 2ème année', 'code' => 'bts_2'],
-            ['name' => 'Licence 1ère année', 'code' => 'licence_1'],
-            ['name' => 'Licence 2ème année', 'code' => 'licence_2'],
-            ['name' => 'Licence 3ème année', 'code' => 'licence_3'],
-            ['name' => 'Master 1ère année', 'code' => 'master_1'],
-            ['name' => 'Master 2ème année', 'code' => 'master_2'],
+            ['name' => 'BTS Year 1', 'code' => 'bts_1'],
+            ['name' => 'BTS Year 2', 'code' => 'bts_2'],
+            ['name' => 'Bachelor Year 1', 'code' => 'licence_1'],
+            ['name' => 'Bachelor Year 2', 'code' => 'licence_2'],
+            ['name' => 'Bachelor Year 3', 'code' => 'licence_3'],
+            ['name' => 'Master Year 1', 'code' => 'master_1'],
+            ['name' => 'Master Year 2', 'code' => 'master_2'],
         ];
 
         $level = $this->faker->randomElement($levelTypes);

@@ -1,0 +1,34 @@
+.markdown-content .katex {
+    font-size: 1.1em;
+}
+
+.markdown-content .katex-display {
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.markdown-content .katex-display .katex {
+    display: inline-block;
+    background: #f8fafc;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.markdown-content pre[class*='language-'] {
+    background: #1a202c !important;
+    border: 1px solid #2d3748;
+    border-radius: 0.5rem;
+}
+
+.markdown-content code[class*='language-'] {
+    background: transparent !important;
+}
+
+.markdown-content :not(pre) > code[class*='language-'] {
+    background: #1a202c !important;
+    color: #e2e8f0 !important;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+}

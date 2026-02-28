@@ -17,16 +17,16 @@ use Illuminate\Support\Facades\DB;
  * Grade Calculation Service - Implement double coefficient formula
  *
  * Single Responsibility: Calculate grades using:
- * - Note_Matière = Σ(coef_assessment × score) / Σ(coef_assessment)
- * - Moyenne_Annuelle = Σ(coef_subject × note_matière) / Σ(coef_subject)
+ * - SubjectGrade = Σ(coef_assessment × score) / Σ(coef_assessment)
+ * - AnnualAverage = Σ(coef_subject × subject_grade) / Σ(coef_subject)
  */
 class GradeCalculationService
 {
     /**
      * Calculate final grade for a student in a specific subject (class-subject)
      *
-     * Formula: Note_Matière = Σ(coefficient_assessment × note_normalisée) / Σ(coefficient_assessment)
-     * Where note_normalisée = (score / max_points) × 20
+     * Formula: SubjectGrade = Σ(coefficient_assessment × normalized_score) / Σ(coefficient_assessment)
+     * Where normalized_score = (score / max_points) × 20
      */
     public function calculateSubjectGrade(User $student, ClassSubject $classSubject): ?float
     {
@@ -42,7 +42,7 @@ class GradeCalculationService
     /**
      * Calculate annual average for a student across all subjects
      *
-     * Formula: Moyenne_Annuelle = Σ(coefficient_subject × note_matière) / Σ(coefficient_subject)
+     * Formula: AnnualAverage = Σ(coefficient_subject × subject_grade) / Σ(coefficient_subject)
      */
     public function calculateAnnualAverage(User $student, AcademicYear $academicYear): ?float
     {
@@ -233,7 +233,7 @@ class GradeCalculationService
     /**
      * Canonical implementation of the weighted grade formula.
      *
-     * Note_Matière = Σ(coefficient × (score / max_points) × 20) / Σ(coefficient)
+     * SubjectGrade = Σ(coefficient × (score / max_points) × 20) / Σ(coefficient)
      *
      * All grade calculations in this service MUST delegate to this method.
      * Do NOT re-implement this formula elsewhere in this class.

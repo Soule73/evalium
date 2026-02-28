@@ -37,6 +37,9 @@ return [
         'no_questions_subtitle' => 'Start by adding your first question to create the exam',
         'delete_confirm' => 'Delete',
         'delete_notice' => 'This action can be undone via the deletion history.',
+        'confirm_delete_title' => 'Confirm Deletion',
+        'confirm_delete_question_message' => 'Are you sure you want to delete this question?',
+        'confirm_delete_choice_message' => 'Are you sure you want to delete this choice?',
         'history_button' => 'History (:count)',
     ],
     'delete_history_modal' => [

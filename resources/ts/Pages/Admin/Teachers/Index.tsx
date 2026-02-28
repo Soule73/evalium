@@ -1,4 +1,3 @@
-import { usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useMemo, useState } from 'react';
@@ -14,10 +13,11 @@ import { UserList } from '@/Components/shared/lists';
 
 interface Props extends PageProps {
     teachers: PaginationType<User>;
+    activeCount: number;
+    inactiveCount: number;
 }
 
-export default function TeachersIndex({ teachers }: Props) {
-    const { auth } = usePage<PageProps>().props;
+export default function TeachersIndex({ auth, teachers, activeCount, inactiveCount }: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 
@@ -25,9 +25,6 @@ export default function TeachersIndex({ teachers }: Props) {
     const canUpdateUsers = hasPermission(auth.permissions, 'update users');
 
     const [isShowCreateModal, setIsShowCreateModal] = useState(false);
-
-    const activeCount = teachers.data.filter((u) => u.is_active && !u.deleted_at).length;
-    const inactiveCount = teachers.data.filter((u) => !u.is_active && !u.deleted_at).length;
 
     const handleViewTeacher = (userId: number) => {
         router.visit(route('admin.teachers.show', { user: userId }));

@@ -9,16 +9,8 @@ import {
     type DeliveryMode,
 } from '@/types';
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
-
-/**
- * Converts a UTC ISO datetime string to a local datetime-local input value (YYYY-MM-DDTHH:MM).
- * Uses the browser's local timezone so the displayed time matches the user's clock.
- */
-const toLocalDatetimeInput = (isoString: string): string => {
-    const d = new Date(isoString);
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-};
+import { getDeliveryModeDefaults } from '@/utils/assessment/utils';
+import { toLocalDatetimeInput } from '@/utils/formatting/formatters';
 
 interface AssessmentEditData {
     title: string;
@@ -129,9 +121,10 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
         (field: string, value: string | number | boolean) => {
             setData(field as keyof AssessmentEditData, value as never);
             if (field === 'delivery_mode') {
-                setData('shuffle_questions', value === 'supervised');
-                if (value !== 'supervised') {
-                    setData('duration', 0);
+                const defaults = getDeliveryModeDefaults(value as string);
+                setData('shuffle_questions', defaults.shuffle_questions);
+                if (defaults.duration !== undefined) {
+                    setData('duration', defaults.duration);
                 }
             }
         },

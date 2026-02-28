@@ -5,6 +5,7 @@ import { BaseEntityList } from './BaseEntityList';
 import { type Assessment, type AssessmentAssignment } from '@/types';
 import { Badge, MarkdownRenderer, Toggle } from '@evalium/ui';
 import { formatDate } from '@/utils';
+import { calculateTotalPoints } from '@/utils/assessment';
 import { useTranslations } from '@/hooks';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import type {
@@ -234,11 +235,7 @@ function buildColumns(
                 if (a.score === null || a.score === undefined) {
                     return <span className="text-gray-400">-</span>;
                 }
-                const maxPoints =
-                    a.assessment?.questions?.reduce(
-                        (sum: number, q: { points: number }) => sum + q.points,
-                        0,
-                    ) ?? 0;
+                const maxPoints = calculateTotalPoints(a.assessment?.questions ?? []);
                 const percentage =
                     maxPoints > 0 ? Math.round((Number(a.score) / maxPoints) * 100) : 0;
                 return (

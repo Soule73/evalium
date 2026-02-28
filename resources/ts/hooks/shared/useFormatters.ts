@@ -24,6 +24,7 @@ function createTranslatedFormatters(t: TranslateFn) {
             one_choice: t('formatters.question_type_one_choice'),
             boolean: t('formatters.question_type_boolean'),
             text: t('formatters.question_type_text'),
+            file: t('formatters.question_type_file'),
         };
         return labels[type] || type;
     };

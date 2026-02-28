@@ -17,7 +17,7 @@ class AcademicYearSeeder extends Seeder
             'start_date' => '2025-09-01',
             'end_date' => '2026-06-30',
             'is_current' => true,
-            'description' => 'Année académique courante',
+            'description' => 'Current academic year',
         ]);
 
         $this->command->info('✓ Academic Year 2025/2026 created (current)');

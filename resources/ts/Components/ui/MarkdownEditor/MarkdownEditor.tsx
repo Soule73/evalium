@@ -18,7 +18,7 @@ interface MarkdownEditorProps {
     label?: string;
     helpText?: string;
 
-    // Fonctionnalités de la toolbar
+    // Toolbar features
     enableBold?: boolean;
     enableItalic?: boolean;
     enableHeading?: boolean;
@@ -40,7 +40,7 @@ interface MarkdownEditorProps {
     enableMathInline?: boolean;
     enableMathDisplay?: boolean;
 
-    // Options avancées
+    // Advanced options
     enableSpellChecker?: boolean;
     enableStatus?: boolean;
     enableAutofocus?: boolean;
@@ -50,12 +50,12 @@ interface MarkdownEditorProps {
     minHeight?: string;
     maxHeight?: string;
 
-    // Personnalisation
+    // Customization
     customToolbar?: (string | '|')[];
     theme?: string;
     editorClassName?: string;
 
-    // Upload d'images
+    // Image upload
     enableImageUpload?: boolean;
     imageUploadFunction?: (
         file: File,
@@ -71,7 +71,7 @@ export const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorPro
         {
             value = '',
             onChange,
-            placeholder = 'Saisissez votre réponse ici...',
+            placeholder = 'Type your answer here...',
             required = false,
             id,
             className = '',
@@ -81,14 +81,14 @@ export const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorPro
             label,
             helpText,
 
-            // Toutes les autres props seront passées au hook
+            // All other props are passed to the hook
             ...editorOptions
         },
         ref,
     ) => {
         const componentId = id || `markdown-editor-${Math.random().toString(36).substr(2, 9)}`;
 
-        // Utiliser le hook pour gérer toute la logique
+        // Use the hook to handle all editor logic
         const { textareaRef, editorMethods } = useMarkdownEditor({
             value,
             onChange,
@@ -97,7 +97,7 @@ export const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorPro
             ...editorOptions,
         });
 
-        // Exposer les méthodes via ref
+        // Expose methods via ref
         useImperativeHandle(ref, () => editorMethods);
 
         return (
@@ -129,7 +129,7 @@ export const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorPro
 
                 {helpText && !error && <p className="mt-2 text-sm text-gray-500">{helpText}</p>}
 
-                {/* Styles pour l'éditeur */}
+                {/* Editor styles */}
                 <style
                     dangerouslySetInnerHTML={{
                         __html: `

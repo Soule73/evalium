@@ -5,7 +5,7 @@ import { BaseEntityList } from './BaseEntityList';
 import { type AcademicYear } from '@/types';
 import { Badge } from '@evalium/ui';
 import { CheckCircleIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
-import { formatDate } from '@/utils';
+import { formatDate, getAcademicYearStatus } from '@/utils';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';
@@ -84,29 +84,23 @@ export function AcademicYearList({
                     key: 'status',
                     labelKey: 'commons/table.status',
                     render: (year) => {
-                        const endDate = new Date(year.end_date);
-                        const now = new Date();
-                        const isArchived = !year.is_current && endDate < now;
-
-                        return isArchived ? (
-                            <Badge
-                                label={t('admin_pages.academic_years.archived')}
-                                type="warning"
-                                size="sm"
-                            />
-                        ) : year.is_current ? (
-                            <Badge
-                                label={t('admin_pages.academic_years.current')}
-                                type="success"
-                                size="sm"
-                            />
-                        ) : (
-                            <Badge
-                                label={t('admin_pages.academic_years.future')}
-                                type="info"
-                                size="sm"
-                            />
-                        );
+                        const status = getAcademicYearStatus(year);
+                        const badgeConfig = {
+                            archived: {
+                                label: t('admin_pages.academic_years.archived'),
+                                type: 'warning' as const,
+                            },
+                            current: {
+                                label: t('admin_pages.academic_years.current'),
+                                type: 'success' as const,
+                            },
+                            future: {
+                                label: t('admin_pages.academic_years.future'),
+                                type: 'info' as const,
+                            },
+                        };
+                        const cfg = badgeConfig[status];
+                        return <Badge label={cfg.label} type={cfg.type} size="sm" />;
                     },
                 },
 

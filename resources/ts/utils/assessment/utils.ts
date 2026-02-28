@@ -5,6 +5,23 @@ import {
     type Choice,
     type QuestionResult,
 } from '@/types';
+import { formatGrade } from '@/utils/formatting/formatters';
+
+interface DeliveryModeDefaults {
+    shuffle_questions: boolean;
+    duration?: number;
+}
+
+/**
+ * Computes side-effect field defaults when delivery_mode changes.
+ */
+export const getDeliveryModeDefaults = (deliveryMode: string): DeliveryModeDefaults => {
+    const isSupervisedMode = deliveryMode === 'supervised';
+    return {
+        shuffle_questions: isSupervisedMode,
+        ...(isSupervisedMode ? {} : { duration: 0 }),
+    };
+};
 
 /**
  * Calculates the total possible points from a list of questions.
@@ -204,21 +221,51 @@ export const calculateScoreDisplay = (
         ) || 20;
 
     if (finalScore !== null && finalScore !== undefined && totalPoints > 0) {
-        const limitedScore = Math.min(finalScore, totalPoints);
-
-        const percentage = Math.round((limitedScore / totalPoints) * 100);
-
-        let colorClass: string;
-        if (percentage >= 90) colorClass = 'text-green-600';
-        else if (percentage >= 70) colorClass = 'text-blue-600';
-        else if (percentage >= 50) colorClass = 'text-yellow-600';
-        else colorClass = 'text-red-600';
-
-        return {
-            text: `${limitedScore}/${totalPoints} (${percentage}%)`,
-            colorClass,
-        };
+        return formatGrade(Math.min(finalScore, totalPoints), totalPoints);
     }
 
     return null;
+};
+
+/**
+ * Returns the badge type for a given assignment status.
+ */
+export const getAssignmentBadgeType = (status: string): string => {
+    switch (status) {
+        case 'graded':
+            return 'success';
+        case 'submitted':
+            return 'info';
+        default:
+            return 'error';
+    }
+};
+
+export const assignmentStatusColors: Record<string, string> = {
+    submitted: 'bg-green-100 text-green-800',
+    graded: 'bg-purple-100 text-purple-800',
+    default: 'bg-gray-100 text-gray-800',
+};
+
+/**
+ * Determines if assessment results can be shown based on assignment status and grading policy.
+ */
+export const canShowAssessmentResults = (
+    assignmentStatus: string,
+    releaseResultsAfterGrading: boolean = false,
+): boolean => {
+    if (
+        !releaseResultsAfterGrading &&
+        (assignmentStatus === 'submitted' || assignmentStatus === 'graded')
+    ) {
+        return true;
+    }
+    return assignmentStatus === 'graded';
+};
+
+/**
+ * Returns the list of possible assignment statuses.
+ */
+export const getAssignmentStatus = (): string[] => {
+    return ['submitted', 'graded'];
 };

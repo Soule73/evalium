@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { type FlashMessageObject, type FlashMessages } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useToast } from './useToast';
@@ -7,11 +7,10 @@ interface FlashToastHandlerProps {
     flash: FlashMessages;
 }
 
-const displayedIds = new Set<string>();
-
 const FlashToastHandler: React.FC<FlashToastHandlerProps> = ({ flash }) => {
     const { success, error, warning, info } = useToast();
     const { t } = useTranslations();
+    const displayedIdsRef = useRef(new Set<string>());
 
     const successTitle = t('components.toast.success');
     const errorTitle = t('components.toast.error');
@@ -20,6 +19,8 @@ const FlashToastHandler: React.FC<FlashToastHandlerProps> = ({ flash }) => {
     const closeLabel = t('commons/ui.close');
 
     useEffect(() => {
+        const displayedIds = displayedIdsRef.current;
+
         const showToast = (
             type: 'success' | 'error' | 'warning' | 'info' | 'message',
             data?: FlashMessageObject,

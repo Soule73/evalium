@@ -12,9 +12,9 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Créer le Super Admin
+        // Create Super Admin
         $superAdmin = \App\Models\User::create([
-            'name' => 'Super Administrateur',
+            'name' => 'Super Administrator',
             'email' => 'superadmin@evalium.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
@@ -23,9 +23,9 @@ class UserSeeder extends Seeder
         ]);
         $superAdmin->assignRole('super_admin');
 
-        // Créer un Admin normal
+        // Create a regular Admin
         $admin = \App\Models\User::create([
-            'name' => 'Admin Système',
+            'name' => 'System Admin',
             'email' => 'admin@evalium.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
@@ -84,11 +84,11 @@ class UserSeeder extends Seeder
             $student->assignRole('student');
         }
 
-        $this->command->info('Utilisateurs créés avec succès !');
-        $this->command->info('- 1 super administrateur (superadmin@evalium.com)');
-        $this->command->info('- 1 administrateur (admin@evalium.com)');
-        $this->command->info('- '.count($teachers).' enseignants');
-        $this->command->info('- '.count($students).' étudiants');
-        $this->command->info('- Mot de passe pour tous: password');
+        $this->command->info('Users created successfully!');
+        $this->command->info('- 1 super administrator (superadmin@evalium.com)');
+        $this->command->info('- 1 administrator (admin@evalium.com)');
+        $this->command->info('- '.count($teachers).' teachers');
+        $this->command->info('- '.count($students).' students');
+        $this->command->info('- Password for all: password');
     }
 }

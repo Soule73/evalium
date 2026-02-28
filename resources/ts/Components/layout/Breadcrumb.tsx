@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 
 export interface BreadcrumbItem {
     label: string;
@@ -13,6 +14,8 @@ interface BreadcrumbProps {
 }
 
 export const Breadcrumb = ({ items }: BreadcrumbProps) => {
+    const { t } = useTranslations();
+
     return (
         <nav className="flex items-center space-x-2 text-sm" aria-label="Breadcrumb">
             <Link
@@ -20,7 +23,7 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
                 className="flex items-center text-gray-500 hover:text-gray-700 transition-colors"
             >
                 <HomeIcon className="w-4 h-4" />
-                <span className="sr-only">Accueil</span>
+                <span className="sr-only">{t('Home')}</span>
             </Link>
 
             {items.map((item, index) => {

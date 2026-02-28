@@ -46,8 +46,15 @@ class TeacherController extends Controller
 
         $teachers = $this->userQueryService->getUserWithPagination($filters, $perPage, $currentUser);
 
+        $teacherCounts = User::role('teacher')
+            ->selectRaw('SUM(CASE WHEN is_active = 1 AND deleted_at IS NULL THEN 1 ELSE 0 END) as active_count')
+            ->selectRaw('SUM(CASE WHEN is_active = 0 AND deleted_at IS NULL THEN 1 ELSE 0 END) as inactive_count')
+            ->first();
+
         return Inertia::render('Admin/Teachers/Index', [
             'teachers' => $teachers,
+            'activeCount' => (int) ($teacherCounts->active_count ?? 0),
+            'inactiveCount' => (int) ($teacherCounts->inactive_count ?? 0),
         ]);
     }
 

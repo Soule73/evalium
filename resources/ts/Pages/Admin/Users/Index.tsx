@@ -1,4 +1,3 @@
-import { usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { UserGroupIcon, ShieldCheckIcon, StarIcon } from '@heroicons/react/24/outline';
@@ -19,8 +18,7 @@ interface Props extends PageProps {
     superAdminCount: number;
 }
 
-export default function UserIndex({ users, roles, adminCount, superAdminCount }: Props) {
-    const { auth } = usePage<PageProps>().props;
+export default function UserIndex({ auth, users, roles, adminCount, superAdminCount }: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 

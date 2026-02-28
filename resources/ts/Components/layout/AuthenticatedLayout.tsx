@@ -74,22 +74,7 @@ const AuthenticatedLayout = ({
                                 )}
                                 <AcademicYearSelector user={auth.user} />
                                 <NotificationBell />
-                                <UserMenu
-                                    user={auth.user}
-                                    isSuperAdmin={
-                                        auth.user.roles?.some(
-                                            (role) => role.name === 'super_admin',
-                                        ) || false
-                                    }
-                                    isAdmin={
-                                        auth.user.roles?.some((role) => role.name === 'admin') ||
-                                        false
-                                    }
-                                    isTeacher={
-                                        auth.user.roles?.some((role) => role.name === 'teacher') ||
-                                        false
-                                    }
-                                />
+                                <UserMenu user={auth.user} />
                             </div>
 
                             {/* Mobile: Only Academic Year Selector */}

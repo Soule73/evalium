@@ -4,6 +4,7 @@ import { route } from 'ziggy-js';
 import { useShallow } from 'zustand/react/shallow';
 import { type QuestionFormData, type AssessmentType, type DeliveryMode } from '@/types';
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
+import { getDeliveryModeDefaults } from '@/utils/assessment/utils';
 
 interface AssessmentCreateData {
     title: string;
@@ -57,9 +58,10 @@ export const useCreateAssessment = () => {
     const handleFieldChange = (field: string, value: string | number | boolean) => {
         setData(field as keyof AssessmentCreateData, value as never);
         if (field === 'delivery_mode') {
-            setData('shuffle_questions', value === 'supervised');
-            if (value !== 'supervised') {
-                setData('duration', 0);
+            const defaults = getDeliveryModeDefaults(value as string);
+            setData('shuffle_questions', defaults.shuffle_questions);
+            if (defaults.duration !== undefined) {
+                setData('duration', defaults.duration);
             }
         }
     };
