@@ -99,6 +99,7 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard/Admin', [
             'user' => $user,
             'stats' => $dashboardData['stats'],
+            'chartData' => Inertia::defer(fn () => $this->adminDashboardService->getChartData($selectedYearId)),
         ]);
     }
 }
