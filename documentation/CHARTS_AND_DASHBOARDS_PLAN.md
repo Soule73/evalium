@@ -396,10 +396,23 @@ const { chartData } = usePage().props;
 - [x] Add 8 i18n translation keys (en/fr) for teacher dashboard
 - [x] Tests: 12 backend service tests (37 assertions)
 
-### Phase 4: Student Dashboard (2-3 days)
-- [ ] Backend: Extend `StudentDashboardService` with chart data methods
-- [ ] Frontend: Redesign `Dashboard/Student.tsx` with charts
-- [ ] Tests
+### Phase 4: Student Dashboard - DONE
+- [x] Backend: Extend `StudentDashboardService` with 6 chart data methods
+  - `getSubjectRadarData()` - Subject grades + class averages via SQL for radar chart
+  - `getAssessmentStatusChart()` - Donut chart (graded/submitted/in_progress/not_started)
+  - `getRecentScoresChart()` - Last N graded assessments normalized to /20
+  - `getGradeTrend()` - Monthly average grades (database-agnostic date grouping)
+  - `getChartData()` - Aggregator for deferred props
+  - `computeClassAverages()` - SQL batch query for class averages per subject
+- [x] Controller: Use `Inertia::defer()` for chart data, removed assessment list section
+- [x] Frontend: Redesign `Dashboard/Student.tsx` with 4 stat cards + 4 deferred charts
+  - Radar chart (subjects: student grade vs class average)
+  - Donut chart (assessment status breakdown)
+  - Bar chart (recent graded scores /20)
+  - Line chart (grade trend over time)
+- [x] Skeleton loading via `<Deferred>` + `<ChartsFallback>` (2-row layout)
+- [x] Add 10 i18n translation keys (en/fr) for student dashboard
+- [x] Tests: 14 backend service tests (56 assertions), 883 total suite passing
 
 ### Phase 5: Results & Detail Pages (2-3 days)
 - [ ] Backend: Extend `AssessmentStatsService` with distribution methods
