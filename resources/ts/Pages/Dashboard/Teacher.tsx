@@ -1,43 +1,62 @@
-import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { route } from 'ziggy-js';
 import {
     AcademicCapIcon,
     BookOpenIcon,
+    ChartBarIcon,
     ClipboardDocumentListIcon,
     PlayCircleIcon,
 } from '@heroicons/react/24/outline';
+import { Deferred } from '@inertiajs/react';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { Button, Section, Stat } from '@/Components';
-import { AssessmentList, ClassSubjectList } from '@/Components/shared/lists';
-import { type Assessment, type ClassSubject } from '@/types';
-import { type PaginationType } from '@/types/datatable';
-import { navRoutes } from '@/utils';
+import { Stat } from '@/Components';
+import {
+    BarChart,
+    ChartCard,
+    ChartSkeleton,
+    CompletionChart,
+    ScoreDistribution,
+} from '@/Components/ui/charts';
 
 interface Stats {
     total_classes: number;
     total_subjects: number;
     total_assessments: number;
     in_progress_assessments: number;
+    overall_average: number | null;
+}
+
+interface ChartData {
+    completionOverview: {
+        graded: number;
+        submitted: number;
+        in_progress: number;
+        not_started: number;
+    };
+    scoreDistribution: Array<{ range: string; count: number }>;
+    classPerformance: Array<{ name: string; value: number | null }>;
 }
 
 interface Props {
-    activeAssignments: PaginationType<ClassSubject>;
-    recentAssessments: PaginationType<Assessment>;
     stats: Stats;
+    chartData?: ChartData;
 }
 
-export default function TeacherDashboard({ stats, activeAssignments, recentAssessments }: Props) {
+export default function TeacherDashboard({ stats, chartData }: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
+
+    const averageDisplay =
+        stats.overall_average !== null
+            ? `${stats.overall_average}${t('dashboard.teacher.out_of_20')}`
+            : t('dashboard.teacher.no_grades');
 
     return (
         <AuthenticatedLayout
             title={t('dashboard.title.teacher')}
             breadcrumb={breadcrumbs.dashboard()}
         >
-            <Stat.Group columns={4} className="mb-8" data-e2e="dashboard-content">
+            <Stat.Group columns={5} className="mb-8" data-e2e="dashboard-content">
                 <Stat.Item
                     title={t('dashboard.teacher.total_classes')}
                     value={stats.total_classes}
@@ -58,64 +77,95 @@ export default function TeacherDashboard({ stats, activeAssignments, recentAsses
                     value={stats.in_progress_assessments}
                     icon={PlayCircleIcon}
                 />
+                <Stat.Item
+                    title={t('dashboard.teacher.overall_average')}
+                    value={averageDisplay}
+                    icon={ChartBarIcon}
+                />
             </Stat.Group>
 
-            <Section
-                title={t('dashboard.teacher.active_assignments')}
-                subtitle={t('dashboard.teacher.active_assignments_subtitle')}
-                actions={
-                    <Button
-                        onClick={() => router.visit(navRoutes.teacherClassSubjects())}
-                        color="secondary"
-                        variant="outline"
-                        size="sm"
-                    >
-                        {t('dashboard.teacher.view_all_assignments')}
-                    </Button>
-                }
-            >
-                <ClassSubjectList
-                    data={activeAssignments}
-                    variant="teacher"
-                    showTeacherColumn={false}
-                    showAssessmentsColumn={false}
-                    showPagination={false}
-                    onView={(cs) =>
-                        router.visit(route('teacher.classes.show', { id: cs.class_id }))
-                    }
-                />
-            </Section>
-
-            <Section
-                title={t('dashboard.teacher.recent_assessments')}
-                subtitle={t('dashboard.teacher.recent_assessments_subtitle')}
-                actions={
-                    <Button
-                        onClick={() => router.visit(route('teacher.assessments.index'))}
-                        color="secondary"
-                        variant="outline"
-                        size="sm"
-                    >
-                        {t('dashboard.teacher.view_all_assessments')}
-                    </Button>
-                }
-            >
-                <AssessmentList
-                    data={recentAssessments}
-                    variant="teacher"
-                    showPagination={false}
-                    showClassColumn={false}
-                    onView={(item) => {
-                        const assessment = item as Assessment;
-                        router.visit(
-                            route('teacher.classes.assessments.show', {
-                                class: assessment.class_subject?.class_id,
-                                assessment: assessment.id,
-                            }),
-                        );
-                    }}
-                />
-            </Section>
+            <Deferred data="chartData" fallback={<ChartsFallback />}>
+                <ChartsSection chartData={chartData} />
+            </Deferred>
         </AuthenticatedLayout>
+    );
+}
+
+function ChartsFallback() {
+    return (
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <ChartCard title="" loading>
+                <ChartSkeleton />
+            </ChartCard>
+            <ChartCard title="" loading>
+                <ChartSkeleton />
+            </ChartCard>
+            <ChartCard title="" loading>
+                <ChartSkeleton />
+            </ChartCard>
+        </div>
+    );
+}
+
+function ChartsSection({ chartData }: { chartData?: ChartData }) {
+    const { t } = useTranslations();
+
+    if (!chartData) {
+        return null;
+    }
+
+    const completionData = [
+        {
+            name: t('charts.completion.total'),
+            graded: chartData.completionOverview.graded,
+            submitted: chartData.completionOverview.submitted,
+            in_progress: chartData.completionOverview.in_progress,
+            not_started: chartData.completionOverview.not_started,
+        },
+    ];
+
+    const hasCompletionData = Object.values(chartData.completionOverview).some((v) => v > 0);
+    const hasScoreData = chartData.scoreDistribution.some((d) => d.count > 0);
+    const hasClassData = chartData.classPerformance.length > 0;
+
+    return (
+        <div className="mb-8 space-y-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <ChartCard
+                    title={t('dashboard.teacher.completion_overview')}
+                    subtitle={t('dashboard.teacher.completion_overview_subtitle')}
+                    empty={!hasCompletionData}
+                    emptyMessage={t('charts.no_data')}
+                >
+                    <CompletionChart data={completionData} height={220} />
+                </ChartCard>
+
+                <ChartCard
+                    title={t('dashboard.teacher.score_distribution')}
+                    subtitle={t('dashboard.teacher.score_distribution_subtitle')}
+                    empty={!hasScoreData}
+                    emptyMessage={t('charts.no_data')}
+                >
+                    <ScoreDistribution data={chartData.scoreDistribution} height={220} />
+                </ChartCard>
+            </div>
+
+            <ChartCard
+                title={t('dashboard.teacher.class_performance')}
+                subtitle={t('dashboard.teacher.class_performance_subtitle')}
+                empty={!hasClassData}
+                emptyMessage={t('charts.no_data')}
+            >
+                <BarChart
+                    data={chartData.classPerformance.map((d) => ({
+                        ...d,
+                        value: d.value ?? undefined,
+                    }))}
+                    colorByItem
+                    height={280}
+                    formatTooltipValue={(v) => `${v}/20`}
+                />
+            </ChartCard>
+        </div>
     );
 }

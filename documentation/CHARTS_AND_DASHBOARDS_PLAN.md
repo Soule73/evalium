@@ -371,16 +371,30 @@ const { chartData } = usePage().props;
 - [x] Add i18n translations for chart labels (`lang/en/charts.php`, `lang/fr/charts.php`)
 - [x] Migrate from deprecated `Cell` to `fill`-per-data-item pattern (Recharts 4 ready)
 
-### Phase 2: Admin Dashboard (2-3 days)
-- [ ] Backend: Extend `AdminDashboardService` with chart data methods
-- [ ] Frontend: Redesign `Dashboard/Admin.tsx` with charts
-- [ ] Add skeleton loading for deferred chart data
-- [ ] Tests: Backend service tests + frontend component tests
+### Phase 2: Admin Dashboard - DONE (commit b2194f2)
+- [x] Backend: Extend `AdminDashboardService` with 5 chart data methods
+- [x] Controller: Use `Inertia::defer()` for lazy-loaded chart data
+- [x] Frontend: Redesign `Dashboard/Admin.tsx` with 5 stat cards + 3 charts
+- [x] Add skeleton loading fallback (`ChartsFallback`) for deferred chart data
+- [x] Extend `Stat.Group` to support 5-column layout
+- [x] Add 12 i18n translation keys (en/fr) for dashboard
+- [x] Tests: 8 backend service tests (41 assertions)
 
-### Phase 3: Teacher Dashboard (2-3 days)
-- [ ] Backend: Extend `TeacherDashboardService` with chart data methods
-- [ ] Frontend: Redesign `Dashboard/Teacher.tsx` with charts
-- [ ] Tests
+### Phase 3: Teacher Dashboard - DONE
+- [x] Backend: Extend `TeacherDashboardService` with 6 methods (raw SQL, no N+1)
+  - `getDashboardStats()` - Single raw SQL with 4 subselects
+  - `getOverallAverageScore()` - Normalized to /20
+  - `getAssessmentCompletionOverview()` - graded/submitted/in_progress/not_started
+  - `getScoreDistribution()` - 5-range histogram (0-4, 5-8, 9-12, 13-16, 17-20)
+  - `getClassPerformanceChart()` - LEFT JOIN showing all classes (null for ungraded)
+  - `getChartData()` - Aggregator for deferred props
+- [x] SQL constants extracted: `STUDENT_SCORE_SQL`, `MAX_POINTS_SQL`, `NORMALIZED_SCORE_SQL`
+- [x] Database-agnostic `concatColumns()` helper (CONCAT for MySQL, || for SQLite)
+- [x] Controller: Use `Inertia::defer()` for chart data, removed list sections
+- [x] Frontend: Redesign `Dashboard/Teacher.tsx` with 5 stat cards + 3 deferred charts
+- [x] Skeleton loading via `<Deferred>` + `<ChartsFallback>`
+- [x] Add 8 i18n translation keys (en/fr) for teacher dashboard
+- [x] Tests: 12 backend service tests (37 assertions)
 
 ### Phase 4: Student Dashboard (2-3 days)
 - [ ] Backend: Extend `StudentDashboardService` with chart data methods
