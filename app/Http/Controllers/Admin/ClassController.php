@@ -256,6 +256,10 @@ class ClassController extends Controller
             'assignments' => $assignments,
             'stats' => $this->assessmentStatsService->calculateAssessmentStats($assessment->id),
             'routeContext' => $routeContext,
+            'chartData' => Inertia::defer(fn () => [
+                'statusChart' => $this->assessmentStatsService->getAssessmentStatusChart($assessment->id),
+                'scoreDistribution' => $this->assessmentStatsService->getScoreDistribution($assessment->id),
+            ]),
         ]);
     }
 

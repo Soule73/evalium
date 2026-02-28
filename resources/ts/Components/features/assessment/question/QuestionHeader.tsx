@@ -25,7 +25,7 @@ export function QuestionHeader({ question, questionIndex, result }: QuestionHead
     const displayScore =
         config.isInteractive || result.score === undefined || result.score === null
             ? `${question.points}`
-            : `${result.score} / ${question.points}`;
+            : `${parseFloat(Number(result.score).toFixed(2))} / ${question.points}`;
 
     return (
         <div>

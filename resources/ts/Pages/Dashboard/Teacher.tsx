@@ -7,7 +7,6 @@ import {
     PlayCircleIcon,
 } from '@heroicons/react/24/outline';
 import { Deferred } from '@inertiajs/react';
-import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Stat } from '@/Components';
 import {
@@ -44,7 +43,6 @@ interface Props {
 
 export default function TeacherDashboard({ stats, chartData }: Props) {
     const { t } = useTranslations();
-    const breadcrumbs = useBreadcrumbs();
 
     const averageDisplay =
         stats.overall_average !== null
@@ -52,10 +50,7 @@ export default function TeacherDashboard({ stats, chartData }: Props) {
             : t('dashboard.teacher.no_grades');
 
     return (
-        <AuthenticatedLayout
-            title={t('dashboard.title.teacher')}
-            breadcrumb={breadcrumbs.dashboard()}
-        >
+        <AuthenticatedLayout title={t('dashboard.title.teacher')}>
             <Stat.Group columns={5} className="mb-8" data-e2e="dashboard-content">
                 <Stat.Item
                     title={t('dashboard.teacher.total_classes')}

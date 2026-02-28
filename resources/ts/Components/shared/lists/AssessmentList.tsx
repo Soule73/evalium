@@ -5,7 +5,7 @@ import { BaseEntityList } from './BaseEntityList';
 import { type Assessment, type AssessmentAssignment } from '@/types';
 import { Badge, MarkdownRenderer, Toggle } from '@evalium/ui';
 import { formatDate } from '@/utils';
-import { calculateTotalPoints } from '@/utils/assessment';
+import { calculateTotalPoints, formatAssignmentStatus } from '@/utils/assessment';
 import { useTranslations } from '@/hooks';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import type {
@@ -50,20 +50,6 @@ type TranslateFn = (key: string) => string;
 
 function isAssignmentVariant(v: EntityListVariant | undefined): boolean {
     return v === 'student' || v === 'class-assignment';
-}
-
-function getStatusBadge(status: string, t: TranslateFn): ReactNode {
-    const statusMap: Record<
-        string,
-        { label: string; type: 'warning' | 'info' | 'success' | 'gray' }
-    > = {
-        not_submitted: { label: t('student_assessment_pages.index.not_started'), type: 'warning' },
-        in_progress: { label: t('student_assessment_pages.index.in_progress'), type: 'info' },
-        submitted: { label: t('student_assessment_pages.index.completed'), type: 'success' },
-        graded: { label: t('student_assessment_pages.index.graded'), type: 'success' },
-    };
-    const cfg = statusMap[status] || { label: status, type: 'gray' as const };
-    return <Badge label={cfg.label} type={cfg.type} size="sm" />;
 }
 
 function getDeliveryModeBadge(deliveryMode: string, t: TranslateFn): ReactNode {
@@ -200,7 +186,8 @@ function buildColumns(
             labelKey: 'components.assessment_list.status_label',
             render: (item, variant) => {
                 if (isAssignmentVariant(variant)) {
-                    return getStatusBadge((item as AssignmentWithAssessment).status, t);
+                    const s = formatAssignmentStatus(t, (item as AssignmentWithAssessment).status);
+                    return <Badge label={s.label} type={s.badgeType} size="sm" />;
                 }
                 const assessment = item as Assessment;
                 return (
@@ -238,10 +225,11 @@ function buildColumns(
                 const maxPoints = calculateTotalPoints(a.assessment?.questions ?? []);
                 const percentage =
                     maxPoints > 0 ? Math.round((Number(a.score) / maxPoints) * 100) : 0;
+                const displayScore = parseFloat(Number(a.score).toFixed(2));
                 return (
                     <div>
                         <div className="text-sm font-medium text-gray-900">
-                            {a.score} / {maxPoints}
+                            {displayScore} / {maxPoints}
                         </div>
                         <div className="text-xs text-gray-500">{percentage}%</div>
                     </div>

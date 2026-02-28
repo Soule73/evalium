@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Contracts\Repositories\TeacherAssessmentRepositoryInterface;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Teacher\ReassignAssignmentRequest;
 use App\Http\Requests\Teacher\ReopenAssignmentRequest;
 use App\Http\Requests\Teacher\StoreAssessmentRequest;
 use App\Http\Requests\Teacher\UpdateAssessmentRequest;
@@ -253,6 +254,35 @@ class AssessmentController extends Controller
     }
 
     /**
+     * Reassign an assessment to a student who submitted no answers.
+     */
+    public function reassignAssignment(
+        ReassignAssignmentRequest $request,
+        Assessment $assessment,
+        AssessmentAssignment $assignment
+    ): JsonResponse {
+        abort_unless($assignment->assessment_id === $assessment->id, 404);
+
+        $check = $assignment->canBeReassigned($assessment);
+
+        if (! $check['can_reassign']) {
+            return response()->json([
+                'message' => __('messages.assignment_cannot_reassign_'.$check['reason']),
+            ], 422);
+        }
+
+        $this->assignmentExceptionService->reassignForStudent(
+            $assignment,
+            $assessment,
+            $request->input('reason')
+        );
+
+        return response()->json([
+            'message' => __('messages.assignment_reassigned'),
+        ]);
+    }
+
+    /**
      * Build route context array for teacher role.
      *
      * @return array<string, string|null>
@@ -272,6 +302,7 @@ class AssessmentController extends Controller
             'unpublishRoute' => 'teacher.assessments.unpublish',
             'duplicateRoute' => 'teacher.assessments.duplicate',
             'reopenRoute' => 'teacher.assessments.reopen',
+            'reassignRoute' => 'teacher.assessments.reassign',
             'createRoute' => 'teacher.assessments.create',
         ];
     }

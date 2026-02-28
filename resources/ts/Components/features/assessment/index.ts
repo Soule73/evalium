@@ -7,6 +7,7 @@ export * from './FullscreenModal';
 export * from './questionOptions';
 export * from './QuestionNavigation';
 export * from './QuestionList';
+export * from './ReassignModal';
 export * from './question';
 export * from './QuestionsManager';
 export * from './SortableQuestionItem';

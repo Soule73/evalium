@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\AcademicYear;
+use App\Models\Answer;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\ClassModel;
@@ -191,6 +192,12 @@ class AdminAssessmentShowTest extends TestCase
             'enrollment_id' => $this->enrollment->id,
         ]);
 
+        Answer::factory()->create([
+            'assessment_assignment_id' => $assignment->id,
+            'question_id' => $question->id,
+            'score' => 0,
+        ]);
+
         $response = $this->actingAs($this->admin)
             ->post(route('admin.assessments.saveGrade', [$this->assessment, $assignment]), [
                 'scores' => [
@@ -344,6 +351,12 @@ class AdminAssessmentShowTest extends TestCase
         $assignment = AssessmentAssignment::factory()->submitted()->create([
             'assessment_id' => $this->assessment->id,
             'enrollment_id' => $this->enrollment->id,
+        ]);
+
+        Answer::factory()->create([
+            'assessment_assignment_id' => $assignment->id,
+            'question_id' => $question->id,
+            'score' => 0,
         ]);
 
         $response = $this->actingAs($superAdmin)

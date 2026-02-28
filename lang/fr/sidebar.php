@@ -28,6 +28,7 @@ return [
     ],
     'actions' => [
         'toggle_menu' => 'Basculer le menu',
+        'close_menu' => 'Fermer le menu',
         'toggle_sidebar' => 'Basculer la barre latérale',
         'logout' => 'Déconnexion',
         'profile' => 'Profil',

@@ -46,7 +46,7 @@ export const useCreateAssessment = () => {
             coefficient: 1,
             shuffle_questions: false,
             release_results_after_grading: false,
-            show_correct_answers: false,
+            show_correct_answers: true,
             allow_late_submission: false,
             questions: [],
         });

@@ -132,6 +132,7 @@ class AdminDashboardService
     public function getEnrollmentCapacityChart(?int $academicYearId = null): array
     {
         $query = DB::table('classes')
+            ->join('levels', 'classes.level_id', '=', 'levels.id')
             ->leftJoin('enrollments', function ($join) {
                 $join->on('enrollments.class_id', '=', 'classes.id')
                     ->where('enrollments.status', '=', 'active');
@@ -141,11 +142,14 @@ class AdminDashboardService
             $query->where('classes.academic_year_id', $academicYearId);
         }
 
+        $nameExpr = $this->concatColumns('classes.name', "' ('", 'levels.name', "')'");
+
         return $query
-            ->groupBy('classes.id', 'classes.name', 'classes.max_students')
+            ->groupBy('classes.id', 'classes.name', 'levels.name', 'levels.order', 'classes.max_students')
+            ->orderBy('levels.order')
             ->orderBy('classes.name')
             ->select(
-                'classes.name',
+                DB::raw("{$nameExpr} as name"),
                 DB::raw('COUNT(DISTINCT enrollments.id) as enrolled'),
                 DB::raw('COALESCE(classes.max_students, 0) as capacity')
             )
@@ -215,5 +219,21 @@ class AdminDashboardService
                 'draftCount' => $assessmentCounts['draft'],
             ]),
         ];
+    }
+
+    /**
+     * Build a database-agnostic SQL concatenation expression.
+     *
+     * @param  string  ...$parts  Column names or quoted literals to concatenate
+     */
+    private function concatColumns(string ...$parts): string
+    {
+        $driver = DB::getDriverName();
+
+        if ($driver === 'sqlite') {
+            return implode(' || ', $parts);
+        }
+
+        return 'CONCAT('.implode(', ', $parts).')';
     }
 }

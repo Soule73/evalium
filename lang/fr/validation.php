@@ -177,7 +177,7 @@ return [
         'concept' => 'concept',
         'conditions' => 'conditions',
         'content' => 'contenu',
-        'contest' => 'contest',
+        'contest' => 'concours',
         'country' => 'pays',
         'cover' => 'couverture',
         'created_at' => 'date de création',
@@ -321,7 +321,7 @@ return [
     ],
     'custom' => [
         'class_subject_id' => [
-            'not_assigned' => 'Vous n\'étes pas assigné à enseigner cette combinaison classe-matière.',
+            'not_assigned' => 'Vous n\'êtes pas assigné à enseigner cette combinaison classe-matière.',
         ],
         'end_time' => [
             'after' => 'Le champ :attribute doit être une date postérieure à la date de début.',
@@ -335,7 +335,7 @@ return [
             'min_correct_multiple' => 'Au moins 2 réponses correctes doivent être sélectionnées pour une question à choix multiples.',
         ],
         'score' => [
-            'exceeds_max' => 'Le score ne peut pas dépasser :max points pour cette question.',
+            'exceeds_max' => 'La note ne peut pas dépasser :max points pour cette question.',
         ],
         'start_time' => [
             'after' => 'Le champ :attribute doit être une date postérieure à maintenant.',

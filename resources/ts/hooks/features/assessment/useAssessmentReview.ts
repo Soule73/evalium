@@ -42,7 +42,12 @@ const useAssessmentReview = ({
     }, [userAnswers, scoreOverrides]);
 
     const calculatedTotalScore = useMemo(
-        () => Object.values(scores).reduce((sum, score) => sum + score, 0),
+        () =>
+            parseFloat(
+                Object.values(scores)
+                    .reduce((sum, score) => sum + score, 0)
+                    .toFixed(2),
+            ),
         [scores],
     );
 

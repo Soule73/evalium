@@ -39,14 +39,6 @@ function createTranslatedFormatters(t: TranslateFn) {
         return roleMap[roleName] || capitalize(roleName);
     };
 
-    const getAssignmentBadgeLabel = (status: string): string => {
-        const statusMap: Record<string, string> = {
-            graded: t('formatters.assignment_graded'),
-            submitted: t('formatters.assignment_submitted'),
-        };
-        return statusMap[status] || t('formatters.assignment_not_started');
-    };
-
     const securityViolationLabel = (violation: string | undefined): string => {
         const violationMap: Record<string, string> = {
             tab_switch: t('formatters.security_tab_switch'),
@@ -55,22 +47,11 @@ function createTranslatedFormatters(t: TranslateFn) {
         return violationMap[violation || ''] || t('formatters.security_violation_default');
     };
 
-    const formatAssessmentAssignmentStatus = (status: string): { label: string; color: string } => {
-        const statusMap: Record<string, { label: string; color: string }> = {
-            submitted: { label: t('formatters.assignment_submitted'), color: 'info' },
-            graded: { label: t('formatters.assignment_graded'), color: 'success' },
-            not_assigned: { label: t('formatters.assignment_not_assigned'), color: 'gray' },
-        };
-        return statusMap[status] || { label: status, color: 'gray' };
-    };
-
     return {
         formatDuration,
         getQuestionTypeLabel,
         getRoleLabel,
-        getAssignmentBadgeLabel,
         securityViolationLabel,
-        formatAssessmentAssignmentStatus,
     };
 }
 

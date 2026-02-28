@@ -22,6 +22,9 @@ export type { CompletionChartProps, CompletionDataItem } from './CompletionChart
 export { default as CustomTooltip } from './CustomTooltip';
 export type { CustomTooltipProps } from './CustomTooltip';
 
+export { default as TruncatedTick } from './TruncatedTick';
+export type { TruncatedTickProps } from './TruncatedTick';
+
 export {
     CHART_COLORS,
     CHART_PALETTE,

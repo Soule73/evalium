@@ -35,6 +35,15 @@ interface LineChartProps {
     colors?: string[];
     yDomain?: [number, number];
     formatTooltipValue?: (value: number) => string;
+    xAxisAngle?: number;
+    xAxisInterval?:
+        | number
+        | 'preserveStart'
+        | 'preserveEnd'
+        | 'preserveStartEnd'
+        | 'equidistantPreserveStart';
+    xAxisMaxLabelLength?: number;
+    xAxisHeight?: number;
     className?: string;
 }
 
@@ -62,14 +71,29 @@ export default function LineChart({
     colors = [...CHART_PALETTE],
     yDomain,
     formatTooltipValue,
+    xAxisAngle,
+    xAxisInterval,
+    xAxisMaxLabelLength,
+    xAxisHeight,
     className = '',
 }: LineChartProps) {
+    const truncateLabel = (value: string) => {
+        if (!xAxisMaxLabelLength || value.length <= xAxisMaxLabelLength) return value;
+        return value.slice(0, xAxisMaxLabelLength) + '...';
+    };
     const resolvedSeries = series ?? [{ dataKey: 'value', color: CHART_COLORS.primary }];
 
     return (
         <div className={className}>
             <ResponsiveContainer width="100%" height={height}>
-                <RechartsLineChart data={data} margin={{ ...CHART_DEFAULTS.margin, bottom: 12 }}>
+                <RechartsLineChart
+                    data={data}
+                    margin={{
+                        ...CHART_DEFAULTS.margin,
+                        left: xAxisAngle ? 20 : 0,
+                        right: 12,
+                    }}
+                >
                     {showGrid && (
                         <CartesianGrid
                             strokeDasharray="3 3"
@@ -83,6 +107,11 @@ export default function LineChart({
                         fontSize={CHART_DEFAULTS.fontSize}
                         {...CHART_DEFAULTS.axisStyle}
                         dy={8}
+                        interval={xAxisInterval ?? 'preserveStartEnd'}
+                        angle={xAxisAngle}
+                        textAnchor={xAxisAngle ? 'end' : 'middle'}
+                        height={xAxisHeight ?? (xAxisAngle ? 60 : 30)}
+                        tickFormatter={xAxisMaxLabelLength ? truncateLabel : undefined}
                     />
                     <YAxis
                         fontSize={CHART_DEFAULTS.fontSize}

@@ -26,6 +26,7 @@ trait ProvidesAdminClassRouteContext
             'assessmentGradeRoute' => 'admin.assessments.grade',
             'assessmentReviewRoute' => 'admin.assessments.review',
             'assessmentSaveGradeRoute' => 'admin.assessments.saveGrade',
+            'resultsRoute' => 'admin.classes.results',
         ];
     }
 }

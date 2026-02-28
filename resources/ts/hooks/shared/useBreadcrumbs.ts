@@ -348,6 +348,10 @@ function createBreadcrumbs(t: TranslateFn) {
                 },
                 { label: classSubject.subject?.name || `#${classSubject.id}` },
             ],
+            classResults: (classItem: ClassBcItem): BreadcrumbItem[] => [
+                ...classesBc.show(classItem),
+                { label: t('breadcrumbs.results') },
+            ],
             enrollments: enrollmentsBc.index,
             createEnrollment: enrollmentsBc.create,
             showEnrollment: (enrollment: {

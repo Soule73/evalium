@@ -48,8 +48,14 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
             }
         };
 
+        const handleMobileOpen = () => setIsMobileOpen(true);
+
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        window.addEventListener('sidebarMobileOpen', handleMobileOpen);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('sidebarMobileOpen', handleMobileOpen);
+        };
     }, []);
 
     useEffect(() => {
@@ -66,10 +72,6 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
             window.dispatchEvent(new Event('sidebarToggle'));
             return next;
         });
-    }, []);
-
-    const toggleMobile = useCallback(() => {
-        setIsMobileOpen((prev) => !prev);
     }, []);
 
     const closeMobile = useCallback(() => {
@@ -234,30 +236,6 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
 
     return (
         <>
-            <button
-                onClick={toggleMobile}
-                className="lg:hidden fixed top-4 left-4 z-3 p-2 rounded-md bg-white hover:bg-gray-50"
-                aria-label={t('sidebar.actions.toggle_menu')}
-            >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    {isMobileOpen ? (
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                        />
-                    ) : (
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 6h16M4 12h16M4 18h16"
-                        />
-                    )}
-                </svg>
-            </button>
-
             {isMobileOpen && (
                 <div
                     className="lg:hidden fixed inset-0 bg-gray-600 bg-opacity-75 z-40"
@@ -267,13 +245,13 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
 
             <aside
                 className={`
-                    fixed top-0 left-0 z-40 h-screen transition-all duration-300 ease-in-out bg-white border-r border-gray-200
+                    fixed top-0 left-0 z-40 h-screen transition-all duration-300 ease-in-out bg-white border-r border-gray-100
                     ${isCollapsed ? 'lg:w-20' : 'lg:w-64'}
                     ${isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0'}
                 `}
             >
                 <div className="flex flex-col h-full">
-                    <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between h-16 px-4 border-b border-gray-100">
                         <Link
                             href={navRoutes.dashboard()}
                             className={
@@ -288,6 +266,26 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                 height={isCollapsed ? 32 : 48}
                             />
                         </Link>
+
+                        <button
+                            onClick={closeMobile}
+                            className="lg:hidden cursor-pointer p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
+                            aria-label={t('sidebar.actions.close_menu')}
+                        >
+                            <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M11 19l-7-7 7-7"
+                                />
+                            </svg>
+                        </button>
 
                         <button
                             onClick={toggleCollapse}
@@ -324,7 +322,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                             <div key={group.key}>
                                 {group.label &&
                                     (isCollapsed ? (
-                                        <div className="my-2 mx-1 border-t border-gray-200" />
+                                        <div className="my-2 mx-1 border-t border-gray-100" />
                                     ) : (
                                         <p className="px-3 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
                                             {group.label}
@@ -364,7 +362,7 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                         ))}
                     </nav>
 
-                    <div className="border-t border-gray-200 bg-gray-50">
+                    <div className="border-t border-gray-100 bg-gray-50">
                         {isCollapsed ? (
                             <div className="p-2 space-y-2">
                                 <Tooltip
@@ -404,8 +402,8 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                                         flex items-center space-x-3 p-3 transition-all mb-3
                                         ${
                                             isActive(navRoutes.profile())
-                                                ? 'bg-indigo-50 border-b border-indigo-200'
-                                                : 'bg-white border-b border-gray-200 hover:border-indigo-200 hover:bg-indigo-50'
+                                                ? 'bg-indigo-50 border-b border-indigo-100'
+                                                : 'bg-white border-b border-gray-100 hover:border-indigo-100 hover:bg-indigo-50'
                                         }
                                     `}
                                 >

@@ -16,7 +16,7 @@ return [
 
     'stats' => [
         'question_types' => 'Types de questions',
-        'delivery_modes' => 'Modes de livraison',
+        'delivery_modes' => 'Modes de passation',
         'user_roles' => 'Rôles utilisateurs',
         'languages' => 'Langues',
     ],

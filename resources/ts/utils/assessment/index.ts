@@ -1,3 +1,4 @@
+export * from './assignmentStatus';
 export * from './utils';
 export * from './questionTypes';
 export * from './questionFactory';

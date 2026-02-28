@@ -37,7 +37,7 @@ export function AssignmentScoreStats({
         <Stat.Group columns={showGradedAt ? 4 : 3}>
             <Stat.Item
                 title={t('grading_pages.show.total_score')}
-                value={`${calculatedTotalScore} / ${totalPoints}`}
+                value={`${parseFloat(calculatedTotalScore.toFixed(2))} / ${totalPoints}`}
                 icon={DocumentTextIcon}
             />
             <Stat.Item

@@ -68,9 +68,9 @@ interface Props extends PageProps {
 }
 
 /**
- * Class results page displaying aggregated assessment and student statistics.
+ * Admin class results page displaying aggregated assessment and student statistics across all teachers.
  */
-export default function TeacherClassResults({ class: classItem, results, chartData }: Props) {
+export default function AdminClassResults({ class: classItem, results, chartData }: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 
@@ -89,7 +89,7 @@ export default function TeacherClassResults({ class: classItem, results, chartDa
     return (
         <AuthenticatedLayout
             title={t('teacher_class_pages.results.title')}
-            breadcrumb={breadcrumbs.teacher.classResults(classItem)}
+            breadcrumb={breadcrumbs.admin.classResults(classItem)}
         >
             <Stat.Group columns={4} className="mb-8">
                 <Stat.Item

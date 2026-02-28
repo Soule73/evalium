@@ -101,6 +101,7 @@ class AdminAssessmentController extends Controller
             'unpublishRoute' => null,
             'duplicateRoute' => null,
             'reopenRoute' => null,
+            'reassignRoute' => null,
             'createRoute' => null,
         ];
     }

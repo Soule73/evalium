@@ -12,6 +12,7 @@ import {
 import { Badge, Button } from '@evalium/ui';
 import { ConfirmationModal, Textarea } from '@/Components';
 import { formatDate, hasPermission } from '@/utils';
+import { resolveAssignmentDisplayStatus } from '@/utils/assessment';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';
@@ -28,21 +29,6 @@ interface AssignmentListProps {
     routeContext?: AssessmentRouteContext;
     onGrade?: (assignment: AssignmentWithVirtual) => void;
     onViewResult?: (assignment: AssignmentWithVirtual) => void;
-}
-
-type StatusResult = { label: string; type: 'gray' | 'info' | 'warning' | 'success' };
-
-function resolveStatus(assignment: AssignmentWithVirtual, t: (k: string) => string): StatusResult {
-    if (assignment.is_virtual) {
-        return { label: t('components.assignment_list.status_not_started'), type: 'gray' };
-    }
-    if (!assignment.submitted_at) {
-        return { label: t('components.assignment_list.status_in_progress'), type: 'info' };
-    }
-    if (assignment.score === null || assignment.score === undefined) {
-        return { label: t('components.assignment_list.status_pending_grading'), type: 'warning' };
-    }
-    return { label: t('components.assignment_list.status_graded'), type: 'success' };
 }
 
 function canReopen(
@@ -67,11 +53,12 @@ const ScoreCell = memo(
         if (score === null || score === undefined) {
             return <span className="text-gray-400">-</span>;
         }
+        const displayScore = parseFloat(score.toFixed(2));
         const percentage = totalPoints > 0 ? Math.round((score / totalPoints) * 100) : 0;
         return (
             <div>
                 <div className="text-sm font-medium text-gray-900">
-                    {score} / {totalPoints}
+                    {displayScore} / {totalPoints}
                 </div>
                 <div className="text-xs text-gray-500">{percentage}%</div>
             </div>
@@ -116,8 +103,12 @@ const AssignmentActions = memo(
             !assignment.is_virtual && (!!assignment.submitted_at || assessmentHasEnded);
         const showReopen = canGrade && canReopen(assignment, isSupervisedMode, hasReopenRoute);
         const showGradeActions = canGrade && isGradeable;
-        const showView = canView && !assignment.is_virtual && assignment.score;
-        const isUngraded = !assignment.score;
+        const showView =
+            canView &&
+            !assignment.is_virtual &&
+            assignment.score !== null &&
+            assignment.score !== undefined;
+        const isUngraded = assignment.score === null || assignment.score === undefined;
 
         if (!showReopen && !showGradeActions && !showView) return null;
 
@@ -239,8 +230,13 @@ function buildColumns(deps: ColumnDeps): EntityListConfig<AssignmentWithVirtual>
             key: 'status',
             labelKey: 'components.assignment_list.status',
             render: (a) => {
-                const s = resolveStatus(a, t);
-                return <Badge label={s.label} type={s.type} size="sm" />;
+                const s = resolveAssignmentDisplayStatus(t, {
+                    isVirtual: a.is_virtual,
+                    submittedAt: a.submitted_at,
+                    score: a.score,
+                    assessmentHasEnded,
+                });
+                return <Badge label={s.label} type={s.badgeType} size="sm" />;
             },
         },
         {
@@ -275,7 +271,7 @@ function buildColumns(deps: ColumnDeps): EntityListConfig<AssignmentWithVirtual>
 /**
  * Displays the list of student assignments for a given assessment.
  *
- * Delegates permission checks to AssignmentActions, status resolution to resolveStatus,
+ * Delegates permission checks to AssignmentActions, status resolution to resolveAssignmentDisplayStatus,
  * and reopen modal state to useReopenModal.
  */
 export function AssignmentList({

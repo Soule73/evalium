@@ -265,6 +265,7 @@ const AssessmentShow: React.FC<Props> = ({
                 title={t('assessment_pages.common.assessment_questions')}
                 collapsible
                 defaultOpen={false}
+                className="mb-6"
             >
                 {(assessment.questions ?? []).length === 0 ? (
                     <div className="text-center py-8 text-gray-500">

@@ -29,5 +29,6 @@ export interface AssessmentRouteContext {
     unpublishRoute?: string | null;
     duplicateRoute?: string | null;
     reopenRoute?: string | null;
+    reassignRoute?: string | null;
     createRoute?: string | null;
 }

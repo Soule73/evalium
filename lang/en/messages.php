@@ -216,6 +216,11 @@ return [
     'assignment_cannot_reopen_time_fully_elapsed' => 'Cannot reopen: the assessment time has fully elapsed',
     'assignment_cannot_reopen_not_interrupted' => 'This assignment was not interrupted',
 
+    'assignment_reassigned' => 'Assignment reassigned successfully. The student can now retake the assessment.',
+    'assignment_cannot_reassign_has_responses' => 'Cannot reassign: the student has submitted answers',
+    'assignment_cannot_reassign_supervised_questions_exposed' => 'Cannot reassign: the student has already seen the questions in this supervised assessment',
+    'grade_blocked_no_responses' => 'Manual grading is not allowed when the student has not submitted any answers. The score is automatically set to 0.',
+
     'cannot_access_assessment' => 'You cannot access this assessment',
     'do_not_own_attachment' => 'You do not own this attachment',
     'security_violation_recorded' => 'Security violation recorded',

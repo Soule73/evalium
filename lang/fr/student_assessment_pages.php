@@ -100,7 +100,7 @@ return [
         'fullscreen_activation_title' => 'Activation du mode plein écran requise',
         'fullscreen_activation_message' => 'Pour commencer cette évaluation, vous devez d\'abord activer le mode plein écran. Les questions n\'apparaîtront qu\'après l\'activation du mode plein écran.',
         'attention' => 'ATTENTION',
-        'toast_instructions' => 'Vos réponses sont sauvegardées automatiquement. Ne changez pas d’onglet et ne quittez pas le plein écran — votre évaluation se terminera immédiatement.',
+        'toast_instructions' => 'Vos réponses sont sauvegardées automatiquement. Ne changez pas d\'onglet et ne quittez pas le plein écran — votre évaluation se terminera immédiatement.',
         'previous_question' => 'Précédent',
         'next_question' => 'Suivant',
         'question_progress' => 'Question :current sur :total',

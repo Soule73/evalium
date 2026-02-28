@@ -147,6 +147,7 @@ return [
         'actions' => 'Actions',
         'status_not_started' => 'Not started',
         'status_in_progress' => 'In progress',
+        'status_not_submitted' => 'Not submitted',
         'status_pending_grading' => 'Pending grading',
         'status_graded' => 'Graded',
         'grade' => 'Grade',

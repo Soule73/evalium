@@ -180,6 +180,70 @@ interface ReadOnlyChoiceListProps {
     suppressNoAnswerWarning: boolean;
 }
 
+interface CorrectAnswersListProps {
+    choices: Choice[];
+    type: ChoiceOnlyType;
+    getBooleanLabel: (isTrue: boolean) => string;
+    getBooleanShortLabel: (isTrue: boolean) => string;
+    getBooleanDisplay: (content: string) => boolean;
+    getBooleanBadgeClass: (isTrue: boolean, isHighlighted: boolean) => string;
+}
+
+function CorrectAnswersList({
+    choices,
+    type,
+    getBooleanLabel,
+    getBooleanShortLabel,
+    getBooleanDisplay,
+    getBooleanBadgeClass,
+}: CorrectAnswersListProps) {
+    return (
+        <div className="space-y-2">
+            {choices.map((choice, idx) => {
+                const isCorrect = choice.is_correct;
+                const border = getChoiceBorder(type);
+
+                const indexBadge =
+                    type === 'boolean'
+                        ? (() => {
+                              const isTrue = getBooleanDisplay(choice.content || '');
+                              const badgeClass = getBooleanBadgeClass(isTrue, isCorrect);
+                              const shortLabel = getBooleanShortLabel(isTrue);
+                              return (
+                                  <span
+                                      className={`inline-flex items-center justify-center h-6 w-6 rounded-full ${badgeClass} text-xs font-medium mr-2`}
+                                  >
+                                      {shortLabel}
+                                  </span>
+                              );
+                          })()
+                        : questionIndexLabel(idx, getIndexBgClass(isCorrect, false, true));
+
+                return (
+                    <div
+                        key={choice.id}
+                        className={`p-3 rounded-lg border ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'}`}
+                    >
+                        <div className="flex items-center">
+                            <div
+                                className={`w-4 h-4 mr-3 flex items-center justify-center ${border} ${isCorrect ? 'border-green-500 bg-green-500' : 'border-gray-300'}`}
+                            >
+                                {isCorrect && <CheckIcon className="w-4 h-4 fill-white" />}
+                            </div>
+                            {indexBadge}
+                            <span className={isCorrect ? 'text-green-800' : 'text-gray-700'}>
+                                {type === 'boolean'
+                                    ? getBooleanLabel(getBooleanDisplay(choice.content || ''))
+                                    : choice.content}
+                            </span>
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
 function ReadOnlyChoiceList({
     choices,
     userChoices,
@@ -195,17 +259,29 @@ function ReadOnlyChoiceList({
 
     if (!hasResponse && !suppressNoAnswerWarning) {
         return (
-            <AlertEntry
-                title={t('components.question_renderer.no_answer')}
-                type="warning"
-                className="mt-2"
-            >
-                <p className="text-sm">
-                    {isTeacherView
-                        ? t('components.question_renderer.no_answer_student')
-                        : t('components.question_renderer.no_answer_yours')}
-                </p>
-            </AlertEntry>
+            <div className="space-y-3">
+                <AlertEntry
+                    title={t('components.question_renderer.no_answer')}
+                    type="warning"
+                    className="mt-2"
+                >
+                    <p className="text-sm">
+                        {isTeacherView
+                            ? t('components.question_renderer.no_answer_student')
+                            : t('components.question_renderer.no_answer_yours')}
+                    </p>
+                </AlertEntry>
+                {shouldShowCorrect && (
+                    <CorrectAnswersList
+                        choices={choices}
+                        type={type}
+                        getBooleanLabel={getBooleanLabel}
+                        getBooleanShortLabel={getBooleanShortLabel}
+                        getBooleanDisplay={getBooleanDisplay}
+                        getBooleanBadgeClass={getBooleanBadgeClass}
+                    />
+                )}
+            </div>
         );
     }
 

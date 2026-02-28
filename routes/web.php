@@ -189,6 +189,10 @@ Route::middleware('auth')->group(function () {
                     Route::delete('/{class}', 'destroy')->name('destroy');
                 });
 
+            Route::get('/classes/{class}/results', [\App\Http\Controllers\Admin\AdminClassResultsController::class, 'index'])
+                ->middleware('role:admin,super_admin')
+                ->name('classes.results');
+
             /**
              * Class Students (nested under classes)
              */
@@ -316,6 +320,7 @@ Route::middleware('auth')->group(function () {
                     Route::post('/{assessment}/assignments/{assignment}/grade', 'saveGrade')->name('saveGrade');
                     Route::get('/{assessment}/assignments/{assignment}/review', 'review')->name('review');
                     Route::post('/{assessment}/assignments/{assignment}/reopen', 'reopenAssignment')->name('reopen');
+                    Route::post('/{assessment}/assignments/{assignment}/reassign', 'reassignAssignment')->name('reassign');
                 });
 
             /**

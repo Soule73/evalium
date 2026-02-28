@@ -203,23 +203,38 @@ class AssessmentService
      * - submitted_at null + ended  → allowed with warning banner
      * - submitted_at null + active → blocked (student still has time)
      *
-     * @return array{allowed: bool, reason: string, warning: string|null}
+     * When the assignment has no responses (answers) and grading is allowed,
+     * the state includes `no_responses: true` and `correction_locked: true`
+     * so the frontend can block manual scoring and offer reassignment.
+     *
+     * @return array{allowed: bool, reason: string, warning: string|null, no_responses: bool, correction_locked: bool, can_reassign: bool, reassign_reason: string|null}
      */
     public function resolveGradingState(Assessment $assessment, AssessmentAssignment $assignment): array
     {
         if ($assignment->submitted_at !== null) {
+            $noResponses = $assignment->hasNoResponses();
+
             return [
                 'allowed' => true,
                 'reason' => 'submitted',
                 'warning' => null,
+                'no_responses' => $noResponses,
+                'correction_locked' => $noResponses,
+                ...$this->resolveReassignState($assignment, $assessment, $noResponses),
             ];
         }
 
         if ($assessment->hasEnded()) {
+            $noResponses = $assignment->hasNoResponses();
+            $reassignState = $this->resolveReassignState($assignment, $assessment, $noResponses);
+
             return [
                 'allowed' => true,
                 'reason' => 'not_submitted_assessment_ended',
                 'warning' => 'grading_without_submission',
+                'no_responses' => $noResponses,
+                'correction_locked' => $noResponses,
+                ...$reassignState,
             ];
         }
 
@@ -227,6 +242,29 @@ class AssessmentService
             'allowed' => false,
             'reason' => 'assessment_still_running',
             'warning' => null,
+            'no_responses' => false,
+            'correction_locked' => false,
+            'can_reassign' => false,
+            'reassign_reason' => null,
+        ];
+    }
+
+    /**
+     * Resolve reassignment eligibility for a given assignment.
+     *
+     * @return array{can_reassign: bool, reassign_reason: string|null}
+     */
+    private function resolveReassignState(AssessmentAssignment $assignment, Assessment $assessment, bool $noResponses): array
+    {
+        if (! $noResponses) {
+            return ['can_reassign' => false, 'reassign_reason' => 'has_responses'];
+        }
+
+        $result = $assignment->canBeReassigned($assessment);
+
+        return [
+            'can_reassign' => $result['can_reassign'],
+            'reassign_reason' => $result['reason'],
         ];
     }
 

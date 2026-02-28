@@ -210,6 +210,45 @@ class AssessmentAssignment extends Model
     }
 
     /**
+     * Determine whether the student submitted any answers at all.
+     */
+    public function hasNoResponses(): bool
+    {
+        if ($this->relationLoaded('answers')) {
+            return $this->answers->isEmpty();
+        }
+
+        return ! $this->answers()->exists();
+    }
+
+    /**
+     * Determine whether this assignment can be reassigned.
+     *
+     * Homework: always reassignable when no responses.
+     * Supervised not started: reassignable (questions not seen).
+     * Supervised started: NOT reassignable (questions already exposed).
+     *
+     * @param  Assessment  $assessment  The parent assessment
+     * @return array{can_reassign: bool, reason: string|null}
+     */
+    public function canBeReassigned(Assessment $assessment): array
+    {
+        if (! $this->hasNoResponses()) {
+            return ['can_reassign' => false, 'reason' => 'has_responses'];
+        }
+
+        if ($assessment->isHomeworkMode()) {
+            return ['can_reassign' => true, 'reason' => null];
+        }
+
+        if ($this->started_at !== null) {
+            return ['can_reassign' => false, 'reason' => 'supervised_questions_exposed'];
+        }
+
+        return ['can_reassign' => true, 'reason' => null];
+    }
+
+    /**
      * Indicate that persisted assignment records are never virtual.
      *
      * Virtual (not-started) placeholders are plain objects returned alongside

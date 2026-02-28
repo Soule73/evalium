@@ -6,6 +6,7 @@ return [
         'submitted' => 'Submitted',
         'in_progress' => 'In Progress',
         'not_started' => 'Not Started',
+        'total' => 'Total',
     ],
 
     'score_distribution' => [

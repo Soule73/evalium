@@ -6,7 +6,6 @@ import {
     ClockIcon,
 } from '@heroicons/react/24/outline';
 import { Deferred } from '@inertiajs/react';
-import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Stat } from '@/Components';
 import {
@@ -39,7 +38,6 @@ interface Props {
 
 export default function StudentDashboard({ stats, chartData }: Props) {
     const { t } = useTranslations();
-    const breadcrumbs = useBreadcrumbs();
 
     const averageDisplay =
         stats.averageScore !== null
@@ -47,10 +45,7 @@ export default function StudentDashboard({ stats, chartData }: Props) {
             : t('dashboard.student.no_grades');
 
     return (
-        <AuthenticatedLayout
-            title={t('dashboard.title.student')}
-            breadcrumb={breadcrumbs.dashboard()}
-        >
+        <AuthenticatedLayout title={t('dashboard.title.student')}>
             <Stat.Group columns={4} className="mb-8" data-e2e="dashboard-content">
                 <Stat.Item
                     title={t('dashboard.student.total_assessments')}

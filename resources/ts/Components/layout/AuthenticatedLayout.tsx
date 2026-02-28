@@ -53,18 +53,34 @@ const AuthenticatedLayout = ({
                 >
                     {/* Header */}
                     <header
-                        className={`fixed top-0 z-20 bg-white/95 backdrop-blur-sm shadow-[0_1px_3px_0_rgb(0_0_0/0.04)] h-16 ${sidebarCollapsed ? 'w-[calc(100%-5rem)]' : 'w-[calc(100%-16rem)]'} transition-all duration-300`}
+                        className={`fixed top-0 z-20 bg-white/95 backdrop-blur-sm border border-gray-100 h-16 w-full ${sidebarCollapsed ? 'lg:w-[calc(100%-5rem)]' : 'lg:w-[calc(100%-16rem)]'} transition-all duration-300`}
                     >
                         <div className="flex items-center justify-between h-full px-4 lg:px-8">
-                            <div className="lg:hidden w-10"></div>
-                            <div className="flex-1">
-                                {breadcrumb ? (
-                                    <Breadcrumb items={breadcrumb} />
-                                ) : title ? (
-                                    <h1 className="lg:text-lg font-semibold text-gray-900 hidden sm:block">
+                            <button
+                                onClick={() => window.dispatchEvent(new Event('sidebarMobileOpen'))}
+                                className="lg:hidden p-2 -ml-2 rounded-md hover:bg-gray-50 text-gray-600"
+                                aria-label="Menu"
+                            >
+                                <svg
+                                    className="w-6 h-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M4 6h16M4 12h16M4 18h16"
+                                    />
+                                </svg>
+                            </button>
+                            <div className="flex-1 min-w-0 overflow-hidden">
+                                {title && (
+                                    <h1 className="lg:text-lg font-semibold text-gray-900 hidden sm:block truncate">
                                         {title}
                                     </h1>
-                                ) : null}
+                                )}
                             </div>
 
                             {/* Academic Year Selector + User Menu */}
@@ -85,8 +101,15 @@ const AuthenticatedLayout = ({
                     </header>
 
                     {/* Main content */}
-                    <main className="px-4 pt-14 lg:pt-20 min-h-[calc(100vh-4rem)]">
-                        <div className="max-w-340 mx-auto">{children}</div>
+                    <main className="px-4 pt-18 lg:pt-20 min-h-[calc(100vh-4rem)]">
+                        <div className="max-w-340 mx-auto">
+                            {breadcrumb && (
+                                <div className="py-3">
+                                    <Breadcrumb items={breadcrumb} />
+                                </div>
+                            )}
+                            {children}
+                        </div>
                     </main>
                 </div>
 

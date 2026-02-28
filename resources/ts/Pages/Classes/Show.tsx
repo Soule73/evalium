@@ -178,6 +178,16 @@ export default function ClassShow({
             <Button size="sm" variant="outline" color="secondary" onClick={handleBack}>
                 {translations.back}
             </Button>
+            {routeContext.resultsRoute && (
+                <Button
+                    size="sm"
+                    variant="outline"
+                    color="secondary"
+                    onClick={() => router.visit(route(routeContext.resultsRoute!, classItem.id))}
+                >
+                    {translations.viewResults}
+                </Button>
+            )}
             {canUpdate && (
                 <Button size="sm" variant="solid" color="primary" onClick={handleEdit}>
                     {translations.edit}
@@ -325,6 +335,36 @@ export default function ClassShow({
                     {isAdmin ? adminStats : teacherStats}
                 </Section>
 
+                {!isAdmin && students && routeContext.studentIndexRoute && (
+                    <Section
+                        title={translations.studentsSectionTeacher}
+                        subtitle={t('teacher_class_pages.show.students_section_subtitle', {
+                            count: students.total,
+                        })}
+                        actions={
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                color="secondary"
+                                onClick={() =>
+                                    router.visit(
+                                        route(routeContext.studentIndexRoute!, classItem.id),
+                                    )
+                                }
+                            >
+                                {translations.seeAllStudents}
+                            </Button>
+                        }
+                    >
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <UserGroupIcon className="h-5 w-5" />
+                            <span>
+                                {students.total} {translations.students}
+                            </span>
+                        </div>
+                    </Section>
+                )}
+
                 {isAdmin && statistics && (
                     <Section
                         title={translations.studentsSection}
@@ -432,36 +472,6 @@ export default function ClassShow({
                         onView={handleViewAssessment}
                     />
                 </Section>
-
-                {!isAdmin && students && routeContext.studentIndexRoute && (
-                    <Section
-                        title={translations.studentsSectionTeacher}
-                        subtitle={t('teacher_class_pages.show.students_section_subtitle', {
-                            count: students.total,
-                        })}
-                        actions={
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                color="secondary"
-                                onClick={() =>
-                                    router.visit(
-                                        route(routeContext.studentIndexRoute!, classItem.id),
-                                    )
-                                }
-                            >
-                                {translations.seeAllStudents}
-                            </Button>
-                        }
-                    >
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <UserGroupIcon className="h-5 w-5" />
-                            <span>
-                                {students.total} {translations.students}
-                            </span>
-                        </div>
-                    </Section>
-                )}
             </div>
 
             {isAdmin && (

@@ -219,6 +219,35 @@ class ScoringService
     }
 
     /**
+     * Auto-grade an assignment with zero score for all questions.
+     *
+     * Used when a student has submitted no answers and the assessment has ended.
+     * Sets graded_at and total score to 0, notifies the student.
+     *
+     * @return array{total_score: float, status: string}
+     */
+    public function autoGradeZero(AssessmentAssignment $assignment, ?string $teacherNotes = null): array
+    {
+        $assignment->update([
+            'graded_at' => now(),
+            'teacher_notes' => $teacherNotes,
+        ]);
+
+        $assignment->loadMissing(['enrollment.student', 'assessment.classSubject.subject']);
+
+        $student = $assignment->student;
+
+        if ($student) {
+            $student->notify(new AssessmentGradedNotification($assignment->assessment, $assignment));
+        }
+
+        return [
+            'total_score' => 0.0,
+            'status' => 'graded',
+        ];
+    }
+
+    /**
      * Save manual grades for multiple questions in an assignment.
      *
      * Handles batch update of question scores and feedback, then recalculates total score.

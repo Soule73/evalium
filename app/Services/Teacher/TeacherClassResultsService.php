@@ -6,10 +6,12 @@ use App\Models\ClassModel;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Computes aggregated assessment and student statistics for a teacher's class.
+ * Computes aggregated assessment and student statistics for a class.
  *
  * Single Responsibility: class-level results synthesis only.
  * Uses raw SQL aggregation to avoid N+1 queries.
+ * When $teacherId is provided, scopes data to that teacher's subjects only.
+ * When $teacherId is null, returns data for all subjects in the class (admin view).
  */
 class TeacherClassResultsService
 {
@@ -18,7 +20,7 @@ class TeacherClassResultsService
      *
      * @return array{overview: array, assessment_stats: array, student_stats: array}
      */
-    public function getClassResults(ClassModel $class, int $teacherId): array
+    public function getClassResults(ClassModel $class, ?int $teacherId = null): array
     {
         $classId = $class->id;
 
@@ -42,14 +44,14 @@ class TeacherClassResultsService
     /**
      * @return array<int, array{id: int, title: string, type: string, scheduled_at: string|null, subject_name: string, total_assigned: int, graded: int, submitted: int, in_progress: int, not_started: int, average_score: float|null, completion_rate: float}>
      */
-    private function computeAssessmentStats(int $classId, int $teacherId, int $totalStudents): array
+    private function computeAssessmentStats(int $classId, ?int $teacherId, int $totalStudents): array
     {
         $activeEnrollmentSubquery = DB::table('enrollments')
             ->select('id')
             ->where('class_id', $classId)
             ->where('status', 'active');
 
-        $rows = DB::table('assessments as a')
+        $query = DB::table('assessments as a')
             ->join('class_subjects as cs', 'cs.id', '=', 'a.class_subject_id')
             ->join('subjects as s', 's.id', '=', 'cs.subject_id')
             ->leftJoin('assessment_assignments as aa', function ($join) use ($activeEnrollmentSubquery) {
@@ -59,8 +61,13 @@ class TeacherClassResultsService
             ->leftJoin(DB::raw('(SELECT assessment_assignment_id, COALESCE(SUM(score), 0) as total_score FROM answers GROUP BY assessment_assignment_id) as ans_totals'), 'ans_totals.assessment_assignment_id', '=', 'aa.id')
             ->leftJoin(DB::raw('(SELECT assessment_id, COALESCE(SUM(points), 0) as total_points FROM questions GROUP BY assessment_id) as q_totals'), 'q_totals.assessment_id', '=', 'a.id')
             ->where('cs.class_id', $classId)
-            ->where('cs.teacher_id', $teacherId)
-            ->whereNull('a.deleted_at')
+            ->whereNull('a.deleted_at');
+
+        if ($teacherId !== null) {
+            $query->where('cs.teacher_id', $teacherId);
+        }
+
+        $rows = $query
             ->groupBy('a.id', 'a.title', 'a.type', 'a.scheduled_at', 's.name', 'q_totals.total_points')
             ->selectRaw('
                 a.id,
@@ -113,14 +120,17 @@ class TeacherClassResultsService
      *   average_score = Σ(coefficient × (raw_score / max_points) × 20) / Σ(coefficient)
      * Only graded assignments (graded_at IS NOT NULL) are included in the weighted average.
      */
-    private function computeStudentStats(int $classId, int $teacherId): array
+    private function computeStudentStats(int $classId, ?int $teacherId): array
     {
         $assessmentSubquery = DB::table('assessments as a')
             ->select('a.id')
             ->join('class_subjects as cs', 'cs.id', '=', 'a.class_subject_id')
             ->where('cs.class_id', $classId)
-            ->where('cs.teacher_id', $teacherId)
             ->whereNull('a.deleted_at');
+
+        if ($teacherId !== null) {
+            $assessmentSubquery->where('cs.teacher_id', $teacherId);
+        }
 
         $countRows = DB::table('enrollments as e')
             ->join('users as u', 'u.id', '=', 'e.student_id')
@@ -196,7 +206,7 @@ class TeacherClassResultsService
      *
      * @return array{scoreDistribution: array, assessmentTrend: array}
      */
-    public function getChartData(ClassModel $class, int $teacherId): array
+    public function getChartData(ClassModel $class, ?int $teacherId = null): array
     {
         return [
             'scoreDistribution' => $this->getScoreDistributionForClass($class->id, $teacherId),
@@ -209,22 +219,27 @@ class TeacherClassResultsService
      *
      * @return array<int, array{range: string, count: int}>
      */
-    public function getScoreDistributionForClass(int $classId, int $teacherId): array
+    public function getScoreDistributionForClass(int $classId, ?int $teacherId = null): array
     {
         $scoreExpr = '(SELECT COALESCE(SUM(a_s.score), 0) FROM answers a_s WHERE a_s.assessment_assignment_id = aa.id)'
             .' / (SELECT COALESCE(SUM(q.points), 0) FROM questions q WHERE q.assessment_id = a.id) * 20';
         $maxPointsExpr = '(SELECT COALESCE(SUM(q.points), 0) FROM questions q WHERE q.assessment_id = a.id)';
 
-        $rows = DB::table('assessment_assignments as aa')
+        $query = DB::table('assessment_assignments as aa')
             ->join('enrollments as e', 'e.id', '=', 'aa.enrollment_id')
             ->join('assessments as a', 'a.id', '=', 'aa.assessment_id')
             ->join('class_subjects as cs', 'cs.id', '=', 'a.class_subject_id')
             ->where('e.class_id', $classId)
             ->where('e.status', 'active')
-            ->where('cs.teacher_id', $teacherId)
             ->whereNull('a.deleted_at')
             ->whereNotNull('aa.graded_at')
-            ->whereRaw("{$maxPointsExpr} > 0")
+            ->whereRaw("{$maxPointsExpr} > 0");
+
+        if ($teacherId !== null) {
+            $query->where('cs.teacher_id', $teacherId);
+        }
+
+        $rows = $query
             ->selectRaw("
                 CASE
                     WHEN ({$scoreExpr}) < 5 THEN '0-4'
@@ -253,7 +268,7 @@ class TeacherClassResultsService
      *
      * @return array<int, array{name: string, value: float|null}>
      */
-    public function getAssessmentAverageTrend(int $classId, int $teacherId): array
+    public function getAssessmentAverageTrend(int $classId, ?int $teacherId = null): array
     {
         $totalStudents = (int) DB::table('enrollments')
             ->where('class_id', $classId)
@@ -268,7 +283,7 @@ class TeacherClassResultsService
             ->where('class_id', $classId)
             ->where('status', 'active');
 
-        return DB::table('assessments as a')
+        $query = DB::table('assessments as a')
             ->join('class_subjects as cs', 'cs.id', '=', 'a.class_subject_id')
             ->leftJoin('assessment_assignments as aa', function ($join) use ($activeEnrollmentSubquery) {
                 $join->on('aa.assessment_id', '=', 'a.id')
@@ -276,18 +291,25 @@ class TeacherClassResultsService
                     ->whereNotNull('aa.graded_at');
             })
             ->where('cs.class_id', $classId)
-            ->where('cs.teacher_id', $teacherId)
-            ->whereNull('a.deleted_at')
+            ->whereNull('a.deleted_at');
+
+        if ($teacherId !== null) {
+            $query->where('cs.teacher_id', $teacherId);
+        }
+
+        return $query
             ->groupBy('a.id', 'a.title', 'a.scheduled_at')
-            ->havingRaw('COUNT(aa.id) > 0')
             ->selectRaw("
                 a.title as name,
-                ROUND(AVG(
-                    CASE WHEN {$maxPointsExpr} > 0
-                        THEN {$scoreExpr} / {$maxPointsExpr} * 20
-                        ELSE NULL
-                    END
-                ), 2) as value
+                CASE WHEN COUNT(aa.id) > 0
+                    THEN ROUND(AVG(
+                        CASE WHEN {$maxPointsExpr} > 0
+                            THEN {$scoreExpr} / {$maxPointsExpr} * 20
+                            ELSE NULL
+                        END
+                    ), 2)
+                    ELSE NULL
+                END as value
             ")
             ->orderBy('a.scheduled_at')
             ->get()

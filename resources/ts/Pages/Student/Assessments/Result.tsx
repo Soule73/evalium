@@ -64,7 +64,7 @@ export default function AssessmentResult({
             title={t('student_assessment_pages.results.title', { assessment: assessment.title })}
             breadcrumb={breadcrumbs.student.assessmentResults(assessment)}
         >
-            <div className="max-w-6xl mx-auto space-y-6">
+            <div className="space-y-6">
                 <Section title={assessment.title} collapsible defaultOpen={false}>
                     <AssessmentHeader assessment={assessment} showDescription showMetadata />
                 </Section>

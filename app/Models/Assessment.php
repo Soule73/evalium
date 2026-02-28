@@ -164,10 +164,11 @@ class Assessment extends Model
 
     /**
      * Get whether correct answers should be revealed to students.
+     * Defaults to true: graded results show correct/incorrect unless explicitly disabled.
      */
     public function getShowCorrectAnswersAttribute(): bool
     {
-        return $this->getBooleanSetting('show_correct_answers', false);
+        return $this->getBooleanSetting('show_correct_answers', true);
     }
 
     /**

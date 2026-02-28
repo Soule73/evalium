@@ -160,7 +160,7 @@ return [
     'assessment_type_homework' => 'Devoir',
     'assessment_type_exam' => 'Examen',
     'assessment_type_practical' => 'Travaux Pratiques',
-    'assessment_type_quiz' => 'Contrôle',
+    'assessment_type_quiz' => 'Quiz',
     'assessment_type_project' => 'Projet',
     'delivery_mode' => 'mode de passation',
     'scheduled_date' => 'date planifiée',
@@ -213,6 +213,11 @@ return [
     'assignment_cannot_reopen_not_started' => 'Cette copie n\'a pas encore été commencée',
     'assignment_cannot_reopen_time_fully_elapsed' => 'Impossible de rouvrir : le temps imparti est entièrement écoulé',
     'assignment_cannot_reopen_not_interrupted' => 'Cette copie n\'a pas été interrompue',
+
+    'assignment_reassigned' => 'Copie réassignée avec succès. L\'étudiant peut maintenant repasser l\'évaluation.',
+    'assignment_cannot_reassign_has_responses' => 'Impossible de réassigner : l\'étudiant a soumis des réponses',
+    'assignment_cannot_reassign_supervised_questions_exposed' => 'Impossible de réassigner : l\'étudiant a déjà vu les questions de cette évaluation surveillée',
+    'grade_blocked_no_responses' => 'La correction manuelle n\'est pas autorisée lorsque l\'étudiant n\'a soumis aucune réponse. La note est automatiquement fixée à 0.',
 
     'cannot_access_assessment' => 'Vous ne pouvez pas accéder à cette évaluation',
     'do_not_own_attachment' => 'Ce fichier ne vous appartient pas',

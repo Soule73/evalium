@@ -28,6 +28,7 @@ return [
     ],
     'actions' => [
         'toggle_menu' => 'Toggle menu',
+        'close_menu' => 'Close menu',
         'toggle_sidebar' => 'Toggle sidebar',
         'logout' => 'Logout',
         'profile' => 'Profile',

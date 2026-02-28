@@ -10,55 +10,54 @@ use Illuminate\Database\Seeder;
 class EnrollmentSeeder extends Seeder
 {
     /**
-     * Enroll existing students into classes.
+     * Distribute students across 6 classes with realistic enrollment.
      */
     public function run(): void
     {
         $students = User::whereHas('roles', function ($query) {
             $query->where('name', 'student');
-        })->get();
+        })->orderBy('id')->get();
 
-        if ($students->count() < 20) {
-            $this->command->error('Need at least 20 students. Run UserSeeder first.');
+        $classes = ClassModel::with('level')
+            ->orderBy('level_id')
+            ->orderBy('name')
+            ->get();
 
-            return;
-        }
-
-        $l1Class = ClassModel::whereHas('level', function ($query) {
-            $query->where('name', 'L1');
-        })->first();
-
-        $m1Class = ClassModel::whereHas('level', function ($query) {
-            $query->where('name', 'M1');
-        })->first();
-
-        if (! $l1Class || ! $m1Class) {
-            $this->command->error('L1 or M1 class not found. Run ClassSeeder first.');
+        if ($students->isEmpty() || $classes->isEmpty()) {
+            $this->command->error('Need students and classes. Run UserSeeder and ClassSeeder first.');
 
             return;
         }
 
+        $distribution = [
+            0 => 9,   // L1-A: 9
+            1 => 8,   // L1-B: 8
+            2 => 8,   // L2-A: 8
+            3 => 7,   // L2-B: 7
+            4 => 7,   // M1-A: 7
+            5 => 6,   // M1-B: 6
+        ];
+
+        $studentIndex = 0;
         $count = 0;
-        foreach ($students->take(10) as $student) {
-            Enrollment::create([
-                'class_id' => $l1Class->id,
-                'student_id' => $student->id,
-                'enrolled_at' => now(),
-                'status' => 'active',
-            ]);
-            $count++;
+
+        foreach ($classes as $classIndex => $class) {
+            $qty = $distribution[$classIndex] ?? 7;
+            $classStudents = $students->slice($studentIndex, $qty);
+
+            foreach ($classStudents as $student) {
+                Enrollment::create([
+                    'class_id' => $class->id,
+                    'student_id' => $student->id,
+                    'enrolled_at' => now()->subMonths(rand(2, 4)),
+                    'status' => 'active',
+                ]);
+                $count++;
+            }
+
+            $studentIndex += $qty;
         }
 
-        foreach ($students->skip(10)->take(10) as $student) {
-            Enrollment::create([
-                'class_id' => $m1Class->id,
-                'student_id' => $student->id,
-                'enrolled_at' => now(),
-                'status' => 'active',
-            ]);
-            $count++;
-        }
-
-        $this->command->info("{$count} Students enrolled (10 in L1-A, 10 in M1-A)");
+        $this->command->info("{$count} Students enrolled across {$classes->count()} classes");
     }
 }

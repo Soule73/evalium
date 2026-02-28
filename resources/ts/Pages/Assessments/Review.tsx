@@ -63,7 +63,7 @@ export default function ReviewAssignment({
             })}
             breadcrumb={pageBreadcrumbs}
         >
-            <div className="max-w-6xl mx-auto space-y-6">
+            <div className="space-y-6">
                 <Section title={assessment.title} collapsible defaultOpen={false}>
                     <AssessmentHeader assessment={assessment} showDescription showMetadata />
                 </Section>

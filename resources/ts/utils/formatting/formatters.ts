@@ -93,6 +93,17 @@ export const formatPercentage = (value: number, decimals: number = 1): string =>
 };
 
 /**
+ * Rounds a numeric score to remove floating point artifacts.
+ *
+ * @param value - The raw score value.
+ * @param decimals - Number of decimal places to keep (default 2).
+ * @returns The cleaned number (e.g. 4.55 instead of 4.550000000000001).
+ */
+export const formatScore = (value: number, decimals: number = 2): number => {
+    return parseFloat(value.toFixed(decimals));
+};
+
+/**
  * Format grade with color class
  */
 export function formatGrade(score: number, total: number): { text: string; colorClass: string } {

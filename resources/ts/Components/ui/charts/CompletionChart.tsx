@@ -9,6 +9,7 @@ import {
     ResponsiveContainer,
 } from 'recharts';
 import { CHART_ANIMATION, CHART_DEFAULTS, COMPLETION_STATUS_COLORS } from './chartTheme';
+import TruncatedTick from './TruncatedTick';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface CompletionDataItem {
@@ -59,13 +60,22 @@ export default function CompletionChart({
 
     const statuses = ['graded', 'submitted', 'in_progress', 'not_started'] as const;
 
+    const truncateLabel = (value: string, maxLen: number) => {
+        if (value.length <= maxLen) return value;
+        return value.slice(0, maxLen) + '...';
+    };
+
     return (
         <div className={className}>
             <ResponsiveContainer width="100%" height={height}>
                 <BarChart
                     data={data}
                     layout={isVertical ? 'vertical' : 'horizontal'}
-                    margin={CHART_DEFAULTS.margin}
+                    margin={{
+                        ...CHART_DEFAULTS.margin,
+                        left: isVertical ? 8 : 0,
+                        top: isVertical ? 16 : 8,
+                    }}
                     barCategoryGap="25%"
                 >
                     <CartesianGrid
@@ -86,9 +96,16 @@ export default function CompletionChart({
                                 type="category"
                                 dataKey="name"
                                 fontSize={11}
-                                width={120}
+                                width={170}
                                 tickLine={false}
-                                tick={{ fill: '#6b7280', fontSize: 11 }}
+                                tick={
+                                    <TruncatedTick
+                                        maxLength={26}
+                                        fontSize={11}
+                                        textAnchor="end"
+                                        dx={-4}
+                                    />
+                                }
                             />
                         </>
                     ) : (
@@ -97,7 +114,11 @@ export default function CompletionChart({
                                 dataKey="name"
                                 fontSize={CHART_DEFAULTS.fontSize}
                                 {...CHART_DEFAULTS.axisStyle}
-                                tick={{ fill: '#6b7280', fontSize: 11 }}
+                                interval={0}
+                                angle={-30}
+                                textAnchor="end"
+                                height={60}
+                                tickFormatter={(value: string) => truncateLabel(value, 18)}
                             />
                             <YAxis
                                 fontSize={CHART_DEFAULTS.fontSize}

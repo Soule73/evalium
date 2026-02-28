@@ -12,6 +12,7 @@ import { AlertEntry, Button, Modal, Section, Stat, TextEntry } from '@/Component
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { formatDate } from '@/utils';
+import { formatAssignmentStatus } from '@/utils/assessment';
 import { useAssessmentCountdown } from '@/hooks/features/assessment';
 import {
     ClockIcon,
@@ -55,9 +56,6 @@ export default function Show({
             minutes: t('student_assessment_pages.show.minutes'),
             questions: t('student_assessment_pages.show.questions'),
             status: t('student_assessment_pages.show.status'),
-            completed: t('student_assessment_pages.show.status_completed'),
-            graded: t('student_assessment_pages.show.status_graded'),
-            statusNotStarted: t('student_assessment_pages.show.status_not_started'),
             importantDates: t('student_assessment_pages.show.important_dates'),
             scheduledDate: t('student_assessment_pages.show.scheduled_date'),
             dueDate: t('student_assessment_pages.show.due_date'),
@@ -111,13 +109,10 @@ export default function Show({
         [t, isHomework],
     );
 
-    const statusValue = useMemo(() => {
-        if (assignment.status === 'graded') return translations.graded;
-        if (assignment.status === 'submitted') return translations.completed;
-        if (assignment.status === 'in_progress')
-            return t('student_assessment_pages.show.status_in_progress');
-        return translations.statusNotStarted;
-    }, [assignment.status, translations, t]);
+    const statusValue = useMemo(
+        () => formatAssignmentStatus(t, assignment.status).label,
+        [assignment.status, t],
+    );
 
     const isSubmitted = !!assignment.submitted_at;
     const canTake = !isSubmitted && availability.available;

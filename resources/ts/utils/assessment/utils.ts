@@ -228,26 +228,6 @@ export const calculateScoreDisplay = (
 };
 
 /**
- * Returns the badge type for a given assignment status.
- */
-export const getAssignmentBadgeType = (status: string): string => {
-    switch (status) {
-        case 'graded':
-            return 'success';
-        case 'submitted':
-            return 'info';
-        default:
-            return 'error';
-    }
-};
-
-export const assignmentStatusColors: Record<string, string> = {
-    submitted: 'bg-green-100 text-green-800',
-    graded: 'bg-purple-100 text-purple-800',
-    default: 'bg-gray-100 text-gray-800',
-};
-
-/**
  * Determines if assessment results can be shown based on assignment status and grading policy.
  */
 export const canShowAssessmentResults = (

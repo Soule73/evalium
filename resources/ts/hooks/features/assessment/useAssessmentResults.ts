@@ -1,7 +1,7 @@
 import { type Assessment, type AssessmentAssignment } from '@/types';
-import { useFormatters } from '@/hooks/shared/useFormatters';
 import { useMemo } from 'react';
-import { calculateTotalPoints } from '@/utils/assessment/utils';
+import { calculateTotalPoints, formatAssignmentStatus } from '@/utils/assessment';
+import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface UseAssessmentResultParams {
     assessment: Assessment;
@@ -18,7 +18,7 @@ const useAssessmentResults = ({
     assignment,
     canShowCorrectAnswers,
 }: UseAssessmentResultParams) => {
-    const { formatAssessmentAssignmentStatus } = useFormatters();
+    const { t } = useTranslations();
     const questions = useMemo(() => assessment?.questions ?? [], [assessment?.questions]);
     const assessmentIsActive = assessment.is_published;
     const assignmentStatus = assignment.status;
@@ -29,8 +29,8 @@ const useAssessmentResults = ({
     const isPendingReview = useMemo(() => assignmentStatus !== 'graded', [assignmentStatus]);
 
     const formattedAssignmentStatus = useMemo(
-        () => formatAssessmentAssignmentStatus(assignmentStatus),
-        [formatAssessmentAssignmentStatus, assignmentStatus],
+        () => formatAssignmentStatus(t, assignmentStatus),
+        [t, assignmentStatus],
     );
 
     const showCorrectAnswers = canShowCorrectAnswers;

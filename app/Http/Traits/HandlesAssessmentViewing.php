@@ -113,6 +113,11 @@ trait HandlesAssessmentViewing
             return redirect()->back()->flashError(__('messages.grade_blocked_assessment_running'));
         }
 
+        if ($gradingState['no_responses'] && ! $assignment->graded_at) {
+            $this->scoringService->autoGradeZero($assignment);
+            $assignment->refresh();
+        }
+
         $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
         $this->afterGradingLoad($request, $assessment);
 
@@ -141,6 +146,10 @@ trait HandlesAssessmentViewing
         $gradingState = $this->resolveAssessmentService()->resolveGradingState($assessment, $assignment);
 
         abort_if(! $gradingState['allowed'], 422, __('messages.grade_blocked_assessment_running'));
+
+        if ($gradingState['correction_locked']) {
+            return back()->flashError(__('messages.grade_blocked_no_responses'));
+        }
 
         $this->scoringService->saveManualGrades(
             $assignment,

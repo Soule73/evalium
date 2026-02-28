@@ -106,6 +106,8 @@ class TeacherGradingAccessGuardTest extends TestCase
                     ->component('Assessments/Grade')
                     ->where('gradingState.reason', 'not_submitted_assessment_ended')
                     ->where('gradingState.warning', 'grading_without_submission')
+                    ->where('gradingState.no_responses', true)
+                    ->where('gradingState.correction_locked', true)
             );
     }
 
@@ -127,6 +129,9 @@ class TeacherGradingAccessGuardTest extends TestCase
                     ->component('Assessments/Grade')
                     ->where('gradingState.allowed', true)
                     ->where('gradingState.reason', 'not_submitted_assessment_ended')
+                    ->where('gradingState.no_responses', true)
+                    ->where('gradingState.correction_locked', true)
+                    ->where('gradingState.can_reassign', true)
             );
     }
 
@@ -155,7 +160,7 @@ class TeacherGradingAccessGuardTest extends TestCase
     }
 
     #[Test]
-    public function save_grade_allowed_after_supervised_assessment_ended_without_submission(): void
+    public function save_grade_blocked_after_assessment_ended_no_responses(): void
     {
         $this->supervisedAssessment->update([
             'scheduled_at' => now()->subHours(3),
@@ -166,13 +171,55 @@ class TeacherGradingAccessGuardTest extends TestCase
             'started_at' => now()->subHours(3),
         ]);
 
+        $this->actingAs($this->teacher)
+            ->get(route('teacher.assessments.grade', [
+                'assessment' => $this->supervisedAssessment->id,
+                'assignment' => $assignment->id,
+            ]))
+            ->assertOk();
+
+        $this->assertNotNull($assignment->fresh()->graded_at);
+
         $scores = $this->buildScoresPayload($this->supervisedAssessment);
 
         $this->actingAs($this->teacher)
             ->post(route('teacher.assessments.saveGrade', [
                 'assessment' => $this->supervisedAssessment->id,
                 'assignment' => $assignment->id,
-            ]), ['scores' => $scores, 'teacher_notes' => 'Absent'])
+            ]), ['scores' => $scores, 'teacher_notes' => 'Giving points'])
+            ->assertRedirect()
+            ->assertSessionHas('error');
+    }
+
+    #[Test]
+    public function save_grade_allowed_after_assessment_ended_with_responses(): void
+    {
+        $this->supervisedAssessment->update([
+            'scheduled_at' => now()->subHours(3),
+            'duration_minutes' => 60,
+        ]);
+
+        $assignment = $this->createAssignmentForStudent($this->supervisedAssessment, $this->student, [
+            'started_at' => now()->subHours(3),
+            'submitted_at' => now()->subHours(2),
+        ]);
+
+        $this->supervisedAssessment->loadMissing('questions');
+        foreach ($this->supervisedAssessment->questions as $question) {
+            \App\Models\Answer::factory()->create([
+                'assessment_assignment_id' => $assignment->id,
+                'question_id' => $question->id,
+                'score' => 0,
+            ]);
+        }
+
+        $scores = $this->buildScoresPayload($this->supervisedAssessment);
+
+        $this->actingAs($this->teacher)
+            ->post(route('teacher.assessments.saveGrade', [
+                'assessment' => $this->supervisedAssessment->id,
+                'assignment' => $assignment->id,
+            ]), ['scores' => $scores, 'teacher_notes' => 'Good effort'])
             ->assertRedirect();
 
         $this->assertNotNull($assignment->fresh()->graded_at);

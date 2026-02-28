@@ -2,6 +2,7 @@ import { XMarkIcon, BellIcon, CheckIcon, TrashIcon } from '@heroicons/react/24/o
 import { type AppNotification } from '@/types';
 import { NotificationItem } from './NotificationItem';
 import { useTranslations } from '@/hooks';
+import { createPortal } from 'react-dom';
 
 interface NotificationPanelProps {
     isOpen: boolean;
@@ -34,11 +35,11 @@ export function NotificationPanel({
 
     if (!isOpen) return null;
 
-    return (
+    return createPortal(
         <>
-            <div className="fixed inset-0 z-100 bg-black/30" onClick={onClose} aria-hidden="true" />
+            <div className="fixed inset-0 z-50 bg-black/30" onClick={onClose} aria-hidden="true" />
 
-            <div className="fixed top-0 right-0 z-150 h-screen w-full max-w-lg bg-white shadow-xl flex flex-col">
+            <div className="fixed top-0 right-0 z-50 h-screen w-full max-w-lg bg-white shadow-xl flex flex-col">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 shrink-0">
                     <h2 className="text-base font-semibold text-gray-900">
                         {t('notifications.title')}
@@ -114,6 +115,7 @@ export function NotificationPanel({
                     <div className="shrink-0 px-4 py-3 border-t border-gray-200" />
                 )}
             </div>
-        </>
+        </>,
+        document.body,
     );
 }

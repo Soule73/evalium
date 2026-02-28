@@ -9,35 +9,39 @@ use Illuminate\Database\Seeder;
 class SubjectSeeder extends Seeder
 {
     /**
-     * Seed subjects for each level.
+     * Seed 12 subjects (4 per level: L1, L2, M1).
      */
     public function run(): void
     {
-        $l1Level = Level::where('name', 'L1')->first();
-        $m1Level = Level::where('name', 'M1')->first();
+        $levels = Level::orderBy('order')->get()->keyBy('name');
 
-        if (! $l1Level || ! $m1Level) {
-            $this->command->error('✗ L1 or M1 level not found.');
+        if ($levels->count() < 3) {
+            $this->command->error('Need at least 3 levels (L1, L2, M1).');
 
             return;
         }
 
         $subjects = [
-            ['name' => 'Mathematics', 'code' => 'MATH_L1', 'level_id' => $l1Level->id],
-            ['name' => 'Physics', 'code' => 'PHYS_L1', 'level_id' => $l1Level->id],
-            ['name' => 'Computer Science', 'code' => 'CS_L1', 'level_id' => $l1Level->id],
-            ['name' => 'English', 'code' => 'ENG_L1', 'level_id' => $l1Level->id],
+            ['name' => 'Analyse Mathematique', 'code' => 'MATH_L1', 'level_id' => $levels['L1']->id],
+            ['name' => 'Physique Generale', 'code' => 'PHYS_L1', 'level_id' => $levels['L1']->id],
+            ['name' => 'Algorithmique', 'code' => 'ALGO_L1', 'level_id' => $levels['L1']->id],
+            ['name' => 'Anglais Scientifique', 'code' => 'ANG_L1', 'level_id' => $levels['L1']->id],
 
-            ['name' => 'Advanced Mathematics', 'code' => 'MATH_M1', 'level_id' => $m1Level->id],
-            ['name' => 'Advanced Physics', 'code' => 'PHYS_M1', 'level_id' => $m1Level->id],
-            ['name' => 'Data Structures', 'code' => 'DS_M1', 'level_id' => $m1Level->id],
-            ['name' => 'Technical English', 'code' => 'ENG_M1', 'level_id' => $m1Level->id],
+            ['name' => 'Algebre Lineaire', 'code' => 'ALG_L2', 'level_id' => $levels['L2']->id],
+            ['name' => 'Mecanique des Fluides', 'code' => 'MDF_L2', 'level_id' => $levels['L2']->id],
+            ['name' => 'Programmation Orientee Objet', 'code' => 'POO_L2', 'level_id' => $levels['L2']->id],
+            ['name' => 'Communication Professionnelle', 'code' => 'COM_L2', 'level_id' => $levels['L2']->id],
+
+            ['name' => 'Optimisation', 'code' => 'OPT_M1', 'level_id' => $levels['M1']->id],
+            ['name' => 'Intelligence Artificielle', 'code' => 'IA_M1', 'level_id' => $levels['M1']->id],
+            ['name' => 'Bases de Donnees Avancees', 'code' => 'BDA_M1', 'level_id' => $levels['M1']->id],
+            ['name' => 'Gestion de Projet', 'code' => 'GP_M1', 'level_id' => $levels['M1']->id],
         ];
 
         foreach ($subjects as $subject) {
             Subject::create($subject);
         }
 
-        $this->command->info('8 Subjects created (4 per level: L1, M1)');
+        $this->command->info(count($subjects).' Subjects created (4 per level)');
     }
 }

@@ -18,7 +18,7 @@ return [
         'assessments' => 'Évaluations',
         'no_grade' => 'Pas encore de note',
         'no_subjects_title' => 'Aucune matière',
-        'no_subjects_subtitle' => 'Aucune matière n\' est encore assignée à votre classe.',
+        'no_subjects_subtitle' => 'Aucune matière n\'est encore assignée à votre classe.',
         'overall_statistics' => 'Statistiques globales',
         'overall_average' => 'Moyenne générale',
         'total_assessments' => 'Total évaluations',

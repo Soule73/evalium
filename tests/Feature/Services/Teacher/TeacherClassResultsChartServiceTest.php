@@ -122,11 +122,13 @@ class TeacherClassResultsChartServiceTest extends TestCase
         $this->assertNotNull($result[0]['value']);
     }
 
-    public function test_get_assessment_average_trend_excludes_ungraded(): void
+    public function test_get_assessment_average_trend_shows_null_for_ungraded(): void
     {
         $result = $this->service->getAssessmentAverageTrend($this->class->id, $this->teacher->id);
 
-        $this->assertCount(0, $result);
+        $this->assertCount(1, $result);
+        $this->assertEquals($this->assessment->title, $result[0]['name']);
+        $this->assertNull($result[0]['value']);
     }
 
     public function test_get_assessment_average_trend_normalizes_to_20(): void
