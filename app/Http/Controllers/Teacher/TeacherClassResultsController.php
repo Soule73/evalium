@@ -32,6 +32,7 @@ class TeacherClassResultsController extends Controller
         return Inertia::render('Teacher/Classes/Results', [
             'class' => $class,
             'results' => $results,
+            'chartData' => Inertia::defer(fn () => $this->resultsService->getChartData($class, $teacherId)),
         ]);
     }
 }

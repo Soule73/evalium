@@ -54,5 +54,9 @@ return [
         'stats_in_progress' => 'In Progress',
         'stats_not_started' => 'Not Started',
         'stats_average_score' => 'Average grade',
+        'status_chart' => 'Assignment status',
+        'status_chart_subtitle' => 'Visual breakdown of student assignment statuses',
+        'score_distribution' => 'Score distribution',
+        'score_distribution_subtitle' => 'Student scores normalized to /20',
     ],
 ];

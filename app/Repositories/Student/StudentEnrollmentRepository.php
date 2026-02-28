@@ -39,7 +39,7 @@ class StudentEnrollmentRepository implements StudentEnrollmentRepositoryInterfac
                 'subject',
                 'teacher',
                 'assessments' => function ($query) use ($enrollment) {
-                    $query->select('id', 'class_subject_id', 'coefficient', 'settings')
+                    $query->select('id', 'class_subject_id', 'coefficient', 'settings', 'is_published')
                         ->with([
                             'questions:id,assessment_id,points',
                             'assignments' => function ($q) use ($enrollment) {

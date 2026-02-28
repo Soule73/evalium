@@ -192,6 +192,113 @@ class TeacherClassResultsService
     }
 
     /**
+     * Get chart data for deferred loading on class results page.
+     *
+     * @return array{scoreDistribution: array, assessmentTrend: array}
+     */
+    public function getChartData(ClassModel $class, int $teacherId): array
+    {
+        return [
+            'scoreDistribution' => $this->getScoreDistributionForClass($class->id, $teacherId),
+            'assessmentTrend' => $this->getAssessmentAverageTrend($class->id, $teacherId),
+        ];
+    }
+
+    /**
+     * Get score distribution across predefined ranges for all class assessments.
+     *
+     * @return array<int, array{range: string, count: int}>
+     */
+    public function getScoreDistributionForClass(int $classId, int $teacherId): array
+    {
+        $scoreExpr = '(SELECT COALESCE(SUM(a_s.score), 0) FROM answers a_s WHERE a_s.assessment_assignment_id = aa.id)'
+            .' / (SELECT COALESCE(SUM(q.points), 0) FROM questions q WHERE q.assessment_id = a.id) * 20';
+        $maxPointsExpr = '(SELECT COALESCE(SUM(q.points), 0) FROM questions q WHERE q.assessment_id = a.id)';
+
+        $rows = DB::table('assessment_assignments as aa')
+            ->join('enrollments as e', 'e.id', '=', 'aa.enrollment_id')
+            ->join('assessments as a', 'a.id', '=', 'aa.assessment_id')
+            ->join('class_subjects as cs', 'cs.id', '=', 'a.class_subject_id')
+            ->where('e.class_id', $classId)
+            ->where('e.status', 'active')
+            ->where('cs.teacher_id', $teacherId)
+            ->whereNull('a.deleted_at')
+            ->whereNotNull('aa.graded_at')
+            ->whereRaw("{$maxPointsExpr} > 0")
+            ->selectRaw("
+                CASE
+                    WHEN ({$scoreExpr}) < 5 THEN '0-4'
+                    WHEN ({$scoreExpr}) < 9 THEN '5-8'
+                    WHEN ({$scoreExpr}) < 13 THEN '9-12'
+                    WHEN ({$scoreExpr}) < 17 THEN '13-16'
+                    ELSE '17-20'
+                END as `range`,
+                COUNT(*) as count
+            ")
+            ->groupBy('range')
+            ->get();
+
+        $ranges = ['0-4', '5-8', '9-12', '13-16', '17-20'];
+        $result = [];
+        foreach ($ranges as $range) {
+            $found = $rows->firstWhere('range', $range);
+            $result[] = ['range' => $range, 'count' => (int) ($found->count ?? 0)];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get average score per assessment over time for line chart.
+     *
+     * @return array<int, array{name: string, value: float|null}>
+     */
+    public function getAssessmentAverageTrend(int $classId, int $teacherId): array
+    {
+        $totalStudents = (int) DB::table('enrollments')
+            ->where('class_id', $classId)
+            ->where('status', 'active')
+            ->count();
+
+        $scoreExpr = '(SELECT COALESCE(SUM(a_s.score), 0) FROM answers a_s WHERE a_s.assessment_assignment_id = aa.id)';
+        $maxPointsExpr = '(SELECT COALESCE(SUM(q.points), 0) FROM questions q WHERE q.assessment_id = a.id)';
+
+        $activeEnrollmentSubquery = DB::table('enrollments')
+            ->select('id')
+            ->where('class_id', $classId)
+            ->where('status', 'active');
+
+        return DB::table('assessments as a')
+            ->join('class_subjects as cs', 'cs.id', '=', 'a.class_subject_id')
+            ->leftJoin('assessment_assignments as aa', function ($join) use ($activeEnrollmentSubquery) {
+                $join->on('aa.assessment_id', '=', 'a.id')
+                    ->whereIn('aa.enrollment_id', $activeEnrollmentSubquery)
+                    ->whereNotNull('aa.graded_at');
+            })
+            ->where('cs.class_id', $classId)
+            ->where('cs.teacher_id', $teacherId)
+            ->whereNull('a.deleted_at')
+            ->groupBy('a.id', 'a.title', 'a.scheduled_at')
+            ->havingRaw('COUNT(aa.id) > 0')
+            ->selectRaw("
+                a.title as name,
+                ROUND(AVG(
+                    CASE WHEN {$maxPointsExpr} > 0
+                        THEN {$scoreExpr} / {$maxPointsExpr} * 20
+                        ELSE NULL
+                    END
+                ), 2) as value
+            ")
+            ->orderBy('a.scheduled_at')
+            ->get()
+            ->map(fn ($row) => [
+                'name' => $row->name,
+                'value' => $row->value !== null ? (float) $row->value : null,
+            ])
+            ->toArray();
+    }
+
+    /**
      * @param  array<int, array>  $assessmentStats
      */
     private function buildOverview(int $totalStudents, array $assessmentStats): array

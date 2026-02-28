@@ -55,5 +55,11 @@ return [
         'no_assessments' => 'No assessments found for this class.',
         'no_students' => 'No students enrolled in this class.',
         'view_result' => 'View Result',
+        'assessment_completion' => 'Assessment completion',
+        'assessment_completion_subtitle' => 'Status breakdown per assessment',
+        'score_distribution' => 'Score distribution',
+        'score_distribution_subtitle' => 'Grades normalized to /20 across all class assessments',
+        'average_trend' => 'Average per assessment',
+        'average_trend_subtitle' => 'Class average score (/20) by assessment',
     ],
 ];

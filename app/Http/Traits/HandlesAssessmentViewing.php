@@ -67,6 +67,10 @@ trait HandlesAssessmentViewing
             'assignments' => $assignments,
             'stats' => $stats,
             'routeContext' => $this->buildRouteContext(),
+            'chartData' => Inertia::defer(fn () => [
+                'statusChart' => $this->assessmentStatsService->getAssessmentStatusChart($assessment->id),
+                'scoreDistribution' => $this->assessmentStatsService->getScoreDistribution($assessment->id),
+            ]),
         ]);
     }
 

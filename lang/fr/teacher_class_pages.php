@@ -55,5 +55,11 @@ return [
         'no_assessments' => 'Aucune évaluation trouvée pour cette classe.',
         'no_students' => 'Aucun étudiant inscrit dans cette classe.',
         'view_result' => 'Voir le résultat',
+        'assessment_completion' => 'Complétion des évaluations',
+        'assessment_completion_subtitle' => 'Répartition des statuts par évaluation',
+        'score_distribution' => 'Répartition des notes',
+        'score_distribution_subtitle' => 'Notes normalisées sur /20 pour toutes les évaluations de la classe',
+        'average_trend' => 'Moyenne par évaluation',
+        'average_trend_subtitle' => 'Moyenne de la classe (/20) par évaluation',
     ],
 ];

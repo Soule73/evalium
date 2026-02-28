@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
+import { Deferred } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import {
@@ -14,14 +15,25 @@ import { SubjectGradeList } from '@/Components/shared/lists/SubjectGradeList';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { formatDate } from '@/utils';
+import { ChartCard, ChartSkeleton, RadarChart } from '@/Components/ui/charts';
+
+interface EnrollmentChartData {
+    subjectRadar: Array<{ subject: string; grade: number | null; classAverage: number | null }>;
+}
 
 interface StudentEnrollmentShowProps extends PageProps {
     enrollment: Enrollment;
     subjects: PaginationType<SubjectGrade>;
     overallStats: OverallStats;
+    chartData?: EnrollmentChartData;
 }
 
-export default function Show({ enrollment, subjects, overallStats }: StudentEnrollmentShowProps) {
+export default function Show({
+    enrollment,
+    subjects,
+    overallStats,
+    chartData,
+}: StudentEnrollmentShowProps) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 
@@ -89,6 +101,10 @@ export default function Show({ enrollment, subjects, overallStats }: StudentEnro
                 </div>
             </Section>
 
+            <Deferred data="chartData" fallback={<EnrollmentChartFallback />}>
+                <EnrollmentChartSection chartData={chartData} />
+            </Deferred>
+
             <SubjectGradeList
                 subjects={subjects}
                 overallStats={overallStats}
@@ -96,5 +112,44 @@ export default function Show({ enrollment, subjects, overallStats }: StudentEnro
                 showSearch
             />
         </AuthenticatedLayout>
+    );
+}
+
+function EnrollmentChartFallback() {
+    return (
+        <div className="mb-6">
+            <ChartCard title="" loading>
+                <ChartSkeleton />
+            </ChartCard>
+        </div>
+    );
+}
+
+function EnrollmentChartSection({ chartData }: { chartData?: EnrollmentChartData }) {
+    const { t } = useTranslations();
+
+    if (!chartData || chartData.subjectRadar.length < 2) {
+        return null;
+    }
+
+    const radarSeries = [
+        { dataKey: 'grade', name: t('dashboard.student.your_grade'), color: '#6366f1' },
+        { dataKey: 'classAverage', name: t('dashboard.student.class_average'), color: '#f59e0b' },
+    ];
+
+    return (
+        <div className="mb-6">
+            <ChartCard
+                title={t('student_enrollment_pages.show.subject_radar')}
+                subtitle={t('student_enrollment_pages.show.subject_radar_subtitle')}
+            >
+                <RadarChart
+                    data={chartData.subjectRadar}
+                    series={radarSeries}
+                    maxValue={20}
+                    height={300}
+                />
+            </ChartCard>
+        </div>
     );
 }

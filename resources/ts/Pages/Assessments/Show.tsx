@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { router } from '@inertiajs/react';
+import { Deferred } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, ConfirmationModal, Section, Stat, QuestionList } from '@/Components';
 import { useFormatters } from '@/hooks/shared/useFormatters';
@@ -24,6 +25,7 @@ import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { AssessmentHeader } from '@/Components/features/assessment/AssessmentHeader';
 import { AssignmentList } from '@/Components/shared/lists';
+import { ChartCard, ChartSkeleton, DonutChart, ScoreDistribution } from '@/Components/ui/charts';
 
 interface AssignmentWithVirtual extends AssessmentAssignment {
     is_virtual?: boolean;
@@ -40,14 +42,26 @@ interface AssessmentStats {
     completion_rate: number;
 }
 
+interface AssessmentChartData {
+    statusChart: Array<{ name: string; value: number; color: string }>;
+    scoreDistribution: Array<{ range: string; count: number }>;
+}
+
 interface Props {
     assessment: Assessment;
     assignments: PaginationType<AssignmentWithVirtual>;
     stats?: AssessmentStats;
     routeContext: AssessmentRouteContext;
+    chartData?: AssessmentChartData;
 }
 
-const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, routeContext }) => {
+const AssessmentShow: React.FC<Props> = ({
+    assessment,
+    assignments,
+    stats,
+    routeContext,
+    chartData,
+}) => {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
     const { formatDuration } = useFormatters();
@@ -243,6 +257,10 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
                 </Section>
             )}
 
+            <Deferred data="chartData" fallback={<AssessmentChartsFallback />}>
+                <AssessmentChartsSection chartData={chartData} />
+            </Deferred>
+
             <Section
                 title={t('assessment_pages.common.assessment_questions')}
                 collapsible
@@ -308,3 +326,59 @@ const AssessmentShow: React.FC<Props> = ({ assessment, assignments, stats, route
 };
 
 export default AssessmentShow;
+
+function AssessmentChartsFallback() {
+    return (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <ChartCard title="" loading>
+                <ChartSkeleton />
+            </ChartCard>
+            <ChartCard title="" loading>
+                <ChartSkeleton />
+            </ChartCard>
+        </div>
+    );
+}
+
+function AssessmentChartsSection({ chartData }: { chartData?: AssessmentChartData }) {
+    const { t } = useTranslations();
+
+    if (!chartData) {
+        return null;
+    }
+
+    const hasStatusData = chartData.statusChart.some((d) => d.value > 0);
+    const hasScoreData = chartData.scoreDistribution.some((d) => d.count > 0);
+
+    if (!hasStatusData && !hasScoreData) {
+        return null;
+    }
+
+    return (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-6">
+            <ChartCard
+                title={t('assessment_pages.show.status_chart')}
+                subtitle={t('assessment_pages.show.status_chart_subtitle')}
+                empty={!hasStatusData}
+                emptyMessage={t('charts.no_data')}
+            >
+                <DonutChart
+                    data={chartData.statusChart}
+                    height={220}
+                    showLabels
+                    centerLabel={t('assessment_pages.show.stats_section_title')}
+                    centerValue={chartData.statusChart.reduce((sum, d) => sum + d.value, 0)}
+                />
+            </ChartCard>
+
+            <ChartCard
+                title={t('assessment_pages.show.score_distribution')}
+                subtitle={t('assessment_pages.show.score_distribution_subtitle')}
+                empty={!hasScoreData}
+                emptyMessage={t('charts.no_data')}
+            >
+                <ScoreDistribution data={chartData.scoreDistribution} height={220} />
+            </ChartCard>
+        </div>
+    );
+}

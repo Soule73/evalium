@@ -176,7 +176,9 @@ class GradeCalculationService
             $completedCount = 0;
             $triplets = [];
 
-            foreach ($classSubject->assessments as $assessment) {
+            $publishedAssessments = $classSubject->assessments->filter(fn ($a) => $a->is_published);
+
+            foreach ($publishedAssessments as $assessment) {
                 $assignment = $assessment->assignments->first();
 
                 if ($assignment) {
@@ -196,9 +198,7 @@ class GradeCalculationService
 
             $subjectGrade = $this->computeWeightedGrade($triplets);
 
-            $totalAssessments = $classSubject->assessments
-                ->filter(fn ($a) => $a->is_published)
-                ->count();
+            $totalAssessments = $publishedAssessments->count();
 
             $subjectGrades[] = [
                 'id' => $classSubject->id,

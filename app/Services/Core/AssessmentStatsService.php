@@ -15,6 +15,12 @@ class AssessmentStatsService
 {
     private const CACHE_TTL = 300;
 
+    private const STUDENT_SCORE_SQL = '(SELECT COALESCE(SUM(a_s.score), 0) FROM answers a_s WHERE a_s.assessment_assignment_id = aa.id)';
+
+    private const MAX_POINTS_SQL = '(SELECT COALESCE(SUM(q.points), 0) FROM questions q WHERE q.assessment_id = aa.assessment_id)';
+
+    private const NORMALIZED_SCORE_SQL = self::STUDENT_SCORE_SQL.' / '.self::MAX_POINTS_SQL.' * 20';
+
     public function __construct(
         private readonly CacheService $cacheService
     ) {}
@@ -29,6 +35,69 @@ class AssessmentStatsService
             fn () => $this->computeAssessmentStats($assessmentId),
             self::CACHE_TTL
         );
+    }
+
+    /**
+     * Get score distribution across predefined ranges for a single assessment.
+     *
+     * @param  int  $assessmentId  The assessment ID
+     * @return array<int, array{range: string, count: int}>
+     */
+    public function getScoreDistribution(int $assessmentId): array
+    {
+        $classId = DB::table('assessments')
+            ->join('class_subjects', 'class_subjects.id', '=', 'assessments.class_subject_id')
+            ->where('assessments.id', $assessmentId)
+            ->value('class_subjects.class_id');
+
+        $score = self::NORMALIZED_SCORE_SQL;
+
+        $rows = DB::table('assessment_assignments as aa')
+            ->join('enrollments as e', 'e.id', '=', 'aa.enrollment_id')
+            ->where('aa.assessment_id', $assessmentId)
+            ->where('e.class_id', $classId)
+            ->where('e.status', 'active')
+            ->whereNotNull('aa.graded_at')
+            ->whereRaw(self::MAX_POINTS_SQL.' > 0')
+            ->selectRaw("
+                CASE
+                    WHEN ({$score}) < 5 THEN '0-4'
+                    WHEN ({$score}) < 9 THEN '5-8'
+                    WHEN ({$score}) < 13 THEN '9-12'
+                    WHEN ({$score}) < 17 THEN '13-16'
+                    ELSE '17-20'
+                END as `range`,
+                COUNT(*) as count
+            ")
+            ->groupBy('range')
+            ->get();
+
+        $ranges = ['0-4', '5-8', '9-12', '13-16', '17-20'];
+        $result = [];
+        foreach ($ranges as $range) {
+            $found = $rows->firstWhere('range', $range);
+            $result[] = ['range' => $range, 'count' => (int) ($found->count ?? 0)];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get assignment status breakdown formatted for donut chart.
+     *
+     * @param  int  $assessmentId  The assessment ID
+     * @return array<int, array{name: string, value: int, color: string}>
+     */
+    public function getAssessmentStatusChart(int $assessmentId): array
+    {
+        $stats = $this->calculateAssessmentStats($assessmentId);
+
+        return [
+            ['name' => __('charts.completion.graded'), 'value' => $stats['graded'], 'color' => '#10b981'],
+            ['name' => __('charts.completion.submitted'), 'value' => $stats['submitted'], 'color' => '#3b82f6'],
+            ['name' => __('charts.completion.in_progress'), 'value' => $stats['in_progress'], 'color' => '#f59e0b'],
+            ['name' => __('charts.completion.not_started'), 'value' => $stats['not_started'], 'color' => '#6b7280'],
+        ];
     }
 
     /**

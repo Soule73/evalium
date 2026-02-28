@@ -26,6 +26,8 @@ return [
         'pending_assessments' => 'Pending',
         'view_history' => 'View Enrollment History',
         'view_classmates' => 'View Classmates',
+        'subject_radar' => 'Subject performance',
+        'subject_radar_subtitle' => 'Your grades vs. class average per subject (/20)',
         'excellent' => 'Excellent',
         'very_good' => 'Very Good',
         'good' => 'Good',

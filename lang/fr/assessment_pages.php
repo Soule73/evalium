@@ -54,5 +54,9 @@ return [
         'stats_in_progress' => 'En cours',
         'stats_not_started' => 'Non commencé(s)',
         'stats_average_score' => 'Moyenne',
+        'status_chart' => 'Statut des copies',
+        'status_chart_subtitle' => 'Répartition visuelle des statuts des copies',
+        'score_distribution' => 'Répartition des notes',
+        'score_distribution_subtitle' => 'Notes des étudiants normalisées sur /20',
     ],
 ];

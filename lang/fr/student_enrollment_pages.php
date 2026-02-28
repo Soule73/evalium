@@ -26,6 +26,8 @@ return [
         'pending_assessments' => 'En attente',
         'view_history' => 'Voir l\'historique des inscriptions',
         'view_classmates' => 'Voir les camarades de classe',
+        'subject_radar' => 'Performance par matière',
+        'subject_radar_subtitle' => 'Vos notes vs. moyenne de classe par matière (/20)',
         'excellent' => 'Excellent',
         'very_good' => 'Très bien',
         'good' => 'Bien',

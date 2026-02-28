@@ -414,15 +414,23 @@ const { chartData } = usePage().props;
 - [x] Add 10 i18n translation keys (en/fr) for student dashboard
 - [x] Tests: 14 backend service tests (56 assertions), 883 total suite passing
 
-### Phase 5: Results & Detail Pages (2-3 days)
-- [ ] Backend: Extend `AssessmentStatsService` with distribution methods
-- [ ] Frontend: Add charts to `Teacher/Classes/Results.tsx`
-- [ ] Frontend: Add donut chart to `Assessments/Show.tsx`
-- [ ] Frontend: Add radar chart to `Student/Enrollment/Show.tsx`
-- [ ] Tests
+### Phase 5: Results & Detail Pages - DONE
+- [x] Backend: Extend `AssessmentStatsService` with `getScoreDistribution()` and `getAssessmentStatusChart()`
+- [x] Backend: Extend `TeacherClassResultsService` with `getChartData()`, `getScoreDistributionForClass()`, `getAssessmentAverageTrend()`
+- [x] Backend: Fix `GradeCalculationService::getGradeBreakdownFromLoaded()` - filter unpublished assessments before counting completions
+- [x] Controllers: Add `Inertia::defer()` for chart data in 4 controllers/traits
+  - `TeacherClassResultsController` (score distribution + average trend)
+  - `HandlesAssessmentViewing` trait (status chart + score distribution)
+  - `TeacherClassAssessmentController` (same as trait)
+  - `StudentEnrollmentController` (subject radar)
+- [x] Frontend: Add CompletionChart + ScoreDistribution + LineChart to `Teacher/Classes/Results.tsx`
+- [x] Frontend: Add DonutChart + ScoreDistribution to `Assessments/Show.tsx`
+- [x] Frontend: Add RadarChart to `Student/Enrollment/Show.tsx`
+- [x] Add 12 i18n translation keys (en/fr) for results & detail pages
+- [x] Tests: 13 new tests (38 assertions), 897 total suite passing
 
 ### Phase 6: Polish & Landing Page (1-2 days)
-- [ ] Fine-tune chart animations, responsiveness, dark mode (if applicable)
+- [ ] Fine-tune chart animations, responsiveness
 - [ ] Take screenshots for landing page v2
 - [ ] Record demo video
 
