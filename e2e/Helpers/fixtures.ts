@@ -1,6 +1,6 @@
 import { test as base } from '@playwright/test';
 import { LoginPage } from '../Pages';
-import { Core, AuthHelper, NavigationHelper, FormHelper } from '../Helpers';
+import { Core, AuthHelper, FormHelper } from '../Helpers';
 import {
     getAdminCredentials,
     getTeacherCredentials,
@@ -11,7 +11,6 @@ import {
 export interface TestFixtures {
     core: Core;
     authHelper: AuthHelper;
-    navigationHelper: NavigationHelper;
     formHelper: FormHelper;
     loginPage: LoginPage;
     adminCredentials: TestCredentials;
@@ -31,11 +30,6 @@ export const test = base.extend<TestFixtures>({
     authHelper: async ({ page }, use) => {
         const authHelper = new AuthHelper(page);
         await use(authHelper);
-    },
-
-    navigationHelper: async ({ page }, use) => {
-        const navigationHelper = new NavigationHelper(page);
-        await use(navigationHelper);
     },
 
     formHelper: async ({ page }, use) => {

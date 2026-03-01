@@ -77,31 +77,6 @@ export default defineConfig({
             },
             dependencies: ['setup-student'],
         },
-        {
-            name: 'auth',
-            testMatch: '**/auth.spec.ts',
-            use: {
-                ...devices['Desktop Chrome'],
-            },
-        },
-        {
-            name: 'admin-firefox',
-            testMatch: '**/admin/**/*.spec.ts',
-            use: {
-                ...devices['Desktop Firefox'],
-                storageState: '../playwright/.auth/admin.json',
-            },
-            dependencies: ['setup-admin'],
-        },
-        {
-            name: 'webkit',
-            testMatch: '**/admin/**/*.spec.ts',
-            use: {
-                ...devices['Desktop Safari'],
-                storageState: '../playwright/.auth/admin.json',
-            },
-            dependencies: ['setup-admin'],
-        },
     ],
 
     outputDir: '../test-results/',

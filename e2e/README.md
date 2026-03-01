@@ -1,469 +1,327 @@
-# E2E Tests for Evalium
+# E2E Tests - Evalium
 
-## Vue d'ensemble
+## Overview
 
-Ce système configure automatiquement l'environnement E2E :
-1. **globalSetup** : Crée la DB de test, exécute les seeders, lance le serveur Laravel
-2. **Tests** : S'exécutent avec la base de données et le serveur prêts
-3. **globalTeardown** : Arrête le serveur, nettoie la base de données
+End-to-end tests using **Playwright ^1.56** running against a dedicated SQLite database.
+Everything is automated: running `yarn test:e2e` from the project root handles database setup,
+frontend build, Laravel server startup, test execution, and full cleanup.
+
+### Lifecycle
+
+```
+globalSetup (automatic)
+  1. Load .env.testing from project root
+  2. Create fresh SQLite DB (database/e2e_testing.sqlite)
+  3. Run migrations + E2ESeeder
+  4. Build frontend (yarn build)
+  5. Start php artisan serve on port 8001
+  6. Create playwright/.auth/ directory
+
+Tests run (Playwright)
+
+globalTeardown (automatic)
+  1. Stop Laravel server (PID-based)
+  2. Delete SQLite DB (php artisan e2e:teardown)
+  3. Remove public/build/
+```
+
+---
 
 ## Quick Start
 
-### Configuration initiale
-
 ```bash
-# 1. Installer les dépendances E2E
+# Install E2E dependencies (first time only)
 cd e2e && yarn install && cd ..
 
-# 2. Créer la variable d'environnement (optionnel)
-echo "DB_E2E_DATABASE=evalium_e2e_test" >> .env
-
-# 3. Lancer tous les tests (setup automatique inclus)
-yarn test:e2e
-```
-
-Le `globalSetup` s'exécute automatiquement et :
-- Crée la base de données `evalium_e2e_test`
-- Exécute les migrations et seeders
-- Lance le serveur Laravel sur le port 8000
-- Prépare les fichiers d'authentification
-
-### Exécuter les tests
-
-```bash
-# Tous les tests (avec setup/teardown automatique)
+# Run all tests
 yarn test:e2e
 
-# Mode UI interactif (⚠️ nécessite setup manuel)
-yarn test:e2e:ui
-# Avant le mode UI, lancez : php artisan e2e:setup
-
-# Tests par rôle
+# Run by role
 yarn test:e2e:admin
 yarn test:e2e:teacher
 yarn test:e2e:student
 
-# Debug
+# Interactive UI mode (requires manual setup first)
+php artisan e2e:setup
+yarn test:e2e:ui
+
+# Debug mode
 yarn test:e2e:debug
 
-# Voir le rapport
+# View HTML report
 yarn test:e2e:report
 ```
 
+---
+
 ## Configuration
 
-### 1. Base de données E2E
+### Files
 
-Une connexion dédiée `e2e_testing` utilise une base séparée (`evalium_e2e_test`) configurée dans [config/database.php](../config/database.php).
+| File | Purpose |
+|------|---------|
+| `.env.testing` (project root) | Laravel env for E2E server (APP_URL, DB_CONNECTION, etc.) |
+| `e2e/.env` | Playwright test credentials (loaded by `e2e/Helpers/utils.ts`) |
+| `e2e/playwright.config.ts` | Playwright configuration (projects, timeouts, reporters) |
+| `config/database.php` | `e2e_testing` connection (SQLite) |
 
-**Ajoutez dans `.env`** (optionnel, valeur par défaut fournie) :
+### .env.testing (project root)
+
 ```dotenv
-DB_E2E_DATABASE=evalium_e2e_test
+APP_ENV=testing
+APP_URL=http://localhost:8001
+DB_CONNECTION=e2e_testing
+QUEUE_CONNECTION=sync
+CACHE_STORE=array
+DEBUGBAR_ENABLED=false
+ASSESSMENT_SECURITY_ENABLED=false
+ASSESSMENT_DEV_MODE=true
 ```
 
-### 2. Commandes Artisan
+### e2e/.env
 
-**`php artisan e2e:setup`**
-- Supprime et recrée la base `evalium_e2e_test`
-- Exécute `migrate:fresh` sur la connexion `e2e_testing`
-- Exécute les seeders (DatabaseSeeder par défaut)
+```dotenv
+BASE_URL=http://localhost:8001
+ADMIN_EMAIL=admin@evalium.test
+ADMIN_PASSWORD=password
+TEACHER_EMAIL=teacher@evalium.test
+TEACHER_PASSWORD=password
+STUDENT_EMAIL=student@evalium.test
+STUDENT_PASSWORD=password
+```
 
-**`php artisan e2e:teardown`**
-- Supprime complètement la base `evalium_e2e_test`
+> Credentials MUST match `database/seeders/E2ESeeder.php`. If you change one, update the other.
 
-### 3. Scripts Playwright
+### Playwright Settings
 
-**global-setup.ts**
-- Exécuté UNE FOIS avant tous les tests
-- Lance `php artisan e2e:setup`
-- Démarre le serveur Laravel (port 8000)
-- Crée le dossier `playwright/.auth`
-
-**global-teardown.ts**
-- Exécuté UNE FOIS après tous les tests
-- Arrête le serveur Laravel
-- Lance `php artisan e2e:teardown`
+| Setting | Value |
+|---------|-------|
+| Base URL | `http://localhost:8001` |
+| Test ID attribute | `data-e2e` |
+| Test timeout | 30s |
+| Expect timeout | 10s |
+| Navigation timeout | 15s |
+| Action timeout | 10s |
+| Trace | Always on |
+| Screenshot | Always on |
+| Video | Always on |
 
 ---
 
-## Personnalisation
+## Artisan Commands
 
-### Utiliser des seeders spécifiques
+### `php artisan e2e:setup`
 
-Modifiez [E2ESetupCommand.php](../app/Console/Commands/E2ESetupCommand.php) :
-
-```php
-Artisan::call('db:seed', [
-    '--database' => 'e2e_testing',
-    '--class' => 'E2ETestSeeder', // Votre seeder personnalisé
-    '--force' => true,
-]);
-```
-
-### Créer un seeder E2E dédié
+Creates the SQLite database, runs `migrate:fresh` on the `e2e_testing` connection,
+and seeds with `E2ESeeder`.
 
 ```bash
-php artisan make:seeder E2ETestSeeder
+php artisan e2e:setup
 ```
 
-```php
-class E2ETestSeeder extends Seeder
-{
-    public function run(): void
-    {
-        // Utilisateurs de test
-        User::factory()->create([
-            'email' => 'admin@example.com',
-            'password' => Hash::make('password123'),
-        ])->assignRole('admin');
+### `php artisan e2e:teardown`
 
-        User::factory()->create([
-            'email' => 'teacher@example.com',
-            'password' => Hash::make('password123'),
-        ])->assignRole('teacher');
-
-        User::factory()->create([
-            'email' => 'student@example.com',
-            'password' => Hash::make('password123'),
-        ])->assignRole('student');
-
-        // Groupes, examens, etc.
-        Group::factory(5)->create();
-        Exam::factory(10)->create();
-    }
-}
-```
-
-### Modifier le port du serveur
-
-Le port par défaut pour les tests E2E est **8001** (évite les conflits avec le serveur de développement sur 8000).
-
-Pour utiliser un port différent, définissez la variable `E2E_PORT` :
+Deletes the SQLite file at `database/e2e_testing.sqlite`.
 
 ```bash
-# Dans votre terminal
-E2E_PORT=9000 yarn test:e2e
-
-# Ou créez un fichier .env.e2e
-echo "E2E_PORT=9000" >> .env.e2e
+php artisan e2e:teardown
 ```
 
 ---
 
-## Test Structure
+## Test Data (E2ESeeder)
+
+All data is created by `database/seeders/E2ESeeder.php`. The dataset is minimal
+but covers the full entity chain needed for testing.
+
+### Users
+
+| Role | Name | Email | Password |
+|------|------|-------|----------|
+| `super_admin` | Admin E2E | `admin@evalium.test` | `password` |
+| `teacher` | Marie Dupont | `teacher@evalium.test` | `password` |
+| `student` | Alice Martin | `student@evalium.test` | `password` |
+| `student` | Bob Durand | `bob.durand@evalium.test` | `password` |
+| `student` | Clara Bernard | `clara.bernard@evalium.test` | `password` |
+
+All users have `email_verified_at` set and `is_active = true`.
+
+### Roles & Permissions
+
+Seeded by `RoleAndPermissionSeeder`. 4 roles, 30+ permissions:
+
+| Role | Permissions |
+|------|-------------|
+| `super_admin` | All (wildcard) |
+| `admin` | User, level, academic year, subject, class, enrollment, class-subject management |
+| `teacher` | Assessment CRUD, view class-subjects |
+| `student` | View assessments, take assessments |
+
+### Academic Structure
+
+| Entity | Data |
+|--------|------|
+| **Academic Year** | `2025/2026` (Sep 1 - Jun 30, `is_current = true`) |
+| **Semesters** | Semestre 1 (Sep-Jan), Semestre 2 (Feb-Jun) |
+| **Level** | `L1` (Licence 1, active) |
+| **Subjects** | Mathematics (`MATH_L1`), Physics (`PHYS_L1`) |
+| **Class** | `L1 - Group A` (max 30 students) |
+
+### Enrollments
+
+All 3 students are enrolled in `L1 - Group A` with `active` status.
+
+### Class-Subject Assignments
+
+Both subjects (Math + Physics) are assigned to the teacher `Marie Dupont`
+in `L1 - Group A` for Semestre 1, coefficient 3.0.
+
+### Assessments (4 total)
+
+| Title | Type | Mode | Duration | Published | Scheduled |
+|-------|------|------|----------|-----------|-----------|
+| Exam - Mathematics | `exam` | `supervised` | 60 min | Yes | +7 days |
+| Quiz - Mathematics | `quiz` | `supervised` | 20 min | No | +14 days |
+| Exam - Physics | `exam` | `supervised` | 60 min | Yes | +7 days |
+| Quiz - Physics | `quiz` | `supervised` | 20 min | No | +14 days |
+
+---
+
+## Project Structure
 
 ```
 e2e/
-├── global-setup.ts             # Setup global (DB + serveur)
-├── global-teardown.ts          # Nettoyage global
-├── playwright.config.ts        # Configuration Playwright
-├── setup/                      # Authentication setup files
-│   ├── auth.admin.setup.ts     # Admin authentication
-│   ├── auth.teacher.setup.ts   # Teacher authentication
-│   └── auth.student.setup.ts   # Student authentication
-├── Helpers/                    # Reusable helpers
-│   ├── Core.ts                 # Base helper with common utilities
-│   ├── AuthHelper.ts           # Authentication utilities
-│   ├── NavigationHelper.ts     # Navigation utilities
-│   ├── FormHelper.ts           # Form interaction utilities
-│   └── index.ts                # Barrel export
-├── Pages/                      # Page Object Models
-│   └── LoginPage.ts            # Login page POM
-├── admin/                      # Admin role tests
-│   └── dashboard.spec.ts
-├── teacher/                    # Teacher role tests
-│   └── dashboard.spec.ts
-└── student/                    # Student role tests
-    └── dashboard.spec.ts
-```
-## Test IDs Configuration
+  .env                          # Test credentials
+  .env.example                  # Credential template
+  playwright.config.ts          # Playwright configuration
+  global-setup.ts               # Automated setup (DB + build + server)
+  global-teardown.ts            # Automated cleanup
+  package.json                  # Workspace package
 
-All test IDs use `data-e2e` attribute instead of `data-testid`:
+  setup/                        # Authentication setup (run before tests)
+    auth.admin.setup.ts         # Login as admin, save storageState
+    auth.teacher.setup.ts       # Login as teacher, save storageState
+    auth.student.setup.ts       # Login as student, save storageState
 
-```tsx
-<input data-e2e="email-input" />
-<button data-e2e="login-submit">Login</button>
-```
+  Helpers/                      # Reusable test utilities
+    Core.ts                     # Base helper (goto, getByTestId, waitFor...)
+    AuthHelper.ts               # Login/logout helpers
+    FormHelper.ts               # Form interaction helpers
+    fixtures.ts                 # Playwright test fixtures with DI
+    utils.ts                    # Credentials & config from .env
+    index.ts                    # Barrel export
 
-Access in tests:
-```typescript
-page.getByTestId('email-input') // Uses data-e2e automatically
+  Pages/                        # Page Object Models
+    LoginPage.ts                # Login page POM
+    index.ts                    # Barrel export
+
+  admin/                        # Admin role test specs (to create)
+  teacher/                      # Teacher role test specs (to create)
+  student/                      # Student role test specs (to create)
 ```
 
 ## Playwright Projects
 
-### 1. Setup Projects
-- `setup-admin`: Authenticates admin user
-- `setup-teacher`: Authenticates teacher user
-- `setup-student`: Authenticates student user
-
-### 2. Test Projects
-- `admin`: Tests for admin role (depends on setup-admin)
-- `teacher`: Tests for teacher role (depends on setup-teacher)
-- `student`: Tests for student role (depends on setup-student)
-
-## Authentication
-
-### Session Persistence
-
-Authentication state is saved per role:
-- Admin: `playwright/.auth/admin.json`
-- Teacher: `playwright/.auth/teacher.json`
-- Student: `playwright/.auth/student.json`
-
-### Default Credentials
-
-```typescript
-// Admin
-email: 'admin@example.com'
-password: 'password123'
-
-// Teacher
-email: 'teacher@example.com'
-password: 'password123'
-
-// Student
-email: 'student@example.com'
-password: 'password123'
-```
+| Project | Match Pattern | Auth | Dependencies |
+|---------|--------------|------|--------------|
+| `setup-admin` | `auth.admin.setup.ts` | None | - |
+| `setup-teacher` | `auth.teacher.setup.ts` | None | - |
+| `setup-student` | `auth.student.setup.ts` | None | - |
+| `admin` | `admin/**/*.spec.ts` | `admin.json` | `setup-admin` |
+| `teacher` | `teacher/**/*.spec.ts` | `teacher.json` | `setup-teacher` |
+| `student` | `student/**/*.spec.ts` | `student.json` | `setup-student` |
 
 ---
 
-## Troubleshooting
+## Writing New Tests
 
-### Le serveur ne démarre pas
-- Vérifiez que le port 8000 n'est pas déjà utilisé : `netstat -ano | findstr :8000`
-- Augmentez le délai d'attente dans `global-setup.ts` : `setTimeout(resolve, 5000)`
+### 1. Create the spec file
 
-### La base de données n'est pas créée
-- Vérifiez les credentials MySQL dans `.env`
-- Assurez-vous que l'utilisateur a les droits `CREATE DATABASE`
-- Testez manuellement : `php artisan e2e:setup`
-
-### Les tests échouent en mode headless mais pas en UI
-- Le globalSetup ne s'exécute pas en mode UI
-- Lancez `php artisan e2e:setup` manuellement avant `yarn test:e2e:ui`
-
-### Le serveur reste actif après les tests
-- Vérifiez le fichier `.laravel-server.pid` dans `e2e/`
-- Tuez manuellement : `taskkill /F /IM php.exe` (Windows)
-
----
-
-## CI/CD Integration
-
-Dans votre workflow GitHub Actions :
-
-```yaml
-- name: Setup MySQL
-  run: |
-    sudo systemctl start mysql
-    mysql -e "CREATE USER 'test'@'localhost' IDENTIFIED BY 'test';"
-    mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'test'@'localhost';"
-
-- name: Run E2E Tests
-  run: yarn test:e2e
-  env:
-    DB_USERNAME: test
-    DB_PASSWORD: test
-    DB_E2E_DATABASE: evalium_e2e_test_ci
-
-- name: Upload Playwright Report
-  if: always()
-  uses: actions/upload-artifact@v4
-  with:
-    name: playwright-report
-    path: playwright-report/
-```
-
-Authentication state is saved per role:
-- Admin: `playwright/.auth/admin.json`
-- Teacher: `playwright/.auth/teacher.json`
-- Student: `playwright/.auth/student.json`
-
-### Default Credentials
+Place it in the correct role folder:
 
 ```typescript
-// Admin
-email: 'admin@example.com'
-password: 'password123'
-
-// Teacher
-email: 'teacher@example.com'
-password: 'password123'
-
-// Student
-email: 'student@example.com'
-password: 'password123'
-```
-
-## Helpers Usage
-
-### Core Helper
-
-```typescript
-import { Core } from '@/tests/e2e/Helpers';
-
-const core = new Core(page);
-await core.goto('/dashboard');
-await core.clickByTestId('button-id');
-await core.expectTestIdVisible('element-id');
-```
-
-### AuthHelper
-
-```typescript
-import { AuthHelper } from '@/tests/e2e/Helpers';
-
-const auth = new AuthHelper(page);
-await auth.loginAsAdmin();
-await auth.verifyLoginSuccess();
-await auth.logout();
-```
-
-### NavigationHelper
-
-```typescript
-import { NavigationHelper } from '@/tests/e2e/Helpers';
-
-const nav = new NavigationHelper(page);
-await nav.gotoDashboard();
-await nav.gotoExams();
-await nav.clickSidebarItem('users');
-```
-
-### FormHelper
-
-```typescript
-import { FormHelper } from '@/tests/e2e/Helpers';
-
-const form = new FormHelper(page);
-await form.fillByTestId('name-input', 'John Doe');
-await form.checkByTestId('active-checkbox');
-await form.submitFormByTestId('submit-button');
-```
-
-## Page Object Models
-
-### LoginPage
-
-```typescript
-import { LoginPage } from '@/tests/e2e/Pages/LoginPage';
-
-const loginPage = new LoginPage(page);
-await loginPage.navigate();
-await loginPage.loginWith('email@example.com', 'password', true);
-```
-
-## Running Tests
-
-### All tests
-```bash
-yarn test:e2e
-```
-
-### Specific project
-```bash
-npx playwright test --project=admin
-npx playwright test --project=teacher
-npx playwright test --project=student
-```
-
-### Specific test file
-```bash
-npx playwright test admin/dashboard.spec.ts
-```
-
-### Debug mode
-```bash
-npx playwright test --debug
-```
-
-### UI mode
-```bash
-yarn run test:e2e:ui
-```
-
-### View report
-```bash
-yarn run test:e2e:report
-```
-
-## Best Practices
-
-1. **Always use data-e2e for test IDs**
-   ```tsx
-   <button data-e2e="submit-button">Submit</button>
-   ```
-
-2. **Use helpers for common operations**
-   ```typescript
-   const auth = new AuthHelper(page);
-   await auth.loginAsAdmin(); // Instead of manual login
-   ```
-
-3. **Use Page Object Models**
-   ```typescript
-   const loginPage = new LoginPage(page);
-   await loginPage.loginWith(email, password);
-   ```
-
-4. **Organize tests by role**
-   - Admin tests in `admin/` folder
-   - Teacher tests in `teacher/` folder
-   - Student tests in `student/` folder
-
-5. **Use descriptive test names**
-   ```typescript
-   test('should create new exam with valid data', async ({ page }) => {
-       // Test implementation
-   });
-   ```
-
-6. **Wait for navigation and loading states**
-   ```typescript
-   await core.waitForNavigation();
-   await core.waitForResponse('/api/exams');
-   ```
-
-## Adding New Tests
-
-### 1. Create test file in appropriate folder
-```typescript
-// resources/ts/tests/e2e/admin/users.spec.ts
+// e2e/admin/users.spec.ts
 import { test, expect } from '@playwright/test';
 
 test.describe('Admin - Users', () => {
     test('should list all users', async ({ page }) => {
-        // Test implementation
+        await page.goto('/admin/users');
+        await expect(page.getByTestId('datatable-body')).toBeVisible();
     });
 });
 ```
 
-### 2. Add data-e2e to components
+### 2. Add `data-e2e` attributes to components
+
 ```tsx
-<button data-e2e="create-user-button">Create User</button>
+<button data-e2e="create-user-button">Create</button>
+<div data-e2e="user-list">...</div>
 ```
 
-### 3. Use helpers
+Tests use `page.getByTestId('create-user-button')` which maps to `data-e2e`.
+
+### 3. Use fixtures for DI (optional)
+
 ```typescript
-const nav = new NavigationHelper(page);
-await nav.gotoUsers();
-await nav.clickByTestId('create-user-button');
+import { test, expect } from '../Helpers/fixtures';
+
+test('should login as admin', async ({ loginPage, adminCredentials }) => {
+    await loginPage.navigate();
+    await loginPage.loginWith(
+        adminCredentials.email,
+        adminCredentials.password,
+        true
+    );
+    await expect(page).toHaveURL(/dashboard/);
+});
 ```
+
+### 4. Use Page Object Models
+
+```typescript
+import { LoginPage } from '../Pages';
+
+const loginPage = new LoginPage(page);
+await loginPage.navigate();
+await loginPage.loginWith('admin@evalium.test', 'password');
+```
+
+---
 
 ## Troubleshooting
 
-### Tests fail due to authentication
-1. Delete auth files: `rm -rf playwright/.auth/*.json`
-2. Run setup: `npx playwright test --project=setup-admin`
+### Auth setup fails (stays on /login)
 
-### Can't find elements
-1. Check data-e2e attribute exists in component
-2. Use `page.pause()` to debug
-3. Check element is visible: `await element.waitFor({ state: 'visible' })`
+- Verify `e2e/.env` credentials match `E2ESeeder.php`
+- Run `php artisan e2e:setup` manually and check for errors
+- Check that `data-e2e="email"` and `data-e2e="password"` exist on login inputs
 
-### Timeouts
-1. Increase timeout in test: `test.setTimeout(60000)`
-2. Check network tab for slow requests
-3. Use `waitForLoadState('networkidle')`
+### Port conflict
+
+- Default E2E port is `8001` (avoids conflict with dev server on `8000`)
+- Change in `.env.testing` (`APP_URL`) and `e2e/.env` (`BASE_URL`)
+
+### Server stays running after tests
+
+- Check for `e2e/.laravel-server.pid`
+- Windows: `taskkill /F /IM php.exe`
+- Linux/Mac: `kill -9 $(cat e2e/.laravel-server.pid)`
+
+### UI mode requires manual setup
+
+`globalSetup` does not run in UI mode. Set up manually first:
+
+```bash
+php artisan e2e:setup
+php artisan serve --port=8001 &
+yarn test:e2e:ui
+```
+
+### Vite manifest error
+
+If tests fail with `Unable to locate file in Vite manifest`:
+
+```bash
+yarn build    # or npm run build
+```
+

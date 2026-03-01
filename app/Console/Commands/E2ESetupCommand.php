@@ -63,6 +63,7 @@ class E2ESetupCommand extends Command
 
             Artisan::call('db:seed', [
                 '--database' => 'e2e_testing',
+                '--class' => 'Database\\Seeders\\E2ESeeder',
                 '--force' => true,
             ]);
 
