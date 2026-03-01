@@ -77,7 +77,7 @@ const AssessmentGeneralConfig: React.FC<AssessmentGeneralConfigProps> = ({
 
     const classSubjectOptions = classSubjects.map((cs) => ({
         value: cs.id.toString(),
-        label: `${cs.class?.name} - ${cs.subject?.name}`,
+        label: `${cs.class?.display_name ?? cs.class?.name} - ${cs.subject?.name}`,
     }));
 
     const handleTypeChange = (value: string | number) => {

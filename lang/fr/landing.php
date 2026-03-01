@@ -69,6 +69,47 @@ return [
         ],
     ],
 
+    'video_demo' => [
+        'title' => 'Evalium en action',
+        'subtitle' => 'Découvrez comment les enseignants créent des évaluations et les étudiants les passent.',
+        'play_button' => 'Lancer la vidéo de démonstration',
+    ],
+
+    'screenshots' => [
+        'title' => 'Un aperçu détaillé',
+        'subtitle' => 'Explorez les écrans clés qui rendent Evalium puissant et intuitif.',
+        'create_assessment' => 'Créer une évaluation',
+        'student_take' => 'Évaluation étudiant',
+        'class_results' => 'Résultats de classe',
+    ],
+
+    'showcase' => [
+        'create_assessment' => [
+            'title' => 'Créez des évaluations en quelques minutes',
+            'description' => 'Concevez des examens flexibles avec des questions à choix multiples, choix unique et texte libre. Définissez des limites de temps, mélangez les options et dupliquez les évaluations existantes.',
+        ],
+        'student_take' => [
+            'title' => 'Une expérience de test immersive',
+            'description' => 'Les étudiants passent les évaluations dans un environnement sécurisé et sans distractions, avec un suivi en temps réel, une sauvegarde automatique et un chronomètre serveur.',
+        ],
+        'class_results' => [
+            'title' => 'Résultats de classe instantanés',
+            'description' => 'Visualisez les distributions de notes, les taux de complétion et les détails par étudiant. Identifiez les tendances et fournissez un retour ciblé en un coup d\'oeil.',
+        ],
+        'admin_dashboard' => [
+            'title' => 'Vue d\'ensemble de la plateforme',
+            'description' => 'Les administrateurs disposent d\'une vue globale des utilisateurs, classes, matières et années académiques. Gérez l\'ensemble de l\'établissement depuis un seul tableau de bord.',
+        ],
+        'student_result' => [
+            'title' => 'Retour détaillé pour l\'étudiant',
+            'description' => 'Les étudiants revoient leurs réponses, consultent les solutions correctes et reçoivent un retour par question. Un processus transparent qui favorise l\'apprentissage.',
+        ],
+        'enrollments' => [
+            'title' => 'Gestion simplifiée des inscriptions',
+            'description' => 'Assignez les étudiants aux classes, gérez les inscriptions par année académique et contrôlez l\'accès aux évaluations via des permissions basées sur les inscriptions.',
+        ],
+    ],
+
     'cta' => [
         'title' => 'Prêt à transformer vos évaluations ?',
         'subtitle' => 'Rejoignez Evalium et découvrez une approche moderne de l\'évaluation académique.',

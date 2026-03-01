@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -31,14 +31,16 @@ export const useAssessmentTimer = ({
 
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const onTimeEndRef = useRef(onTimeEnd);
+    const initializedRef = useRef(false);
 
     useEffect(() => {
         onTimeEndRef.current = onTimeEnd;
     }, [onTimeEnd]);
 
-    useLayoutEffect(() => {
-        if (remainingSeconds !== null && remainingSeconds >= 0) {
+    useEffect(() => {
+        if (!initializedRef.current && remainingSeconds !== null && remainingSeconds >= 0) {
             setTimeLeft(remainingSeconds);
+            initializedRef.current = true;
         }
     }, [remainingSeconds, setTimeLeft]);
 
@@ -66,7 +68,18 @@ export const useAssessmentTimer = ({
             return;
         }
 
-        if (!timerRef.current && timeLeft > 0) {
+        const effectiveTimeLeft =
+            timeLeft > 0
+                ? timeLeft
+                : remainingSeconds !== null && remainingSeconds > 0
+                  ? remainingSeconds
+                  : 0;
+
+        if (effectiveTimeLeft > 0 && timeLeft === 0) {
+            setTimeLeft(effectiveTimeLeft);
+        }
+
+        if (!timerRef.current && effectiveTimeLeft > 0) {
             timerRef.current = setInterval(tick, 1000);
         }
 
@@ -76,7 +89,7 @@ export const useAssessmentTimer = ({
                 timerRef.current = null;
             }
         };
-    }, [isSubmitting, isActive, timeLeft, tick]);
+    }, [isSubmitting, isActive, timeLeft, remainingSeconds, tick, setTimeLeft]);
 
     return { timeLeft };
 };

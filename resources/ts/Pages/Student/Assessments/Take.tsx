@@ -234,7 +234,7 @@ function Take({
                 </div>
             </header>
 
-            <div className="pt-14 max-w-3xl mx-auto px-4 py-8">
+            <div className="pt-14 max-w-6xl mx-auto px-4 py-8">
                 {!assessmentCanStart && (
                     <Section title={translations.fullscreenActivationTitle} collapsible={false}>
                         <AlertEntry type="info" title={translations.attention}>

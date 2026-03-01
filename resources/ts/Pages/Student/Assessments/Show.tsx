@@ -23,7 +23,7 @@ import {
 
 interface StudentAssessmentShowProps extends PageProps {
     assessment: Assessment;
-    assignment: AssessmentAssignment;
+    assignment: AssessmentAssignment | null;
     availability: AvailabilityStatus;
     canViewResults: boolean;
 }
@@ -38,7 +38,7 @@ export default function Show({
     const breadcrumbs = useBreadcrumbs();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const isHomework = assessment.delivery_mode === 'homework';
-    const hasStarted = !!assignment.started_at;
+    const hasStarted = !!assignment?.started_at;
 
     const { countdown, isStarting } = useAssessmentCountdown(
         assessment.scheduled_at ?? null,
@@ -110,11 +110,11 @@ export default function Show({
     );
 
     const statusValue = useMemo(
-        () => formatAssignmentStatus(t, assignment.status).label,
-        [assignment.status, t],
+        () => formatAssignmentStatus(t, assignment?.status ?? 'not_submitted').label,
+        [assignment?.status, t],
     );
 
-    const isSubmitted = !!assignment.submitted_at;
+    const isSubmitted = !!assignment?.submitted_at;
     const canTake = !isSubmitted && availability.available;
 
     const unavailabilityReasonMap: Record<string, string> = useMemo(
@@ -302,43 +302,36 @@ export default function Show({
                         />
                     </Stat.Group>
 
-                    <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                            {translations.importantDates}
-                        </h2>
-                        <div className="bg-gray-50 rounded-lg p-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <TextEntry
-                                    label={
-                                        isHomework
-                                            ? translations.dueDate
-                                            : translations.scheduledDate
-                                    }
-                                    value={formatDate(
-                                        (isHomework
-                                            ? assessment.due_date
-                                            : assessment.scheduled_at) ?? '',
-                                    )}
+                    <Section title={translations.importantDates} variant="flat">
+                        <Stat.Group columns={3}>
+                            <Stat.Item
+                                title={
+                                    isHomework ? translations.dueDate : translations.scheduledDate
+                                }
+                                value={formatDate(
+                                    (isHomework ? assessment.due_date : assessment.scheduled_at) ??
+                                        '',
+                                    'datetime',
+                                )}
+                            />
+                            {assignment?.started_at && (
+                                <Stat.Item
+                                    title={translations.startedDate}
+                                    value={formatDate(assignment.started_at, 'datetime')}
                                 />
-                                {assignment.started_at && (
-                                    <TextEntry
-                                        label={translations.startedDate}
-                                        value={formatDate(assignment.started_at)}
-                                    />
-                                )}
-                                {assignment.submitted_at && (
-                                    <TextEntry
-                                        label={translations.submittedDate}
-                                        value={formatDate(assignment.submitted_at)}
-                                    />
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                            )}
+                            {assignment?.submitted_at && (
+                                <Stat.Item
+                                    title={translations.submittedDate}
+                                    value={formatDate(assignment.submitted_at, 'datetime')}
+                                />
+                            )}
+                        </Stat.Group>
+                    </Section>
 
                     {availability.reason === 'assessment_not_started' && !isSubmitted && (
-                        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-                            <div className="flex items-center gap-2 mb-3">
+                        <div className=" p-4">
+                            <div className="flex items-center justify-center gap-2 mb-3">
                                 <ClockIcon className="h-5 w-5 text-amber-600 shrink-0" />
                                 <p className="text-sm font-semibold text-amber-800">
                                     {translations.countdownTitle}

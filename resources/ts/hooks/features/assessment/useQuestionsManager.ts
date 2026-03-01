@@ -81,6 +81,7 @@ export const useQuestionsManager = () => {
                 },
             });
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [confirmQuestionDeletion, confirmationModal],
     );
 
@@ -122,6 +123,7 @@ export const useQuestionsManager = () => {
                 },
             });
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [confirmChoiceDeletion, confirmationModal],
     );
 

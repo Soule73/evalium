@@ -1,4 +1,4 @@
-import { Button } from '@evalium/ui';
+import { Button, MarkdownRenderer } from '@evalium/ui';
 import {
     CheckCircleIcon,
     ExclamationTriangleIcon,
@@ -87,12 +87,7 @@ export function TakeReviewStep({
                             onClick={() => onGoToQuestion(index)}
                             className={`
                                 flex items-center justify-between w-full rounded-lg border px-4 py-3
-                                text-left transition-colors cursor-pointer
-                                ${
-                                    answered
-                                        ? 'border-green-200 bg-green-50 hover:bg-green-100'
-                                        : 'border-amber-300 bg-amber-50 hover:bg-amber-100'
-                                }
+                                text-left transition-colors cursor-pointer border-gray-200
                             `}
                         >
                             <div className="flex items-center gap-3 min-w-0">
@@ -101,11 +96,7 @@ export function TakeReviewStep({
                                         number: index + 1,
                                     })}
                                 </span>
-                                <span className="truncate text-sm text-gray-800">
-                                    {question.content.length > 80
-                                        ? `${question.content.slice(0, 80)}…`
-                                        : question.content}
-                                </span>
+                                <MarkdownRenderer>{question.content}</MarkdownRenderer>
                             </div>
                             <div className="flex items-center gap-2 shrink-0 ml-4">
                                 {answered ? (

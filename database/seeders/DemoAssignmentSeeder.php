@@ -200,8 +200,8 @@ class DemoAssignmentSeeder extends Seeder
         $range = self::GRADE_PROFILES[$profile];
 
         $questionsToAnswer = $status === 'in_progress'
-          ? $questions->take(max(1, intval($questions->count() * 0.5)))
-          : $questions;
+            ? $questions->take(max(1, intval($questions->count() * 0.5)))
+            : $questions;
 
         foreach ($questionsToAnswer as $question) {
             $scoreFraction = $this->randomFloat($range['min'], $range['max']);
@@ -223,8 +223,8 @@ class DemoAssignmentSeeder extends Seeder
                     $correctChoice = $choices->firstWhere('is_correct', true);
                     $isCorrect = $scoreFraction > 0.5;
                     $answerData['choice_id'] = $isCorrect && $correctChoice
-                      ? $correctChoice->id
-                      : $choices->where('is_correct', false)->random()?->id ?? $choices->first()->id;
+                        ? $correctChoice->id
+                        : $choices->where('is_correct', false)->random()?->id ?? $choices->first()->id;
                 }
             } elseif ($question->type === QuestionType::Multiple) {
                 $correctChoice = $question->choices->firstWhere('is_correct', true);
@@ -237,8 +237,8 @@ class DemoAssignmentSeeder extends Seeder
                     $isCorrect = $scoreFraction > 0.5;
                     $correctChoice = $choices->firstWhere('is_correct', true);
                     $answerData['choice_id'] = $isCorrect && $correctChoice
-                      ? $correctChoice->id
-                      : $choices->where('is_correct', false)->first()?->id ?? $choices->first()->id;
+                        ? $correctChoice->id
+                        : $choices->where('is_correct', false)->first()?->id ?? $choices->first()->id;
                 }
             }
 
