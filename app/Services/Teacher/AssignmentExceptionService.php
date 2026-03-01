@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Handles teacher-initiated exceptions for supervised assessment disruptions.
+ * Handles teacher-initiated exceptions for assessment disruptions.
  */
 class AssignmentExceptionService
 {
@@ -51,6 +51,43 @@ class AssignmentExceptionService
         ]);
 
         return $remainingSeconds;
+    }
+
+    /**
+     * Reassign an assessment to a student who submitted no answers.
+     *
+     * Resets the assignment so the student can retake the assessment.
+     * Only allowed for homework mode or supervised mode when the student
+     * never started (questions not seen).
+     *
+     * @param  AssessmentAssignment  $assignment  The assignment to reassign
+     * @param  Assessment  $assessment  The parent assessment
+     * @param  string  $reason  Teacher-provided justification for reassignment
+     */
+    public function reassignForStudent(
+        AssessmentAssignment $assignment,
+        Assessment $assessment,
+        string $reason
+    ): void {
+        $assignment->answers()->delete();
+
+        $assignment->update([
+            'started_at' => null,
+            'submitted_at' => null,
+            'graded_at' => null,
+            'teacher_notes' => null,
+            'forced_submission' => false,
+            'security_violation' => null,
+        ]);
+
+        Log::info('Assignment reassigned by teacher', [
+            'assignment_id' => $assignment->id,
+            'assessment_id' => $assessment->id,
+            'enrollment_id' => $assignment->enrollment_id,
+            'teacher_id' => Auth::id(),
+            'delivery_mode' => $assessment->delivery_mode->value,
+            'reason' => $reason,
+        ]);
     }
 
     /**

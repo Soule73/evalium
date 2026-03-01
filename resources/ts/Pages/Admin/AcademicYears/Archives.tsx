@@ -41,6 +41,14 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
         year: null,
     });
 
+    const [deleteModal, setDeleteModal] = useState<{
+        isOpen: boolean;
+        year: AcademicYear | null;
+    }>({
+        isOpen: false,
+        year: null,
+    });
+
     const canCreate = hasPermission(auth.permissions, 'create academic years');
 
     const handleDetails = useCallback((year: AcademicYear) => {
@@ -51,29 +59,39 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
         setSetCurrentModal({ isOpen: true, year });
     }, []);
 
+    const handleSwitch = useCallback((year: AcademicYear) => {
+        router.post(
+            route('api.academic-years.set-current'),
+            { academic_year_id: year.id },
+            { preserveScroll: true },
+        );
+    }, []);
+
     const confirmSetCurrent = () => {
         if (setCurrentModal.year) {
             router.post(
-                '/academic-years/set-current',
-                { academic_year_id: setCurrentModal.year.id },
+                route('admin.academic-years.set-current', setCurrentModal.year.id),
+                {},
                 {
                     onSuccess: () => {
                         setSetCurrentModal({ isOpen: false, year: null });
-                        router.visit(route('dashboard'));
                     },
                 },
             );
         }
     };
 
-    const handleDelete = useCallback(
-        (year: AcademicYear) => {
-            if (confirm(t('admin_pages.academic_years.confirm_delete'))) {
-                router.delete(route('admin.academic-years.destroy', year.id));
-            }
-        },
-        [t],
-    );
+    const handleDelete = useCallback((year: AcademicYear) => {
+        setDeleteModal({ isOpen: true, year });
+    }, []);
+
+    const confirmDelete = useCallback(() => {
+        if (deleteModal.year) {
+            router.delete(route('admin.academic-years.destroy', deleteModal.year.id), {
+                onFinish: () => setDeleteModal({ isOpen: false, year: null }),
+            });
+        }
+    }, [deleteModal.year]);
 
     const translations = useMemo(
         () => ({
@@ -81,7 +99,10 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
             archivesSubtitle: t('admin_pages.academic_years.archives_subtitle'),
             activateYearModalTitle: t('admin_pages.academic_years.activate_year_modal_title'),
             activateAndSwitch: t('admin_pages.academic_years.activate_and_switch'),
-            cancel: t('common.cancel'),
+            deleteModalTitle: t('admin_pages.academic_years.delete_modal_title'),
+            confirmDelete: t('admin_pages.academic_years.confirm_delete'),
+            cancel: t('commons/ui.cancel'),
+            delete: t('commons/ui.delete'),
             create: t('admin_pages.academic_years.create'),
         }),
         [t],
@@ -90,6 +111,7 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
     return (
         <AuthenticatedLayout breadcrumb={breadcrumbs.adminAcademicYears()}>
             <Section
+                variant="flat"
                 title={translations.archivesTitle}
                 subtitle={translations.archivesSubtitle}
                 actions={
@@ -109,6 +131,7 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
                     data={academicYears}
                     onDetails={handleDetails}
                     onSetCurrent={handleSetCurrent}
+                    onSwitch={handleSwitch}
                     onDelete={handleDelete}
                 />
             </Section>
@@ -129,6 +152,17 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
                 cancelText={translations.cancel}
                 onConfirm={confirmSetCurrent}
                 onClose={() => setSetCurrentModal({ isOpen: false, year: null })}
+            />
+
+            <ConfirmationModal
+                isOpen={deleteModal.isOpen}
+                title={translations.deleteModalTitle}
+                message={translations.confirmDelete}
+                confirmText={translations.delete}
+                cancelText={translations.cancel}
+                onConfirm={confirmDelete}
+                type="danger"
+                onClose={() => setDeleteModal({ isOpen: false, year: null })}
             />
         </AuthenticatedLayout>
     );

@@ -83,7 +83,7 @@ class StudentAssessmentTakeTest extends TestCase
             'coefficient' => 1,
             'duration_minutes' => 60,
             'scheduled_at' => now()->subMinutes(5),
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
     }
 
@@ -130,7 +130,7 @@ class StudentAssessmentTakeTest extends TestCase
         $response = $this->actingAs($this->student)
             ->get(route('student.assessments.take', $this->assessment));
 
-        $response->assertRedirect(route('student.assessments.results', $this->assessment));
+        $response->assertRedirect(route('student.assessments.result', $this->assessment));
     }
 
     public function test_save_answers_requires_enrollment(): void
@@ -235,13 +235,43 @@ class StudentAssessmentTakeTest extends TestCase
                 'answers' => [$question->id => 'My answer'],
             ]);
 
-        $response->assertRedirect(route('student.assessments.results', $this->assessment));
+        $response->assertRedirect(route('student.assessments.show', $this->assessment));
 
         $assignment = AssessmentAssignment::where('assessment_id', $this->assessment->id)
             ->forStudent($this->student)
             ->first();
 
         $this->assertNotNull($assignment->submitted_at);
+    }
+
+    public function test_submit_redirects_to_results_when_embargo_lifted(): void
+    {
+        $assessment = Assessment::factory()->supervised()->create([
+            'class_subject_id' => $this->classSubject->id,
+            'teacher_id' => $this->teacher->id,
+            'coefficient' => 1,
+            'duration_minutes' => 60,
+            'scheduled_at' => now()->subHours(3),
+            'is_published' => true,
+        ]);
+
+        $question = Question::factory()->create([
+            'assessment_id' => $assessment->id,
+            'type' => 'text',
+            'points' => 10,
+        ]);
+
+        $this->class->enrollments()->firstOrCreate(
+            ['student_id' => $this->student->id],
+            ['enrolled_at' => now(), 'status' => 'active']
+        );
+
+        $response = $this->actingAs($this->student)
+            ->post(route('student.assessments.submit', $assessment), [
+                'answers' => [$question->id => 'My answer'],
+            ]);
+
+        $response->assertRedirect(route('student.assessments.result', $assessment));
     }
 
     public function test_submit_auto_scores_non_text_questions(): void
@@ -364,6 +394,101 @@ class StudentAssessmentTakeTest extends TestCase
             ->get(route('student.assessments.take', $this->assessment));
 
         $response->assertForbidden();
+    }
+
+    public function test_results_page_blocked_during_supervised_embargo(): void
+    {
+        $assignment = AssessmentAssignment::create([
+            'assessment_id' => $this->assessment->id,
+            'enrollment_id' => $this->enrollment->id,
+            'submitted_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->student)
+            ->get(route('student.assessments.result', $this->assessment));
+
+        $response->assertRedirect(route('student.assessments.show', $this->assessment));
+    }
+
+    public function test_results_page_accessible_after_embargo_lifted(): void
+    {
+        $assessment = Assessment::factory()->supervised()->create([
+            'class_subject_id' => $this->classSubject->id,
+            'teacher_id' => $this->teacher->id,
+            'coefficient' => 1,
+            'duration_minutes' => 60,
+            'scheduled_at' => now()->subHours(3),
+            'is_published' => true,
+            'settings' => ['show_results_immediately' => true],
+        ]);
+
+        Question::factory()->create([
+            'assessment_id' => $assessment->id,
+            'type' => 'text',
+            'points' => 10,
+        ]);
+
+        AssessmentAssignment::create([
+            'assessment_id' => $assessment->id,
+            'enrollment_id' => $this->enrollment->id,
+            'submitted_at' => now()->subHours(1),
+        ]);
+
+        $response = $this->actingAs($this->student)
+            ->get(route('student.assessments.result', $assessment));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page->component('Student/Assessments/Result')
+        );
+    }
+
+    public function test_show_passes_can_view_result_false_during_embargo(): void
+    {
+        AssessmentAssignment::create([
+            'assessment_id' => $this->assessment->id,
+            'enrollment_id' => $this->enrollment->id,
+            'submitted_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->student)
+            ->get(route('student.assessments.show', $this->assessment));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('Student/Assessments/Show')
+                ->where('canViewResults', false)
+        );
+    }
+
+    public function test_save_answers_stores_numeric_string_as_answer_text_not_choice_id(): void
+    {
+        $this->actingAs($this->student)
+            ->postJson(route('student.assessments.start', $this->assessment));
+
+        $question = Question::factory()->create([
+            'assessment_id' => $this->assessment->id,
+            'type' => 'text',
+            'points' => 10,
+        ]);
+
+        $this->actingAs($this->student)
+            ->postJson(route('student.assessments.save-answers', $this->assessment), [
+                'answers' => [$question->id => '2024'],
+            ]);
+
+        $assignment = AssessmentAssignment::where('assessment_id', $this->assessment->id)
+            ->whereHas('enrollment', fn ($q) => $q->where('student_id', $this->student->id))
+            ->first();
+
+        $this->assertNotNull($assignment);
+
+        $answer = $assignment->answers()->where('question_id', $question->id)->first();
+
+        $this->assertNotNull($answer);
+        $this->assertEquals('2024', $answer->answer_text);
+        $this->assertNull($answer->choice_id);
     }
 
     private function assertStringContains(string $needle, string $haystack): void

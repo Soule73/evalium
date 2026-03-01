@@ -2,10 +2,11 @@
 
 namespace App\Http\Traits;
 
+use App\Contracts\Repositories\TeacherAssessmentRepositoryInterface;
 use App\Http\Requests\Teacher\SaveManualGradeRequest;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
-use App\Services\Teacher\TeacherAssessmentQueryService;
+use App\Services\Core\AssessmentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,9 +19,11 @@ use Inertia\Response;
  * AdminAssessmentController and TeacherAssessmentController.
  *
  * Requires the using class to have these injected properties:
- * - GradingQueryService $gradingQueryService
+ * - AssessmentService $assessmentService
+ * - GradingRepository $gradingQueryService
  * - AnswerFormatterService $answerFormatterService
  * - ScoringService $scoringService
+ * - AssessmentStatsService $assessmentStatsService
  *
  * Also requires AuthorizesRequests trait and flash message macros from FlashMessageServiceProvider.
  */
@@ -31,7 +34,9 @@ trait HandlesAssessmentViewing
      */
     abstract protected function buildRouteContext(): array;
 
-    abstract protected function resolveAssessmentQueryService(): TeacherAssessmentQueryService;
+    abstract protected function resolveAssessmentQueryService(): TeacherAssessmentRepositoryInterface;
+
+    abstract protected function resolveAssessmentService(): AssessmentService;
 
     /**
      * Hook called after loading assessment data in review/grade methods.
@@ -55,10 +60,17 @@ trait HandlesAssessmentViewing
             $perPage
         );
 
+        $stats = $this->assessmentStatsService->calculateAssessmentStats($assessment->id);
+
         return Inertia::render('Assessments/Show', [
             'assessment' => $assessment,
             'assignments' => $assignments,
+            'stats' => $stats,
             'routeContext' => $this->buildRouteContext(),
+            'chartData' => Inertia::defer(fn () => [
+                'statusChart' => $this->assessmentStatsService->getAssessmentStatusChart($assessment->id),
+                'scoreDistribution' => $this->assessmentStatsService->getScoreDistribution($assessment->id),
+            ]),
         ]);
     }
 
@@ -75,12 +87,14 @@ trait HandlesAssessmentViewing
 
         $assignment->load(['enrollment.student', 'answers.choice']);
         $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
+        $fileAnswers = $assignment->answers->filter(fn ($a) => $a->file_path !== null)->values();
 
         return Inertia::render('Assessments/Review', [
             'assignment' => $assignment,
             'assessment' => $assessment,
             'student' => $assignment->enrollment?->student,
             'userAnswers' => $userAnswers,
+            'fileAnswers' => $fileAnswers,
             'routeContext' => $this->buildRouteContext(),
         ]);
     }
@@ -88,22 +102,36 @@ trait HandlesAssessmentViewing
     /**
      * Display the grading interface for a specific student assignment.
      */
-    public function grade(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response
+    public function grade(Request $request, Assessment $assessment, AssessmentAssignment $assignment): Response|RedirectResponse
     {
         $this->authorize('update', $assessment);
         abort_unless($assignment->assessment_id === $assessment->id, 404);
+
+        $gradingState = $this->resolveAssessmentService()->resolveGradingState($assessment, $assignment);
+
+        if (! $gradingState['allowed']) {
+            return redirect()->back()->flashError(__('messages.grade_blocked_assessment_running'));
+        }
+
+        if ($gradingState['no_responses'] && ! $assignment->graded_at) {
+            $this->scoringService->autoGradeZero($assignment);
+            $assignment->refresh();
+        }
 
         $assessment = $this->gradingQueryService->loadAssessmentForGradingShow($assessment);
         $this->afterGradingLoad($request, $assessment);
 
         $assignment->load(['enrollment.student', 'answers.choice']);
         $userAnswers = $this->answerFormatterService->formatForGrading($assignment);
+        $fileAnswers = $assignment->answers->filter(fn ($a) => $a->file_path !== null)->values();
 
         return Inertia::render('Assessments/Grade', [
             'assignment' => $assignment,
             'assessment' => $assessment,
             'student' => $assignment->enrollment?->student,
             'userAnswers' => $userAnswers,
+            'fileAnswers' => $fileAnswers,
+            'gradingState' => $gradingState,
             'routeContext' => $this->buildRouteContext(),
         ]);
     }
@@ -114,6 +142,14 @@ trait HandlesAssessmentViewing
     public function saveGrade(SaveManualGradeRequest $request, Assessment $assessment, AssessmentAssignment $assignment): RedirectResponse
     {
         abort_unless($assignment->assessment_id === $assessment->id, 404);
+
+        $gradingState = $this->resolveAssessmentService()->resolveGradingState($assessment, $assignment);
+
+        abort_if(! $gradingState['allowed'], 422, __('messages.grade_blocked_assessment_running'));
+
+        if ($gradingState['correction_locked']) {
+            return back()->flashError(__('messages.grade_blocked_no_responses'));
+        }
 
         $this->scoringService->saveManualGrades(
             $assignment,

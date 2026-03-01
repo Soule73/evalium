@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\AcademicYear;
+use App\Services\Core\CacheService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -14,12 +15,14 @@ use InvalidArgumentException;
  */
 class AcademicYearService
 {
+    public function __construct(private readonly CacheService $cacheService) {}
+
     /**
      * Create a new academic year with its semesters.
      */
     public function createNewYear(array $data): AcademicYear
     {
-        return DB::transaction(function () use ($data) {
+        $year = DB::transaction(function () use ($data) {
             if ($data['is_current'] ?? false) {
                 $this->deactivateCurrentYear();
             }
@@ -35,6 +38,10 @@ class AcademicYearService
 
             return $academicYear->load('semesters');
         });
+
+        $this->cacheService->invalidateAcademicYearsCaches();
+
+        return $year;
     }
 
     /**
@@ -42,13 +49,17 @@ class AcademicYearService
      */
     public function setCurrentYear(AcademicYear $academicYear): AcademicYear
     {
-        return DB::transaction(function () use ($academicYear) {
+        $year = DB::transaction(function () use ($academicYear) {
             $this->deactivateCurrentYear();
 
             $academicYear->update(['is_current' => true]);
 
-            return $academicYear->fresh();
+            return $academicYear->refresh();
         });
+
+        $this->cacheService->invalidateAcademicYearsCaches();
+
+        return $year;
     }
 
     /**
@@ -58,7 +69,9 @@ class AcademicYearService
     {
         $academicYear->update(['is_current' => false]);
 
-        return $academicYear->fresh();
+        $this->cacheService->invalidateAcademicYearsCaches();
+
+        return $academicYear->refresh();
     }
 
     /**
@@ -66,7 +79,7 @@ class AcademicYearService
      */
     public function updateYear(AcademicYear $academicYear, array $data): AcademicYear
     {
-        return DB::transaction(function () use ($academicYear, $data) {
+        $year = DB::transaction(function () use ($academicYear, $data) {
             if (isset($data['is_current']) && $data['is_current'] && ! $academicYear->is_current) {
                 $this->deactivateCurrentYear();
             }
@@ -82,8 +95,12 @@ class AcademicYearService
                 $this->syncSemesters($academicYear, $data['semesters']);
             }
 
-            return $academicYear->fresh()->load('semesters');
+            return $academicYear->refresh()->load('semesters');
         });
+
+        $this->cacheService->invalidateAcademicYearsCaches();
+
+        return $year;
     }
 
     /**
@@ -92,14 +109,18 @@ class AcademicYearService
     public function deleteYear(AcademicYear $academicYear): bool
     {
         if ($academicYear->is_current) {
-            throw new InvalidArgumentException('Cannot delete the current academic year');
+            throw new InvalidArgumentException(__('messages.academic_year_cannot_delete_current'));
         }
 
         if ($academicYear->classes()->count() > 0) {
-            throw new InvalidArgumentException('Cannot delete academic year with existing classes');
+            throw new InvalidArgumentException(__('messages.academic_year_cannot_delete_with_classes'));
         }
 
-        return $academicYear->delete();
+        $deleted = $academicYear->delete();
+
+        $this->cacheService->invalidateAcademicYearsCaches();
+
+        return $deleted;
     }
 
     /**

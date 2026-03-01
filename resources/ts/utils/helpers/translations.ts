@@ -33,8 +33,16 @@ export function translateKey(
         return fallback || key;
     }
 
+    let resolved = translation;
+
+    if (resolved.includes('|') && 'count' in replacements) {
+        const parts = resolved.split('|');
+        const count = Number(replacements.count);
+        resolved = count === 1 ? parts[0] : (parts[parts.length - 1] ?? resolved);
+    }
+
     return Object.entries(replacements).reduce(
         (str, [placeholder, value]) => str.replace(`:${placeholder}`, String(value)),
-        translation,
+        resolved,
     );
 }

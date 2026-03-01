@@ -1,21 +1,5 @@
 import { usePage } from '@inertiajs/react';
-
-interface AssessmentConfig {
-    devMode: boolean;
-    securityEnabled: boolean;
-    features: {
-        fullscreenRequired: boolean;
-        tabSwitchDetection: boolean;
-        devToolsDetection: boolean;
-        copyPastePrevention: boolean;
-        contextMenuDisabled: boolean;
-        printPrevention: boolean;
-    };
-    timing: {
-        minAssessmentDurationMinutes: number;
-        autoSubmitOnTimeEnd: boolean;
-    };
-}
+import { type AssessmentConfig } from '@/utils/assessment/security';
 
 interface PageProps extends Record<string, unknown> {
     assessmentConfig?: AssessmentConfig;
@@ -24,65 +8,15 @@ interface PageProps extends Record<string, unknown> {
 export function useAssessmentConfig(): AssessmentConfig {
     const { props } = usePage<PageProps>();
 
-    // Configuration par défaut si non fournie par le backend
-    const defaultConfig: AssessmentConfig = {
-        devMode: false,
-        securityEnabled: true,
-        features: {
-            fullscreenRequired: true,
-            tabSwitchDetection: true,
-            devToolsDetection: true,
-            copyPastePrevention: true,
-            contextMenuDisabled: true,
-            printPrevention: true,
-        },
-        timing: {
-            minAssessmentDurationMinutes: 2,
-            autoSubmitOnTimeEnd: true,
-        },
-    };
-
-    return props.assessmentConfig || defaultConfig;
+    return props.assessmentConfig ?? { devMode: false };
 }
 
 export function useSecurityEnabled(): boolean {
     const config = useAssessmentConfig();
-    return config.securityEnabled && !config.devMode;
+    return !config.devMode;
 }
 
-export function useFeatureEnabled(feature: keyof AssessmentConfig['features']): boolean {
+export function useFeatureEnabled(_feature: string): boolean {
     const config = useAssessmentConfig();
-    // Si en mode dev, toutes les fonctionnalités sont désactivées
-    if (config.devMode) {
-        return false;
-    }
-
-    // Si la sécurité globale est désactivée
-    if (!config.securityEnabled) {
-        return false;
-    }
-
-    return config.features[feature];
-}
-
-// Fonctions utilitaires pour les cas où on a déjà la config
-export function isSecurityEnabled(config: AssessmentConfig): boolean {
-    return config.securityEnabled && !config.devMode;
-}
-
-export function isFeatureEnabled(
-    config: AssessmentConfig,
-    feature: keyof AssessmentConfig['features'],
-): boolean {
-    // Si en mode dev, toutes les fonctionnalités sont désactivées
-    if (config.devMode) {
-        return false;
-    }
-
-    // Si la sécurité globale est désactivée
-    if (!config.securityEnabled) {
-        return false;
-    }
-
-    return config.features[feature];
+    return !config.devMode;
 }

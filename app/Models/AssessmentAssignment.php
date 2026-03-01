@@ -24,7 +24,6 @@ class AssessmentAssignment extends Model
         'started_at',
         'submitted_at',
         'graded_at',
-        'score',
         'teacher_notes',
         'forced_submission',
         'security_violation',
@@ -34,12 +33,14 @@ class AssessmentAssignment extends Model
         'started_at' => 'datetime',
         'submitted_at' => 'datetime',
         'graded_at' => 'datetime',
-        'score' => 'decimal:2',
         'forced_submission' => 'boolean',
     ];
 
     protected $appends = [
         'status',
+        'score',
+        'auto_score',
+        'is_virtual',
     ];
 
     /**
@@ -87,7 +88,10 @@ class AssessmentAssignment extends Model
     {
         $studentId = $student instanceof User ? $student->id : $student;
 
-        return $query->whereHas('enrollment', fn (Builder $q) => $q->where('student_id', $studentId));
+        return $query->whereIn(
+            'enrollment_id',
+            Enrollment::where('student_id', $studentId)->select('id')
+        );
     }
 
     /**
@@ -96,14 +100,6 @@ class AssessmentAssignment extends Model
     public function answers(): HasMany
     {
         return $this->hasMany(Answer::class, 'assessment_assignment_id');
-    }
-
-    /**
-     * Get the file attachments for this assignment.
-     */
-    public function attachments(): HasMany
-    {
-        return $this->hasMany(AssignmentAttachment::class);
     }
 
     /**
@@ -151,6 +147,49 @@ class AssessmentAssignment extends Model
     }
 
     /**
+     * Compute the auto-scored total from associated answers.
+     *
+     * Returns the sum of all scored answers after submission, including
+     * auto-corrected MCQ scores. Returns null when not yet submitted.
+     * Used by the frontend to display partial scores before teacher grading.
+     */
+    public function getAutoScoreAttribute(): ?float
+    {
+        if (! $this->submitted_at) {
+            return null;
+        }
+
+        if (array_key_exists('answers_sum_score', $this->attributes)) {
+            $val = $this->attributes['answers_sum_score'];
+
+            return $val !== null ? (float) $val : 0.0;
+        }
+
+        return (float) $this->answers()->sum('score');
+    }
+
+    /**
+     * Compute the total score from associated answers.
+     *
+     * Returns null when the assignment has not been graded yet.
+     * Uses the eager-loaded `answers_sum_score` when available to avoid N+1 queries.
+     */
+    public function getScoreAttribute(): ?float
+    {
+        if (! $this->graded_at) {
+            return null;
+        }
+
+        if (array_key_exists('answers_sum_score', $this->attributes)) {
+            $val = $this->attributes['answers_sum_score'];
+
+            return $val !== null ? (float) $val : 0.0;
+        }
+
+        return (float) $this->answers()->sum('score');
+    }
+
+    /**
      * Get the status attribute.
      */
     public function getStatusAttribute(): string
@@ -168,5 +207,56 @@ class AssessmentAssignment extends Model
         }
 
         return 'not_submitted';
+    }
+
+    /**
+     * Determine whether the student submitted any answers at all.
+     */
+    public function hasNoResponses(): bool
+    {
+        if ($this->relationLoaded('answers')) {
+            return $this->answers->isEmpty();
+        }
+
+        return ! $this->answers()->exists();
+    }
+
+    /**
+     * Determine whether this assignment can be reassigned.
+     *
+     * Homework: always reassignable when no responses.
+     * Supervised not started: reassignable (questions not seen).
+     * Supervised started: NOT reassignable (questions already exposed).
+     *
+     * @param  Assessment  $assessment  The parent assessment
+     * @return array{can_reassign: bool, reason: string|null}
+     */
+    public function canBeReassigned(Assessment $assessment): array
+    {
+        if (! $this->hasNoResponses()) {
+            return ['can_reassign' => false, 'reason' => 'has_responses'];
+        }
+
+        if ($assessment->isHomeworkMode()) {
+            return ['can_reassign' => true, 'reason' => null];
+        }
+
+        if ($this->started_at !== null) {
+            return ['can_reassign' => false, 'reason' => 'supervised_questions_exposed'];
+        }
+
+        return ['can_reassign' => true, 'reason' => null];
+    }
+
+    /**
+     * Indicate that persisted assignment records are never virtual.
+     *
+     * Virtual (not-started) placeholders are plain objects returned alongside
+     * real assignments in grading views. This accessor ensures real assignments
+     * always include the `is_virtual` key in JSON serialization.
+     */
+    public function getIsVirtualAttribute(): bool
+    {
+        return false;
     }
 }

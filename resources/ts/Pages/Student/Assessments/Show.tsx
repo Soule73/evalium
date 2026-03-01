@@ -12,6 +12,8 @@ import { AlertEntry, Button, Modal, Section, Stat, TextEntry } from '@/Component
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { formatDate } from '@/utils';
+import { formatAssignmentStatus } from '@/utils/assessment';
+import { useAssessmentCountdown } from '@/hooks/features/assessment';
 import {
     ClockIcon,
     DocumentTextIcon,
@@ -21,16 +23,27 @@ import {
 
 interface StudentAssessmentShowProps extends PageProps {
     assessment: Assessment;
-    assignment: AssessmentAssignment;
+    assignment: AssessmentAssignment | null;
     availability: AvailabilityStatus;
+    canViewResults: boolean;
 }
 
-export default function Show({ assessment, assignment, availability }: StudentAssessmentShowProps) {
+export default function Show({
+    assessment,
+    assignment,
+    availability,
+    canViewResults,
+}: StudentAssessmentShowProps) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const isHomework = assessment.delivery_mode === 'homework';
-    const hasStarted = !!assignment.started_at;
+    const hasStarted = !!assignment?.started_at;
+
+    const { countdown, isStarting } = useAssessmentCountdown(
+        assessment.scheduled_at ?? null,
+        availability.reason === 'assessment_not_started' && !isHomework,
+    );
 
     const translations = useMemo(
         () => ({
@@ -43,9 +56,6 @@ export default function Show({ assessment, assignment, availability }: StudentAs
             minutes: t('student_assessment_pages.show.minutes'),
             questions: t('student_assessment_pages.show.questions'),
             status: t('student_assessment_pages.show.status'),
-            completed: t('student_assessment_pages.show.status_completed'),
-            graded: t('student_assessment_pages.show.status_graded'),
-            statusNotStarted: t('student_assessment_pages.show.status_not_started'),
             importantDates: t('student_assessment_pages.show.important_dates'),
             scheduledDate: t('student_assessment_pages.show.scheduled_date'),
             dueDate: t('student_assessment_pages.show.due_date'),
@@ -62,9 +72,18 @@ export default function Show({ assessment, assignment, availability }: StudentAs
             alertHomeworkDueDate: t('student_assessment_pages.show.alert_homework_due_date'),
             description: t('student_assessment_pages.show.description'),
             noDescription: t('student_assessment_pages.show.no_description'),
-            viewResults: t('student_assessment_pages.show.view_results'),
+            viewResults: t('student_assessment_pages.show.view_result'),
+            resultsNotYetAvailable: t('student_assessment_pages.show.results_not_yet_available'),
+            resultsAvailableAfter: t('student_assessment_pages.show.results_available_after'),
+            resultsWaitingGrading: t('student_assessment_pages.show.results_waiting_grading'),
             startedDate: t('student_assessment_pages.show.started_date'),
             assessmentUnavailable: t('student_assessment_pages.show.assessment_unavailable'),
+            countdownTitle: t('student_assessment_pages.show.countdown_title'),
+            countdownDays: t('student_assessment_pages.show.countdown_days'),
+            countdownHours: t('student_assessment_pages.show.countdown_hours'),
+            countdownMinutes: t('student_assessment_pages.show.countdown_minutes'),
+            countdownSeconds: t('student_assessment_pages.show.countdown_seconds'),
+            countdownStarting: t('student_assessment_pages.show.countdown_starting'),
         }),
         [t],
     );
@@ -90,15 +109,12 @@ export default function Show({ assessment, assignment, availability }: StudentAs
         [t, isHomework],
     );
 
-    const statusValue = useMemo(() => {
-        if (assignment.status === 'graded') return translations.graded;
-        if (assignment.status === 'submitted') return translations.completed;
-        if (assignment.status === 'in_progress')
-            return t('student_assessment_pages.show.status_in_progress');
-        return translations.statusNotStarted;
-    }, [assignment.status, translations, t]);
+    const statusValue = useMemo(
+        () => formatAssignmentStatus(t, assignment?.status ?? 'not_submitted').label,
+        [assignment?.status, t],
+    );
 
-    const isSubmitted = !!assignment.submitted_at;
+    const isSubmitted = !!assignment?.submitted_at;
     const canTake = !isSubmitted && availability.available;
 
     const unavailabilityReasonMap: Record<string, string> = useMemo(
@@ -116,7 +132,7 @@ export default function Show({ assessment, assignment, availability }: StudentAs
             ? unavailabilityReasonMap[availability.reason] || translations.assessmentUnavailable
             : null;
 
-    const alertMessage = isHomework ? (
+    const alertMessage = isSubmitted ? null : isHomework ? (
         <AlertEntry type="info" title={translations.importantTitle}>
             <ul className="list-disc list-inside space-y-1 text-sm">
                 <li>{translations.alertStableConnection}</li>
@@ -143,7 +159,10 @@ export default function Show({ assessment, assignment, availability }: StudentAs
             : statsTranslations.startAssessment
         : null;
 
-    const showViewResults = isSubmitted;
+    const showViewResults = canViewResults;
+
+    const showResultsPending = isSubmitted && !canViewResults;
+    const resultsAvailableAt = assessment.results_available_at;
 
     const handleStartAssessment = () => {
         setIsModalOpen(false);
@@ -180,7 +199,7 @@ export default function Show({ assessment, assignment, availability }: StudentAs
                             color="secondary"
                             onClick={() => setIsModalOpen(false)}
                         >
-                            {t('components.confirmation_modal.cancel')}
+                            {t('commons/ui.cancel')}
                         </Button>
                         <Button size="sm" color="primary" onClick={handleStartAssessment}>
                             {statsTranslations.startModalConfirm}
@@ -213,9 +232,7 @@ export default function Show({ assessment, assignment, availability }: StudentAs
                                 color="primary"
                                 size="sm"
                                 onClick={() =>
-                                    router.visit(
-                                        route('student.assessments.results', assessment.id),
-                                    )
+                                    router.visit(route('student.assessments.result', assessment.id))
                                 }
                             >
                                 <EyeIcon className="w-4 h-4 mr-1" />
@@ -247,7 +264,11 @@ export default function Show({ assessment, assignment, availability }: StudentAs
                         />
                         <TextEntry
                             label={translations.class}
-                            value={assessment.class_subject?.class?.name || '-'}
+                            value={
+                                assessment.class_subject?.class?.display_name ??
+                                assessment.class_subject?.class?.name ??
+                                '-'
+                            }
                         />
                         <TextEntry
                             label={translations.teacher}
@@ -281,43 +302,104 @@ export default function Show({ assessment, assignment, availability }: StudentAs
                         />
                     </Stat.Group>
 
-                    <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                            {translations.importantDates}
-                        </h2>
-                        <div className="bg-gray-50 rounded-lg p-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <TextEntry
-                                    label={
-                                        isHomework
-                                            ? translations.dueDate
-                                            : translations.scheduledDate
-                                    }
-                                    value={formatDate(
-                                        (isHomework
-                                            ? assessment.due_date
-                                            : assessment.scheduled_at) ?? '',
-                                    )}
+                    <Section title={translations.importantDates} variant="flat">
+                        <Stat.Group columns={3}>
+                            <Stat.Item
+                                title={
+                                    isHomework ? translations.dueDate : translations.scheduledDate
+                                }
+                                value={formatDate(
+                                    (isHomework ? assessment.due_date : assessment.scheduled_at) ??
+                                        '',
+                                    'datetime',
+                                )}
+                            />
+                            {assignment?.started_at && (
+                                <Stat.Item
+                                    title={translations.startedDate}
+                                    value={formatDate(assignment.started_at, 'datetime')}
                                 />
-                                {assignment.started_at && (
-                                    <TextEntry
-                                        label={translations.startedDate}
-                                        value={formatDate(assignment.started_at)}
-                                    />
-                                )}
-                                {assignment.submitted_at && (
-                                    <TextEntry
-                                        label={translations.submittedDate}
-                                        value={formatDate(assignment.submitted_at)}
-                                    />
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                            )}
+                            {assignment?.submitted_at && (
+                                <Stat.Item
+                                    title={translations.submittedDate}
+                                    value={formatDate(assignment.submitted_at, 'datetime')}
+                                />
+                            )}
+                        </Stat.Group>
+                    </Section>
 
-                    {unavailabilityMessage && (
+                    {availability.reason === 'assessment_not_started' && !isSubmitted && (
+                        <div className=" p-4">
+                            <div className="flex items-center justify-center gap-2 mb-3">
+                                <ClockIcon className="h-5 w-5 text-amber-600 shrink-0" />
+                                <p className="text-sm font-semibold text-amber-800">
+                                    {translations.countdownTitle}
+                                </p>
+                            </div>
+                            {isStarting ? (
+                                <p className="text-center text-amber-700 animate-pulse font-medium">
+                                    {translations.countdownStarting}
+                                </p>
+                            ) : (
+                                countdown && (
+                                    <div className="flex justify-center gap-6">
+                                        {countdown.days > 0 && (
+                                            <div className="text-center">
+                                                <span className="text-3xl font-bold text-amber-700">
+                                                    {String(countdown.days).padStart(2, '0')}
+                                                </span>
+                                                <p className="text-xs text-amber-600 mt-1">
+                                                    {translations.countdownDays}
+                                                </p>
+                                            </div>
+                                        )}
+                                        <div className="text-center">
+                                            <span className="text-3xl font-bold text-amber-700">
+                                                {String(countdown.hours).padStart(2, '0')}
+                                            </span>
+                                            <p className="text-xs text-amber-600 mt-1">
+                                                {translations.countdownHours}
+                                            </p>
+                                        </div>
+                                        <div className="text-center">
+                                            <span className="text-3xl font-bold text-amber-700">
+                                                {String(countdown.minutes).padStart(2, '0')}
+                                            </span>
+                                            <p className="text-xs text-amber-600 mt-1">
+                                                {translations.countdownMinutes}
+                                            </p>
+                                        </div>
+                                        <div className="text-center">
+                                            <span className="text-3xl font-bold text-amber-700">
+                                                {String(countdown.seconds).padStart(2, '0')}
+                                            </span>
+                                            <p className="text-xs text-amber-600 mt-1">
+                                                {translations.countdownSeconds}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )
+                            )}
+                            <p className="text-xs text-amber-600 text-center mt-3">
+                                {formatDate(assessment.scheduled_at ?? '', 'datetime')}
+                            </p>
+                        </div>
+                    )}
+
+                    {unavailabilityMessage && availability.reason !== 'assessment_not_started' && (
                         <AlertEntry type="error" title={translations.assessmentUnavailable}>
                             <p className="text-sm">{unavailabilityMessage}</p>
+                        </AlertEntry>
+                    )}
+
+                    {showResultsPending && (
+                        <AlertEntry type="info" title={translations.resultsNotYetAvailable}>
+                            <p className="text-sm">
+                                {resultsAvailableAt
+                                    ? `${translations.resultsAvailableAfter} ${formatDate(resultsAvailableAt, 'datetime')}`
+                                    : translations.resultsWaitingGrading}
+                            </p>
                         </AlertEntry>
                     )}
 

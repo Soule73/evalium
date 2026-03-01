@@ -2,9 +2,9 @@
 
 namespace App\Services\Admin;
 
+use App\Contracts\Services\UserManagementServiceInterface;
 use App\Models\User;
 use App\Notifications\UserCredentialsNotification;
-use App\Services\Traits\Paginatable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -16,58 +16,15 @@ use Spatie\Permission\Models\Role;
  *
  * Single Responsibility: Manage user lifecycle and role assignments
  */
-class UserManagementService
+class UserManagementService implements UserManagementServiceInterface
 {
-    use Paginatable;
-
     /**
-     * Get paginated list of users with filtering
+     * Create a new user with random password and optionally send credentials notification
      *
-     * @param  array  $filters  Filter criteria (role, status, search, exclude_roles, include_deleted)
-     * @param  int  $perPage  Number of items per page
-     * @param  User  $currentUser  Current authenticated user
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @param  array  $data  User data (name, email, role, send_credentials)
+     * @return array{user: User, password: string}
      */
-    public function getUserWithPagination(array $filters, int $perPage, User $currentUser)
-    {
-        $query = User::with('roles')->whereNot('id', $currentUser->id);
-
-        if (! empty($filters['exclude_roles'])) {
-            $query->whereDoesntHave('roles', function ($q) use ($filters) {
-                $q->whereIn('name', $filters['exclude_roles']);
-            });
-        }
-
-        if (! empty($filters['role'])) {
-            $query->role($filters['role']);
-        }
-
-        if (isset($filters['status'])) {
-            $query->where('is_active', $filters['status'] === 'active');
-        }
-
-        if (! empty($filters['include_deleted'])) {
-            $query->withTrashed();
-        }
-
-        if (! empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        return $this->paginateQuery($query, $filters['per_page'] ?? 10);
-    }
-
-    /**
-     * Create a new user with random password and send credentials notification
-     *
-     * @param  array  $data  User data (name, email, role)
-     * @return User
-     */
-    public function store(array $data)
+    public function store(array $data): array
     {
         return DB::transaction(function () use ($data) {
             $password = Str::random(12);
@@ -81,9 +38,11 @@ class UserManagementService
 
             $user->assignRole($data['role']);
 
-            $user->notify(new UserCredentialsNotification($password, $data['role']));
+            if ($data['send_credentials'] ?? false) {
+                $user->notify(new UserCredentialsNotification($password, $data['role']));
+            }
 
-            return $user;
+            return ['user' => $user, 'password' => $password];
         });
     }
 
@@ -92,11 +51,10 @@ class UserManagementService
      *
      * @param  User  $user  User to update
      * @param  array  $data  Updated data (name, email, password optional, role)
-     * @return void
      *
      * @throws \InvalidArgumentException
      */
-    public function update(User $user, array $data)
+    public function update(User $user, array $data): void
     {
         try {
             DB::transaction(function () use ($user, $data) {
@@ -112,7 +70,7 @@ class UserManagementService
                 $user->update($updatedData);
 
                 if (! isset($data['role']) || ! Role::where('name', $data['role'])->exists()) {
-                    throw new \InvalidArgumentException('Role is required for update.');
+                    throw new \InvalidArgumentException(__('messages.role_required_for_update'));
                 }
 
                 $user->syncRoles([$data['role']]);
@@ -127,9 +85,8 @@ class UserManagementService
      * Soft delete a user
      *
      * @param  User  $user  User to delete
-     * @return void
      */
-    public function delete(User $user)
+    public function delete(User $user): void
     {
         $user->delete();
     }
@@ -138,9 +95,8 @@ class UserManagementService
      * Toggle user active status
      *
      * @param  User  $user  User to toggle
-     * @return void
      */
-    public function toggleStatus(User $user)
+    public function toggleStatus(User $user): void
     {
         $user->is_active = ! $user->is_active;
         $user->save();
@@ -176,19 +132,6 @@ class UserManagementService
     }
 
     /**
-     * Get available roles for current user based on permissions
-     *
-     * @param  User  $currentUser  Current authenticated user
-     * @return \Illuminate\Support\Collection
-     */
-    public function getAvailableRoles(User $currentUser)
-    {
-        return $currentUser->hasRole('super_admin')
-            ? Role::pluck('name')
-            : Role::whereNotIn('name', ['admin', 'super_admin'])->pluck('name');
-    }
-
-    /**
      * Check if user is a teacher
      *
      * @param  User  $user  User to check
@@ -196,6 +139,18 @@ class UserManagementService
     public function isTeacher(User $user): bool
     {
         return $user->hasRole('teacher');
+    }
+
+    /**
+     * Check if a teacher has at least one class assignment in the current academic year.
+     *
+     * @param  User  $teacher  Teacher to check
+     */
+    public function isTeachingInCurrentYear(User $teacher): bool
+    {
+        return $teacher->classSubjects()
+            ->whereHas('semester', fn ($q) => $q->whereHas('academicYear', fn ($q2) => $q2->where('is_current', true)))
+            ->exists();
     }
 
     /**

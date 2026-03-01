@@ -4,6 +4,19 @@ import { Input } from '@evalium/ui';
 import MarkdownEditor from '../MarkdownEditor/MarkdownEditor';
 import MarkdownRenderer from '../MarkdownRenderer/MarkdownRenderer';
 
+interface ChoiceEditorLabels {
+    simpleMode?: string;
+    markdownMode?: string;
+    preview?: string;
+    hide?: string;
+    previewHeader?: string;
+    noContent?: string;
+    switchToSimpleTitle?: string;
+    switchToMarkdownTitle?: string;
+    showPreviewTitle?: string;
+    hidePreviewTitle?: string;
+}
+
 interface ChoiceEditorProps {
     value: string;
     onChange: (value: string) => void;
@@ -16,16 +29,7 @@ interface ChoiceEditorProps {
     onToggleMarkdownMode?: () => void;
     onTogglePreview?: () => void;
     placeholder?: string;
-    simpleModeLabel?: string;
-    markdownModeLabel?: string;
-    previewLabel?: string;
-    hideLabel?: string;
-    previewHeaderLabel?: string;
-    noContentLabel?: string;
-    switchToSimpleTitle?: string;
-    switchToMarkdownTitle?: string;
-    showPreviewTitle?: string;
-    hidePreviewTitle?: string;
+    labels?: ChoiceEditorLabels;
 }
 
 const ChoiceEditor: React.FC<ChoiceEditorProps> = ({
@@ -40,17 +44,18 @@ const ChoiceEditor: React.FC<ChoiceEditorProps> = ({
     onToggleMarkdownMode,
     onTogglePreview,
     placeholder = 'Enter your answer...',
-    simpleModeLabel = 'Simple',
-    markdownModeLabel = 'Markdown',
-    previewLabel = 'Preview',
-    hideLabel = 'Hide',
-    previewHeaderLabel = 'Preview:',
-    noContentLabel = 'No content',
-    switchToSimpleTitle = 'Switch to simple editor',
-    switchToMarkdownTitle = 'Switch to Markdown editor',
-    showPreviewTitle = 'Show preview',
-    hidePreviewTitle = 'Hide preview',
+    labels = {},
 }) => {
+    const simpleModeLabel = labels.simpleMode ?? 'Simple';
+    const markdownModeLabel = labels.markdownMode ?? 'Markdown';
+    const previewLabel = labels.preview ?? 'Preview';
+    const hideLabel = labels.hide ?? 'Hide';
+    const previewHeaderLabel = labels.previewHeader ?? 'Preview:';
+    const noContentLabel = labels.noContent ?? 'No content';
+    const switchToSimpleTitle = labels.switchToSimpleTitle ?? 'Switch to simple editor';
+    const switchToMarkdownTitle = labels.switchToMarkdownTitle ?? 'Switch to Markdown editor';
+    const showPreviewTitle = labels.showPreviewTitle ?? 'Show preview';
+    const hidePreviewTitle = labels.hidePreviewTitle ?? 'Hide preview';
     if (readOnly) {
         return (
             <Input

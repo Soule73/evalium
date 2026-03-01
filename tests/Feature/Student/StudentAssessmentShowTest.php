@@ -81,7 +81,7 @@ class StudentAssessmentShowTest extends TestCase
             'teacher_id' => $this->teacher->id,
             'coefficient' => 1,
             'scheduled_at' => now()->subHour(),
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         Question::factory()->count(2)->create([
@@ -128,7 +128,7 @@ class StudentAssessmentShowTest extends TestCase
         );
     }
 
-    public function test_show_creates_assignment_if_not_exists(): void
+    public function test_show_does_not_create_assignment_on_browse(): void
     {
         $this->assertDatabaseMissing('assessment_assignments', [
             'assessment_id' => $this->assessment->id,
@@ -138,7 +138,7 @@ class StudentAssessmentShowTest extends TestCase
         $this->actingAs($this->student)
             ->get(route('student.assessments.show', $this->assessment));
 
-        $this->assertDatabaseHas('assessment_assignments', [
+        $this->assertDatabaseMissing('assessment_assignments', [
             'assessment_id' => $this->assessment->id,
             'enrollment_id' => $this->enrollment->id,
         ]);
@@ -169,7 +169,7 @@ class StudentAssessmentShowTest extends TestCase
 
     public function test_show_availability_unavailable_when_not_published(): void
     {
-        $this->assessment->update(['settings' => ['is_published' => false]]);
+        $this->assessment->update(['is_published' => false]);
 
         $response = $this->actingAs($this->student)
             ->get(route('student.assessments.show', $this->assessment));
@@ -188,7 +188,8 @@ class StudentAssessmentShowTest extends TestCase
         $this->assessment->update([
             'delivery_mode' => 'homework',
             'due_date' => now()->subDay(),
-            'settings' => ['is_published' => true, 'allow_late_submission' => false],
+            'is_published' => true,
+            'allow_late_submission' => false,
         ]);
 
         $response = $this->actingAs($this->student)
@@ -208,7 +209,7 @@ class StudentAssessmentShowTest extends TestCase
             'delivery_mode' => 'supervised',
             'scheduled_at' => now()->addDay(),
             'duration_minutes' => 60,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         $response = $this->actingAs($this->student)
@@ -222,22 +223,57 @@ class StudentAssessmentShowTest extends TestCase
         );
     }
 
-    public function test_show_does_not_set_started_at_for_supervised_assessment(): void
+    public function test_show_does_not_create_assignment_for_supervised_assessment_on_browse(): void
     {
         $this->assessment->update([
             'delivery_mode' => 'supervised',
             'scheduled_at' => now()->subMinutes(5),
             'duration_minutes' => 60,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         $this->actingAs($this->student)
             ->get(route('student.assessments.show', $this->assessment));
 
-        $this->assertDatabaseHas('assessment_assignments', [
+        $this->assertDatabaseMissing('assessment_assignments', [
             'assessment_id' => $this->assessment->id,
             'enrollment_id' => $this->enrollment->id,
-            'started_at' => null,
         ]);
+    }
+
+    public function test_unpublished_assessment_does_not_appear_in_student_index(): void
+    {
+        Assessment::factory()->create([
+            'class_subject_id' => $this->classSubject->id,
+            'teacher_id' => $this->classSubject->teacher_id,
+            'coefficient' => 1,
+            'scheduled_at' => now()->subHour(),
+            'is_published' => false,
+        ]);
+
+        $response = $this->actingAs($this->student)
+            ->get(route('student.assessments.index'));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('Student/Assessments/Index')
+                ->has('assignments.data', 1)
+                ->where('assignments.data.0.assessment_id', $this->assessment->id)
+        );
+    }
+
+    public function test_published_assessment_appears_in_student_index(): void
+    {
+        $response = $this->actingAs($this->student)
+            ->get(route('student.assessments.index'));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('Student/Assessments/Index')
+                ->has('assignments.data', 1)
+                ->where('assignments.data.0.assessment_id', $this->assessment->id)
+        );
     }
 }

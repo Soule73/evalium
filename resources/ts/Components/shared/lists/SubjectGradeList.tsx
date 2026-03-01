@@ -1,9 +1,9 @@
 import { useMemo, useCallback } from 'react';
-import { Badge, DataTable, Section, Stat } from '@/Components';
+import { Badge, Button, DataTable, Section, Stat } from '@/Components';
 import type { SubjectGrade, OverallStats, PaginationType } from '@/types';
 import type { DataTableConfig } from '@/types/datatable';
 import { useTranslations } from '@/hooks';
-import { AcademicCapIcon, BookOpenIcon } from '@heroicons/react/24/outline';
+import { AcademicCapIcon, BookOpenIcon, EyeIcon } from '@heroicons/react/24/outline';
 
 interface SubjectGradeListProps {
     subjects: PaginationType<SubjectGrade>;
@@ -79,17 +79,6 @@ export function SubjectGradeList({
                     key: 'subject_name',
                     label: t('student_enrollment_pages.show.subject'),
                     sortable: true,
-                    render: onSubjectClick
-                        ? (item: SubjectGrade) => (
-                              <button
-                                  type="button"
-                                  className="text-indigo-600 hover:text-indigo-800 hover:underline font-medium text-left"
-                                  onClick={() => onSubjectClick(item)}
-                              >
-                                  {item.subject_name}
-                              </button>
-                          )
-                        : undefined,
                 },
                 {
                     key: 'teacher_name',
@@ -122,10 +111,30 @@ export function SubjectGradeList({
                         </div>
                     ),
                 },
+                ...(onSubjectClick
+                    ? [
+                          {
+                              key: 'actions',
+                              label: t('commons/table.actions'),
+                              sortable: false,
+                              render: (item: SubjectGrade) => (
+                                  <Button
+                                      type="button"
+                                      size="xs"
+                                      variant="ghost"
+                                      onClick={() => onSubjectClick(item)}
+                                  >
+                                      <EyeIcon className="h-4 w-4" />
+                                      {t('commons/ui.view')}
+                                  </Button>
+                              ),
+                          },
+                      ]
+                    : []),
             ],
             perPageOptions: [10, 25, 50],
             ...(showSearch && {
-                searchPlaceholder: t('common.search'),
+                searchPlaceholder: t('commons/ui.search'),
             }),
             emptyState: {
                 icon: <BookOpenIcon className="w-12 h-12" />,
@@ -134,8 +143,8 @@ export function SubjectGradeList({
             },
             emptySearchState: {
                 icon: <BookOpenIcon className="w-12 h-12" />,
-                title: t('common.no_search_results'),
-                subtitle: t('common.try_different_search'),
+                title: t('commons/table.no_results'),
+                subtitle: t('commons/table.try_different_search'),
             },
         }),
         [t, showSearch, getGradeBadge, onSubjectClick],

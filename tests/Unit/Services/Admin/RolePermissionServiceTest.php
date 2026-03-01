@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services\Admin;
 
+use App\Exceptions\RoleException;
 use App\Services\Admin\RoleService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
@@ -140,7 +141,7 @@ class RolePermissionServiceTest extends TestCase
     {
         $role = Role::create(['name' => 'admin']);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(RoleException::class);
         $this->expectExceptionMessage(__('messages.role_cannot_rename_system'));
 
         $this->service->updateRole($role, ['name' => 'different_name']);
@@ -181,6 +182,46 @@ class RolePermissionServiceTest extends TestCase
     }
 
     #[Test]
+    public function it_cannot_sync_permissions_on_locked_roles(): void
+    {
+        $role = Role::create(['name' => 'teacher']);
+        $permission = Permission::create(['name' => 'test.teacher']);
+
+        $this->expectException(RoleException::class);
+        $this->expectExceptionMessage(__('messages.role_permissions_locked'));
+
+        $this->service->syncRolePermissions($role, [$permission->id]);
+    }
+
+    #[Test]
+    public function it_can_sync_permissions_on_editable_admin_role(): void
+    {
+        $role = Role::create(['name' => 'admin']);
+        $perm = Permission::create(['name' => 'admin.test']);
+
+        $synced = $this->service->syncRolePermissions($role, [$perm->id]);
+
+        $this->assertTrue($synced->hasPermissionTo('admin.test'));
+    }
+
+    #[Test]
+    public function it_correctly_identifies_editable_and_locked_roles(): void
+    {
+        $admin = Role::create(['name' => 'admin']);
+        $teacher = Role::create(['name' => 'teacher']);
+        $student = Role::create(['name' => 'student']);
+        $superAdmin = Role::create(['name' => 'super_admin']);
+        $custom = Role::create(['name' => 'custom_role']);
+
+        $this->assertTrue($this->service->isRoleEditable($admin));
+        $this->assertTrue($this->service->isRoleEditable($custom));
+
+        $this->assertFalse($this->service->isRoleEditable($teacher));
+        $this->assertFalse($this->service->isRoleEditable($student));
+        $this->assertFalse($this->service->isRoleEditable($superAdmin));
+    }
+
+    #[Test]
     public function it_cannot_delete_system_roles(): void
     {
         $systemRoles = ['super_admin', 'admin', 'teacher', 'student'];
@@ -188,7 +229,7 @@ class RolePermissionServiceTest extends TestCase
         foreach ($systemRoles as $roleName) {
             $role = Role::create(['name' => $roleName]);
 
-            $this->expectException(\Exception::class);
+            $this->expectException(RoleException::class);
             $this->expectExceptionMessage(__('messages.role_cannot_delete_system'));
 
             $this->service->deleteRole($role);
@@ -204,7 +245,7 @@ class RolePermissionServiceTest extends TestCase
         $user = $this->createStudent();
         $user->assignRole($assignedRole);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(RoleException::class);
         $this->expectExceptionMessage(__('messages.role_cannot_delete_assigned'));
 
         $this->service->deleteRole($assignedRole);
@@ -242,7 +283,7 @@ class RolePermissionServiceTest extends TestCase
         $role = Role::create(['name' => 'test_role']);
         $role->givePermissionTo($permission);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(RoleException::class);
         $this->expectExceptionMessage(__('messages.permission_cannot_delete_assigned'));
 
         $this->service->deletePermission($permission);

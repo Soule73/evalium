@@ -2,14 +2,17 @@
 
 namespace App\Services\Student;
 
-use App\Enums\QuestionType;
+use App\Models\Answer;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\Enrollment;
 use App\Models\User;
+use App\Notifications\AssessmentGradedNotification;
+use App\Notifications\AssessmentSubmittedNotification;
 use App\Services\Core\Scoring\ScoringService;
 use App\Services\Traits\Paginatable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Student Assessment Service
@@ -42,6 +45,26 @@ class StudentAssessmentService
             'assessment_id' => $assessment->id,
             'enrollment_id' => $enrollment->id,
         ]);
+    }
+
+    /**
+     * Find an existing assignment for a student without creating one.
+     *
+     * @param  User  $student  The student
+     * @param  Assessment  $assessment  The assessment
+     * @return AssessmentAssignment|null The assignment or null if not started
+     */
+    public function findAssignment(User $student, Assessment $assessment): ?AssessmentAssignment
+    {
+        $enrollment = $this->findActiveEnrollment($student, $assessment);
+
+        if (! $enrollment) {
+            return null;
+        }
+
+        return AssessmentAssignment::where('assessment_id', $assessment->id)
+            ->where('enrollment_id', $enrollment->id)
+            ->first();
     }
 
     /**
@@ -119,7 +142,7 @@ class StudentAssessmentService
             return false;
         }
 
-        if ($assessment->settings['allow_late_submission'] ?? false) {
+        if ($assessment->allow_late_submission) {
             return false;
         }
 
@@ -151,6 +174,8 @@ class StudentAssessmentService
             'security_violation' => 'time_expired',
         ]);
 
+        $this->notifyTeacherOfSubmission($assessment, $assignment);
+
         return true;
     }
 
@@ -166,28 +191,50 @@ class StudentAssessmentService
             return false;
         }
 
-        foreach ($answers as $questionId => $value) {
-            $assignment->answers()->where('question_id', $questionId)->delete();
+        DB::transaction(function () use ($assignment, $answers) {
+            $questionIds = array_keys($answers);
+            $assignment->answers()->whereIn('question_id', $questionIds)->delete();
 
-            if (is_array($value)) {
-                foreach ($value as $choiceId) {
-                    $assignment->answers()->create([
+            $inserts = [];
+            $now = now();
+
+            foreach ($answers as $questionId => $value) {
+                if (is_array($value)) {
+                    foreach ($value as $choiceId) {
+                        $inserts[] = [
+                            'assessment_assignment_id' => $assignment->id,
+                            'question_id' => $questionId,
+                            'choice_id' => $choiceId,
+                            'answer_text' => null,
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ];
+                    }
+                } elseif (is_int($value)) {
+                    $inserts[] = [
+                        'assessment_assignment_id' => $assignment->id,
                         'question_id' => $questionId,
-                        'choice_id' => $choiceId,
-                    ]);
+                        'choice_id' => $value,
+                        'answer_text' => null,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
+                } else {
+                    $inserts[] = [
+                        'assessment_assignment_id' => $assignment->id,
+                        'question_id' => $questionId,
+                        'choice_id' => null,
+                        'answer_text' => $value,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
                 }
-            } elseif (is_numeric($value)) {
-                $assignment->answers()->create([
-                    'question_id' => $questionId,
-                    'choice_id' => $value,
-                ]);
-            } else {
-                $assignment->answers()->create([
-                    'question_id' => $questionId,
-                    'answer_text' => $value,
-                ]);
             }
-        }
+
+            if (! empty($inserts)) {
+                Answer::insert($inserts);
+            }
+        });
 
         return true;
     }
@@ -211,6 +258,8 @@ class StudentAssessmentService
         $this->autoScoreAssessment($assignment, $assessment);
 
         $assignment->update(['submitted_at' => now()]);
+
+        $this->notifyTeacherOfSubmission($assessment, $assignment);
 
         return true;
     }
@@ -261,7 +310,7 @@ class StudentAssessmentService
         $assignment->loadMissing('answers.choice');
 
         $autoScorableQuestions = $assessment->questions
-            ->whereNotIn('type', [QuestionType::Text])
+            ->filter(fn ($q) => ! $q->type->requiresManualGrading())
             ->keyBy('id');
 
         if ($autoScorableQuestions->isEmpty()) {
@@ -272,6 +321,8 @@ class StudentAssessmentService
             ->whereIn('question_id', $autoScorableQuestions->keys())
             ->groupBy('question_id');
 
+        $scoreUpdates = [];
+
         foreach ($autoScorableQuestions as $questionId => $question) {
             $answers = $answersByQuestionId->get($questionId, collect());
 
@@ -279,31 +330,38 @@ class StudentAssessmentService
                 continue;
             }
 
-            $strategy = $this->scoringService->getStrategies();
-            $score = 0.0;
+            $score = $this->scoringService->calculateScoreForQuestion($question, $answers);
 
-            foreach ($strategy as $scoringStrategy) {
-                if ($scoringStrategy->supports($question->type)) {
-                    $score = $scoringStrategy->calculateScore($question, $answers);
-                    break;
-                }
-            }
+            $scoreUpdates[$answers->first()->id] = $score;
 
-            $answers->first()->update(['score' => $score]);
-
-            $answers->skip(1)->each(function ($answer) {
-                $answer->update(['score' => 0]);
+            $answers->skip(1)->each(function ($answer) use (&$scoreUpdates) {
+                $scoreUpdates[$answer->id] = 0;
             });
+        }
+
+        if (! empty($scoreUpdates)) {
+            $now = now()->toDateTimeString();
+            $cases = collect($scoreUpdates)
+                ->map(fn ($score, $id) => "WHEN id = {$id} THEN {$score}")
+                ->implode(' ');
+            $ids = implode(',', array_keys($scoreUpdates));
+            DB::statement("UPDATE answers SET score = CASE {$cases} END, updated_at = '{$now}' WHERE id IN ({$ids})");
         }
 
         $hasTextQuestions = $assessment->questions->contains(fn ($q) => $q->type->requiresManualGrading());
 
         if (! $hasTextQuestions) {
-            $totalScore = $this->scoringService->calculateAssignmentScore($assignment);
             $assignment->update([
-                'score' => $totalScore,
                 'graded_at' => now(),
             ]);
+
+            $assignment->loadMissing(['enrollment.student', 'assessment.classSubject.subject']);
+
+            $student = $assignment->student;
+
+            if ($student) {
+                $student->notify(new AssessmentGradedNotification($assignment->assessment, $assignment));
+            }
         }
     }
 
@@ -323,30 +381,14 @@ class StudentAssessmentService
     }
 
     /**
-     * Validate if student can access an assessment
-     *
-     * @param  User  $student  The student
-     * @param  Assessment  $assessment  The assessment
-     * @return bool True if student has access
-     */
-    public function canStudentAccessAssessment(User $student, Assessment $assessment): bool
-    {
-        return $student->enrollments()
-            ->where('status', 'active')
-            ->whereHas('class.classSubjects', function ($query) use ($assessment) {
-                $query->where('id', $assessment->class_subject_id);
-            })
-            ->exists();
-    }
-
-    /**
      * Get assessments for a student with assignments and status
      *
      * @param  User  $student  The student
      * @param  Collection  $assessments  Collection of assessments
+     * @param  Enrollment|null  $enrollment  The student's active enrollment
      * @return Collection Collection of assignments with assessment and status
      */
-    public function getAssessmentsWithAssignments(User $student, Collection $assessments): Collection
+    public function getAssessmentsWithAssignments(User $student, Collection $assessments, ?Enrollment $enrollment = null): Collection
     {
         $assessmentIds = $assessments->pluck('id');
 
@@ -355,10 +397,12 @@ class StudentAssessmentService
             ->get()
             ->keyBy('assessment_id');
 
-        $enrollment = $student->enrollments()
-            ->where('status', 'active')
-            ->whereHas('class.classSubjects.assessments', fn ($q) => $q->whereIn('id', $assessmentIds))
-            ->first();
+        if (! $enrollment) {
+            $enrollment = $student->enrollments()
+                ->where('status', 'active')
+                ->whereHas('class.classSubjects.assessments', fn ($q) => $q->whereIn('id', $assessmentIds))
+                ->first();
+        }
 
         return $assessments->map(function ($assessment) use ($enrollment, $assignments) {
             $assignment = $assignments->get($assessment->id);
@@ -388,16 +432,16 @@ class StudentAssessmentService
 
         foreach ($answers->groupBy('question_id') as $questionId => $answersForQuestion) {
             if ($answersForQuestion->count() === 1) {
-                $userAnswers[$questionId] = $answersForQuestion->first();
+                $userAnswers[$questionId] = $answersForQuestion->first()->toArray();
             } else {
-                $firstAnswer = $answersForQuestion->first();
-                $firstAnswer->choices = $answersForQuestion->filter(function ($answer) {
+                $answerArray = $answersForQuestion->first()->toArray();
+                $answerArray['choices'] = $answersForQuestion->filter(function ($answer) {
                     return $answer->choice_id !== null;
                 })->map(function ($answer) {
-                    return ['choice' => $answer->choice];
+                    return ['choice' => $answer->choice ? $answer->choice->toArray() : null];
                 })->values()->all();
 
-                $userAnswers[$questionId] = $firstAnswer;
+                $userAnswers[$questionId] = $answerArray;
             }
         }
 
@@ -408,18 +452,18 @@ class StudentAssessmentService
      * Get paginated assessments for a student with filtering
      *
      * @param  User  $student  The student
-     * @param  int  $academicYearId  The academic year ID
+     * @param  int|null  $academicYearId  The academic year ID
      * @param  array  $filters  Filter parameters (status, search)
      * @param  int  $perPage  Items per page
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|array Paginated assignments or empty array
      */
-    public function getStudentAssessmentsForIndex(User $student, int $academicYearId, array $filters, int $perPage, $enrollment = null)
+    public function getStudentAssessmentsForIndex(User $student, ?int $academicYearId, array $filters, int $perPage, $enrollment = null)
     {
         if (! $enrollment) {
             $enrollment = $student->enrollments()
                 ->where('status', 'active')
-                ->whereHas('class', function ($query) use ($academicYearId) {
-                    $query->where('academic_year_id', $academicYearId);
+                ->when($academicYearId, function ($query) use ($academicYearId) {
+                    $query->whereHas('class', fn ($q) => $q->where('academic_year_id', $academicYearId));
                 })
                 ->with(['class.classSubjects'])
                 ->first();
@@ -428,20 +472,48 @@ class StudentAssessmentService
         }
 
         if (! $enrollment) {
-            return [];
+            return [
+                'assignments' => [],
+                'subjects' => [],
+            ];
         }
 
-        $classSubjectIds = $enrollment->class->classSubjects->pluck('id');
+        $classSubjects = $enrollment->class->classSubjects;
+        $classSubjectIds = $classSubjects->pluck('id');
+
+        $subjects = $classSubjects->load(['subject:id,name', 'teacher:id,name'])
+            ->map(fn ($cs) => [
+                'id' => $cs->id,
+                'subject_name' => $cs->subject?->name ?? '-',
+                'teacher_name' => $cs->teacher?->name ?? '-',
+            ])
+            ->values()
+            ->all();
+
+        $enrollmentId = $enrollment->id;
 
         $assessmentsQuery = Assessment::whereIn('class_subject_id', $classSubjectIds)
+            ->where('is_published', true)
             ->with([
                 'classSubject:id,subject_id,teacher_id',
                 'classSubject.subject:id,name',
                 'classSubject.teacher:id,name',
             ])
             ->withCount('questions')
+            ->when($filters['class_subject_id'] ?? null, function ($query, $classSubjectId) {
+                return $query->where('class_subject_id', $classSubjectId);
+            })
             ->when($filters['search'] ?? null, function ($query, $search) {
                 return $query->where('title', 'like', "%{$search}%");
+            })
+            ->when($filters['status'] ?? null, function ($query, $status) use ($enrollmentId) {
+                match ($status) {
+                    'graded' => $query->whereHas('assignments', fn ($q) => $q->where('enrollment_id', $enrollmentId)->whereNotNull('graded_at')),
+                    'submitted' => $query->whereHas('assignments', fn ($q) => $q->where('enrollment_id', $enrollmentId)->whereNotNull('submitted_at')->whereNull('graded_at')),
+                    'in_progress' => $query->whereHas('assignments', fn ($q) => $q->where('enrollment_id', $enrollmentId)->whereNotNull('started_at')->whereNull('submitted_at')),
+                    'not_started' => $query->whereDoesntHave('assignments', fn ($q) => $q->where('enrollment_id', $enrollmentId)->whereNotNull('started_at')),
+                    default => null,
+                };
             })
             ->orderBy('scheduled_at', 'asc');
 
@@ -451,7 +523,7 @@ class StudentAssessmentService
             ? collect($assessments->items())
             : $assessments;
 
-        $assignments = $this->getAssessmentsWithAssignments($student, $assessmentItems);
+        $assignments = $this->getAssessmentsWithAssignments($student, $assessmentItems, $enrollment);
 
         if ($assessments instanceof \Illuminate\Pagination\AbstractPaginator) {
             $assessments->setCollection($assignments);
@@ -459,15 +531,10 @@ class StudentAssessmentService
             $assessments = $assignments;
         }
 
-        if ($filters['status'] ?? null) {
-            $assessments->setCollection(
-                $assessments->getCollection()->filter(function ($assignment) use ($filters) {
-                    return $assignment->status === $filters['status'];
-                })->values()
-            );
-        }
-
-        return $assessments;
+        return [
+            'assignments' => $assessments,
+            'subjects' => $subjects,
+        ];
     }
 
     /**
@@ -486,15 +553,44 @@ class StudentAssessmentService
     }
 
     /**
+     * Notify the teacher that a student has submitted an assessment.
+     */
+    private function notifyTeacherOfSubmission(Assessment $assessment, AssessmentAssignment $assignment): void
+    {
+        $assessment->loadMissing('classSubject.teacher');
+        $teacher = $assessment->classSubject?->teacher;
+
+        if ($teacher) {
+            $teacher->notify(new AssessmentSubmittedNotification($assessment, $assignment));
+        }
+    }
+
+    /**
      * Resolve the enrollment for a student in the assessment's class.
      */
     private function resolveEnrollment(User $student, Assessment $assessment): Enrollment
+    {
+        $enrollment = $this->findActiveEnrollment($student, $assessment);
+
+        abort_if(! $enrollment, 404);
+
+        return $enrollment;
+    }
+
+    /**
+     * Find the student's active enrollment for the assessment's class.
+     *
+     * @param  User  $student  The student
+     * @param  Assessment  $assessment  The assessment
+     * @return Enrollment|null The active enrollment or null
+     */
+    private function findActiveEnrollment(User $student, Assessment $assessment): ?Enrollment
     {
         $assessment->loadMissing('classSubject');
 
         return Enrollment::where('student_id', $student->id)
             ->where('class_id', $assessment->classSubject->class_id)
             ->where('status', 'active')
-            ->firstOrFail();
+            ->first();
     }
 }

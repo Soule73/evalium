@@ -27,7 +27,7 @@ class ClassModelFactory extends Factory
             'level_id' => Level::factory(),
             'name' => $names[self::$nameSequence++ % 26],
             'description' => $this->faker->optional()->sentence(),
-            'max_students' => $this->faker->optional()->numberBetween(20, 40),
+            'max_students' => $this->faker->numberBetween(20, 40),
         ];
     }
 }

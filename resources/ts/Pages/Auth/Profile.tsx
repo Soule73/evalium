@@ -2,8 +2,14 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type User } from '@/types';
 import { formatDate } from '@/utils';
 import { useFormatters } from '@/hooks/shared/useFormatters';
-import EditUser from '../Admin/Users/Edit';
-import { Button, LanguageSelector, Section, TextEntry, UserAvatar } from '@/Components';
+import {
+    Button,
+    EditUserModal,
+    LanguageSelector,
+    Section,
+    TextEntry,
+    UserAvatar,
+} from '@/Components';
 import { route } from 'ziggy-js';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useProfile } from '@/hooks/shared';
@@ -22,7 +28,7 @@ export default function Profile({ user }: Props) {
     return (
         <AuthenticatedLayout title={t('auth_pages.profile.page_title')}>
             {user && (
-                <EditUser
+                <EditUserModal
                     title={t('auth_pages.profile.edit_modal_title')}
                     description={t('auth_pages.profile.edit_modal_subtitle')}
                     route={route('profile.update', { user: user.id })}

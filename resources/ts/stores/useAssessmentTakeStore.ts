@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
+type WizardStep = 'answering' | 'reviewing' | 'submitting';
+
 interface AssessmentTakeState {
     answers: Record<number, string | number | number[]>;
     isSubmitting: boolean;
@@ -12,6 +14,7 @@ interface AssessmentTakeState {
     assessmentCanStart: boolean;
     currentQuestionIndex: number;
     shuffledQuestionIds: number[];
+    wizardStep: WizardStep;
 }
 
 interface AssessmentTakeActions {
@@ -25,6 +28,7 @@ interface AssessmentTakeActions {
     setAssessmentCanStart: (canStart: boolean) => void;
     setCurrentQuestionIndex: (index: number) => void;
     setShuffledQuestionIds: (ids: number[]) => void;
+    setWizardStep: (step: WizardStep) => void;
     goToNextQuestion: (totalQuestions: number) => void;
     goToPreviousQuestion: () => void;
     reset: () => void;
@@ -41,6 +45,7 @@ const initialState: AssessmentTakeState = {
     assessmentCanStart: false,
     currentQuestionIndex: 0,
     shuffledQuestionIds: [],
+    wizardStep: 'answering',
 };
 
 export const useAssessmentTakeStore = create<AssessmentTakeState & AssessmentTakeActions>()(
@@ -97,6 +102,11 @@ export const useAssessmentTakeStore = create<AssessmentTakeState & AssessmentTak
         setShuffledQuestionIds: (ids) =>
             set((state) => {
                 state.shuffledQuestionIds = ids;
+            }),
+
+        setWizardStep: (step) =>
+            set((state) => {
+                state.wizardStep = step;
             }),
 
         goToNextQuestion: (totalQuestions) =>

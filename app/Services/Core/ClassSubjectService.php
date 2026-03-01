@@ -2,11 +2,14 @@
 
 namespace App\Services\Core;
 
+use App\Contracts\Repositories\ClassSubjectRepositoryInterface;
+use App\Contracts\Services\ClassSubjectServiceInterface;
 use App\Exceptions\ClassSubjectException;
-use App\Exceptions\ValidationException;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
+use App\Models\Semester;
 use App\Models\Subject;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -16,8 +19,32 @@ use Illuminate\Support\Facades\DB;
  *
  * Single Responsibility: Manage teacher-subject-class assignments with historization
  */
-class ClassSubjectService
+class ClassSubjectService implements ClassSubjectServiceInterface
 {
+    public function __construct(
+        private readonly ClassSubjectRepositoryInterface $classSubjectRepository
+    ) {}
+
+    /**
+     * Get form data for creation of a class-subject assignment.
+     */
+    public function getFormDataForCreate(?int $selectedYearId): array
+    {
+        return [
+            'classes' => ClassModel::query()
+                ->when($selectedYearId, fn ($q) => $q->forAcademicYear($selectedYearId))
+                ->with('level:id,name,description')
+                ->orderBy('name')
+                ->get(['id', 'name', 'level_id', 'academic_year_id']),
+            'subjects' => Subject::orderBy('name')->get(['id', 'name', 'code', 'level_id']),
+            'teachers' => User::role('teacher')->orderBy('name')->get(['id', 'name', 'email']),
+            'semesters' => Semester::query()
+                ->when($selectedYearId, fn ($q) => $q->where('academic_year_id', $selectedYearId))
+                ->orderBy('order_number')
+                ->get(['id', 'name', 'order_number', 'academic_year_id']),
+        ];
+    }
+
     /**
      * Assign a teacher to teach a subject in a class
      */
@@ -29,10 +56,10 @@ class ClassSubjectService
             return ClassSubject::create([
                 'class_id' => $data['class_id'],
                 'subject_id' => $data['subject_id'],
-                'teacher_id' => $data['teacher_id'],
-                'semester_id' => $data['semester_id'],
+                'teacher_id' => $data['teacher_id'] ?? null,
+                'semester_id' => $data['semester_id'] ?? null,
                 'coefficient' => $data['coefficient'],
-                'valid_from' => $data['valid_from'] ?? now(),
+                'valid_from' => $data['valid_from'] ?? now()->toDateString(),
                 'valid_to' => null,
             ]);
         });
@@ -46,6 +73,10 @@ class ClassSubjectService
         int $newTeacherId,
         ?Carbon $effectiveDate = null
     ): ClassSubject {
+        if ($classSubject->valid_to !== null) {
+            throw ClassSubjectException::alreadyTerminated();
+        }
+
         $effectiveDate = $effectiveDate ?? now();
 
         return DB::transaction(function () use ($classSubject, $newTeacherId, $effectiveDate) {
@@ -68,11 +99,7 @@ class ClassSubjectService
      */
     public function getTeachingHistory(int $classId, int $subjectId): Collection
     {
-        return ClassSubject::where('class_id', $classId)
-            ->where('subject_id', $subjectId)
-            ->with(['teacher', 'semester'])
-            ->orderBy('valid_from')
-            ->get();
+        return $this->classSubjectRepository->getHistory($classId, $subjectId);
     }
 
     /**
@@ -86,7 +113,7 @@ class ClassSubjectService
 
         $classSubject->update(['coefficient' => $coefficient]);
 
-        return $classSubject->fresh();
+        return $classSubject->refresh();
     }
 
     /**
@@ -98,23 +125,7 @@ class ClassSubjectService
 
         $classSubject->update(['valid_to' => $endDate]);
 
-        return $classSubject->fresh();
-    }
-
-    /**
-     * Get all class-subjects for an academic year
-     */
-    public function getClassSubjectsForAcademicYear(int $academicYearId, bool $activeOnly = true): Collection
-    {
-        $query = ClassSubject::whereHas('class', function ($q) use ($academicYearId) {
-            $q->where('academic_year_id', $academicYearId);
-        })->with(['class', 'subject', 'teacher', 'semester']);
-
-        if ($activeOnly) {
-            $query->active();
-        }
-
-        return $query->get();
+        return $classSubject->refresh();
     }
 
     /**
@@ -122,15 +133,11 @@ class ClassSubjectService
      */
     private function validateAssignment(array $data): void
     {
-        $required = ['class_id', 'subject_id', 'teacher_id', 'semester_id', 'coefficient'];
-        foreach ($required as $field) {
-            if (! isset($data[$field])) {
-                throw ValidationException::missingRequiredField($field);
-            }
-        }
-
-        if ($data['coefficient'] <= 0) {
-            throw ClassSubjectException::invalidCoefficient();
+        if (ClassSubject::where('class_id', $data['class_id'])
+            ->where('subject_id', $data['subject_id'])
+            ->whereNull('valid_to')
+            ->exists()) {
+            throw ClassSubjectException::alreadyActive();
         }
 
         $class = ClassModel::find($data['class_id']);
@@ -139,5 +146,17 @@ class ClassSubjectService
         if ($class && $subject && $class->level_id !== $subject->level_id) {
             throw ClassSubjectException::levelMismatch();
         }
+    }
+
+    /**
+     * Delete a class-subject assignment, throwing if assessments exist.
+     */
+    public function deleteClassSubject(ClassSubject $classSubject): void
+    {
+        if ($classSubject->assessments()->exists()) {
+            throw ClassSubjectException::hasAssessments();
+        }
+
+        $classSubject->delete();
     }
 }

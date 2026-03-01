@@ -18,7 +18,7 @@ class ClassSubjectException extends Exception
      */
     public static function invalidCoefficient(): self
     {
-        return new self('Coefficient must be greater than 0');
+        return new self(__('messages.class_subject_invalid_coefficient'));
     }
 
     /**
@@ -26,6 +26,30 @@ class ClassSubjectException extends Exception
      */
     public static function levelMismatch(): self
     {
-        return new self('Subject level must match class level');
+        return new self(__('messages.class_subject_level_mismatch'));
+    }
+
+    /**
+     * Create exception when class subject has linked assessments.
+     */
+    public static function hasAssessments(): self
+    {
+        return new self(__('messages.class_subject_has_assessments'));
+    }
+
+    /**
+     * Create exception when an active assignment already exists for this class-subject pair.
+     */
+    public static function alreadyActive(): self
+    {
+        return new self(__('messages.class_subject_already_active'));
+    }
+
+    /**
+     * Create exception when trying to operate on an already terminated assignment.
+     */
+    public static function alreadyTerminated(): self
+    {
+        return new self(__('messages.class_subject_already_terminated'));
     }
 }

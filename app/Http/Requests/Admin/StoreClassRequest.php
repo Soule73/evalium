@@ -3,19 +3,22 @@
 namespace App\Http\Requests\Admin;
 
 use App\Http\Requests\Traits\ClassValidationRules;
+use App\Models\ClassModel;
+use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class StoreClassRequest extends FormRequest
 {
-    use ClassValidationRules;
+    use ClassValidationRules, FiltersAcademicYear;
 
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user()->can('create', \App\Models\ClassModel::class);
+        return $this->user()->can('create', ClassModel::class);
     }
 
     /**
@@ -25,7 +28,7 @@ class StoreClassRequest extends FormRequest
     {
         $rules = $this->getClassValidationRules();
 
-        $academicYearId = $this->getAcademicYearIdFromSession();
+        $academicYearId = $this->getSelectedAcademicYearId($this);
         $rules['name'][] = Rule::unique('classes')->where(function ($query) use ($academicYearId) {
             return $query->where('academic_year_id', $academicYearId)
                 ->where('level_id', $this->input('level_id'));
@@ -40,14 +43,5 @@ class StoreClassRequest extends FormRequest
     public function messages(): array
     {
         return $this->getClassValidationMessages();
-    }
-
-    /**
-     * Get academic year ID from session or current year.
-     */
-    private function getAcademicYearIdFromSession(): ?int
-    {
-        return $this->session()->get('academic_year_id')
-            ?? \App\Models\AcademicYear::where('is_current', true)->value('id');
     }
 }

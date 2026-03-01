@@ -93,7 +93,7 @@ export function EnrollmentList({
                     labelKey: 'admin_pages.enrollments.class',
                     type: 'select',
                     options: classFilterOptions,
-                    conditional: (v) => v === 'admin',
+                    conditional: (v) => v === 'admin' && showClassColumn,
                 },
                 {
                     key: 'status',
@@ -138,18 +138,16 @@ export function EnrollmentList({
                         if (currentVariant === 'student') {
                             return (
                                 <span className="text-gray-700">
-                                    {enrollment.class?.name || '-'}
+                                    {enrollment.class?.display_name ??
+                                        enrollment.class?.name ??
+                                        '-'}
                                 </span>
                             );
                         }
-                        const levelNameDescription = `${enrollment.class?.level?.name} (${enrollment.class?.level?.description})`;
                         return (
-                            <div>
-                                <div className="font-medium text-gray-900">
-                                    {enrollment.class?.name}
-                                </div>
-                                <div className="text-sm text-gray-500">{levelNameDescription}</div>
-                            </div>
+                            <span className="font-medium text-gray-900">
+                                {enrollment.class?.display_name ?? enrollment.class?.name ?? '-'}
+                            </span>
                         );
                     },
                     conditional: () => showClassColumn,
@@ -187,8 +185,8 @@ export function EnrollmentList({
                     labelKey: 'student_enrollment_pages.history.completed_on',
                     render: (enrollment) => (
                         <span className="text-gray-700">
-                            {enrollment.status === 'completed'
-                                ? formatDate(enrollment.enrolled_at)
+                            {enrollment.status === 'completed' && enrollment.withdrawn_at
+                                ? formatDate(enrollment.withdrawn_at)
                                 : t('student_enrollment_pages.history.not_available')}
                         </span>
                     ),
@@ -207,9 +205,15 @@ export function EnrollmentList({
 
             actions: [
                 {
-                    labelKey: 'admin_pages.common.view',
+                    labelKey: 'commons/ui.view',
                     onClick: (item: Enrollment) =>
-                        onView?.(item) || router.visit(route('admin.enrollments.show', item.id)),
+                        onView?.(item) ||
+                        router.visit(
+                            route('admin.classes.students.show', {
+                                class: item.class_id,
+                                enrollment: item.id,
+                            }),
+                        ),
                     color: 'secondary' as const,
                     variant: 'outline' as const,
                     conditional: (_item: Enrollment, v) =>

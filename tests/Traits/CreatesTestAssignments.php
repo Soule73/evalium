@@ -2,9 +2,11 @@
 
 namespace Tests\Traits;
 
+use App\Models\Answer;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\Enrollment;
+use App\Models\Question;
 use App\Models\User;
 
 trait CreatesTestAssignments
@@ -45,7 +47,10 @@ trait CreatesTestAssignments
     }
 
     /**
-     * Create a graded assignment.
+     * Create a graded assignment with an answer carrying the given score.
+     *
+     * Since assignment.score is now computed from answers, we create an
+     * Answer record whose score equals the requested value.
      */
     protected function createGradedAssignment(
         Assessment $assessment,
@@ -55,13 +60,26 @@ trait CreatesTestAssignments
     ): AssessmentAssignment {
         $enrollment = $this->resolveTestEnrollment($student, $assessment);
 
-        return AssessmentAssignment::factory()->create(array_merge([
+        $assignment = AssessmentAssignment::factory()->create(array_merge([
             'assessment_id' => $assessment->id,
             'enrollment_id' => $enrollment->id,
             'submitted_at' => now()->subHour(),
             'graded_at' => now()->subMinutes(30),
-            'score' => $score,
         ], $attributes));
+
+        $question = $assessment->questions()->first()
+            ?? Question::factory()->create([
+                'assessment_id' => $assessment->id,
+                'points' => 20,
+            ]);
+
+        Answer::factory()->create([
+            'assessment_assignment_id' => $assignment->id,
+            'question_id' => $question->id,
+            'score' => $score,
+        ]);
+
+        return $assignment->fresh();
     }
 
     /**

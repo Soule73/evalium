@@ -30,7 +30,7 @@ export function AcademicYearSelector({ user }: AcademicYearSelectorProps) {
         if (yearId === selectedYear?.id) return;
 
         router.post(
-            '/academic-years/set-current',
+            route('api.academic-years.set-current'),
             {
                 academic_year_id: yearId,
             },
@@ -57,6 +57,7 @@ export function AcademicYearSelector({ user }: AcademicYearSelectorProps) {
     return (
         <div className="flex items-center gap-2">
             <Select
+                size="sm"
                 id="academic-year-selector"
                 options={options}
                 value={selectedYear.id}

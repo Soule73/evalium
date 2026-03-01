@@ -10,7 +10,7 @@ interface UseMarkdownEditorOptions {
     placeholder?: string;
     disabled?: boolean;
 
-    // Fonctionnalités de la toolbar
+    // Toolbar features
     enableBold?: boolean;
     enableItalic?: boolean;
     enableHeading?: boolean;
@@ -32,7 +32,7 @@ interface UseMarkdownEditorOptions {
     enableMathInline?: boolean;
     enableMathDisplay?: boolean;
 
-    // Options avancées
+    // Advanced options
     enableSpellChecker?: boolean;
     enableStatus?: boolean;
     enableAutofocus?: boolean;
@@ -42,12 +42,12 @@ interface UseMarkdownEditorOptions {
     minHeight?: string;
     maxHeight?: string;
 
-    // Personnalisation
+    // Customization
     customToolbar?: (string | '|')[];
     theme?: string;
     editorClassName?: string;
 
-    // Upload d'images
+    // Image upload
     enableImageUpload?: boolean;
     imageUploadFunction?: (
         file: File,
@@ -65,16 +65,16 @@ export interface MarkdownEditorHandle {
 }
 
 /**
- * Hook personnalisé pour gérer l'éditeur Markdown avec EasyMDE
+ * Custom hook to manage the Markdown editor with EasyMDE
  */
 export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
     const {
         value = '',
         onChange,
-        placeholder = 'Saisissez votre réponse ici...',
+        placeholder = 'Type your answer here...',
         disabled = false,
 
-        // Fonctionnalités de la toolbar (activées par défaut)
+        // Toolbar features (enabled by default)
         enableBold = true,
         enableItalic = true,
         enableHeading = true,
@@ -96,7 +96,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
         enableMathInline = false,
         enableMathDisplay = false,
 
-        // Options avancées
+        // Advanced options
         enableSpellChecker = false,
         enableStatus = false,
         enableAutofocus = false,
@@ -106,11 +106,11 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
         minHeight,
         maxHeight,
 
-        // Personnalisation
+        // Customization
         customToolbar,
         theme,
 
-        // Upload d'images
+        // Image upload
         enableImageUpload = false,
         imageUploadFunction,
         imageUploadEndpoint,
@@ -148,7 +148,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
                 action: (editor: EasyMDE) => {
                     const cm = editor.codemirror;
                     const selectedText = cm.getSelection();
-                    const replaceText = selectedText ? `$${selectedText}$` : '$formule$';
+                    const replaceText = selectedText ? `$${selectedText}$` : '$formula$';
                     cm.replaceSelection(replaceText);
                     if (!selectedText) {
                         const cursor = cm.getCursor();
@@ -156,7 +156,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
                     }
                 },
                 className: 'fa fa-calculator',
-                title: 'Formule mathématique inline ($...$)',
+                title: 'Inline math formula ($...$)',
             },
             mathDisplay: {
                 name: 'math-display',
@@ -165,7 +165,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
                     const selectedText = cm.getSelection();
                     const replaceText = selectedText
                         ? `$$\n${selectedText}\n$$`
-                        : '$$\nformule\n$$';
+                        : '$$\nformula\n$$';
                     cm.replaceSelection(replaceText);
                     if (!selectedText) {
                         const cursor = cm.getCursor();
@@ -173,13 +173,13 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
                     }
                 },
                 className: 'fa fa-superscript',
-                title: 'Formule mathématique display ($$...$$)',
+                title: 'Display math formula ($$...$$)',
             },
         };
     };
 
     /**
-     * Construit la toolbar dynamiquement selon les options activées
+     * Builds the toolbar dynamically based on enabled options
      */
     const buildToolbar = (): (string | '|')[] => {
         if (customToolbar) {
@@ -188,7 +188,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
 
         const toolbar: (string | '|')[] = [];
 
-        // Groupe formatage de base
+        // Basic formatting group
         const basicFormatting: string[] = [];
         if (enableBold) basicFormatting.push('bold');
         if (enableItalic) basicFormatting.push('italic');
@@ -201,7 +201,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
             toolbar.push('|');
         }
 
-        // Groupe listes et citations
+        // Lists and quotes group
         const listsAndQuotes: string[] = [];
         if (enableQuote) listsAndQuotes.push('quote');
         if (enableUnorderedList) listsAndQuotes.push('unordered-list');
@@ -212,7 +212,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
             toolbar.push('|');
         }
 
-        // Groupe insertion
+        // Insertion group
         const insertions: string[] = [];
         if (enableLink) insertions.push('link');
         if (enableImage) insertions.push('image');
@@ -224,7 +224,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
             toolbar.push('|');
         }
 
-        // Groupe formules mathématiques
+        // Math formulas group
         const mathFormulas: string[] = [];
         if (enableMathInline) mathFormulas.push('math-inline');
         if (enableMathDisplay) mathFormulas.push('math-display');
@@ -234,7 +234,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
             toolbar.push('|');
         }
 
-        // Groupe actions
+        // Actions group
         const actions: string[] = [];
         if (enableUndo) actions.push('undo');
         if (enableRedo) actions.push('redo');
@@ -244,7 +244,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
             toolbar.push('|');
         }
 
-        // Groupe affichage
+        // Display group
         const display: string[] = [];
         if (enablePreview) display.push('preview');
         if (enableSideBySide) display.push('side-by-side');
@@ -260,7 +260,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
             toolbar.push('guide');
         }
 
-        // Supprimer le dernier séparateur s'il existe
+        // Remove the trailing separator if present
         if (toolbar[toolbar.length - 1] === '|') {
             toolbar.pop();
         }
@@ -269,27 +269,24 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
     };
 
     /**
-     * Fonction de rendu personnalisée pour la prévisualisation
+     * Custom preview rendering function
      */
     const renderPreview = (plainText: string, preview: HTMLElement) => {
-        // Créer un conteneur temporaire pour le rendu React
         const container = document.createElement('div');
         const root = createRoot(container);
 
-        // Rendre le MarkdownRenderer dans le conteneur
         root.render(<MarkdownRenderer>{plainText}</MarkdownRenderer>);
 
-        // Attendre que le rendu soit terminé, puis copier le contenu
         setTimeout(() => {
             preview.innerHTML = container.innerHTML;
             root.unmount();
         }, 0);
 
-        return 'Chargement...';
+        return 'Loading...';
     };
 
     /**
-     * Initialisation de l'éditeur EasyMDE
+     * EasyMDE editor initialization
      */
     useEffect(() => {
         if (!textareaRef.current) return;
@@ -391,7 +388,7 @@ export const useMarkdownEditor = (options: UseMarkdownEditorOptions) => {
     ]);
 
     /**
-     * Synchroniser la valeur uniquement si elle vient de l'extérieur
+     * Sync value only when it comes from outside
      */
     useEffect(() => {
         if (editorRef.current && isReady) {

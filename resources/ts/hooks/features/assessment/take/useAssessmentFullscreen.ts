@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useAssessmentConfig, isFeatureEnabled } from '../useAssessmentConfig';
+import { useAssessmentConfig } from '../useAssessmentConfig';
+import { isFeatureEnabled, isSecurityEnabled } from '@/utils/assessment/security';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 import { isFullscreenSupported } from '@/utils/assessment/take';
@@ -52,7 +53,7 @@ export function useAssessmentFullscreen({ security }: UseAssessmentFullscreenOpt
     useEffect(() => {
         const shouldRequireFullscreen =
             isFeatureEnabled(assessmentConfig, 'fullscreenRequired') &&
-            assessmentConfig.securityEnabled &&
+            isSecurityEnabled(assessmentConfig) &&
             fullscreenIsSupported;
 
         if (shouldRequireFullscreen) {

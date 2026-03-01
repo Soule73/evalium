@@ -4,13 +4,15 @@ namespace Tests\Feature\Models;
 
 use App\Enums\AssessmentType;
 use App\Enums\DeliveryMode;
+use App\Enums\QuestionType;
 use App\Models\AcademicYear;
+use App\Models\Answer;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
-use App\Models\AssignmentAttachment;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
 use App\Models\Enrollment;
+use App\Models\Question;
 use App\Models\Semester;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -100,32 +102,28 @@ class DeliveryModeModelsTest extends TestCase
         $this->assertSame(DeliveryMode::Supervised, $assessment->delivery_mode);
     }
 
-    public function test_assessment_has_file_uploads_when_max_files_positive(): void
+    public function test_question_type_file_requires_manual_grading(): void
     {
-        $assessment = $this->createAssessment(['withFileUploads']);
-
-        $this->assertTrue($assessment->hasFileUploads());
-        $this->assertSame(3, $assessment->max_files);
-        $this->assertSame(5120, $assessment->max_file_size);
+        $this->assertTrue(QuestionType::File->requiresManualGrading());
     }
 
-    public function test_assessment_no_file_uploads_by_default(): void
+    public function test_file_answer_stores_file_metadata(): void
     {
-        $this->assertFalse($this->sharedAssessment->hasFileUploads());
-    }
+        $question = Question::factory()->create([
+            'assessment_id' => $this->sharedAssessment->id,
+            'type' => 'file',
+        ]);
+        $assignment = $this->createAssignment();
 
-    public function test_assessment_allowed_extensions_array(): void
-    {
-        $assessment = $this->createAssessment([], ['allowed_extensions' => 'pdf, docx, zip']);
+        $answer = Answer::factory()->withFile()->create([
+            'assessment_assignment_id' => $assignment->id,
+            'question_id' => $question->id,
+        ]);
 
-        $this->assertSame(['pdf', 'docx', 'zip'], $assessment->getAllowedExtensionsArray());
-    }
-
-    public function test_assessment_allowed_extensions_empty_when_null(): void
-    {
-        $assessment = $this->createAssessment([], ['allowed_extensions' => null]);
-
-        $this->assertSame([], $assessment->getAllowedExtensionsArray());
+        $this->assertNotNull($answer->file_name);
+        $this->assertNotNull($answer->file_path);
+        $this->assertNotNull($answer->file_size);
+        $this->assertNotNull($answer->mime_type);
     }
 
     public function test_assessment_due_date_is_cast_to_datetime(): void
@@ -176,7 +174,6 @@ class DeliveryModeModelsTest extends TestCase
             'started_at' => now()->subHours(2),
             'submitted_at' => now()->subHour(),
             'graded_at' => now(),
-            'score' => 15.00,
         ]);
 
         $this->assertSame('graded', $assignment->status);
@@ -218,38 +215,55 @@ class DeliveryModeModelsTest extends TestCase
         $this->assertNull($inProgress->first()->submitted_at);
     }
 
-    public function test_assignment_has_attachments_relation(): void
+    public function test_assignment_has_file_answers(): void
     {
+        $question = Question::factory()->create([
+            'assessment_id' => $this->sharedAssessment->id,
+            'type' => 'file',
+        ]);
         $assignment = $this->createAssignment();
-        AssignmentAttachment::factory()->count(2)->create([
+
+        Answer::factory()->withFile()->count(2)->create([
             'assessment_assignment_id' => $assignment->id,
+            'question_id' => $question->id,
         ]);
 
-        $this->assertCount(2, $assignment->attachments);
+        $this->assertCount(2, $assignment->answers);
     }
 
-    public function test_attachment_belongs_to_assignment(): void
+    public function test_file_answer_belongs_to_assignment(): void
     {
+        $question = Question::factory()->create([
+            'assessment_id' => $this->sharedAssessment->id,
+            'type' => 'file',
+        ]);
         $assignment = $this->createAssignment();
-        $attachment = AssignmentAttachment::factory()->create([
+
+        $answer = Answer::factory()->withFile()->create([
             'assessment_assignment_id' => $assignment->id,
+            'question_id' => $question->id,
         ]);
 
-        $this->assertTrue($attachment->assignment->is($assignment));
+        $this->assertTrue($answer->assessmentAssignment->is($assignment));
     }
 
-    public function test_attachment_factory_creates_valid_record(): void
+    public function test_answer_factory_creates_valid_file_record(): void
     {
+        $question = Question::factory()->create([
+            'assessment_id' => $this->sharedAssessment->id,
+            'type' => 'file',
+        ]);
         $assignment = $this->createAssignment();
-        $attachment = AssignmentAttachment::factory()->create([
+
+        $answer = Answer::factory()->withFile()->create([
             'assessment_assignment_id' => $assignment->id,
+            'question_id' => $question->id,
         ]);
 
-        $this->assertNotNull($attachment->file_name);
-        $this->assertNotNull($attachment->file_path);
-        $this->assertNotNull($attachment->file_size);
-        $this->assertNotNull($attachment->mime_type);
-        $this->assertNotNull($attachment->uploaded_at);
+        $this->assertNotNull($answer->file_name);
+        $this->assertNotNull($answer->file_path);
+        $this->assertNotNull($answer->file_size);
+        $this->assertNotNull($answer->mime_type);
     }
 
     public function test_examen_factory_defaults_to_supervised(): void
@@ -274,5 +288,67 @@ class DeliveryModeModelsTest extends TestCase
 
         $this->assertSame(DeliveryMode::Homework, $assessment->delivery_mode);
         $this->assertSame(AssessmentType::Practical, $assessment->type);
+    }
+
+    public function test_auto_score_is_null_when_not_submitted(): void
+    {
+        $assignment = $this->createAssignment(['submitted_at' => null]);
+
+        $this->assertNull($assignment->auto_score);
+    }
+
+    public function test_auto_score_returns_sum_of_answer_scores_after_submission(): void
+    {
+        $question = Question::factory()->create([
+            'assessment_id' => $this->sharedAssessment->id,
+            'type' => 'one_choice',
+            'points' => 10,
+        ]);
+
+        $assignment = $this->createAssignment(['submitted_at' => now()]);
+
+        Answer::factory()->create([
+            'assessment_assignment_id' => $assignment->id,
+            'question_id' => $question->id,
+            'score' => 7.5,
+        ]);
+
+        $assignment->refresh();
+
+        $this->assertEquals(7.5, $assignment->auto_score);
+    }
+
+    public function test_score_is_null_when_not_graded(): void
+    {
+        $assignment = $this->createAssignment([
+            'submitted_at' => now(),
+            'graded_at' => null,
+        ]);
+
+        $this->assertNull($assignment->score);
+    }
+
+    public function test_score_returns_sum_after_grading(): void
+    {
+        $question = Question::factory()->create([
+            'assessment_id' => $this->sharedAssessment->id,
+            'type' => 'one_choice',
+            'points' => 10,
+        ]);
+
+        $assignment = $this->createAssignment([
+            'submitted_at' => now()->subMinute(),
+            'graded_at' => now(),
+        ]);
+
+        Answer::factory()->create([
+            'assessment_assignment_id' => $assignment->id,
+            'question_id' => $question->id,
+            'score' => 8.0,
+        ]);
+
+        $assignment->refresh();
+
+        $this->assertEquals(8.0, $assignment->score);
     }
 }

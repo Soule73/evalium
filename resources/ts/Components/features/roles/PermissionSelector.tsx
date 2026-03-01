@@ -44,7 +44,7 @@ export function PermissionSelector({
                         color="secondary"
                         data-e2e="permission-select-all"
                     >
-                        {t('components.permission_selector.select_all')}
+                        {t('commons/table.select_all')}
                     </Button>
                     <Button
                         type="button"
@@ -54,7 +54,7 @@ export function PermissionSelector({
                         color="secondary"
                         data-e2e="permission-deselect-all"
                     >
-                        {t('components.permission_selector.deselect_all')}
+                        {t('commons/table.deselect_all')}
                     </Button>
                     {showSyncButton && onSync && (
                         <Button

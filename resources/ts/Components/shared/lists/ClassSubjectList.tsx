@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { type ClassSubject } from '@/types';
+import { type ClassSubject, type ClassModel, type Subject, type User } from '@/types';
 import { Badge } from '@evalium/ui';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
@@ -11,6 +11,9 @@ import type { PaginationType } from '@/types/datatable';
 interface ClassSubjectListProps {
     data: PaginationType<ClassSubject>;
     variant?: 'admin' | 'teacher';
+    classes?: ClassModel[];
+    subjects?: Subject[];
+    teachers?: User[];
     showClassColumn?: boolean;
     showTeacherColumn?: boolean;
     showAssessmentsColumn?: boolean;
@@ -29,6 +32,9 @@ interface ClassSubjectListProps {
 export function ClassSubjectList({
     data,
     variant = 'admin',
+    classes = [],
+    subjects = [],
+    teachers = [],
     showClassColumn = true,
     showTeacherColumn = true,
     showAssessmentsColumn = true,
@@ -46,21 +52,11 @@ export function ClassSubjectList({
                 {
                     key: 'class',
                     labelKey: 'admin_pages.class_subjects.class',
-                    render: (classSubject) => {
-                        const levelInfo = classSubject.class?.level
-                            ? `${classSubject.class.level.name} (${classSubject.class.level.description})`
-                            : '';
-                        return (
-                            <>
-                                <div className="font-medium text-gray-900">
-                                    {classSubject.class?.name}
-                                </div>
-                                {levelInfo && (
-                                    <div className="text-sm text-gray-500">{levelInfo}</div>
-                                )}
-                            </>
-                        );
-                    },
+                    render: (classSubject) => (
+                        <span className="font-medium text-gray-900">
+                            {classSubject.class?.display_name ?? classSubject.class?.name ?? '-'}
+                        </span>
+                    ),
                     conditional: () => showClassColumn,
                 },
 
@@ -117,7 +113,7 @@ export function ClassSubjectList({
 
                 {
                     key: 'status',
-                    labelKey: 'admin_pages.common.status',
+                    labelKey: 'commons/table.status',
                     render: (classSubject) => {
                         const isActive = !classSubject.valid_to;
                         return (
@@ -148,17 +144,23 @@ export function ClassSubjectList({
 
             actions: [
                 {
-                    labelKey: 'admin_pages.common.view',
+                    labelKey: 'commons/ui.view',
                     onClick: (classSubject: ClassSubject) => {
                         if (onView) {
                             onView(classSubject);
                         } else {
-                            router.visit(route('admin.class-subjects.show', classSubject.id));
+                            router.visit(
+                                route('admin.classes.subjects.show', {
+                                    class: classSubject.class_id,
+                                    class_subject: classSubject.id,
+                                }),
+                            );
                         }
                     },
                     color: 'secondary' as const,
                     variant: 'outline' as const,
-                    conditional: (_item: ClassSubject, v) => v === 'admin',
+                    conditional: (_item: ClassSubject, v) =>
+                        v === 'admin' || (v === 'teacher' && !!onView),
                 },
                 {
                     labelKey: 'teacher_class_pages.show.create_assessment',
@@ -171,8 +173,62 @@ export function ClassSubjectList({
                         v === 'teacher' && !!onCreateAssessment,
                 },
             ],
+            filters: [
+                {
+                    key: 'class_id',
+                    labelKey: 'admin_pages.class_subjects.class',
+                    type: 'select' as const,
+                    options: [
+                        { value: '', label: t('admin_pages.class_subjects.all_classes') },
+                        ...classes.map((c) => ({
+                            value: String(c.id),
+                            label: `${c.display_name ?? c.name}`,
+                        })),
+                    ],
+                    conditional: (v) => v === 'admin',
+                },
+                {
+                    key: 'subject_id',
+                    labelKey: 'admin_pages.class_subjects.subject',
+                    type: 'select' as const,
+                    options: [
+                        { value: '', label: t('admin_pages.class_subjects.all_subjects') },
+                        ...subjects.map((s) => ({ value: String(s.id), label: s.name })),
+                    ],
+                    conditional: (v) => v === 'admin',
+                },
+                {
+                    key: 'teacher_id',
+                    labelKey: 'admin_pages.class_subjects.teacher',
+                    type: 'select' as const,
+                    options: [
+                        { value: '', label: t('admin_pages.class_subjects.all_teachers') },
+                        ...teachers.map((teacher) => ({
+                            value: String(teacher.id),
+                            label: teacher.name,
+                        })),
+                    ],
+                    conditional: (v) => v === 'admin',
+                },
+                {
+                    key: 'include_archived',
+                    labelKey: 'admin_pages.class_subjects.include_archived',
+                    type: 'boolean' as const,
+                    conditional: (v) => v === 'admin',
+                },
+            ],
         }),
-        [showClassColumn, showTeacherColumn, showAssessmentsColumn, onView, onCreateAssessment, t],
+        [
+            showClassColumn,
+            showTeacherColumn,
+            showAssessmentsColumn,
+            onView,
+            onCreateAssessment,
+            classes,
+            subjects,
+            teachers,
+            t,
+        ],
     );
 
     return (

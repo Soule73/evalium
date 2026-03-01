@@ -1,15 +1,8 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { route } from 'ziggy-js';
 import axios from 'axios';
-import {
-    VIOLATION_TYPES,
-    applyConfigurableSecurityMeasures,
-    attachConfigurableEventListeners,
-    detachConfigurableEventListeners,
-    removeSecurityMeasures,
-} from '@/utils';
+import { ASSESSMENT_VIOLATION_TYPES } from '@/utils/assessment/take';
 import { getViolationTranslationKey } from '@/utils/assessment/take';
-import { useAssessmentConfig, isSecurityEnabled, isFeatureEnabled } from '../useAssessmentConfig';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useTranslations } from '@/hooks/shared/useTranslations';
@@ -32,8 +25,6 @@ export function useAssessmentSecurityViolation({
             })),
         );
 
-    const assessmentConfig = useAssessmentConfig();
-    const securityEnabled = isSecurityEnabled(assessmentConfig);
     const { t } = useTranslations();
 
     const getViolationLabel = useCallback(
@@ -43,29 +34,6 @@ export function useAssessmentSecurityViolation({
         },
         [t],
     );
-
-    useEffect(() => {
-        if (!securityEnabled) {
-            return;
-        }
-
-        const securityConfig = {
-            devToolsDetection: isFeatureEnabled(assessmentConfig, 'devToolsDetection'),
-            copyPastePrevention: isFeatureEnabled(assessmentConfig, 'copyPastePrevention'),
-            contextMenuDisabled: isFeatureEnabled(assessmentConfig, 'contextMenuDisabled'),
-            printPrevention: isFeatureEnabled(assessmentConfig, 'printPrevention'),
-            tabSwitchDetection: isFeatureEnabled(assessmentConfig, 'tabSwitchDetection'),
-        };
-
-        const handlers = applyConfigurableSecurityMeasures(securityConfig);
-
-        attachConfigurableEventListeners(handlers, securityConfig);
-
-        return () => {
-            detachConfigurableEventListeners(handlers, securityConfig);
-            removeSecurityMeasures();
-        };
-    }, [securityEnabled, assessmentConfig]);
 
     const terminateAssessmentForViolation = useCallback(
         async (violationType: string, answers: Record<number, string | number | number[]>) => {
@@ -92,7 +60,10 @@ export function useAssessmentSecurityViolation({
 
     const handleViolation = useCallback(
         (type: string, answers: Record<number, string | number | number[]>) => {
-            if (type === VIOLATION_TYPES.TAB_SWITCH || type === VIOLATION_TYPES.FULLSCREEN_EXIT) {
+            if (
+                type === ASSESSMENT_VIOLATION_TYPES.TAB_SWITCH ||
+                type === ASSESSMENT_VIOLATION_TYPES.FULLSCREEN_EXIT
+            ) {
                 terminateAssessmentForViolation(type, answers);
             }
         },

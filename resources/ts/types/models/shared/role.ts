@@ -6,4 +6,5 @@ export interface Role {
     updated_at: string;
     permissions?: Array<{ id: number; name: string }>;
     permissions_count?: number;
+    is_editable?: boolean;
 }

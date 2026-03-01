@@ -2,7 +2,23 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Schedule::command('assessment:materialise-assignments')
+    ->everyThirtyMinutes()
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('assessment:auto-submit-expired')
+    ->everyFiveMinutes()
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('notifications:send-reminders')
+    ->everyFiveMinutes()
+    ->withoutOverlapping()
+    ->runInBackground();

@@ -8,6 +8,7 @@ export interface Role {
     name: string;
     permissions?: Permission[];
     permissions_count?: number;
+    is_editable?: boolean;
 }
 
 export interface GroupedPermissions {

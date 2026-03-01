@@ -4,8 +4,18 @@ import { useShallow } from 'zustand/react/shallow';
 import { type QuestionFormData, type ChoiceFormData, type QuestionType } from '@/types';
 import { useAssessmentFormStore } from '@/stores';
 import { getQuestionTypeIcon as getIcon } from '@/utils/assessment';
+import { useTranslations } from '@/hooks/shared/useTranslations';
+import { useConfirmationModal } from '@/hooks/features/shared/useConfirmationModal';
+
+interface ConfirmationData {
+    type: 'question' | 'choice';
+    title: string;
+    message: string;
+    onConfirm: () => void;
+}
 
 export const useQuestionsManager = () => {
+    const { t } = useTranslations();
     const [showAddDropdown, setShowAddDropdown] = useState(false);
     const [collapsedQuestions, setCollapsedQuestions] = useState<Set<string>>(new Set());
 
@@ -45,19 +55,7 @@ export const useQuestionsManager = () => {
         })),
     );
 
-    const [confirmationModal, setConfirmationModal] = useState<{
-        isOpen: boolean;
-        type: 'question' | 'choice';
-        title: string;
-        message: string;
-        onConfirm: () => void;
-    }>({
-        isOpen: false,
-        type: 'question',
-        title: '',
-        message: '',
-        onConfirm: () => {},
-    });
+    const confirmationModal = useConfirmationModal<ConfirmationData>();
 
     const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
@@ -73,18 +71,18 @@ export const useQuestionsManager = () => {
 
     const handleRequestQuestionDeletion = useCallback(
         (index: number, question: QuestionFormData) => {
-            setConfirmationModal({
-                isOpen: true,
+            confirmationModal.openModal({
                 type: 'question',
-                title: 'Confirmer la suppression',
-                message: `Êtes-vous sûr de vouloir supprimer cette question ?`,
+                title: t('components.questions_manager.confirm_delete_title'),
+                message: t('components.questions_manager.confirm_delete_question_message'),
                 onConfirm: () => {
                     confirmQuestionDeletion(index, question);
-                    setConfirmationModal((prev) => ({ ...prev, isOpen: false }));
+                    confirmationModal.closeModal();
                 },
             });
         },
-        [confirmQuestionDeletion],
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [confirmQuestionDeletion, confirmationModal],
     );
 
     const confirmChoiceDeletion = useCallback(
@@ -115,18 +113,18 @@ export const useQuestionsManager = () => {
             question: QuestionFormData,
             choice: ChoiceFormData,
         ) => {
-            setConfirmationModal({
-                isOpen: true,
+            confirmationModal.openModal({
                 type: 'choice',
-                title: 'Confirmer la suppression',
-                message: `Êtes-vous sûr de vouloir supprimer ce choix ?`,
+                title: t('components.questions_manager.confirm_delete_title'),
+                message: t('components.questions_manager.confirm_delete_choice_message'),
                 onConfirm: () => {
                     confirmChoiceDeletion(questionIndex, choiceIndex, question, choice);
-                    setConfirmationModal((prev) => ({ ...prev, isOpen: false }));
+                    confirmationModal.closeModal();
                 },
             });
         },
-        [confirmChoiceDeletion],
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [confirmChoiceDeletion, confirmationModal],
     );
 
     const handleDragEnd = useCallback(
@@ -230,9 +228,12 @@ export const useQuestionsManager = () => {
             getDeletedQuestionsCount,
             getDeletedChoicesCount,
         },
-        confirmationModal,
+        confirmationModal: {
+            isOpen: confirmationModal.isOpen,
+            data: confirmationModal.data,
+            closeModal: confirmationModal.closeModal,
+        },
         historyModalOpen,
         setHistoryModalOpen,
-        setConfirmationModal,
     };
 };

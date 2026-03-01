@@ -28,4 +28,14 @@ class QuestionFactory extends Factory
             'order_index' => $this->faker->numberBetween(1, 10),
         ];
     }
+
+    /**
+     * Question requiring a file upload as the student's answer.
+     */
+    public function fileType(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'file',
+        ]);
+    }
 }

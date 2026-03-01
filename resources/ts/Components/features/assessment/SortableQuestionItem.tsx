@@ -5,6 +5,7 @@ import {
     ChevronDownIcon,
     ChevronRightIcon,
     Bars3Icon,
+    PaperClipIcon,
 } from '@heroicons/react/24/outline';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -183,6 +184,20 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
                         error={errors[`questions.${index}.content`]}
                     />
 
+                    {question.type === 'file' && (
+                        <div className="rounded-lg bg-orange-50 border border-orange-200 p-4 flex items-start space-x-3">
+                            <PaperClipIcon className="h-5 w-5 text-orange-500 mt-0.5 shrink-0" />
+                            <div>
+                                <p className="text-sm font-medium text-orange-800">
+                                    {t('components.question_item.file_upload_info_title')}
+                                </p>
+                                <p className="text-sm text-orange-700 mt-1">
+                                    {t('components.question_item.file_upload_info_subtitle')}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
                     {(question.type === 'multiple' ||
                         question.type === 'one_choice' ||
                         question.type === 'boolean') && (
@@ -211,37 +226,16 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
 
                             <div className="space-y-3">
                                 {question.choices.map((choice, choiceIndex) =>
-                                    question.type === 'multiple' ? (
-                                        <QuestionMultipleItem
+                                    question.type === 'multiple' ||
+                                    question.type === 'one_choice' ? (
+                                        <QuestionChoiceItem
                                             key={choice.id || `choice-${choiceIndex}`}
                                             choice={choice}
                                             index={index}
                                             choiceIndex={choiceIndex}
-                                            onUpdateChoice={onUpdateChoice}
-                                            onRemoveChoice={onRemoveChoice}
-                                            showDeleteButton={question.choices.length > 2}
-                                            error={
-                                                errors[
-                                                    `questions.${index}.choices.${choiceIndex}.content`
-                                                ]
+                                            inputType={
+                                                question.type === 'multiple' ? 'checkbox' : 'radio'
                                             }
-                                            isMarkdownMode={
-                                                choiceStates[choiceIndex]?.isMarkdownMode || false
-                                            }
-                                            showPreview={
-                                                choiceStates[choiceIndex]?.showPreview || false
-                                            }
-                                            onToggleMarkdownMode={() =>
-                                                toggleChoiceMarkdownMode(choiceIndex)
-                                            }
-                                            onTogglePreview={() => toggleChoicePreview(choiceIndex)}
-                                        />
-                                    ) : question.type === 'one_choice' ? (
-                                        <QuestionSingleItem
-                                            key={choice.id || `choice-${choiceIndex}`}
-                                            choice={choice}
-                                            index={index}
-                                            choiceIndex={choiceIndex}
                                             onUpdateChoice={onUpdateChoice}
                                             onRemoveChoice={onRemoveChoice}
                                             showDeleteButton={question.choices.length > 2}
@@ -287,10 +281,11 @@ const SortableQuestion: React.FC<SortableQuestionItemProps> = ({
     );
 };
 
-interface QuestionMultipleItemProps {
+interface QuestionChoiceItemProps {
     choice: ChoiceFormData;
     index: number;
     choiceIndex: number;
+    inputType: 'checkbox' | 'radio';
     showDeleteButton?: boolean;
     error: string | undefined;
     isMarkdownMode?: boolean;
@@ -306,10 +301,11 @@ interface QuestionMultipleItemProps {
     onRemoveChoice: (questionIndex: number, choiceIndex: number) => void;
 }
 
-const QuestionMultipleItem: React.FC<QuestionMultipleItemProps> = ({
+const QuestionChoiceItem: React.FC<QuestionChoiceItemProps> = ({
     choice,
     index,
     choiceIndex,
+    inputType,
     onUpdateChoice,
     showDeleteButton = true,
     onToggleMarkdownMode,
@@ -321,19 +317,6 @@ const QuestionMultipleItem: React.FC<QuestionMultipleItemProps> = ({
 }) => {
     const { t } = useTranslations();
 
-    const translations = {
-        placeholders: t('components.choice_editor.placeholders'),
-        simple: t('components.choice_editor.simple'),
-        markdown: t('components.choice_editor.markdown'),
-        preview: t('components.choice_editor.preview'),
-        hide: t('components.choice_editor.hide'),
-        previewLabel: t('components.choice_editor.preview_label'),
-        noContent: t('components.choice_editor.no_content'),
-        switchSimple: t('components.choice_editor.switch_simple'),
-        switchMarkdown: t('components.choice_editor.switch_markdown'),
-        showPreview: t('components.choice_editor.show_preview'),
-        hidePreview: t('components.choice_editor.hide_preview'),
-    };
     return (
         <div
             key={choice.id || `choice-${choiceIndex}`}
@@ -342,87 +325,8 @@ const QuestionMultipleItem: React.FC<QuestionMultipleItemProps> = ({
             <Checkbox
                 checked={choice.is_correct}
                 onChange={(e) => onUpdateChoice(index, choiceIndex, 'is_correct', e.target.checked)}
-                type="checkbox"
-                className="shrink-0"
-            />
-            <ChoiceEditor
-                key={`choice-editor-${index}-${choiceIndex}-${choice.id || choiceIndex}`}
-                value={choice.content}
-                onChange={(value) => onUpdateChoice(index, choiceIndex, 'content', value)}
-                required
-                error={error}
-                className="flex-1"
-                isMarkdownMode={isMarkdownMode || false}
-                showPreview={showPreview || false}
-                onToggleMarkdownMode={onToggleMarkdownMode}
-                onTogglePreview={onTogglePreview}
-                placeholder={translations.placeholders}
-                simpleModeLabel={translations.simple}
-                markdownModeLabel={translations.markdown}
-                previewLabel={translations.preview}
-                hideLabel={translations.hide}
-                previewHeaderLabel={translations.previewLabel}
-                noContentLabel={translations.noContent}
-                switchToSimpleTitle={translations.switchSimple}
-                switchToMarkdownTitle={translations.switchMarkdown}
-                showPreviewTitle={translations.showPreview}
-                hidePreviewTitle={translations.hidePreview}
-            />
-
-            {showDeleteButton && (
-                <button
-                    type="button"
-                    onClick={() => onRemoveChoice(index, choiceIndex)}
-                    className="p-1 cursor-pointer text-red-400 hover:text-red-600 transition-colors"
-                >
-                    <TrashIcon className="h-4 w-4" />
-                </button>
-            )}
-        </div>
-    );
-};
-
-interface QuestionSingleItemProps {
-    choice: ChoiceFormData;
-    index: number;
-    choiceIndex: number;
-    showDeleteButton?: boolean;
-    error: string | undefined;
-    isMarkdownMode?: boolean;
-    showPreview?: boolean;
-    onToggleMarkdownMode?: () => void;
-    onTogglePreview?: () => void;
-    onUpdateChoice: (
-        questionIndex: number,
-        choiceIndex: number,
-        field: keyof ChoiceFormData,
-        value: ChoiceFormData[keyof ChoiceFormData],
-    ) => void;
-    onRemoveChoice: (questionIndex: number, choiceIndex: number) => void;
-}
-
-const QuestionSingleItem: React.FC<QuestionSingleItemProps> = ({
-    choice,
-    index,
-    choiceIndex,
-    onUpdateChoice,
-    showDeleteButton = true,
-    error,
-    isMarkdownMode,
-    showPreview,
-    onToggleMarkdownMode,
-    onTogglePreview,
-    onRemoveChoice,
-}) => {
-    const { t } = useTranslations();
-
-    return (
-        <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <Checkbox
-                checked={choice.is_correct}
-                onChange={(e) => onUpdateChoice(index, choiceIndex, 'is_correct', e.target.checked)}
-                type="radio"
-                name={`question_${index}_correct`}
+                type={inputType}
+                {...(inputType === 'radio' ? { name: `question_${index}_correct` } : {})}
                 className="shrink-0"
             />
             <ChoiceEditor
@@ -437,16 +341,18 @@ const QuestionSingleItem: React.FC<QuestionSingleItemProps> = ({
                 onToggleMarkdownMode={onToggleMarkdownMode}
                 onTogglePreview={onTogglePreview}
                 placeholder={t('components.choice_editor.placeholders')}
-                simpleModeLabel={t('components.choice_editor.simple')}
-                markdownModeLabel={t('components.choice_editor.markdown')}
-                previewLabel={t('components.choice_editor.preview')}
-                hideLabel={t('components.choice_editor.hide')}
-                previewHeaderLabel={t('components.choice_editor.preview_label')}
-                noContentLabel={t('components.choice_editor.no_content')}
-                switchToSimpleTitle={t('components.choice_editor.switch_simple')}
-                switchToMarkdownTitle={t('components.choice_editor.switch_markdown')}
-                showPreviewTitle={t('components.choice_editor.show_preview')}
-                hidePreviewTitle={t('components.choice_editor.hide_preview')}
+                labels={{
+                    simpleMode: t('components.choice_editor.simple'),
+                    markdownMode: t('components.choice_editor.markdown'),
+                    preview: t('components.choice_editor.preview'),
+                    hide: t('components.choice_editor.hide'),
+                    previewHeader: t('components.choice_editor.preview_label'),
+                    noContent: t('components.choice_editor.no_content'),
+                    switchToSimpleTitle: t('components.choice_editor.switch_simple'),
+                    switchToMarkdownTitle: t('components.choice_editor.switch_markdown'),
+                    showPreviewTitle: t('components.choice_editor.show_preview'),
+                    hidePreviewTitle: t('components.choice_editor.hide_preview'),
+                }}
             />
 
             {showDeleteButton && (
@@ -514,6 +420,33 @@ const QuestionBooleanItem: React.FC<QuestionBooleanItemProps> = ({
     );
 };
 
+/**
+ * Shallow comparison for ChoiceFormData arrays to avoid JSON.stringify overhead.
+ */
+const areChoicesEqual = (a?: ChoiceFormData[], b?: ChoiceFormData[]): boolean => {
+    if (a === b) return true;
+    if (!a || !b || a.length !== b.length) return false;
+    return a.every(
+        (c, i) =>
+            c.id === b[i].id &&
+            c.content === b[i].content &&
+            c.is_correct === b[i].is_correct &&
+            c.order_index === b[i].order_index,
+    );
+};
+
+/**
+ * Shallow comparison for flat string-keyed error records.
+ */
+const areErrorsEqual = (a?: Record<string, string>, b?: Record<string, string>): boolean => {
+    if (a === b) return true;
+    if (!a || !b) return a === b;
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+    if (keysA.length !== keysB.length) return false;
+    return keysA.every((k) => a[k] === b[k]);
+};
+
 export const SortableQuestionItem = React.memo(SortableQuestion, (prevProps, nextProps) => {
     return (
         prevProps.question.id === nextProps.question.id &&
@@ -522,7 +455,7 @@ export const SortableQuestionItem = React.memo(SortableQuestion, (prevProps, nex
         prevProps.question.points === nextProps.question.points &&
         prevProps.isCollapsed === nextProps.isCollapsed &&
         prevProps.index === nextProps.index &&
-        JSON.stringify(prevProps.question.choices) === JSON.stringify(nextProps.question.choices) &&
-        JSON.stringify(prevProps.errors) === JSON.stringify(nextProps.errors)
+        areChoicesEqual(prevProps.question.choices, nextProps.question.choices) &&
+        areErrorsEqual(prevProps.errors, nextProps.errors)
     );
 });

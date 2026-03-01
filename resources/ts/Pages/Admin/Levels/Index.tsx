@@ -5,7 +5,7 @@ import { PlusIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, ConfirmationModal, Section } from '@/Components';
-import { useListLevels } from '@/hooks';
+import { useListLevels } from '@/hooks/features/levels';
 import { type Level } from '@/types';
 import { LevelList } from '@/Components/shared/lists';
 
@@ -34,8 +34,8 @@ export default function LevelIndex({ levels }: Props) {
             subtitle: t('admin_pages.levels.subtitle'),
             create: t('admin_pages.levels.create'),
             deleteTitle: t('admin_pages.levels.delete_title'),
-            delete: t('admin_pages.common.delete'),
-            cancel: t('admin_pages.common.cancel'),
+            delete: t('commons/ui.delete'),
+            cancel: t('commons/ui.cancel'),
         }),
         [t],
     );
@@ -48,6 +48,7 @@ export default function LevelIndex({ levels }: Props) {
     return (
         <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.levels()}>
             <Section
+                variant="flat"
                 title={translations.title}
                 subtitle={translations.subtitle}
                 actions={

@@ -249,19 +249,13 @@ export function SubjectList({
                     labelKey:
                         variant === 'teacher'
                             ? 'teacher_subject_pages.index.view'
-                            : 'admin_pages.common.view',
+                            : 'commons/ui.view',
                     onClick: (item: SubjectItem) => {
                         if (variant === 'admin') {
                             const subject = item as Subject;
                             return (
                                 onView?.(subject) ||
                                 router.visit(route('admin.subjects.show', subject.id))
-                            );
-                        } else if (variant === 'teacher') {
-                            const subject = item as TeacherSubject;
-                            return (
-                                onView?.(subject) ||
-                                router.visit(route('teacher.subjects.show', subject.id))
                             );
                         } else {
                             const classSubject = item as ClassSubject;

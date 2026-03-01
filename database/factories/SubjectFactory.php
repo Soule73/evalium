@@ -18,22 +18,24 @@ class SubjectFactory extends Factory
     public function definition(): array
     {
         $subjects = [
-            'Mathématiques' => 'MATH',
-            'Physique' => 'PHYS',
-            'Chimie' => 'CHEM',
-            'Informatique' => 'INFO',
-            'Français' => 'FRAN',
-            'Anglais' => 'ANGL',
-            'Histoire' => 'HIST',
-            'Géographie' => 'GEOG',
+            'Mathematics' => 'MATH',
+            'Physics' => 'PHYS',
+            'Chemistry' => 'CHEM',
+            'Computer Science' => 'INFO',
+            'French' => 'FRAN',
+            'English' => 'ANGL',
+            'History' => 'HIST',
+            'Geography' => 'GEOG',
         ];
 
-        $subject = $this->faker->randomElement(array_keys($subjects));
+        $base = $this->faker->randomElement(array_keys($subjects));
+        $prefix = $subjects[$base];
+        $suffix = $this->faker->unique()->numerify('###');
 
         return [
             'level_id' => Level::factory(),
-            'name' => $subject,
-            'code' => $subjects[$subject].'-'.$this->faker->unique()->numerify('###'),
+            'name' => $base.' '.$suffix,
+            'code' => $prefix.'-'.$suffix,
             'description' => $this->faker->optional()->sentence(),
         ];
     }

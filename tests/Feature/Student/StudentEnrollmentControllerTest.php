@@ -103,7 +103,7 @@ class StudentEnrollmentControllerTest extends TestCase
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->classSubject->teacher_id,
             'coefficient' => 1,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         $question = \App\Models\Question::factory()->create([
@@ -133,7 +133,7 @@ class StudentEnrollmentControllerTest extends TestCase
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->classSubject->teacher_id,
             'coefficient' => 1,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         \App\Models\Question::factory()->create([

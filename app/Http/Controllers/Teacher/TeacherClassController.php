@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Teacher;
 
+use App\Contracts\Repositories\TeacherClassRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Models\ClassModel;
-use App\Services\Teacher\TeacherClassQueryService;
+use App\Models\Level;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,8 +16,32 @@ class TeacherClassController extends Controller
     use FiltersAcademicYear;
 
     public function __construct(
-        private readonly TeacherClassQueryService $classQueryService
+        private readonly TeacherClassRepositoryInterface $classQueryService
     ) {}
+
+    /**
+     * @return array<string, string|null>
+     */
+    private function buildRouteContext(): array
+    {
+        return [
+            'role' => 'teacher',
+            'indexRoute' => 'teacher.classes.index',
+            'showRoute' => 'teacher.classes.show',
+            'editRoute' => null,
+            'deleteRoute' => null,
+            'assessmentsRoute' => 'teacher.classes.assessments',
+            'subjectShowRoute' => null,
+            'studentShowRoute' => 'teacher.classes.students.show',
+            'studentIndexRoute' => 'teacher.classes.students.index',
+            'studentAssignmentsRoute' => 'teacher.classes.students.assignments',
+            'assessmentShowRoute' => 'teacher.classes.assessments.show',
+            'assessmentGradeRoute' => 'teacher.assessments.grade',
+            'assessmentReviewRoute' => 'teacher.assessments.review',
+            'assessmentSaveGradeRoute' => 'teacher.assessments.saveGrade',
+            'resultsRoute' => 'teacher.classes.results',
+        ];
+    }
 
     /**
      * Display all classes where the teacher is assigned.
@@ -35,9 +60,13 @@ class TeacherClassController extends Controller
             $perPage
         );
 
-        return Inertia::render('Teacher/Classes/Index', [
+        $levels = Level::where('is_active', true)->orderBy('order')->get(['id', 'name']);
+
+        return Inertia::render('Classes/Index', [
             'classes' => $paginatedClasses->withQueryString(),
             'filters' => $filters,
+            'levels' => $levels,
+            'routeContext' => $this->buildRouteContext(),
         ]);
     }
 
@@ -85,12 +114,13 @@ class TeacherClassController extends Controller
             'level',
         ]);
 
-        return Inertia::render('Teacher/Classes/Show', [
+        return Inertia::render('Classes/Show', [
             'class' => $class,
-            'subjects' => $classSubjects,
+            'classSubjects' => $classSubjects,
             'assessments' => $assessments,
             'students' => $students,
             'filters' => $filters,
+            'routeContext' => $this->buildRouteContext(),
         ]);
     }
 }

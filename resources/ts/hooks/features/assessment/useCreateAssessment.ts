@@ -4,6 +4,7 @@ import { route } from 'ziggy-js';
 import { useShallow } from 'zustand/react/shallow';
 import { type QuestionFormData, type AssessmentType, type DeliveryMode } from '@/types';
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
+import { getDeliveryModeDefaults } from '@/utils/assessment/utils';
 
 interface AssessmentCreateData {
     title: string;
@@ -13,13 +14,13 @@ interface AssessmentCreateData {
     due_date: string;
     delivery_mode: DeliveryMode;
     type: AssessmentType;
-    class_subject_id: number;
+    class_subject_id: number | null;
+    coefficient: number;
     is_published: boolean;
     shuffle_questions: boolean;
-    show_results_immediately: boolean;
+    release_results_after_grading: boolean;
     show_correct_answers: boolean;
     allow_late_submission: boolean;
-    one_question_per_page: boolean;
     questions: QuestionFormData[];
 }
 
@@ -40,13 +41,13 @@ export const useCreateAssessment = () => {
             due_date: '',
             delivery_mode: 'homework',
             type: 'homework',
-            class_subject_id: 0,
+            class_subject_id: null,
             is_published: false,
+            coefficient: 1,
             shuffle_questions: false,
-            show_results_immediately: true,
-            show_correct_answers: false,
+            release_results_after_grading: false,
+            show_correct_answers: true,
             allow_late_submission: false,
-            one_question_per_page: false,
             questions: [],
         });
 
@@ -55,7 +56,14 @@ export const useCreateAssessment = () => {
     }, [resetStore]);
 
     const handleFieldChange = (field: string, value: string | number | boolean) => {
-        setData(field as keyof AssessmentCreateData, value);
+        setData(field as keyof AssessmentCreateData, value as never);
+        if (field === 'delivery_mode') {
+            const defaults = getDeliveryModeDefaults(value as string);
+            setData('shuffle_questions', defaults.shuffle_questions);
+            if (defaults.duration !== undefined) {
+                setData('duration', defaults.duration);
+            }
+        }
     };
 
     const handleSubmit = (e: React.FormEvent) => {

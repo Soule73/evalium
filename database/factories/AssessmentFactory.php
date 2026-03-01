@@ -80,19 +80,24 @@ class AssessmentFactory extends Factory
         ]);
     }
 
-    public function withFileUploads(int $maxFiles = 3, int $maxSizeKb = 5120): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'max_files' => $maxFiles,
-            'max_file_size' => $maxSizeKb,
-            'allowed_extensions' => 'pdf,docx,zip',
-        ]);
-    }
-
     public function published(): static
     {
         return $this->state(fn (array $attributes) => [
-            'settings' => array_merge($attributes['settings'] ?? [], ['is_published' => true]),
+            'is_published' => true,
+        ]);
+    }
+
+    /**
+     * Assessment that allows file uploads (homework mode).
+     *
+     * File-upload constraints (max size, allowed extensions) are global,
+     * configured in config/assessment.php, not per-assessment columns.
+     */
+    public function withFileUploads(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'delivery_mode' => DeliveryMode::Homework,
+            'due_date' => $this->faker->dateTimeBetween('+1 day', '+2 weeks'),
         ]);
     }
 }

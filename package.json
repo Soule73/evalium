@@ -48,7 +48,7 @@
             "prettier --write"
         ],
         "*.php": [
-            "vendor/bin/pint"
+            "php vendor/bin/pint"
         ]
     },
     "devDependencies": {
@@ -98,6 +98,7 @@
         "react": "^19.1.1",
         "react-dom": "^19.1.1",
         "react-markdown": "^10.1.0",
+        "recharts": "^3.7.0",
         "rehype-katex": "^7.0.1",
         "rehype-prism-plus": "^2.0.1",
         "remark-gfm": "^4.0.1",

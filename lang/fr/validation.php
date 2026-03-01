@@ -177,7 +177,7 @@ return [
         'concept' => 'concept',
         'conditions' => 'conditions',
         'content' => 'contenu',
-        'contest' => 'contest',
+        'contest' => 'concours',
         'country' => 'pays',
         'cover' => 'couverture',
         'created_at' => 'date de création',
@@ -196,7 +196,7 @@ return [
         'duration' => 'durée',
         'email' => 'adresse e-mail',
         'end_date' => 'date de fin',
-        'end_time' => 'date de fin',
+        'end_time' => 'heure de fin',
         'exam_id' => 'ID de l\'examen',
         'excerpt' => 'extrait',
         'feedback' => 'commentaire',
@@ -290,7 +290,7 @@ return [
         'slug' => 'slug',
         'specialization' => 'spécialisation',
         'start_date' => 'date de début',
-        'start_time' => 'date de début',
+        'start_time' => 'heure de début',
         'started_at' => 'date de début',
         'state' => 'État',
         'status' => 'statut',
@@ -321,7 +321,7 @@ return [
     ],
     'custom' => [
         'class_subject_id' => [
-            'not_assigned' => 'Vous n\'etes pas assigne a enseigner cette combinaison classe-matiere.',
+            'not_assigned' => 'Vous n\'êtes pas assigné à enseigner cette combinaison classe-matière.',
         ],
         'end_time' => [
             'after' => 'Le champ :attribute doit être une date postérieure à la date de début.',
@@ -335,7 +335,7 @@ return [
             'min_correct_multiple' => 'Au moins 2 réponses correctes doivent être sélectionnées pour une question à choix multiples.',
         ],
         'score' => [
-            'exceeds_max' => 'Le score ne peut pas dépasser :max points pour cette question.',
+            'exceeds_max' => 'La note ne peut pas dépasser :max points pour cette question.',
         ],
         'start_time' => [
             'after' => 'Le champ :attribute doit être une date postérieure à maintenant.',

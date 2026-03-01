@@ -2,8 +2,39 @@
 
 namespace App\Providers;
 
+use App\Contracts\Repositories\AdminAssessmentRepositoryInterface;
+use App\Contracts\Repositories\ClassRepositoryInterface;
+use App\Contracts\Repositories\ClassSubjectRepositoryInterface;
+use App\Contracts\Repositories\EnrollmentRepositoryInterface;
+use App\Contracts\Repositories\LevelRepositoryInterface;
+use App\Contracts\Repositories\StudentEnrollmentRepositoryInterface;
+use App\Contracts\Repositories\SubjectRepositoryInterface;
+use App\Contracts\Repositories\TeacherAssessmentRepositoryInterface;
+use App\Contracts\Repositories\TeacherClassRepositoryInterface;
+use App\Contracts\Repositories\UserRepositoryInterface;
+use App\Contracts\Services\ClassServiceInterface;
+use App\Contracts\Services\ClassSubjectServiceInterface;
+use App\Contracts\Services\EnrollmentServiceInterface;
+use App\Contracts\Services\LevelServiceInterface;
+use App\Contracts\Services\SubjectServiceInterface;
+use App\Contracts\Services\UserManagementServiceInterface;
+use App\Repositories\Admin\AdminAssessmentRepository;
+use App\Repositories\Admin\ClassRepository;
+use App\Repositories\Admin\ClassSubjectRepository;
+use App\Repositories\Admin\EnrollmentRepository;
+use App\Repositories\Admin\LevelRepository;
+use App\Repositories\Admin\SubjectRepository;
+use App\Repositories\Admin\UserRepository;
+use App\Repositories\Student\StudentEnrollmentRepository;
+use App\Repositories\Teacher\TeacherAssessmentRepository;
+use App\Repositories\Teacher\TeacherClassRepository;
 use App\Services\Admin\AdminDashboardService;
+use App\Services\Admin\ClassService;
+use App\Services\Admin\EnrollmentService;
+use App\Services\Admin\LevelService;
+use App\Services\Admin\SubjectService;
 use App\Services\Admin\UserManagementService;
+use App\Services\Core\ClassSubjectService;
 use App\Services\Core\Scoring\ScoringService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -37,7 +68,24 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\Core\ChoiceManagementService::class);
         $this->app->singleton(\App\Services\Core\QuestionDuplicationService::class);
         $this->app->bind(AdminDashboardService::class);
-        $this->app->bind(UserManagementService::class);
+
+        $this->app->bind(ClassRepositoryInterface::class, ClassRepository::class);
+        $this->app->bind(EnrollmentRepositoryInterface::class, EnrollmentRepository::class);
+        $this->app->bind(StudentEnrollmentRepositoryInterface::class, StudentEnrollmentRepository::class);
+        $this->app->bind(SubjectRepositoryInterface::class, SubjectRepository::class);
+        $this->app->bind(LevelRepositoryInterface::class, LevelRepository::class);
+        $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
+        $this->app->bind(ClassSubjectRepositoryInterface::class, ClassSubjectRepository::class);
+        $this->app->bind(AdminAssessmentRepositoryInterface::class, AdminAssessmentRepository::class);
+        $this->app->bind(TeacherAssessmentRepositoryInterface::class, TeacherAssessmentRepository::class);
+        $this->app->bind(TeacherClassRepositoryInterface::class, TeacherClassRepository::class);
+
+        $this->app->bind(ClassServiceInterface::class, ClassService::class);
+        $this->app->bind(EnrollmentServiceInterface::class, EnrollmentService::class);
+        $this->app->bind(SubjectServiceInterface::class, SubjectService::class);
+        $this->app->bind(LevelServiceInterface::class, LevelService::class);
+        $this->app->bind(UserManagementServiceInterface::class, UserManagementService::class);
+        $this->app->bind(ClassSubjectServiceInterface::class, ClassSubjectService::class);
     }
 
     /**

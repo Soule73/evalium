@@ -3,6 +3,7 @@
 namespace App\Services\Core;
 
 use App\Models\AcademicYear;
+use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
@@ -16,16 +17,16 @@ use Illuminate\Support\Facades\DB;
  * Grade Calculation Service - Implement double coefficient formula
  *
  * Single Responsibility: Calculate grades using:
- * - Note_Matière = Σ(coef_assessment × score) / Σ(coef_assessment)
- * - Moyenne_Annuelle = Σ(coef_subject × note_matière) / Σ(coef_subject)
+ * - SubjectGrade = Σ(coef_assessment × score) / Σ(coef_assessment)
+ * - AnnualAverage = Σ(coef_subject × subject_grade) / Σ(coef_subject)
  */
 class GradeCalculationService
 {
     /**
      * Calculate final grade for a student in a specific subject (class-subject)
      *
-     * Formula: Note_Matière = Σ(coefficient_assessment × note_normalisée) / Σ(coefficient_assessment)
-     * Where note_normalisée = (score / max_points) × 20
+     * Formula: SubjectGrade = Σ(coefficient_assessment × normalized_score) / Σ(coefficient_assessment)
+     * Where normalized_score = (score / max_points) × 20
      */
     public function calculateSubjectGrade(User $student, ClassSubject $classSubject): ?float
     {
@@ -35,24 +36,13 @@ class GradeCalculationService
             return null;
         }
 
-        $totalWeightedScore = 0;
-        $totalCoefficients = 0;
-
-        foreach ($assessmentGrades as $grade) {
-            if ($grade['max_points'] > 0) {
-                $normalizedScore = ($grade['score'] / $grade['max_points']) * 20;
-                $totalWeightedScore += $grade['coefficient'] * $normalizedScore;
-                $totalCoefficients += $grade['coefficient'];
-            }
-        }
-
-        return $totalCoefficients > 0 ? round($totalWeightedScore / $totalCoefficients, 2) : null;
+        return $this->computeWeightedGrade($assessmentGrades->toArray());
     }
 
     /**
      * Calculate annual average for a student across all subjects
      *
-     * Formula: Moyenne_Annuelle = Σ(coefficient_subject × note_matière) / Σ(coefficient_subject)
+     * Formula: AnnualAverage = Σ(coefficient_subject × subject_grade) / Σ(coefficient_subject)
      */
     public function calculateAnnualAverage(User $student, AcademicYear $academicYear): ?float
     {
@@ -83,6 +73,9 @@ class GradeCalculationService
         $classSubjects = ClassSubject::active()
             ->where('class_id', $class->id)
             ->with(['subject', 'teacher'])
+            ->withCount(['assessments as published_assessments_count' => function ($q) {
+                $q->where('is_published', true);
+            }])
             ->get();
 
         $classSubjectIds = $classSubjects->pluck('id');
@@ -91,20 +84,13 @@ class GradeCalculationService
             $query->whereIn('class_subject_id', $classSubjectIds);
         })
             ->forStudent($student)
+            ->withSum('answers', 'score')
             ->with(['assessment' => function ($query) {
-                $query->select('id', 'title', 'type', 'coefficient', 'class_subject_id', 'settings')
+                $query->select('id', 'title', 'type', 'coefficient', 'class_subject_id', 'is_published', 'settings')
                     ->withCount('questions');
             }, 'assessment.questions:id,assessment_id,points'])
             ->get()
             ->groupBy('assessment.class_subject_id');
-
-        $publishedAssessmentsBySubject = DB::table('assessments')
-            ->whereIn('class_subject_id', $classSubjectIds)
-            ->whereRaw("JSON_EXTRACT(settings, '$.is_published') = true")
-            ->whereNull('deleted_at')
-            ->select('class_subject_id', DB::raw('COUNT(*) as total'))
-            ->groupBy('class_subject_id')
-            ->pluck('total', 'class_subject_id');
 
         $subjectGrades = [];
         $totalWeightedGrade = 0;
@@ -117,17 +103,15 @@ class GradeCalculationService
             $completedCount = 0;
 
             if ($assignments->isNotEmpty()) {
-                $totalWeightedScore = 0;
-                $totalAssessmentCoefficients = 0;
+                $triplets = [];
 
                 foreach ($assignments as $assignment) {
                     if ($assignment->score !== null && $assignment->assessment) {
-                        $maxPoints = $assignment->assessment->questions->sum('points');
-                        if ($maxPoints > 0) {
-                            $normalizedScore = ($assignment->score / $maxPoints) * 20;
-                            $totalWeightedScore += $assignment->assessment->coefficient * $normalizedScore;
-                            $totalAssessmentCoefficients += $assignment->assessment->coefficient;
-                        }
+                        $triplets[] = [
+                            'score' => (float) $assignment->score,
+                            'max_points' => (float) $assignment->assessment->questions->sum('points'),
+                            'coefficient' => (float) $assignment->assessment->coefficient,
+                        ];
                     }
 
                     if ($assignment->submitted_at) {
@@ -135,12 +119,10 @@ class GradeCalculationService
                     }
                 }
 
-                if ($totalAssessmentCoefficients > 0) {
-                    $subjectGrade = round($totalWeightedScore / $totalAssessmentCoefficients, 2);
-                }
+                $subjectGrade = $this->computeWeightedGrade($triplets);
             }
 
-            $totalAssessments = $publishedAssessmentsBySubject->get($classSubject->id, 0);
+            $totalAssessments = $classSubject->published_assessments_count;
 
             $subjectGrades[] = [
                 'id' => $classSubject->id,
@@ -192,21 +174,20 @@ class GradeCalculationService
         foreach ($classSubjects as $classSubject) {
             $subjectGrade = null;
             $completedCount = 0;
-            $totalWeightedScore = 0;
-            $totalAssessmentCoefficients = 0;
+            $triplets = [];
 
-            foreach ($classSubject->assessments as $assessment) {
+            $publishedAssessments = $classSubject->assessments->filter(fn ($a) => $a->is_published);
+
+            foreach ($publishedAssessments as $assessment) {
                 $assignment = $assessment->assignments->first();
 
                 if ($assignment) {
                     if ($assignment->score !== null) {
-                        $maxPoints = $assessment->questions->sum('points');
-
-                        if ($maxPoints > 0) {
-                            $normalizedScore = ($assignment->score / $maxPoints) * 20;
-                            $totalWeightedScore += $assessment->coefficient * $normalizedScore;
-                            $totalAssessmentCoefficients += $assessment->coefficient;
-                        }
+                        $triplets[] = [
+                            'score' => (float) $assignment->score,
+                            'max_points' => (float) $assessment->questions->sum('points'),
+                            'coefficient' => (float) $assessment->coefficient,
+                        ];
                     }
 
                     if ($assignment->submitted_at) {
@@ -215,13 +196,9 @@ class GradeCalculationService
                 }
             }
 
-            if ($totalAssessmentCoefficients > 0) {
-                $subjectGrade = round($totalWeightedScore / $totalAssessmentCoefficients, 2);
-            }
+            $subjectGrade = $this->computeWeightedGrade($triplets);
 
-            $totalAssessments = $classSubject->assessments
-                ->filter(fn ($a) => $a->is_published)
-                ->count();
+            $totalAssessments = $publishedAssessments->count();
 
             $subjectGrades[] = [
                 'id' => $classSubject->id,
@@ -254,6 +231,32 @@ class GradeCalculationService
     }
 
     /**
+     * Canonical implementation of the weighted grade formula.
+     *
+     * SubjectGrade = Σ(coefficient × (score / max_points) × 20) / Σ(coefficient)
+     *
+     * All grade calculations in this service MUST delegate to this method.
+     * Do NOT re-implement this formula elsewhere in this class.
+     *
+     * @param  array<int, array{score: float, max_points: float, coefficient: float}>  $triplets
+     */
+    private function computeWeightedGrade(array $triplets): ?float
+    {
+        $totalWeightedScore = 0.0;
+        $totalCoefficients = 0.0;
+
+        foreach ($triplets as $triplet) {
+            if ($triplet['max_points'] > 0) {
+                $normalized = ($triplet['score'] / $triplet['max_points']) * 20;
+                $totalWeightedScore += $triplet['coefficient'] * $normalized;
+                $totalCoefficients += $triplet['coefficient'];
+            }
+        }
+
+        return $totalCoefficients > 0 ? round($totalWeightedScore / $totalCoefficients, 2) : null;
+    }
+
+    /**
      * Get assessment grades for a student in a class-subject
      */
     private function getAssessmentGrades(User $student, ClassSubject $classSubject): Collection
@@ -262,7 +265,8 @@ class GradeCalculationService
             $query->where('class_subject_id', $classSubject->id);
         })
             ->forStudent($student)
-            ->whereNotNull('score')
+            ->whereNotNull('graded_at')
+            ->withSum('answers', 'score')
             ->with(['assessment.questions'])
             ->get()
             ->map(function ($assignment) {
@@ -370,18 +374,21 @@ class GradeCalculationService
 
         $gradeBreakdown = $this->getGradeBreakdown($student, $enrollment->class);
 
-        $assignmentsQuery = AssessmentAssignment::forStudent($student);
-        if ($academicYearId) {
-            $assignmentsQuery->whereHas('assessment.classSubject.class', function ($q) use ($academicYearId) {
-                $q->where('academic_year_id', $academicYearId);
-            });
-        }
-
-        $stats = $assignmentsQuery->selectRaw('
-            COUNT(*) as total_assessments,
-            SUM(CASE WHEN score IS NOT NULL THEN 1 ELSE 0 END) as graded_assessments,
-            SUM(CASE WHEN submitted_at IS NULL THEN 1 ELSE 0 END) as pending_assessments
-        ')->first();
+        $stats = DB::table('assessments as a')
+            ->join('class_subjects as cs', 'cs.id', '=', 'a.class_subject_id')
+            ->leftJoin('assessment_assignments as aa', function ($join) use ($enrollment) {
+                $join->on('aa.assessment_id', '=', 'a.id')
+                    ->where('aa.enrollment_id', '=', $enrollment->id);
+            })
+            ->where('cs.class_id', $enrollment->class_id)
+            ->where('a.is_published', true)
+            ->whereNull('a.deleted_at')
+            ->selectRaw('
+                COUNT(*) as total_assessments,
+                SUM(CASE WHEN aa.graded_at IS NOT NULL THEN 1 ELSE 0 END) as graded_assessments,
+                SUM(CASE WHEN aa.submitted_at IS NULL THEN 1 ELSE 0 END) as pending_assessments
+            ')
+            ->first();
 
         return [
             'overall_average' => $gradeBreakdown['annual_average'],
@@ -414,11 +421,11 @@ class GradeCalculationService
             });
         }
 
-        return $query->get()->map(function ($assignment) {
+        return $query->withSum('answers', 'score')->get()->map(function ($assignment) {
             $maxPoints = $assignment->assessment->questions->sum('points');
             $normalizedGrade = null;
 
-            if ($assignment->score !== null && $maxPoints > 0) {
+            if ($assignment->graded_at !== null && $maxPoints > 0) {
                 $normalizedGrade = round(($assignment->score / $maxPoints) * 20, 2);
             }
 
@@ -443,6 +450,10 @@ class GradeCalculationService
     /**
      * Get paginated assignments for an enrollment with optional filters.
      *
+     * Queries all assessments from the enrollment's class subjects (not just
+     * existing assignments), creating virtual AssessmentAssignment objects
+     * for assessments that haven't been started yet.
+     *
      * @param  Enrollment  $enrollment  The enrollment to query
      * @param  array  $filters  Optional filters (search, class_subject_id, status)
      * @param  int  $perPage  Items per page
@@ -450,35 +461,56 @@ class GradeCalculationService
      */
     public function getEnrollmentAssignments(Enrollment $enrollment, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = AssessmentAssignment::where('enrollment_id', $enrollment->id)
-            ->with([
-                'assessment.questions:id,assessment_id,points',
-                'assessment.classSubject.subject',
-                'assessment.classSubject.teacher',
-            ]);
+        $enrollment->loadMissing('class.classSubjects');
 
-        if (! empty($filters['class_subject_id'])) {
-            $query->whereHas('assessment', function ($q) use ($filters) {
-                $q->where('class_subject_id', $filters['class_subject_id']);
-            });
-        }
+        $classSubjectIds = $enrollment->class->classSubjects->pluck('id');
+
+        $assessmentsQuery = Assessment::whereIn('class_subject_id', $classSubjectIds)
+            ->with([
+                'questions:id,assessment_id,points',
+                'classSubject.subject',
+                'classSubject.teacher',
+            ])
+            ->when(! empty($filters['class_subject_id']), function ($query) use ($filters) {
+                $query->where('class_subject_id', $filters['class_subject_id']);
+            })
+            ->when(! empty($filters['search']), function ($query) use ($filters) {
+                $query->where('title', 'like', "%{$filters['search']}%");
+            })
+            ->latest('created_at');
+
+        $paginator = $assessmentsQuery->paginate($perPage)->withQueryString();
+
+        $assessmentItems = collect($paginator->items());
+
+        $existingAssignments = AssessmentAssignment::whereIn('assessment_id', $assessmentItems->pluck('id'))
+            ->where('enrollment_id', $enrollment->id)
+            ->get()
+            ->keyBy('assessment_id');
+
+        $assignments = $assessmentItems->map(function (Assessment $assessment) use ($enrollment, $existingAssignments) {
+            $assignment = $existingAssignments->get($assessment->id);
+
+            if (! $assignment) {
+                $assignment = new AssessmentAssignment([
+                    'assessment_id' => $assessment->id,
+                    'enrollment_id' => $enrollment->id,
+                ]);
+            }
+
+            $assignment->assessment = $assessment;
+
+            return $assignment;
+        });
 
         if (! empty($filters['status'])) {
-            match ($filters['status']) {
-                'graded' => $query->whereNotNull('graded_at'),
-                'submitted' => $query->whereNotNull('submitted_at')->whereNull('graded_at'),
-                'in_progress' => $query->whereNotNull('started_at')->whereNull('submitted_at'),
-                'not_submitted' => $query->whereNull('started_at'),
-                default => null,
-            };
+            $assignments = $assignments->filter(function (AssessmentAssignment $assignment) use ($filters) {
+                return $assignment->status === $filters['status'];
+            })->values();
         }
 
-        if (! empty($filters['search'])) {
-            $query->whereHas('assessment', function ($q) use ($filters) {
-                $q->where('title', 'like', "%{$filters['search']}%");
-            });
-        }
+        $paginator->setCollection($assignments);
 
-        return $query->latest('created_at')->paginate($perPage)->withQueryString();
+        return $paginator;
     }
 }

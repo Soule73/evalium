@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Contracts\Repositories\StudentEnrollmentRepositoryInterface;
+use App\Contracts\Services\EnrollmentServiceInterface;
 use App\Http\Controllers\Controller;
-use App\Services\Admin\EnrollmentService;
 use App\Services\Core\GradeCalculationService;
-use App\Services\Student\StudentEnrollmentQueryService;
+use App\Services\Student\StudentDashboardService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -17,9 +18,10 @@ class StudentEnrollmentController extends Controller
     use FiltersAcademicYear;
 
     public function __construct(
-        private readonly EnrollmentService $enrollmentService,
-        private readonly StudentEnrollmentQueryService $enrollmentQueryService,
-        private readonly GradeCalculationService $gradeCalculationService
+        private readonly EnrollmentServiceInterface $enrollmentService,
+        private readonly StudentEnrollmentRepositoryInterface $enrollmentQueryService,
+        private readonly GradeCalculationService $gradeCalculationService,
+        private readonly StudentDashboardService $studentDashboardService
     ) {}
 
     /**
@@ -71,6 +73,13 @@ class StudentEnrollmentController extends Controller
             'subjects' => $paginatedSubjects,
             'overallStats' => $overallStats,
             'filters' => $filters,
+            'chartData' => Inertia::defer(fn () => [
+                'subjectRadar' => $this->studentDashboardService->getSubjectRadarData(
+                    $student,
+                    $selectedYearId,
+                    $currentEnrollment
+                ),
+            ]),
         ]);
     }
 

@@ -2,13 +2,18 @@ import { type ReactNode } from 'react';
 import { type PaginationType } from '@/types/datatable';
 
 /**
- * Configuration for a column in an entity list
+ * Configuration for a column in an entity list.
+ *
+ * Use `variants` to declare which variants show this column (whitelist).
+ * Use `conditional` for dynamic logic that cannot be expressed as a static list.
+ * When both are absent the column is always visible.
  */
 export interface ColumnConfig<T> {
     key: string;
     labelKey: string;
     render: (item: T, variant?: EntityListVariant) => ReactNode;
     sortable?: boolean;
+    variants?: EntityListVariant[];
     conditional?: (variant: EntityListVariant) => boolean;
 }
 
@@ -31,9 +36,10 @@ export interface ActionConfig<T> {
 export interface FilterConfig {
     key: string;
     labelKey: string;
-    type: 'select' | 'text' | 'date' | 'daterange';
+    type: 'select' | 'text' | 'date' | 'daterange' | 'boolean';
     options?: Array<{ value: string | number; label: string }>;
     conditional?: (variant: EntityListVariant) => boolean;
+    trueValue?: string;
 }
 
 /**

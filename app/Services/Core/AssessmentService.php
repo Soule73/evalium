@@ -4,11 +4,15 @@ namespace App\Services\Core;
 
 use App\Enums\AssessmentType;
 use App\Enums\DeliveryMode;
+use App\Enums\EnrollmentStatus;
 use App\Exceptions\AssessmentException;
 use App\Exceptions\ValidationException;
 use App\Models\Assessment;
+use App\Models\AssessmentAssignment;
+use App\Notifications\AssessmentPublishedNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 /**
  * Assessment Service - Manage assessments (exams, devoirs, tp, etc.)
@@ -42,17 +46,13 @@ class AssessmentService
                 'duration_minutes' => $data['duration_minutes'] ?? null,
                 'scheduled_at' => $data['scheduled_at'] ?? null,
                 'due_date' => $data['due_date'] ?? null,
-                'max_file_size' => $data['max_file_size'] ?? null,
-                'allowed_extensions' => $data['allowed_extensions'] ?? null,
-                'max_files' => $data['max_files'] ?? 0,
             ]);
 
             $assessment->is_published = $data['is_published'] ?? false;
             $assessment->shuffle_questions = $data['shuffle_questions'] ?? false;
-            $assessment->show_results_immediately = $data['show_results_immediately'] ?? true;
+            $assessment->release_results_after_grading = $data['release_results_after_grading'] ?? false;
             $assessment->show_correct_answers = $data['show_correct_answers'] ?? false;
             $assessment->allow_late_submission = $data['allow_late_submission'] ?? false;
-            $assessment->one_question_per_page = $data['one_question_per_page'] ?? false;
             $assessment->save();
 
             if (isset($data['questions']) && is_array($data['questions'])) {
@@ -81,9 +81,6 @@ class AssessmentService
                 'duration_minutes',
                 'scheduled_at',
                 'due_date',
-                'max_file_size',
-                'allowed_extensions',
-                'max_files',
             ];
 
             $updateData = [];
@@ -105,17 +102,14 @@ class AssessmentService
             if (array_key_exists('shuffle_questions', $data)) {
                 $assessment->shuffle_questions = $data['shuffle_questions'];
             }
-            if (array_key_exists('show_results_immediately', $data)) {
-                $assessment->show_results_immediately = $data['show_results_immediately'];
+            if (array_key_exists('release_results_after_grading', $data)) {
+                $assessment->release_results_after_grading = $data['release_results_after_grading'];
             }
             if (array_key_exists('show_correct_answers', $data)) {
                 $assessment->show_correct_answers = $data['show_correct_answers'];
             }
             if (array_key_exists('allow_late_submission', $data)) {
                 $assessment->allow_late_submission = $data['allow_late_submission'];
-            }
-            if (array_key_exists('one_question_per_page', $data)) {
-                $assessment->one_question_per_page = $data['one_question_per_page'];
             }
             $assessment->save();
 
@@ -155,7 +149,17 @@ class AssessmentService
         $assessment->is_published = true;
         $assessment->save();
 
-        return $assessment->fresh();
+        $assessment->loadMissing('classSubject.class.enrollments.student');
+
+        $activeStudents = $assessment->classSubject?->class?->enrollments
+            ?->filter(fn ($e) => $e->status === EnrollmentStatus::Active)
+            ->map(fn ($e) => $e->student)
+            ->filter()
+            ->values() ?? collect();
+
+        Notification::send($activeStudents, new AssessmentPublishedNotification($assessment));
+
+        return $assessment->refresh();
     }
 
     /**
@@ -166,7 +170,7 @@ class AssessmentService
         $assessment->is_published = false;
         $assessment->save();
 
-        return $assessment->fresh();
+        return $assessment->refresh();
     }
 
     /**
@@ -188,6 +192,80 @@ class AssessmentService
 
             return $newAssessment->load(['questions.choices']);
         });
+    }
+
+    /**
+     * Determine whether grading is allowed for a given assignment.
+     *
+     * Extracted from the Assessment model to keep business logic out of Eloquent models.
+     *
+     * - submitted_at set           → allowed (normal grading flow)
+     * - submitted_at null + ended  → allowed with warning banner
+     * - submitted_at null + active → blocked (student still has time)
+     *
+     * When the assignment has no responses (answers) and grading is allowed,
+     * the state includes `no_responses: true` and `correction_locked: true`
+     * so the frontend can block manual scoring and offer reassignment.
+     *
+     * @return array{allowed: bool, reason: string, warning: string|null, no_responses: bool, correction_locked: bool, can_reassign: bool, reassign_reason: string|null}
+     */
+    public function resolveGradingState(Assessment $assessment, AssessmentAssignment $assignment): array
+    {
+        if ($assignment->submitted_at !== null) {
+            $noResponses = $assignment->hasNoResponses();
+
+            return [
+                'allowed' => true,
+                'reason' => 'submitted',
+                'warning' => null,
+                'no_responses' => $noResponses,
+                'correction_locked' => $noResponses,
+                ...$this->resolveReassignState($assignment, $assessment, $noResponses),
+            ];
+        }
+
+        if ($assessment->hasEnded()) {
+            $noResponses = $assignment->hasNoResponses();
+            $reassignState = $this->resolveReassignState($assignment, $assessment, $noResponses);
+
+            return [
+                'allowed' => true,
+                'reason' => 'not_submitted_assessment_ended',
+                'warning' => 'grading_without_submission',
+                'no_responses' => $noResponses,
+                'correction_locked' => $noResponses,
+                ...$reassignState,
+            ];
+        }
+
+        return [
+            'allowed' => false,
+            'reason' => 'assessment_still_running',
+            'warning' => null,
+            'no_responses' => false,
+            'correction_locked' => false,
+            'can_reassign' => false,
+            'reassign_reason' => null,
+        ];
+    }
+
+    /**
+     * Resolve reassignment eligibility for a given assignment.
+     *
+     * @return array{can_reassign: bool, reassign_reason: string|null}
+     */
+    private function resolveReassignState(AssessmentAssignment $assignment, Assessment $assessment, bool $noResponses): array
+    {
+        if (! $noResponses) {
+            return ['can_reassign' => false, 'reassign_reason' => 'has_responses'];
+        }
+
+        $result = $assignment->canBeReassigned($assessment);
+
+        return [
+            'can_reassign' => $result['can_reassign'],
+            'reassign_reason' => $result['reason'],
+        ];
     }
 
     /**

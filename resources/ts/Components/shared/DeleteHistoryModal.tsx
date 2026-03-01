@@ -42,8 +42,8 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
         choicesTab: t('components.delete_history_modal.choices_tab'),
         noQuestions: t('components.delete_history_modal.no_questions'),
         noChoices: t('components.delete_history_modal.no_choices'),
-        restore: t('components.delete_history_modal.restore'),
-        close: t('components.delete_history_modal.close'),
+        restore: t('commons/ui.restore'),
+        close: t('commons/ui.close'),
         deletedOn: t('components.delete_history_modal.deleted_on'),
         point: t('components.delete_history_modal.point'),
         points: t('components.delete_history_modal.points'),
@@ -54,6 +54,7 @@ const DeleteHistoryModal: React.FC<DeleteHistoryModalProps> = ({
             one_choice: t('formatters.question_type_one_choice'),
             boolean: t('formatters.question_type_boolean'),
             text: t('formatters.question_type_text'),
+            file: t('formatters.question_type_file'),
         },
     };
 

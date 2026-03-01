@@ -34,6 +34,8 @@ return [
     'role_cannot_rename_system' => 'System roles cannot be renamed',
     'role_cannot_delete_system' => 'System roles cannot be deleted',
     'role_cannot_delete_assigned' => 'Cannot delete this role as it is assigned to users',
+    'role_permissions_locked' => 'The permissions of this role cannot be modified',
+    'role_required_for_update' => 'A role is required to update this user',
     'permissions_updated' => 'Permissions updated successfully',
     'permission_created' => 'Permission created successfully',
     'permission_deleted' => 'Permission deleted successfully',
@@ -65,11 +67,20 @@ return [
     'enrollment_deleted' => 'Enrollment deleted successfully',
     'enrollment_reactivated' => 'Enrollment reactivated successfully',
     'enrollment_not_in_selected_year' => 'This enrollment does not belong to the selected academic year',
+    'enrollment_class_full' => 'This class is full',
+    'enrollment_class_full_slots' => 'This class has only :slots available slot(s)',
+    'enrollment_invalid_student_role' => 'The user must have the student role to be enrolled',
+    'enrollment_invalid_status' => 'Only withdrawn enrollments can be reactivated (current status: :status)',
+    'enrollment_target_class_full' => 'The target class is full',
+    'enrollment_has_assignments' => 'Cannot delete this enrollment as it has assessment assignments',
     'student_transferred' => 'Student transferred successfully',
     'student_withdrawn' => 'Student withdrawn successfully',
 
     // Classes
     'class_not_in_selected_year' => 'This class does not belong to the selected academic year',
+    'class_has_enrolled_students' => 'Cannot delete this class as it has enrolled students',
+    'class_has_subject_assignments' => 'Cannot delete this class as it has subject assignments',
+    'class_duplicate_name' => 'A class with this name already exists for this level and academic year',
 
     // Assessments
     'assessment_created' => 'Assessment created successfully',
@@ -80,7 +91,11 @@ return [
     'assessment_unpublished' => 'Assessment unpublished successfully',
     'assessment_submitted' => 'Assessment submitted successfully',
     'assessment_must_start_before_submit' => 'You must start the assessment before submitting it',
-    'answers_saved' => 'Answers saved',
+    'assessment_invalid_coefficient' => 'The assessment coefficient must be greater than 0',
+    'assessment_invalid_duration' => 'The assessment duration must be greater than 0',
+    'assessment_invalid_type' => 'Invalid assessment type: :type',
+    'assessment_has_assignments' => 'Cannot delete this assessment as it has existing student assignments',
+    'answers_saved' => 'Answers saved successfully',
     'error_saving_answers' => 'Error saving answers',
     'security_violation_processed' => 'Security violation processed',
     'security_violations_not_applicable' => 'Security violations are not applicable for this assessment mode',
@@ -92,10 +107,10 @@ return [
     'unable_to_remove_class' => 'Unable to remove assessment from this class',
 
     // Corrections
-    'scores_saved' => 'Correction saved successfully! :updated_answers answer(s) updated. Total score: :total_score points',
+    'scores_saved' => 'Correction saved successfully! :updated_answers answer(s) updated. Total points: :total_score',
     'error_saving_correction' => 'Error saving correction',
-    'score_updated' => 'Score updated successfully',
-    'error_updating_score' => 'Error updating score',
+    'score_updated' => 'Grade updated successfully',
+    'error_updating_score' => 'Error updating grade',
 
     // Classes
     'class_created' => 'Class created successfully',
@@ -106,8 +121,13 @@ return [
     'class_subject_created' => 'Subject assigned to class successfully',
     'class_subject_deleted' => 'Subject removed from class successfully',
     'class_subject_has_assessments' => 'Cannot delete: this assignment has assessments',
+    'class_subject_invalid_coefficient' => 'The coefficient must be greater than 0',
+    'class_subject_level_mismatch' => 'The subject level must match the class level',
+    'class_subject_already_active' => 'An active assignment already exists for this class and subject',
+    'class_subject_already_terminated' => 'This assignment has already been terminated',
     'class_and_subject_required' => 'Class and subject are required',
     'teacher_replaced' => 'Teacher replaced successfully',
+    'teacher_has_active_assignments' => 'This teacher is assigned to classes in the current academic year and cannot be modified.',
     'coefficient_updated' => 'Coefficient updated successfully',
     'assignment_terminated' => 'Assignment terminated successfully',
 
@@ -116,6 +136,7 @@ return [
     'subject_updated' => 'Subject updated successfully',
     'subject_deleted' => 'Subject deleted successfully',
     'subject_has_class_subjects' => 'Cannot delete: this subject is assigned to classes',
+    'subject_not_found' => 'Subject not found',
 
     // Academic Years
     'academic_year_created' => 'Academic year created successfully',
@@ -123,12 +144,17 @@ return [
     'academic_year_deleted' => 'Academic year deleted successfully',
     'academic_year_set_current' => 'Academic year set as current successfully',
     'academic_year_archived' => 'Academic year archived successfully',
+    'future_year_already_exists' => 'A future academic year already exists. Only one future year can be created at a time.',
+    'academic_year_cannot_delete_current' => 'Cannot delete the current academic year',
+    'academic_year_cannot_delete_with_classes' => 'Cannot delete an academic year that has existing classes',
     'resource_wrong_academic_year' => 'This resource does not belong to the selected academic year',
 
     // Grading
     'grade_saved' => 'Grade saved successfully',
+    'grade_blocked_assessment_running' => 'Cannot grade: the student has not submitted and the assessment is still in progress.',
     'assessment_already_submitted' => 'This assessment has already been submitted',
     'results_not_available_yet' => 'Results are not available until the assessment has been graded',
+    'results_under_embargo' => 'The exam is still ongoing for other students. Results will be available once the session has fully ended.',
 
     // Validation - Form labels
     'assessment_title' => 'assessment title',
@@ -155,6 +181,10 @@ return [
     'subject_code' => 'subject code',
     'teacher' => 'teacher',
     'student' => 'student',
+    'email' => 'email',
+    'name' => 'name',
+    'password' => 'password',
+    'role' => 'role',
     'scores' => 'scores',
     'score' => 'score',
     'question' => 'question',
@@ -172,6 +202,7 @@ return [
     'new_teacher_must_be_different' => 'The new teacher must be different from the current teacher',
 
     'file' => 'file',
+    'file_not_found' => 'File not found',
     'file_too_large' => 'The file is too large',
     'file_extension_not_allowed' => 'This file type is not allowed',
     'file_upload_limit_reached' => 'You have reached the maximum number of file uploads',
@@ -185,9 +216,13 @@ return [
     'assignment_cannot_reopen_time_fully_elapsed' => 'Cannot reopen: the assessment time has fully elapsed',
     'assignment_cannot_reopen_not_interrupted' => 'This assignment was not interrupted',
 
+    'assignment_reassigned' => 'Assignment reassigned successfully. The student can now retake the assessment.',
+    'assignment_cannot_reassign_has_responses' => 'Cannot reassign: the student has submitted answers',
+    'assignment_cannot_reassign_supervised_questions_exposed' => 'Cannot reassign: the student has already seen the questions in this supervised assessment',
+    'grade_blocked_no_responses' => 'Manual grading is not allowed when the student has not submitted any answers. The score is automatically set to 0.',
+
     'cannot_access_assessment' => 'You cannot access this assessment',
     'do_not_own_attachment' => 'You do not own this attachment',
-    'answers_saved' => 'Answers saved successfully',
     'security_violation_recorded' => 'Security violation recorded',
     'delivery_mode_supervised' => 'Supervised',
     'delivery_mode_homework' => 'Homework',

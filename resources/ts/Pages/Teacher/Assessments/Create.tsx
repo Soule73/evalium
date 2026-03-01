@@ -1,4 +1,6 @@
 import React, { useMemo } from 'react';
+import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, QuestionsManager, Section } from '@/Components';
 import { AssessmentGeneralConfig } from '@/Components/shared/AssessmentGeneralConfig';
@@ -45,7 +47,7 @@ const AssessmentCreate: React.FC<Props> = ({ classSubjects }) => {
                                 color="secondary"
                                 variant="outline"
                                 size="sm"
-                                onClick={() => window.history.back()}
+                                onClick={() => router.visit(route('teacher.assessments.index'))}
                             >
                                 {translations.cancel}
                             </Button>
@@ -70,7 +72,7 @@ const AssessmentCreate: React.FC<Props> = ({ classSubjects }) => {
                     />
                 </Section>
 
-                <QuestionsManager errors={errors} />
+                <QuestionsManager errors={errors} deliveryMode={data.delivery_mode} />
             </form>
         </AuthenticatedLayout>
     );

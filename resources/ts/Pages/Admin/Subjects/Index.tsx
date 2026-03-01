@@ -1,28 +1,25 @@
 import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type PaginationType } from '@/types/datatable';
-import { type Subject, type PageProps, type Level } from '@/types';
+import { type Subject, type Level, type PageProps } from '@/types';
 import { hasPermission } from '@/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section } from '@/Components';
 import { SubjectList } from '@/Components/shared/lists';
-import { route } from 'ziggy-js';
 
 interface Props extends PageProps {
     subjects: PaginationType<Subject>;
-    levels: Level[];
+    levels?: Level[];
+    filters?: Record<string, string>;
 }
 
-export default function SubjectIndex({ subjects, levels, auth }: Props) {
+export default function AdminSubjectsIndex({ subjects, levels, auth }: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
     const canCreate = hasPermission(auth.permissions, 'create subjects');
-
-    const handleCreate = () => {
-        router.visit(route('admin.subjects.create'));
-    };
 
     const translations = useMemo(
         () => ({
@@ -33,9 +30,14 @@ export default function SubjectIndex({ subjects, levels, auth }: Props) {
         [t],
     );
 
+    const handleCreate = () => {
+        router.visit(route('admin.subjects.create'));
+    };
+
     return (
         <AuthenticatedLayout title={translations.title} breadcrumb={breadcrumbs.admin.subjects()}>
             <Section
+                variant="flat"
                 title={translations.title}
                 subtitle={translations.subtitle}
                 actions={
@@ -46,7 +48,7 @@ export default function SubjectIndex({ subjects, levels, auth }: Props) {
                     )
                 }
             >
-                <SubjectList data={subjects} variant="admin" levels={levels} />
+                <SubjectList data={subjects} variant="admin" levels={levels ?? []} />
             </Section>
         </AuthenticatedLayout>
     );

@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\AcademicYearResource;
-use App\Models\AcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class AcademicYearController extends Controller
@@ -13,21 +11,17 @@ class AcademicYearController extends Controller
     use AuthorizesRequests;
 
     /**
-     * Set the current academic year in session.
+     * Switch the user's active academic year context in session.
+     * Does NOT change the is_current flag in the database.
      */
-    public function setCurrent(Request $request): JsonResponse
+    public function setCurrent(Request $request): RedirectResponse
     {
         $request->validate([
             'academic_year_id' => ['required', 'integer', 'exists:academic_years,id'],
         ]);
 
-        $academicYear = AcademicYear::findOrFail($request->academic_year_id);
+        $request->session()->put('academic_year_id', (int) $request->academic_year_id);
 
-        $request->session()->put('academic_year_id', $academicYear->id);
-
-        return response()->json([
-            'success' => true,
-            'academic_year' => new AcademicYearResource($academicYear),
-        ]);
+        return back();
     }
 }

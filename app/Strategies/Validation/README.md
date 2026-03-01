@@ -1,32 +1,32 @@
 # Question Validation Strategy Pattern
 
-## 📋 Vue d'ensemble
+## Overview
 
-Ce répertoire contient l'implémentation du **Strategy Pattern** pour la validation des questions d'examen. Cette architecture permet une validation flexible, maintenable et extensible en séparant la logique de validation pour chaque type de question.
+This directory contains the implementation of the **Strategy Pattern** for exam question validation. This architecture allows flexible, maintainable, and extensible validation by separating the validation logic for each question type.
 
-## 🎯 Objectifs
+## Goals
 
-- **Séparation des responsabilités** : Chaque type de question a sa propre stratégie de validation
-- **Extensibilité** : Facile d'ajouter de nouveaux types de questions sans modifier le code existant
-- **Maintenabilité** : Code plus propre, organisé et testable
-- **Réutilisabilité** : Les stratégies peuvent être utilisées dans différents contextes
+- **Separation of concerns**: Each question type has its own validation strategy
+- **Extensibility**: Easy to add new question types without modifying existing code
+- **Maintainability**: Cleaner, organized, and testable code
+- **Reusability**: Strategies can be used in different contexts
 
-## 📁 Structure des fichiers
+## File Structure
 
 ```
 app/Strategies/Validation/
-├── QuestionValidationStrategy.php           # Interface définissant le contrat
-├── QuestionValidationContext.php            # Contexte/Factory qui gère les stratégies
-├── MultipleChoiceValidationStrategy.php     # Stratégie pour questions à choix multiples
-├── SingleChoiceValidationStrategy.php       # Stratégie pour questions à choix unique/boolean
-└── TextQuestionValidationStrategy.php       # Stratégie pour questions de type texte
+├── QuestionValidationStrategy.php           # Interface defining the contract
+├── QuestionValidationContext.php            # Context/Factory that manages strategies
+├── MultipleChoiceValidationStrategy.php     # Strategy for multiple choice questions
+├── SingleChoiceValidationStrategy.php       # Strategy for single choice/boolean questions
+└── TextQuestionValidationStrategy.php       # Strategy for text-type questions
 ```
 
-## 🔧 Comment ça fonctionne
+## How It Works
 
-### 1. Interface `QuestionValidationStrategy`
+### 1. `QuestionValidationStrategy` Interface
 
-Définit le contrat que toutes les stratégies doivent respecter :
+Defines the contract that all strategies must implement:
 
 ```php
 interface QuestionValidationStrategy
@@ -36,33 +36,33 @@ interface QuestionValidationStrategy
 }
 ```
 
-### 2. Stratégies concrètes
+### 2. Concrete Strategies
 
-Chaque stratégie implémente la logique de validation spécifique à un type de question :
+Each strategy implements validation logic specific to a question type:
 
 #### **MultipleChoiceValidationStrategy**
-- Vérifie qu'il y a au moins 2 choix
-- Vérifie qu'au moins 2 choix sont marqués comme corrects
+- Verifies there are at least 2 choices
+- Verifies at least 2 choices are marked as correct
 
 #### **SingleChoiceValidationStrategy**
-- Vérifie qu'il y a au moins 2 choix
-- Vérifie qu'exactement 1 choix est marqué comme correct
-- Supporte les types `one_choice` et `boolean`
+- Verifies there are at least 2 choices
+- Verifies exactly 1 choice is marked as correct
+- Supports `one_choice` and `boolean` types
 
 #### **TextQuestionValidationStrategy**
-- Pas de validation supplémentaire (questions de texte libre)
-- Inclus pour la complétude et l'extensibilité future
+- No additional validation (free text questions)
+- Included for completeness and future extensibility
 
-### 3. Contexte `QuestionValidationContext`
+### 3. `QuestionValidationContext`
 
-Agit comme un **Factory** et un **Facade** :
-- Enregistre toutes les stratégies disponibles
-- Sélectionne la stratégie appropriée pour un type de question
-- Délègue la validation à la stratégie sélectionnée
+Acts as a **Factory** and a **Facade**:
+- Registers all available strategies
+- Selects the appropriate strategy for a question type
+- Delegates validation to the selected strategy
 
-## 💡 Utilisation
+## Usage
 
-### Dans les Form Requests
+### In Form Requests
 
 ```php
 use App\Strategies\Validation\QuestionValidationContext;
@@ -73,18 +73,17 @@ public function withValidator(Validator $validator): void
         $data = $validator->getData();
         $questions = $data['questions'] ?? [];
 
-        // Utilise le Strategy Pattern pour valider les questions
         $validationContext = new QuestionValidationContext();
         $validationContext->validateQuestions($validator, $questions);
     });
 }
 ```
 
-## ➕ Ajouter un nouveau type de question
+## Adding a New Question Type
 
-Pour ajouter un nouveau type de question (ex: `rating`, `file_upload`), suivez ces étapes :
+To add a new question type (e.g., `rating`, `file_upload`), follow these steps:
 
-### 1. Créer une nouvelle stratégie
+### 1. Create a new strategy
 
 ```php
 <?php
@@ -97,11 +96,10 @@ class RatingQuestionValidationStrategy implements QuestionValidationStrategy
 {
     public function validate(Validator $validator, array $question, int $index): void
     {
-        // Logique de validation spécifique aux questions de notation
         if (!isset($question['min_rating']) || !isset($question['max_rating'])) {
             $validator->errors()->add(
                 "questions.{$index}.rating",
-                "Les valeurs min et max sont requises pour les questions de notation."
+                "Min and max values are required for rating questions."
             );
         }
     }
@@ -113,9 +111,9 @@ class RatingQuestionValidationStrategy implements QuestionValidationStrategy
 }
 ```
 
-### 2. Enregistrer la stratégie
+### 2. Register the strategy
 
-Dans `QuestionValidationContext::registerDefaultStrategies()` :
+In `QuestionValidationContext::registerDefaultStrategies()`:
 
 ```php
 private function registerDefaultStrategies(): void
@@ -123,22 +121,22 @@ private function registerDefaultStrategies(): void
     $this->registerStrategy(new MultipleChoiceValidationStrategy());
     $this->registerStrategy(new SingleChoiceValidationStrategy());
     $this->registerStrategy(new TextQuestionValidationStrategy());
-    $this->registerStrategy(new RatingQuestionValidationStrategy()); // ✨ Nouvelle stratégie
+    $this->registerStrategy(new RatingQuestionValidationStrategy()); // New strategy
 }
 ```
 
-**C'est tout !** Aucune modification nécessaire dans les Form Requests existants.
+**That's it!** No changes needed in existing Form Requests.
 
-## 🧪 Tests
+## Tests
 
-Chaque stratégie peut être testée indépendamment :
+Each strategy can be tested independently:
 
 ```php
 public function test_multiple_choice_validates_minimum_correct_answers()
 {
     $strategy = new MultipleChoiceValidationStrategy();
     $validator = Validator::make([], []);
-    
+
     $question = [
         'type' => 'multiple',
         'choices' => [
@@ -146,65 +144,52 @@ public function test_multiple_choice_validates_minimum_correct_answers()
             ['is_correct' => false]
         ]
     ];
-    
+
     $strategy->validate($validator, $question, 0);
-    
+
     $this->assertTrue($validator->errors()->has('questions.0.choices'));
 }
 ```
 
-## 📊 Diagramme UML
+## UML Diagram
 
 ```
-┌─────────────────────────────────┐
-│  QuestionValidationStrategy     │
-│  <<interface>>                  │
-├─────────────────────────────────┤
-│ + validate(...)                 │
-│ + supports(string): bool        │
-└─────────────────────────────────┘
-           △
-           │ implements
-           │
-    ┌──────┴──────┬──────────────┬─────────────────┐
-    │             │              │                 │
-┌───┴───────┐ ┌───┴───────┐ ┌───┴───────┐ ┌──────┴──────┐
-│ Multiple  │ │  Single   │ │   Text    │ │   Future    │
-│  Choice   │ │  Choice   │ │  Question │ │  Strategies │
-│ Strategy  │ │ Strategy  │ │ Strategy  │ │    ...      │
-└───────────┘ └───────────┘ └───────────┘ └─────────────┘
-       △           △             △
-       └───────────┴─────────────┴──────────────┐
-                                                 │
-                                    ┌────────────┴─────────────┐
-                                    │ QuestionValidation       │
-                                    │ Context                  │
-                                    ├──────────────────────────┤
-                                    │ - strategies[]           │
-                                    ├──────────────────────────┤
-                                    │ + registerStrategy(...)  │
-                                    │ + validateQuestion(...)  │
-                                    │ + validateQuestions(...) │
-                                    └──────────────────────────┘
++---------------------------------+
+|  QuestionValidationStrategy     |
+|  <<interface>>                  |
++---------------------------------+
+| + validate(...)                 |
+| + supports(string): bool        |
++---------------------------------+
+           ^
+           | implements
+           |
+    +------+------+--------------+-----------------+
+    |             |              |                 |
++---+-------+ +---+-------+ +---+-------+ +------+------+
+| Multiple  | |  Single   | |   Text    | |   Future    |
+|  Choice   | |  Choice   | |  Question | |  Strategies |
+| Strategy  | | Strategy  | | Strategy  | |    ...      |
++-----------+ +-----------+ +-----------+ +-------------+
 ```
 
-## ✅ Avantages de cette implémentation
+## Benefits of This Implementation
 
-1. **Open/Closed Principle** : Ouvert à l'extension, fermé à la modification
-2. **Single Responsibility** : Chaque classe a une seule responsabilité
-3. **Dependency Inversion** : Dépend des abstractions, pas des implémentations concrètes
-4. **Testabilité** : Chaque stratégie peut être testée indépendamment
-5. **Lisibilité** : Code plus clair et auto-documenté
-6. **Réutilisabilité** : Stratégies réutilisables dans d'autres contextes
+1. **Open/Closed Principle**: Open for extension, closed for modification
+2. **Single Responsibility**: Each class has a single responsibility
+3. **Dependency Inversion**: Depends on abstractions, not concrete implementations
+4. **Testability**: Each strategy can be tested independently
+5. **Readability**: Clearer, self-documenting code
+6. **Reusability**: Strategies reusable in other contexts
 
-## 📝 Notes techniques
+## Technical Notes
 
-- Les stratégies sont **stateless** : pas d'état partagé entre les validations
-- Le contexte est **léger** : création peu coûteuse à chaque validation
-- Les messages d'erreur sont **internationalisés** via `__()`
-- Compatible avec le système de validation Laravel existant
+- Strategies are **stateless**: no shared state between validations
+- The context is **lightweight**: inexpensive to create per validation
+- Error messages are **internationalized** via `__()`
+- Compatible with the existing Laravel validation system
 
-## 🔗 Références
+## References
 
 - [Design Patterns: Strategy](https://refactoring.guru/design-patterns/strategy)
 - [Laravel Validation Documentation](https://laravel.com/docs/validation)

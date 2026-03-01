@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 /**
@@ -56,37 +57,34 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => $request->session()->pull('error'),
                 'warning' => fn () => $request->session()->pull('warning'),
                 'info' => fn () => $request->session()->pull('info'),
+                'has_new_user' => fn () => $request->session()->pull('has_new_user'),
             ],
             'academic_year' => [
                 'selected' => $this->getSelectedAcademicYear($request),
-                'recent' => $this->getRecentAcademicYears(),
+                'recent' => $this->getRecentAcademicYears($user),
             ],
             'locale' => app()->getLocale(),
             'language' => $this->getTranslations(),
-            'assessmentConfig' => [
-                'devMode' => config('assessment.dev_mode', false),
-                'securityEnabled' => config('assessment.security_enabled', true),
-                'features' => [
-                    'fullscreenRequired' => config('assessment.features.fullscreen_required', true),
-                    'tabSwitchDetection' => config('assessment.features.tab_switch_detection', true),
-                    'devToolsDetection' => config('assessment.features.dev_tools_detection', true),
-                    'copyPastePrevention' => config('assessment.features.copy_paste_prevention', true),
-                    'contextMenuDisabled' => config('assessment.features.context_menu_disabled', true),
-                    'printPrevention' => config('assessment.features.print_prevention', true),
-                ],
-                'timing' => [
-                    'minAssessmentDurationMinutes' => config('assessment.timing.min_assessment_duration_minutes', 2),
-                    'autoSubmitOnTimeEnd' => config('assessment.timing.auto_submit_on_time_end', true),
-                ],
-            ],
+            'notifications' => Inertia::lazy(fn () => [
+                'unread_count' => $user?->unreadNotifications()->count() ?? 0,
+            ]),
         ];
     }
 
     /**
-     * Get the selected academic year from session or default to current.
+     * Get the selected academic year.
+     *
+     * Uses the model already resolved and stored by InjectAcademicYear middleware
+     * to avoid issuing a redundant DB query on every request.
      */
     protected function getSelectedAcademicYear(Request $request): ?array
     {
+        $academicYear = $request->attributes->get('selected_academic_year');
+
+        if ($academicYear instanceof \App\Models\AcademicYear) {
+            return $academicYear->toArray();
+        }
+
         $academicYearId = $request->session()->get('academic_year_id');
 
         if (! $academicYearId) {
@@ -95,29 +93,67 @@ class HandleInertiaRequests extends Middleware
             return $currentYear ? $currentYear->toArray() : null;
         }
 
-        $academicYear = \App\Models\AcademicYear::find($academicYearId);
+        $year = \App\Models\AcademicYear::find($academicYearId);
 
-        return $academicYear ? $academicYear->toArray() : null;
+        return $year ? $year->toArray() : null;
     }
 
     /**
-     * Get the 3 most recent academic years (cached).
+     * Get the available academic years for the selector.
+     *
+     * For admins: current year + next year (if created) + up to 3 previous years.
+     * For others: the 3 most recent years.
      */
-    protected function getRecentAcademicYears(): array
+    protected function getRecentAcademicYears(?\App\Models\User $user = null): array
     {
-        return \Illuminate\Support\Facades\Cache::remember(\App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT, 3600, function () {
-            return \App\Models\AcademicYear::orderBy('start_date', 'desc')
+        $isAdmin = $user && $user->hasAnyRole(['admin', 'super_admin']);
+        $cacheKey = $isAdmin
+            ? \App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT.':admin'
+            : \App\Services\Core\CacheService::KEY_ACADEMIC_YEARS_RECENT;
+
+        return \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600, function () use ($isAdmin) {
+            if (! $isAdmin) {
+                return \App\Models\AcademicYear::orderBy('start_date', 'desc')
+                    ->take(3)
+                    ->get()
+                    ->toArray();
+            }
+
+            $currentYear = \App\Models\AcademicYear::where('is_current', true)->first();
+
+            if (! $currentYear) {
+                return \App\Models\AcademicYear::orderBy('start_date', 'desc')
+                    ->take(5)
+                    ->get()
+                    ->toArray();
+            }
+
+            $futureYear = \App\Models\AcademicYear::where('start_date', '>', $currentYear->end_date)
+                ->orderBy('start_date')
+                ->first();
+
+            $previousYears = \App\Models\AcademicYear::where('end_date', '<', $currentYear->start_date)
+                ->orderBy('start_date', 'desc')
                 ->take(3)
-                ->get()
-                ->toArray();
+                ->get();
+
+            $years = collect([$futureYear, $currentYear])
+                ->filter()
+                ->merge($previousYears)
+                ->unique('id')
+                ->sortByDesc('start_date')
+                ->values();
+
+            return $years->toArray();
         });
     }
 
     /**
      * Get all translations for the current locale.
      *
-     * This method loads all PHP translation files and JSON translations
-     * to make them available in the frontend via Inertia.js.
+     * Loads all PHP translation files recursively (including subdirectories)
+     * and JSON translations. Subdirectory files are namespaced as
+     * "subdirectory/filename" (e.g. lang/en/commons/ui.php → "commons/ui").
      *
      * @return array<string, mixed>
      */
@@ -131,11 +167,21 @@ class HandleInertiaRequests extends Middleware
             $langPath = lang_path($locale);
 
             if (is_dir($langPath)) {
-                $files = glob($langPath.'/*.php');
+                $iterator = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($langPath, \FilesystemIterator::SKIP_DOTS)
+                );
 
-                foreach ($files as $file) {
-                    $filename = basename($file, '.php');
-                    $translations[$filename] = require $file;
+                foreach ($iterator as $file) {
+                    if ($file->getExtension() !== 'php') {
+                        continue;
+                    }
+
+                    $relativePath = ltrim(
+                        str_replace([$langPath, '\\', '.php'], ['', '/', ''], $file->getPathname()),
+                        '/'
+                    );
+
+                    $translations[$relativePath] = require $file->getPathname();
                 }
             }
 

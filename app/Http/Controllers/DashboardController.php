@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Services\Admin\AdminDashboardService;
 use App\Services\Core\RoleBasedRedirectService;
-use App\Services\Student\StudentAssessmentService;
 use App\Services\Student\StudentDashboardService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -19,7 +18,6 @@ class DashboardController extends Controller
 
     public function __construct(
         private readonly AdminDashboardService $adminDashboardService,
-        private readonly StudentAssessmentService $studentAssessmentService,
         private readonly StudentDashboardService $studentDashboardService,
         private readonly RoleBasedRedirectService $redirectService
     ) {}
@@ -64,26 +62,18 @@ class DashboardController extends Controller
                     $q->where('academic_year_id', $selectedYearId);
                 });
             })
-            ->with(['class.classSubjects'])
+            ->with(['class'])
             ->first();
 
         $stats = $this->studentDashboardService->getDashboardStats($user, $selectedYearId, $enrollment);
 
-        $filters = $request->only(['status', 'search']);
-        $perPage = 3;
-
-        $assessmentAssignments = $this->studentAssessmentService->getStudentAssessmentsForIndex(
-            $user,
-            $selectedYearId,
-            $filters,
-            $perPage,
-            $enrollment
-        );
-
         return Inertia::render('Dashboard/Student', [
-            'user' => $user,
             'stats' => $stats,
-            'assessmentAssignments' => $assessmentAssignments,
+            'chartData' => Inertia::defer(fn () => $this->studentDashboardService->getChartData(
+                $user,
+                $selectedYearId,
+                $enrollment,
+            )),
         ]);
     }
 
@@ -99,6 +89,7 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard/Admin', [
             'user' => $user,
             'stats' => $dashboardData['stats'],
+            'chartData' => Inertia::defer(fn () => $this->adminDashboardService->getChartData($selectedYearId)),
         ]);
     }
 }

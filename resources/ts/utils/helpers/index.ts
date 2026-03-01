@@ -12,6 +12,8 @@ export {
 export { setupZiggy } from './ziggy';
 export { translateKey } from './translations';
 export type { LanguageData } from './translations';
+export { getAcademicYearStatus } from './academicYear';
+export type { AcademicYearStatusType } from './academicYear';
 export {
     buildDataTableUrl,
     getSelectableItems,

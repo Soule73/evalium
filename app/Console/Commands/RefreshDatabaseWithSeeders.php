@@ -26,7 +26,7 @@ class RefreshDatabaseWithSeeders extends Command
      */
     public function handle()
     {
-        // Vérifier si en production
+        // Check if running in production
         if ($this->laravel->environment('production') && ! $this->option('force')) {
             $this->error('Application is in production!');
             $this->error('Use --force to run this command in production.');

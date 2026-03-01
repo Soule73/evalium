@@ -1,23 +1,10 @@
 import { Head, router } from '@inertiajs/react';
 import { useMemo, useState, useCallback, useEffect } from 'react';
-import {
-    AlertEntry,
-    Button,
-    ConfirmationModal,
-    FileUploadZone,
-    QuestionNavigation,
-    Section,
-    TakeQuestion,
-    TextEntry,
-} from '@/Components';
+import { AlertEntry, Button, ConfirmationModal, Section, TextEntry } from '@/Components';
+import { QuestionProvider, QuestionCard } from '@/Components/features/assessment/question';
+import { WorkSubmitActions, getSaveButtonLabel } from '@/Components/features/assessment';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import {
-    type Answer,
-    type Assessment,
-    type AssessmentAssignment,
-    type AssignmentAttachment,
-    type Question,
-} from '@/types';
+import { type Answer, type Assessment, type AssessmentAssignment, type Question } from '@/types';
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import {
     useAssessmentAnswers,
@@ -38,7 +25,7 @@ interface WorkProps {
     questions: Question[];
     userAnswers: Answer[];
     remainingSeconds: number | null;
-    attachments?: AssignmentAttachment[];
+    fileAnswers?: Answer[];
 }
 
 function Work({
@@ -46,47 +33,39 @@ function Work({
     assignment,
     questions = [],
     userAnswers = [],
-    attachments: initialAttachments = [],
+    fileAnswers: initialFileAnswers = [],
 }: WorkProps) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
     const [savingStatus, setSavingStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-    const [fileAttachments, setFileAttachments] =
-        useState<AssignmentAttachment[]>(initialAttachments);
+    const [fileAnswersByQuestion, setFileAnswersByQuestion] = useState<Record<number, Answer>>(() =>
+        Object.fromEntries(initialFileAnswers.map((a) => [a.question_id, a])),
+    );
 
-    const handleAttachmentAdded = useCallback((attachment: AssignmentAttachment) => {
-        setFileAttachments((prev) => [attachment, ...prev]);
+    const handleFileAnswerSaved = useCallback((questionId: number, answer: Answer) => {
+        setFileAnswersByQuestion((prev) => ({ ...prev, [questionId]: answer }));
     }, []);
 
-    const handleAttachmentRemoved = useCallback((attachmentId: number) => {
-        setFileAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
+    const handleFileAnswerRemoved = useCallback((questionId: number) => {
+        setFileAnswersByQuestion((prev) => {
+            const next = { ...prev };
+            delete next[questionId];
+            return next;
+        });
     }, []);
 
-    const { answers, showConfirmModal, setShowConfirmModal, isSubmitting, shuffledQuestionIds } =
-        useAssessmentTakeStore(
-            useShallow((state) => ({
-                answers: state.answers,
-                showConfirmModal: state.showConfirmModal,
-                setShowConfirmModal: state.setShowConfirmModal,
-                isSubmitting: state.isSubmitting,
-                shuffledQuestionIds: state.shuffledQuestionIds,
-            })),
-        );
+    const { answers, showConfirmModal, setShowConfirmModal, isSubmitting } = useAssessmentTakeStore(
+        useShallow((state) => ({
+            answers: state.answers,
+            showConfirmModal: state.showConfirmModal,
+            setShowConfirmModal: state.setShowConfirmModal,
+            isSubmitting: state.isSubmitting,
+        })),
+    );
 
-    const {
-        displayedQuestions,
-        currentQuestionIndex,
-        totalQuestions,
-        isFirstQuestion,
-        isLastQuestion,
-        handleNextQuestion,
-        handlePreviousQuestion,
-        goToQuestion,
-        oneQuestionPerPage,
-    } = useQuestionNavigation({
+    const { displayedQuestions } = useQuestionNavigation({
         questions,
         shuffleEnabled: assessment.shuffle_questions ?? false,
-        oneQuestionPerPage: assessment.one_question_per_page ?? false,
     });
 
     const { updateAnswer } = useAssessmentAnswers({ questions, userAnswers });
@@ -101,18 +80,6 @@ function Work({
     useEffect(() => {
         return cleanup;
     }, [cleanup]);
-
-    const answeredQuestionIds = useMemo(() => {
-        return new Set(
-            Object.keys(answers)
-                .map(Number)
-                .filter((id) => {
-                    const answer = answers[id];
-                    if (Array.isArray(answer)) return answer.length > 0;
-                    return answer !== undefined && answer !== '' && answer !== null;
-                }),
-        );
-    }, [answers]);
 
     const handleAnswerChange = useCallback(
         (questionId: number, value: string | number | number[]) => {
@@ -161,8 +128,8 @@ function Work({
             confirmSubmitCheck: t('student_assessment_pages.work.confirm_submit_check'),
             noQuestionsTitle: t('student_assessment_pages.work.no_questions_title'),
             noQuestionsMessage: t('student_assessment_pages.work.no_questions_message'),
-            modalConfirmText: t('components.confirmation_modal.confirm'),
-            modalCancelText: t('components.confirmation_modal.cancel'),
+            modalConfirmText: t('commons/ui.confirm'),
+            modalCancelText: t('commons/ui.cancel'),
         }),
         [t],
     );
@@ -172,18 +139,12 @@ function Work({
         [t, assessment.title],
     );
 
-    const saveButtonLabel = useMemo(() => {
-        switch (savingStatus) {
-            case 'saving':
-                return translations.saving;
-            case 'saved':
-                return translations.saved;
-            case 'error':
-                return translations.saveError;
-            default:
-                return translations.saveProgress;
-        }
-    }, [savingStatus, translations]);
+    const saveButtonLabel = getSaveButtonLabel(savingStatus, {
+        idle: translations.saveProgress,
+        saving: translations.saving,
+        saved: translations.saved,
+        error: translations.saveError,
+    });
 
     if (assignment.submitted_at) {
         return (
@@ -239,29 +200,16 @@ function Work({
                 <Section
                     title={assessment.title}
                     actions={
-                        <div className="flex items-center space-x-3">
-                            <Button
-                                size="sm"
-                                color="secondary"
-                                variant="outline"
-                                onClick={handleManualSave}
-                                disabled={savingStatus === 'saving'}
-                                loading={savingStatus === 'saving'}
-                            >
-                                {saveButtonLabel}
-                            </Button>
-                            <Button
-                                size="sm"
-                                color="primary"
-                                onClick={() => setShowConfirmModal(true)}
-                                disabled={isSubmitting || processing}
-                                loading={isSubmitting || processing}
-                            >
-                                {isSubmitting || processing
-                                    ? translations.submitting
-                                    : translations.submitWork}
-                            </Button>
-                        </div>
+                        <WorkSubmitActions
+                            savingStatus={savingStatus}
+                            isSubmitting={isSubmitting}
+                            processing={processing}
+                            saveButtonLabel={saveButtonLabel}
+                            submitLabel={translations.submitWork}
+                            submittingLabel={translations.submitting}
+                            onSave={handleManualSave}
+                            onSubmit={() => setShowConfirmModal(true)}
+                        />
                     }
                 >
                     <div className="space-y-4">
@@ -293,67 +241,37 @@ function Work({
                                 {assessment.due_date && <li>{translations.instructionDueDate}</li>}
                             </ul>
                         </AlertEntry>
-
-                        {(assessment.max_files ?? 0) > 0 && (
-                            <FileUploadZone
-                                assessmentId={assessment.id}
-                                attachments={fileAttachments}
-                                maxFiles={assessment.max_files ?? 0}
-                                maxFileSize={assessment.max_file_size ?? 10240}
-                                allowedExtensions={assessment.allowed_extensions ?? null}
-                                onAttachmentAdded={handleAttachmentAdded}
-                                onAttachmentRemoved={handleAttachmentRemoved}
-                                disabled={!!assignment.submitted_at}
-                            />
-                        )}
                     </div>
                 </Section>
 
-                {displayedQuestions.map((currentQ) => (
-                    <TakeQuestion
+                {displayedQuestions.map((currentQ, index) => (
+                    <QuestionProvider
                         key={currentQ.id}
-                        question={currentQ}
+                        mode="take"
+                        role="student"
+                        isDisabled={!!assignment.submitted_at}
+                        assessmentId={assessment.id}
                         answers={answers}
                         onAnswerChange={handleAnswerChange}
-                    />
+                        fileAnswers={fileAnswersByQuestion}
+                        onFileAnswerSaved={handleFileAnswerSaved}
+                        onFileAnswerRemoved={handleFileAnswerRemoved}
+                    >
+                        <QuestionCard question={currentQ} questionIndex={index} />
+                    </QuestionProvider>
                 ))}
 
-                {oneQuestionPerPage && displayedQuestions.length > 0 && (
-                    <QuestionNavigation
-                        currentIndex={currentQuestionIndex}
-                        totalQuestions={totalQuestions}
-                        isFirstQuestion={isFirstQuestion}
-                        isLastQuestion={isLastQuestion}
-                        onPrevious={handlePreviousQuestion}
-                        onNext={handleNextQuestion}
-                        onGoToQuestion={goToQuestion}
-                        answeredQuestions={answeredQuestionIds}
-                        questionIds={shuffledQuestionIds}
+                <div className="flex justify-end pb-8">
+                    <WorkSubmitActions
+                        savingStatus={savingStatus}
+                        isSubmitting={isSubmitting}
+                        processing={processing}
+                        saveButtonLabel={saveButtonLabel}
+                        submitLabel={translations.submitWork}
+                        submittingLabel={translations.submitting}
+                        onSave={handleManualSave}
+                        onSubmit={() => setShowConfirmModal(true)}
                     />
-                )}
-
-                <div className="flex justify-end space-x-3 pb-8">
-                    <Button
-                        size="sm"
-                        color="secondary"
-                        variant="outline"
-                        onClick={handleManualSave}
-                        disabled={savingStatus === 'saving'}
-                        loading={savingStatus === 'saving'}
-                    >
-                        {saveButtonLabel}
-                    </Button>
-                    <Button
-                        size="sm"
-                        color="primary"
-                        onClick={() => setShowConfirmModal(true)}
-                        disabled={isSubmitting || processing}
-                        loading={isSubmitting || processing}
-                    >
-                        {isSubmitting || processing
-                            ? translations.submitting
-                            : translations.submitWork}
-                    </Button>
                 </div>
             </div>
 

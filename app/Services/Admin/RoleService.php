@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Admin;
 
+use App\Exceptions\RoleException;
 use App\Services\Traits\Paginatable;
 use Illuminate\Support\Collection;
 use Spatie\Permission\Models\Permission;
@@ -25,6 +26,8 @@ class RoleService
 
     private const SYSTEM_ROLES = ['super_admin', 'admin', 'teacher', 'student'];
 
+    private const LOCKED_ROLES = ['super_admin', 'teacher', 'student'];
+
     private const CATEGORY_MAPPINGS = [
         'category_users' => ['user', 'student', 'teacher', 'admin'],
         'category_assessments' => ['assessment', 'result'],
@@ -36,6 +39,14 @@ class RoleService
         'category_academic_years' => ['academic year'],
         'category_roles_permissions' => ['role', 'permission'],
     ];
+
+    /**
+     * Check if a role's permissions can be modified
+     */
+    public function isRoleEditable(Role $role): bool
+    {
+        return ! in_array($role->name, self::LOCKED_ROLES, true);
+    }
 
     /**
      * Load a role with its permissions
@@ -138,7 +149,7 @@ class RoleService
     public function updateRole(Role $role, array $data): Role
     {
         if ($this->isSystemRole($role) && isset($data['name']) && $data['name'] !== $role->name) {
-            throw new \Exception(__('messages.role_cannot_rename_system'));
+            throw RoleException::cannotRenameSystem();
         }
 
         if (isset($data['name'])) {
@@ -156,9 +167,15 @@ class RoleService
      * Synchronize role permissions
      *
      * @param  array<int>  $permissionIds
+     *
+     * @throws RoleException If role permissions are locked
      */
     public function syncRolePermissions(Role $role, array $permissionIds): Role
     {
+        if (! $this->isRoleEditable($role)) {
+            throw RoleException::permissionsLocked();
+        }
+
         $role->syncPermissions($permissionIds);
 
         return $role->fresh(['permissions']);
@@ -172,11 +189,11 @@ class RoleService
     public function deleteRole(Role $role): bool
     {
         if ($this->isSystemRole($role)) {
-            throw new \Exception(__('messages.role_cannot_delete_system'));
+            throw RoleException::isSystem();
         }
 
-        if ($role->users()->count() > 0) {
-            throw new \Exception(__('messages.role_cannot_delete_assigned'));
+        if ($role->users()->exists()) {
+            throw RoleException::hasUsers();
         }
 
         return $role->delete();
@@ -199,8 +216,8 @@ class RoleService
      */
     public function deletePermission(Permission $permission): bool
     {
-        if ($permission->roles()->count() > 0) {
-            throw new \Exception(__('messages.permission_cannot_delete_assigned'));
+        if ($permission->roles()->exists()) {
+            throw RoleException::permissionAssignedToRoles();
         }
 
         return $permission->delete();

@@ -1,3 +1,5 @@
+import type { Answer } from './answer';
+
 export interface Choice {
     id: number;
     question_id: number;
@@ -13,6 +15,7 @@ export interface QuestionResult {
     userChoices: Choice[];
     hasMultipleAnswers: boolean;
     userText?: string;
+    fileAnswer?: Answer;
     feedback: string | null | undefined;
     score?: number;
 }

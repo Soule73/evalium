@@ -2,14 +2,23 @@ export * from './models';
 export * from './models/shared';
 export * from './datatable';
 export * from './route-context';
+export * from './question-rendering';
 
 export type FlashMessageObject = { id: string; message: string } | null;
+
+export interface CreatedUserCredentials {
+    id: number;
+    name: string;
+    email: string;
+    password: string;
+}
 
 export interface FlashMessages {
     success?: FlashMessageObject;
     error?: FlashMessageObject;
     warning?: FlashMessageObject;
     info?: FlashMessageObject;
+    has_new_user?: boolean | null;
 }
 
 import type { User } from './models/shared/user';
@@ -52,4 +61,7 @@ export type PageProps<T = Record<string, unknown>> = {
     };
     flash: FlashMessages;
     locale: string;
+    notifications?: {
+        unread_count: number;
+    };
 } & T;

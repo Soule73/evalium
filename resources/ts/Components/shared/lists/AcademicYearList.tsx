@@ -5,7 +5,7 @@ import { BaseEntityList } from './BaseEntityList';
 import { type AcademicYear } from '@/types';
 import { Badge } from '@evalium/ui';
 import { CheckCircleIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
-import { formatDate } from '@/utils';
+import { formatDate, getAcademicYearStatus } from '@/utils';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';
@@ -15,6 +15,7 @@ interface AcademicYearListProps {
     showPagination?: boolean;
     onDetails?: (year: AcademicYear) => void;
     onSetCurrent?: (year: AcademicYear) => void;
+    onSwitch?: (year: AcademicYear) => void;
     onDelete?: (year: AcademicYear) => void;
 }
 
@@ -29,6 +30,7 @@ export function AcademicYearList({
     showPagination = true,
     onDetails,
     onSetCurrent,
+    onSwitch,
     onDelete,
 }: AcademicYearListProps) {
     const { t } = useTranslations();
@@ -80,31 +82,25 @@ export function AcademicYearList({
 
                 {
                     key: 'status',
-                    labelKey: 'common.status',
+                    labelKey: 'commons/table.status',
                     render: (year) => {
-                        const endDate = new Date(year.end_date);
-                        const now = new Date();
-                        const isArchived = !year.is_current && endDate < now;
-
-                        return isArchived ? (
-                            <Badge
-                                label={t('admin_pages.academic_years.archived')}
-                                type="warning"
-                                size="sm"
-                            />
-                        ) : year.is_current ? (
-                            <Badge
-                                label={t('admin_pages.academic_years.current')}
-                                type="success"
-                                size="sm"
-                            />
-                        ) : (
-                            <Badge
-                                label={t('admin_pages.academic_years.future')}
-                                type="info"
-                                size="sm"
-                            />
-                        );
+                        const status = getAcademicYearStatus(year);
+                        const badgeConfig = {
+                            archived: {
+                                label: t('admin_pages.academic_years.archived'),
+                                type: 'warning' as const,
+                            },
+                            current: {
+                                label: t('admin_pages.academic_years.current'),
+                                type: 'success' as const,
+                            },
+                            future: {
+                                label: t('admin_pages.academic_years.future'),
+                                type: 'info' as const,
+                            },
+                        };
+                        const cfg = badgeConfig[status];
+                        return <Badge label={cfg.label} type={cfg.type} size="sm" />;
                     },
                 },
 
@@ -139,7 +135,7 @@ export function AcademicYearList({
                     variant: 'outline' as const,
                 },
                 {
-                    labelKey: 'common.edit',
+                    labelKey: 'commons/ui.edit',
                     onClick: (year: AcademicYear) => {
                         router.visit(route('admin.academic-years.edit', year.id));
                     },
@@ -158,19 +154,27 @@ export function AcademicYearList({
                     conditional: (year: AcademicYear) => !year.is_current && !!onSetCurrent,
                 },
                 {
-                    labelKey: 'common.delete',
+                    labelKey: 'admin_pages.academic_years.switch_year',
+                    onClick: (year: AcademicYear) => {
+                        onSwitch?.(year);
+                    },
+                    color: 'secondary' as const,
+                    variant: 'outline' as const,
+                    conditional: (_year: AcademicYear) => !!onSwitch,
+                },
+                {
+                    labelKey: 'commons/ui.delete',
                     onClick: (year: AcademicYear) => {
                         onDelete?.(year);
                     },
                     color: 'danger' as const,
                     variant: 'outline' as const,
                     permission: 'delete academic years',
-                    conditional: (year: AcademicYear) =>
-                        year.classes_count === 0 && year.semesters_count === 0 && !!onDelete,
+                    conditional: (year: AcademicYear) => year.classes_count === 0 && !!onDelete,
                 },
             ],
         }),
-        [t, onDetails, onSetCurrent, onDelete],
+        [t, onDetails, onSetCurrent, onSwitch, onDelete],
     );
 
     return (

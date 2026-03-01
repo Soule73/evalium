@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
@@ -17,7 +19,7 @@ export default function CreateLevel() {
     );
 
     const handleCancel = () => {
-        window.history.back();
+        router.visit(route('admin.levels.index'));
     };
 
     return (

@@ -121,7 +121,7 @@ export function TerminateClassSubjectModal({
                         onClick={resetAndClose}
                         disabled={isSubmitting}
                     >
-                        {t('admin_pages.common.cancel')}
+                        {t('commons/ui.cancel')}
                     </Button>
                     <Button type="submit" variant="solid" color="danger" disabled={isSubmitting}>
                         {isSubmitting

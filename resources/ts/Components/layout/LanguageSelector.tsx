@@ -33,7 +33,7 @@ export function LanguageSelector({ currentLocale }: LanguageSelectorProps) {
         );
     };
 
-    const searchPlaceholder = t('components.select.search_placeholder');
+    const searchPlaceholder = t('commons/table.search_placeholder');
     const noOptionFound = t('components.select.no_option_found');
 
     return (

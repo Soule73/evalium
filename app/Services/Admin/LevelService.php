@@ -2,12 +2,10 @@
 
 namespace App\Services\Admin;
 
+use App\Contracts\Services\LevelServiceInterface;
+use App\Exceptions\LevelException;
 use App\Models\Level;
-use App\Services\Traits\Paginatable;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Level Service - Handle level CRUD operations and cache management
@@ -15,30 +13,12 @@ use Illuminate\Support\Facades\Log;
  * Single Responsibility: Manage academic level lifecycle and related cache
  * Dependencies: Level Model
  */
-class LevelService
+class LevelService implements LevelServiceInterface
 {
-    use Paginatable;
-
     /**
      * Cache key for active classes with levels
      */
     private const CACHE_KEY_CLASSES = 'classes_active_with_levels';
-
-    /**
-     * Get paginated list of levels with filtering
-     *
-     * @param  array  $params  Filter criteria (search, status, per_page)
-     */
-    public function getLevelsWithPagination(array $params): LengthAwarePaginator
-    {
-        $perPage = $params['per_page'] ?? 10;
-        $search = $params['search'] ?? null;
-        $status = $params['status'] ?? null;
-
-        $query = $this->buildLevelQuery($search, $status)->ordered();
-
-        return $this->paginateQuery($query, $perPage);
-    }
 
     /**
      * Create a new level
@@ -47,20 +27,11 @@ class LevelService
      */
     public function createLevel(array $data): Level
     {
-        try {
-            $level = Level::create($data);
+        $level = Level::create($data);
 
-            $this->invalidateClassesCache();
+        $this->invalidateClassesCache();
 
-            return $level;
-        } catch (\Exception $e) {
-            Log::error('Failed to create level', [
-                'data' => $data,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw $e;
-        }
+        return $level;
     }
 
     /**
@@ -71,21 +42,11 @@ class LevelService
      */
     public function updateLevel(Level $level, array $data): Level
     {
-        try {
-            $level->update($data);
+        $level->update($data);
 
-            $this->invalidateClassesCache();
+        $this->invalidateClassesCache();
 
-            return $level->fresh();
-        } catch (\Exception $e) {
-            Log::error('Failed to update level', [
-                'level_id' => $level->id,
-                'data' => $data,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw $e;
-        }
+        return $level->refresh();
     }
 
     /**
@@ -97,24 +58,15 @@ class LevelService
      */
     public function deleteLevel(Level $level): bool
     {
-        if ($level->classes()->count() > 0) {
-            throw new \Exception(__('messages.level_cannot_delete_with_classes'));
+        if ($level->classes()->exists()) {
+            throw LevelException::hasClasses();
         }
 
-        try {
-            $level->delete();
+        $level->delete();
 
-            $this->invalidateClassesCache();
+        $this->invalidateClassesCache();
 
-            return true;
-        } catch (\Exception $e) {
-            Log::error('Failed to delete level', [
-                'level_id' => $level->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw $e;
-        }
+        return true;
     }
 
     /**
@@ -124,22 +76,13 @@ class LevelService
      */
     public function toggleStatus(Level $level): Level
     {
-        try {
-            $level->update([
-                'is_active' => ! $level->is_active,
-            ]);
+        $level->update([
+            'is_active' => ! $level->is_active,
+        ]);
 
-            $this->invalidateClassesCache();
+        $this->invalidateClassesCache();
 
-            return $level->fresh();
-        } catch (\Exception $e) {
-            Log::error('Failed to toggle level status', [
-                'level_id' => $level->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw $e;
-        }
+        return $level->refresh();
     }
 
     /**
@@ -148,30 +91,5 @@ class LevelService
     private function invalidateClassesCache(): void
     {
         Cache::forget(self::CACHE_KEY_CLASSES);
-    }
-
-    /**
-     * Build query for levels with filters
-     *
-     * @param  string|null  $search  Search term
-     * @param  string|null  $status  Status filter (null, '0', '1')
-     */
-    private function buildLevelQuery(?string $search, ?string $status): Builder
-    {
-        $query = Level::query()->withCount(['classes']);
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        if ($status !== null && $status !== '') {
-            $query->where('is_active', $status === '1');
-        }
-
-        return $query;
     }
 }

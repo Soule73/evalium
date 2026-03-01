@@ -1,9 +1,9 @@
 // resources/ts/bootstrap.ts
-// Fichier d'initialisation pour Vite + React + Inertia
-// Ajoutez ici les imports globaux nécessaires (ex: axios, dayjs, etc.)
+// Initialization file for Vite + React + Inertia
+// Add global imports here as needed (e.g.: axios, dayjs, etc.)
 
-// Exemple :
+// Example:
 // import axios from 'axios';
 // window.axios = axios;
 
-// Si vous n'avez rien à initialiser, laissez ce fichier vide ou ajoutez un commentaire.
+// If you have nothing to initialize, leave this file empty or add a comment.

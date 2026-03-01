@@ -3,7 +3,9 @@
 namespace App\Services\Core;
 
 use App\Models\Assessment;
+use App\Models\Choice;
 use App\Models\Question;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 
 /**
@@ -22,6 +24,8 @@ class QuestionDuplicationService
      */
     public function duplicateQuestion(Question $originalQuestion, Assessment $targetAssessment): Question
     {
+        $originalQuestion->loadMissing('choices');
+
         $questionData = $originalQuestion->toArray();
         unset($questionData['id'], $questionData['assessment_id'], $questionData['created_at'], $questionData['updated_at']);
 
@@ -37,6 +41,10 @@ class QuestionDuplicationService
      */
     public function duplicateMultiple(Collection $originalQuestions, Assessment $targetAssessment): Collection
     {
+        if ($originalQuestions instanceof EloquentCollection) {
+            $originalQuestions->loadMissing('choices');
+        }
+
         $duplicatedQuestions = collect();
 
         foreach ($originalQuestions as $originalQuestion) {
@@ -47,15 +55,22 @@ class QuestionDuplicationService
     }
 
     /**
-     * Duplicate choices from original question to new question
+     * Duplicate choices from original question to new question using bulk insert
      */
     private function duplicateChoices(Question $originalQuestion, Question $newQuestion): void
     {
-        foreach ($originalQuestion->choices as $originalChoice) {
-            $choiceData = $originalChoice->toArray();
-            unset($choiceData['id'], $choiceData['question_id'], $choiceData['created_at'], $choiceData['updated_at']);
+        $choicesData = $originalQuestion->choices->map(function ($originalChoice) use ($newQuestion) {
+            $data = $originalChoice->toArray();
+            unset($data['id'], $data['question_id'], $data['created_at'], $data['updated_at']);
+            $data['question_id'] = $newQuestion->id;
+            $data['created_at'] = now();
+            $data['updated_at'] = now();
 
-            $newQuestion->choices()->create($choiceData);
+            return $data;
+        })->toArray();
+
+        if (! empty($choicesData)) {
+            Choice::insert($choicesData);
         }
     }
 }

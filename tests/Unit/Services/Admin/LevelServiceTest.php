@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Services\Admin;
 
+use App\Exceptions\LevelException;
+use App\Repositories\Admin\LevelRepository;
 use App\Services\Admin\LevelService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -15,11 +17,14 @@ class LevelServiceTest extends TestCase
 
     private LevelService $levelService;
 
+    private LevelRepository $levelQueryService;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->seedRolesAndPermissions();
         $this->levelService = app(LevelService::class);
+        $this->levelQueryService = app(LevelRepository::class);
     }
 
     #[Test]
@@ -29,7 +34,7 @@ class LevelServiceTest extends TestCase
             $this->createLevel();
         }
 
-        $result = $this->levelService->getLevelsWithPagination([
+        $result = $this->levelQueryService->getLevelsWithPagination([
             'per_page' => 10,
         ]);
 
@@ -44,7 +49,7 @@ class LevelServiceTest extends TestCase
         $this->createLevel(['name' => 'Licence 2', 'code' => 'L2']);
         $this->createLevel(['name' => 'Master 1', 'code' => 'M1']);
 
-        $result = $this->levelService->getLevelsWithPagination([
+        $result = $this->levelQueryService->getLevelsWithPagination([
             'search' => 'Licence',
             'per_page' => 10,
         ]);
@@ -64,7 +69,7 @@ class LevelServiceTest extends TestCase
         $this->createLevel(['is_active' => true]);
         $this->createLevel(['is_active' => false]);
 
-        $activeResult = $this->levelService->getLevelsWithPagination([
+        $activeResult = $this->levelQueryService->getLevelsWithPagination([
             'status' => '1',
             'per_page' => 10,
         ]);
@@ -73,7 +78,7 @@ class LevelServiceTest extends TestCase
         $activeItems = collect($activeResult->items());
         $this->assertTrue($activeItems->every(fn ($level) => $level->is_active));
 
-        $inactiveResult = $this->levelService->getLevelsWithPagination([
+        $inactiveResult = $this->levelQueryService->getLevelsWithPagination([
             'status' => '0',
             'per_page' => 10,
         ]);
@@ -157,7 +162,7 @@ class LevelServiceTest extends TestCase
         $level = $this->createLevel();
         $this->createClassWithStudents(studentCount: 0, classAttributes: ['level_id' => $level->id]);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(LevelException::class);
         $this->expectExceptionMessage(__('messages.level_cannot_delete_with_classes'));
 
         $this->levelService->deleteLevel($level);
@@ -213,7 +218,7 @@ class LevelServiceTest extends TestCase
             ]);
         }
 
-        $result = $this->levelService->getLevelsWithPagination(['per_page' => 10]);
+        $result = $this->levelQueryService->getLevelsWithPagination(['per_page' => 10]);
 
         $items = collect($result->items());
         $fetchedLevel = $items->first();

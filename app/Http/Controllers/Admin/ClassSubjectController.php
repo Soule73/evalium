@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Repositories\ClassSubjectRepositoryInterface;
+use App\Contracts\Services\ClassSubjectServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ReplaceTeacherRequest;
 use App\Http\Requests\Admin\StoreClassSubjectRequest;
+use App\Http\Requests\Admin\TerminateAssignmentRequest;
+use App\Http\Requests\Admin\UpdateCoefficientRequest;
 use App\Models\ClassSubject;
-use App\Services\Admin\ClassSubjectQueryService;
-use App\Services\Core\ClassSubjectService;
 use App\Traits\FiltersAcademicYear;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,8 +23,8 @@ class ClassSubjectController extends Controller
     use AuthorizesRequests, FiltersAcademicYear;
 
     public function __construct(
-        private readonly ClassSubjectService $classSubjectService,
-        private readonly ClassSubjectQueryService $classSubjectQueryService
+        private readonly ClassSubjectServiceInterface $classSubjectService,
+        private readonly ClassSubjectRepositoryInterface $classSubjectQueryService
     ) {}
 
     /**
@@ -32,9 +35,9 @@ class ClassSubjectController extends Controller
         $this->authorize('viewAny', ClassSubject::class);
 
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $filters = $request->only(['class_id', 'subject_id', 'teacher_id', 'active_only']);
+        $filters = $request->only(['search', 'class_id', 'subject_id', 'teacher_id', 'include_archived']);
         $perPage = $request->input('per_page', 15);
-        $activeOnly = ($filters['active_only'] ?? true) === true;
+        $activeOnly = ! filter_var($filters['include_archived'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         $classSubjects = $this->classSubjectQueryService->getClassSubjectsForIndex(
             $selectedYearId,
@@ -43,12 +46,10 @@ class ClassSubjectController extends Controller
             $perPage
         );
 
-        $formData = $this->classSubjectQueryService->getFormDataForCreate($selectedYearId);
-
         return Inertia::render('Admin/ClassSubjects/Index', [
             'classSubjects' => $classSubjects,
             'filters' => $filters,
-            'formData' => $formData,
+            'filterOptions' => Inertia::defer(fn () => $this->classSubjectQueryService->getFilterOptions($selectedYearId)),
         ]);
     }
 
@@ -57,38 +58,25 @@ class ClassSubjectController extends Controller
      */
     public function store(StoreClassSubjectRequest $request): RedirectResponse
     {
+        $this->authorize('create', ClassSubject::class);
+
         try {
             $classSubject = $this->classSubjectService->assignTeacherToClassSubject($request->validated());
 
+            $redirectTo = $request->input('redirect_to');
+            if ($redirectTo && str_starts_with($redirectTo, '/')) {
+                return redirect($redirectTo)->flashSuccess(__('messages.class_subject_created'));
+            }
+
             return redirect()
-                ->route('admin.class-subjects.show', $classSubject)
+                ->route('admin.classes.subjects.show', [
+                    'class' => $classSubject->class_id,
+                    'class_subject' => $classSubject->id,
+                ])
                 ->flashSuccess(__('messages.class_subject_created'));
-        } catch (\InvalidArgumentException $e) {
+        } catch (\App\Exceptions\ClassSubjectException $e) {
             return back()->flashError($e->getMessage());
         }
-    }
-
-    /**
-     * Display the specified class subject assignment.
-     */
-    public function show(Request $request, ClassSubject $classSubject): Response
-    {
-        $this->authorize('view', $classSubject);
-
-        $classSubject = $this->classSubjectQueryService->loadClassSubjectDetails($classSubject);
-        $teachers = $this->classSubjectQueryService->getTeachersForReplacement();
-        $history = $this->classSubjectQueryService->getPaginatedHistory(
-            $classSubject->class_id,
-            $classSubject->subject_id,
-            $request->input('history_per_page', 10),
-            $classSubject->id
-        );
-
-        return Inertia::render('Admin/ClassSubjects/Show', [
-            'classSubject' => $classSubject,
-            'teachers' => $teachers,
-            'history' => $history,
-        ]);
     }
 
     /**
@@ -120,17 +108,22 @@ class ClassSubjectController extends Controller
      */
     public function replaceTeacher(ReplaceTeacherRequest $request, ClassSubject $classSubject): RedirectResponse
     {
+        $this->authorize('update', $classSubject);
+
         try {
             $newClassSubject = $this->classSubjectService->replaceTeacher(
                 $classSubject,
                 $request->input('new_teacher_id'),
-                $request->input('effective_date')
+                Carbon::parse($request->input('effective_date'))
             );
 
             return redirect()
-                ->route('admin.class-subjects.show', $newClassSubject)
+                ->route('admin.classes.subjects.show', [
+                    'class' => $newClassSubject->class_id,
+                    'class_subject' => $newClassSubject->id,
+                ])
                 ->flashSuccess(__('messages.teacher_replaced'));
-        } catch (\InvalidArgumentException $e) {
+        } catch (\App\Exceptions\ClassSubjectException $e) {
             return back()->flashError($e->getMessage());
         }
     }
@@ -138,13 +131,9 @@ class ClassSubjectController extends Controller
     /**
      * Update the coefficient for a class subject.
      */
-    public function updateCoefficient(Request $request, ClassSubject $classSubject): RedirectResponse
+    public function updateCoefficient(UpdateCoefficientRequest $request, ClassSubject $classSubject): RedirectResponse
     {
         $this->authorize('update', $classSubject);
-
-        $request->validate([
-            'coefficient' => ['required', 'numeric', 'min:0.01'],
-        ]);
 
         $this->classSubjectService->updateCoefficient($classSubject, $request->input('coefficient'));
 
@@ -154,15 +143,11 @@ class ClassSubjectController extends Controller
     /**
      * Terminate a class subject assignment.
      */
-    public function terminate(Request $request, ClassSubject $classSubject): RedirectResponse
+    public function terminate(TerminateAssignmentRequest $request, ClassSubject $classSubject): RedirectResponse
     {
         $this->authorize('update', $classSubject);
 
-        $request->validate([
-            'end_date' => ['required', 'date'],
-        ]);
-
-        $this->classSubjectService->terminateAssignment($classSubject, $request->input('end_date'));
+        $this->classSubjectService->terminateAssignment($classSubject, Carbon::parse($request->input('end_date')));
 
         return back()->flashSuccess(__('messages.assignment_terminated'));
     }
@@ -174,11 +159,11 @@ class ClassSubjectController extends Controller
     {
         $this->authorize('delete', $classSubject);
 
-        if ($classSubject->assessments()->exists()) {
-            return back()->flashError(__('messages.class_subject_has_assessments'));
+        try {
+            $this->classSubjectService->deleteClassSubject($classSubject);
+        } catch (\App\Exceptions\ClassSubjectException $e) {
+            return back()->flashError($e->getMessage());
         }
-
-        $classSubject->delete();
 
         return redirect()
             ->route('admin.class-subjects.index')

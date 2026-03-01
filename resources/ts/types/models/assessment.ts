@@ -17,15 +17,13 @@ export interface Assessment {
     duration_minutes: number | null;
     scheduled_at: string | null;
     due_date?: string;
-    max_file_size?: number;
-    allowed_extensions?: string;
-    max_files?: number;
     is_published: boolean;
+    has_ended: boolean;
     shuffle_questions: boolean;
-    show_results_immediately: boolean;
+    release_results_after_grading: boolean;
     show_correct_answers: boolean;
     allow_late_submission: boolean;
-    one_question_per_page: boolean;
+    results_available_at: string | null;
     created_at: string;
     updated_at: string;
 
@@ -50,15 +48,11 @@ export interface AssessmentFormData {
     duration: number;
     assessment_date: string;
     due_date?: string;
-    max_file_size?: number;
-    allowed_extensions?: string;
-    max_files?: number;
     is_published?: boolean;
     shuffle_questions?: boolean;
-    show_results_immediately?: boolean;
+    release_results_after_grading?: boolean;
     show_correct_answers?: boolean;
     allow_late_submission?: boolean;
-    one_question_per_page?: boolean;
     questions?: QuestionFormData[];
     deletedQuestionIds?: number[];
     deletedChoiceIds?: number[];
@@ -67,7 +61,7 @@ export interface AssessmentFormData {
 export interface QuestionFormData {
     id?: number;
     content: string;
-    type: 'multiple' | 'text' | 'one_choice' | 'boolean';
+    type: 'multiple' | 'text' | 'one_choice' | 'boolean' | 'file';
     points: number;
     order_index: number;
     choices: ChoiceFormData[];

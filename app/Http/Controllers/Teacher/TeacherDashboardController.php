@@ -24,25 +24,13 @@ class TeacherDashboardController extends Controller
     {
         $teacherId = $request->user()->id;
         $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $search = $request->input('search');
 
-        $activeAssignments = $this->dashboardService->getActiveAssignments($teacherId, $selectedYearId, $search);
-        $pastAssessments = $this->dashboardService->getPastAssessments($teacherId, $selectedYearId, $search);
-        $upcomingAssessments = $this->dashboardService->getUpcomingAssessments($teacherId, $selectedYearId, $search);
-
-        $stats = $this->dashboardService->getDashboardStats(
-            $teacherId,
-            $selectedYearId,
-            $pastAssessments->total(),
-            $upcomingAssessments->total()
-        );
+        $stats = $this->dashboardService->getDashboardStats($teacherId, $selectedYearId);
+        $stats['overall_average'] = $this->dashboardService->getOverallAverageScore($teacherId, $selectedYearId);
 
         return Inertia::render('Dashboard/Teacher', [
-            'activeAssignments' => $activeAssignments,
-            'pastAssessments' => $pastAssessments,
-            'upcomingAssessments' => $upcomingAssessments,
             'stats' => $stats,
-            'filters' => ['search' => $search],
+            'chartData' => Inertia::defer(fn () => $this->dashboardService->getChartData($teacherId, $selectedYearId)),
         ]);
     }
 }

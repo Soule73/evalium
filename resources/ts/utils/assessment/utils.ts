@@ -5,6 +5,23 @@ import {
     type Choice,
     type QuestionResult,
 } from '@/types';
+import { formatGrade } from '@/utils/formatting/formatters';
+
+interface DeliveryModeDefaults {
+    shuffle_questions: boolean;
+    duration?: number;
+}
+
+/**
+ * Computes side-effect field defaults when delivery_mode changes.
+ */
+export const getDeliveryModeDefaults = (deliveryMode: string): DeliveryModeDefaults => {
+    const isSupervisedMode = deliveryMode === 'supervised';
+    return {
+        shuffle_questions: isSupervisedMode,
+        ...(isSupervisedMode ? {} : { duration: 0 }),
+    };
+};
 
 /**
  * Calculates the total possible points from a list of questions.
@@ -35,7 +52,8 @@ export const buildScoresMap = (userAnswers: Record<number, Answer>): Record<numb
 
 /**
  * Builds a QuestionResult from a question and its corresponding answer.
- * Supports optional overrides for editable scores/feedbacks (grading mode).
+ * Computes isCorrect for choice-based questions and infers score from correctness
+ * when no explicit score is stored. Supports optional overrides for editable scores/feedbacks.
  */
 export const buildQuestionResult = (
     question: Question,
@@ -47,13 +65,26 @@ export const buildQuestionResult = (
             isCorrect: null,
             userChoices: [],
             hasMultipleAnswers: question.type === 'multiple',
-            feedback: overrides?.feedbacks?.[question.id] || null,
-            score: overrides?.scores?.[question.id] || 0,
+            feedback: overrides?.feedbacks?.[question.id] ?? null,
+            score: overrides?.scores?.[question.id] ?? (question.type === 'text' ? undefined : 0),
+        };
+    }
+
+    if (question.type === 'file') {
+        const explicitScore = overrides?.scores?.[question.id];
+        return {
+            isCorrect: null,
+            userChoices: [],
+            hasMultipleAnswers: false,
+            fileAnswer: answer.file_path ? answer : undefined,
+            feedback: overrides?.feedbacks?.[question.id] ?? answer.feedback ?? null,
+            score: explicitScore !== undefined ? explicitScore : answer.score,
         };
     }
 
     const isMultipleChoice = question.type === 'multiple';
     const userChoices: Choice[] = [];
+    let isCorrect: boolean | null = null;
 
     if (isMultipleChoice && answer.choices) {
         answer.choices.forEach((c) => {
@@ -61,17 +92,37 @@ export const buildQuestionResult = (
                 userChoices.push(c.choice);
             }
         });
+        const correctChoices = (question.choices ?? []).filter((c) => c.is_correct);
+        const selectedIds = new Set(userChoices.map((c) => c.id));
+        const correctIds = new Set(correctChoices.map((c) => c.id));
+        isCorrect =
+            correctIds.size === selectedIds.size &&
+            [...correctIds].every((id) => selectedIds.has(id));
     } else if (answer.choice) {
         userChoices.push(answer.choice);
+        if (question.type === 'one_choice' || question.type === 'boolean') {
+            isCorrect = answer.choice.is_correct ?? null;
+        }
     }
 
+    const effectiveScore =
+        overrides?.scores?.[question.id] !== undefined
+            ? overrides.scores[question.id]
+            : answer.score !== undefined && answer.score !== null
+              ? answer.score
+              : isCorrect === true
+                ? (question.points ?? 0)
+                : question.type === 'text'
+                  ? undefined
+                  : 0;
+
     return {
-        isCorrect: null,
+        isCorrect,
         userChoices,
         hasMultipleAnswers: isMultipleChoice,
         userText: answer.answer_text,
         feedback: overrides?.feedbacks?.[question.id] ?? answer.feedback ?? null,
-        score: overrides?.scores?.[question.id] ?? answer.score ?? 0,
+        score: effectiveScore,
     };
 };
 export const calculatePercentage = (score: number, totalPoints: number): number => {
@@ -126,7 +177,9 @@ export const formatScoresForSave = (
 export const hasUserResponse = (result: {
     userChoices?: unknown[];
     userText?: string;
+    fileAnswer?: { file_path?: string };
 }): boolean => {
+    if (result.fileAnswer?.file_path) return true;
     if (result.userChoices && result.userChoices.length > 0) {
         return true;
     }
@@ -168,21 +221,31 @@ export const calculateScoreDisplay = (
         ) || 20;
 
     if (finalScore !== null && finalScore !== undefined && totalPoints > 0) {
-        const limitedScore = Math.min(finalScore, totalPoints);
-
-        const percentage = Math.round((limitedScore / totalPoints) * 100);
-
-        let colorClass: string;
-        if (percentage >= 90) colorClass = 'text-green-600';
-        else if (percentage >= 70) colorClass = 'text-blue-600';
-        else if (percentage >= 50) colorClass = 'text-yellow-600';
-        else colorClass = 'text-red-600';
-
-        return {
-            text: `${limitedScore}/${totalPoints} (${percentage}%)`,
-            colorClass,
-        };
+        return formatGrade(Math.min(finalScore, totalPoints), totalPoints);
     }
 
     return null;
+};
+
+/**
+ * Determines if assessment results can be shown based on assignment status and grading policy.
+ */
+export const canShowAssessmentResults = (
+    assignmentStatus: string,
+    releaseResultsAfterGrading: boolean = false,
+): boolean => {
+    if (
+        !releaseResultsAfterGrading &&
+        (assignmentStatus === 'submitted' || assignmentStatus === 'graded')
+    ) {
+        return true;
+    }
+    return assignmentStatus === 'graded';
+};
+
+/**
+ * Returns the list of possible assignment statuses.
+ */
+export const getAssignmentStatus = (): string[] => {
+    return ['submitted', 'graded'];
 };

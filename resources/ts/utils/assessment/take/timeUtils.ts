@@ -45,26 +45,38 @@ export function isTimeCritical(timeLeft: number, duration: number): boolean {
 }
 
 /**
- * Gets color class based on remaining time percentage
+ * Gets color class based on remaining time.
+ *
+ * - Default: neutral gray (plenty of time)
+ * - Warning: amber when 1/6 or less of total time remains
+ * - Danger: red when 60 seconds or fewer remain
  *
  * @param timeLeft - Remaining time in seconds
  * @param duration - Total duration in minutes
- * @returns Tailwind color class
- *
- * @example
- * getTimeColorClass(900, 30) // "text-yellow-600"
- * getTimeColorClass(120, 30) // "text-red-600"
+ * @returns Tailwind text color class
  */
 export function getTimeColorClass(timeLeft: number, duration: number): string {
-    const percentage = getTimeRemainingPercentage(timeLeft, duration);
-
-    if (percentage < 10) {
+    if (timeLeft <= 60) {
         return 'text-red-600';
-    } else if (percentage < 25) {
-        return 'text-yellow-600';
     }
 
-    return 'text-green-600';
+    const totalSeconds = duration * 60;
+    const warningThreshold = totalSeconds / 6;
+
+    if (timeLeft <= warningThreshold) {
+        return 'text-amber-500';
+    }
+
+    return 'text-gray-900';
+}
+
+/**
+ * Returns true when the timer should pulse (last 60 seconds).
+ *
+ * @param timeLeft - Remaining time in seconds
+ */
+export function isTimePulsing(timeLeft: number): boolean {
+    return timeLeft <= 60;
 }
 
 /**
@@ -92,4 +104,30 @@ export function minutesToSeconds(minutes: number): number {
  */
 export function secondsToMinutes(seconds: number): number {
     return Math.floor(seconds / 60);
+}
+
+/**
+ * Derives Tailwind class string for the timer display based on remaining time percentage.
+ *
+ * Thresholds:
+ * - ≤ 10%: red, large, bold, pulsing
+ * - ≤ 25%: amber, bold
+ * - > 25%: neutral gray, small, semibold
+ *
+ * @param timeLeft - Remaining time in seconds
+ * @param durationMinutes - Total assessment duration in minutes (null = no limit)
+ * @returns Tailwind class string for the timer element
+ */
+export function getTimerClasses(timeLeft: number, durationMinutes: number | null): string {
+    if (!durationMinutes || durationMinutes <= 0) {
+        return 'text-gray-700 font-semibold tabular-nums';
+    }
+    const percent = timeLeft / (durationMinutes * 60);
+    if (percent <= 0.1) {
+        return 'text-red-600 text-lg font-bold tabular-nums animate-pulse';
+    }
+    if (percent <= 0.25) {
+        return 'text-amber-500 font-bold tabular-nums';
+    }
+    return 'text-gray-600 text-sm font-semibold tabular-nums';
 }

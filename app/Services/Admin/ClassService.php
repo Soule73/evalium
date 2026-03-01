@@ -2,8 +2,9 @@
 
 namespace App\Services\Admin;
 
+use App\Contracts\Repositories\ClassRepositoryInterface;
+use App\Contracts\Services\ClassServiceInterface;
 use App\Exceptions\ClassException;
-use App\Exceptions\ValidationException;
 use App\Models\AcademicYear;
 use App\Models\ClassModel;
 use Illuminate\Support\Collection;
@@ -15,19 +16,39 @@ use Illuminate\Support\Facades\DB;
  * Handles create, update, delete, and duplicate operations for classes.
  * Query operations are delegated to ClassQueryService following SRP.
  */
-class ClassService
+class ClassService implements ClassServiceInterface
 {
     public function __construct(
-        private readonly ClassQueryService $classQueryService
+        private readonly ClassRepositoryInterface $classQueryService
     ) {}
+
+    /**
+     * Get form data for the create page.
+     */
+    public function getCreateFormData(?int $selectedYearId): array
+    {
+        return [
+            'levels' => $this->classQueryService->getAllLevels(),
+            'selectedAcademicYear' => AcademicYear::find($selectedYearId),
+        ];
+    }
+
+    /**
+     * Get form data for the edit page.
+     */
+    public function getEditFormData(ClassModel $class): array
+    {
+        return [
+            'class' => $class->load(['academicYear', 'level']),
+            'levels' => $this->classQueryService->getAllLevels(),
+        ];
+    }
 
     /**
      * Create a new class for an academic year
      */
     public function createClass(array $data): ClassModel
     {
-        $this->validateClassData($data);
-
         $class = ClassModel::create([
             'academic_year_id' => $data['academic_year_id'],
             'level_id' => $data['level_id'],
@@ -42,33 +63,32 @@ class ClassService
     }
 
     /**
-     * Update an existing class
+     * Update an existing class.
      */
     public function updateClass(ClassModel $class, array $data): ClassModel
     {
-        $updateData = array_filter([
-            'name' => $data['name'] ?? null,
+        $class->update([
+            'name' => $data['name'],
+            'level_id' => $data['level_id'],
             'description' => $data['description'] ?? null,
             'max_students' => $data['max_students'] ?? null,
-        ], fn ($value) => $value !== null);
-
-        $class->update($updateData);
+        ]);
 
         $this->classQueryService->invalidateLevelsCache();
 
-        return $class->fresh();
+        return $class->refresh();
     }
 
     /**
-     * Delete a class (only if empty)
+     * Delete a class (only if empty).
      */
     public function deleteClass(ClassModel $class): bool
     {
-        if ($class->enrollments()->count() > 0) {
+        if ($class->enrollments()->exists()) {
             throw ClassException::hasEnrolledStudents();
         }
 
-        if ($class->classSubjects()->count() > 0) {
+        if ($class->classSubjects()->exists()) {
             throw ClassException::hasSubjectAssignments();
         }
 
@@ -107,27 +127,5 @@ class ClassService
         });
 
         return $newClasses;
-    }
-
-    /**
-     * Validate class data
-     */
-    private function validateClassData(array $data): void
-    {
-        $required = ['academic_year_id', 'level_id', 'name'];
-        foreach ($required as $field) {
-            if (! isset($data[$field])) {
-                throw ValidationException::missingRequiredField($field);
-            }
-        }
-
-        $existingClass = ClassModel::where('academic_year_id', $data['academic_year_id'])
-            ->where('level_id', $data['level_id'])
-            ->where('name', $data['name'])
-            ->exists();
-
-        if ($existingClass) {
-            throw ClassException::duplicateName();
-        }
     }
 }

@@ -72,7 +72,11 @@ class StudentAssessmentServiceTest extends TestCase
 
         $result = $this->service->getStudentAssessmentsForIndex($student, $this->academicYear->id, [], 15);
 
-        $this->assertEquals([], $result);
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('assignments', $result);
+        $this->assertArrayHasKey('subjects', $result);
+        $this->assertEquals([], $result['assignments']);
+        $this->assertEquals([], $result['subjects']);
     }
 
     public function test_get_student_assessments_for_index_returns_paginated_results(): void
@@ -103,13 +107,17 @@ class StudentAssessmentServiceTest extends TestCase
             'duration_minutes' => 60,
             'coefficient' => 1.0,
             'scheduled_at' => now()->addDay(),
+            'is_published' => true,
         ]);
 
         $result = $this->service->getStudentAssessmentsForIndex($student, $this->academicYear->id, [], 15);
 
-        $this->assertNotEmpty($result);
-        $this->assertCount(1, $result->items());
-        $this->assertEquals('Test Assessment', $result->items()[0]->assessment->title);
+        $this->assertIsArray($result);
+        $assignments = $result['assignments'];
+        $this->assertNotEmpty($assignments);
+        $this->assertCount(1, $assignments->items());
+        $this->assertEquals('Test Assessment', $assignments->items()[0]->assessment->title);
+        $this->assertNotEmpty($result['subjects']);
     }
 
     public function test_get_student_assessments_for_index_filters_by_search(): void
@@ -140,6 +148,7 @@ class StudentAssessmentServiceTest extends TestCase
             'duration_minutes' => 60,
             'coefficient' => 1.0,
             'scheduled_at' => now()->addDay(),
+            'is_published' => true,
         ]);
 
         Assessment::create([
@@ -150,6 +159,7 @@ class StudentAssessmentServiceTest extends TestCase
             'duration_minutes' => 60,
             'coefficient' => 1.0,
             'scheduled_at' => now()->addDays(2),
+            'is_published' => true,
         ]);
 
         $result = $this->service->getStudentAssessmentsForIndex(
@@ -159,8 +169,9 @@ class StudentAssessmentServiceTest extends TestCase
             15
         );
 
-        $this->assertCount(1, $result->items());
-        $this->assertEquals('Math Test', $result->items()[0]->assessment->title);
+        $assignments = $result['assignments'];
+        $this->assertCount(1, $assignments->items());
+        $this->assertEquals('Math Test', $assignments->items()[0]->assessment->title);
     }
 
     public function test_get_student_assessments_for_index_filters_by_status(): void
@@ -191,6 +202,7 @@ class StudentAssessmentServiceTest extends TestCase
             'duration_minutes' => 60,
             'coefficient' => 1.0,
             'scheduled_at' => now()->addDay(),
+            'is_published' => true,
         ]);
 
         $assessment2 = Assessment::create([
@@ -201,6 +213,7 @@ class StudentAssessmentServiceTest extends TestCase
             'duration_minutes' => 60,
             'coefficient' => 1.0,
             'scheduled_at' => now()->addDays(2),
+            'is_published' => true,
         ]);
 
         AssessmentAssignment::create([
@@ -216,9 +229,10 @@ class StudentAssessmentServiceTest extends TestCase
             15
         );
 
-        $this->assertCount(1, $result->items());
-        $this->assertEquals('Completed', $result->items()[0]->assessment->title);
-        $this->assertEquals('submitted', $result->items()[0]->status);
+        $assignments = $result['assignments'];
+        $this->assertCount(1, $assignments->items());
+        $this->assertEquals('Completed', $assignments->items()[0]->assessment->title);
+        $this->assertEquals('submitted', $assignments->items()[0]->status);
     }
 
     public function test_get_assignment_for_results_returns_assignment_with_answers(): void
@@ -357,67 +371,6 @@ class StudentAssessmentServiceTest extends TestCase
         $assignment = $this->service->getOrCreateAssignment($student, $assessment);
 
         $this->assertEquals($existing->id, $assignment->id);
-    }
-
-    public function test_can_student_access_assessment_returns_true_when_enrolled(): void
-    {
-        $student = User::factory()->create();
-        $student->assignRole('student');
-
-        $class = ClassModel::factory()->create(['academic_year_id' => $this->academicYear->id]);
-
-        Enrollment::create([
-            'student_id' => $student->id,
-            'class_id' => $class->id,
-            'status' => 'active',
-            'enrolled_at' => now(),
-        ]);
-
-        $classSubject = ClassSubject::factory()->create([
-            'class_id' => $class->id,
-            'subject_id' => $this->subject->id,
-            'teacher_id' => $this->teacher->id,
-        ]);
-
-        $assessment = Assessment::create([
-            'class_subject_id' => $classSubject->id,
-            'teacher_id' => $this->teacher->id,
-            'title' => 'Test',
-            'type' => 'exam',
-            'duration_minutes' => 60,
-            'coefficient' => 1.0,
-            'scheduled_at' => now()->addDay(),
-        ]);
-
-        $result = $this->service->canStudentAccessAssessment($student, $assessment);
-
-        $this->assertTrue($result);
-    }
-
-    public function test_can_student_access_assessment_returns_false_when_not_enrolled(): void
-    {
-        $student = User::factory()->create();
-        $student->assignRole('student');
-
-        $classSubject = ClassSubject::factory()->create([
-            'class_id' => $this->classModel->id,
-            'subject_id' => $this->subject->id,
-            'teacher_id' => $this->teacher->id,
-        ]);
-
-        $assessment = Assessment::create([
-            'class_subject_id' => $classSubject->id,
-            'teacher_id' => $this->teacher->id,
-            'title' => 'Test',
-            'type' => 'exam',
-            'duration_minutes' => 60,
-            'coefficient' => 1.0,
-            'scheduled_at' => now()->addDay(),
-        ]);
-
-        $result = $this->service->canStudentAccessAssessment($student, $assessment);
-
-        $this->assertFalse($result);
     }
 
     public function test_get_assessment_status_returns_not_submitted_when_no_assignment(): void
@@ -732,8 +685,8 @@ class StudentAssessmentServiceTest extends TestCase
 
         $this->assertArrayHasKey($question->id, $result);
         $formatted = $result[$question->id];
-        $this->assertIsArray($formatted->choices);
-        $this->assertCount(2, $formatted->choices);
+        $this->assertIsArray($formatted['choices']);
+        $this->assertCount(2, $formatted['choices']);
     }
 
     public function test_format_user_answers_single_answer_returns_directly(): void
@@ -778,6 +731,6 @@ class StudentAssessmentServiceTest extends TestCase
         $result = $this->service->formatUserAnswers($answers);
 
         $this->assertArrayHasKey($question->id, $result);
-        $this->assertEquals($choice->id, $result[$question->id]->choice_id);
+        $this->assertEquals($choice->id, $result[$question->id]['choice_id']);
     }
 }

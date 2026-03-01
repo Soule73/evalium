@@ -65,7 +65,7 @@ class TeacherExceptionHandlingTest extends TestCase
             'teacher_id' => $teacher->id,
             'duration_minutes' => 60,
             'scheduled_at' => now()->subMinutes(30),
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ], $assessmentOverrides));
 
         Question::factory()->create([
@@ -159,7 +159,7 @@ class TeacherExceptionHandlingTest extends TestCase
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $teacher->id,
             'due_date' => now()->addDays(7),
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         Question::factory()->create([

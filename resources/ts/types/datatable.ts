@@ -23,10 +23,11 @@ export interface PaginationType<T> {
 export interface FilterConfig {
     key: string;
     label: string;
-    type: 'text' | 'select';
+    type: 'text' | 'select' | 'boolean';
     placeholder?: string;
     options?: { value: string; label: string }[];
     defaultValue?: string;
+    trueValue?: string;
 }
 
 export interface ColumnConfig<T> {
@@ -71,10 +72,11 @@ export interface DataTableState {
 }
 
 export interface DataTableProps<T> {
-    data: PaginationType<T>;
+    data: PaginationType<T> | T[];
     config: DataTableConfig<T>;
     onStateChange?: (state: DataTableState) => void;
     onSelectionChange?: (selectedIds: (number | string)[]) => void;
+    selectedIds?: (number | string)[];
     isLoading?: boolean;
     className?: string;
     testIdSelectAllCheckbox?: string;

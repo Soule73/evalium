@@ -44,7 +44,7 @@ export function ClassList({ data, variant = 'admin', levels = [], onView }: Clas
                     labelKey: 'admin_pages.classes.level',
                     type: 'select' as const,
                     options: levelFilterOptions,
-                    conditional: (v: string) => v === 'admin',
+                    conditional: (v: string) => v === 'admin' || v === 'teacher',
                 },
             ],
 
@@ -150,9 +150,7 @@ export function ClassList({ data, variant = 'admin', levels = [], onView }: Clas
             actions: [
                 {
                     labelKey:
-                        variant === 'admin'
-                            ? 'admin_pages.common.view'
-                            : 'teacher_class_pages.index.view',
+                        variant === 'admin' ? 'commons/ui.view' : 'teacher_class_pages.index.view',
                     onClick: (item: ClassModel) =>
                         onView?.(item) || router.visit(route(`${variant}.classes.show`, item.id)),
                     color: 'secondary' as const,

@@ -84,8 +84,8 @@ export function LevelList({
                             <Badge
                                 label={
                                     level.is_active
-                                        ? t('admin_pages.common.active')
-                                        : t('admin_pages.common.inactive')
+                                        ? t('commons/status.active')
+                                        : t('commons/status.inactive')
                                 }
                                 type={level.is_active ? 'success' : 'gray'}
                             />
@@ -93,13 +93,13 @@ export function LevelList({
                 },
                 {
                     key: 'actions',
-                    labelKey: 'admin_pages.common.actions',
+                    labelKey: 'commons/table.actions',
                     render: (level) =>
                         permissions.canUpdate || permissions.canDelete ? (
                             <div className="flex gap-2">
                                 {permissions.canUpdate && onEdit && (
                                     <Button onClick={() => onEdit(level)} size="sm" color="primary">
-                                        {t('admin_pages.common.edit')}
+                                        {t('commons/ui.edit')}
                                     </Button>
                                 )}
                                 {permissions.canDelete && onDelete && (
@@ -109,11 +109,23 @@ export function LevelList({
                                         color="danger"
                                         disabled={level.classes_count > 0}
                                     >
-                                        {t('admin_pages.common.delete')}
+                                        {t('commons/ui.delete')}
                                     </Button>
                                 )}
                             </div>
                         ) : null,
+                },
+            ],
+            filters: [
+                {
+                    key: 'status',
+                    labelKey: 'admin_pages.levels.status',
+                    type: 'select' as const,
+                    options: [
+                        { value: '', label: t('admin_pages.levels.all_status') },
+                        { value: '1', label: t('commons/status.active') },
+                        { value: '0', label: t('commons/status.inactive') },
+                    ],
                 },
             ],
         }),

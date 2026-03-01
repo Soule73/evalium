@@ -14,26 +14,18 @@ use Exception;
 class ClassException extends Exception
 {
     /**
-     * Create exception for deletion with enrolled students
+     * Create exception for deletion with enrolled students.
      */
     public static function hasEnrolledStudents(): self
     {
-        return new self('Cannot delete class with enrolled students');
+        return new self(__('messages.class_has_enrolled_students'));
     }
 
     /**
-     * Create exception for deletion with subject assignments
+     * Create exception for deletion with subject assignments.
      */
     public static function hasSubjectAssignments(): self
     {
-        return new self('Cannot delete class with subject assignments');
-    }
-
-    /**
-     * Create exception for duplicate class name
-     */
-    public static function duplicateName(): self
-    {
-        return new self('A class with this name already exists for this level and academic year');
+        return new self(__('messages.class_has_subject_assignments'));
     }
 }

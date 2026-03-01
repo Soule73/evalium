@@ -63,4 +63,19 @@ class AnswerFactory extends Factory
             'feedback' => $this->faker->optional()->sentence(),
         ]);
     }
+
+    /**
+     * Answer with an uploaded file (for QuestionType::File questions)
+     */
+    public function withFile(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'choice_id' => null,
+            'answer_text' => null,
+            'file_name' => $this->faker->word().'.pdf',
+            'file_path' => 'answers/'.$this->faker->uuid().'.pdf',
+            'file_size' => $this->faker->numberBetween(10240, 5242880),
+            'mime_type' => 'application/pdf',
+        ]);
+    }
 }

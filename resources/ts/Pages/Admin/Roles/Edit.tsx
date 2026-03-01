@@ -41,6 +41,7 @@ export default function EditRole({ role, groupedPermissions }: Props) {
 
     const handleSync = (e: FormEvent) => {
         e.preventDefault();
+        if (!role.is_editable) return;
         setIsSubmitting(true);
         router.post(
             route('admin.roles.sync-permissions', { role: role.id }),
@@ -56,10 +57,11 @@ export default function EditRole({ role, groupedPermissions }: Props) {
         () => ({
             configurePermissions: t('admin_pages.roles.configure_permissions'),
             configureSubtitle: t('admin_pages.roles.configure_subtitle'),
-            cancel: t('common.cancel'),
+            cancel: t('commons/ui.cancel'),
             saving: t('admin_pages.roles.saving'),
             savePermissions: t('admin_pages.roles.save_permissions'),
             systemRoleNotice: t('admin_pages.roles.system_role_notice'),
+            permissionsLockedNotice: t('admin_pages.roles.permissions_locked_notice'),
         }),
         [t],
     );
@@ -77,43 +79,60 @@ export default function EditRole({ role, groupedPermissions }: Props) {
                     title={configureTitleTranslation}
                     subtitle={translations.configureSubtitle}
                     actions={
-                        <div className="flex gap-3">
+                        role.is_editable ? (
+                            <div className="flex gap-3">
+                                <Button
+                                    type="button"
+                                    onClick={handleCancel}
+                                    color="secondary"
+                                    variant="outline"
+                                    disabled={isSubmitting}
+                                >
+                                    {translations.cancel}
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    color="primary"
+                                    disabled={isSubmitting}
+                                    data-e2e="permission-save-button"
+                                >
+                                    {isSubmitting
+                                        ? translations.saving
+                                        : translations.savePermissions}
+                                </Button>
+                            </div>
+                        ) : (
                             <Button
                                 type="button"
                                 onClick={handleCancel}
                                 color="secondary"
                                 variant="outline"
-                                disabled={isSubmitting}
                             >
                                 {translations.cancel}
                             </Button>
-                            <Button
-                                type="submit"
-                                color="primary"
-                                disabled={isSubmitting}
-                                data-e2e="permission-save-button"
-                            >
-                                {isSubmitting ? translations.saving : translations.savePermissions}
-                            </Button>
-                        </div>
+                        )
                     }
                 >
                     <div className="mb-4 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
                         <div className="flex items-center gap-2">
                             <Badge label={role.name} type="info" />
                             <span className="text-sm text-indigo-800">
-                                {translations.systemRoleNotice}
+                                {role.is_editable
+                                    ? translations.systemRoleNotice
+                                    : translations.permissionsLockedNotice}
                             </span>
                         </div>
                     </div>
 
-                    <PermissionSelector
-                        groupedPermissions={groupedPermissions}
-                        selectedPermissions={selectedPermissions}
-                        onPermissionToggle={handlePermissionToggle}
-                        onSelectAll={selectAll}
-                        onDeselectAll={deselectAll}
-                    />
+                    <div className={!role.is_editable ? 'pointer-events-none opacity-60' : ''}>
+                        <PermissionSelector
+                            groupedPermissions={groupedPermissions}
+                            selectedPermissions={selectedPermissions}
+                            onPermissionToggle={handlePermissionToggle}
+                            onSelectAll={selectAll}
+                            onDeselectAll={deselectAll}
+                        />
+                    </div>
                 </Section>
             </form>
         </AuthenticatedLayout>

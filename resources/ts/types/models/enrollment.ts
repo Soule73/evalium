@@ -9,7 +9,7 @@ export interface Enrollment {
     student_id: number;
     status: EnrollmentStatus;
     enrolled_at: string;
-    left_date?: string;
+    withdrawn_at?: string;
     created_at: string;
     updated_at: string;
 

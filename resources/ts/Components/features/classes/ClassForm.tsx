@@ -98,7 +98,7 @@ export function ClassForm({ title, subtitle, classItem, levels, onCancel }: Clas
                         onClick={onCancel}
                         disabled={isSubmitting}
                     >
-                        {t('admin_pages.common.cancel')}
+                        {t('commons/ui.cancel')}
                     </Button>
                     <Button
                         type="submit"

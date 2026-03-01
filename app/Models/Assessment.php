@@ -30,9 +30,8 @@ class Assessment extends Model
         'duration_minutes',
         'scheduled_at',
         'due_date',
-        'max_file_size',
-        'allowed_extensions',
-        'max_files',
+        'is_published',
+        'reminder_sent_at',
         'settings',
     ];
 
@@ -50,20 +49,20 @@ class Assessment extends Model
             'duration_minutes' => 'integer',
             'scheduled_at' => 'datetime',
             'due_date' => 'datetime',
-            'max_file_size' => 'integer',
-            'max_files' => 'integer',
+            'is_published' => 'boolean',
+            'reminder_sent_at' => 'datetime',
             'settings' => 'array',
         ];
     }
 
     protected $appends = [
         'duration',
-        'is_published',
+        'has_ended',
         'shuffle_questions',
-        'show_results_immediately',
+        'release_results_after_grading',
         'show_correct_answers',
         'allow_late_submission',
-        'one_question_per_page',
+        'results_available_at',
     ];
 
     /**
@@ -132,22 +131,6 @@ class Assessment extends Model
     }
 
     /**
-     * Get whether the assessment is published.
-     */
-    public function getIsPublishedAttribute(): bool
-    {
-        return $this->getBooleanSetting('is_published', false);
-    }
-
-    /**
-     * Set whether the assessment is published.
-     */
-    public function setIsPublishedAttribute(bool $value): void
-    {
-        $this->setSettingValue('is_published', $value);
-    }
-
-    /**
      * Get whether questions should be shuffled.
      */
     public function getShuffleQuestionsAttribute(): bool
@@ -164,27 +147,30 @@ class Assessment extends Model
     }
 
     /**
-     * Get whether results should be shown immediately after submission.
+     * Get whether results require manual grading before being released to students.
+     * When true, results are withheld until the teacher completes grading.
+     * When false (default), automatically scored results are shown immediately.
      */
-    public function getShowResultsImmediatelyAttribute(): bool
+    public function getReleaseResultsAfterGradingAttribute(): bool
     {
-        return $this->getBooleanSetting('show_results_immediately', true);
+        return ! $this->getBooleanSetting('show_results_immediately', true);
     }
 
     /**
-     * Set whether results should be shown immediately after submission.
+     * Set whether results require manual grading before release.
      */
-    public function setShowResultsImmediatelyAttribute(bool $value): void
+    public function setReleaseResultsAfterGradingAttribute(bool $value): void
     {
-        $this->setSettingValue('show_results_immediately', $value);
+        $this->setSettingValue('show_results_immediately', ! $value);
     }
 
     /**
      * Get whether correct answers should be revealed to students.
+     * Defaults to true: graded results show correct/incorrect unless explicitly disabled.
      */
     public function getShowCorrectAnswersAttribute(): bool
     {
-        return $this->getBooleanSetting('show_correct_answers', false);
+        return $this->getBooleanSetting('show_correct_answers', true);
     }
 
     /**
@@ -209,22 +195,6 @@ class Assessment extends Model
     public function setAllowLateSubmissionAttribute(bool $value): void
     {
         $this->setSettingValue('allow_late_submission', $value);
-    }
-
-    /**
-     * Get whether to show one question per page.
-     */
-    public function getOneQuestionPerPageAttribute(): bool
-    {
-        return $this->getBooleanSetting('one_question_per_page', false);
-    }
-
-    /**
-     * Set whether to show one question per page.
-     */
-    public function setOneQuestionPerPageAttribute(bool $value): void
-    {
-        $this->setSettingValue('one_question_per_page', $value);
     }
 
     /**
@@ -253,7 +223,7 @@ class Assessment extends Model
         }
 
         if ($this->scheduled_at && $this->duration_minutes) {
-            $endsAt = $this->scheduled_at->addMinutes($this->duration_minutes);
+            $endsAt = $this->scheduled_at->copy()->addMinutes($this->duration_minutes);
 
             if ($now->gt($endsAt) && ! $this->allow_late_submission) {
                 return ['available' => false, 'reason' => 'assessment_ended'];
@@ -272,15 +242,96 @@ class Assessment extends Model
     }
 
     /**
+     * Determine whether the assessment window has fully closed.
+     *
+     * For homework: due_date has passed.
+     * For supervised: scheduled_at + duration_minutes has passed.
+     * Edge case: if scheduled_at is set but duration_minutes is null,
+     * the assessment is treated as instantaneous — ended when scheduled_at passed.
+     */
+    public function hasEnded(): bool
+    {
+        $now = now();
+
+        if ($this->isHomeworkMode()) {
+            return $this->due_date !== null && $now->gt($this->due_date);
+        }
+
+        if ($this->scheduled_at !== null && $this->duration_minutes === null) {
+            return $now->gt($this->scheduled_at);
+        }
+
+        $endsAt = $this->ends_at;
+
+        return $endsAt !== null && $now->gt($endsAt);
+    }
+
+    /**
+     * Appended accessor for serialization to frontend.
+     */
+    public function getHasEndedAttribute(): bool
+    {
+        return $this->hasEnded();
+    }
+
+    /**
      * Get the end time for this assessment.
+     *
+     * When duration_minutes is null but scheduled_at is set, the assessment is
+     * treated as instantaneous and ends exactly at scheduled_at.
      */
     public function getEndsAtAttribute(): ?\Carbon\Carbon
     {
-        if (! $this->scheduled_at || ! $this->duration_minutes) {
+        if (! $this->scheduled_at) {
             return null;
         }
 
+        if (! $this->duration_minutes) {
+            return $this->scheduled_at->copy();
+        }
+
         return $this->scheduled_at->copy()->addMinutes($this->duration_minutes);
+    }
+
+    /**
+     * Determine from which point in time results can be revealed to students.
+     *
+     * For supervised assessments an embargo of one hour after the session ends
+     * is enforced so that early finishers cannot leak questions to peers who
+     * are still taking the exam.
+     * For homework assessments there is no embargo: results follow the
+     * show_results_immediately / graded_at rules only.
+     */
+    public function getResultsAvailableAtAttribute(): ?\Carbon\Carbon
+    {
+        if ($this->isHomeworkMode()) {
+            return null;
+        }
+
+        $endsAt = $this->ends_at;
+
+        if ($endsAt === null) {
+            return null;
+        }
+
+        return $endsAt->copy()->addHour();
+    }
+
+    /**
+     * Check whether the results embargo has lifted for this assessment.
+     *
+     * For supervised assessments: true only after scheduled_at + duration + 1 hour.
+     * For homework assessments: always true (no embargo applies).
+     */
+    public function isResultsEmbargoLifted(): bool
+    {
+        if ($this->isHomeworkMode()) {
+            return true;
+        }
+
+        $availableAt = $this->results_available_at;
+
+        return $availableAt !== null && now()->gte($availableAt);
     }
 
     /**
@@ -297,27 +348,5 @@ class Assessment extends Model
     public function isHomeworkMode(): bool
     {
         return $this->delivery_mode === DeliveryMode::Homework;
-    }
-
-    /**
-     * Check if file uploads are enabled for this assessment.
-     */
-    public function hasFileUploads(): bool
-    {
-        return $this->max_files > 0;
-    }
-
-    /**
-     * Get the allowed file extensions as an array.
-     *
-     * @return array<string>
-     */
-    public function getAllowedExtensionsArray(): array
-    {
-        if (! $this->allowed_extensions) {
-            return [];
-        }
-
-        return array_map('trim', explode(',', $this->allowed_extensions));
     }
 }

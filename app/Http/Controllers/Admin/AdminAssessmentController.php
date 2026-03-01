@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\Repositories\AdminAssessmentRepositoryInterface;
+use App\Contracts\Repositories\TeacherAssessmentRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\HandlesAssessmentViewing;
 use App\Http\Traits\HandlesIndexRequests;
 use App\Models\Assessment;
-use App\Models\ClassModel;
-use App\Models\Subject;
-use App\Models\User;
-use App\Services\Admin\AdminAssessmentQueryService;
+use App\Repositories\Teacher\GradingRepository;
 use App\Services\Core\Answer\AnswerFormatterService;
+use App\Services\Core\AssessmentService;
+use App\Services\Core\AssessmentStatsService;
 use App\Services\Core\Scoring\ScoringService;
-use App\Services\Teacher\GradingQueryService;
-use App\Services\Teacher\TeacherAssessmentQueryService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -31,16 +30,23 @@ class AdminAssessmentController extends Controller
     use AuthorizesRequests, FiltersAcademicYear, HandlesAssessmentViewing, HandlesIndexRequests;
 
     public function __construct(
-        private readonly AdminAssessmentQueryService $assessmentQueryService,
-        private readonly TeacherAssessmentQueryService $teacherAssessmentQueryService,
-        private readonly GradingQueryService $gradingQueryService,
+        private readonly AdminAssessmentRepositoryInterface $assessmentQueryService,
+        private readonly TeacherAssessmentRepositoryInterface $teacherAssessmentQueryService,
+        private readonly AssessmentService $assessmentService,
+        private readonly GradingRepository $gradingQueryService,
         private readonly AnswerFormatterService $answerFormatterService,
-        private readonly ScoringService $scoringService
+        private readonly ScoringService $scoringService,
+        private readonly AssessmentStatsService $assessmentStatsService
     ) {}
 
-    protected function resolveAssessmentQueryService(): TeacherAssessmentQueryService
+    protected function resolveAssessmentQueryService(): TeacherAssessmentRepositoryInterface
     {
         return $this->teacherAssessmentQueryService;
+    }
+
+    protected function resolveAssessmentService(): AssessmentService
+    {
+        return $this->assessmentService;
     }
 
     /**
@@ -63,24 +69,15 @@ class AdminAssessmentController extends Controller
             $perPage
         );
 
-        $classes = ClassModel::query()
-            ->when($selectedYearId, fn ($q, $id) => $q->where('academic_year_id', $id))
-            ->orderBy('name')
-            ->get(['id', 'name']);
+        $filterData = $this->assessmentQueryService->getFilterData($selectedYearId);
 
-        $subjects = Subject::orderBy('name')->get(['id', 'name']);
-
-        $teachers = User::role('teacher')
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name']);
-
-        return Inertia::render('Admin/Assessments/Index', [
+        return Inertia::render('Assessments/Index', [
             'assessments' => $assessments,
             'filters' => $filters,
-            'classes' => $classes,
-            'subjects' => $subjects,
-            'teachers' => $teachers,
+            'classes' => $filterData['classes'],
+            'subjects' => $filterData['subjects'],
+            'teachers' => $filterData['teachers'],
+            'routeContext' => $this->buildRouteContext(),
         ]);
     }
 
@@ -94,7 +91,8 @@ class AdminAssessmentController extends Controller
         return [
             'role' => 'admin',
             'backRoute' => 'admin.assessments.index',
-            'showRoute' => 'admin.assessments.show',
+            'showRoute' => null,
+            'classAssessmentShowRoute' => 'admin.classes.assessments.show',
             'reviewRoute' => 'admin.assessments.review',
             'gradeRoute' => 'admin.assessments.grade',
             'saveGradeRoute' => 'admin.assessments.saveGrade',
@@ -103,6 +101,8 @@ class AdminAssessmentController extends Controller
             'unpublishRoute' => null,
             'duplicateRoute' => null,
             'reopenRoute' => null,
+            'reassignRoute' => null,
+            'createRoute' => null,
         ];
     }
 }

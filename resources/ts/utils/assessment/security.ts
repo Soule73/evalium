@@ -1,6 +1,6 @@
 /**
- * Helpers pour les mesures de sécurité lors de la passation d'une évaluation
- * Fournit des fonctions pour gérer les événements de sécurité et appliquer des protections contre les tricheries
+ * Security measure helpers for assessment completion.
+ * Provides functions to manage security events and apply protections against cheating.
  */
 export interface SecurityEventHandlers {
     handleBeforeUnload: (e: BeforeUnloadEvent) => void;
@@ -12,8 +12,26 @@ export interface SecurityEventHandlers {
     preventImageActions: (e: Event) => boolean;
 }
 
+export interface AssessmentConfig {
+    devMode: boolean;
+}
+
 /**
- * Types de violations de sécurité reconnus
+ * Checks if security measures are enabled based on the assessment config.
+ */
+export function isSecurityEnabled(config: AssessmentConfig): boolean {
+    return !config.devMode;
+}
+
+/**
+ * Checks if a specific security feature is enabled.
+ */
+export function isFeatureEnabled(config: AssessmentConfig, _feature: string): boolean {
+    return !config.devMode;
+}
+
+/**
+ * Recognized security violation types
  */
 export const VIOLATION_TYPES = {
     TAB_SWITCH: 'tab_switch',
@@ -21,8 +39,8 @@ export const VIOLATION_TYPES = {
 } as const;
 
 /**
- * Gestionnaire pour l'événement beforeunload
- * Empêche la fermeture/navigation de la page
+ * Handler for the beforeunload event.
+ * Prevents page closure and navigation.
  */
 export const createBeforeUnloadHandler = () => {
     return (e: BeforeUnloadEvent) => {
@@ -32,7 +50,7 @@ export const createBeforeUnloadHandler = () => {
 };
 
 /**
- * Vérifie si une combinaison de touches est interdite pour les outils de développement
+ * Checks if a key combination is forbidden for developer tools.
  */
 export const isDeveloperToolsShortcut = (e: KeyboardEvent): boolean => {
     return (
@@ -45,14 +63,14 @@ export const isDeveloperToolsShortcut = (e: KeyboardEvent): boolean => {
 };
 
 /**
- * Vérifie si une combinaison de touches est interdite pour le rechargement
+ * Checks if a key combination is forbidden for page reload.
  */
 export const isReloadShortcut = (e: KeyboardEvent): boolean => {
     return ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'R')) || e.key === 'F5';
 };
 
 /**
- * Vérifie si une combinaison de touches est interdite pour copier/coller
+ * Checks if a key combination is forbidden for copy/paste.
  */
 export const isCopyPasteShortcut = (e: KeyboardEvent): boolean => {
     return (
@@ -69,36 +87,36 @@ export const isCopyPasteShortcut = (e: KeyboardEvent): boolean => {
 };
 
 /**
- * Vérifie si une combinaison de touches est interdite pour l'impression
+ * Checks if a key combination is forbidden for printing.
  */
 export const isPrintShortcut = (e: KeyboardEvent): boolean => {
     return (e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P');
 };
 
 /**
- * Vérifie si une combinaison de touches est interdite pour le zoom
+ * Checks if a key combination is forbidden for zooming.
  */
 export const isZoomShortcut = (e: KeyboardEvent): boolean => {
     return e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '0');
 };
 
 /**
- * Vérifie si une combinaison de touches est interdite pour les nouvelles fenêtres/onglets
+ * Checks if a key combination is forbidden for opening new windows/tabs.
  */
 export const isNewWindowShortcut = (e: KeyboardEvent): boolean => {
     return e.ctrlKey && (e.key === 't' || e.key === 'T' || e.key === 'n' || e.key === 'N');
 };
 
 /**
- * Vérifie si la touche Escape est pressée
+ * Checks if the Escape key is pressed.
  */
 export const isEscapeKey = (e: KeyboardEvent): boolean => {
     return e.key === 'Escape';
 };
 
 /**
- * Gestionnaire principal pour les événements clavier
- * Bloque les combinaisons de touches selon la configuration fournie
+ * Main handler for keyboard events.
+ * Blocks key combinations according to the provided configuration.
  */
 export const createKeyDownHandler = (config?: {
     blockDevTools?: boolean;
@@ -152,7 +170,7 @@ export const createKeyDownHandler = (config?: {
 };
 
 /**
- * Gestionnaire pour empêcher la sélection de texte
+ * Handler to prevent text selection.
  */
 export const createSelectStartHandler = () => {
     return (e: Event) => {
@@ -162,7 +180,7 @@ export const createSelectStartHandler = () => {
 };
 
 /**
- * Gestionnaire pour empêcher le menu contextuel
+ * Handler to prevent context menu.
  */
 export const createContextMenuHandler = () => {
     return (e: MouseEvent) => {
@@ -172,7 +190,7 @@ export const createContextMenuHandler = () => {
 };
 
 /**
- * Gestionnaire pour empêcher le glisser-déposer
+ * Handler to prevent drag and drop.
  */
 export const createDragHandler = () => {
     return (e: DragEvent) => {
@@ -182,14 +200,14 @@ export const createDragHandler = () => {
 };
 
 /**
- * Gestionnaire pour empêcher l'impression
+ * Handler to prevent printing.
  */
 export const createPrintHandler = () => {
     return () => false;
 };
 
 /**
- * Gestionnaire pour empêcher les actions sur les images et liens
+ * Handler to prevent actions on images and links.
  */
 export const createImageActionsHandler = () => {
     return (e: Event) => {
@@ -203,7 +221,7 @@ export const createImageActionsHandler = () => {
 };
 
 /**
- * Configuration des styles CSS pour empêcher la sélection
+ * CSS style configuration to prevent text selection.
  */
 export const disableTextSelection = (): void => {
     document.body.style.userSelect = 'none';
@@ -211,7 +229,7 @@ export const disableTextSelection = (): void => {
 };
 
 /**
- * Restauration des styles CSS pour permettre la sélection
+ * Restores CSS styles to allow text selection.
  */
 export const enableTextSelection = (): void => {
     document.body.style.userSelect = '';
@@ -219,14 +237,14 @@ export const enableTextSelection = (): void => {
 };
 
 /**
- * Restaure les barres de défilement
+ * Restores scrollbars.
  */
 export const showScrollbars = (): void => {
     document.documentElement.style.overflow = '';
 };
 
 /**
- * Applique toutes les protections de sécurité
+ * Applies all security protections.
  */
 export const applySecurityMeasures = (): SecurityEventHandlers => {
     const handlers: SecurityEventHandlers = {
@@ -245,7 +263,7 @@ export const applySecurityMeasures = (): SecurityEventHandlers => {
 };
 
 /**
- * Supprime toutes les protections de sécurité
+ * Removes all security protections.
  */
 export const removeSecurityMeasures = (): void => {
     enableTextSelection();
@@ -253,7 +271,7 @@ export const removeSecurityMeasures = (): void => {
 };
 
 /**
- * Attache tous les gestionnaires d'événements
+ * Attaches all event handlers.
  */
 export const attachSecurityEventListeners = (handlers: SecurityEventHandlers): void => {
     window.addEventListener('beforeunload', handlers.handleBeforeUnload);
@@ -268,7 +286,7 @@ export const attachSecurityEventListeners = (handlers: SecurityEventHandlers): v
 };
 
 /**
- * Détache tous les gestionnaires d'événements
+ * Detaches all event handlers.
  */
 export const detachSecurityEventListeners = (handlers: SecurityEventHandlers): void => {
     window.removeEventListener('beforeunload', handlers.handleBeforeUnload);
@@ -283,7 +301,7 @@ export const detachSecurityEventListeners = (handlers: SecurityEventHandlers): v
 };
 
 /**
- * Crée des gestionnaires de sécurité configurables selon les fonctionnalités activées
+ * Creates configurable security handlers based on enabled features.
  */
 export const createConfigurableSecurityHandlers = (config: {
     devToolsDetection?: boolean;
@@ -314,7 +332,7 @@ export const createConfigurableSecurityHandlers = (config: {
 };
 
 /**
- * Applique des mesures de sécurité configurables
+ * Applies configurable security measures.
  */
 export const applyConfigurableSecurityMeasures = (config: {
     devToolsDetection?: boolean;
@@ -333,7 +351,7 @@ export const applyConfigurableSecurityMeasures = (config: {
 };
 
 /**
- * Attache les gestionnaires d'événements configurables
+ * Attaches configurable event handlers.
  */
 export const attachConfigurableEventListeners = (
     handlers: SecurityEventHandlers,
@@ -371,7 +389,7 @@ export const attachConfigurableEventListeners = (
 };
 
 /**
- * Détache les gestionnaires d'événements configurables
+ * Detaches configurable event handlers.
  */
 export const detachConfigurableEventListeners = (
     handlers: SecurityEventHandlers,

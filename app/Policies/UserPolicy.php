@@ -177,7 +177,7 @@ class UserPolicy
      */
     public function manageAdmins(User $user): bool
     {
-        return $user->can('update users');
+        return $user->hasRole('super_admin');
     }
 
     /**

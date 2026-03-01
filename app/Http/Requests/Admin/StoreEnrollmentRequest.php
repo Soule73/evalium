@@ -13,7 +13,7 @@ class StoreEnrollmentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('create', \App\Models\Enrollment::class);
+        return true;
     }
 
     /**
@@ -33,6 +33,7 @@ class StoreEnrollmentRequest extends FormRequest
             'class_id' => ['required', 'exists:classes,id'],
             'enrolled_at' => ['nullable', 'date'],
             'status' => ['sometimes', Rule::in(EnrollmentStatus::values())],
+            'send_credentials' => ['sometimes', 'boolean'],
         ];
     }
 

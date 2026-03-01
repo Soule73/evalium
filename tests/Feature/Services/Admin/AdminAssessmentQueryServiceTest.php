@@ -10,7 +10,7 @@ use App\Models\ClassSubject;
 use App\Models\Enrollment;
 use App\Models\Semester;
 use App\Models\User;
-use App\Services\Admin\AdminAssessmentQueryService;
+use App\Repositories\Admin\AdminAssessmentRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\CreatesTestUsers;
@@ -19,7 +19,7 @@ class AdminAssessmentQueryServiceTest extends TestCase
 {
     use CreatesTestUsers, RefreshDatabase;
 
-    private AdminAssessmentQueryService $service;
+    private AdminAssessmentRepository $service;
 
     private ClassSubject $classSubject;
 
@@ -34,7 +34,7 @@ class AdminAssessmentQueryServiceTest extends TestCase
         parent::setUp();
         $this->seedRolesAndPermissions();
 
-        $this->service = app(AdminAssessmentQueryService::class);
+        $this->service = app(AdminAssessmentRepository::class);
 
         $academicYear = AcademicYear::factory()->create();
         $classModel = ClassModel::factory()->create(['academic_year_id' => $academicYear->id]);
@@ -56,7 +56,7 @@ class AdminAssessmentQueryServiceTest extends TestCase
         $this->assessment = Assessment::factory()->homework()->create([
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->classSubject->teacher_id,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
     }
 
@@ -124,7 +124,6 @@ class AdminAssessmentQueryServiceTest extends TestCase
             'started_at' => now()->subHours(2),
             'submitted_at' => now()->subHour(),
             'graded_at' => now(),
-            'score' => 85,
         ]);
 
         /** @var \Illuminate\Database\Eloquent\Collection $result */
@@ -147,7 +146,7 @@ class AdminAssessmentQueryServiceTest extends TestCase
         $secondAssessment = Assessment::factory()->supervised()->create([
             'class_subject_id' => $this->classSubject->id,
             'teacher_id' => $this->classSubject->teacher_id,
-            'settings' => ['is_published' => true],
+            'is_published' => true,
         ]);
 
         AssessmentAssignment::create([
@@ -168,68 +167,5 @@ class AdminAssessmentQueryServiceTest extends TestCase
         $notSubmittedIds = $notSubmitted->pluck('id')->toArray();
         $inProgressIds = $inProgress->pluck('id')->toArray();
         $this->assertEmpty(array_intersect($notSubmittedIds, $inProgressIds));
-    }
-
-    public function test_student_stats_counts_in_progress_correctly(): void
-    {
-        AssessmentAssignment::create([
-            'assessment_id' => $this->assessment->id,
-            'enrollment_id' => $this->enrollment->id,
-            'started_at' => now(),
-        ]);
-
-        $stats = $this->service->getStudentAssignmentStats($this->student);
-
-        $this->assertEquals(1, $stats['total']);
-        $this->assertEquals(1, $stats['in_progress']);
-        $this->assertEquals(0, $stats['completed']);
-        $this->assertEquals(0, $stats['graded']);
-    }
-
-    public function test_student_stats_returns_complete_breakdown(): void
-    {
-        $assessments = [];
-        for ($i = 0; $i < 4; $i++) {
-            $assessments[] = Assessment::factory()->supervised()->create([
-                'class_subject_id' => $this->classSubject->id,
-                'teacher_id' => $this->classSubject->teacher_id,
-                'settings' => ['is_published' => true],
-            ]);
-        }
-
-        AssessmentAssignment::create([
-            'assessment_id' => $assessments[0]->id,
-            'enrollment_id' => $this->enrollment->id,
-            'started_at' => now(),
-        ]);
-
-        AssessmentAssignment::create([
-            'assessment_id' => $assessments[1]->id,
-            'enrollment_id' => $this->enrollment->id,
-            'started_at' => now()->subHour(),
-            'submitted_at' => now(),
-        ]);
-
-        AssessmentAssignment::create([
-            'assessment_id' => $assessments[2]->id,
-            'enrollment_id' => $this->enrollment->id,
-            'started_at' => now()->subHours(2),
-            'submitted_at' => now()->subHour(),
-            'graded_at' => now(),
-            'score' => 90,
-        ]);
-
-        AssessmentAssignment::create([
-            'assessment_id' => $assessments[3]->id,
-            'enrollment_id' => $this->enrollment->id,
-        ]);
-
-        $stats = $this->service->getStudentAssignmentStats($this->student);
-
-        $this->assertEquals(4, $stats['total']);
-        $this->assertEquals(1, $stats['in_progress']);
-        $this->assertEquals(1, $stats['completed']);
-        $this->assertEquals(1, $stats['graded']);
-        $this->assertEquals(90.0, $stats['average_score']);
     }
 }

@@ -1,35 +1,34 @@
 import { useCallback, useRef, useState } from 'react';
 import axios from 'axios';
 import { route } from 'ziggy-js';
-import { ArrowUpTrayIcon, TrashIcon, PaperClipIcon } from '@heroicons/react/24/outline';
-import { type AssignmentAttachment } from '@/types';
-import { formatFileSize } from '@/utils';
+import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+import { type Answer } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { AlertEntry, Button } from '@/Components';
+import { AlertEntry } from '@/Components';
+import { FileList } from '@/Components/shared/lists/FileList';
 
 interface FileUploadZoneProps {
     assessmentId: number;
-    attachments: AssignmentAttachment[];
-    maxFiles: number;
-    maxFileSize: number;
-    allowedExtensions: string | null;
-    onAttachmentAdded: (attachment: AssignmentAttachment) => void;
-    onAttachmentRemoved: (attachmentId: number) => void;
+    questionId: number;
+    fileAnswer?: Answer;
+    onFileAnswerSaved: (answer: Answer) => void;
+    onFileAnswerRemoved: (answerId: number) => void;
     disabled?: boolean;
 }
 
 /**
- * File upload zone component for homework assessments.
- * Supports drag-and-drop and click-to-browse file uploads.
+ * File upload zone for a single QuestionType::File question.
+ *
+ * Supports drag-and-drop and click-to-browse uploads.
+ * Uploading a new file replaces the existing answer via updateOrCreate on the server.
+ * File size and extension constraints are enforced server-side (config/assessment.php).
  */
 export function FileUploadZone({
     assessmentId,
-    attachments,
-    maxFiles,
-    maxFileSize,
-    allowedExtensions,
-    onAttachmentAdded,
-    onAttachmentRemoved,
+    questionId,
+    fileAnswer,
+    onFileAnswerSaved,
+    onFileAnswerRemoved,
     disabled = false,
 }: FileUploadZoneProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -39,15 +38,6 @@ export function FileUploadZone({
     const [dragOver, setDragOver] = useState(false);
     const { t } = useTranslations();
 
-    const extensionsArray = allowedExtensions
-        ? allowedExtensions.split(',').map((ext) => ext.trim())
-        : [];
-
-    const acceptString =
-        extensionsArray.length > 0 ? extensionsArray.map((ext) => `.${ext}`).join(',') : undefined;
-
-    const hasReachedLimit = attachments.length >= maxFiles;
-
     const handleUpload = useCallback(
         async (file: File) => {
             setError(null);
@@ -55,14 +45,15 @@ export function FileUploadZone({
 
             const formData = new FormData();
             formData.append('file', file);
+            formData.append('question_id', String(questionId));
 
             try {
                 const response = await axios.post(
-                    route('student.assessments.attachments.upload', assessmentId),
+                    route('student.assessments.file-answers.upload', assessmentId),
                     formData,
                     { headers: { 'Content-Type': 'multipart/form-data' } },
                 );
-                onAttachmentAdded(response.data.attachment);
+                onFileAnswerSaved(response.data.answer);
             } catch (err: unknown) {
                 if (axios.isAxiosError(err) && err.response?.data?.message) {
                     setError(err.response.data.message);
@@ -75,19 +66,19 @@ export function FileUploadZone({
                 setUploading(false);
             }
         },
-        [assessmentId, onAttachmentAdded, t],
+        [assessmentId, questionId, onFileAnswerSaved, t],
     );
 
     const handleDelete = useCallback(
-        async (attachment: AssignmentAttachment) => {
+        async (answer: Answer) => {
             setError(null);
-            setDeleting(attachment.id);
+            setDeleting(answer.id);
 
             try {
                 await axios.delete(
-                    route('student.assessments.attachments.delete', [assessmentId, attachment.id]),
+                    route('student.assessments.file-answers.delete', [assessmentId, answer.id]),
                 );
-                onAttachmentRemoved(attachment.id);
+                onFileAnswerRemoved(answer.id);
             } catch (err: unknown) {
                 if (axios.isAxiosError(err) && err.response?.data?.message) {
                     setError(err.response.data.message);
@@ -98,7 +89,7 @@ export function FileUploadZone({
                 setDeleting(null);
             }
         },
-        [assessmentId, onAttachmentRemoved, t],
+        [assessmentId, onFileAnswerRemoved, t],
     );
 
     const handleFileChange = useCallback(
@@ -118,47 +109,41 @@ export function FileUploadZone({
         (e: React.DragEvent<HTMLDivElement>) => {
             e.preventDefault();
             setDragOver(false);
-            if (disabled || hasReachedLimit) return;
+            if (disabled) return;
 
             const file = e.dataTransfer.files?.[0];
             if (file) {
                 handleUpload(file);
             }
         },
-        [disabled, hasReachedLimit, handleUpload],
+        [disabled, handleUpload],
     );
 
     const handleDragOver = useCallback(
         (e: React.DragEvent<HTMLDivElement>) => {
             e.preventDefault();
-            if (!disabled && !hasReachedLimit) {
+            if (!disabled) {
                 setDragOver(true);
             }
         },
-        [disabled, hasReachedLimit],
+        [disabled],
     );
 
     const handleDragLeave = useCallback(() => {
         setDragOver(false);
     }, []);
 
+    const currentAnswers: Answer[] = fileAnswer ? [fileAnswer] : [];
+
     return (
         <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">
-                {t('student_assessment_pages.work.file_upload_title')}
-            </h3>
-
-            <p className="text-sm text-gray-600">
-                {t('student_assessment_pages.work.file_upload_description')}
-            </p>
-
             {error && (
                 <AlertEntry type="error" title={t('student_assessment_pages.work.upload_error')}>
                     <p>{error}</p>
                 </AlertEntry>
             )}
 
-            {!hasReachedLimit && !disabled && (
+            {!disabled && (
                 <div
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
@@ -172,7 +157,9 @@ export function FileUploadZone({
                 >
                     <ArrowUpTrayIcon className="mx-auto h-10 w-10 text-gray-400" />
                     <p className="mt-2 text-sm font-medium text-gray-700">
-                        {t('student_assessment_pages.work.drop_files_here')}
+                        {fileAnswer
+                            ? t('student_assessment_pages.work.replace_file')
+                            : t('student_assessment_pages.work.drop_files_here')}
                     </p>
                     <p className="mt-1 text-xs text-gray-500">
                         {t('student_assessment_pages.work.browse_files')}
@@ -182,7 +169,6 @@ export function FileUploadZone({
                         ref={fileInputRef}
                         type="file"
                         className="hidden"
-                        accept={acceptString}
                         onChange={handleFileChange}
                         disabled={uploading}
                     />
@@ -198,63 +184,13 @@ export function FileUploadZone({
                 </div>
             )}
 
-            <div className="text-xs text-gray-500 space-y-1">
-                <p>
-                    {t('student_assessment_pages.work.file_limit', {
-                        current: String(attachments.length),
-                        max: String(maxFiles),
-                    })}
-                </p>
-                <p>
-                    {t('student_assessment_pages.work.max_file_size', {
-                        size: formatFileSize(maxFileSize * 1024),
-                    })}
-                </p>
-                {extensionsArray.length > 0 && (
-                    <p>
-                        {t('student_assessment_pages.work.allowed_types', {
-                            types: extensionsArray.join(', '),
-                        })}
-                    </p>
-                )}
-            </div>
-
-            {attachments.length > 0 && (
-                <ul className="divide-y divide-gray-200 border border-gray-200 rounded-lg">
-                    {attachments.map((attachment) => (
-                        <li
-                            key={attachment.id}
-                            className="flex items-center justify-between px-4 py-3"
-                        >
-                            <div className="flex items-center min-w-0">
-                                <PaperClipIcon className="h-5 w-5 text-gray-400 shrink-0" />
-                                <div className="ml-3 min-w-0">
-                                    <p className="text-sm font-medium text-gray-900 truncate">
-                                        {attachment.file_name}
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        {formatFileSize(attachment.file_size)} &middot;{' '}
-                                        {attachment.mime_type}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {!disabled && (
-                                <Button
-                                    size="xs"
-                                    color="danger"
-                                    variant="ghost"
-                                    onClick={() => handleDelete(attachment)}
-                                    disabled={deleting === attachment.id}
-                                    loading={deleting === attachment.id}
-                                    title={t('student_assessment_pages.work.delete_file')}
-                                >
-                                    <TrashIcon className="h-4 w-4" />
-                                </Button>
-                            )}
-                        </li>
-                    ))}
-                </ul>
+            {currentAnswers.length > 0 && (
+                <FileList
+                    attachments={currentAnswers}
+                    onDelete={disabled ? undefined : (answer) => handleDelete(answer)}
+                    deleteLoading={deleting}
+                    readOnly={disabled}
+                />
             )}
         </div>
     );

@@ -18,7 +18,6 @@ return new class extends Migration
             $table->timestamp('started_at')->nullable();
             $table->timestamp('submitted_at')->nullable();
             $table->timestamp('graded_at')->nullable();
-            $table->decimal('score', 5, 2)->nullable();
             $table->text('teacher_notes')->nullable();
             $table->boolean('forced_submission')->default(false);
             $table->string('security_violation')->nullable();
@@ -26,7 +25,7 @@ return new class extends Migration
 
             $table->unique(['assessment_id', 'enrollment_id']);
             $table->index(['enrollment_id', 'submitted_at']);
-            $table->index(['assessment_id', 'score']);
+            $table->index(['assessment_id', 'graded_at']);
         });
     }
 

@@ -23,7 +23,6 @@ class AssessmentAssignmentFactory extends Factory
             'started_at' => null,
             'submitted_at' => null,
             'graded_at' => null,
-            'score' => null,
         ];
     }
 
@@ -61,7 +60,6 @@ class AssessmentAssignmentFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'submitted_at' => $submittedAt,
             'graded_at' => null,
-            'score' => null,
         ]);
     }
 
@@ -75,7 +73,6 @@ class AssessmentAssignmentFactory extends Factory
             'started_at' => $startedAt,
             'submitted_at' => $submittedAt,
             'graded_at' => $gradedAt,
-            'score' => $this->faker->randomFloat(2, 0, 20),
         ]);
     }
 }

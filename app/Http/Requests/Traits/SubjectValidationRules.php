@@ -22,14 +22,16 @@ trait SubjectValidationRules
     protected function getSubjectValidationRules(?int $subjectId = null): array
     {
         $uniqueCodeRule = Rule::unique('subjects', 'code');
+        $uniqueNameRule = Rule::unique('subjects', 'name')->where('level_id', $this->input('level_id'));
 
         if ($subjectId !== null) {
             $uniqueCodeRule->ignore($subjectId);
+            $uniqueNameRule->ignore($subjectId);
         }
 
         return [
             'level_id' => ['required', 'exists:levels,id'],
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', $uniqueNameRule],
             'code' => ['required', 'string', 'max:50', $uniqueCodeRule],
             'description' => ['nullable', 'string', 'max:1000'],
         ];
@@ -46,6 +48,7 @@ trait SubjectValidationRules
             'level_id.required' => __('validation.required', ['attribute' => __('messages.level')]),
             'level_id.exists' => __('validation.exists', ['attribute' => __('messages.level')]),
             'name.required' => __('validation.required', ['attribute' => __('messages.subject_name')]),
+            'name.unique' => __('validation.unique', ['attribute' => __('messages.subject_name')]),
             'code.required' => __('validation.required', ['attribute' => __('messages.subject_code')]),
             'code.unique' => __('validation.unique', ['attribute' => __('messages.subject_code')]),
         ];

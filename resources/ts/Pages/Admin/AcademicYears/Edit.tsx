@@ -72,8 +72,8 @@ export default function AcademicYearEdit({ academicYear }: Props) {
             pageTitle: t('admin_pages.academic_years.edit_page_title'),
             sectionTitle: t('admin_pages.academic_years.edit_title', { name: academicYear.name }),
             sectionSubtitle: t('admin_pages.academic_years.edit_subtitle'),
-            updating: t('admin_pages.common.updating'),
-            update: t('admin_pages.common.update'),
+            updating: t('commons/ui.updating'),
+            update: t('commons/ui.update'),
         }),
         [t, academicYear.name],
     );

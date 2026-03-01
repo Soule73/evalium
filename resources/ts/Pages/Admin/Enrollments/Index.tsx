@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { router } from '@inertiajs/react';
+import { useEffect, useMemo, useState } from 'react';
+import { router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type PaginationType } from '@/types/datatable';
 import { type Enrollment, type ClassModel, type PageProps } from '@/types';
@@ -8,6 +8,7 @@ import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section } from '@/Components';
 import { EnrollmentList } from '@/Components/shared/lists';
+import CreateUserModal from '@/Components/features/users/CreateUserModal';
 import { route } from 'ziggy-js';
 
 interface Props extends PageProps {
@@ -23,7 +24,16 @@ interface Props extends PageProps {
 export default function EnrollmentIndex({ enrollments, classes, auth }: Props) {
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
+    const { flash } = usePage<PageProps>().props;
     const canCreate = hasPermission(auth.permissions, 'create enrollments');
+
+    const [showCredentialsModal, setShowCredentialsModal] = useState(false);
+
+    useEffect(() => {
+        if (flash.has_new_user) {
+            setShowCredentialsModal(true);
+        }
+    }, [flash.has_new_user]);
 
     const handleCreate = () => {
         router.visit(route('admin.enrollments.create'));
@@ -44,6 +54,7 @@ export default function EnrollmentIndex({ enrollments, classes, auth }: Props) {
             breadcrumb={breadcrumbs.admin.enrollments()}
         >
             <Section
+                variant="flat"
                 title={translations.title}
                 subtitle={translations.subtitle}
                 actions={
@@ -56,6 +67,11 @@ export default function EnrollmentIndex({ enrollments, classes, auth }: Props) {
             >
                 <EnrollmentList data={enrollments} classes={classes} variant="admin" />
             </Section>
+
+            <CreateUserModal
+                isOpen={showCredentialsModal}
+                onClose={() => setShowCredentialsModal(false)}
+            />
         </AuthenticatedLayout>
     );
 }

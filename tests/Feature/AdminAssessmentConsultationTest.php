@@ -67,11 +67,12 @@ class AdminAssessmentConsultationTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn ($page) => $page
-                ->component('Admin/Assessments/Index')
+                ->component('Assessments/Index')
                 ->has('assessments.data', 3)
                 ->has('classes')
                 ->has('subjects')
                 ->has('teachers')
+                ->where('routeContext.role', 'admin')
         );
     }
 
@@ -94,7 +95,7 @@ class AdminAssessmentConsultationTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn ($page) => $page
-                ->component('Admin/Assessments/Index')
+                ->component('Assessments/Index')
                 ->has('assessments.data', 1)
         );
     }
@@ -115,12 +116,12 @@ class AdminAssessmentConsultationTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.users.show.teacher', $this->teacher));
+            ->get(route('admin.teachers.show', $this->teacher));
 
         $response->assertOk();
         $response->assertInertia(
             fn ($page) => $page
-                ->component('Admin/Users/ShowTeacher')
+                ->component('Admin/Teachers/Show')
                 ->has('assessments.data', 2)
                 ->has('stats')
                 ->where('stats.total', 2)
@@ -145,12 +146,15 @@ class AdminAssessmentConsultationTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.enrollments.show', $enrollment));
+            ->get(route('admin.classes.students.show', [
+                'class' => $this->classModel->id,
+                'enrollment' => $enrollment->id,
+            ]));
 
         $response->assertOk();
         $response->assertInertia(
             fn ($page) => $page
-                ->component('Admin/Enrollments/Show')
+                ->component('Classes/Students/Show')
                 ->has('enrollment')
                 ->has('subjects')
                 ->has('overallStats')
@@ -172,7 +176,7 @@ class AdminAssessmentConsultationTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn ($page) => $page
-                ->component('Admin/Classes/Show')
+                ->component('Classes/Show')
                 ->has('assessments.data', 2)
                 ->has('statistics')
         );
@@ -181,7 +185,7 @@ class AdminAssessmentConsultationTest extends TestCase
     public function test_show_teacher_rejects_non_teacher_user(): void
     {
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.users.show.teacher', $this->student));
+            ->get(route('admin.teachers.show', $this->student));
 
         $response->assertRedirect();
     }
@@ -198,7 +202,7 @@ class AdminAssessmentConsultationTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.users.show.teacher', $this->teacher));
+            ->get(route('admin.teachers.show', $this->teacher));
 
         $response->assertOk();
         $response->assertInertia(
@@ -229,14 +233,21 @@ class AdminAssessmentConsultationTest extends TestCase
             'order_index' => 1,
         ]);
 
-        AssessmentAssignment::factory()->graded()->create([
+        $assignment = AssessmentAssignment::factory()->graded()->create([
             'assessment_id' => $assessment->id,
             'enrollment_id' => $enrollment->id,
+        ]);
+
+        $assignment->answers()->create([
+            'question_id' => $question->id,
             'score' => 15.0,
         ]);
 
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.enrollments.show', $enrollment));
+            ->get(route('admin.classes.students.show', [
+                'class' => $this->classModel->id,
+                'enrollment' => $enrollment->id,
+            ]));
 
         $response->assertOk();
         $response->assertInertia(

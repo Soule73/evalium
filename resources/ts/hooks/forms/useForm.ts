@@ -117,10 +117,10 @@ export function useForm<T extends Record<string, unknown>>(
 
     return {
         values,
-        data: values, // Alias pour compatibilité
+        data: values, // Alias for compatibility
         errors,
         isSubmitting,
-        processing: isSubmitting, // Alias pour compatibilité
+        processing: isSubmitting, // Alias for compatibility
         handleChange,
         handleSubmit,
         setFieldValue,

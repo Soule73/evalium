@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\Admin\LevelController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -51,6 +52,30 @@ Route::middleware('auth')->group(function () {
         'setCurrent',
     ])->name('api.academic-years.set-current');
 
+    Route::get('/file-answers/{answer}/download', [
+        \App\Http\Controllers\FileAnswerController::class,
+        'download',
+    ])->name('file-answers.download');
+
+    Route::get('/file-answers/{answer}/preview', [
+        \App\Http\Controllers\FileAnswerController::class,
+        'preview',
+    ])->name('file-answers.preview');
+
+    /**
+     * Notification Routes
+     */
+    Route::prefix('notifications')
+        ->name('notifications.')
+        ->controller(NotificationController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/{id}/read', 'markRead')->name('read');
+            Route::post('/read-all', 'markAllRead')->name('read-all');
+            Route::delete('/{id}', 'destroy')->name('delete');
+            Route::delete('/', 'destroyAll')->name('delete-all');
+        });
+
     /**
      * Admin Routes
      * Routes for managing academic years, subjects, classes, enrollments
@@ -62,6 +87,20 @@ Route::middleware('auth')->group(function () {
             /**
              * User Management operations
              */
+            /**
+             * Teacher Management
+             */
+            Route::prefix('teachers')
+                ->name('teachers.')
+                ->controller(\App\Http\Controllers\Admin\TeacherController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{user}', 'show')->name('show');
+                    Route::post('/', 'store')->name('store');
+                    Route::patch('/{user}/toggle-status', 'toggleStatus')->name('toggle-status');
+                    Route::delete('/{user}', 'destroy')->name('destroy');
+                });
+
             Route::prefix('users')
                 ->name('users.')
                 ->controller(UserController::class)
@@ -69,8 +108,11 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'index')
                         ->name('index');
 
-                    Route::get('/teachers/{user}', 'showTeacher')
-                        ->name('show.teacher');
+                    Route::get('/pending-credentials', 'pendingCredentials')
+                        ->name('pending-credentials');
+
+                    Route::get('/{user}', 'show')
+                        ->name('show');
 
                     Route::post('/', 'store')
                         ->name('store');
@@ -101,6 +143,7 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'archives')->name('archives');
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
+                    Route::post('/wizard', 'storeWizard')->name('wizard-store');
                     Route::get('/{academic_year}/edit', 'edit')->name('edit');
                     Route::put('/{academic_year}', 'update')->name('update');
                     Route::delete('/{academic_year}', 'destroy')->name('destroy');
@@ -135,9 +178,31 @@ Route::middleware('auth')->group(function () {
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
                     Route::get('/{class}', 'show')->name('show');
+                    Route::get('/{class}/assessments', 'classAssessments')->name('assessments');
+                    Route::get('/{class}/assessments/{assessment}', 'assessmentShow')
+                        ->middleware('role:admin,super_admin')
+                        ->name('assessments.show');
+                    Route::get('/{class}/subjects', 'classSubjectsList')->name('subjects');
+                    Route::get('/{class}/subjects/{class_subject}', 'subjectShow')->name('subjects.show');
                     Route::get('/{class}/edit', 'edit')->name('edit');
                     Route::put('/{class}', 'update')->name('update');
                     Route::delete('/{class}', 'destroy')->name('destroy');
+                });
+
+            Route::get('/classes/{class}/results', [\App\Http\Controllers\Admin\AdminClassResultsController::class, 'index'])
+                ->middleware('role:admin,super_admin')
+                ->name('classes.results');
+
+            /**
+             * Class Students (nested under classes)
+             */
+            Route::prefix('classes/{class}/students')
+                ->name('classes.students.')
+                ->controller(\App\Http\Controllers\Admin\ClassStudentController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{enrollment}', 'show')->name('show');
+                    Route::get('/{enrollment}/assignments', 'assignments')->name('assignments');
                 });
 
             /**
@@ -150,10 +215,10 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'index')->name('index');
                     Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
-                    Route::post('/quick-student', 'storeQuickStudent')->name('quick-student');
-                    Route::get('/{enrollment}', 'show')->name('show');
-                    Route::get('/{enrollment}/assignments', 'assignments')->name('assignments');
-                    Route::get('/{enrollment}/assignments/{assignment}', 'assignmentShow')->name('assignments.show');
+                    Route::post('/create-student', 'createStudent')->name('create-student');
+                    Route::post('/bulk', 'bulkStore')->name('bulk-store');
+                    Route::get('/search-students', 'searchStudents')->name('search-students');
+                    Route::get('/search-classes', 'searchClasses')->name('search-classes');
                     Route::post('/{enrollment}/transfer', 'transfer')->name('transfer');
                     Route::post('/{enrollment}/withdraw', 'withdraw')->name('withdraw');
                     Route::post('/{enrollment}/reactivate', 'reactivate')->name('reactivate');
@@ -169,7 +234,6 @@ Route::middleware('auth')->group(function () {
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
                     Route::post('/', 'store')->name('store');
-                    Route::get('/{class_subject}', 'show')->name('show');
                     Route::get('/history', 'history')->name('history');
                     Route::post('/{class_subject}/replace-teacher', 'replaceTeacher')->name('replace-teacher');
                     Route::post('/{class_subject}/update-coefficient', 'updateCoefficient')->name('update-coefficient');
@@ -214,7 +278,6 @@ Route::middleware('auth')->group(function () {
                 ->controller(\App\Http\Controllers\Admin\AdminAssessmentController::class)
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
-                    Route::get('/{assessment}', 'show')->name('show');
                     Route::get('/{assessment}/assignments/{assignment}/review', 'review')->name('review');
                     Route::get('/{assessment}/assignments/{assignment}/grade', 'grade')->name('grade');
                     Route::post('/{assessment}/assignments/{assignment}/grade', 'saveGrade')->name('saveGrade');
@@ -227,6 +290,7 @@ Route::middleware('auth')->group(function () {
      */
     Route::prefix('teacher')
         ->name('teacher.')
+        ->middleware('role:teacher,admin,super_admin')
         ->group(function () {
 
             /**
@@ -256,28 +320,39 @@ Route::middleware('auth')->group(function () {
                     Route::post('/{assessment}/assignments/{assignment}/grade', 'saveGrade')->name('saveGrade');
                     Route::get('/{assessment}/assignments/{assignment}/review', 'review')->name('review');
                     Route::post('/{assessment}/assignments/{assignment}/reopen', 'reopenAssignment')->name('reopen');
+                    Route::post('/{assessment}/assignments/{assignment}/reassign', 'reassignAssignment')->name('reassign');
                 });
+
+            /**
+             * Teacher Class Subjects
+             */
+            Route::get('/class-subjects', [\App\Http\Controllers\Teacher\TeacherClassSubjectController::class, 'index'])
+                ->name('class-subjects.index');
 
             /**
              * Teacher Classes
              */
             Route::prefix('classes')
                 ->name('classes.')
-                ->controller(\App\Http\Controllers\Teacher\TeacherClassController::class)
                 ->group(function () {
-                    Route::get('/', 'index')->name('index');
-                    Route::get('/{class}', 'show')->name('show');
-                });
+                    Route::controller(\App\Http\Controllers\Teacher\TeacherClassController::class)->group(function () {
+                        Route::get('/', 'index')->name('index');
+                        Route::get('/{class}', 'show')->name('show');
+                    });
 
-            /**
-             * Teacher Subjects
-             */
-            Route::prefix('subjects')
-                ->name('subjects.')
-                ->controller(\App\Http\Controllers\Teacher\TeacherSubjectController::class)
-                ->group(function () {
-                    Route::get('/', 'index')->name('index');
-                    Route::get('/{subject}', 'show')->name('show');
+                    Route::get('/{class}/results', [\App\Http\Controllers\Teacher\TeacherClassResultsController::class, 'index'])
+                        ->name('results');
+
+                    Route::controller(\App\Http\Controllers\Teacher\TeacherClassAssessmentController::class)->group(function () {
+                        Route::get('/{class}/assessments', 'index')->name('assessments');
+                        Route::get('/{class}/assessments/{assessment}', 'show')->name('assessments.show');
+                    });
+
+                    Route::controller(\App\Http\Controllers\Teacher\TeacherClassStudentController::class)->group(function () {
+                        Route::get('/{class}/students', 'index')->name('students.index');
+                        Route::get('/{class}/students/{enrollment}', 'show')->name('students.show');
+                        Route::get('/{class}/students/{enrollment}/assignments', 'assignments')->name('students.assignments');
+                    });
                 });
         });
 
@@ -304,9 +379,9 @@ Route::middleware('auth')->group(function () {
                     Route::post('/{assessment}/save-answers', 'saveAnswers')->name('save-answers');
                     Route::post('/{assessment}/submit', 'submit')->name('submit');
                     Route::post('/{assessment}/security-violation', 'securityViolation')->name('security-violation');
-                    Route::get('/{assessment}/results', 'results')->name('results');
-                    Route::post('/{assessment}/attachments', 'uploadAttachment')->name('attachments.upload');
-                    Route::delete('/{assessment}/attachments/{attachment}', 'deleteAttachment')->name('attachments.delete');
+                    Route::get('/{assessment}/result', 'results')->name('result');
+                    Route::post('/{assessment}/file-answers', 'uploadFileAnswer')->name('file-answers.upload');
+                    Route::delete('/{assessment}/file-answers/{answer}', 'deleteFileAnswer')->name('file-answers.delete');
                 });
 
             /**

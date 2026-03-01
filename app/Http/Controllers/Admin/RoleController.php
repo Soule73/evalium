@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\RoleException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SyncRolePermissionsRequest;
 use App\Http\Traits\HandlesIndexRequests;
@@ -40,6 +41,11 @@ class RoleController extends Controller
         );
 
         $roles = $this->roleService->getRolesWithPermissionsPaginated($perPage, $filters['search'] ?? null);
+        $roles->through(function (Role $role) {
+            $role->is_editable = $this->roleService->isRoleEditable($role);
+
+            return $role;
+        });
         $groupedPermissions = $this->roleService->groupPermissionsByCategory(
             $this->roleService->getAllPermissions()
         );
@@ -59,7 +65,7 @@ class RoleController extends Controller
      */
     public function edit(Role $role): Response
     {
-        $this->authorize('update', $role);
+        $this->authorize('view', $role);
 
         $roleWithPermissions = $this->roleService->loadRolesWithPermissions($role);
         $groupedPermissions = $this->roleService->groupPermissionsByCategory(
@@ -67,7 +73,9 @@ class RoleController extends Controller
         );
 
         return Inertia::render('Admin/Roles/Edit', [
-            'role' => $roleWithPermissions,
+            'role' => array_merge($roleWithPermissions->toArray(), [
+                'is_editable' => $this->roleService->isRoleEditable($role),
+            ]),
             'groupedPermissions' => $groupedPermissions,
         ]);
     }
@@ -77,7 +85,13 @@ class RoleController extends Controller
      */
     public function syncPermissions(SyncRolePermissionsRequest $request, Role $role): RedirectResponse
     {
-        $this->roleService->syncRolePermissions($role, $request->validated()['permissions']);
+        $this->authorize('update', $role);
+
+        try {
+            $this->roleService->syncRolePermissions($role, $request->validated()['permissions']);
+        } catch (RoleException $e) {
+            return back()->flashError($e->getMessage());
+        }
 
         return redirect()->route('admin.roles.index')->flashSuccess(__('messages.permissions_updated'));
     }

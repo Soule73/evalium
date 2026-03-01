@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers\Teacher;
 
+use App\Contracts\Repositories\TeacherAssessmentRepositoryInterface;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Teacher\ReassignAssignmentRequest;
 use App\Http\Requests\Teacher\ReopenAssignmentRequest;
 use App\Http\Requests\Teacher\StoreAssessmentRequest;
 use App\Http\Requests\Teacher\UpdateAssessmentRequest;
 use App\Http\Traits\HandlesAssessmentViewing;
 use App\Models\Assessment;
 use App\Models\AssessmentAssignment;
+use App\Repositories\Teacher\GradingRepository;
 use App\Services\Core\Answer\AnswerFormatterService;
 use App\Services\Core\AssessmentService;
+use App\Services\Core\AssessmentStatsService;
 use App\Services\Core\Scoring\ScoringService;
 use App\Services\Teacher\AssignmentExceptionService;
-use App\Services\Teacher\GradingQueryService;
-use App\Services\Teacher\TeacherAssessmentQueryService;
 use App\Traits\FiltersAcademicYear;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -36,16 +38,22 @@ class AssessmentController extends Controller
 
     public function __construct(
         private readonly AssessmentService $assessmentService,
-        private readonly TeacherAssessmentQueryService $assessmentQueryService,
-        private readonly GradingQueryService $gradingQueryService,
+        private readonly TeacherAssessmentRepositoryInterface $assessmentQueryService,
+        private readonly GradingRepository $gradingQueryService,
         private readonly ScoringService $scoringService,
         private readonly AnswerFormatterService $answerFormatterService,
-        private readonly AssignmentExceptionService $assignmentExceptionService
+        private readonly AssignmentExceptionService $assignmentExceptionService,
+        private readonly AssessmentStatsService $assessmentStatsService
     ) {}
 
-    protected function resolveAssessmentQueryService(): TeacherAssessmentQueryService
+    protected function resolveAssessmentQueryService(): TeacherAssessmentRepositoryInterface
     {
         return $this->assessmentQueryService;
+    }
+
+    protected function resolveAssessmentService(): AssessmentService
+    {
+        return $this->assessmentService;
     }
 
     protected function afterGradingLoad(Request $request, Assessment $assessment): void
@@ -61,7 +69,7 @@ class AssessmentController extends Controller
     {
         $this->authorize('viewAny', Assessment::class);
 
-        $filters = $request->only(['search', 'class_subject_id', 'type', 'is_published']);
+        $filters = $request->only(['search', 'class_subject_id', 'class_id', 'type', 'is_published']);
         $perPage = $request->input('per_page', 15);
 
         $teacherId = $request->user()->id;
@@ -74,15 +82,18 @@ class AssessmentController extends Controller
             $perPage
         );
 
-        // $classSubjects = $this->assessmentQueryService->getClassSubjectsForTeacher(
-        //     $teacherId,
-        //     $selectedYearId
-        // );
+        $classes = $this->assessmentQueryService
+            ->getClassFilterDataForTeacher($teacherId, $selectedYearId)
+            ->map(fn ($item) => [
+                'id' => $item->class_id,
+                'name' => $item->class_name.' - '.$item->level_name.' ('.$item->level_description.')',
+            ]);
 
-        return Inertia::render('Teacher/Assessments/Index', [
+        return Inertia::render('Assessments/Index', [
             'assessments' => $assessments,
             'filters' => $filters,
-            // 'classSubjects' => $classSubjects,
+            'classes' => $classes,
+            'routeContext' => $this->buildRouteContext(),
         ]);
     }
 
@@ -113,9 +124,10 @@ class AssessmentController extends Controller
     public function store(StoreAssessmentRequest $request): RedirectResponse
     {
         $assessment = $this->assessmentService->createAssessment($request->validated());
+        $assessment->loadMissing('classSubject');
 
         return redirect()
-            ->route('teacher.assessments.show', $assessment)
+            ->route('teacher.classes.assessments.show', [$assessment->classSubject->class_id, $assessment])
             ->flashSuccess(__('messages.assessment_created'));
     }
 
@@ -150,8 +162,10 @@ class AssessmentController extends Controller
     {
         $this->assessmentService->updateAssessment($assessment, $request->validated());
 
+        $assessment->loadMissing('classSubject');
+
         return redirect()
-            ->route('teacher.assessments.show', $assessment)
+            ->route('teacher.classes.assessments.show', [$assessment->classSubject->class_id, $assessment])
             ->flashSuccess(__('messages.assessment_updated'));
     }
 
@@ -205,7 +219,7 @@ class AssessmentController extends Controller
         $newAssessment = $this->assessmentService->duplicateAssessment($assessment, $overrides);
 
         return redirect()
-            ->route('teacher.assessments.show', $newAssessment)
+            ->route('teacher.assessments.index')
             ->flashSuccess(__('messages.assessment_duplicated'));
     }
 
@@ -240,6 +254,35 @@ class AssessmentController extends Controller
     }
 
     /**
+     * Reassign an assessment to a student who submitted no answers.
+     */
+    public function reassignAssignment(
+        ReassignAssignmentRequest $request,
+        Assessment $assessment,
+        AssessmentAssignment $assignment
+    ): JsonResponse {
+        abort_unless($assignment->assessment_id === $assessment->id, 404);
+
+        $check = $assignment->canBeReassigned($assessment);
+
+        if (! $check['can_reassign']) {
+            return response()->json([
+                'message' => __('messages.assignment_cannot_reassign_'.$check['reason']),
+            ], 422);
+        }
+
+        $this->assignmentExceptionService->reassignForStudent(
+            $assignment,
+            $assessment,
+            $request->input('reason')
+        );
+
+        return response()->json([
+            'message' => __('messages.assignment_reassigned'),
+        ]);
+    }
+
+    /**
      * Build route context array for teacher role.
      *
      * @return array<string, string|null>
@@ -250,6 +293,7 @@ class AssessmentController extends Controller
             'role' => 'teacher',
             'backRoute' => 'teacher.assessments.index',
             'showRoute' => 'teacher.assessments.show',
+            'classAssessmentShowRoute' => 'teacher.classes.assessments.show',
             'reviewRoute' => 'teacher.assessments.review',
             'gradeRoute' => 'teacher.assessments.grade',
             'saveGradeRoute' => 'teacher.assessments.saveGrade',
@@ -258,6 +302,8 @@ class AssessmentController extends Controller
             'unpublishRoute' => 'teacher.assessments.unpublish',
             'duplicateRoute' => 'teacher.assessments.duplicate',
             'reopenRoute' => 'teacher.assessments.reopen',
+            'reassignRoute' => 'teacher.assessments.reassign',
+            'createRoute' => 'teacher.assessments.create',
         ];
     }
 }

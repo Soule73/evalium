@@ -11,7 +11,7 @@ export const navRoutes = {
     teacherDashboard: () => route('teacher.dashboard'),
     teacherAssessments: () => route('teacher.assessments.index'),
     teacherClasses: () => route('teacher.classes.index'),
-    teacherSubjects: () => route('teacher.subjects.index'),
+    teacherClassSubjects: () => route('teacher.class-subjects.index'),
 
     // Admin Routes
     adminAcademicYears: () => route('admin.academic-years.archives'),
@@ -23,6 +23,7 @@ export const navRoutes = {
 
     // System Routes
     users: () => route('admin.users.index'),
+    teachers: () => route('admin.teachers.index'),
     levels: () => route('admin.levels.index'),
     roles: () => route('admin.roles.index'),
 

@@ -7,7 +7,7 @@ import { shuffleQuestions, reorderQuestionsByIds } from '@/utils/assessment/take
 interface UseQuestionNavigationParams {
     questions: Question[];
     shuffleEnabled: boolean;
-    oneQuestionPerPage: boolean;
+    enforceOnePerPage?: boolean;
 }
 
 /**
@@ -16,8 +16,9 @@ interface UseQuestionNavigationParams {
 export function useQuestionNavigation({
     questions,
     shuffleEnabled,
-    oneQuestionPerPage,
+    enforceOnePerPage = false,
 }: UseQuestionNavigationParams) {
+    const effectiveOnePerPage = enforceOnePerPage;
     const {
         currentQuestionIndex,
         shuffledQuestionIds,
@@ -53,12 +54,12 @@ export function useQuestionNavigation({
     }, [questions, shuffledQuestionIds]);
 
     const displayedQuestions = useMemo(() => {
-        if (!oneQuestionPerPage) {
+        if (!effectiveOnePerPage) {
             return orderedQuestions;
         }
         const currentQuestion = orderedQuestions[currentQuestionIndex];
         return currentQuestion ? [currentQuestion] : [];
-    }, [orderedQuestions, oneQuestionPerPage, currentQuestionIndex]);
+    }, [orderedQuestions, effectiveOnePerPage, currentQuestionIndex]);
 
     const totalQuestions = orderedQuestions.length;
     const isFirstQuestion = currentQuestionIndex === 0;
@@ -88,6 +89,5 @@ export function useQuestionNavigation({
         handleNextQuestion,
         handlePreviousQuestion,
         goToQuestion,
-        oneQuestionPerPage,
     };
 }

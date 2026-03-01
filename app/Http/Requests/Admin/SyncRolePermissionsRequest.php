@@ -13,7 +13,7 @@ class SyncRolePermissionsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('update roles');
+        return $this->user()?->can('update roles') ?? false;
     }
 
     /**

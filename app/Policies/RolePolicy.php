@@ -39,9 +39,15 @@ class RolePolicy
 
     /**
      * Determine whether the user can update the role.
+     *
+     * Locked roles (super_admin, teacher, student) cannot have their permissions modified.
      */
     public function update(User $user, Role $role): bool
     {
+        if (in_array($role->name, ['super_admin', 'teacher', 'student'], true)) {
+            return false;
+        }
+
         return $user->can('update roles');
     }
 

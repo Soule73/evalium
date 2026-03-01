@@ -5,6 +5,9 @@ namespace App\Policies;
 use App\Models\ClassSubject;
 use App\Models\User;
 
+/**
+ * Policy for controlling access to ClassSubject operations.
+ */
 class ClassSubjectPolicy
 {
     public function viewAny(User $user): bool

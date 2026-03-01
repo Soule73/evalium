@@ -53,9 +53,10 @@ const useTakeAssessment = ({
     userAnswers = [],
     remainingSeconds,
 }: UseTakeAssessment) => {
-    const { answers } = useAssessmentTakeStore(
+    const { answers, reset } = useAssessmentTakeStore(
         useShallow((state) => ({
             answers: state.answers,
+            reset: state.reset,
         })),
     );
 
@@ -116,25 +117,29 @@ const useTakeAssessment = ({
         exitFullscreenRef.current = exitFullscreen;
     }, [exitFullscreen]);
 
-    const { saveAnswerIndividual, saveAllAnswers, forceSave, cleanup } = useAssessmentAnswerSave({
-        assessmentId: assessment.id,
-    });
+    const { saveAnswerIndividual, saveAllAnswers, forceSave, cleanup, saveStatus } =
+        useAssessmentAnswerSave({
+            assessmentId: assessment.id,
+        });
 
     const handleSubmit = useCallback(() => {
-        forceSave(answersRef.current).then(() => {
-            submitAssessment(answersRef.current);
-        });
+        forceSave(answersRef.current)
+            .catch(() => {})
+            .then(() => {
+                submitAssessment(answersRef.current);
+            });
     }, [forceSave, submitAssessment]);
 
     const { timeLeft } = useAssessmentTimer({
         remainingSeconds,
         onTimeEnd: handleSubmit,
         isSubmitting,
+        isActive: assessmentCanStart,
     });
 
     useEffect(() => {
         const autoSaveInterval = setInterval(() => {
-            saveAllAnswers(answersRef.current);
+            saveAllAnswers(answersRef.current).catch(() => {});
         }, 30000);
 
         return () => clearInterval(autoSaveInterval);
@@ -160,6 +165,7 @@ const useTakeAssessment = ({
     useEffect(() => {
         return () => {
             cleanup();
+            reset();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -180,6 +186,7 @@ const useTakeAssessment = ({
         fullscreenRequired,
         enterFullscreen,
         assessmentCanStart,
+        saveStatus,
     };
 };
 

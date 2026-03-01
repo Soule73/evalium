@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildInitialAnswers } from './useAssessmentAnswers';
+import { buildInitialAnswers } from '@/utils/assessment/take/answerUtils';
 import type { Question } from '@/types';
 import type { Answer } from '@/types';
 
@@ -17,7 +17,7 @@ const makeQuestion = (
 
 const makeAnswer = (overrides: Partial<Answer> & { question_id: number }): Answer => ({
     id: 1,
-    assignment_id: 1,
+    assessment_assignment_id: 1,
     created_at: '',
     updated_at: '',
     ...overrides,

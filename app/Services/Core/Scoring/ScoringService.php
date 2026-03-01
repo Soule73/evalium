@@ -4,9 +4,12 @@ namespace App\Services\Core\Scoring;
 
 use App\Contracts\Scoring\ScoringStrategyInterface;
 use App\Enums\QuestionType;
+use App\Models\Answer;
 use App\Models\AssessmentAssignment;
 use App\Models\Question;
+use App\Notifications\AssessmentGradedNotification;
 use App\Strategies\Scoring\BooleanScoringStrategy;
+use App\Strategies\Scoring\FileQuestionScoringStrategy;
 use App\Strategies\Scoring\MultipleChoiceScoringStrategy;
 use App\Strategies\Scoring\OneChoiceScoringStrategy;
 use App\Strategies\Scoring\TextQuestionScoringStrategy;
@@ -32,6 +35,7 @@ class ScoringService
             new MultipleChoiceScoringStrategy,
             new BooleanScoringStrategy,
             new TextQuestionScoringStrategy,
+            new FileQuestionScoringStrategy,
         ];
     }
 
@@ -143,14 +147,43 @@ class ScoringService
     /**
      * Check if an exam contains questions requiring manual grading.
      *
+     * Covers both Text and File question types.
+     *
      * @param  AssessmentAssignment  $assignment  The assignment to check
-     * @return bool True if the exam has text questions
+     * @return bool True if the exam has manually graded questions
      */
     public function hasManualCorrectionQuestions(AssessmentAssignment $assignment): bool
     {
+        $manualTypes = array_filter(
+            QuestionType::cases(),
+            fn (QuestionType $type) => $type->requiresManualGrading()
+        );
+
+        $manualValues = array_map(fn (QuestionType $type) => $type->value, $manualTypes);
+
         return $assignment->assessment->questions()
-            ->where('type', QuestionType::Text)
+            ->whereIn('type', $manualValues)
             ->exists();
+    }
+
+    /**
+     * Calculate the score for a single question given its answers.
+     *
+     * Returns 0.0 when no matching strategy exists.
+     *
+     * @param  Question  $question  The question to evaluate
+     * @param  Collection  $answers  Answers for this question
+     * @return float Earned score
+     */
+    public function calculateScoreForQuestion(Question $question, Collection $answers): float
+    {
+        $strategy = $this->getStrategyForQuestionType($question->type);
+
+        if (! $strategy) {
+            return 0.0;
+        }
+
+        return $strategy->calculateScore($question, $answers);
     }
 
     /**
@@ -171,16 +204,6 @@ class ScoringService
     }
 
     /**
-     * Get all registered scoring strategies.
-     *
-     * @return array<ScoringStrategyInterface>
-     */
-    public function getStrategies(): array
-    {
-        return $this->strategies;
-    }
-
-    /**
      * Add a custom scoring strategy.
      *
      * Useful for adding new question types without modifying this file.
@@ -193,6 +216,35 @@ class ScoringService
         $this->strategies[] = $strategy;
 
         return $this;
+    }
+
+    /**
+     * Auto-grade an assignment with zero score for all questions.
+     *
+     * Used when a student has submitted no answers and the assessment has ended.
+     * Sets graded_at and total score to 0, notifies the student.
+     *
+     * @return array{total_score: float, status: string}
+     */
+    public function autoGradeZero(AssessmentAssignment $assignment, ?string $teacherNotes = null): array
+    {
+        $assignment->update([
+            'graded_at' => now(),
+            'teacher_notes' => $teacherNotes,
+        ]);
+
+        $assignment->loadMissing(['enrollment.student', 'assessment.classSubject.subject']);
+
+        $student = $assignment->student;
+
+        if ($student) {
+            $student->notify(new AssessmentGradedNotification($assignment->assessment, $assignment));
+        }
+
+        return [
+            'total_score' => 0.0,
+            'status' => 'graded',
+        ];
     }
 
     /**
@@ -212,34 +264,54 @@ class ScoringService
         $answersByQuestionId = $assignment->answers->groupBy('question_id');
 
         $updatedCount = 0;
+        $answerUpdates = [];
 
         foreach ($scores as $scoreData) {
             $answers = $answersByQuestionId->get($scoreData['question_id'], collect());
 
             if ($answers->isNotEmpty()) {
-                $answers->first()->update([
+                $firstAnswer = $answers->first();
+                $answerUpdates[] = [
+                    'id' => $firstAnswer->id,
+                    'assessment_assignment_id' => $firstAnswer->assessment_assignment_id,
+                    'question_id' => $firstAnswer->question_id,
                     'score' => $scoreData['score'],
                     'feedback' => $scoreData['feedback'] ?? null,
-                ]);
+                ];
 
-                $answers->skip(1)->each(function ($answer) use ($scoreData) {
-                    $answer->update([
+                $answers->skip(1)->each(function ($answer) use ($scoreData, &$answerUpdates) {
+                    $answerUpdates[] = [
+                        'id' => $answer->id,
+                        'assessment_assignment_id' => $answer->assessment_assignment_id,
+                        'question_id' => $answer->question_id,
                         'score' => 0,
                         'feedback' => $scoreData['feedback'] ?? null,
-                    ]);
+                    ];
                 });
 
                 $updatedCount++;
             }
         }
 
+        if (! empty($answerUpdates)) {
+            Answer::upsert($answerUpdates, ['id'], ['score', 'feedback']);
+        }
+
+        $assignment->unsetRelation('answers');
         $totalScore = $this->calculateAssignmentScore($assignment);
 
         $assignment->update([
-            'score' => $totalScore,
             'teacher_notes' => $teacherNotes,
             'graded_at' => now(),
         ]);
+
+        $assignment->loadMissing(['enrollment.student', 'assessment.classSubject.subject']);
+
+        $student = $assignment->student;
+
+        if ($student) {
+            $student->notify(new AssessmentGradedNotification($assignment->assessment, $assignment));
+        }
 
         return [
             'updated_count' => $updatedCount,

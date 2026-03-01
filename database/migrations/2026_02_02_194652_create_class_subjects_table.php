@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('class_id')->constrained('classes')->cascadeOnDelete();
             $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
-            $table->foreignId('teacher_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('teacher_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('semester_id')->nullable()->constrained('semesters')->nullOnDelete();
             $table->decimal('coefficient', 5, 2);
             $table->date('valid_from');

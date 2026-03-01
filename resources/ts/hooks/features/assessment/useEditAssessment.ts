@@ -9,6 +9,8 @@ import {
     type DeliveryMode,
 } from '@/types';
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
+import { getDeliveryModeDefaults } from '@/utils/assessment/utils';
+import { toLocalDatetimeInput } from '@/utils/formatting/formatters';
 
 interface AssessmentEditData {
     title: string;
@@ -18,13 +20,13 @@ interface AssessmentEditData {
     due_date: string;
     delivery_mode: DeliveryMode;
     type: AssessmentType;
-    class_subject_id: number;
+    class_subject_id: number | null;
+    coefficient: number;
     is_published: boolean;
     shuffle_questions: boolean;
-    show_results_immediately: boolean;
+    release_results_after_grading: boolean;
     show_correct_answers: boolean;
     allow_late_submission: boolean;
-    one_question_per_page: boolean;
     questions: QuestionFormData[];
     deletedQuestionIds: number[];
     deletedChoiceIds: number[];
@@ -62,17 +64,19 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
             title: assessment.title || '',
             description: assessment.description || '',
             duration: assessment.duration_minutes || 60,
-            scheduled_date: assessment.scheduled_at ? assessment.scheduled_at.slice(0, 16) : '',
-            due_date: assessment.due_date ? assessment.due_date.slice(0, 16) : '',
+            scheduled_date: assessment.scheduled_at
+                ? toLocalDatetimeInput(assessment.scheduled_at)
+                : '',
+            due_date: assessment.due_date ? toLocalDatetimeInput(assessment.due_date) : '',
             delivery_mode: assessment.delivery_mode || 'homework',
             type: assessment.type,
-            class_subject_id: assessment.class_subject_id || 0,
+            class_subject_id: assessment.class_subject_id ?? null,
             is_published: assessment.is_published ?? false,
+            coefficient: assessment.coefficient ?? 1,
             shuffle_questions: assessment.shuffle_questions ?? false,
-            show_results_immediately: assessment.show_results_immediately ?? true,
+            release_results_after_grading: assessment.release_results_after_grading ?? false,
             show_correct_answers: assessment.show_correct_answers ?? false,
             allow_late_submission: assessment.allow_late_submission ?? false,
-            one_question_per_page: assessment.one_question_per_page ?? false,
             questions: [],
             deletedQuestionIds: [],
             deletedChoiceIds: [],
@@ -115,7 +119,14 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
 
     const handleFieldChange = useCallback(
         (field: string, value: string | number | boolean) => {
-            setData(field as keyof AssessmentEditData, value);
+            setData(field as keyof AssessmentEditData, value as never);
+            if (field === 'delivery_mode') {
+                const defaults = getDeliveryModeDefaults(value as string);
+                setData('shuffle_questions', defaults.shuffle_questions);
+                if (defaults.duration !== undefined) {
+                    setData('duration', defaults.duration);
+                }
+            }
         },
         [setData],
     );
@@ -137,9 +148,7 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
                 onSuccess: () => {
                     clearDeletedHistory();
                 },
-                onError: (errors: Record<string, string>) => {
-                    console.error('Submission errors:', errors);
-                },
+                onError: () => {},
             });
         },
         [

@@ -20,6 +20,9 @@ interface UseDataTableOptions<T> {
     filters?: FilterConfig[];
     onStateChange?: (state: DataTableState) => void;
     onSelectionChange?: (selectedIds: (number | string)[]) => void;
+    selectedIds?: (number | string)[];
+    /** When true, disables URL navigation (router.visit). Intended for list/static mode. */
+    isStatic?: boolean;
 }
 
 /**
@@ -39,6 +42,8 @@ export function useDataTable<T extends { id: number | string }>(
         filters,
         onStateChange,
         onSelectionChange,
+        selectedIds,
+        isStatic = false,
     } = options;
 
     const [initialized, setInitialized] = useState(false);
@@ -80,6 +85,7 @@ export function useDataTable<T extends { id: number | string }>(
     const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
     const onStateChangeRef = useRef(onStateChange);
     const onSelectionChangeRef = useRef(onSelectionChange);
+    const lastReportedSelectionKeyRef = useRef<string>('');
 
     onStateChangeRef.current = onStateChange;
     onSelectionChangeRef.current = onSelectionChange;
@@ -97,6 +103,14 @@ export function useDataTable<T extends { id: number | string }>(
     }, [data.current_page, enableSelection]);
 
     useEffect(() => {
+        if (!selectedIds || !enableSelection) return;
+        const incomingKey = [...selectedIds].sort().join(',');
+        if (incomingKey === lastReportedSelectionKeyRef.current) return;
+        lastReportedSelectionKeyRef.current = incomingKey;
+        setSelectedItems(new Set(selectedIds));
+    }, [selectedIds, enableSelection]);
+
+    useEffect(() => {
         setState((prev) => {
             if (prev.page === data.current_page && prev.perPage === data.per_page) {
                 return prev;
@@ -110,7 +124,9 @@ export function useDataTable<T extends { id: number | string }>(
     }, [state]);
 
     useEffect(() => {
-        onSelectionChangeRef.current?.(Array.from(selectedItems));
+        const arr = Array.from(selectedItems);
+        lastReportedSelectionKeyRef.current = [...arr].sort().join(',');
+        onSelectionChangeRef.current?.(arr);
     }, [selectedItems]);
 
     const dataPath = data.path;
@@ -129,6 +145,10 @@ export function useDataTable<T extends { id: number | string }>(
             newState: Partial<DataTableState> = {},
             navOptions: { replace?: boolean; preserveState?: boolean } = {},
         ) => {
+            if (isStatic) {
+                return;
+            }
+
             const url = buildUrl(newState);
             setIsNavigating(true);
 
@@ -142,7 +162,7 @@ export function useDataTable<T extends { id: number | string }>(
                 },
             );
         },
-        [buildUrl, preserveState],
+        [buildUrl, preserveState, isStatic],
     );
 
     const debouncedNavigate = useCallback(
@@ -321,16 +341,21 @@ export function useDataTable<T extends { id: number | string }>(
         };
     }, []);
 
+    const selection = useMemo(
+        () => ({
+            selectedItems,
+            allItemsOnPageSelected,
+            someItemsOnPageSelected,
+            selectedCount: selectedItems.size,
+        }),
+        [selectedItems, allItemsOnPageSelected, someItemsOnPageSelected],
+    );
+
     return {
         state,
         actions,
         isNavigating,
         buildUrl,
-        selection: {
-            selectedItems,
-            allItemsOnPageSelected,
-            someItemsOnPageSelected,
-            selectedCount: selectedItems.size,
-        },
+        selection,
     };
 }

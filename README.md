@@ -104,9 +104,9 @@ After seeding:
 
 | Role    | Email                    | Password |
 |---------|--------------------------|----------|
-| Admin   | admin@examena.com        | password |
-| Teacher | teacher1@examena.com     | password |
-| Student | student1@examena.com     | password |
+| Admin   | admin@evalium.com        | password |
+| Teacher | teacher1@evalium.com     | password |
+| Student | student1@evalium.com     | password |
 
 ---
 

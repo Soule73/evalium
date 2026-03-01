@@ -6,5 +6,5 @@ export * from './classSubject';
 export * from './enrollment';
 export * from './assessment';
 export * from './assessmentAssignment';
-export * from './assignmentAttachment';
 export * from './grades';
+export * from './notification';
