@@ -38,7 +38,7 @@ class AssessmentStartingSoonNotification extends Notification implements ShouldQ
             'assessment_title' => $this->assessment->title,
             'subject' => $this->assessment->classSubject?->subject?->name,
             'scheduled_at' => $this->assessment->scheduled_at?->toIso8601String(),
-            'delivery_mode' => (string) $this->assessment->delivery_mode,
+            'delivery_mode' => $this->assessment->delivery_mode?->value,
             'url' => route('student.assessments.show', $this->assessment->id),
         ];
     }
