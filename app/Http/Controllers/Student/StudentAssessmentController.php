@@ -8,7 +8,6 @@ use App\Http\Requests\Student\SecurityViolationRequest;
 use App\Http\Requests\Student\UploadFileAnswerRequest;
 use App\Models\Answer;
 use App\Models\Assessment;
-use App\Notifications\AssessmentSubmittedNotification;
 use App\Services\Student\FileAnswerService;
 use App\Services\Student\StudentAssessmentService;
 use App\Traits\FiltersAcademicYear;
@@ -261,13 +260,6 @@ class StudentAssessmentController extends Controller
         }
 
         $this->assessmentService->submitAssessment($assignment, $assessment, $request->input('answers', []));
-
-        $assessment->loadMissing('classSubject.teacher');
-        $teacher = $assessment->classSubject?->teacher;
-
-        if ($teacher) {
-            $teacher->notify(new AssessmentSubmittedNotification($assessment, $assignment));
-        }
 
         if ($assessment->isSupervisedMode() && ! $assessment->isResultsEmbargoLifted()) {
             return redirect()

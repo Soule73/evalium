@@ -31,6 +31,7 @@ class Assessment extends Model
         'scheduled_at',
         'due_date',
         'is_published',
+        'reminder_sent_at',
         'settings',
     ];
 
@@ -49,6 +50,7 @@ class Assessment extends Model
             'scheduled_at' => 'datetime',
             'due_date' => 'datetime',
             'is_published' => 'boolean',
+            'reminder_sent_at' => 'datetime',
             'settings' => 'array',
         ];
     }

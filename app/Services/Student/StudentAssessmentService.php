@@ -8,6 +8,7 @@ use App\Models\AssessmentAssignment;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Notifications\AssessmentGradedNotification;
+use App\Notifications\AssessmentSubmittedNotification;
 use App\Services\Core\Scoring\ScoringService;
 use App\Services\Traits\Paginatable;
 use Illuminate\Support\Collection;
@@ -173,6 +174,8 @@ class StudentAssessmentService
             'security_violation' => 'time_expired',
         ]);
 
+        $this->notifyTeacherOfSubmission($assessment, $assignment);
+
         return true;
     }
 
@@ -255,6 +258,8 @@ class StudentAssessmentService
         $this->autoScoreAssessment($assignment, $assessment);
 
         $assignment->update(['submitted_at' => now()]);
+
+        $this->notifyTeacherOfSubmission($assessment, $assignment);
 
         return true;
     }
@@ -545,6 +550,19 @@ class StudentAssessmentService
             ->forStudent($student)
             ->with(['answers.question', 'answers.choice', 'enrollment'])
             ->first();
+    }
+
+    /**
+     * Notify the teacher that a student has submitted an assessment.
+     */
+    private function notifyTeacherOfSubmission(Assessment $assessment, AssessmentAssignment $assignment): void
+    {
+        $assessment->loadMissing('classSubject.teacher');
+        $teacher = $assessment->classSubject?->teacher;
+
+        if ($teacher) {
+            $teacher->notify(new AssessmentSubmittedNotification($assessment, $assignment));
+        }
     }
 
     /**

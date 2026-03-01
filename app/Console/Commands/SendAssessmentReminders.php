@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Notification;
  * Sends starting-soon notifications to enrolled students for assessments
  * scheduled to begin within the next 15 minutes.
  *
+ * Uses the reminder_sent_at column on assessments for deduplication,
+ * ensuring each assessment triggers at most one reminder batch.
+ *
  * Designed to run every 5 minutes via the scheduler.
  */
 class SendAssessmentReminders extends Command
@@ -21,18 +24,19 @@ class SendAssessmentReminders extends Command
     protected $description = 'Send starting-soon notifications for assessments starting in ~15 minutes';
 
     /**
-     * Find published, scheduled assessments starting in [13, 16] minutes
-     * and notify enrolled active students (deduplicated via a notification flag).
+     * Find published, scheduled assessments starting within the next 15 minutes
+     * that haven't already been reminded, and notify enrolled active students.
      */
     public function handle(): int
     {
-        $windowStart = now()->addMinutes(13);
-        $windowEnd = now()->addMinutes(16);
+        $windowEnd = now()->addMinutes(15);
 
         $assessments = Assessment::query()
             ->where('is_published', true)
             ->whereNotNull('scheduled_at')
-            ->whereBetween('scheduled_at', [$windowStart, $windowEnd])
+            ->whereNull('reminder_sent_at')
+            ->where('scheduled_at', '>', now())
+            ->where('scheduled_at', '<=', $windowEnd)
             ->with('classSubject.class.enrollments.student')
             ->get();
 
@@ -46,10 +50,14 @@ class SendAssessmentReminders extends Command
                 ->values() ?? collect();
 
             if ($activeStudents->isEmpty()) {
+                $assessment->update(['reminder_sent_at' => now()]);
+
                 continue;
             }
 
             Notification::send($activeStudents, new AssessmentStartingSoonNotification($assessment));
+
+            $assessment->update(['reminder_sent_at' => now()]);
 
             $this->info("Notified {$activeStudents->count()} student(s) for assessment [{$assessment->id}] \"{$assessment->title}\".");
         }
