@@ -58,12 +58,14 @@ class FileAnswerController extends Controller
         abort_unless($answer->file_path, 404);
 
         $user = Auth::user();
-        $assignment = $answer->assessmentAssignment()->with('enrollment', 'assessment')->first();
+        $assignment = $answer->assessmentAssignment()
+            ->with(['enrollment', 'assessment.classSubject'])
+            ->first();
 
         abort_unless($assignment, 404);
 
         $isOwner = $assignment->enrollment?->student_id === $user->id;
-        $isTeacher = $assignment->assessment?->teacher_id === $user->id;
+        $isTeacher = $assignment->assessment?->classSubject?->teacher_id === $user->id;
         $isAdmin = $user->hasRole(['admin', 'super_admin']);
 
         abort_unless($isOwner || $isTeacher || $isAdmin, 403, __('messages.unauthorized'));

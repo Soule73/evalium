@@ -183,7 +183,7 @@ class AssessmentAssignment extends Model
         if (array_key_exists('answers_sum_score', $this->attributes)) {
             $val = $this->attributes['answers_sum_score'];
 
-            return $val !== null ? (float) $val : null;
+            return $val !== null ? (float) $val : 0.0;
         }
 
         return (float) $this->answers()->sum('score');

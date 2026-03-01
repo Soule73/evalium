@@ -15,8 +15,11 @@ class SubjectSeeder extends Seeder
     {
         $levels = Level::orderBy('order')->get()->keyBy('name');
 
-        if ($levels->count() < 3) {
-            $this->command->error('Need at least 3 levels (L1, L2, M1).');
+        $requiredLevels = ['L1', 'L2', 'M1'];
+
+        if (! $levels->has($requiredLevels)) {
+            $missing = array_diff($requiredLevels, $levels->keys()->all());
+            $this->command->error('Missing required levels: '.implode(', ', $missing).'.');
 
             return;
         }

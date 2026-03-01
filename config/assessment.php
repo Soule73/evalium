@@ -39,6 +39,8 @@ return [
 
     'file_uploads' => [
         'max_size_kb' => (int) env('EXAM_FILE_MAX_SIZE_KB', 10240),
-        'allowed_extensions' => explode(',', env('EXAM_FILE_ALLOWED_EXTENSIONS', 'pdf,doc,docx,xlsx,zip,jpg,jpeg,png')),
+        'allowed_extensions' => array_filter(
+            array_map('trim', explode(',', env('EXAM_FILE_ALLOWED_EXTENSIONS', 'pdf,doc,docx,xlsx,zip,jpg,jpeg,png')))
+        ),
     ],
 ];

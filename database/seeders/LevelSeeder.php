@@ -16,7 +16,7 @@ class LevelSeeder extends Seeder
             [
                 'name' => 'L1',
                 'code' => 'l1',
-                'description' => 'Licence 1ere anne',
+                'description' => 'Licence 1ere annee',
                 'order' => 1,
                 'is_active' => true,
             ],
