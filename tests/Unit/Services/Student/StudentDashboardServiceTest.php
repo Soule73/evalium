@@ -112,18 +112,30 @@ class StudentDashboardServiceTest extends TestCase
             'is_published' => true,
         ], 2);
 
-        AssessmentAssignment::factory()->create([
+        $assignment1 = AssessmentAssignment::factory()->create([
             'assessment_id' => $assessment1->id,
             'enrollment_id' => $enrollment->id,
             'submitted_at' => now(),
             'graded_at' => now(),
         ]);
 
-        AssessmentAssignment::factory()->create([
+        Answer::factory()->create([
+            'assessment_assignment_id' => $assignment1->id,
+            'question_id' => $assessment1->questions()->first()->id,
+            'score' => 14,
+        ]);
+
+        $assignment2 = AssessmentAssignment::factory()->create([
             'assessment_id' => $assessment2->id,
             'enrollment_id' => $enrollment->id,
             'submitted_at' => now()->subHour(),
             'graded_at' => now()->subMinute(),
+        ]);
+
+        Answer::factory()->create([
+            'assessment_assignment_id' => $assignment2->id,
+            'question_id' => $assessment2->questions()->first()->id,
+            'score' => 16,
         ]);
 
         $result = $this->service->getDashboardStats($student);
@@ -132,10 +144,9 @@ class StudentDashboardServiceTest extends TestCase
         $this->assertEquals(2, $result['completedAssessments']);
         $this->assertEquals(0, $result['pendingAssessments']);
 
-        if ($result['averageScore'] !== null) {
-            $this->assertGreaterThan(0, $result['averageScore']);
-            $this->assertLessThanOrEqual(20, $result['averageScore']);
-        }
+        $this->assertNotNull($result['averageScore']);
+        $this->assertGreaterThan(0, $result['averageScore']);
+        $this->assertLessThanOrEqual(20, $result['averageScore']);
     }
 
     public function test_get_dashboard_stats_handles_no_enrollments(): void
