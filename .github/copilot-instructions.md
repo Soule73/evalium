@@ -69,10 +69,10 @@ Evalium is an online assessment management platform built with **Laravel 12** (P
   - `forms/` - `useForm` (custom hook)
 - **Stores** (`resources/ts/stores/`) - Zustand: `useAssessmentFormStore`, `useAssessmentTakeStore`
 - **Contexts** (`resources/ts/contexts/`) - `AcademicYearWizardContext`, `EnrollmentWizardContext`
-- **Schemas** (`resources/ts/schemas/`) - Zod: assessment, user
-- **Types** (`resources/ts/types/`) - TypeScript interfaces synced with Laravel models:
-  - `models/` - academicYear, assessment, assessmentAssignment, class, classSubject, enrollment, grades, notification, semester, subject
-  - `role.ts`, `datatable.ts`, `question-rendering.ts`, `route-context.ts`
+- **Types** (`resources/ts/packages/utils/types/`) - TypeScript interfaces synced with Laravel models, part of `@evalium/utils`:
+  - academicYear, assessment, assessmentAssignment, class, classSubject, enrollment, grades, notification, semester, subject
+  - `shared/` - user, role, permission, level, question, choice, answer
+  - `datatable.ts`, `question-rendering.ts`, `route-context.ts`
 - **Path aliases**: `@/` -> `resources/ts/`, `@evalium/ui` -> `resources/ts/packages/ui`, `@evalium/utils` -> `resources/ts/packages/utils`
 
 ### Middleware Stack (registered in `bootstrap/app.php`)
@@ -352,7 +352,7 @@ class AssessmentController extends Controller
 1. **Don't bypass Policies** - Always call `$this->authorize()` in controllers before service methods
 2. **Don't forget academic year context** - All assessments, classes, subjects are scoped by academic year
 3. **Don't skip validation strategies** - Use `QuestionValidationContext`/`ScoreValidationContext` in Form Requests
-4. **Don't forget TypeScript types** - Update `resources/ts/types/` when changing Laravel models
+4. **Don't forget TypeScript types** - Update `resources/ts/packages/utils/types/` when changing Laravel models
 5. **Don't ignore test coverage** - Maintain >= 70% coverage (enforced in CI)
 6. **Don't duplicate service logic** - Check existing services and follow SRP
 7. **Don't add business logic to controllers** - Always delegate to services
@@ -384,7 +384,7 @@ Located in `documentation/`:
 4. **Policy**: Define authorization rules in `app/Policies/`
 5. **Route**: Add to `routes/web.php` with appropriate middleware
 6. **Frontend**: Create Page in `resources/ts/Pages/`, use `@/` alias for imports
-7. **Types**: Update `resources/ts/types/` if new data structures
+7. **Types**: Update `resources/ts/packages/utils/types/` if new data structures
 8. **Tests**: Add PHPUnit (backend) + Vitest (frontend) + Playwright (E2E)
 
 ### Debugging

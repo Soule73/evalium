@@ -93,9 +93,28 @@ Test files follow the pattern `ComponentName.spec.tsx` within each component dir
 
 **Location:** `resources/ts/packages/utils/`
 
-Shared utility functions, helpers and constants used across the application. Organized into four modules.
+Shared utility functions, helpers, constants and **TypeScript type definitions** used across the application. Organized into five modules.
 
 ### Modules
+
+#### `types/`
+
+All TypeScript interfaces and type definitions for the application, synced with Laravel models.
+
+| Sub-module | Key Exports |
+|------------|-------------|
+| `types/` (root) | `PageProps`, `FlashMessages`, `CreatedUserCredentials` |
+| `types/shared/` | `User`, `Role`, `Permission`, `GroupedPermissions`, `Level`, `Question`, `Choice`, `Answer` |
+| `types/datatable` | `DataTableState`, `Column`, `PaginationType`, `SortDirection` |
+| `types/route-context` | `AssessmentRouteContext` |
+| `types/question-rendering` | Question rendering types |
+| Model types | `Assessment`, `AcademicYear`, `ClassModel`, `ClassSubject`, `Enrollment`, `Subject`, `Semester`, `Notification`, `Grades`, `AssessmentAssignment` |
+
+```tsx
+import type { PageProps, Assessment, User, ClassModel } from '@evalium/utils/types';
+import type { DataTableState, Column } from '@evalium/utils/types/datatable';
+import type { AssessmentRouteContext } from '@evalium/utils/types/route-context';
+```
 
 #### `api/`
 
@@ -207,6 +226,7 @@ Test files: `formatters.spec.ts`, `dataTableUtils.spec.ts`, `assignmentStatus.sp
 ### Adding a new utility
 
 1. Add the function to the appropriate module under `resources/ts/packages/utils/`:
+   - `types/` -- TypeScript interfaces and type definitions
    - `api/` -- HTTP/network utilities
    - `formatting/` -- Display formatting
    - `helpers/` -- General helpers
