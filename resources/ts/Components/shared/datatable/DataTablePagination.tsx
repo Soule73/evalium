@@ -21,6 +21,13 @@ function DataTablePaginationInner<T>({
     const { t } = useTranslations();
     const { current_page, last_page, from, to, total, per_page } = data;
 
+    const resolvedPerPageOptions = useMemo(() => {
+        if (perPageOptions.includes(per_page)) {
+            return perPageOptions;
+        }
+        return [...perPageOptions, per_page].sort((a, b) => a - b);
+    }, [perPageOptions, per_page]);
+
     const visiblePages = useMemo(() => {
         const delta = 2;
         const pages: (number | string)[] = [];
@@ -90,7 +97,7 @@ function DataTablePaginationInner<T>({
                         disabled={isLoading}
                         className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
                     >
-                        {perPageOptions.map((option) => (
+                        {resolvedPerPageOptions.map((option) => (
                             <option key={option} value={option}>
                                 {option}
                             </option>

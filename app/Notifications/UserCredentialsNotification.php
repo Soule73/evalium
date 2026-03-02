@@ -7,6 +7,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+/**
+ * Sends user credentials (email + generated password) after account creation.
+ *
+ * @see config/app.php  app.locale (notification locale fallback)
+ */
 class UserCredentialsNotification extends Notification implements ShouldQueue
 {
     use Queueable;

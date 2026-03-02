@@ -5,9 +5,13 @@ namespace App\Http\Traits;
 use Illuminate\Http\Request;
 
 /**
- * Trait for standardized index request handling in controllers
- *
  * Provides consistent parameter extraction and validation for list endpoints.
+ *
+ * Configuration:
+ *  - config('app.pagination.default_per_page') : Default items per page (default: 10)
+ *  - config('app.pagination.max_per_page')     : Maximum allowed per page (default: 100)
+ *
+ * @see config/app.php  Pagination configuration section
  */
 trait HandlesIndexRequests
 {
@@ -30,7 +34,7 @@ trait HandlesIndexRequests
      */
     protected function getPerPageFromRequest(Request $request, ?int $max = null): int
     {
-        $defaultPerPage = config('app.pagination.default_per_page', 15);
+        $defaultPerPage = config('app.pagination.default_per_page', 10);
         $maxPerPage = $max ?? config('app.pagination.max_per_page', 100);
 
         $perPage = $request->input('per_page', $defaultPerPage);

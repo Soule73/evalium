@@ -10,10 +10,13 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 
 /**
- * Paginatable Trait
- *
  * Provides reusable pagination logic with query string preservation
  * and custom append data support.
+ *
+ * Configuration:
+ *  - config('app.pagination.default_per_page') : Global default items per page (default: 10)
+ *
+ * @see config/app.php  Pagination configuration section
  */
 trait Paginatable
 {
@@ -29,7 +32,8 @@ trait Paginatable
         array $filters = [],
         array $appends = []
     ): LengthAwarePaginator {
-        $perPage = $filters['per_page'] ?? 10;
+        $defaultPerPage = config('app.pagination.default_per_page', 10);
+        $perPage = $filters['per_page'] ?? $defaultPerPage;
         $page = $filters['page'] ?? 1;
         $pageName = $filters['page_name'] ?? 'page';
 
@@ -61,12 +65,13 @@ trait Paginatable
         Builder|Relation $query,
         array $filters = []
     ): LengthAwarePaginator {
-        $perPage = $filters['per_page'] ?? 10;
+        $defaultPerPage = config('app.pagination.default_per_page', 10);
+        $perPage = $filters['per_page'] ?? $defaultPerPage;
 
         $appends = array_filter([
             'search' => $filters['search'] ?? null,
             'status' => $filters['status'] ?? null,
-            'per_page' => $perPage !== 10 ? $perPage : null,
+            'per_page' => $perPage !== $defaultPerPage ? $perPage : null,
         ]);
 
         return $this->paginateWithFilters($query, $filters, $appends);

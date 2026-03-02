@@ -15,12 +15,12 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Student Assessment Service
- *
  * Handles student assessment operations:
  * - Starting assessments
  * - Submitting answers
  * - Retrieving assessment data
+ *
+ * @see config/assessment.php  timing.grace_period_seconds
  */
 class StudentAssessmentService
 {

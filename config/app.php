@@ -129,26 +129,20 @@ return [
     |--------------------------------------------------------------------------
     |
     | Configure default pagination behavior across the application.
-    | Entity-specific configurations override the global defaults.
+    |
+    | Environment Variables:
+    |  - PAGINATION_DEFAULT_PER_PAGE : Global default items per page (default: 10)
+    |  - PAGINATION_MAX_PER_PAGE     : Maximum allowed items per page (default: 100)
+    |
+    | Consumed by:
+    |  - App\Services\Traits\Paginatable       (default_per_page)
+    |  - App\Http\Traits\HandlesIndexRequests   (default_per_page, max_per_page)
     |
     */
 
     'pagination' => [
-        'default_per_page' => env('PAGINATION_DEFAULT_PER_PAGE', 15),
+        'default_per_page' => env('PAGINATION_DEFAULT_PER_PAGE', 10),
         'max_per_page' => env('PAGINATION_MAX_PER_PAGE', 100),
-
-        'per_page_options' => [10, 15, 25, 50, 100],
-
-        'entities' => [
-            'users' => ['default' => 20, 'max' => 100],
-            'classes' => ['default' => 15, 'max' => 50],
-            'subjects' => ['default' => 20, 'max' => 100],
-            'assessments' => ['default' => 15, 'max' => 50],
-            'enrollments' => ['default' => 15, 'max' => 100],
-            'assignments' => ['default' => 15, 'max' => 50],
-            'roles' => ['default' => 20, 'max' => 100],
-            'levels' => ['default' => 20, 'max' => 100],
-        ],
     ],
 
 ];

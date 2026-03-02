@@ -71,7 +71,9 @@ class PaginatableTest extends TestCase
 
     public function test_paginate_with_filters_uses_default_per_page(): void
     {
-        User::factory()->count(15)->create();
+        User::factory()->count(20)->create();
+
+        $defaultPerPage = config('app.pagination.default_per_page', 15);
 
         $result = $this->service->exposePaginateWithFilters(
             User::query(),
@@ -79,7 +81,7 @@ class PaginatableTest extends TestCase
             []
         );
 
-        $this->assertEquals(10, $result->perPage());
+        $this->assertEquals($defaultPerPage, $result->perPage());
     }
 
     public function test_paginate_with_filters_appends_data(): void
@@ -119,9 +121,11 @@ class PaginatableTest extends TestCase
     {
         User::factory()->count(5)->create();
 
+        $defaultPerPage = config('app.pagination.default_per_page', 15);
+
         $result = $this->service->exposePaginateWithStandardFilters(
             User::query(),
-            ['per_page' => 10]
+            ['per_page' => $defaultPerPage]
         );
 
         $query = parse_url($result->url(1), PHP_URL_QUERY);

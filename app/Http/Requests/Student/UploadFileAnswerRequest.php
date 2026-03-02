@@ -9,6 +9,8 @@ use Illuminate\Foundation\Http\FormRequest;
  *
  * Constraints (max size, allowed extensions) are read from config/assessment.php
  * and apply system-wide to all file-type questions.
+ *
+ * @see config/assessment.php  file_uploads.max_size_kb, file_uploads.allowed_extensions
  */
 class UploadFileAnswerRequest extends FormRequest
 {

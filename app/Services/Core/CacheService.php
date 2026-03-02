@@ -5,10 +5,10 @@ namespace App\Services\Core;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Cache Service - Centralized cache management
- *
- * Provides consistent cache operations across the application.
+ * Centralized cache management across the application.
  * Single Responsibility: Manage cache keys and TTL centrally.
+ *
+ * @see config/cache.php  cache.stores.redis.connection (used by forgetPattern)
  */
 class CacheService
 {

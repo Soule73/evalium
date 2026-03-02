@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Storage;
  * Each file corresponds to one Answer row linked to a specific File question.
  * File size and extension constraints are read from config/assessment.php
  * instead of per-assessment database columns.
+ *
+ * @see config/assessment.php  file_uploads.max_size_kb, file_uploads.allowed_extensions
  */
 class FileAnswerService
 {

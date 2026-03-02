@@ -19,6 +19,11 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * Handles student-facing assessment routes (index, show, take, submit).
+ *
+ * @see config/assessment.php  dev_mode (injected into Inertia props)
+ */
 class StudentAssessmentController extends Controller
 {
     use AuthorizesRequests, FiltersAcademicYear;

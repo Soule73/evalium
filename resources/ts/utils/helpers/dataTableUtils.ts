@@ -6,8 +6,13 @@ import { type DataTableState } from '@/types/datatable';
 export function buildDataTableUrl(state: DataTableState, basePath: string): string {
     const params = new URLSearchParams();
 
-    params.set('page', String(state.page));
-    params.set('per_page', String(state.perPage));
+    if (state.page > 1) {
+        params.set('page', String(state.page));
+    }
+
+    if (state.perPage) {
+        params.set('per_page', String(state.perPage));
+    }
 
     if (state.search.trim()) {
         params.set('search', state.search.trim());

@@ -47,7 +47,7 @@ Evalium is an online assessment management platform built with **Laravel 12** (P
 - **Enums** (`app/Enums/`) - `AssessmentType`, `DeliveryMode`, `QuestionType`, `EnrollmentStatus`
 - **Exceptions** (`app/Exceptions/`) - Domain exceptions: `AssessmentException`, `EnrollmentException`, etc.
 - **Notifications** (`app/Notifications/`) - `AssessmentGraded`, `AssessmentPublished`, `AssessmentStartingSoon`, `AssessmentSubmitted`, `UserCredentials`
-- **Traits** (`app/Traits/`) - `FiltersAcademicYear`, `HasAcademicYearScope`, `HasAcademicYearThroughClass`, `HasJsonSettings`, `PaginatesResources`
+- **Traits** (`app/Traits/`) - `FiltersAcademicYear`, `HasAcademicYearScope`, `HasAcademicYearThroughClass`, `HasJsonSettings`
 
 ### Frontend: React + Inertia.js
 - **Pages** (`resources/ts/Pages/`) - Inertia entry points organized by role:
