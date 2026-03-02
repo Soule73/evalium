@@ -17,25 +17,6 @@ erDiagram
         bigint id PK
         varchar name
         varchar email UK
-        varchar avatar "nullable"---
-id: 15ead0c8-6550-493e-bc5e-2a1a331d2048
----
-%%{init: {'er': {'layoutDirection': 'TB', 'fontSize': 14}}}%%
-erDiagram
-
-    %% ============================================================
-    %% Evalium - Final Database Schema (MCD)
-    %% Generated from consolidated migrations - 2026-02-26
-    %% ============================================================
-
-    %% ========================
-    %% Core Identity & Auth
-    %% ========================
-
-    users {
-        bigint id PK
-        varchar name
-        varchar email UK
         varchar avatar "nullable"
         varchar locale "default: en"
         timestamp email_verified_at "nullable"

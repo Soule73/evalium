@@ -167,7 +167,62 @@ describe('Modal Component', () => {
         await waitFor(() => {
             const dialog = screen.getByRole('dialog');
             expect(dialog).toHaveAttribute('aria-modal', 'true');
-            expect(dialog).toHaveAttribute('aria-labelledby', 'modal-title');
+            expect(dialog).toHaveAttribute('aria-labelledby');
+
+            const labelledById = dialog.getAttribute('aria-labelledby')!;
+            const titleElement = document.getElementById(labelledById);
+            expect(titleElement).toBeInTheDocument();
+            expect(titleElement?.textContent).toBe('Test Title');
         });
+    });
+
+    it('traps focus within the modal', async () => {
+        const user = userEvent.setup();
+
+        render(
+            <Modal isOpen={true} onClose={() => {}} title="Focus Trap Test">
+                <button>First Button</button>
+                <button>Last Button</button>
+            </Modal>,
+        );
+
+        await waitFor(() => {
+            expect(screen.getByText('First Button')).toBeInTheDocument();
+        });
+
+        screen.getByText('Last Button').focus();
+
+        await user.tab();
+
+        expect(document.activeElement).toBe(screen.getByLabelText('Close'));
+    });
+
+    it('restores focus to previously focused element on close', async () => {
+        const trigger = document.createElement('button');
+        trigger.textContent = 'Open Modal';
+        document.body.appendChild(trigger);
+        trigger.focus();
+
+        const { rerender } = render(
+            <Modal isOpen={true} onClose={() => {}}>
+                <div>Modal Content</div>
+            </Modal>,
+        );
+
+        await waitFor(() => {
+            expect(screen.getByText('Modal Content')).toBeInTheDocument();
+        });
+
+        rerender(
+            <Modal isOpen={false} onClose={() => {}}>
+                <div>Modal Content</div>
+            </Modal>,
+        );
+
+        await waitFor(() => {
+            expect(document.activeElement).toBe(trigger);
+        });
+
+        document.body.removeChild(trigger);
     });
 });

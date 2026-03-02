@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
@@ -24,8 +24,25 @@ const sizeClasses: Record<ModalSize, string> = {
     full: 'w-[calc(100%-2rem)] h-[calc(100vh-2rem)]',
 };
 
+let scrollLockCount = 0;
+
+function acquireScrollLock() {
+    scrollLockCount++;
+    if (scrollLockCount === 1) {
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function releaseScrollLock() {
+    scrollLockCount = Math.max(0, scrollLockCount - 1);
+    if (scrollLockCount === 0) {
+        document.body.style.overflow = '';
+    }
+}
+
 /**
- * Accessible modal dialog with enter/exit animations, scroll lock and Escape key support.
+ * Accessible modal dialog with enter/exit animations, ref-counted scroll lock,
+ * focus trap and Escape key support.
  *
  * Renders via React Portal to the document body.
  */
@@ -42,31 +59,56 @@ const Modal: React.FC<ModalProps> = ({
     const [visible, setVisible] = useState(false);
     const [animating, setAnimating] = useState(false);
     const dialogRef = useRef<HTMLDivElement>(null);
+    const previousFocusRef = useRef<Element | null>(null);
+    const titleId = useId();
 
     useEffect(() => {
         if (isOpen) {
+            previousFocusRef.current = document.activeElement;
             setVisible(true);
             requestAnimationFrame(() => setAnimating(true));
         } else {
             setAnimating(false);
-            const timer = setTimeout(() => setVisible(false), 200);
+            const timer = setTimeout(() => {
+                setVisible(false);
+                if (previousFocusRef.current instanceof HTMLElement) {
+                    previousFocusRef.current.focus();
+                    previousFocusRef.current = null;
+                }
+            }, 200);
             return () => clearTimeout(timer);
         }
     }, [isOpen]);
 
     useEffect(() => {
         if (!visible) return;
-        const original = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
-        return () => {
-            document.body.style.overflow = original;
-        };
+        acquireScrollLock();
+        return () => releaseScrollLock();
     }, [visible]);
 
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
             if (e.key === 'Escape' && isCloseableInside) {
                 onClose();
+                return;
+            }
+
+            if (e.key === 'Tab' && dialogRef.current) {
+                const focusableElements = dialogRef.current.querySelectorAll<HTMLElement>(
+                    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+                );
+                if (focusableElements.length === 0) return;
+
+                const first = focusableElements[0];
+                const last = focusableElements[focusableElements.length - 1];
+
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
             }
         },
         [isCloseableInside, onClose],
@@ -93,7 +135,7 @@ const Modal: React.FC<ModalProps> = ({
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
             role="dialog"
             aria-modal="true"
-            aria-labelledby={title ? 'modal-title' : undefined}
+            aria-labelledby={title ? titleId : undefined}
             data-e2e={testIdModal}
         >
             <div
@@ -123,7 +165,7 @@ const Modal: React.FC<ModalProps> = ({
                 {title && (
                     <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100 shrink-0">
                         <h3
-                            id="modal-title"
+                            id={titleId}
                             className="text-lg font-semibold text-gray-900 truncate pr-4"
                         >
                             {title}

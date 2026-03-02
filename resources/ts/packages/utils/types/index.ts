@@ -1,3 +1,5 @@
+import type { User } from './shared/user';
+
 export * from './academicYear';
 export * from './assessment';
 export * from './assessmentAssignment';
@@ -29,8 +31,6 @@ export interface FlashMessages {
     info?: FlashMessageObject;
     has_new_user?: boolean | null;
 }
-
-import type { User } from './shared/user';
 
 export type PageProps<T = Record<string, unknown>> = {
     auth: {

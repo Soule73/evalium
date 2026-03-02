@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { router } from '@inertiajs/react';
+import { type FormDataConvertible } from '@inertiajs/core';
 import { type Level } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Input, Modal, Toggle } from '@evalium/ui';
@@ -74,9 +75,17 @@ export function LevelFormModal({ isOpen, onClose, level }: LevelFormModalProps) 
         };
 
         if (isEditMode && level) {
-            router.put(route('admin.levels.update', level.id), formData as never, submitOptions);
+            router.put(
+                route('admin.levels.update', level.id),
+                formData as unknown as Record<string, FormDataConvertible>,
+                submitOptions,
+            );
         } else {
-            router.post(route('admin.levels.store'), formData as never, submitOptions);
+            router.post(
+                route('admin.levels.store'),
+                formData as unknown as Record<string, FormDataConvertible>,
+                submitOptions,
+            );
         }
     };
 
