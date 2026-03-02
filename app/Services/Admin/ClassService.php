@@ -23,28 +23,6 @@ class ClassService implements ClassServiceInterface
     ) {}
 
     /**
-     * Get form data for the create page.
-     */
-    public function getCreateFormData(?int $selectedYearId): array
-    {
-        return [
-            'levels' => $this->classQueryService->getAllLevels(),
-            'selectedAcademicYear' => AcademicYear::find($selectedYearId),
-        ];
-    }
-
-    /**
-     * Get form data for the edit page.
-     */
-    public function getEditFormData(ClassModel $class): array
-    {
-        return [
-            'class' => $class->load(['academicYear', 'level']),
-            'levels' => $this->classQueryService->getAllLevels(),
-        ];
-    }
-
-    /**
      * Create a new class for an academic year
      */
     public function createClass(array $data): ClassModel

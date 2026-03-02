@@ -72,19 +72,6 @@ class ClassController extends Controller
     }
 
     /**
-     * Show the form for creating a new class.
-     */
-    public function create(Request $request): Response
-    {
-        $this->authorize('create', ClassModel::class);
-
-        $selectedYearId = $this->getSelectedAcademicYearId($request);
-        $formData = $this->classService->getCreateFormData($selectedYearId);
-
-        return Inertia::render('Admin/Classes/Create', $formData);
-    }
-
-    /**
      * Store a newly created class.
      */
     public function store(StoreClassRequest $request): RedirectResponse
@@ -103,10 +90,10 @@ class ClassController extends Controller
             'academic_year_id' => $selectedYearId,
         ]);
 
-        $class = $this->classService->createClass($data);
+        $this->classService->createClass($data);
 
         return redirect()
-            ->route('admin.classes.show', $class)
+            ->route('admin.classes.index')
             ->flashSuccess(__('messages.class_created'));
     }
 
@@ -138,6 +125,7 @@ class ClassController extends Controller
             'statistics' => $this->classQueryService->getClassStatistics($class, $recentClassSubjects->total()),
             'assessments' => $this->assessmentQueryService->getAssessmentsForClass($class, [], 3),
             'classSubjectFormData' => $this->classSubjectService->getFormDataForCreate($selectedYearId),
+            'levels' => $this->classQueryService->getAllLevels(),
             'routeContext' => $this->adminClassRouteContext(),
         ]);
     }
@@ -288,18 +276,6 @@ class ClassController extends Controller
     }
 
     /**
-     * Show the form for editing the specified class.
-     */
-    public function edit(ClassModel $class): Response
-    {
-        $this->authorize('update', $class);
-
-        $formData = $this->classService->getEditFormData($class);
-
-        return Inertia::render('Admin/Classes/Edit', $formData);
-    }
-
-    /**
      * Update the specified class.
      */
     public function update(UpdateClassRequest $request, ClassModel $class): RedirectResponse
@@ -308,9 +284,7 @@ class ClassController extends Controller
 
         $this->classService->updateClass($class, $request->validated());
 
-        return redirect()
-            ->route('admin.classes.show', $class)
-            ->flashSuccess(__('messages.class_updated'));
+        return back()->flashSuccess(__('messages.class_updated'));
     }
 
     /**

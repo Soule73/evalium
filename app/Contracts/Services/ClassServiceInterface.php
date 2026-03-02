@@ -9,16 +9,6 @@ use Illuminate\Support\Collection;
 interface ClassServiceInterface
 {
     /**
-     * Get data required for the create class form.
-     */
-    public function getCreateFormData(?int $selectedYearId): array;
-
-    /**
-     * Get data required for the edit class form.
-     */
-    public function getEditFormData(ClassModel $class): array;
-
-    /**
      * Create a new class.
      */
     public function createClass(array $data): ClassModel;

@@ -15,7 +15,7 @@ trait ProvidesAdminClassRouteContext
             'role' => 'admin',
             'indexRoute' => 'admin.classes.index',
             'showRoute' => 'admin.classes.show',
-            'editRoute' => 'admin.classes.edit',
+            'editRoute' => null,
             'deleteRoute' => 'admin.classes.destroy',
             'assessmentsRoute' => 'admin.classes.assessments',
             'subjectShowRoute' => 'admin.classes.subjects.show',

@@ -324,9 +324,7 @@ function createBreadcrumbs(t: TranslateFn) {
             showSubject: subjectsBc.show,
             editSubject: subjectsBc.edit,
             classes: classesBc.index,
-            createClass: classesBc.create,
             showClass: classesBc.show,
-            editClass: classesBc.edit,
             classAssessments: (classItem: ClassBcItem): BreadcrumbItem[] => [
                 ...classesBc.show(classItem),
                 { label: t('breadcrumbs.assessments') },
