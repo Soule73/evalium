@@ -3,12 +3,14 @@ import axios from 'axios';
 import { route } from 'ziggy-js';
 import { Button, Section } from '@evalium/ui';
 import { ArrowLeftIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { DataTable } from '@/Components/shared/datatable/DataTable';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import {
     useAcademicYearWizard,
     type AcademicYearWizardResult,
 } from '@/contexts/AcademicYearWizardContext';
-import type { AcademicYear } from '@/types';
+import type { AcademicYear, ClassModel } from '@/types';
+import type { DataTableConfig } from '@/types/datatable';
 
 interface AcademicYearConfirmStepProps {
     currentYear: AcademicYear | null;
@@ -60,6 +62,32 @@ export function AcademicYearConfirmStep({ currentYear }: AcademicYearConfirmStep
     const selectedClasses = useMemo(
         () => (currentYear?.classes ?? []).filter((c) => state.selectedClassIds.includes(c.id)),
         [currentYear?.classes, state.selectedClassIds],
+    );
+
+    const classTableConfig: DataTableConfig<ClassModel> = useMemo(
+        () => ({
+            columns: [
+                {
+                    key: 'name',
+                    label: t('admin_pages.academic_years.wizard_class_column_name'),
+                    render: (cls) => (
+                        <span className="text-sm font-medium text-gray-900">{cls.name}</span>
+                    ),
+                },
+                {
+                    key: 'level',
+                    label: t('admin_pages.academic_years.wizard_class_column_level'),
+                    render: (cls) => (
+                        <span className="text-sm text-gray-500">{cls.level?.name ?? '\u2014'}</span>
+                    ),
+                },
+            ],
+            emptyState: {
+                title: t('admin_pages.academic_years.wizard_result_no_classes'),
+                subtitle: '',
+            },
+        }),
+        [t],
     );
 
     const actionsSlot = (
@@ -137,32 +165,14 @@ export function AcademicYearConfirmStep({ currentYear }: AcademicYearConfirmStep
                             {t('admin_pages.academic_years.semesters_count')}
                         </dd>
                     </div>
-                    <div className="grid grid-cols-3 gap-4">
-                        <dt className="text-sm font-medium text-gray-500">
-                            {t('admin_pages.academic_years.wizard_class_step_title')}
-                        </dt>
-                        <dd className="col-span-2 text-sm text-gray-900">
-                            {classCount === 0 ? (
-                                <span className="text-gray-400">
-                                    {t('admin_pages.academic_years.wizard_result_no_classes')}
-                                </span>
-                            ) : (
-                                <ul className="space-y-1">
-                                    {selectedClasses.map((cls) => (
-                                        <li key={cls.id} className="flex items-center gap-2">
-                                            <span className="text-gray-700">{cls.name}</span>
-                                            {cls.level && (
-                                                <span className="text-xs text-gray-400">
-                                                    ({cls.level.name})
-                                                </span>
-                                            )}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </dd>
-                    </div>
                 </dl>
+
+                <div className="mt-6">
+                    <h4 className="text-sm font-medium text-gray-500 mb-3">
+                        {t('admin_pages.academic_years.wizard_class_step_title')} ({classCount})
+                    </h4>
+                    <DataTable data={selectedClasses} config={classTableConfig} />
+                </div>
             </Section>
         </div>
     );
