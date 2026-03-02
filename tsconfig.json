@@ -43,10 +43,16 @@
                 "./resources/ts/Components/*"
             ],
             "@evalium/ui": [
-                "./resources/ts/Components/ui"
+                "./resources/ts/packages/ui"
             ],
             "@evalium/ui/*": [
-                "./resources/ts/Components/ui/*"
+                "./resources/ts/packages/ui/*"
+            ],
+            "@evalium/utils": [
+                "./resources/ts/packages/utils"
+            ],
+            "@evalium/utils/*": [
+                "./resources/ts/packages/utils/*"
             ],
             "@/Pages/*": [
                 "./resources/ts/Pages/*"
@@ -58,7 +64,7 @@
                 "./resources/ts/hooks/*"
             ],
             "@/Utils/*": [
-                "./resources/ts/utils/*"
+                "./resources/ts/packages/utils/*"
             ]
         }
     },

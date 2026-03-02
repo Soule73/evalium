@@ -1,6 +1,6 @@
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { Modal, Button } from '@/Components/ui';
+import { Modal, Button } from '@evalium/ui';
 
 interface FullscreenModalProps {
     isOpen: boolean;

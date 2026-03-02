@@ -1,6 +1,6 @@
 import { type Assessment, type AssessmentAssignment } from '@/types';
 import { useMemo } from 'react';
-import { calculateTotalPoints, formatAssignmentStatus } from '@/utils/assessment';
+import { calculateTotalPoints, formatAssignmentStatus } from '@evalium/utils/assessment';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface UseAssessmentResultParams {

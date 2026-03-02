@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import { type Question } from '@/types';
 import { AlertEntry } from '@evalium/ui';
-import { buildQuestionResult } from '@/utils/assessment/utils';
+import { buildQuestionResult } from '@evalium/utils/assessment/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useQuestionContext } from './QuestionContext';
 import { QuestionHeader } from './QuestionHeader';

@@ -9,11 +9,11 @@ import {
     getBooleanBadgeClass,
     getChoiceStyles,
     getChoiceBorder,
-} from '@/utils/assessment/components/choiceUtils';
+} from '@evalium/utils/assessment/components/choiceUtils';
 import {
     questionIndexLabel,
     getIndexBgClass,
-} from '@/utils/assessment/components/questionLabelUtils';
+} from '@evalium/utils/assessment/components/questionLabelUtils';
 import { useQuestionContext } from '../QuestionContext';
 
 interface ChoiceRendererProps {

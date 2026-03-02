@@ -12,7 +12,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { type QuestionFormData, type ChoiceFormData } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { MarkdownEditor, ChoiceEditor } from '@evalium/ui';
-import { Checkbox, Input } from '@/Components/ui';
+import { Checkbox, Input } from '@evalium/ui';
 
 interface SortableQuestionItemProps {
     question: QuestionFormData;

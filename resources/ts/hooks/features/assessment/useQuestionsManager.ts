@@ -3,7 +3,7 @@ import { type DragEndEvent } from '@dnd-kit/core';
 import { useShallow } from 'zustand/react/shallow';
 import { type QuestionFormData, type ChoiceFormData, type QuestionType } from '@/types';
 import { useAssessmentFormStore } from '@/stores';
-import { getQuestionTypeIcon as getIcon } from '@/utils/assessment';
+import { getQuestionTypeIcon as getIcon } from '@evalium/utils/assessment';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useConfirmationModal } from '@/hooks/features/shared/useConfirmationModal';
 

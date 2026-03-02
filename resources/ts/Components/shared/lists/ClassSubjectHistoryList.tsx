@@ -4,7 +4,7 @@ import { BaseEntityList } from './BaseEntityList';
 import { type EntityListConfig } from './types/listConfig';
 import { type ClassSubject } from '@/types';
 import { type PaginationType } from '@/types/datatable';
-import { formatDate } from '@/utils';
+import { formatDate } from '@evalium/utils';
 import { useTranslations } from '@/hooks';
 
 interface ClassSubjectHistoryListProps {

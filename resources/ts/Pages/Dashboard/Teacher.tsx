@@ -15,7 +15,7 @@ import {
     ChartSkeleton,
     CompletionChart,
     ScoreDistribution,
-} from '@/Components/ui/charts';
+} from '@evalium/ui/charts';
 
 interface Stats {
     total_classes: number;

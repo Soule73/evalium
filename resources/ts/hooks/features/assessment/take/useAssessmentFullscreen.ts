@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAssessmentConfig } from '../useAssessmentConfig';
-import { isFeatureEnabled, isSecurityEnabled } from '@/utils/assessment/security';
+import { isFeatureEnabled, isSecurityEnabled } from '@evalium/utils/assessment/security';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
-import { isFullscreenSupported } from '@/utils/assessment/take';
+import { isFullscreenSupported } from '@evalium/utils/assessment/take';
 
 interface UseAssessmentFullscreenOptions {
     security: {

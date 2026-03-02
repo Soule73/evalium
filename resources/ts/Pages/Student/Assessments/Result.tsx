@@ -9,7 +9,7 @@ import { QuestionProvider } from '@/Components/features/assessment/question';
 import { AssessmentHeader } from '@/Components/features/assessment';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { formatDate } from '@/utils';
+import { formatDate } from '@evalium/utils';
 import {
     DocumentTextIcon,
     ChartPieIcon,

@@ -4,7 +4,7 @@ import {
     calculateTotalPoints,
     calculatePercentage,
     buildScoresMap,
-} from '@/utils/assessment/utils';
+} from '@evalium/utils/assessment/utils';
 
 interface UseAssessmentReviewParams {
     assessment: Assessment;

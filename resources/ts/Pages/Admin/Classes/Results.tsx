@@ -17,7 +17,7 @@ import {
     CompletionChart,
     LineChart,
     ScoreDistribution,
-} from '@/Components/ui/charts';
+} from '@evalium/ui/charts';
 
 interface Overview {
     total_students: number;

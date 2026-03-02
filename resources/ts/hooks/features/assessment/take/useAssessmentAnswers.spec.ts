@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildInitialAnswers } from '@/utils/assessment/take/answerUtils';
+import { buildInitialAnswers } from '@evalium/utils/assessment/take/answerUtils';
 import type { Question } from '@/types';
 import type { Answer } from '@/types';
 

@@ -1,7 +1,7 @@
 import { type Question } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { requiresManualGrading } from '@/utils';
-import { Textarea } from '@/Components/ui';
+import { requiresManualGrading } from '@evalium/utils';
+import { Textarea } from '@evalium/ui';
 import { useQuestionContext } from '../QuestionContext';
 
 interface ScoreInputProps {

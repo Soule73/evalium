@@ -1,5 +1,5 @@
 import { Badge, Stat } from '@/Components';
-import { formatDate } from '@/utils';
+import { formatDate } from '@evalium/utils';
 import { DocumentTextIcon, ChartPieIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import type { AssessmentAssignment } from '@/types';

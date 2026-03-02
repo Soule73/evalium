@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslations } from './useTranslations';
-import { capitalize } from '@/utils/formatting/formatters';
+import { capitalize } from '@evalium/utils/formatting/formatters';
 
 type TranslateFn = (key: string, replacements?: Record<string, string | number>) => string;
 

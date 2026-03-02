@@ -10,7 +10,7 @@ import type {
     OverallStats,
     ClassRouteContext,
 } from '@/types';
-import { formatDate, hasPermission } from '@/utils';
+import { formatDate, hasPermission } from '@evalium/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section, Badge, Stat } from '@/Components';

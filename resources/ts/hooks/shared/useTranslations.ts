@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { usePage } from '@inertiajs/react';
 import { type PageProps as InertiaPageProps } from '@inertiajs/core';
-import { translateKey, type LanguageData } from '@/utils';
+import { translateKey, type LanguageData } from '@evalium/utils';
 
 interface TranslationPageProps extends InertiaPageProps {
     locale: string;

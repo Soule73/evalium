@@ -11,8 +11,8 @@ import {
 } from '@/types';
 import { Badge, Button } from '@evalium/ui';
 import { ConfirmationModal, Textarea } from '@/Components';
-import { formatDate, hasPermission } from '@/utils';
-import { resolveAssignmentDisplayStatus } from '@/utils/assessment';
+import { formatDate, hasPermission } from '@evalium/utils';
+import { resolveAssignmentDisplayStatus } from '@evalium/utils/assessment';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
 import type { PaginationType } from '@/types/datatable';

@@ -4,7 +4,7 @@ import { usePage } from '@inertiajs/react';
 import { type PageProps } from '@/types';
 import { useNotifications } from '@/hooks/shared/useNotifications';
 import { NotificationPanel } from './NotificationPanel';
-import { Button } from '@/Components/ui';
+import { Button } from '@evalium/ui';
 
 /**
  * Bell icon button with unread badge that opens the NotificationPanel.

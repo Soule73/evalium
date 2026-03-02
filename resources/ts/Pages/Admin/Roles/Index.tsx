@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { type PaginationType } from '@/types/datatable';
 import { route } from 'ziggy-js';
-import { hasPermission } from '@/utils';
+import { hasPermission } from '@evalium/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { type PageProps, type Role } from '@/types';

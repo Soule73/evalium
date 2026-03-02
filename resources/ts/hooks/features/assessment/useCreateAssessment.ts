@@ -4,7 +4,7 @@ import { route } from 'ziggy-js';
 import { useShallow } from 'zustand/react/shallow';
 import { type QuestionFormData, type AssessmentType, type DeliveryMode } from '@/types';
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
-import { getDeliveryModeDefaults } from '@/utils/assessment/utils';
+import { getDeliveryModeDefaults } from '@evalium/utils/assessment/utils';
 
 interface AssessmentCreateData {
     title: string;

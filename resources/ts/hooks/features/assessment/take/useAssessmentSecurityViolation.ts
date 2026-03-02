@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { route } from 'ziggy-js';
 import axios from 'axios';
-import { ASSESSMENT_VIOLATION_TYPES } from '@/utils/assessment/take';
-import { getViolationTranslationKey } from '@/utils/assessment/take';
+import { ASSESSMENT_VIOLATION_TYPES } from '@evalium/utils/assessment/take';
+import { getViolationTranslationKey } from '@evalium/utils/assessment/take';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useTranslations } from '@/hooks/shared/useTranslations';

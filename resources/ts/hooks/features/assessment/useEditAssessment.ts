@@ -9,8 +9,8 @@ import {
     type DeliveryMode,
 } from '@/types';
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
-import { getDeliveryModeDefaults } from '@/utils/assessment/utils';
-import { toLocalDatetimeInput } from '@/utils/formatting/formatters';
+import { getDeliveryModeDefaults } from '@evalium/utils/assessment/utils';
+import { toLocalDatetimeInput } from '@evalium/utils/formatting/formatters';
 
 interface AssessmentEditData {
     title: string;

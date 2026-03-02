@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
 import { type User } from '@/types';
-import { formatDate } from '@/utils';
+import { formatDate } from '@evalium/utils';
 import { useTranslations } from '@/hooks';
 import { Button } from '@/Components';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';

@@ -3,7 +3,7 @@ import { type Question, type QuestionResult } from '@/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { MarkdownRenderer } from '@evalium/ui';
-import { getTypeColor } from '@/utils/assessment/components';
+import { getTypeColor } from '@evalium/utils/assessment/components';
 import { useQuestionContext } from './QuestionContext';
 
 interface QuestionHeaderProps {

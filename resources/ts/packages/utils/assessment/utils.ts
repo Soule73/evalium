@@ -5,7 +5,7 @@ import {
     type Choice,
     type QuestionResult,
 } from '@/types';
-import { formatGrade } from '@/utils/formatting/formatters';
+import { formatGrade } from '@evalium/utils/formatting/formatters';
 
 interface DeliveryModeDefaults {
     shuffle_questions: boolean;

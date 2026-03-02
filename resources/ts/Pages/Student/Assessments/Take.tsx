@@ -21,7 +21,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useTakeAssessment, useQuestionNavigation } from '@/hooks/features/assessment';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { formatTime, getTimerClasses, getAnsweredQuestionIds } from '@/utils';
+import { formatTime, getTimerClasses, getAnsweredQuestionIds } from '@evalium/utils';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 

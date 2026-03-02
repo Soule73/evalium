@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { route } from 'ziggy-js';
-import { Select } from '../ui';
+import { Select } from '@evalium/ui';
 
 interface LanguageSelectorProps {
     currentLocale: string;

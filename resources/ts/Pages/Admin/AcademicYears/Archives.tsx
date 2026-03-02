@@ -9,7 +9,7 @@ import { Button, ConfirmationModal, Section } from '@/Components';
 import { AcademicYearDetailsModal } from '@/Components/features/academic-years';
 import { AcademicYearList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
-import { hasPermission } from '@/utils';
+import { hasPermission } from '@evalium/utils';
 
 interface Props extends PageProps {
     academicYears: PaginationType<AcademicYear>;

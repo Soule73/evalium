@@ -1,2 +1,2 @@
 export * from './types';
-export * from './utils/api';
+export * from '@evalium/utils/api';

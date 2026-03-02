@@ -4,8 +4,8 @@ import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
 import { type Assessment, type AssessmentAssignment } from '@/types';
 import { Badge, MarkdownRenderer, Toggle } from '@evalium/ui';
-import { formatDate } from '@/utils';
-import { calculateTotalPoints, formatAssignmentStatus } from '@/utils/assessment';
+import { formatDate } from '@evalium/utils';
+import { calculateTotalPoints, formatAssignmentStatus } from '@evalium/utils/assessment';
 import { useTranslations } from '@/hooks';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import type {

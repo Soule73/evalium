@@ -14,7 +14,7 @@ import {
 } from '@/hooks/features/assessment';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { formatDate } from '@/utils';
+import { formatDate } from '@evalium/utils';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 import { route } from 'ziggy-js';

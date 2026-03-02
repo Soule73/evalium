@@ -1,6 +1,6 @@
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { Badge } from '../ui';
-import { type BadgeType } from '../ui/Badge/Badge';
+import { Badge } from '@evalium/ui';
+import { type BadgeType } from '@evalium/ui/Badge/Badge';
 
 interface RoleBadgeProps {
     role: 'super_admin' | 'admin' | 'teacher' | 'student' | undefined;

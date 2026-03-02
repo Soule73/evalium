@@ -3,7 +3,7 @@ import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
 import { type Answer } from '@/types';
 import { Badge } from '@evalium/ui';
-import { formatFileSize } from '@/utils';
+import { formatFileSize } from '@evalium/utils';
 import { useTranslations } from '@/hooks';
 import { FilePreviewModal } from '../FilePreviewModal';
 import type { EntityListConfig } from './types/listConfig';

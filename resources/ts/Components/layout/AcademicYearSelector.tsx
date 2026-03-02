@@ -1,7 +1,7 @@
 import { ArchiveBoxIcon } from '@heroicons/react/24/outline';
 import { Link, router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Select } from '@/Components/ui';
+import { Select } from '@evalium/ui';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import type { User } from '@/types/models/shared/user';
 import type { AcademicYear } from '@/types/models/academicYear';

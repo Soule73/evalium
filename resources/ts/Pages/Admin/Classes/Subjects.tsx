@@ -10,7 +10,7 @@ import {
     type User,
     type Semester,
 } from '@/types';
-import { hasPermission } from '@/utils';
+import { hasPermission } from '@evalium/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section } from '@/Components';

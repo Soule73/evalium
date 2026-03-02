@@ -4,7 +4,7 @@ import { UserGroupIcon, ShieldCheckIcon, StarIcon } from '@heroicons/react/24/ou
 import { route } from 'ziggy-js';
 import { useMemo, useState } from 'react';
 import { type User, type PageProps } from '@/types';
-import { hasPermission } from '@/utils';
+import { hasPermission } from '@evalium/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Stat, Section, Button, CreateUserModal } from '@/Components';

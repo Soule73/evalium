@@ -25,7 +25,7 @@ import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { AssessmentHeader } from '@/Components/features/assessment/AssessmentHeader';
 import { AssignmentList } from '@/Components/shared/lists';
-import { ChartCard, ChartSkeleton, DonutChart, ScoreDistribution } from '@/Components/ui/charts';
+import { ChartCard, ChartSkeleton, DonutChart, ScoreDistribution } from '@evalium/ui/charts';
 
 interface AssignmentWithVirtual extends AssessmentAssignment {
     is_virtual?: boolean;

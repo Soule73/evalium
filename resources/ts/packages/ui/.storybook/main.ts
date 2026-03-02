@@ -18,6 +18,7 @@ const config: StorybookConfig = {
             config.resolve.alias = {
                 ...config.resolve.alias,
                 '@evalium/ui': path.resolve(__dirname, '..'),
+                '@evalium/utils': path.resolve(__dirname, '../../utils'),
                 '@': path.resolve(__dirname, '../../../'),
             };
         }

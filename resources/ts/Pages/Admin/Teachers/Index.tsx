@@ -5,7 +5,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { UserGroupIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { type User, type PageProps } from '@/types';
 import { type PaginationType } from '@/types/datatable';
-import { hasPermission } from '@/utils';
+import { hasPermission } from '@evalium/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Stat, Section, Button, CreateUserModal } from '@/Components';

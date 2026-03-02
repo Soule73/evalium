@@ -33,7 +33,8 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './resources/ts'),
-            '@evalium/ui': path.resolve(__dirname, './resources/ts/Components/ui'),
+            '@evalium/ui': path.resolve(__dirname, './resources/ts/packages/ui'),
+            '@evalium/utils': path.resolve(__dirname, './resources/ts/packages/utils'),
         },
     },
 });

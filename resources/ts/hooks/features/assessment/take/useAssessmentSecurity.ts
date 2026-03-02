@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAssessmentConfig } from '../useAssessmentConfig';
-import { isSecurityEnabled, isFeatureEnabled } from '@/utils/assessment/security';
-import { isInFullscreen, type AssessmentViolationType } from '@/utils/assessment/take';
-import { disableTextSelection, enableTextSelection } from '@/utils';
+import { isSecurityEnabled, isFeatureEnabled } from '@evalium/utils/assessment/security';
+import { isInFullscreen, type AssessmentViolationType } from '@evalium/utils/assessment/take';
+import { disableTextSelection, enableTextSelection } from '@evalium/utils';
 
 interface SecurityConfig {
     maxAttempts?: number;

@@ -8,7 +8,7 @@ import {
     toggleAllPageSelection,
     toggleItemSelection,
     selectAllItems,
-} from '@/utils';
+} from '@evalium/utils';
 
 interface UseDataTableOptions<T> {
     initialState?: Partial<DataTableState>;

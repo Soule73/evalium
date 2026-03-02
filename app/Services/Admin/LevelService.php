@@ -2,7 +2,6 @@
 
 namespace App\Services\Admin;
 
-use App\Contracts\Repositories\LevelRepositoryInterface;
 use App\Contracts\Services\LevelServiceInterface;
 use App\Exceptions\LevelException;
 use App\Models\Level;
@@ -24,7 +23,6 @@ class LevelService implements LevelServiceInterface
 
     public function __construct(
         private readonly CacheService $cacheService,
-        private readonly LevelRepositoryInterface $levelRepository
     ) {}
 
     /**

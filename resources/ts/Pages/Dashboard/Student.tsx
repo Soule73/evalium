@@ -15,7 +15,7 @@ import {
     DonutChart,
     LineChart,
     RadarChart,
-} from '@/Components/ui/charts';
+} from '@evalium/ui/charts';
 
 interface DashboardStats {
     totalAssessments: number;
