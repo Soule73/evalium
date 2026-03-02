@@ -2,16 +2,18 @@
 
 namespace App\Services\Admin;
 
+use App\Contracts\Repositories\LevelRepositoryInterface;
 use App\Contracts\Services\LevelServiceInterface;
 use App\Exceptions\LevelException;
 use App\Models\Level;
+use App\Services\Core\CacheService;
 use Illuminate\Support\Facades\Cache;
 
 /**
  * Level Service - Handle level CRUD operations and cache management
  *
  * Single Responsibility: Manage academic level lifecycle and related cache
- * Dependencies: Level Model
+ * Dependencies: Level Model, CacheService
  */
 class LevelService implements LevelServiceInterface
 {
@@ -19,6 +21,11 @@ class LevelService implements LevelServiceInterface
      * Cache key for active classes with levels
      */
     private const CACHE_KEY_CLASSES = 'classes_active_with_levels';
+
+    public function __construct(
+        private readonly CacheService $cacheService,
+        private readonly LevelRepositoryInterface $levelRepository
+    ) {}
 
     /**
      * Create a new level
@@ -29,7 +36,7 @@ class LevelService implements LevelServiceInterface
     {
         $level = Level::create($data);
 
-        $this->invalidateClassesCache();
+        $this->invalidateLevelCaches();
 
         return $level;
     }
@@ -44,7 +51,7 @@ class LevelService implements LevelServiceInterface
     {
         $level->update($data);
 
-        $this->invalidateClassesCache();
+        $this->invalidateLevelCaches();
 
         return $level->refresh();
     }
@@ -64,7 +71,7 @@ class LevelService implements LevelServiceInterface
 
         $level->delete();
 
-        $this->invalidateClassesCache();
+        $this->invalidateLevelCaches();
 
         return true;
     }
@@ -80,16 +87,19 @@ class LevelService implements LevelServiceInterface
             'is_active' => ! $level->is_active,
         ]);
 
-        $this->invalidateClassesCache();
+        $this->invalidateLevelCaches();
 
         return $level->refresh();
     }
 
     /**
-     * Invalidate classes cache when levels are modified
+     * Invalidate all level-related caches when levels are modified.
+     *
+     * @see CacheService::KEY_LEVELS_ALL  Used by ClassRepository and SubjectRepository for level dropdowns
      */
-    private function invalidateClassesCache(): void
+    private function invalidateLevelCaches(): void
     {
         Cache::forget(self::CACHE_KEY_CLASSES);
+        $this->cacheService->invalidateLevelsCaches();
     }
 }
