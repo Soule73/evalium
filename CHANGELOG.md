@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/Soule73/evalium/compare/v2.0.0...v2.1.0) (2026-03-02)
+
+
+### Features
+
+* **student:** Add quick access input in sidebar for assessment navigation ([0e8f0bc](https://github.com/Soule73/evalium/commit/0e8f0bce881110613ce49020f514923f6fca9887))
+* **teacher:** Add share assessment modal with prominent ID display ([a296300](https://github.com/Soule73/evalium/commit/a296300fa2c68f8e6697611d0592663dfa2688ea))
+
+
+### Bug Fixes
+
+* Add answer scores to dashboard stats test for realistic graded assignments ([4dfb7b8](https://github.com/Soule73/evalium/commit/4dfb7b8d242f7335579afb005600f9ceb4f84a27))
+* Address PR [#3](https://github.com/Soule73/evalium/issues/3) review comments ([c763ed9](https://github.com/Soule73/evalium/commit/c763ed9eaae84401dca7b5673f7d26d86bff706b))
+* Correct PHPDoc return types for dashboard chart methods ([4876a32](https://github.com/Soule73/evalium/commit/4876a32b9f35671fa9b0091e92a942063ca3f8ab))
+* Invalidate levels dropdown cache on level create/update/delete ([f54d607](https://github.com/Soule73/evalium/commit/f54d607eda03d810604e33848c8a25e2721b1e63))
+* Stabilize sidebar collapsed state on navigation ([d192b60](https://github.com/Soule73/evalium/commit/d192b60836bbc3244a933165917b96f0dbacc941))
+* Use DataTable for classes display in wizard step 3 ([d0acf35](https://github.com/Soule73/evalium/commit/d0acf35d0a705e7bf60d443a5bfa24ee7522adcf))
+* Use enum value property instead of string cast for delivery_mode serialization ([d6cd9ae](https://github.com/Soule73/evalium/commit/d6cd9ae2345fa9425a819fdbd2274ca91bd73554))
+
+
+### Refactoring
+
+* **academic-year:** Simplify action buttons rendering logic ([4bd8e32](https://github.com/Soule73/evalium/commit/4bd8e32eaef8dda7e5ab2698ee52fe74e65c1d13))
+* Audit pagination config, remove dead code, add DataTable tests ([82dc4a2](https://github.com/Soule73/evalium/commit/82dc4a2d130761825d5d2c3d16e4af8dbe724c74))
+* Clean up frontend code organization ([8856c2a](https://github.com/Soule73/evalium/commit/8856c2a16d90beddb3ac6af85ae62e934ede7e82))
+* Clean up tsconfig path aliases and dead includes ([d1fdaa1](https://github.com/Soule73/evalium/commit/d1fdaa192d54351adb5d0518834da16c2504c05f))
+* Extract pure logic from hooks into @evalium/utils ([2661050](https://github.com/Soule73/evalium/commit/2661050e8990ae5a463f6d9527cf9c70cbc5b414))
+* **levels:** Simplify Level create/edit to inline modals ([5908710](https://github.com/Soule73/evalium/commit/5908710fbcd697979c9cb10f94dda910034d870d))
+* Move @evalium/ui and create @evalium/utils as separate workspace packages ([1f7999b](https://github.com/Soule73/evalium/commit/1f7999b815abe34ef12fabf040c264dd6a729f9f))
+* Move types into @evalium/utils package for unidirectional architecture ([ef126d5](https://github.com/Soule73/evalium/commit/ef126d5cab3a992110ab004b016a065ca2b54049))
+* Remove dead re-exports and update documentation ([660330f](https://github.com/Soule73/evalium/commit/660330faed3c79be3ca0bff736539fbd572540ad))
+* Simplify Class create/edit to inline modals ([edca916](https://github.com/Soule73/evalium/commit/edca9164320041c19207c5f45dd2b221592e22e8))
+* **ui:** Improve Modal component with animations, portal and accessibility ([1fc2716](https://github.com/Soule73/evalium/commit/1fc27169dcbab7b7cd702c78bfe3f90f01741a64))
+
+
+### Documentation
+
+* Add commit conventions, changelog and frontend lint rules to instructions ([7d0ca8b](https://github.com/Soule73/evalium/commit/7d0ca8b9fcd0eeb8ba0bb4b8137c90465780655d))
+* Update copilot instructions with new packages structure ([9b23621](https://github.com/Soule73/evalium/commit/9b236219a33516bb621e964e4b1850da8e1d9cdb))
+* Update README and add PACKAGES.md documentation for workspace packages ([ac98b85](https://github.com/Soule73/evalium/commit/ac98b85f3fc64fb4c03f08c23835384bbf24ed52))
+
 ## [2.0.0](https://github.com/Soule73/evalium/compare/v1.0.0...v2.0.0) (2026-03-01)
 
 
