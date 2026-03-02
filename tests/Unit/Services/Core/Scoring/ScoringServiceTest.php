@@ -703,6 +703,7 @@ class ScoringServiceTest extends TestCase
             'choice_id' => $correctChoice->id,
         ]);
 
+        /** @var \App\Models\Question $question */
         $question->load('choices');
         $answer->load('choice');
         $answers = collect([$answer]);

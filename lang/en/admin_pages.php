@@ -413,5 +413,6 @@ return [
     'assessments' => [
         'title' => 'Assessment Management',
         'subtitle' => 'Browse all assessments across the platform',
+        'grade' => 'Graded',
     ],
 ];

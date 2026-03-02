@@ -414,5 +414,6 @@ return [
     'assessments' => [
         'title' => 'Gestion des évaluations',
         'subtitle' => 'Parcourir toutes les évaluations de la plateforme',
+        'grade' => 'Corriger',
     ],
 ];

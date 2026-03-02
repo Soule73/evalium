@@ -6,9 +6,9 @@ return [
 
     'credentials' => [
 
-        'subject_student' => 'Bienvenue sur Evalium — Votre compte étudiant est prêt',
-        'subject_teacher' => 'Bienvenue sur Evalium — Votre compte enseignant est prêt',
-        'subject_admin' => 'Bienvenue sur Evalium — Votre compte administrateur est prêt',
+        'subject_student' => 'Bienvenue sur Evalium - Votre compte étudiant est prêt',
+        'subject_teacher' => 'Bienvenue sur Evalium - Votre compte enseignant est prêt',
+        'subject_admin' => 'Bienvenue sur Evalium - Votre compte administrateur est prêt',
         'subject_default' => 'Vos identifiants de connexion Evalium',
 
         'greeting' => 'Bonjour :name,',

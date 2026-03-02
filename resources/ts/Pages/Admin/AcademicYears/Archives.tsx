@@ -109,7 +109,10 @@ export default function AcademicYearArchives({ academicYears, auth }: Props) {
     );
 
     return (
-        <AuthenticatedLayout breadcrumb={breadcrumbs.adminAcademicYears()}>
+        <AuthenticatedLayout
+            breadcrumb={breadcrumbs.adminAcademicYears()}
+            title={translations.archivesTitle}
+        >
             <Section
                 variant="flat"
                 title={translations.archivesTitle}

@@ -38,5 +38,5 @@ export const RoleBadge = ({ role }: RoleBadgeProps) => {
             ? badgeConfig[role]
             : { type: 'gray' as BadgeType, label: t('users.unknown') };
 
-    return <Badge label={config.label} type={config.type} />;
+    return <Badge label={config.label} type={config.type} size="sm" />;
 };
