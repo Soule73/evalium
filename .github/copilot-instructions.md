@@ -438,6 +438,8 @@ This application is a Laravel application and its main Laravel ecosystems packag
 ## Documentation Files
 - You must only create documentation files if explicitly requested by the user.
 
+## Lint & Format frontend
+- Use `yarn lint` & `yarn format` after editing *.ts or *.tsx files every time and fix any lint issues.
 
 === boost rules ===
 

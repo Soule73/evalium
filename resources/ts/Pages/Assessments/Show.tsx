@@ -5,7 +5,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Button, ConfirmationModal, Section, Stat, QuestionList } from '@/Components';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { Toggle } from '@evalium/ui';
-import { AssessmentContextInfo } from '@/Components/features/assessment';
+import { AssessmentContextInfo, ShareAssessmentModal } from '@/Components/features/assessment';
 import { QuestionProvider } from '@/Components/features/assessment/question';
 import {
     type Assessment,
@@ -23,6 +23,7 @@ import {
     ArrowPathIcon,
     MinusCircleIcon,
     ChartBarIcon,
+    ShareIcon,
 } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
@@ -72,6 +73,7 @@ const AssessmentShow: React.FC<Props> = ({
     const [isToggling, setIsToggling] = useState(false);
     const [isDuplicating, setIsDuplicating] = useState(false);
     const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
 
     const isTeacher = routeContext.role === 'teacher';
     const canToggle = isTeacher && routeContext.publishRoute && routeContext.unpublishRoute;
@@ -149,7 +151,7 @@ const AssessmentShow: React.FC<Props> = ({
             <Section
                 title={t('assessment_pages.common.subtitle')}
                 actions={
-                    canToggle || canDuplicate || canEdit ? (
+                    canToggle || canDuplicate || canEdit || isTeacher ? (
                         <div className="flex flex-col md:flex-row space-y-2 md:space-x-3 md:space-y-0">
                             {canToggle && (
                                 <Toggle
@@ -173,6 +175,17 @@ const AssessmentShow: React.FC<Props> = ({
                                 >
                                     <DocumentDuplicateIcon className="h-4 w-4 mr-1" />
                                     {t('assessment_pages.common.duplicate')}
+                                </Button>
+                            )}
+                            {isTeacher && (
+                                <Button
+                                    onClick={() => setShowShareModal(true)}
+                                    color="primary"
+                                    variant="outline"
+                                    size="sm"
+                                >
+                                    <ShareIcon className="h-4 w-4 mr-1" />
+                                    {t('assessment_pages.common.share_with_students')}
                                 </Button>
                             )}
                             {canEdit && (
@@ -311,6 +324,13 @@ const AssessmentShow: React.FC<Props> = ({
                     onViewResult={routeContext ? handleViewResult : undefined}
                 />
             </Section>
+            {isTeacher && (
+                <ShareAssessmentModal
+                    isOpen={showShareModal}
+                    onClose={() => setShowShareModal(false)}
+                    assessment={assessment}
+                />
+            )}
             {canDuplicate && (
                 <ConfirmationModal
                     isOpen={showDuplicateModal}

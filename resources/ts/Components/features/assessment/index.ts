@@ -8,6 +8,7 @@ export * from './questionOptions';
 export * from './QuestionNavigation';
 export * from './QuestionList';
 export * from './ReassignModal';
+export * from './ShareAssessmentModal';
 export * from './question';
 export * from './QuestionsManager';
 export * from './SortableQuestionItem';
