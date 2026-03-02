@@ -1,15 +1,15 @@
 import { useCallback, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type PaginationType } from '@/types/datatable';
-import { type AcademicYear, type PageProps } from '@/types';
+import { type PaginationType } from '@evalium/utils/types/datatable';
+import { type AcademicYear, type PageProps } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, ConfirmationModal, Section } from '@/Components';
 import { AcademicYearDetailsModal } from '@/Components/features/academic-years';
 import { AcademicYearList } from '@/Components/shared/lists';
 import { route } from 'ziggy-js';
-import { hasPermission } from '@/utils';
+import { hasPermission } from '@evalium/utils';
 
 interface Props extends PageProps {
     academicYears: PaginationType<AcademicYear>;

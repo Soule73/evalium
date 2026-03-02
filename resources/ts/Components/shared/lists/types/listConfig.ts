@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { type PaginationType } from '@/types/datatable';
+import { type PaginationType } from '@evalium/utils/types/datatable';
 
 /**
  * Configuration for a column in an entity list.

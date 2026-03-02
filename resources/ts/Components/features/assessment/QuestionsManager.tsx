@@ -19,7 +19,7 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { type QuestionType, type DeliveryMode } from '@/types';
+import { type QuestionType, type DeliveryMode } from '@evalium/utils/types';
 import { useAssessmentFormStore } from '@/stores';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { useQuestionOptions } from './questionOptions';

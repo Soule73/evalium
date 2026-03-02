@@ -81,34 +81,6 @@ class ClassControllerTest extends TestCase
     }
 
     // ---------------------------------------------------------------
-    // Create
-    // ---------------------------------------------------------------
-
-    public function test_guest_cannot_access_create(): void
-    {
-        $response = $this->get(route('admin.classes.create'));
-
-        $response->assertRedirect(route('login'));
-    }
-
-    public function test_student_cannot_access_create(): void
-    {
-        $response = $this->actingAs($this->student)->get(route('admin.classes.create'));
-
-        $response->assertForbidden();
-    }
-
-    public function test_admin_can_access_create(): void
-    {
-        $response = $this->actingAs($this->admin)->get(route('admin.classes.create'));
-
-        $response->assertOk();
-        $response->assertInertia(
-            fn ($page) => $page->component('Admin/Classes/Create')->has('levels')
-        );
-    }
-
-    // ---------------------------------------------------------------
     // Store
     // ---------------------------------------------------------------
 
@@ -201,44 +173,8 @@ class ClassControllerTest extends TestCase
                 ->has('class')
                 ->has('classSubjects')
                 ->has('statistics')
-                ->has('routeContext')
-        );
-    }
-
-    // ---------------------------------------------------------------
-    // Edit
-    // ---------------------------------------------------------------
-
-    public function test_guest_cannot_access_edit(): void
-    {
-        $class = ClassModel::factory()->create();
-
-        $response = $this->get(route('admin.classes.edit', $class));
-
-        $response->assertRedirect(route('login'));
-    }
-
-    public function test_student_cannot_access_edit(): void
-    {
-        $class = ClassModel::factory()->create();
-
-        $response = $this->actingAs($this->student)->get(route('admin.classes.edit', $class));
-
-        $response->assertForbidden();
-    }
-
-    public function test_admin_can_access_edit(): void
-    {
-        $class = ClassModel::factory()->create();
-
-        $response = $this->actingAs($this->admin)->get(route('admin.classes.edit', $class));
-
-        $response->assertOk();
-        $response->assertInertia(
-            fn ($page) => $page
-                ->component('Admin/Classes/Edit')
-                ->has('class')
                 ->has('levels')
+                ->has('routeContext')
         );
     }
 
@@ -277,7 +213,7 @@ class ClassControllerTest extends TestCase
             'max_students' => 25,
         ]);
 
-        $response->assertRedirect(route('admin.classes.show', $class));
+        $response->assertRedirect();
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('classes', [

@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type PaginationType } from '@/types/datatable';
+import { type PaginationType } from '@evalium/utils/types/datatable';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, ConfirmationModal, Section } from '@/Components';
 import { useListLevels } from '@/hooks/features/levels';
-import { type Level } from '@/types';
+import { type Level } from '@evalium/utils/types';
 import { LevelList } from '@/Components/shared/lists';
+import { LevelFormModal } from '@/Components/features/levels';
 
 interface Props {
     levels: PaginationType<Level & { classes_count: number }>;
@@ -22,8 +23,10 @@ export default function LevelIndex({ levels }: Props) {
         canUpdateLevels,
         canDeleteLevels,
         deleteModal,
+        formModal,
         handleCreate,
         handleEdit,
+        closeFormModal,
         handleToggleStatus,
         handleDelete,
     } = useListLevels();
@@ -73,6 +76,12 @@ export default function LevelIndex({ levels }: Props) {
                     }
                 />
             </Section>
+
+            <LevelFormModal
+                isOpen={formModal.isOpen}
+                onClose={closeFormModal}
+                level={formModal.level}
+            />
 
             <ConfirmationModal
                 isOpen={deleteModal.isOpen}

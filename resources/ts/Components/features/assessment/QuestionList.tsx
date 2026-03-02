@@ -1,5 +1,5 @@
-import { type Question } from '@/types';
-import { Section } from '@/Components/ui';
+import { type Question } from '@evalium/utils/types';
+import { Section } from '@evalium/ui';
 import { QuestionCard } from './question/QuestionCard';
 
 interface QuestionListProps {

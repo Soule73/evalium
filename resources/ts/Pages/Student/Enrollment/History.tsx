@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type Enrollment, type PageProps } from '@/types';
+import { type Enrollment, type PageProps } from '@evalium/utils/types';
 import { Button, EmptyState, Section } from '@/Components';
 import { EnrollmentList } from '@/Components/shared/lists';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';

@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { type ClassSubject, type ClassModel, type Subject, type User } from '@/types';
+import { type ClassSubject, type ClassModel, type Subject, type User } from '@evalium/utils/types';
 import { Badge } from '@evalium/ui';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
-import type { PaginationType } from '@/types/datatable';
+import type { PaginationType } from '@evalium/utils/types/datatable';
 
 interface ClassSubjectListProps {
     data: PaginationType<ClassSubject>;

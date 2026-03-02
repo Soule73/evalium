@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import { type AcademicYear } from '@/types';
-import { formatDate } from '@/utils';
+import { type AcademicYear } from '@evalium/utils/types';
+import { formatDate } from '@evalium/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { Badge, Modal, Stat } from '@/Components/ui';
+import { Badge, Modal, Stat } from '@evalium/ui';
 import { CalendarIcon, CheckCircleIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
 
 interface AcademicYearDetailsModalProps {

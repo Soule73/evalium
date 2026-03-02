@@ -1,9 +1,9 @@
 import { CheckCircleIcon, XMarkIcon } from '@heroicons/react/16/solid';
-import { type Question, type QuestionResult } from '@/types';
+import { type Question, type QuestionResult } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import { MarkdownRenderer } from '@evalium/ui';
-import { getTypeColor } from '@/utils/assessment/components';
+import { getTypeColor } from '@evalium/utils/assessment/components';
 import { useQuestionContext } from './QuestionContext';
 
 interface QuestionHeaderProps {

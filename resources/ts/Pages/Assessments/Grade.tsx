@@ -6,7 +6,7 @@ import {
     type User,
     type PageProps,
     type AssessmentRouteContext,
-} from '@/types';
+} from '@evalium/utils/types';
 import { router } from '@inertiajs/react';
 import {
     Button,
@@ -17,7 +17,7 @@ import {
     AlertEntry,
 } from '@/Components';
 import { FileList } from '@/Components/shared/lists';
-import { hasPermission } from '@/utils';
+import { hasPermission } from '@evalium/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useAssessmentReview, useGradeState } from '@/hooks/features/assessment';

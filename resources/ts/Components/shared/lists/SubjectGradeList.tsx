@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from 'react';
 import { Badge, Button, DataTable, Section, Stat } from '@/Components';
-import type { SubjectGrade, OverallStats, PaginationType } from '@/types';
-import type { DataTableConfig } from '@/types/datatable';
+import type { SubjectGrade, OverallStats, PaginationType } from '@evalium/utils/types';
+import type { DataTableConfig } from '@evalium/utils/types/datatable';
 import { useTranslations } from '@/hooks';
 import { AcademicCapIcon, BookOpenIcon, EyeIcon } from '@heroicons/react/24/outline';
 

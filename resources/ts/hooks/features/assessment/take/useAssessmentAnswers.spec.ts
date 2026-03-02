@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { buildInitialAnswers } from '@/utils/assessment/take/answerUtils';
-import type { Question } from '@/types';
-import type { Answer } from '@/types';
+import { buildInitialAnswers } from '@evalium/utils/assessment/take/answerUtils';
+import type { Question } from '@evalium/utils/types';
+import type { Answer } from '@evalium/utils/types';
 
 const makeQuestion = (
     overrides: Partial<Question> & { id: number; type: Question['type'] },

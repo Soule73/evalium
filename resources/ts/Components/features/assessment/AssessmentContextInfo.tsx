@@ -1,7 +1,7 @@
 import { AcademicCapIcon, BookOpenIcon, UserIcon } from '@heroicons/react/24/outline';
-import { type Assessment } from '@/types';
+import { type Assessment } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { Stat } from '@/Components/ui';
+import { Stat } from '@evalium/ui';
 
 interface AssessmentContextInfoProps {
     assessment: Assessment;

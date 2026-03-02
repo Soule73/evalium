@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type ClassSubject, type PageProps, type User } from '@/types';
-import { type PaginationType } from '@/types/datatable';
+import { type ClassSubject, type PageProps, type User } from '@evalium/utils/types';
+import { type PaginationType } from '@evalium/utils/types/datatable';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { ClassSubjectDetail } from '@/Components/features';

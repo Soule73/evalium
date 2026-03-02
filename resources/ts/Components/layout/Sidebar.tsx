@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { type User, type PageProps } from '@/types';
-import { hasPermission, navRoutes } from '@/utils';
+import { type User, type PageProps } from '@evalium/utils/types';
+import { hasPermission, navRoutes } from '@evalium/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { type NavIconType, NavIcon } from './NavIcon';
 import { Logo } from './Logo';
@@ -9,6 +9,7 @@ import { RoleBadge } from './RoleBadge';
 import { UserAvatar } from './UserAvatar';
 import { Tooltip } from '@evalium/ui';
 import { route } from 'ziggy-js';
+import { QuickAccessInput } from './QuickAccessInput';
 
 interface NavItem {
     name: string;
@@ -315,6 +316,12 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                             </svg>
                         </button>
                     </div>
+
+                    {userRole === 'student' && (
+                        <div className="border-b border-gray-100">
+                            <QuickAccessInput isCollapsed={isCollapsed} t={t} />
+                        </div>
+                    )}
 
                     <nav className="flex-1 px-3 py-4 space-y-1 custom-scrollbar overflow-y-auto">
                         {navGroups.map((group) => (

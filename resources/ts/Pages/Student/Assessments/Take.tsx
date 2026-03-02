@@ -12,7 +12,12 @@ import {
     useToast,
 } from '@/Components';
 import { QuestionProvider, QuestionCard } from '@/Components/features/assessment/question';
-import { type Answer, type Assessment, type AssessmentAssignment, type Question } from '@/types';
+import {
+    type Answer,
+    type Assessment,
+    type AssessmentAssignment,
+    type Question,
+} from '@evalium/utils/types';
 import {
     ArrowsPointingOutIcon,
     ClockIcon,
@@ -21,7 +26,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useTakeAssessment, useQuestionNavigation } from '@/hooks/features/assessment';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { formatTime, getTimerClasses, getAnsweredQuestionIds } from '@/utils';
+import { formatTime, getTimerClasses, getAnsweredQuestionIds } from '@evalium/utils';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
 

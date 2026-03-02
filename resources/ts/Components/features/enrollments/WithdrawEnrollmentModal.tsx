@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
-import { type Enrollment } from '@/types';
+import { type Enrollment } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Modal } from '@/Components';
 import { route } from 'ziggy-js';

@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type User } from '@/types';
-import { formatDate } from '@/utils';
+import { type User } from '@evalium/utils/types';
+import { formatDate } from '@evalium/utils';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import {
     Button,

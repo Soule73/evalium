@@ -1,5 +1,5 @@
 import React, { type FormEvent, useCallback, useMemo } from 'react';
-import { type AcademicYearFormData, type SemesterFormData } from '@/types';
+import { type AcademicYearFormData, type SemesterFormData } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Checkbox, Input, Section } from '@/Components';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
@@ -115,7 +115,38 @@ export default function AcademicYearForm({
 
     return (
         <form onSubmit={onSubmit} className="space-y-6">
-            <Section title={sectionTitle} subtitle={sectionSubtitle} actions={actionsSlot}>
+            <Section
+                title={sectionTitle}
+                subtitle={sectionSubtitle}
+                actions={
+                    <div>
+                        {actionsSlot}
+                        {!actionsSlot && (
+                            <div className="flex justify-end space-x-3 pt-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    color="secondary"
+                                    size="sm"
+                                    onClick={onCancel}
+                                    disabled={isSubmitting}
+                                >
+                                    {translations.cancel}
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    variant="solid"
+                                    color="primary"
+                                    size="sm"
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? submittingLabel : submitLabel}
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                }
+            >
                 <div className="grid grid-cols-1 gap-6">
                     <Input
                         label={translations.nameLabel}
@@ -249,30 +280,6 @@ export default function AcademicYearForm({
                     ))}
                 </div>
             </Section>
-
-            {!actionsSlot && (
-                <div className="flex justify-end space-x-3 pt-2">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        color="secondary"
-                        size="sm"
-                        onClick={onCancel}
-                        disabled={isSubmitting}
-                    >
-                        {translations.cancel}
-                    </Button>
-                    <Button
-                        type="submit"
-                        variant="solid"
-                        color="primary"
-                        size="sm"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? submittingLabel : submitLabel}
-                    </Button>
-                </div>
-            )}
         </form>
     );
 }

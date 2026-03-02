@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type Assessment, type AssessmentAssignment, type Answer } from '@/types';
+import { type Assessment, type AssessmentAssignment, type Answer } from '@evalium/utils/types';
 import { useAssessmentResults } from '@/hooks/features/assessment';
 import useAssessmentScoring from '@/hooks/features/assessment/useAssessmentScoring';
 import { route } from 'ziggy-js';
@@ -9,7 +9,7 @@ import { QuestionProvider } from '@/Components/features/assessment/question';
 import { AssessmentHeader } from '@/Components/features/assessment';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { formatDate } from '@/utils';
+import { formatDate } from '@evalium/utils';
 import {
     DocumentTextIcon,
     ChartPieIcon,

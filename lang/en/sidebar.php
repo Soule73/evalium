@@ -33,4 +33,10 @@ return [
         'logout' => 'Logout',
         'profile' => 'Profile',
     ],
+    'quick_access' => [
+        'label' => 'Quick access',
+        'placeholder' => 'Assessment ID',
+        'go' => 'Go',
+        'invalid_id' => 'Please enter a valid ID',
+    ],
 ];

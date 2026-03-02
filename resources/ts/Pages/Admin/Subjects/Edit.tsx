@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type Subject, type Level } from '@/types';
+import { type Subject, type Level } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { SubjectForm } from '@/Components/features/subjects/SubjectForm';

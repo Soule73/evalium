@@ -6,10 +6,10 @@ import {
     QuestionMarkCircleIcon,
     CheckCircleIcon,
 } from '@heroicons/react/24/outline';
-import { formatDate } from '@/utils';
+import { formatDate } from '@evalium/utils';
 import { MarkdownRenderer } from '@evalium/ui';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { Button } from '../ui';
+import { Button } from '@evalium/ui';
 import { type DeletedChoice, type DeletedQuestion } from '@/stores/useAssessmentFormStore';
 
 interface DeleteHistoryModalProps {

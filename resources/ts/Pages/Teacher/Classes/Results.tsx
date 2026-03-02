@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { Section, Stat } from '@/Components';
-import { type ClassModel, type PageProps } from '@/types';
+import { type ClassModel, type PageProps } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import {
@@ -17,7 +17,7 @@ import {
     CompletionChart,
     LineChart,
     ScoreDistribution,
-} from '@/Components/ui/charts';
+} from '@evalium/ui/charts';
 
 interface Overview {
     total_students: number;

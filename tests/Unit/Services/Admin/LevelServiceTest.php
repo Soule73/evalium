@@ -5,6 +5,7 @@ namespace Tests\Unit\Services\Admin;
 use App\Exceptions\LevelException;
 use App\Repositories\Admin\LevelRepository;
 use App\Services\Admin\LevelService;
+use App\Services\Core\CacheService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;
@@ -111,7 +112,7 @@ class LevelServiceTest extends TestCase
     public function it_invalidates_cache_when_creating_level(): void
     {
         Cache::put('classes_active_with_levels', 'test_value', 60);
-        $this->assertEquals('test_value', Cache::get('classes_active_with_levels'));
+        Cache::put(CacheService::KEY_LEVELS_ALL, 'cached_levels', 60);
 
         $this->levelService->createLevel([
             'name' => 'Test Level',
@@ -120,6 +121,7 @@ class LevelServiceTest extends TestCase
         ]);
 
         $this->assertNull(Cache::get('classes_active_with_levels'));
+        $this->assertNull(Cache::get(CacheService::KEY_LEVELS_ALL));
     }
 
     #[Test]
@@ -150,10 +152,12 @@ class LevelServiceTest extends TestCase
         $level = $this->createLevel();
 
         Cache::put('classes_active_with_levels', 'test_value', 60);
+        Cache::put(CacheService::KEY_LEVELS_ALL, 'cached_levels', 60);
 
         $this->levelService->updateLevel($level, ['name' => 'Updated Name']);
 
         $this->assertNull(Cache::get('classes_active_with_levels'));
+        $this->assertNull(Cache::get(CacheService::KEY_LEVELS_ALL));
     }
 
     #[Test]
@@ -187,10 +191,12 @@ class LevelServiceTest extends TestCase
         $level = $this->createLevel();
 
         Cache::put('classes_active_with_levels', 'test_value', 60);
+        Cache::put(CacheService::KEY_LEVELS_ALL, 'cached_levels', 60);
 
         $this->levelService->deleteLevel($level);
 
         $this->assertNull(Cache::get('classes_active_with_levels'));
+        $this->assertNull(Cache::get(CacheService::KEY_LEVELS_ALL));
     }
 
     #[Test]
@@ -199,10 +205,12 @@ class LevelServiceTest extends TestCase
         $level = $this->createLevel([]);
 
         Cache::put('classes_active_with_levels', 'test_value', 60);
+        Cache::put(CacheService::KEY_LEVELS_ALL, 'cached_levels', 60);
 
         $this->levelService->toggleStatus($level);
 
         $this->assertNull(Cache::get('classes_active_with_levels'));
+        $this->assertNull(Cache::get(CacheService::KEY_LEVELS_ALL));
     }
 
     #[Test]

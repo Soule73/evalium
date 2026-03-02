@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type User } from '@/types';
+import { type User } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import UserBaseInfo from '@/Components/features/users/UserBaseInfo';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';

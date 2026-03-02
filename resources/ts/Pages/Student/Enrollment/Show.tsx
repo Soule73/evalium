@@ -9,13 +9,13 @@ import {
     type PaginationType,
     type SubjectGrade,
     type OverallStats,
-} from '@/types';
+} from '@evalium/utils/types';
 import { Button, Section, TextEntry } from '@/Components';
 import { SubjectGradeList } from '@/Components/shared/lists/SubjectGradeList';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { formatDate } from '@/utils';
-import { ChartCard, ChartSkeleton, RadarChart } from '@/Components/ui/charts';
+import { formatDate } from '@evalium/utils';
+import { ChartCard, ChartSkeleton, RadarChart } from '@evalium/ui/charts';
 
 interface EnrollmentChartData {
     subjectRadar: Array<{ subject: string; grade: number | null; classAverage: number | null }>;

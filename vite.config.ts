@@ -18,7 +18,8 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./resources/ts', import.meta.url)),
-            '@evalium/ui': fileURLToPath(new URL('./resources/ts/Components/ui', import.meta.url)),
+            '@evalium/ui': fileURLToPath(new URL('./resources/ts/packages/ui', import.meta.url)),
+            '@evalium/utils': fileURLToPath(new URL('./resources/ts/packages/utils', import.meta.url)),
         }
     },
     optimizeDeps: {

@@ -1,8 +1,12 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAssessmentConfig } from '../useAssessmentConfig';
-import { isSecurityEnabled, isFeatureEnabled } from '@/utils/assessment/security';
-import { isInFullscreen, type AssessmentViolationType } from '@/utils/assessment/take';
-import { disableTextSelection, enableTextSelection } from '@/utils';
+import { isSecurityEnabled, isFeatureEnabled } from '@evalium/utils/assessment/security';
+import {
+    isInFullscreen,
+    calculateSecurityScore,
+    type AssessmentViolationType,
+} from '@evalium/utils/assessment/take';
+import { disableTextSelection, enableTextSelection } from '@evalium/utils';
 
 interface SecurityConfig {
     maxAttempts?: number;
@@ -135,10 +139,10 @@ export function useAssessmentSecurity(config: SecurityConfig = {}): UseAssessmen
 
     const resetViolations = clearViolations;
 
-    const getSecurityScore = useCallback(() => {
-        if (securityViolations.length === 0) return 100;
-        return Math.max(0, 100 - securityViolations.length * 10);
-    }, [securityViolations.length]);
+    const getSecurityScore = useCallback(
+        () => calculateSecurityScore(securityViolations.length),
+        [securityViolations.length],
+    );
 
     useEffect(() => {
         if (!securityEnabled) return;

@@ -1,10 +1,10 @@
 import { useMemo, useCallback } from 'react';
 import { usePage } from '@inertiajs/react';
 import { DataTable } from '@/Components/shared';
-import { type DataTableConfig } from '@/types/datatable';
+import { type DataTableConfig } from '@evalium/utils/types/datatable';
 import { Button } from '@evalium/ui';
 import { useTranslations } from '@/hooks';
-import type { PageProps } from '@/types';
+import type { PageProps } from '@evalium/utils/types';
 import type { BaseEntityListProps } from './types/listConfig';
 
 /**

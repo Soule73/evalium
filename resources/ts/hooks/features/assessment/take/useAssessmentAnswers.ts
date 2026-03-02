@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { type Answer, type Question } from '@/types';
+import { type Answer, type Question } from '@evalium/utils/types';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
-import { buildInitialAnswers } from '@/utils/assessment/take/answerUtils';
+import { buildInitialAnswers } from '@evalium/utils/assessment/take/answerUtils';
 
 interface UseAssessmentAnswersParams {
     questions: Question[];

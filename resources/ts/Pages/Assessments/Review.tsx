@@ -5,13 +5,13 @@ import {
     type Answer,
     type User,
     type AssessmentRouteContext,
-} from '@/types';
+} from '@evalium/utils/types';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { Button, Section, QuestionList, TeacherNotesDisplay } from '@/Components';
 import { FileList } from '@/Components/shared/lists';
 import { QuestionProvider } from '@/Components/features/assessment/question';
-import { getAssessmentBackUrl } from '@/utils';
+import { getAssessmentBackUrl } from '@evalium/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useAssessmentReview } from '@/hooks/features/assessment';

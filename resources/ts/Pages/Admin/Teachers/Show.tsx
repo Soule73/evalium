@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { type Assessment, type User } from '@/types';
-import { type PaginationType } from '@/types/datatable';
+import { type Assessment, type User } from '@evalium/utils/types';
+import { type PaginationType } from '@evalium/utils/types/datatable';
 import { DocumentTextIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';

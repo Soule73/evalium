@@ -8,7 +8,7 @@ import { useCreateAssessment } from '@/hooks/features/assessment';
 import { useAssessmentFormStore } from '@/stores';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { type ClassSubject } from '@/types';
+import { type ClassSubject } from '@evalium/utils/types';
 
 interface Props {
     classSubjects: ClassSubject[];

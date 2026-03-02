@@ -1,4 +1,4 @@
-import { type Choice, type Question, type QuestionResult } from '@/types';
+import { type Choice, type Question, type QuestionResult } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useChoiceUtils } from '@/hooks/shared/useChoiceUtils';
 import { Checkbox } from '@evalium/ui';
@@ -9,11 +9,11 @@ import {
     getBooleanBadgeClass,
     getChoiceStyles,
     getChoiceBorder,
-} from '@/utils/assessment/components/choiceUtils';
+} from '@evalium/utils/assessment/components/choiceUtils';
 import {
     questionIndexLabel,
     getIndexBgClass,
-} from '@/utils/assessment/components/questionLabelUtils';
+} from '@evalium/utils/assessment/components/questionLabelUtils';
 import { useQuestionContext } from '../QuestionContext';
 
 interface ChoiceRendererProps {

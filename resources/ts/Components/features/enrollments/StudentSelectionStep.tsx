@@ -6,9 +6,13 @@ import { Button, Section } from '@evalium/ui';
 import { useTranslations } from '@/hooks';
 import { useEnrollmentWizard } from '@/contexts/EnrollmentWizardContext';
 import CreateUserModal from '@/Components/features/users/CreateUserModal';
-import type { User, CreatedUserCredentials } from '@/types';
-import type { ClassModel } from '@/types';
-import type { PaginationType, DataTableConfig, DataTableState } from '@/types/datatable';
+import type { User, CreatedUserCredentials } from '@evalium/utils/types';
+import type { ClassModel } from '@evalium/utils/types';
+import type {
+    PaginationType,
+    DataTableConfig,
+    DataTableState,
+} from '@evalium/utils/types/datatable';
 import { ArrowLeftIcon, ArrowRightIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 
 interface StudentSelectionStepProps {

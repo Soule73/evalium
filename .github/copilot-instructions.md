@@ -56,8 +56,10 @@ Evalium is an online assessment management platform built with **Laravel 12** (P
   - `Student/` - Assessments, Enrollment
   - `Auth/` - Login
   - `Dashboard/` - Role-based dashboard
-- **Components** organized in 4 layers:
-  - `ui/` - Design system (Button, Input, Modal, Badge, Select, Charts, MarkdownEditor, etc.) - separate yarn workspace `@evalium/ui`
+- **Packages** (`resources/ts/packages/`) - Standalone yarn workspaces:
+  - `@evalium/ui` (`packages/ui/`) - Design system (Button, Input, Modal, Badge, Select, Charts, MarkdownEditor, etc.) with Storybook
+  - `@evalium/utils` (`packages/utils/`) - Shared utilities: `api/`, `formatting/`, `helpers/`, `assessment/`
+- **Components** organized in 3 layers (`resources/ts/Components/`):
   - `layout/` - AuthenticatedLayout, GuestLayout, Sidebar, Breadcrumb, AcademicYearSelector, LanguageSelector
   - `features/` - Domain components (assessment, classes, enrollments, notifications, roles, subjects, users, etc.)
   - `shared/` - DataTable, EmptyState, FilePreviewModal, DeleteHistoryModal, Toast
@@ -67,11 +69,11 @@ Evalium is an online assessment management platform built with **Laravel 12** (P
   - `forms/` - `useForm` (custom hook)
 - **Stores** (`resources/ts/stores/`) - Zustand: `useAssessmentFormStore`, `useAssessmentTakeStore`
 - **Contexts** (`resources/ts/contexts/`) - `AcademicYearWizardContext`, `EnrollmentWizardContext`
-- **Schemas** (`resources/ts/schemas/`) - Zod: assessment, user
-- **Types** (`resources/ts/types/`) - TypeScript interfaces synced with Laravel models:
-  - `models/` - academicYear, assessment, assessmentAssignment, class, classSubject, enrollment, grades, notification, semester, subject
-  - `role.ts`, `datatable.ts`, `question-rendering.ts`, `route-context.ts`
-- **Path aliases**: `@/` -> `resources/ts/`, `@evalium/ui` -> `resources/ts/Components/ui`
+- **Types** (`resources/ts/packages/utils/types/`) - TypeScript interfaces synced with Laravel models, part of `@evalium/utils`:
+  - academicYear, assessment, assessmentAssignment, class, classSubject, enrollment, grades, notification, semester, subject
+  - `shared/` - user, role, permission, level, question, choice, answer
+  - `datatable.ts`, `question-rendering.ts`, `route-context.ts`
+- **Path aliases**: `@/` -> `resources/ts/`, `@evalium/ui` -> `resources/ts/packages/ui`, `@evalium/utils` -> `resources/ts/packages/utils`
 
 ### Middleware Stack (registered in `bootstrap/app.php`)
 - `RoleMiddleware` - Custom alias `role` for role-based route access
@@ -259,11 +261,101 @@ php artisan migrate:fresh --seed    # Reset DB with test data
 ```
 
 ### Code Quality
+
+#### Frontend (mandatory after editing `*.ts` or `*.tsx` files)
+```bash
+yarn lint                           # ESLint (zero warnings enforced: --max-warnings 0)
+yarn lint:fix                       # ESLint auto-fix
+yarn format                         # Prettier auto-format
+yarn format:check                   # Prettier check only
+```
+- **Always run `yarn lint` and `yarn format` after editing any `.ts` or `.tsx` file** and fix all reported issues before committing
+- `lint-staged` (via husky pre-commit hook) runs `eslint --fix --max-warnings 0` + `prettier --write` automatically on staged `resources/ts/**/*.{ts,tsx}` files
+- Zero warnings policy: `--max-warnings 0` means warnings are treated as errors
+
+#### Backend
 ```bash
 ./vendor/bin/pint --dirty           # Auto-fix PHP style (run before commits)
-yarn lint                           # ESLint
-yarn format                         # Prettier
 ```
+- `lint-staged` also runs `php vendor/bin/pint` on staged `*.php` files
+
+## Commit Conventions
+
+This project enforces [Conventional Commits](https://www.conventionalcommits.org/) via `commitlint` + `husky`.
+
+### Commit Message Format
+```
+<type>(<scope>): <Subject in sentence-case>
+
+<optional body>
+
+<optional footer>
+```
+
+### Rules (enforced by `.commitlintrc.json`)
+| Rule | Value |
+|------|-------|
+| `type-enum` | `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `ci`, `build`, `revert` |
+| `type-case` | `lower-case` (always) |
+| `scope-case` | `lower-case` (always) |
+| `subject-case` | **`sentence-case`** (first letter uppercase, rest lowercase) |
+| `subject-full-stop` | No trailing period |
+| `header-max-length` | 100 characters max |
+| `body-leading-blank` | Blank line before body |
+| `body-max-line-length` | 100 characters per line |
+| `footer-leading-blank` | Blank line before footer |
+
+### Examples
+```bash
+# Valid
+feat(teacher): Add share assessment modal
+fix(modal): Use unique aria ID per instance
+refactor(utils): Extract pure logic from hooks
+test: Add focus trap tests for Modal component
+docs: Update architecture documentation
+chore(release): v2.1.0
+
+# Invalid
+feat(teacher): add share assessment modal    # subject not sentence-case
+Feat: Add feature                             # type not lower-case
+feat: Add feature.                            # trailing period
+feat(Teacher): Add feature                    # scope not lower-case
+```
+
+### Husky Git Hooks
+- **pre-commit**: Runs `lint-staged` (ESLint + Prettier on `.ts/.tsx`, Pint on `.php`)
+- **commit-msg**: Runs `commitlint` to validate the commit message format
+
+## Changelog & Versioning
+
+Managed by `standard-version` with configuration in `.versionrc.json`.
+
+### Release Commands
+```bash
+yarn release                        # Auto-determine version bump from commits
+yarn release:patch                  # Force patch bump (x.y.Z)
+yarn release:minor                  # Force minor bump (x.Y.0)
+yarn release:major                  # Force major bump (X.0.0)
+yarn release:first                  # First release (sets initial version)
+```
+
+### Changelog Sections (from commit types)
+| Type | Changelog Section | Visible |
+|------|------------------|---------|
+| `feat` | Features | Yes |
+| `fix` | Bug Fixes | Yes |
+| `perf` | Performance | Yes |
+| `refactor` | Refactoring | Yes |
+| `test` | Tests | Yes |
+| `ci` | CI/CD | Yes |
+| `build` | Build | Yes |
+| `docs` | Documentation | Yes |
+| `style` | Style | Yes |
+| `revert` | Reverts | Yes |
+| `chore` | _(hidden)_ | No |
+
+- Release commit message format: `chore(release): <version>`
+- `BREAKING CHANGE:` in footer or `!` after type triggers a major version bump
 
 ## Service Layer Guidelines
 
@@ -350,12 +442,14 @@ class AssessmentController extends Controller
 1. **Don't bypass Policies** - Always call `$this->authorize()` in controllers before service methods
 2. **Don't forget academic year context** - All assessments, classes, subjects are scoped by academic year
 3. **Don't skip validation strategies** - Use `QuestionValidationContext`/`ScoreValidationContext` in Form Requests
-4. **Don't forget TypeScript types** - Update `resources/ts/types/` when changing Laravel models
+4. **Don't forget TypeScript types** - Update `resources/ts/packages/utils/types/` when changing Laravel models
 5. **Don't ignore test coverage** - Maintain >= 70% coverage (enforced in CI)
 6. **Don't duplicate service logic** - Check existing services and follow SRP
 7. **Don't add business logic to controllers** - Always delegate to services
 8. **Don't bypass enrollment checks** - Students access assessments through class enrollment, not direct assignment
 9. **Don't hardcode strings** - Use `trans()` / `__()` backend, `t()` frontend
+10. **Don't skip frontend linting** - Always run `yarn lint` and `yarn format` after modifying `.ts`/`.tsx` files
+11. **Don't ignore commit conventions** - Subject must be sentence-case, type must be lower-case (see Commit Conventions section)
 
 ## Key Documentation
 Located in `documentation/`:
@@ -382,7 +476,7 @@ Located in `documentation/`:
 4. **Policy**: Define authorization rules in `app/Policies/`
 5. **Route**: Add to `routes/web.php` with appropriate middleware
 6. **Frontend**: Create Page in `resources/ts/Pages/`, use `@/` alias for imports
-7. **Types**: Update `resources/ts/types/` if new data structures
+7. **Types**: Update `resources/ts/packages/utils/types/` if new data structures
 8. **Tests**: Add PHPUnit (backend) + Vitest (frontend) + Playwright (E2E)
 
 ### Debugging
@@ -436,6 +530,8 @@ This application is a Laravel application and its main Laravel ecosystems packag
 ## Documentation Files
 - You must only create documentation files if explicitly requested by the user.
 
+## Lint & Format frontend
+- Use `yarn lint` & `yarn format` after editing *.ts or *.tsx files every time and fix any lint issues.
 
 === boost rules ===
 

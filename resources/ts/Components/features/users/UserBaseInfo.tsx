@@ -1,8 +1,8 @@
-import { ConfirmationModal, Section, Button, TextEntry, Toggle } from '@/Components/ui';
+import { ConfirmationModal, Section, Button, TextEntry, Toggle } from '@evalium/ui';
 import { useTranslations } from '@/hooks';
 import { useFormatters } from '@/hooks/shared/useFormatters';
-import { type User } from '@/types';
-import { formatDate } from '@/utils';
+import { type User } from '@evalium/utils/types';
+import { formatDate } from '@evalium/utils';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { router } from '@inertiajs/react';
 import { useState, useMemo } from 'react';

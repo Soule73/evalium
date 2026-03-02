@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
-import { type Question } from '@/types';
+import { type Question } from '@evalium/utils/types';
 import { useAssessmentTakeStore } from '@/stores/useAssessmentTakeStore';
 import { useShallow } from 'zustand/react/shallow';
-import { shuffleQuestions, reorderQuestionsByIds } from '@/utils/assessment/take';
+import { shuffleQuestions, reorderQuestionsByIds } from '@evalium/utils/assessment/take';
 
 interface UseQuestionNavigationParams {
     questions: Question[];

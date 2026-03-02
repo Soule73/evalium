@@ -2,13 +2,13 @@ import { useMemo, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { type User } from '@/types';
-import { formatDate } from '@/utils';
+import { type User } from '@evalium/utils/types';
+import { formatDate } from '@evalium/utils';
 import { useTranslations } from '@/hooks';
 import { Button } from '@/Components';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import type { EntityListConfig } from './types/listConfig';
-import type { PaginationType } from '@/types/datatable';
+import type { PaginationType } from '@evalium/utils/types/datatable';
 
 interface UserListProps {
     data: PaginationType<User>;

@@ -9,8 +9,8 @@ import type {
     SubjectGrade,
     OverallStats,
     ClassRouteContext,
-} from '@/types';
-import { formatDate, hasPermission } from '@/utils';
+} from '@evalium/utils/types';
+import { formatDate, hasPermission } from '@evalium/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section, Badge, Stat } from '@/Components';

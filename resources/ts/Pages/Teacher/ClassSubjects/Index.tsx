@@ -5,8 +5,8 @@ import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Section } from '@/Components';
 import { ClassSubjectList } from '@/Components/shared/lists';
-import { type ClassSubject, type PageProps } from '@/types';
-import { type PaginationType } from '@/types/datatable';
+import { type ClassSubject, type PageProps } from '@evalium/utils/types';
+import { type PaginationType } from '@evalium/utils/types/datatable';
 
 interface Props extends PageProps {
     classSubjects: PaginationType<ClassSubject>;

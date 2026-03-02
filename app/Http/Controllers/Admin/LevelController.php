@@ -49,18 +49,6 @@ class LevelController extends Controller
     }
 
     /**
-     * Show the form for creating a new level.
-     *
-     * @return Response The response containing the level creation form view.
-     */
-    public function create(): Response
-    {
-        $this->authorize('create', Level::class);
-
-        return Inertia::render('Admin/Levels/Create');
-    }
-
-    /**
      * Store a newly created level.
      *
      * Delegates to LevelService to create level with validated data.
@@ -77,21 +65,6 @@ class LevelController extends Controller
         return redirect()->route('admin.levels.index')->flashSuccess(
             __('messages.level_created')
         );
-    }
-
-    /**
-     * Show the form for editing the specified level.
-     *
-     * @param  Level  $level  The level to edit.
-     * @return Response The response containing the level edit form view.
-     */
-    public function edit(Level $level): Response
-    {
-        $this->authorize('update', $level);
-
-        return Inertia::render('Admin/Levels/Edit', [
-            'level' => $level,
-        ]);
     }
 
     /**

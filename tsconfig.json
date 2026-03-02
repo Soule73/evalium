@@ -36,38 +36,24 @@
             "@/*": [
                 "./resources/ts/*"
             ],
-            "@/Types/*": [
-                "./resources/ts/types/*"
-            ],
-            "@/Components/*": [
-                "./resources/ts/Components/*"
-            ],
             "@evalium/ui": [
-                "./resources/ts/Components/ui"
+                "./resources/ts/packages/ui"
             ],
             "@evalium/ui/*": [
-                "./resources/ts/Components/ui/*"
+                "./resources/ts/packages/ui/*"
             ],
-            "@/Pages/*": [
-                "./resources/ts/Pages/*"
+            "@evalium/utils": [
+                "./resources/ts/packages/utils"
             ],
-            "@/Layouts/*": [
-                "./resources/ts/Layouts/*"
-            ],
-            "@/Hooks/*": [
-                "./resources/ts/hooks/*"
-            ],
-            "@/Utils/*": [
-                "./resources/ts/utils/*"
+            "@evalium/utils/*": [
+                "./resources/ts/packages/utils/*"
             ]
         }
     },
     "include": [
         "resources/ts/**/*.ts",
         "resources/ts/**/*.tsx",
-        "resources/ts/**/*.d.ts",
-        "resources/ts/hooks/useExamResults.tx",
-        "resources/ts/Pages/Exam/ExamCreate.backup"
+        "resources/ts/**/*.d.ts"
     ],
     "references": [
         {

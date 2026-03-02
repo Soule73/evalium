@@ -6,7 +6,8 @@
     "type": "module",
     "workspaces": [
         "e2e",
-        "resources/ts/Components/ui"
+        "resources/ts/packages/ui",
+        "resources/ts/packages/utils"
     ],
     "packageManager": "yarn@1.22.22",
     "scripts": {
@@ -35,6 +36,7 @@
         "test:e2e:teacher": "yarn workspace @evalium/e2e-tests test:teacher",
         "test:e2e:student": "yarn workspace @evalium/e2e-tests test:student",
         "test:all": "yarn test:unit && yarn test:e2e",
+        "storybook": "yarn workspace @evalium/ui storybook",
         "release": "standard-version",
         "release:minor": "standard-version --release-as minor",
         "release:major": "standard-version --release-as major",

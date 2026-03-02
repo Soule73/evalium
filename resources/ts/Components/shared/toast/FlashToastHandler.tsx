@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { type FlashMessageObject, type FlashMessages } from '@/types';
+import { type FlashMessageObject, type FlashMessages } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useToast } from './useToast';
 

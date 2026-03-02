@@ -1,5 +1,5 @@
 import { XMarkIcon, BellIcon, CheckIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { type AppNotification } from '@/types';
+import { type AppNotification } from '@evalium/utils/types';
 import { NotificationItem } from './NotificationItem';
 import { useTranslations } from '@/hooks';
 import { createPortal } from 'react-dom';

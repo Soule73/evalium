@@ -1,5 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
-import { type PageProps } from '@/types';
+import { type PageProps } from '@evalium/utils/types';
 import { useMemo, useState, useEffect } from 'react';
 import { Sidebar, Breadcrumb, FlashToastHandler, UserMenu, NotificationBell } from '@/Components';
 import { type BreadcrumbItem } from '@/Components/layout/Breadcrumb';

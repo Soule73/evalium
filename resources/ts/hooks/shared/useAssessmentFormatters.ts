@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useTranslations } from './useTranslations';
+import { formatAssessmentScore as formatScore } from '@evalium/utils/formatting/translatedFormatters';
 
 /**
  * Hook providing localized assessment score formatting functions.
@@ -14,10 +15,7 @@ export function useAssessmentFormatters() {
             isPendingReview?: boolean,
             autoScore?: number,
         ): string => {
-            if (isPendingReview && autoScore !== undefined) {
-                return t('formatters.partial_score_mcq', { score: autoScore, total: totalPoints });
-            }
-            return t('formatters.score_format', { score: score || 0, total: totalPoints });
+            return formatScore(t, score, totalPoints, isPendingReview, autoScore);
         },
         [t],
     );

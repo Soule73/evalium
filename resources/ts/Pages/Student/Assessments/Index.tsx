@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type Assessment, type AssessmentAssignment, type PageProps } from '@/types';
-import type { PaginationType } from '@/types/datatable';
+import { type Assessment, type AssessmentAssignment, type PageProps } from '@evalium/utils/types';
+import type { PaginationType } from '@evalium/utils/types/datatable';
 import { Section } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';

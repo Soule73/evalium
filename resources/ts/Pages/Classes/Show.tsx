@@ -7,6 +7,7 @@ import type {
     AssessmentAssignment,
     ClassSubject,
     Enrollment,
+    Level,
     Subject,
     User,
     Semester,
@@ -14,13 +15,14 @@ import type {
     PaginationType,
     ClassStatistics,
     ClassRouteContext,
-} from '@/types';
-import { hasPermission } from '@/utils';
+} from '@evalium/utils/types';
+import { hasPermission } from '@evalium/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section, Badge, ConfirmationModal, Stat } from '@/Components';
 import { ClassSubjectList, AssessmentList } from '@/Components/shared/lists';
 import { CreateClassSubjectModal } from '@/Components/features';
+import { ClassFormModal } from '@/Components/features/classes';
 import { route } from 'ziggy-js';
 import {
     AcademicCapIcon,
@@ -50,6 +52,7 @@ interface Props extends PageProps {
     students?: PaginationType<EnrollmentWithStudent>;
     statistics?: ClassStatistics;
     classSubjectFormData?: ClassSubjectFormData;
+    levels?: Level[];
 }
 
 export default function ClassShow({
@@ -60,10 +63,12 @@ export default function ClassShow({
     students,
     statistics,
     classSubjectFormData,
+    levels,
     auth,
 }: Props) {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isAssignSubjectModalOpen, setIsAssignSubjectModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const { t } = useTranslations();
     const breadcrumbs = useBreadcrumbs();
 
@@ -140,9 +145,7 @@ export default function ClassShow({
     };
 
     const handleEdit = () => {
-        if (routeContext.editRoute) {
-            router.visit(route(routeContext.editRoute, classItem.id));
-        }
+        setIsEditModalOpen(true);
     };
 
     const handleDeleteConfirm = () => {
@@ -493,6 +496,14 @@ export default function ClassShow({
                             formData={classSubjectFormData}
                             classId={classItem.id}
                             redirectTo={route('admin.classes.show', classItem.id)}
+                        />
+                    )}
+                    {canUpdate && levels && (
+                        <ClassFormModal
+                            isOpen={isEditModalOpen}
+                            onClose={() => setIsEditModalOpen(false)}
+                            classItem={classItem}
+                            levels={levels}
                         />
                     )}
                 </>

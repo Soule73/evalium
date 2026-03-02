@@ -2,10 +2,10 @@ import { useState, useMemo, useCallback, type ReactNode } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { type Assessment, type AssessmentAssignment } from '@/types';
+import { type Assessment, type AssessmentAssignment } from '@evalium/utils/types';
 import { Badge, MarkdownRenderer, Toggle } from '@evalium/ui';
-import { formatDate } from '@/utils';
-import { calculateTotalPoints, formatAssignmentStatus } from '@/utils/assessment';
+import { formatDate } from '@evalium/utils';
+import { calculateTotalPoints, formatAssignmentStatus } from '@evalium/utils/assessment';
 import { useTranslations } from '@/hooks';
 import { useFormatters } from '@/hooks/shared/useFormatters';
 import type {
@@ -14,7 +14,7 @@ import type {
     FilterConfig,
     EntityListVariant,
 } from './types/listConfig';
-import type { PaginationType } from '@/types/datatable';
+import type { PaginationType } from '@evalium/utils/types/datatable';
 
 interface ClassSubjectOption {
     id: number;

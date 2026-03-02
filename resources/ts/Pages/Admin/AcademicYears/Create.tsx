@@ -14,7 +14,7 @@ import {
     AcademicYearResultStep,
     ClassDuplicationStep,
 } from '@/Components/features/academic-years';
-import type { AcademicYear, PageProps } from '@/types';
+import type { AcademicYear, PageProps } from '@evalium/utils/types';
 
 interface Props extends PageProps {
     currentYear: AcademicYear | null;

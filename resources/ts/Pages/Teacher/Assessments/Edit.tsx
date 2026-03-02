@@ -6,7 +6,7 @@ import { Button, QuestionsManager, Section } from '@/Components';
 import { AssessmentGeneralConfig } from '@/Components/shared/AssessmentGeneralConfig';
 import { useEditAssessment } from '@/hooks/features/assessment';
 import { useAssessmentFormStore } from '@/stores';
-import { type Assessment, type ClassSubject } from '@/types';
+import { type Assessment, type ClassSubject } from '@evalium/utils/types';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 

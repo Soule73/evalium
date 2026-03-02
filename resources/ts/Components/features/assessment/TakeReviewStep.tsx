@@ -4,7 +4,7 @@ import {
     ExclamationTriangleIcon,
     ChevronLeftIcon,
 } from '@heroicons/react/24/outline';
-import { type Question } from '@/types';
+import { type Question } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 
 type AnswerValue = string | number | number[];

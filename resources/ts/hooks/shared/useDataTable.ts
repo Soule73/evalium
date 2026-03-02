@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { router } from '@inertiajs/react';
-import { type DataTableState, type PaginationType, type FilterConfig } from '@/types/datatable';
+import {
+    type DataTableState,
+    type PaginationType,
+    type FilterConfig,
+} from '@evalium/utils/types/datatable';
 import {
     buildDataTableUrl,
     areAllSelectableItemsSelected,
@@ -8,7 +12,7 @@ import {
     toggleAllPageSelection,
     toggleItemSelection,
     selectAllItems,
-} from '@/utils';
+} from '@evalium/utils';
 
 interface UseDataTableOptions<T> {
     initialState?: Partial<DataTableState>;

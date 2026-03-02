@@ -143,13 +143,17 @@ app/
   Strategies/Validation/  Question & score validation (Strategy pattern)
 
 resources/ts/
+  packages/               Standalone yarn workspace packages
+    ui/                   @evalium/ui -- Design system (see docs)
+    utils/                @evalium/utils -- Shared utilities (see docs)
   Components/
     features/             Domain-specific components (assessment, classes...)
     layout/               Sidebar, navbar, breadcrumbs, logo
     shared/lists/         13 shared list components (variant pattern)
-    ui/                   Design system (@evalium/ui)
   Pages/                  Inertia page components (Admin, Teacher, Student)
   hooks/                  Custom React hooks
+  stores/                 Zustand state management
+  schemas/                Zod validation schemas
   types/                  TypeScript interfaces
 
 documentation/            Architecture diagrams, branding guide
@@ -157,8 +161,22 @@ documentation/            Architecture diagrams, branding guide
 
 ---
 
+## Packages
+
+Evalium ships two internal yarn workspace packages under `resources/ts/packages/`:
+
+| Package | Alias | Purpose |
+|---------|-------|---------|
+| [`@evalium/ui`](resources/ts/packages/ui/) | `@evalium/ui` | Design system components with Storybook |
+| [`@evalium/utils`](resources/ts/packages/utils/) | `@evalium/utils` | Shared utilities (API, formatting, helpers, assessment) |
+
+See [PACKAGES.md](documentation/PACKAGES.md) for detailed documentation.
+
+---
+
 ## Documentation
 
+- [PACKAGES.md](documentation/PACKAGES.md) -- Internal packages architecture (`@evalium/ui`, `@evalium/utils`)
 - [EVALIUM_BRANDING.md](documentation/EVALIUM_BRANDING.md) -- Brand guidelines, logo, color palette
 - [CONTRIBUTING.md](CONTRIBUTING.md) -- How to contribute
 - [CHANGELOG.md](CHANGELOG.md) -- Version history

@@ -1,8 +1,14 @@
 import { useState, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import type { Assessment, AssessmentAssignment, Answer, AssessmentRouteContext } from '@/types';
-import { getAssessmentBackUrl } from '@/utils/assessment/routeUtils';
+import type {
+    Assessment,
+    AssessmentAssignment,
+    Answer,
+    AssessmentRouteContext,
+} from '@evalium/utils/types';
+import { getAssessmentBackUrl } from '@evalium/utils/assessment/routeUtils';
+import { buildInitialGradingScores, buildInitialFeedbacks } from '@evalium/utils/assessment/utils';
 
 interface UseGradeStateParams {
     assessment: Assessment;
@@ -42,25 +48,13 @@ export function useGradeState({
     userAnswers,
     routeContext,
 }: UseGradeStateParams): UseGradeStateReturn {
-    const [editableScores, setEditableScores] = useState<Record<number, number>>(() => {
-        const scores: Record<number, number> = {};
-        (assessment.questions ?? []).forEach((question) => {
-            const answer = userAnswers[question.id];
-            scores[question.id] = answer?.score ?? 0;
-        });
-        return scores;
-    });
+    const [editableScores, setEditableScores] = useState<Record<number, number>>(() =>
+        buildInitialGradingScores(assessment.questions ?? [], userAnswers),
+    );
 
-    const [feedbacks, setFeedbacks] = useState<Record<number, string>>(() => {
-        const initial: Record<number, string> = {};
-        (assessment.questions ?? []).forEach((question) => {
-            const answer = userAnswers[question.id];
-            if (answer?.feedback) {
-                initial[question.id] = answer.feedback;
-            }
-        });
-        return initial;
-    });
+    const [feedbacks, setFeedbacks] = useState<Record<number, string>>(() =>
+        buildInitialFeedbacks(assessment.questions ?? [], userAnswers),
+    );
 
     const [teacherNotes, setTeacherNotes] = useState(assignment.teacher_notes || '');
     const [isSubmitting, setIsSubmitting] = useState(false);

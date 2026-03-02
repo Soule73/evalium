@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslations } from './useTranslations';
 import { route } from 'ziggy-js';
 import { type BreadcrumbItem } from '@/Components/layout/Breadcrumb';
-import { type AssessmentRouteContext } from '@/types';
+import { type AssessmentRouteContext } from '@evalium/utils/types';
 
 type TranslateFn = (key: string, replacements?: Record<string, string | number>) => string;
 
@@ -313,8 +313,6 @@ function createBreadcrumbs(t: TranslateFn) {
             { label: user.name },
         ],
         levels: levelsBc.index,
-        levelCreate: levelsBc.create,
-        levelEdit: levelsBc.edit,
         roles: rolesBc.index,
         roleEdit: rolesBc.edit,
         admin: {
@@ -326,9 +324,7 @@ function createBreadcrumbs(t: TranslateFn) {
             showSubject: subjectsBc.show,
             editSubject: subjectsBc.edit,
             classes: classesBc.index,
-            createClass: classesBc.create,
             showClass: classesBc.show,
-            editClass: classesBc.edit,
             classAssessments: (classItem: ClassBcItem): BreadcrumbItem[] => [
                 ...classesBc.show(classItem),
                 { label: t('breadcrumbs.assessments') },

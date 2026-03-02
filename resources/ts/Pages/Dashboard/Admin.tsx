@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type User } from '@/types';
+import { type User } from '@evalium/utils/types';
 import {
     AcademicCapIcon,
     BookOpenIcon,
@@ -9,7 +9,7 @@ import {
 import { Deferred } from '@inertiajs/react';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Stat } from '@/Components';
-import { BarChart, ChartCard, ChartSkeleton, DonutChart } from '@/Components/ui/charts';
+import { BarChart, ChartCard, ChartSkeleton, DonutChart } from '@evalium/ui/charts';
 
 interface Stats {
     totalUsers: number;

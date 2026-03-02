@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type PaginationType } from '@/types/datatable';
+import { type PaginationType } from '@evalium/utils/types/datatable';
 import {
     type ClassSubject,
     type ClassModel,
     type Subject,
     type User,
     type PageProps,
-} from '@/types';
+} from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Section } from '@/Components';

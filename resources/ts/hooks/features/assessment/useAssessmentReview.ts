@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
-import type { Assessment, Answer } from '@/types';
+import type { Assessment, Answer } from '@evalium/utils/types';
 import {
     calculateTotalPoints,
     calculatePercentage,
     buildScoresMap,
-} from '@/utils/assessment/utils';
+    sumScores,
+} from '@evalium/utils/assessment/utils';
 
 interface UseAssessmentReviewParams {
     assessment: Assessment;
@@ -41,15 +42,7 @@ const useAssessmentReview = ({
         return buildScoresMap(userAnswers);
     }, [userAnswers, scoreOverrides]);
 
-    const calculatedTotalScore = useMemo(
-        () =>
-            parseFloat(
-                Object.values(scores)
-                    .reduce((sum, score) => sum + score, 0)
-                    .toFixed(2),
-            ),
-        [scores],
-    );
+    const calculatedTotalScore = useMemo(() => sumScores(scores), [scores]);
 
     const percentage = useMemo(
         () => calculatePercentage(calculatedTotalScore, totalPoints),

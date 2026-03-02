@@ -5,8 +5,8 @@ import { DataTable } from '@/Components/shared/datatable';
 import { Badge, Button, Section } from '@evalium/ui';
 import { useTranslations } from '@/hooks';
 import { useEnrollmentWizard } from '@/contexts/EnrollmentWizardContext';
-import type { ClassModel } from '@/types';
-import type { DataTableConfig, PaginationType } from '@/types/datatable';
+import type { ClassModel } from '@evalium/utils/types';
+import type { DataTableConfig, PaginationType } from '@evalium/utils/types/datatable';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 
 interface ClassSelectionStepProps {

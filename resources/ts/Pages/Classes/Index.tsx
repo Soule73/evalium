@@ -1,14 +1,18 @@
-import { useMemo } from 'react';
-import { router } from '@inertiajs/react';
+import { useCallback, useMemo, useState } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type PaginationType } from '@/types/datatable';
-import { type ClassModel, type ClassRouteContext, type Level, type PageProps } from '@/types';
-import { hasPermission } from '@/utils';
+import { type PaginationType } from '@evalium/utils/types/datatable';
+import {
+    type ClassModel,
+    type ClassRouteContext,
+    type Level,
+    type PageProps,
+} from '@evalium/utils/types';
+import { hasPermission } from '@evalium/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section } from '@/Components';
 import { ClassList } from '@/Components/shared/lists';
-import { route } from 'ziggy-js';
+import { ClassFormModal } from '@/Components/features/classes';
 
 interface Props extends PageProps {
     classes: PaginationType<ClassModel>;
@@ -22,9 +26,18 @@ export default function ClassIndex({ classes, levels, auth, routeContext }: Prop
     const isAdmin = routeContext.role === 'admin';
     const canCreate = isAdmin && hasPermission(auth.permissions, 'create classes');
 
+    const [formModal, setFormModal] = useState<{ isOpen: boolean; classItem: ClassModel | null }>({
+        isOpen: false,
+        classItem: null,
+    });
+
     const handleCreate = () => {
-        router.visit(route('admin.classes.create'));
+        setFormModal({ isOpen: true, classItem: null });
     };
+
+    const closeFormModal = useCallback(() => {
+        setFormModal({ isOpen: false, classItem: null });
+    }, []);
 
     const translations = useMemo(
         () => ({
@@ -55,6 +68,15 @@ export default function ClassIndex({ classes, levels, auth, routeContext }: Prop
             >
                 <ClassList data={classes} variant={routeContext.role} levels={levels} />
             </Section>
+
+            {canCreate && (
+                <ClassFormModal
+                    isOpen={formModal.isOpen}
+                    onClose={closeFormModal}
+                    classItem={formModal.classItem}
+                    levels={levels}
+                />
+            )}
         </AuthenticatedLayout>
     );
 }

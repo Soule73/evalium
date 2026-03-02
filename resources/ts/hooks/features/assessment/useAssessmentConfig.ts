@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { type AssessmentConfig } from '@/utils/assessment/security';
+import { type AssessmentConfig } from '@evalium/utils/assessment/security';
 
 interface PageProps extends Record<string, unknown> {
     assessmentConfig?: AssessmentConfig;

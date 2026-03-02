@@ -7,12 +7,12 @@ import {
     type AssessmentAssignment,
     type AvailabilityStatus,
     type PageProps,
-} from '@/types';
+} from '@evalium/utils/types';
 import { AlertEntry, Button, Modal, Section, Stat, TextEntry } from '@/Components';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import { formatDate } from '@/utils';
-import { formatAssignmentStatus } from '@/utils/assessment';
+import { formatDate } from '@evalium/utils';
+import { formatAssignmentStatus } from '@evalium/utils/assessment';
 import { useAssessmentCountdown } from '@/hooks/features/assessment';
 import {
     ClockIcon,

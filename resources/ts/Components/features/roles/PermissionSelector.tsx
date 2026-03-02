@@ -1,6 +1,6 @@
 import { Checkbox, Section } from '@evalium/ui';
 import { Button } from '@evalium/ui';
-import { type GroupedPermissions } from '@/types/role';
+import { type GroupedPermissions } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface Props {

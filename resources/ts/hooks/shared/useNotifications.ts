@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { router } from '@inertiajs/react';
-import type { AppNotification } from '@/types';
+import type { AppNotification } from '@evalium/utils/types';
 import { route } from 'ziggy-js';
 
 interface NotificationState {

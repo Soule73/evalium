@@ -2,13 +2,13 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { type AcademicYear } from '@/types';
+import { type AcademicYear } from '@evalium/utils/types';
 import { Badge } from '@evalium/ui';
 import { CheckCircleIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
-import { formatDate, getAcademicYearStatus } from '@/utils';
+import { formatDate, getAcademicYearStatus } from '@evalium/utils';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
-import type { PaginationType } from '@/types/datatable';
+import type { PaginationType } from '@evalium/utils/types/datatable';
 
 interface AcademicYearListProps {
     data: PaginationType<AcademicYear>;

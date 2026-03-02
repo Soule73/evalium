@@ -6,8 +6,8 @@ import { useTranslations } from '@/hooks';
 import { useEnrollmentWizard, type BulkEnrollmentResult } from '@/contexts/EnrollmentWizardContext';
 import { UserAvatar } from '@/Components/layout/UserAvatar';
 import { DataTable } from '@/Components/shared/datatable/DataTable';
-import { type ColumnConfig } from '@/types/datatable';
-import { type User } from '@/types';
+import { type ColumnConfig } from '@evalium/utils/types/datatable';
+import { type User } from '@evalium/utils/types';
 import { ArrowLeftIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 /**

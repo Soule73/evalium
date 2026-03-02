@@ -175,7 +175,6 @@ Route::middleware('auth')->group(function () {
                 ->controller(\App\Http\Controllers\Admin\ClassController::class)
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
-                    Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
                     Route::get('/{class}', 'show')->name('show');
                     Route::get('/{class}/assessments', 'classAssessments')->name('assessments');
@@ -184,7 +183,6 @@ Route::middleware('auth')->group(function () {
                         ->name('assessments.show');
                     Route::get('/{class}/subjects', 'classSubjectsList')->name('subjects');
                     Route::get('/{class}/subjects/{class_subject}', 'subjectShow')->name('subjects.show');
-                    Route::get('/{class}/edit', 'edit')->name('edit');
                     Route::put('/{class}', 'update')->name('update');
                     Route::delete('/{class}', 'destroy')->name('destroy');
                 });
@@ -249,9 +247,7 @@ Route::middleware('auth')->group(function () {
                 ->controller(LevelController::class)
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
-                    Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
-                    Route::get('/{level}/edit', 'edit')->name('edit');
                     Route::put('/{level}', 'update')->name('update');
                     Route::delete('/{level}', 'destroy')->name('destroy');
                     Route::patch('/{level}/toggle-status', 'toggleStatus')->name('toggle-status');

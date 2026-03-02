@@ -1,5 +1,5 @@
-import { type Assessment } from '@/types';
-import { formatDate } from '@/utils';
+import { type Assessment } from '@evalium/utils/types';
+import { formatDate } from '@evalium/utils';
 import { ClockIcon, QuestionMarkCircleIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useFormatters } from '@/hooks/shared/useFormatters';

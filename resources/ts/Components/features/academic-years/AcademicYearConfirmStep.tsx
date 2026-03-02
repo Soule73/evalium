@@ -9,8 +9,8 @@ import {
     useAcademicYearWizard,
     type AcademicYearWizardResult,
 } from '@/contexts/AcademicYearWizardContext';
-import type { AcademicYear, ClassModel } from '@/types';
-import type { DataTableConfig } from '@/types/datatable';
+import type { AcademicYear, ClassModel } from '@evalium/utils/types';
+import type { DataTableConfig } from '@evalium/utils/types/datatable';
 
 interface AcademicYearConfirmStepProps {
     currentYear: AcademicYear | null;

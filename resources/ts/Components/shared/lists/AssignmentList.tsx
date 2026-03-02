@@ -8,14 +8,14 @@ import {
     type AssessmentAssignment,
     type AssessmentRouteContext,
     type PageProps,
-} from '@/types';
+} from '@evalium/utils/types';
 import { Badge, Button } from '@evalium/ui';
 import { ConfirmationModal, Textarea } from '@/Components';
-import { formatDate, hasPermission } from '@/utils';
-import { resolveAssignmentDisplayStatus } from '@/utils/assessment';
+import { formatDate, hasPermission } from '@evalium/utils';
+import { resolveAssignmentDisplayStatus } from '@evalium/utils/assessment';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig } from './types/listConfig';
-import type { PaginationType } from '@/types/datatable';
+import type { PaginationType } from '@evalium/utils/types/datatable';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 interface AssignmentWithVirtual extends AssessmentAssignment {
