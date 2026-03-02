@@ -33,4 +33,10 @@ return [
         'logout' => 'Déconnexion',
         'profile' => 'Profil',
     ],
+    'quick_access' => [
+        'label' => 'Accès rapide',
+        'placeholder' => 'ID évaluation',
+        'go' => 'Aller',
+        'invalid_id' => 'Veuillez saisir un ID valide',
+    ],
 ];
