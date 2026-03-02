@@ -8,6 +8,7 @@ use App\Models\AssessmentAssignment;
 use App\Models\ClassModel;
 use App\Models\ClassSubject;
 use App\Models\Enrollment;
+use App\Models\Semester;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -318,6 +319,231 @@ class GradeCalculationService
     /**
      * Calculate class average for a specific subject
      */
+    /**
+     * Calculate grade for a student in a class-subject filtered by semester.
+     *
+     * Formula: SubjectGrade = Sum(coef_assessment * normalized_score) / Sum(coef_assessment)
+     * Only includes assessments whose class_subject belongs to the given semester.
+     */
+    public function calculateSemesterGrade(Enrollment $enrollment, ClassSubject $classSubject, Semester $semester): ?float
+    {
+        if ($classSubject->semester_id !== $semester->id) {
+            return null;
+        }
+
+        return $this->calculateSubjectGrade($enrollment->student, $classSubject);
+    }
+
+    /**
+     * Calculate weighted average across all subjects for a given semester.
+     *
+     * Formula: SemesterAverage = Sum(coef_subject * subject_grade) / Sum(coef_subject)
+     *
+     * @return array{average: float|null, total_coefficient: float, subjects: array}|null
+     */
+    public function calculateSemesterAverage(Enrollment $enrollment, Semester $semester): ?array
+    {
+        $classSubjects = ClassSubject::active()
+            ->where('class_id', $enrollment->class_id)
+            ->where('semester_id', $semester->id)
+            ->with(['subject', 'teacher'])
+            ->get();
+
+        if ($classSubjects->isEmpty()) {
+            return null;
+        }
+
+        $totalWeightedGrade = 0.0;
+        $totalCoefficients = 0.0;
+        $subjects = [];
+
+        foreach ($classSubjects as $classSubject) {
+            $grade = $this->calculateSubjectGrade($enrollment->student, $classSubject);
+
+            $subjects[] = [
+                'class_subject_id' => $classSubject->id,
+                'subject_name' => $classSubject->subject?->name ?? '-',
+                'teacher_name' => $classSubject->teacher?->name ?? '-',
+                'coefficient' => $classSubject->coefficient,
+                'grade' => $grade,
+            ];
+
+            if ($grade !== null) {
+                $totalWeightedGrade += $classSubject->coefficient * $grade;
+                $totalCoefficients += $classSubject->coefficient;
+            }
+        }
+
+        return [
+            'average' => $totalCoefficients > 0 ? round($totalWeightedGrade / $totalCoefficients, 2) : null,
+            'total_coefficient' => $totalCoefficients,
+            'subjects' => $subjects,
+        ];
+    }
+
+    /**
+     * Get per-subject grade breakdown for a student filtered by semester.
+     *
+     * Returns a structure identical to getGradeBreakdown() but scoped to one semester.
+     *
+     * @return array{student_id: int, student_name: string, class_id: int, class_name: string, subjects: array, semester_average: float|null, total_coefficient: float}
+     */
+    public function getSemesterGradeBreakdown(Enrollment $enrollment, Semester $semester): array
+    {
+        $enrollment->loadMissing(['student', 'class']);
+
+        $classSubjects = ClassSubject::active()
+            ->where('class_id', $enrollment->class_id)
+            ->where('semester_id', $semester->id)
+            ->with(['subject', 'teacher'])
+            ->withCount(['assessments as published_assessments_count' => function ($q) {
+                $q->where('is_published', true);
+            }])
+            ->get();
+
+        $classSubjectIds = $classSubjects->pluck('id');
+
+        $allAssignments = AssessmentAssignment::whereHas('assessment', function ($query) use ($classSubjectIds) {
+            $query->whereIn('class_subject_id', $classSubjectIds);
+        })
+            ->where('enrollment_id', $enrollment->id)
+            ->withSum('answers', 'score')
+            ->with(['assessment' => function ($query) {
+                $query->select('id', 'title', 'type', 'coefficient', 'class_subject_id', 'is_published', 'settings')
+                    ->withCount('questions');
+            }, 'assessment.questions:id,assessment_id,points'])
+            ->get()
+            ->groupBy('assessment.class_subject_id');
+
+        $subjectGrades = [];
+        $totalWeightedGrade = 0.0;
+        $totalCoefficients = 0.0;
+
+        foreach ($classSubjects as $classSubject) {
+            $assignments = $allAssignments->get($classSubject->id, collect());
+
+            $subjectGrade = null;
+            $completedCount = 0;
+
+            if ($assignments->isNotEmpty()) {
+                $triplets = [];
+
+                foreach ($assignments as $assignment) {
+                    if ($assignment->score !== null && $assignment->assessment) {
+                        $triplets[] = [
+                            'score' => (float) $assignment->score,
+                            'max_points' => (float) $assignment->assessment->questions->sum('points'),
+                            'coefficient' => (float) $assignment->assessment->coefficient,
+                        ];
+                    }
+
+                    if ($assignment->submitted_at) {
+                        $completedCount++;
+                    }
+                }
+
+                $subjectGrade = $this->computeWeightedGrade($triplets);
+            }
+
+            $subjectGrades[] = [
+                'id' => $classSubject->id,
+                'class_subject_id' => $classSubject->id,
+                'subject_name' => $classSubject->subject?->name ?? '-',
+                'teacher_name' => $classSubject->teacher?->name ?? '-',
+                'coefficient' => $classSubject->coefficient,
+                'average' => $subjectGrade,
+                'assessments_count' => $classSubject->published_assessments_count,
+                'completed_count' => $completedCount,
+            ];
+
+            if ($subjectGrade !== null) {
+                $totalWeightedGrade += $classSubject->coefficient * $subjectGrade;
+                $totalCoefficients += $classSubject->coefficient;
+            }
+        }
+
+        return [
+            'student_id' => $enrollment->student->id,
+            'student_name' => $enrollment->student->name,
+            'class_id' => $enrollment->class->id,
+            'class_name' => $enrollment->class->name,
+            'subjects' => $subjectGrades,
+            'semester_average' => $totalCoefficients > 0 ? round($totalWeightedGrade / $totalCoefficients, 2) : null,
+            'total_coefficient' => $totalCoefficients,
+        ];
+    }
+
+    /**
+     * Calculate ranking for all enrolled students in a class.
+     *
+     * Tied averages share the same rank; next rank is skipped (e.g. 1, 2, 2, 4).
+     * When $semester is provided, ranking is based on semester averages.
+     *
+     * @return array<int, array{enrollment_id: int, student: User, average: float|null, rank: int|null}>
+     */
+    public function calculateClassRanking(ClassModel $class, ?Semester $semester = null): array
+    {
+        $enrollments = Enrollment::where('class_id', $class->id)
+            ->active()
+            ->with('student')
+            ->get();
+
+        $results = [];
+
+        foreach ($enrollments as $enrollment) {
+            if ($semester) {
+                $semesterData = $this->calculateSemesterAverage($enrollment, $semester);
+                $average = $semesterData['average'] ?? null;
+            } else {
+                $average = $this->calculateAnnualAverage($enrollment->student, $class->academicYear);
+            }
+
+            $results[] = [
+                'enrollment_id' => $enrollment->id,
+                'student' => $enrollment->student,
+                'average' => $average,
+                'rank' => null,
+            ];
+        }
+
+        usort($results, function ($a, $b) {
+            if ($a['average'] === null && $b['average'] === null) {
+                return 0;
+            }
+            if ($a['average'] === null) {
+                return 1;
+            }
+            if ($b['average'] === null) {
+                return -1;
+            }
+
+            return $b['average'] <=> $a['average'];
+        });
+
+        $currentRank = 0;
+        $lastAverage = null;
+        $skipCount = 0;
+
+        foreach ($results as $index => &$result) {
+            if ($result['average'] === null) {
+                $result['rank'] = null;
+
+                continue;
+            }
+
+            if ($result['average'] !== $lastAverage) {
+                $currentRank = $index + 1;
+                $lastAverage = $result['average'];
+            }
+
+            $result['rank'] = $currentRank;
+        }
+
+        unset($result);
+
+        return $results;
+    }
+
     public function calculateClassAverageForSubject(ClassSubject $classSubject): ?float
     {
         $students = $classSubject->class->students;

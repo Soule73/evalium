@@ -77,6 +77,9 @@ class RoleAndPermissionSeeder extends Seeder
             'delete assessments',
             'publish assessments',
             'grade assessments',
+
+            // Settings Management
+            'manage settings',
         ];
 
         foreach ($permissions as $permission) {
@@ -144,6 +147,9 @@ class RoleAndPermissionSeeder extends Seeder
 
             // Assessments (view only for admin)
             'view assessments',
+
+            // Settings
+            'manage settings',
         ]);
 
         // Teacher Role - Assessment management
