@@ -40,8 +40,8 @@ const ModalWrapper = ({
                 onClose={() => setIsOpen(false)}
                 size={size}
                 isCloseableInside={isCloseableInside}
+                title="Modal Title"
             >
-                <h2 className="text-xl font-bold mb-4">Modal Title</h2>
                 <p className="text-gray-600 mb-4">
                     This is a modal dialog. It can contain any content you want to display.
                 </p>
@@ -93,9 +93,13 @@ export const WithLongContent = {
         return (
             <div>
                 <Button onClick={() => setIsOpen(true)}>Open Modal with Long Content</Button>
-                <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} size="lg">
-                    <h2 className="text-xl font-bold mb-4">Terms and Conditions</h2>
-                    <div className="text-gray-600 mb-4 max-h-96 overflow-y-auto">
+                <Modal
+                    isOpen={isOpen}
+                    onClose={() => setIsOpen(false)}
+                    size="lg"
+                    title="Terms and Conditions"
+                >
+                    <div className="text-gray-600 mb-4">
                         {Array.from({ length: 20 }, (_, i) => (
                             <p key={i} className="mb-2">
                                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
