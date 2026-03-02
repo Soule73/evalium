@@ -9,7 +9,7 @@ import {
     type DeliveryMode,
 } from '@evalium/utils/types';
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
-import { getDeliveryModeDefaults } from '@evalium/utils/assessment/utils';
+import { getDeliveryModeDefaults, mapQuestionsToFormData } from '@evalium/utils/assessment/utils';
 import { toLocalDatetimeInput } from '@evalium/utils/formatting/formatters';
 
 interface AssessmentEditData {
@@ -84,28 +84,7 @@ export const useEditAssessment = (assessment: Assessment): UseEditAssessmentRetu
 
     useEffect(() => {
         if (assessment.questions && questions.length === 0) {
-            const formattedQuestions: QuestionFormData[] = assessment.questions.map((q, index) => ({
-                id: q.id,
-                content: q.content,
-                type: q.type,
-                points: q.points,
-                order_index: q.order_index || index,
-                choices:
-                    q.choices?.map((c, choiceIndex) => {
-                        let content = c.content;
-                        if (q.type === 'boolean') {
-                            if (content !== 'true' && content !== 'false') {
-                                content = choiceIndex === 0 ? 'true' : 'false';
-                            }
-                        }
-                        return {
-                            id: c.id,
-                            content,
-                            is_correct: c.is_correct,
-                            order_index: c.order_index || choiceIndex,
-                        };
-                    }) || [],
-            }));
+            const formattedQuestions = mapQuestionsToFormData(assessment.questions);
             setQuestions(formattedQuestions);
             setData('questions', formattedQuestions);
         }

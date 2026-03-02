@@ -1,3 +1,25 @@
+export interface CountdownTime {
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+}
+
+/**
+ * Converts a millisecond difference into a structured countdown object.
+ *
+ * @param diffMs - Time difference in milliseconds (must be positive)
+ * @returns Structured countdown with days, hours, minutes, seconds
+ */
+export function computeCountdown(diffMs: number): CountdownTime {
+    return {
+        days: Math.floor(diffMs / 86_400_000),
+        hours: Math.floor((diffMs % 86_400_000) / 3_600_000),
+        minutes: Math.floor((diffMs % 3_600_000) / 60_000),
+        seconds: Math.floor((diffMs % 60_000) / 1_000),
+    };
+}
+
 /**
  * Formats time in seconds to MM:SS format
  *

@@ -1,12 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { router } from '@inertiajs/react';
-
-interface CountdownTime {
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
-}
+import { type CountdownTime, computeCountdown } from '@evalium/utils/assessment/take/timeUtils';
 
 interface UseAssessmentCountdownResult {
     countdown: CountdownTime | null;
@@ -53,12 +47,7 @@ export const useAssessmentCountdown = (
                 return;
             }
 
-            setCountdown({
-                days: Math.floor(diff / 86_400_000),
-                hours: Math.floor((diff % 86_400_000) / 3_600_000),
-                minutes: Math.floor((diff % 3_600_000) / 60_000),
-                seconds: Math.floor((diff % 60_000) / 1_000),
-            });
+            setCountdown(computeCountdown(diff));
         };
 
         tick();

@@ -1,6 +1,7 @@
 import { type User } from '@evalium/utils/types';
 import { usePage } from '@inertiajs/react';
 import { useState, useMemo } from 'react';
+import { getUserPrimaryRole } from '@evalium/utils/helpers/permissions';
 
 const useProfile = ({ user }: { user: User }) => {
     const [isShowUpdateModal, setIsShowUpdateModal] = useState(false);
@@ -10,10 +11,7 @@ const useProfile = ({ user }: { user: User }) => {
         setIsShowUpdateModal(true);
     };
 
-    const userRole = useMemo(
-        () => ((user.roles?.length ?? 0) > 0 ? user.roles![0].name : null),
-        [user.roles],
-    );
+    const userRole = useMemo(() => getUserPrimaryRole(user), [user]);
 
     return {
         isShowUpdateModal,

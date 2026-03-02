@@ -4,6 +4,7 @@ import {
     calculateTotalPoints,
     calculatePercentage,
     buildScoresMap,
+    sumScores,
 } from '@evalium/utils/assessment/utils';
 
 interface UseAssessmentReviewParams {
@@ -41,15 +42,7 @@ const useAssessmentReview = ({
         return buildScoresMap(userAnswers);
     }, [userAnswers, scoreOverrides]);
 
-    const calculatedTotalScore = useMemo(
-        () =>
-            parseFloat(
-                Object.values(scores)
-                    .reduce((sum, score) => sum + score, 0)
-                    .toFixed(2),
-            ),
-        [scores],
-    );
+    const calculatedTotalScore = useMemo(() => sumScores(scores), [scores]);
 
     const percentage = useMemo(
         () => calculatePercentage(calculatedTotalScore, totalPoints),

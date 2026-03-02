@@ -8,6 +8,7 @@ export {
     hasAnyRole,
     PERMISSIONS,
     ROLES,
+    getUserPrimaryRole,
 } from './permissions';
 export { setupZiggy } from './ziggy';
 export { translateKey } from './translations';

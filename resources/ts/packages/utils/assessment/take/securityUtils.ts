@@ -98,6 +98,18 @@ export function getViolationSeverity(
 }
 
 /**
+ * Calculates a security score based on the number of violations.
+ * Starts at 100 and decreases by 10 per violation, clamped at 0.
+ *
+ * @param violationCount - Number of security violations
+ * @returns Security score (0-100)
+ */
+export function calculateSecurityScore(violationCount: number): number {
+    if (violationCount === 0) return 100;
+    return Math.max(0, 100 - violationCount * 10);
+}
+
+/**
  * Checks if fullscreen is supported by the browser
  *
  * @returns True if fullscreen is supported

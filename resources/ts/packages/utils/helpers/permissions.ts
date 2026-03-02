@@ -123,3 +123,10 @@ export const ROLES = {
     TEACHER: 'teacher',
     STUDENT: 'student',
 } as const;
+
+/**
+ * Returns the primary (first) role name from a user's roles array.
+ */
+export const getUserPrimaryRole = (user: { roles?: { name: string }[] | null }): string | null => {
+    return (user.roles?.length ?? 0) > 0 ? user.roles![0].name : null;
+};

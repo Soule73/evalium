@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { type AssessmentAssignment } from '@evalium/utils/types';
+import { getFinalScore, calculatePercentage } from '@evalium/utils/assessment/utils';
 
 interface UseAssessmentScoringParams {
     assignment: AssessmentAssignment;
@@ -10,14 +11,12 @@ interface UseAssessmentScoringParams {
  * Hook for final score and percentage calculations in student assessment results.
  */
 const useAssessmentScoring = ({ assignment, totalPoints }: UseAssessmentScoringParams) => {
-    const finalScore = useMemo(
-        () => assignment.score ?? assignment.auto_score ?? 0,
-        [assignment.score, assignment.auto_score],
-    );
+    const finalScore = useMemo(() => getFinalScore(assignment), [assignment]);
 
-    const finalPercentage = useMemo(() => {
-        return totalPoints > 0 ? Math.round(((finalScore || 0) / totalPoints) * 100) : 0;
-    }, [finalScore, totalPoints]);
+    const finalPercentage = useMemo(
+        () => calculatePercentage(finalScore, totalPoints),
+        [finalScore, totalPoints],
+    );
 
     return { finalScore, finalPercentage };
 };

@@ -4,6 +4,7 @@ import {
     type AssessmentAssignment,
     type Choice,
     type QuestionResult,
+    type QuestionFormData,
 } from '../types';
 import { formatGrade } from '@evalium/utils/formatting/formatters';
 
@@ -248,4 +249,83 @@ export const canShowAssessmentResults = (
  */
 export const getAssignmentStatus = (): string[] => {
     return ['submitted', 'graded'];
+};
+
+/**
+ * Sums all scores from a scores map and rounds to 2 decimal places.
+ */
+export const sumScores = (scores: Record<number, number>): number => {
+    return parseFloat(
+        Object.values(scores)
+            .reduce((sum, score) => sum + score, 0)
+            .toFixed(2),
+    );
+};
+
+/**
+ * Resolves the final score from an assignment, preferring manual over auto score.
+ */
+export const getFinalScore = (assignment: AssessmentAssignment): number => {
+    return assignment.score ?? assignment.auto_score ?? 0;
+};
+
+/**
+ * Maps Question[] from API to QuestionFormData[] for editing forms.
+ * Handles boolean question choice normalization.
+ */
+export const mapQuestionsToFormData = (questions: Question[]): QuestionFormData[] => {
+    return questions.map((q, index) => ({
+        id: q.id,
+        content: q.content,
+        type: q.type,
+        points: q.points,
+        order_index: q.order_index || index,
+        choices:
+            q.choices?.map((c, choiceIndex) => {
+                let content = c.content;
+                if (q.type === 'boolean') {
+                    if (content !== 'true' && content !== 'false') {
+                        content = choiceIndex === 0 ? 'true' : 'false';
+                    }
+                }
+                return {
+                    id: c.id,
+                    content,
+                    is_correct: c.is_correct,
+                    order_index: c.order_index || choiceIndex,
+                };
+            }) || [],
+    }));
+};
+
+/**
+ * Builds initial scores map from questions and user answers for grading.
+ */
+export const buildInitialGradingScores = (
+    questions: Question[],
+    userAnswers: Record<number, Answer>,
+): Record<number, number> => {
+    const scores: Record<number, number> = {};
+    questions.forEach((question) => {
+        const answer = userAnswers[question.id];
+        scores[question.id] = answer?.score ?? 0;
+    });
+    return scores;
+};
+
+/**
+ * Builds initial feedbacks map from questions and user answers for grading.
+ */
+export const buildInitialFeedbacks = (
+    questions: Question[],
+    userAnswers: Record<number, Answer>,
+): Record<number, string> => {
+    const initial: Record<string, string> = {};
+    questions.forEach((question) => {
+        const answer = userAnswers[question.id];
+        if (answer?.feedback) {
+            initial[question.id] = answer.feedback;
+        }
+    });
+    return initial;
 };
