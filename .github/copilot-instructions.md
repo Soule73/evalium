@@ -56,8 +56,10 @@ Evalium is an online assessment management platform built with **Laravel 12** (P
   - `Student/` - Assessments, Enrollment
   - `Auth/` - Login
   - `Dashboard/` - Role-based dashboard
-- **Components** organized in 4 layers:
-  - `ui/` - Design system (Button, Input, Modal, Badge, Select, Charts, MarkdownEditor, etc.) - separate yarn workspace `@evalium/ui`
+- **Packages** (`resources/ts/packages/`) - Standalone yarn workspaces:
+  - `@evalium/ui` (`packages/ui/`) - Design system (Button, Input, Modal, Badge, Select, Charts, MarkdownEditor, etc.) with Storybook
+  - `@evalium/utils` (`packages/utils/`) - Shared utilities: `api/`, `formatting/`, `helpers/`, `assessment/`
+- **Components** organized in 3 layers (`resources/ts/Components/`):
   - `layout/` - AuthenticatedLayout, GuestLayout, Sidebar, Breadcrumb, AcademicYearSelector, LanguageSelector
   - `features/` - Domain components (assessment, classes, enrollments, notifications, roles, subjects, users, etc.)
   - `shared/` - DataTable, EmptyState, FilePreviewModal, DeleteHistoryModal, Toast
@@ -71,7 +73,7 @@ Evalium is an online assessment management platform built with **Laravel 12** (P
 - **Types** (`resources/ts/types/`) - TypeScript interfaces synced with Laravel models:
   - `models/` - academicYear, assessment, assessmentAssignment, class, classSubject, enrollment, grades, notification, semester, subject
   - `role.ts`, `datatable.ts`, `question-rendering.ts`, `route-context.ts`
-- **Path aliases**: `@/` -> `resources/ts/`, `@evalium/ui` -> `resources/ts/Components/ui`
+- **Path aliases**: `@/` -> `resources/ts/`, `@evalium/ui` -> `resources/ts/packages/ui`, `@evalium/utils` -> `resources/ts/packages/utils`
 
 ### Middleware Stack (registered in `bootstrap/app.php`)
 - `RoleMiddleware` - Custom alias `role` for role-based route access
