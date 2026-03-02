@@ -104,7 +104,7 @@ class AdminDashboardService
      * Get classes grouped by level for bar chart.
      *
      * @param  int|null  $academicYearId  Academic year filter
-     * @return array<int, array{name: string, value: int}>
+     * @return list<object{name: string, value: int}>
      */
     public function getClassesByLevelChart(?int $academicYearId = null): array
     {
@@ -127,7 +127,7 @@ class AdminDashboardService
      * Get enrollment vs capacity per class for bar chart.
      *
      * @param  int|null  $academicYearId  Academic year filter
-     * @return array<int, array{name: string, enrolled: int, capacity: int}>
+     * @return list<object{name: string, enrolled: int, capacity: int}>
      */
     public function getEnrollmentCapacityChart(?int $academicYearId = null): array
     {
