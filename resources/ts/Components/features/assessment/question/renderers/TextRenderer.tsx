@@ -1,4 +1,4 @@
-import { type Question, type QuestionResult } from '@/types';
+import { type Question, type QuestionResult } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { AlertEntry, MarkdownEditor, MarkdownRenderer } from '@evalium/ui';
 import { useQuestionContext } from '../QuestionContext';

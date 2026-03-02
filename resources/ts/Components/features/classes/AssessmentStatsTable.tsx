@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { formatDate } from '@evalium/utils';
 import { DataTable } from '@/Components/shared/datatable/DataTable';
-import type { ColumnConfig } from '@/types/datatable';
+import type { ColumnConfig } from '@evalium/utils/types/datatable';
 
 interface AssessmentStat {
     id: number;

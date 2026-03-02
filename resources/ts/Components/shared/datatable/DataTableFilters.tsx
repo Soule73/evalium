@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { Select } from '@/Components';
 import { Input, Toggle } from '@evalium/ui';
 import { FunnelIcon } from '@heroicons/react/24/outline';
-import { type FilterConfig } from '@/types/datatable';
+import { type FilterConfig } from '@evalium/utils/types/datatable';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 
 interface DataTableFiltersProps {

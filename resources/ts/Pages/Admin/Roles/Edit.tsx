@@ -4,7 +4,7 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { route } from 'ziggy-js';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
-import { type Role, type GroupedPermissions } from '@/types';
+import { type Role, type GroupedPermissions } from '@evalium/utils/types';
 import { PermissionSelector } from '@/Components';
 import { Section, Badge, Button } from '@evalium/ui';
 

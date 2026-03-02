@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type PaginationType } from '@/types/datatable';
+import { type PaginationType } from '@evalium/utils/types/datatable';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, ConfirmationModal, Section } from '@/Components';
 import { useListLevels } from '@/hooks/features/levels';
-import { type Level } from '@/types';
+import { type Level } from '@evalium/utils/types';
 import { LevelList } from '@/Components/shared/lists';
 import { LevelFormModal } from '@/Components/features/levels';
 

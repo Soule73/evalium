@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type Assessment, type AssessmentAssignment, type Answer } from '@/types';
+import { type Assessment, type AssessmentAssignment, type Answer } from '@evalium/utils/types';
 import { useAssessmentResults } from '@/hooks/features/assessment';
 import useAssessmentScoring from '@/hooks/features/assessment/useAssessmentScoring';
 import { route } from 'ziggy-js';

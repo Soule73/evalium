@@ -3,8 +3,8 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { Select } from '@evalium/ui';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import type { User } from '@/types/models/shared/user';
-import type { AcademicYear } from '@/types/models/academicYear';
+import type { User } from '@evalium/utils/types/shared/user';
+import type { AcademicYear } from '@evalium/utils/types/academicYear';
 import type { PageProps as InertiaPageProps } from '@inertiajs/core';
 
 interface AcademicYearSelectorProps {

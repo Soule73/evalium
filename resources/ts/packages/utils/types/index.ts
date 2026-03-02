@@ -1,5 +1,14 @@
-export * from './models';
-export * from './models/shared';
+export * from './academicYear';
+export * from './assessment';
+export * from './assessmentAssignment';
+export * from './class';
+export * from './classSubject';
+export * from './enrollment';
+export * from './grades';
+export * from './notification';
+export * from './semester';
+export * from './subject';
+export * from './shared';
 export * from './datatable';
 export * from './route-context';
 export * from './question-rendering';
@@ -21,7 +30,7 @@ export interface FlashMessages {
     has_new_user?: boolean | null;
 }
 
-import type { User } from './models/shared/user';
+import type { User } from './shared/user';
 
 export type PageProps<T = Record<string, unknown>> = {
     auth: {

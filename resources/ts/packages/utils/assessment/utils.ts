@@ -4,7 +4,7 @@ import {
     type AssessmentAssignment,
     type Choice,
     type QuestionResult,
-} from '@/types';
+} from '../types';
 import { formatGrade } from '@evalium/utils/formatting/formatters';
 
 interface DeliveryModeDefaults {

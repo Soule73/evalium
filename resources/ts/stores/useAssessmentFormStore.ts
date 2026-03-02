@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { type QuestionFormData, type ChoiceFormData, type QuestionType } from '@/types';
+import {
+    type QuestionFormData,
+    type ChoiceFormData,
+    type QuestionType,
+} from '@evalium/utils/types';
 import { createDefaultQuestion } from '@evalium/utils/assessment';
 import { arrayMove } from '@dnd-kit/sortable';
 

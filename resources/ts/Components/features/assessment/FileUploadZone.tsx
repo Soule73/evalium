@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
-import { type Answer } from '@/types';
+import { type Answer } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { AlertEntry } from '@/Components';
 import { FileList } from '@/Components/shared/lists/FileList';

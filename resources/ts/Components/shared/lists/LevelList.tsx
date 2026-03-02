@@ -3,8 +3,8 @@ import { Badge, Button } from '@/Components';
 import { Toggle } from '@evalium/ui';
 import { BaseEntityList } from './BaseEntityList';
 import { type EntityListConfig } from './types/listConfig';
-import { type Level } from '@/types';
-import { type PaginationType } from '@/types/datatable';
+import { type Level } from '@evalium/utils/types';
+import { type PaginationType } from '@evalium/utils/types/datatable';
 import { useTranslations } from '@/hooks';
 
 interface LevelListProps {

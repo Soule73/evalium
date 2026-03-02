@@ -1,6 +1,7 @@
 import type { ClassSubject } from './classSubject';
 import type { AssessmentAssignment } from './assessmentAssignment';
-import { type User, type Question } from '@/types';
+import type { User } from './shared/user';
+import type { Question } from './shared/question';
 
 export type AssessmentType = 'homework' | 'exam' | 'practical' | 'quiz' | 'project';
 

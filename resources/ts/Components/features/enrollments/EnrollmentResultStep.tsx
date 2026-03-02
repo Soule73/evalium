@@ -6,7 +6,7 @@ import { Badge } from '@evalium/ui';
 import { useTranslations } from '@/hooks';
 import { useEnrollmentWizard, type BulkEnrolledStudent } from '@/contexts/EnrollmentWizardContext';
 import { DataTable } from '@/Components/shared/datatable/DataTable';
-import { type ColumnConfig } from '@/types/datatable';
+import { type ColumnConfig } from '@evalium/utils/types/datatable';
 import {
     CheckCircleIcon,
     ExclamationCircleIcon,

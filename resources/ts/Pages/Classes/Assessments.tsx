@@ -9,7 +9,7 @@ import type {
     PaginationType,
     User,
     ClassRouteContext,
-} from '@/types';
+} from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section } from '@/Components';

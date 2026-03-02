@@ -1,4 +1,4 @@
-import { type Choice, type Question, type QuestionResult } from '@/types';
+import { type Choice, type Question, type QuestionResult } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useChoiceUtils } from '@/hooks/shared/useChoiceUtils';
 import { Checkbox } from '@evalium/ui';

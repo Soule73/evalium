@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Assessment, Answer } from '@/types';
+import type { Assessment, Answer } from '@evalium/utils/types';
 import {
     calculateTotalPoints,
     calculatePercentage,

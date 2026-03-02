@@ -1,4 +1,4 @@
-import { type AppNotification } from '@/types';
+import { type AppNotification } from '@evalium/utils/types';
 import { router } from '@inertiajs/react';
 import { useTranslations } from '@/hooks';
 import { formatDate } from '@evalium/utils';

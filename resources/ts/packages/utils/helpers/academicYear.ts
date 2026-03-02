@@ -1,4 +1,4 @@
-import type { AcademicYear } from '@/types';
+import type { AcademicYear } from '../types';
 
 export type AcademicYearStatusType = 'current' | 'archived' | 'future';
 

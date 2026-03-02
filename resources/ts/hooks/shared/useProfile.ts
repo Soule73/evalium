@@ -1,4 +1,4 @@
-import { type User } from '@/types';
+import { type User } from '@evalium/utils/types';
 import { usePage } from '@inertiajs/react';
 import { useState, useMemo } from 'react';
 

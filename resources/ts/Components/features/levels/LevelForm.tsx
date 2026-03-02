@@ -1,6 +1,6 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { router } from '@inertiajs/react';
-import { type Level } from '@/types';
+import { type Level } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Input, Modal, Toggle } from '@evalium/ui';
 import { Textarea } from '@/Components';

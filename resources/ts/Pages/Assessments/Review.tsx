@@ -5,7 +5,7 @@ import {
     type Answer,
     type User,
     type AssessmentRouteContext,
-} from '@/types';
+} from '@evalium/utils/types';
 import { route } from 'ziggy-js';
 import { router } from '@inertiajs/react';
 import { Button, Section, QuestionList, TeacherNotesDisplay } from '@/Components';

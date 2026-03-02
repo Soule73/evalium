@@ -1,7 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type PaginationType } from '@/types/datatable';
-import { type ClassModel, type ClassRouteContext, type Level, type PageProps } from '@/types';
+import { type PaginationType } from '@evalium/utils/types/datatable';
+import {
+    type ClassModel,
+    type ClassRouteContext,
+    type Level,
+    type PageProps,
+} from '@evalium/utils/types';
 import { hasPermission } from '@evalium/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';

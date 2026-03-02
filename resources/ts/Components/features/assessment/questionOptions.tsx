@@ -1,5 +1,5 @@
 import React from 'react';
-import { type QuestionType, type DeliveryMode } from '@/types';
+import { type QuestionType, type DeliveryMode } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 
 export interface QuestionOption {

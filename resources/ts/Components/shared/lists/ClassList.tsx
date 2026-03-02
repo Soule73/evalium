@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { type ClassModel, type Level } from '@/types';
+import { type ClassModel, type Level } from '@evalium/utils/types';
 import { Badge } from '@evalium/ui';
 import { useTranslations } from '@/hooks';
 import type { EntityListConfig, EntityListVariant } from './types/listConfig';
-import type { PaginationType } from '@/types/datatable';
+import type { PaginationType } from '@evalium/utils/types/datatable';
 
 interface ClassListProps {
     data: PaginationType<ClassModel>;

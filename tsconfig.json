@@ -36,9 +36,6 @@
             "@/*": [
                 "./resources/ts/*"
             ],
-            "@/Types/*": [
-                "./resources/ts/types/*"
-            ],
             "@/Components/*": [
                 "./resources/ts/Components/*"
             ],
@@ -62,9 +59,6 @@
             ],
             "@/Hooks/*": [
                 "./resources/ts/hooks/*"
-            ],
-            "@/Utils/*": [
-                "./resources/ts/packages/utils/*"
             ]
         }
     },

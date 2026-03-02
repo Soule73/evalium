@@ -1,4 +1,4 @@
-import { type Question } from '@/types';
+import { type Question } from '../../types';
 
 /**
  * Shuffles an array using Fisher-Yates algorithm.

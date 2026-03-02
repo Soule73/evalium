@@ -3,12 +3,12 @@ import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
 import { UserGroupIcon, ShieldCheckIcon, StarIcon } from '@heroicons/react/24/outline';
 import { route } from 'ziggy-js';
 import { useMemo, useState } from 'react';
-import { type User, type PageProps } from '@/types';
+import { type User, type PageProps } from '@evalium/utils/types';
 import { hasPermission } from '@evalium/utils';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Stat, Section, Button, CreateUserModal } from '@/Components';
-import { type PaginationType } from '@/types/datatable';
+import { type PaginationType } from '@evalium/utils/types/datatable';
 import { UserList } from '@/Components/shared/lists';
 
 interface Props extends PageProps {

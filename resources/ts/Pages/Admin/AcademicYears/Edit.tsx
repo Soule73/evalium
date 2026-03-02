@@ -2,7 +2,7 @@ import { type FormEvent, useCallback, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { type FormDataConvertible } from '@inertiajs/core';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type AcademicYear, type AcademicYearFormData, type PageProps } from '@/types';
+import { type AcademicYear, type AcademicYearFormData, type PageProps } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { AcademicYearForm, toDateInputValue } from '@/Components/features/academic-years';

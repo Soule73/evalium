@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
-import { type User } from '@/types';
+import { type User } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Modal } from '@/Components';
 import { Input } from '@evalium/ui';

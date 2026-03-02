@@ -9,7 +9,7 @@ import {
     type PaginationType,
     type SubjectGrade,
     type OverallStats,
-} from '@/types';
+} from '@evalium/utils/types';
 import { Button, Section, TextEntry } from '@/Components';
 import { SubjectGradeList } from '@/Components/shared/lists/SubjectGradeList';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';

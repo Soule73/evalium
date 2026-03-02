@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { type Level } from '@/types';
+import { type Level } from '@evalium/utils/types';
 import { useConfirmationModal } from '@/hooks/features/shared/useConfirmationModal';
 
 export const useListLevels = () => {

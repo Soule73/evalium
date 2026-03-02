@@ -1,5 +1,5 @@
 import { useMemo, useCallback, memo } from 'react';
-import { type DataTableProps, type PaginationType } from '@/types/datatable';
+import { type DataTableProps, type PaginationType } from '@evalium/utils/types/datatable';
 import { DataTableFilters } from './DataTableFilters';
 import { DataTablePagination } from './DataTablePagination';
 import { EmptyState } from '../EmptyState';

@@ -7,7 +7,7 @@ import {
     type Assessment,
     type AssessmentType,
     type DeliveryMode,
-} from '@/types';
+} from '@evalium/utils/types';
 import { useAssessmentFormStore } from '@/stores/useAssessmentFormStore';
 import { getDeliveryModeDefaults } from '@evalium/utils/assessment/utils';
 import { toLocalDatetimeInput } from '@evalium/utils/formatting/formatters';

@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { type Question } from '@/types';
+import { type Question } from '@evalium/utils/types';
 import { AlertEntry } from '@evalium/ui';
 import { buildQuestionResult } from '@evalium/utils/assessment/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';

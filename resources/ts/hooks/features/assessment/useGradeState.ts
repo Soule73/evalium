@@ -1,7 +1,12 @@
 import { useState, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import type { Assessment, AssessmentAssignment, Answer, AssessmentRouteContext } from '@/types';
+import type {
+    Assessment,
+    AssessmentAssignment,
+    Answer,
+    AssessmentRouteContext,
+} from '@evalium/utils/types';
 import { getAssessmentBackUrl } from '@evalium/utils/assessment/routeUtils';
 
 interface UseGradeStateParams {

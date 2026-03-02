@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { route } from 'ziggy-js';
 import { XMarkIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
-import { type Answer } from '@/types';
+import { type Answer } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import Modal from '@evalium/ui/Modal/Modal';
 import { Button } from '@evalium/ui';

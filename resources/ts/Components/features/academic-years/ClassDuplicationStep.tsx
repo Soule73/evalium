@@ -4,8 +4,8 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { DataTable } from '@/Components/shared/datatable/DataTable';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useAcademicYearWizard } from '@/contexts/AcademicYearWizardContext';
-import type { AcademicYear, ClassModel } from '@/types';
-import type { DataTableConfig } from '@/types/datatable';
+import type { AcademicYear, ClassModel } from '@evalium/utils/types';
+import type { DataTableConfig } from '@evalium/utils/types/datatable';
 
 interface ClassDuplicationStepProps {
     currentYear: AcademicYear;

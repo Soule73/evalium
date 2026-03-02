@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BellIcon } from '@heroicons/react/24/outline';
 import { usePage } from '@inertiajs/react';
-import { type PageProps } from '@/types';
+import { type PageProps } from '@evalium/utils/types';
 import { useNotifications } from '@/hooks/shared/useNotifications';
 import { NotificationPanel } from './NotificationPanel';
 import { Button } from '@evalium/ui';

@@ -13,7 +13,7 @@ import type {
     PageProps,
     PaginationType,
     ClassRouteContext,
-} from '@/types';
+} from '@evalium/utils/types';
 
 interface ClassSubjectOption {
     id: number;

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { type AssessmentAssignment } from '@/types';
+import { type AssessmentAssignment } from '@evalium/utils/types';
 
 interface UseAssessmentScoringParams {
     assignment: AssessmentAssignment;

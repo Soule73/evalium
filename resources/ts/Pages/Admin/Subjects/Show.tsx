@@ -2,7 +2,12 @@ import { useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type Subject, type ClassSubject, type PageProps, type PaginationType } from '@/types';
+import {
+    type Subject,
+    type ClassSubject,
+    type PageProps,
+    type PaginationType,
+} from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section, ConfirmationModal } from '@/Components';

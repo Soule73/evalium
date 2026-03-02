@@ -2,12 +2,12 @@ import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type Assessment, type PageProps, type PaginationType } from '@/types';
+import { type Assessment, type PageProps, type PaginationType } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { Button, Section } from '@/Components';
 import { AssessmentList } from '@/Components/shared/lists';
-import { type AssessmentRouteContext } from '@/types/route-context';
+import { type AssessmentRouteContext } from '@evalium/utils/types/route-context';
 
 interface FilterOption {
     id: number;

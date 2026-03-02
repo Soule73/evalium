@@ -1,6 +1,6 @@
 import { route } from 'ziggy-js';
-import type { Assessment } from '@/types/models/assessment';
-import type { AssessmentRouteContext } from '@/types/route-context';
+import type { Assessment } from '../types/assessment';
+import type { AssessmentRouteContext } from '../types/route-context';
 
 /**
  * Resolves the back URL for assessment-related pages (Review, Grade, etc.).

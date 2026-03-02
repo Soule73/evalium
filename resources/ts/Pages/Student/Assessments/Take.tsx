@@ -12,7 +12,12 @@ import {
     useToast,
 } from '@/Components';
 import { QuestionProvider, QuestionCard } from '@/Components/features/assessment/question';
-import { type Answer, type Assessment, type AssessmentAssignment, type Question } from '@/types';
+import {
+    type Answer,
+    type Assessment,
+    type AssessmentAssignment,
+    type Question,
+} from '@evalium/utils/types';
 import {
     ArrowsPointingOutIcon,
     ClockIcon,

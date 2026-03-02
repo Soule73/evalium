@@ -1,12 +1,12 @@
 import { createContext, useContext, useMemo } from 'react';
-import type { Answer } from '@/types';
+import type { Answer } from '@evalium/utils/types';
 import {
     type QuestionRenderMode,
     type QuestionViewerRole,
     type QuestionRenderConfig,
     type AnswerValue,
     buildRenderConfig,
-} from '@/types';
+} from '@evalium/utils/types';
 
 interface QuestionContextValue {
     config: QuestionRenderConfig;

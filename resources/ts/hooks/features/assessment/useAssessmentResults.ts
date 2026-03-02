@@ -1,4 +1,4 @@
-import { type Assessment, type AssessmentAssignment } from '@/types';
+import { type Assessment, type AssessmentAssignment } from '@evalium/utils/types';
 import { useMemo } from 'react';
 import { calculateTotalPoints, formatAssignmentStatus } from '@evalium/utils/assessment';
 import { useTranslations } from '@/hooks/shared/useTranslations';

@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Checkbox, Input, Select } from '@evalium/ui';
 import { MarkdownEditor } from '@evalium/ui';
-import { type ClassSubject, type AssessmentType, type DeliveryMode } from '@/types';
+import { type ClassSubject, type AssessmentType, type DeliveryMode } from '@evalium/utils/types';
 
 const DEFAULT_DELIVERY_MODES: Record<string, DeliveryMode> = {
     exam: 'supervised',

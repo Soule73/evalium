@@ -7,8 +7,12 @@ import { useFormatters } from '@/hooks/shared/useFormatters';
 import { Toggle } from '@evalium/ui';
 import { AssessmentContextInfo } from '@/Components/features/assessment';
 import { QuestionProvider } from '@/Components/features/assessment/question';
-import { type Assessment, type AssessmentAssignment, type AssessmentRouteContext } from '@/types';
-import { type PaginationType } from '@/types/datatable';
+import {
+    type Assessment,
+    type AssessmentAssignment,
+    type AssessmentRouteContext,
+} from '@evalium/utils/types';
+import { type PaginationType } from '@evalium/utils/types/datatable';
 import {
     ClockIcon,
     QuestionMarkCircleIcon,

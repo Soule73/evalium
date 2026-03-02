@@ -1,4 +1,4 @@
-import type { QuestionFormData, QuestionType, ChoiceFormData } from '@/types';
+import type { QuestionFormData, QuestionType, ChoiceFormData } from '../types';
 
 let questionIdCounter = 0;
 

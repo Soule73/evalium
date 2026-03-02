@@ -1,4 +1,4 @@
-import { type Question } from '@/types';
+import { type Question } from '@evalium/utils/types';
 import { Section } from '@evalium/ui';
 import { QuestionCard } from './question/QuestionCard';
 

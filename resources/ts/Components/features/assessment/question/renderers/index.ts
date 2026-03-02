@@ -1,5 +1,5 @@
 import type React from 'react';
-import type { Question, QuestionResult, QuestionType } from '@/types';
+import type { Question, QuestionResult, QuestionType } from '@evalium/utils/types';
 import { ChoiceRenderer } from './ChoiceRenderer';
 import { TextRenderer } from './TextRenderer';
 import { FileRenderer } from './FileRenderer';

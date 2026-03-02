@@ -6,7 +6,7 @@ import {
     type User,
     type PageProps,
     type AssessmentRouteContext,
-} from '@/types';
+} from '@evalium/utils/types';
 import { router } from '@inertiajs/react';
 import {
     Button,

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { type User, type PageProps } from '@/types';
+import { type User, type PageProps } from '@evalium/utils/types';
 import { hasPermission, navRoutes } from '@evalium/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { type NavIconType, NavIcon } from './NavIcon';

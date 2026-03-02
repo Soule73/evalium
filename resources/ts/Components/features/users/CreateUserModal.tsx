@@ -5,7 +5,7 @@ import { CheckIcon, ClipboardDocumentIcon, UserCircleIcon } from '@heroicons/rea
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Checkbox, Modal } from '@/Components';
 import UserFormFields from './UserFormFields';
-import type { CreatedUserCredentials, PageProps } from '@/types';
+import type { CreatedUserCredentials, PageProps } from '@evalium/utils/types';
 
 interface CreateUserModalProps {
     roles?: string[];

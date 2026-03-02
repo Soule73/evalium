@@ -4,7 +4,12 @@ import { route } from 'ziggy-js';
 import axios from 'axios';
 import { ConfirmationModal, Textarea } from '@/Components';
 import { useTranslations } from '@/hooks/shared/useTranslations';
-import type { Assessment, AssessmentAssignment, User, AssessmentRouteContext } from '@/types';
+import type {
+    Assessment,
+    AssessmentAssignment,
+    User,
+    AssessmentRouteContext,
+} from '@evalium/utils/types';
 
 interface ReassignModalProps {
     isOpen: boolean;

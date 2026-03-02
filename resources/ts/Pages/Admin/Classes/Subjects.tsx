@@ -9,7 +9,7 @@ import {
     type Subject,
     type User,
     type Semester,
-} from '@/types';
+} from '@evalium/utils/types';
 import { hasPermission } from '@evalium/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';

@@ -1,4 +1,4 @@
-import { type SemesterFormData } from '@/types';
+import { type SemesterFormData } from '@evalium/utils/types';
 
 export function toDateInputValue(value: string): string {
     if (!value) return '';

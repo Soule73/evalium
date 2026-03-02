@@ -8,7 +8,7 @@ import {
 } from '@/Components/features/academic-years';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useAcademicYearWizard } from '@/contexts/AcademicYearWizardContext';
-import type { AcademicYear, AcademicYearFormData } from '@/types';
+import type { AcademicYear, AcademicYearFormData } from '@evalium/utils/types';
 
 interface AcademicYearFormStepProps {
     currentYear: AcademicYear | null;

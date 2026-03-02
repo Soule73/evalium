@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type User } from '@/types';
+import { type User } from '@evalium/utils/types';
 import {
     AcademicCapIcon,
     BookOpenIcon,

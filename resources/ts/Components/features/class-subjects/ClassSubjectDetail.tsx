@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { type ClassSubject, type User } from '@/types';
-import { type PaginationType } from '@/types/datatable';
+import { type ClassSubject, type User } from '@evalium/utils/types';
+import { type PaginationType } from '@evalium/utils/types/datatable';
 import { formatDate, hasPermission } from '@evalium/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Section, Badge, Stat, ActionGroup } from '@/Components';

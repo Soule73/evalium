@@ -9,7 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { type QuestionFormData, type ChoiceFormData } from '@/types';
+import { type QuestionFormData, type ChoiceFormData } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { MarkdownEditor, ChoiceEditor } from '@evalium/ui';
 import { Checkbox, Input } from '@evalium/ui';

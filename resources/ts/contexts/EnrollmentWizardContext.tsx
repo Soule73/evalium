@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
-import type { ClassModel, User } from '@/types';
-import type { CreatedUserCredentials } from '@/types';
+import type { ClassModel, User } from '@evalium/utils/types';
+import type { CreatedUserCredentials } from '@evalium/utils/types';
 
 export type WizardStep = 1 | 2 | 3 | 'result';
 

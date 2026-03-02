@@ -1,4 +1,4 @@
-import { type Question } from '@/types';
+import { type Question } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { requiresManualGrading } from '@evalium/utils';
 import { Textarea } from '@evalium/ui';

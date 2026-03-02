@@ -7,7 +7,7 @@ import {
     type AssessmentAssignment,
     type AvailabilityStatus,
     type PageProps,
-} from '@/types';
+} from '@evalium/utils/types';
 import { AlertEntry, Button, Modal, Section, Stat, TextEntry } from '@/Components';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';
 import { useTranslations } from '@/hooks/shared/useTranslations';

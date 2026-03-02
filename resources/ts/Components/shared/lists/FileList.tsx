@@ -1,13 +1,13 @@
 import { useState, useMemo, useCallback, type ReactNode } from 'react';
 import { route } from 'ziggy-js';
 import { BaseEntityList } from './BaseEntityList';
-import { type Answer } from '@/types';
+import { type Answer } from '@evalium/utils/types';
 import { Badge } from '@evalium/ui';
 import { formatFileSize } from '@evalium/utils';
 import { useTranslations } from '@/hooks';
 import { FilePreviewModal } from '../FilePreviewModal';
 import type { EntityListConfig } from './types/listConfig';
-import type { PaginationType } from '@/types/datatable';
+import type { PaginationType } from '@evalium/utils/types/datatable';
 
 type TranslateFn = (key: string) => string;
 

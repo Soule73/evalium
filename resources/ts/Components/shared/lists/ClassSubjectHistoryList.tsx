@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { Badge } from '@/Components';
 import { BaseEntityList } from './BaseEntityList';
 import { type EntityListConfig } from './types/listConfig';
-import { type ClassSubject } from '@/types';
-import { type PaginationType } from '@/types/datatable';
+import { type ClassSubject } from '@evalium/utils/types';
+import { type PaginationType } from '@evalium/utils/types/datatable';
 import { formatDate } from '@evalium/utils';
 import { useTranslations } from '@/hooks';
 

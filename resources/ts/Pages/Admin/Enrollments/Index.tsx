@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type PaginationType } from '@/types/datatable';
-import { type Enrollment, type ClassModel, type PageProps } from '@/types';
+import { type PaginationType } from '@evalium/utils/types/datatable';
+import { type Enrollment, type ClassModel, type PageProps } from '@evalium/utils/types';
 import { hasPermission } from '@evalium/utils';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { useBreadcrumbs } from '@/hooks/shared/useBreadcrumbs';

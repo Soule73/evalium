@@ -4,7 +4,12 @@ import { AlertEntry, Button, ConfirmationModal, Section, TextEntry } from '@/Com
 import { QuestionProvider, QuestionCard } from '@/Components/features/assessment/question';
 import { WorkSubmitActions, getSaveButtonLabel } from '@/Components/features/assessment';
 import AuthenticatedLayout from '@/Components/layout/AuthenticatedLayout';
-import { type Answer, type Assessment, type AssessmentAssignment, type Question } from '@/types';
+import {
+    type Answer,
+    type Assessment,
+    type AssessmentAssignment,
+    type Question,
+} from '@evalium/utils/types';
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import {
     useAssessmentAnswers,

@@ -1,5 +1,5 @@
 import React, { type FormEvent, useCallback, useMemo } from 'react';
-import { type AcademicYearFormData, type SemesterFormData } from '@/types';
+import { type AcademicYearFormData, type SemesterFormData } from '@evalium/utils/types';
 import { useTranslations } from '@/hooks/shared/useTranslations';
 import { Button, Checkbox, Input, Section } from '@/Components';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
