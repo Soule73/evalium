@@ -339,8 +339,10 @@ Centralizes all Index page logic:
 | `canCreateLevels` | `auth.permissions.includes('create levels')` |
 | `canUpdateLevels` | `auth.permissions.includes('update levels')` |
 | `canDeleteLevels` | `auth.permissions.includes('delete levels')` |
-| `handleCreate()` | `router.visit(admin.levels.create)` |
-| `handleEdit(level)` | `router.visit(admin.levels.edit, level.id)` |
+| `handleCreate()` | Opens form modal for new level |
+| `handleEdit(level)` | Opens form modal pre-filled with level data |
+| `formModal` | `{ isOpen: boolean, level: Level \| null }` |
+| `closeFormModal` | Closes the form modal and resets state |
 | `handleToggleStatus(level)` | `router.post(admin.levels.toggle-status, level.id)` |
 | `handleDelete(id)` | `router.delete(admin.levels.destroy, id)` + closes modal |
 | `deleteModal` | `{ isOpen, data, openModal, closeModal }` |
@@ -388,13 +390,13 @@ All routes under prefix `/admin/levels`, name prefix `admin.levels.`, middleware
 
 ```
 GET    /admin/levels                     admin.levels.index
-GET    /admin/levels/create              admin.levels.create
 POST   /admin/levels                     admin.levels.store
-GET    /admin/levels/{level}/edit        admin.levels.edit
 PUT    /admin/levels/{level}             admin.levels.update
 DELETE /admin/levels/{level}             admin.levels.destroy
 PATCH  /admin/levels/{level}/toggle-status  admin.levels.toggle-status
 ```
+
+Create and edit are handled via inline modals on the Index page (no dedicated routes).
 
 ---
 
@@ -415,7 +417,7 @@ This allows swapping implementations (e.g., caching repository decorator) withou
 
 | File | Scope | Tests |
 |---|---|---|
-| `tests/Feature/Admin/LevelControllerTest.php` | Full HTTP integration (all routes, all roles, validation, business rules) | 34 tests |
+| `tests/Feature/Admin/LevelControllerTest.php` | Full HTTP integration (all routes, all roles, validation, business rules) | 26 tests |
 | `tests/Unit/Services/Admin/LevelServiceTest.php` | Service layer: CRUD, cache invalidation, pagination, filters | 12 tests |
 
 **Notable test coverage:**

@@ -1,1 +1,1 @@
-export * from './LevelForm';
+export { LevelFormModal } from './LevelForm';

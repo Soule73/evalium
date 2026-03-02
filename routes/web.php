@@ -249,9 +249,7 @@ Route::middleware('auth')->group(function () {
                 ->controller(LevelController::class)
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
-                    Route::get('/create', 'create')->name('create');
                     Route::post('/', 'store')->name('store');
-                    Route::get('/{level}/edit', 'edit')->name('edit');
                     Route::put('/{level}', 'update')->name('update');
                     Route::delete('/{level}', 'destroy')->name('destroy');
                     Route::patch('/{level}/toggle-status', 'toggleStatus')->name('toggle-status');

@@ -313,8 +313,6 @@ function createBreadcrumbs(t: TranslateFn) {
             { label: user.name },
         ],
         levels: levelsBc.index,
-        levelCreate: levelsBc.create,
-        levelEdit: levelsBc.edit,
         roles: rolesBc.index,
         roleEdit: rolesBc.edit,
         admin: {

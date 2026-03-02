@@ -78,33 +78,6 @@ class LevelControllerTest extends TestCase
     }
 
     // ---------------------------------------------------------------
-    // Create
-    // ---------------------------------------------------------------
-
-    public function test_guest_cannot_access_create(): void
-    {
-        $this->get(route('admin.levels.create'))->assertRedirect(route('login'));
-    }
-
-    public function test_student_cannot_access_create(): void
-    {
-        $this->actingAs($this->student)->get(route('admin.levels.create'))->assertForbidden();
-    }
-
-    public function test_teacher_cannot_access_create(): void
-    {
-        $this->actingAs($this->teacher)->get(route('admin.levels.create'))->assertForbidden();
-    }
-
-    public function test_admin_can_access_create(): void
-    {
-        $this->actingAs($this->admin)
-            ->get(route('admin.levels.create'))
-            ->assertOk()
-            ->assertInertia(fn ($page) => $page->component('Admin/Levels/Create'));
-    }
-
-    // ---------------------------------------------------------------
     // Store
     // ---------------------------------------------------------------
 
@@ -164,37 +137,6 @@ class LevelControllerTest extends TestCase
         $this->actingAs($this->admin)
             ->post(route('admin.levels.store'), $payload)
             ->assertSessionHasErrors('name');
-    }
-
-    // ---------------------------------------------------------------
-    // Edit
-    // ---------------------------------------------------------------
-
-    public function test_guest_cannot_access_edit(): void
-    {
-        $this->get(route('admin.levels.edit', $this->level))->assertRedirect(route('login'));
-    }
-
-    public function test_student_cannot_access_edit(): void
-    {
-        $this->actingAs($this->student)->get(route('admin.levels.edit', $this->level))->assertForbidden();
-    }
-
-    public function test_teacher_cannot_access_edit(): void
-    {
-        $this->actingAs($this->teacher)->get(route('admin.levels.edit', $this->level))->assertForbidden();
-    }
-
-    public function test_admin_can_access_edit(): void
-    {
-        $this->actingAs($this->admin)
-            ->get(route('admin.levels.edit', $this->level))
-            ->assertOk()
-            ->assertInertia(
-                fn ($page) => $page
-                    ->component('Admin/Levels/Edit')
-                    ->has('level')
-            );
     }
 
     // ---------------------------------------------------------------

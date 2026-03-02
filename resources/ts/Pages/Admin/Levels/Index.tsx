@@ -8,6 +8,7 @@ import { Button, ConfirmationModal, Section } from '@/Components';
 import { useListLevels } from '@/hooks/features/levels';
 import { type Level } from '@/types';
 import { LevelList } from '@/Components/shared/lists';
+import { LevelFormModal } from '@/Components/features/levels';
 
 interface Props {
     levels: PaginationType<Level & { classes_count: number }>;
@@ -22,8 +23,10 @@ export default function LevelIndex({ levels }: Props) {
         canUpdateLevels,
         canDeleteLevels,
         deleteModal,
+        formModal,
         handleCreate,
         handleEdit,
+        closeFormModal,
         handleToggleStatus,
         handleDelete,
     } = useListLevels();
@@ -73,6 +76,12 @@ export default function LevelIndex({ levels }: Props) {
                     }
                 />
             </Section>
+
+            <LevelFormModal
+                isOpen={formModal.isOpen}
+                onClose={closeFormModal}
+                level={formModal.level}
+            />
 
             <ConfirmationModal
                 isOpen={deleteModal.isOpen}
