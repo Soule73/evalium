@@ -224,7 +224,7 @@ interface QuestionRendererProps {
 
 1. Create `renderers/MyTypeRenderer.tsx` implementing `QuestionRendererProps`
 2. Add `my_type: MyTypeRenderer` to `renderers/index.ts`
-3. Add `my_type` to the `QuestionType` union in `@/types`
+3. Add `my_type` to the `QuestionType` union in `@evalium/utils/types`
 
 No other file needs modification.
 
