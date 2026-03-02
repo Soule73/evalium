@@ -31,7 +31,13 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
     const { auth } = usePage<PageProps>().props;
     const { t } = useTranslations();
 
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(() => {
+        try {
+            return localStorage.getItem('sidebarCollapsed') === 'true';
+        } catch {
+            return false;
+        }
+    });
     const [isMobileOpen, setIsMobileOpen] = useState(false);
 
     const userRole = user.roles?.[0]?.name as
@@ -56,13 +62,6 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
             window.removeEventListener('resize', handleResize);
             window.removeEventListener('sidebarMobileOpen', handleMobileOpen);
         };
-    }, []);
-
-    useEffect(() => {
-        const saved = localStorage.getItem('sidebarCollapsed');
-        if (saved !== null) {
-            setIsCollapsed(saved === 'true');
-        }
     }, []);
 
     const toggleCollapse = useCallback(() => {

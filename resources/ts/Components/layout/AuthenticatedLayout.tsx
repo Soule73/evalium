@@ -19,23 +19,24 @@ const AuthenticatedLayout = ({
     headerActions,
 }: AuthenticatedLayoutProps) => {
     const { auth, flash } = usePage<PageProps>().props;
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+        try {
+            return localStorage.getItem('sidebarCollapsed') === 'true';
+        } catch {
+            return false;
+        }
+    });
 
     const currentPath = useMemo(() => window.location.pathname, []);
 
     useEffect(() => {
         const checkCollapsed = () => {
-            const collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            setSidebarCollapsed(collapsed);
+            setSidebarCollapsed(localStorage.getItem('sidebarCollapsed') === 'true');
         };
-
-        checkCollapsed();
-        window.addEventListener('storage', checkCollapsed);
 
         window.addEventListener('sidebarToggle', checkCollapsed);
 
         return () => {
-            window.removeEventListener('storage', checkCollapsed);
             window.removeEventListener('sidebarToggle', checkCollapsed);
         };
     }, []);
@@ -77,7 +78,7 @@ const AuthenticatedLayout = ({
                             </button>
                             <div className="flex-1 min-w-0 overflow-hidden">
                                 {title && (
-                                    <h1 className="lg:text-lg font-semibold text-gray-900 hidden sm:block truncate">
+                                    <h1 className="text-sm font-semibold text-gray-900 hidden sm:block truncate max-w-sm xl:max-w-md">
                                         {title}
                                     </h1>
                                 )}
