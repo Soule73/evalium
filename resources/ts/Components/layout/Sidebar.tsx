@@ -222,6 +222,13 @@ export const Sidebar = ({ currentPath, user }: SidebarProps) => {
                 icon: 'roles',
             });
         }
+        if (hasPermission(auth.permissions, 'manage settings')) {
+            configItems.push({
+                name: t('sidebar.navigation.settings'),
+                href: route('admin.settings.index'),
+                icon: 'settings',
+            });
+        }
 
         if (configItems.length > 0) {
             groups.push({

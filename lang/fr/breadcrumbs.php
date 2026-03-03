@@ -25,4 +25,6 @@ return [
     'my_enrollment' => 'Mon inscription',
     'enrollment_history' => 'Historique',
     'classmates' => 'Camarades de classe',
+    'settings' => 'Paramètres',
+    'grade_reports' => 'Bulletins de notes',
 ];

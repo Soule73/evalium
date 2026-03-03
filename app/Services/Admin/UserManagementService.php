@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Contracts\Services\UserManagementServiceInterface;
 use App\Models\User;
 use App\Notifications\UserCredentialsNotification;
+use App\Settings\GeneralSettings;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -18,6 +19,10 @@ use Spatie\Permission\Models\Role;
  */
 class UserManagementService implements UserManagementServiceInterface
 {
+    public function __construct(
+        private readonly GeneralSettings $generalSettings
+    ) {}
+
     /**
      * Create a new user with random password and optionally send credentials notification
      *
@@ -34,6 +39,7 @@ class UserManagementService implements UserManagementServiceInterface
                 'email' => $data['email'],
                 'password' => Hash::make($password),
                 'is_active' => true,
+                'locale' => $this->generalSettings->default_locale ?? config('app.locale', 'en'),
             ]);
 
             $user->assignRole($data['role']);

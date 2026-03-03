@@ -25,4 +25,6 @@ return [
     'my_enrollment' => 'My Enrollment',
     'enrollment_history' => 'History',
     'classmates' => 'Classmates',
+    'settings' => 'Settings',
+    'grade_reports' => 'Grade Reports',
 ];

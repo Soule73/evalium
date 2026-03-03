@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\AcademicYear;
 use App\Models\User;
+use App\Settings\GeneralSettings;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
@@ -145,6 +146,7 @@ class SetupProduction extends Command
             'email' => $email,
             'password' => Hash::make($confirmation),
             'is_active' => true,
+            'locale' => app(GeneralSettings::class)->default_locale ?? config('app.locale', 'en'),
         ]);
 
         $admin->forceFill(['email_verified_at' => now()])->save();

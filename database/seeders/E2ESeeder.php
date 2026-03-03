@@ -113,6 +113,7 @@ class E2ESeeder extends Seeder
             'password' => $hashedPassword,
             'email_verified_at' => now(),
             'is_active' => true,
+            'locale' => config('app.locale', 'en'),
         ];
 
         $admin = User::create(array_merge($base, [

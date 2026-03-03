@@ -55,6 +55,12 @@ function createBreadcrumbs(t: TranslateFn) {
     const teachersBc = createSimpleBreadcrumbs('breadcrumbs.teachers', 'admin.teachers.index');
     const rolesBc = createSimpleBreadcrumbs('breadcrumbs.roles_permissions', 'admin.roles.index');
 
+    const settingsBc = {
+        index: (): BreadcrumbItem[] => [
+            { label: t('breadcrumbs.settings'), href: route('admin.settings.index') },
+        ],
+    };
+
     const academicYearsBc = createEntityBreadcrumbs<{ id: number; name: string }>({
         labelKey: 'breadcrumbs.academic_years',
         indexRoute: 'admin.academic-years.archives',
@@ -408,7 +414,20 @@ function createBreadcrumbs(t: TranslateFn) {
                 { label: t('breadcrumbs.class_student_assignments') },
             ],
             classSubjects: classSubjectsBc.index,
+            classGradeReports: (classItem: ClassBcItem): BreadcrumbItem[] => [
+                ...classesBc.show(classItem),
+                { label: t('breadcrumbs.grade_reports') },
+            ],
+            showGradeReport: (classItem: ClassBcItem, studentName: string): BreadcrumbItem[] => [
+                ...classesBc.show(classItem),
+                {
+                    label: t('breadcrumbs.grade_reports'),
+                    href: route('admin.classes.grade-reports.index', classItem.id),
+                },
+                { label: studentName },
+            ],
             assessments: adminAssessmentsBc.index,
+            settings: settingsBc.index,
         },
         teacher: {
             classes: teacherClassesBc.index,

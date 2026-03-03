@@ -12,4 +12,5 @@ export { EnrollmentList } from './EnrollmentList';
 export { RoleList } from './RoleList';
 export { LevelList } from './LevelList';
 export { FileList } from './FileList';
+export { GradeReportList } from './GradeReportList';
 export * from './types/listConfig';

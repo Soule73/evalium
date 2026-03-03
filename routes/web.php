@@ -266,6 +266,21 @@ Route::middleware('auth')->group(function () {
                 });
 
             /**
+             * Application Settings
+             */
+            Route::prefix('settings')
+                ->name('settings.')
+                ->middleware('can:manage settings')
+                ->controller(\App\Http\Controllers\Admin\SettingsController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::put('/general', 'updateGeneral')->name('update-general');
+                    Route::put('/bulletin', 'updateBulletin')->name('update-bulletin');
+                    Route::post('/logo', 'uploadLogo')->name('upload-logo');
+                    Route::delete('/logo', 'deleteLogo')->name('delete-logo');
+                });
+
+            /**
              * Assessment Consultation
              */
             Route::prefix('assessments')
@@ -277,6 +292,34 @@ Route::middleware('auth')->group(function () {
                     Route::get('/{assessment}/assignments/{assignment}/review', 'review')->name('review');
                     Route::get('/{assessment}/assignments/{assignment}/grade', 'grade')->name('grade');
                     Route::post('/{assessment}/assignments/{assignment}/grade', 'saveGrade')->name('saveGrade');
+                });
+
+            /**
+             * Grade Report Management
+             */
+            Route::prefix('classes/{class}/grade-reports')
+                ->name('classes.grade-reports.')
+                ->middleware('role:admin,super_admin')
+                ->controller(\App\Http\Controllers\Admin\GradeReportController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::post('/generate', 'generate')->name('generate');
+                    Route::post('/validate-batch', 'validateBatch')->name('validate-batch');
+                    Route::post('/publish-batch', 'publishBatch')->name('publish-batch');
+                    Route::get('/download-batch', 'downloadBatch')->name('download-batch');
+                });
+
+            Route::prefix('grade-reports')
+                ->name('grade-reports.')
+                ->middleware('role:admin,super_admin')
+                ->controller(\App\Http\Controllers\Admin\GradeReportController::class)
+                ->group(function () {
+                    Route::get('/{grade_report}', 'show')->name('show');
+                    Route::put('/{grade_report}/general-remark', 'updateGeneralRemark')->name('update-general-remark');
+                    Route::post('/{grade_report}/validate', 'validateReport')->name('validate');
+                    Route::post('/{grade_report}/publish', 'publish')->name('publish');
+                    Route::get('/{grade_report}/preview', 'preview')->name('preview');
+                    Route::get('/{grade_report}/download', 'download')->name('download');
                 });
         });
 
@@ -349,6 +392,21 @@ Route::middleware('auth')->group(function () {
                         Route::get('/{class}/students/{enrollment}', 'show')->name('students.show');
                         Route::get('/{class}/students/{enrollment}/assignments', 'assignments')->name('students.assignments');
                     });
+
+                    Route::prefix('{class}/grade-reports')
+                        ->name('grade-reports.')
+                        ->controller(\App\Http\Controllers\Teacher\TeacherGradeReportController::class)
+                        ->group(function () {
+                            Route::get('/', 'index')->name('index');
+                        });
+                });
+
+            Route::prefix('grade-reports')
+                ->name('grade-reports.')
+                ->controller(\App\Http\Controllers\Teacher\TeacherGradeReportController::class)
+                ->group(function () {
+                    Route::get('/{grade_report}', 'show')->name('show');
+                    Route::put('/{grade_report}/remarks', 'updateRemarks')->name('update-remarks');
                 });
         });
 
@@ -390,6 +448,18 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'show')->name('show');
                     Route::get('/history', 'history')->name('history');
                     Route::get('/classmates', 'classmates')->name('classmates');
+                });
+
+            /**
+             * Student Grade Reports
+             */
+            Route::prefix('grade-reports')
+                ->name('grade-reports.')
+                ->controller(\App\Http\Controllers\Student\StudentGradeReportController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{grade_report}', 'show')->name('show');
+                    Route::get('/{grade_report}/download', 'download')->name('download');
                 });
         });
 });

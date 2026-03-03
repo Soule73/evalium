@@ -82,7 +82,7 @@ const Login = ({ canResetPassword = true, status }: LoginProps) => {
                         />
                         {canResetPassword && (
                             <span
-                                className="text-sm text-indigo-600 hover:text-indigo-500 cursor-pointer"
+                                className="text-xs text-indigo-600 hover:text-indigo-500 cursor-pointer"
                                 data-e2e="forgot-password-link"
                             >
                                 {t('auth_pages.login.forgot_password')}

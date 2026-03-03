@@ -19,6 +19,7 @@ return [
         'teachers' => 'Enseignants',
         'levels' => 'Niveaux',
         'roles_permissions' => 'Rôles & Permissions',
+        'settings' => 'Paramètres',
     ],
     'groups' => [
         'my_space' => 'Mon Espace',

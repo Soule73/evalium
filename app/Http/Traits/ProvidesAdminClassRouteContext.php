@@ -7,7 +7,7 @@ trait ProvidesAdminClassRouteContext
     /**
      * Build the admin route context array shared across class-related views.
      *
-     * @return array<string, string>
+     * @return array<string, string|null>
      */
     protected function adminClassRouteContext(): array
     {
@@ -27,6 +27,7 @@ trait ProvidesAdminClassRouteContext
             'assessmentReviewRoute' => 'admin.assessments.review',
             'assessmentSaveGradeRoute' => 'admin.assessments.saveGrade',
             'resultsRoute' => 'admin.classes.results',
+            'gradeReportsRoute' => 'admin.classes.grade-reports.index',
         ];
     }
 }
