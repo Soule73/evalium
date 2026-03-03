@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Settings\GeneralSettings;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -19,6 +20,7 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
             'avatar' => null,
             'is_active' => true,
+            'locale' => app(GeneralSettings::class)->default_locale ?? config('app.locale', 'en'),
         ];
 
         $superAdmin = User::create(array_merge($baseAttrs, [
@@ -48,17 +50,50 @@ class UserSeeder extends Seeder
         }
 
         $students = [
-            'Amine Belkacem', 'Camille Durand', 'Youssef El Amrani', 'Emma Petit',
-            'Mehdi Benali', 'Lea Richard', 'Karim Hadj', 'Chloe Moreau',
-            'Sofiane Boudjema', 'Manon Lefevre', 'Rayan Cherif', 'Juliette Lambert',
-            'Nassim Khelifi', 'Sarah Dubois', 'Adam Meziane', 'Clara Bernard',
-            'Bilal Aouadi', 'Louise Fontaine', 'Omar Hamidi', 'Marie Laurent',
-            'Walid Bouzid', 'Alice Mercier', 'Ismael Djebbar', 'Pauline Garnier',
-            'Farid Mekhloufi', 'Ines Roux', 'Zakaria Taleb', 'Julie Faure',
-            'Nabil Rahmani', 'Margaux Simon', 'Hamza Slimani', 'Elise Gauthier',
-            'Yanis Benmoussa', 'Oceane Perrin', 'Ayoub Larbi', 'Charlotte Blanc',
-            'Rachid Boukhalfa', 'Valentine Clement', 'Ilyes Saidi', 'Amandine Chevalier',
-            'Mourad Ziani', 'Lucie Noël', 'Adel Ferhat', 'Anais Morel',
+            'Amine Belkacem',
+            'Camille Durand',
+            'Youssef El Amrani',
+            'Emma Petit',
+            'Mehdi Benali',
+            'Lea Richard',
+            'Karim Hadj',
+            'Chloe Moreau',
+            'Sofiane Boudjema',
+            'Manon Lefevre',
+            'Rayan Cherif',
+            'Juliette Lambert',
+            'Nassim Khelifi',
+            'Sarah Dubois',
+            'Adam Meziane',
+            'Clara Bernard',
+            'Bilal Aouadi',
+            'Louise Fontaine',
+            'Omar Hamidi',
+            'Marie Laurent',
+            'Walid Bouzid',
+            'Alice Mercier',
+            'Ismael Djebbar',
+            'Pauline Garnier',
+            'Farid Mekhloufi',
+            'Ines Roux',
+            'Zakaria Taleb',
+            'Julie Faure',
+            'Nabil Rahmani',
+            'Margaux Simon',
+            'Hamza Slimani',
+            'Elise Gauthier',
+            'Yanis Benmoussa',
+            'Oceane Perrin',
+            'Ayoub Larbi',
+            'Charlotte Blanc',
+            'Rachid Boukhalfa',
+            'Valentine Clement',
+            'Ilyes Saidi',
+            'Amandine Chevalier',
+            'Mourad Ziani',
+            'Lucie Noël',
+            'Adel Ferhat',
+            'Anais Morel',
             'Tarek Mansouri',
         ];
 
@@ -80,14 +115,34 @@ class UserSeeder extends Seeder
     private function removeAccents(string $string): string
     {
         return strtr($string, [
-            'e' => 'e', 'e' => 'e', 'e' => 'e', 'e' => 'e',
-            'a' => 'a', 'a' => 'a', 'i' => 'i', 'i' => 'i',
-            'o' => 'o', 'o' => 'o', 'u' => 'u', 'u' => 'u',
-            'c' => 'c', 'n' => 'n',
-            'E' => 'E', 'E' => 'E', 'E' => 'E', 'E' => 'E',
-            'A' => 'A', 'A' => 'A', 'I' => 'I', 'I' => 'I',
-            'O' => 'O', 'O' => 'O', 'U' => 'U', 'U' => 'U',
-            'C' => 'C', 'N' => 'N',
+            'e' => 'e',
+            'e' => 'e',
+            'e' => 'e',
+            'e' => 'e',
+            'a' => 'a',
+            'a' => 'a',
+            'i' => 'i',
+            'i' => 'i',
+            'o' => 'o',
+            'o' => 'o',
+            'u' => 'u',
+            'u' => 'u',
+            'c' => 'c',
+            'n' => 'n',
+            'E' => 'E',
+            'E' => 'E',
+            'E' => 'E',
+            'E' => 'E',
+            'A' => 'A',
+            'A' => 'A',
+            'I' => 'I',
+            'I' => 'I',
+            'O' => 'O',
+            'O' => 'O',
+            'U' => 'U',
+            'U' => 'U',
+            'C' => 'C',
+            'N' => 'N',
         ]);
     }
 }

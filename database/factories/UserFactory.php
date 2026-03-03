@@ -31,6 +31,7 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'avatar' => null,
             'is_active' => true,
+            'locale' => config('app.locale', 'en'),
         ];
     }
 

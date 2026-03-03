@@ -8,6 +8,6 @@ return new class extends SettingsMigration
     {
         $this->migrator->add('general.school_name', 'Evalium');
         $this->migrator->add('general.logo_path', null);
-        $this->migrator->add('general.default_locale', 'fr');
+        $this->migrator->add('general.default_locale', config('app.locale', 'en'));
     }
 };

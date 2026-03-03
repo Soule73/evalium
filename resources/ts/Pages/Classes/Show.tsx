@@ -124,6 +124,7 @@ export default function ClassShow({
             deleteTitle: t('admin_pages.classes.delete_title'),
             cancel: t('commons/ui.cancel'),
             viewResults: t('teacher_class_pages.results.view_result'),
+            viewGradeReports: t('admin_pages.classes.view_grade_reports'),
         }),
         [t, isAdmin],
     );
@@ -189,6 +190,18 @@ export default function ClassShow({
                     onClick={() => router.visit(route(routeContext.resultsRoute!, classItem.id))}
                 >
                     {translations.viewResults}
+                </Button>
+            )}
+            {routeContext.gradeReportsRoute && (
+                <Button
+                    size="sm"
+                    variant="outline"
+                    color="secondary"
+                    onClick={() =>
+                        router.visit(route(routeContext.gradeReportsRoute!, classItem.id))
+                    }
+                >
+                    {translations.viewGradeReports}
                 </Button>
             )}
             {canUpdate && (

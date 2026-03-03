@@ -56,6 +56,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Enrollment::class => \App\Policies\EnrollmentPolicy::class,
         \App\Models\ClassSubject::class => \App\Policies\ClassSubjectPolicy::class,
         \Spatie\Permission\Models\Role::class => \App\Policies\RolePolicy::class,
+        \App\Models\GradeReport::class => \App\Policies\GradeReportPolicy::class,
     ];
 
     /**

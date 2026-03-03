@@ -177,7 +177,7 @@ class GradeCalculationService
             $completedCount = 0;
             $triplets = [];
 
-            $publishedAssessments = $classSubject->assessments->filter(fn ($a) => $a->is_published);
+            $publishedAssessments = $classSubject->assessments->filter(fn($a) => $a->is_published);
 
             foreach ($publishedAssessments as $assessment) {
                 $assignment = $assessment->assignments->first();
@@ -241,7 +241,12 @@ class GradeCalculationService
      *
      * @param  array<int, array{score: float, max_points: float, coefficient: float}>  $triplets
      */
-    private function computeWeightedGrade(array $triplets): ?float
+    /**
+     * Compute a weighted average from triplets of coefficient, score, and max_points.
+     *
+     * @param  array<int, array{coefficient: float, score: float|null, max_points: float}>  $triplets
+     */
+    public function computeWeightedGrade(array $triplets): ?float
     {
         $totalWeightedScore = 0.0;
         $totalCoefficients = 0.0;

@@ -19,6 +19,7 @@ return [
         'teachers' => 'Teachers',
         'levels' => 'Levels',
         'roles_permissions' => 'Roles & Permissions',
+        'settings' => 'Settings',
     ],
     'groups' => [
         'my_space' => 'My Space',

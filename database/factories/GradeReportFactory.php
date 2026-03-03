@@ -38,6 +38,7 @@ class GradeReportFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => GradeReportStatus::Validated,
+            'validated_by' => \App\Models\User::factory(),
             'validated_at' => now(),
         ]);
     }
@@ -46,6 +47,7 @@ class GradeReportFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => GradeReportStatus::Published,
+            'validated_by' => \App\Models\User::factory(),
             'validated_at' => now()->subDay(),
         ]);
     }

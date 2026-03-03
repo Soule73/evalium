@@ -112,8 +112,8 @@ class BulletinSettings extends Settings
 
 ```
 GET  /admin/settings          SettingsController@index
-POST /admin/settings/general  SettingsController@updateGeneral
-POST /admin/settings/bulletin SettingsController@updateBulletin
+PUT  /admin/settings/general  SettingsController@updateGeneral
+PUT  /admin/settings/bulletin SettingsController@updateBulletin
 POST /admin/settings/logo     SettingsController@uploadLogo
 ```
 
@@ -471,31 +471,55 @@ class GradeReport extends Model
 
 ## 7. Implementation Plan
 
-### Phase 1: Foundations (~4.5 days)
+### Phase 1: Foundations - COMPLETED (commit `531ea71`)
 
-| # | Task | Effort | Dependencies |
-|---|------|--------|--------------|
-| 1.1 | Install `spatie/laravel-settings`, create settings classes + migrations | 1d | - |
-| 1.2 | Add `manage settings` permission via seeder | 0.5d | 1.1 |
-| 1.3 | Add `calculateSemesterGrade()` and `calculateSemesterAverage()` to `GradeCalculationService` | 1d | - |
-| 1.4 | Add `calculateClassRanking()` to `GradeCalculationService` | 0.5d | 1.3 |
-| 1.5 | Create `grade_reports` migration + `GradeReport` model + `GradeReportStatus` enum | 0.5d | - |
-| 1.6 | Unit tests for new calculation methods + ranking | 1d | 1.3, 1.4 |
+| # | Task | Status |
+|---|------|--------|
+| 1.1 | Install `spatie/laravel-settings` v3.7, create `GeneralSettings` + `BulletinSettings` classes + settings migrations | Done |
+| 1.2 | Add `manage settings` permission to `RoleAndPermissionSeeder` (admin + super_admin) | Done |
+| 1.3 | Add `calculateSemesterGrade()`, `calculateSemesterAverage()`, `getSemesterGradeBreakdown()` to `GradeCalculationService` | Done |
+| 1.4 | Add `calculateClassRanking()` to `GradeCalculationService` (ex-aequo: 1,2,2,4) | Done |
+| 1.5 | Create `grade_reports` migration + `GradeReport` model + `GradeReportStatus` enum + `GradeReportFactory` | Done |
+| 1.6 | 13 feature tests (44 assertions) in `GradeCalculationServiceTest` | Done |
 
-### Phase 2: Grade Reports PDF (~9.5 days)
+### Phase 2: Grade Reports PDF
 
-| # | Task | Effort | Dependencies |
-|---|------|--------|--------------|
-| 2.1 | Install `barryvdh/laravel-dompdf` | 0.5d | - |
-| 2.2 | Create Blade PDF template (`grade-report.blade.php`) | 2d | 2.1 |
-| 2.3 | Implement `GradeReportService` + `RemarkGeneratorService` | 1.5d | Phase 1 |
-| 2.4 | Create `GradeReportPolicy` | 0.5d | 2.3 |
-| 2.5 | Create controllers + routes (Admin, Teacher, Student) | 0.5d | 2.3, 2.4 |
-| 2.6 | Admin UI: grade report generation + validation pages | 2d | 2.5 |
-| 2.7 | Teacher UI: remarks editing page | 1.5d | 2.5 |
-| 2.8 | Student UI: view + download published reports | 0.5d | 2.5 |
-| 2.9 | Settings admin page (General + Bulletin settings) | 1d | 1.1, 1.2 |
-| 2.10 | Feature tests (service + controllers) | 1.5d | 2.3-2.8 |
+| # | Task | Status |
+|---|------|--------|
+| 2.1 | Install `barryvdh/laravel-dompdf` v3.1.1 | Done |
+| 2.2 | Create Blade PDF template (`resources/views/pdf/grade-report.blade.php`) | Done |
+| 2.3 | Implement `GradeReportService` + `RemarkGeneratorService` (`app/Services/Core/GradeReport/`) | Done |
+| 2.4 | Create `GradeReportPolicy` (`app/Policies/GradeReportPolicy.php`) | Done |
+| 2.5 | Create controllers + routes (Admin, Teacher, Student) | Done |
+| 2.6 | Admin UI: grade report generation + validation pages | Done |
+| 2.7 | Teacher UI: remarks editing page | Pending (frontend) |
+| 2.8 | Student UI: view + download published reports | Pending (frontend) |
+| 2.9 | Settings admin page (General + Bulletin settings) | Done |
+| 2.10 | Feature tests: 89 tests, 262 assertions (controllers + service + policy + remarks + settings) | Done |
+
+#### Phase 2 Backend Deliverables
+
+- **`GradeReportService`**: Draft generation, updateRemarks, updateGeneralRemark, validate, validateBatch, generatePdf, generateBatchPdf (ZIP), publish
+- **`RemarkGeneratorService`**: Auto-remark for grades (excellent/good/fairly good/satisfactory/insufficient/no grade)
+- **Blade PDF template**: A4, sober professional design (black borders, light gray headers), email-template approach for DomPDF margin control
+- **`GradeReportPolicy`**: Admin full access (incl. batch methods), teacher remarks on drafts, student view/download published only
+- **Controllers**: `Admin\GradeReportController` (11 actions), `Teacher\TeacherGradeReportController` (3 actions), `Student\StudentGradeReportController` (3 actions)
+- **Routes**: Admin: `admin.classes.grade-reports.*` + `admin.grade-reports.*`; Teacher: `teacher.classes.grade-reports.*` + `teacher.grade-reports.*`; Student: `student.grade-reports.*`
+- **Translations**: 32 new keys in `en/messages.php` + `fr/messages.php` (grade report, remarks, PDF labels)
+- **Tests**: `GradeReportServiceTest` (11 tests), `GradeReportPolicyTest` (16 tests), `RemarkGeneratorServiceTest` (9 tests)
+
+#### Phase 2 Frontend Deliverables
+
+- **`Admin/GradeReports/Index.tsx`**: Stat cards (total/draft/validated/published), semester filter, batch validate/publish/download buttons, `GradeReportList` DataTable
+- **`Admin/GradeReports/Show.tsx`**: Student report detail with grades table, editable general remark, validate/publish buttons, PDF preview modal (iframe), download
+- **`Admin/Settings/Index.tsx`**: General settings (school name, locale), bulletin toggles (ranking, class average, min/max), logo upload with preview
+- **`Components/shared/lists/GradeReportList.tsx`**: Reusable DataTable with student name, average, rank, status badge, action buttons
+- **`GradeReport` TypeScript types**: Full type definitions in `@evalium/utils/types/gradeReport.ts`
+- **Route context**: `gradeReportsRoute` added to `ProvidesAdminClassRouteContext` and `route-context.ts`
+- **Breadcrumbs**: `classGradeReports` and `showGradeReport` in `useBreadcrumbs.ts`
+- **Sidebar**: Settings menu item with `manage settings` permission gate
+- **Tests**: `GradeReportControllerTest` (23 tests, 83 assertions), `SettingsControllerTest` (16 tests, 45 assertions)
+- **Locale**: New users inherit `GeneralSettings.default_locale` via `UserManagementService`, `SetupProduction`, `UserSeeder`, `E2ESeeder`
 
 ### Phase 3: Data Export (~5 days)
 

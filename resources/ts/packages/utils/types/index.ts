@@ -7,6 +7,7 @@ export * from './class';
 export * from './classSubject';
 export * from './enrollment';
 export * from './grades';
+export * from './gradeReport';
 export * from './notification';
 export * from './semester';
 export * from './subject';
